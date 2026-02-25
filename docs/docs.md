@@ -34,6 +34,7 @@
 
 - [Barcode Scanner Detection](technicalities/scanner.md) — USB HID scanner integration
 - [Camera QR Scanner](technicalities/camera_scanner.md) — Mobile camera fallback for QR code scanning
+- [PDF Label Card](technicalities/pdf_label.md) — Home-printable TCG card-sized deck label (Dompdf)
 
 ## Other
 
