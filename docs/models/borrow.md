@@ -13,7 +13,8 @@ Represents the full lifecycle of a deck borrow request — from request to retur
 | Field              | Type               | Nullable | Description |
 |--------------------|--------------------|----------|-------------|
 | `id`               | `int` (auto)       | No       | Primary key |
-| `deck`             | `Deck`             | No       | The deck being borrowed. |
+| `deck`             | `Deck`             | No       | The physical deck being borrowed. |
+| `deckVersion`      | `DeckVersion`      | No       | The version of the deck at the time of the borrow. Records the exact card list. |
 | `borrower`         | `User`             | No       | The user requesting to borrow the deck. |
 | `event`            | `Event`            | No       | The event this borrow is for. |
 | `status`           | `string(30)`       | No       | Current borrow status. See Status enum below. Default: `"pending"`. |
@@ -90,7 +91,8 @@ lent ──(event end + grace period)──→ overdue → returned
 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
-| `deck`             | ManyToOne    | `Deck`         | The borrowed deck |
+| `deck`             | ManyToOne    | `Deck`         | The physical deck being borrowed |
+| `deckVersion`      | ManyToOne    | `DeckVersion`  | The exact card list version at borrow time |
 | `borrower`         | ManyToOne    | `User`         | Who is borrowing |
 | `event`            | ManyToOne    | `Event`        | For which event |
 | `approvedBy`       | ManyToOne    | `User`         | Who approved |

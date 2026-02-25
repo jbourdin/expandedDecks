@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+.claude
+vendor
+node_modules
+var
+docs
+docker/data
