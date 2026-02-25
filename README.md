@@ -39,6 +39,10 @@ See the **[full feature list](docs/features.md)** for detailed descriptions and 
 | [docs/docs.md](docs/docs.md)                  | Technical documentation entry point       |
 | [docs/features.md](docs/features.md)          | Full feature list with priorities         |
 
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
+
 ## External References
 
 - [Limitless TCG](https://limitlesstcg.com) — Deck list source
