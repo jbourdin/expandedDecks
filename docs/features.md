@@ -24,12 +24,14 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
 | F2.1   | Register a deck                      | High     | A user registers a physical deck they own, assigning it a name, archetype, and format (Expanded). |
-| F2.2   | Import deck list (copy-paste)        | High     | User pastes a deck list in standard PTCG text format. The system parses it (`ptcgo-parser`), validates each card against TCGdex, checks Expanded legality (Black & White onward + banned list), and stores the parsed cards. The raw text is preserved for reference. |
-| F2.3   | Deck detail view                     | Medium   | Display deck info: owner, archetype, card list (categorized: Pokemon / Trainer by subtype / Energy, sorted by quantity then name), availability status, languages, borrow history. Mouse over a card name shows the card image (from TCGdex). |
+| F2.2   | Import deck list (copy-paste)        | High     | User pastes a deck list in standard PTCG text format. The system parses it (`ptcgo-parser`), validates each card against TCGdex, checks Expanded legality (Black & White onward + banned list), and creates a new `DeckVersion` with the parsed cards. The raw text is preserved on the version for reference. `Deck.currentVersion` is updated to the newly created version. |
+| F2.3   | Deck detail view                     | Medium   | Display deck info: owner, current version's archetype and card list (categorized: Pokemon / Trainer by subtype / Energy, sorted by quantity then name), availability status, languages, borrow history, and version history with the ability to view past versions. Mouse over a card name shows the card image (from TCGdex). |
 | F2.4   | Deck catalog (browse & search)       | Medium   | List all registered decks with filters: archetype, owner, availability, format. |
 | F2.5   | Deck availability status             | High     | Each deck has a real-time status: available, lent, reserved, retired. |
 | F2.6   | Deck archetype management            | Low      | Admin-managed list of archetypes (e.g. "Lugia VSTAR", "Mew VMAX") for consistent categorization. |
 | F2.7   | Retire / reactivate a deck           | Low      | Owner can mark a deck as retired (no longer available) or reactivate it. |
+| F2.8   | Update deck list (new version)       | High     | Owner pastes an updated deck list → creates a new `DeckVersion`. `Deck.currentVersion` moves to the new version. Previous versions are preserved for history. Archetype, languages, and estimated value can be updated per version. |
+| F2.9   | Deck version history                 | Medium   | View all past versions of a deck: version number, archetype, creation date, and card list. Compare versions to see what changed (cards added/removed/quantity changed). |
 
 ## F3 — Event Management
 
@@ -41,6 +43,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F3.4   | Register participation to an event   | Medium   | A player declares they intend to attend an event (prerequisite to requesting a borrow). |
 | F3.5   | Assign event staff team              | High     | An organizer assigns staff members to an event. Staff role is **per event** (not a global role). Staff can then act as intermediaries for deck lending at that event only. |
 | F3.6   | Tournament ID verification (to investigate) | Low | Investigate whether the Pokemon tournament system exposes an API to verify that the organizer is the actual TO of the referenced tournament ID. |
+| F3.7   | Register played deck for event       | Medium   | A player (deck owner or borrower) records which deck version they played at an event, creating an `EventDeckEntry`. This is separate from borrowing — it tracks tournament deck registration for history and traceability. |
 
 ## F4 — Borrow Workflow
 
