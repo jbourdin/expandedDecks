@@ -27,13 +27,14 @@
 | Role             | Constant              | Description |
 |------------------|-----------------------|-------------|
 | `ROLE_PLAYER`    | Default for all users | Register decks, request borrows, attend events |
-| `ROLE_STAFF`     | Assigned per event    | Receive, lend, and collect decks on behalf of owners |
 | `ROLE_ORGANIZER` | Granted by admin      | Create events, assign staff teams |
 | `ROLE_ADMIN`     | Granted manually      | Full access: user management, audit log, all operations |
 
+> **Note:** Staff is **not** a global role. It is a **per-event assignment** modeled via the `EventStaff` join entity (see [Event model](event.md)). A user can be staff at one event and a regular player at another.
+
 Symfony role hierarchy:
 ```
-ROLE_ADMIN > ROLE_ORGANIZER > ROLE_STAFF > ROLE_PLAYER
+ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 ```
 
 ### Constraints
@@ -64,4 +65,5 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_STAFF > ROLE_PLAYER
 |--------------------|--------------|---------------|-------------|
 | `ownedDecks`       | OneToMany    | `Deck`        | Decks owned by this user |
 | `borrowRequests`   | OneToMany    | `Borrow`      | Borrow requests made by this user |
-| `eventParticipations` | ManyToMany | `Event`      | Events this user participates in |
+| `eventParticipations` | ManyToMany | `Event`      | Events this user participates in (as player) |
+| `staffAssignments` | OneToMany    | `EventStaff`  | Events where this user is assigned as staff (see [Event model](event.md)) |

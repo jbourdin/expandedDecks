@@ -15,7 +15,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F1.1   | User registration & authentication   | High     | Players register with email, screen name, and player ID (Pokemon TCG player ID). Email must be verified via a token-based activation link before the account becomes active. Basic roles: player, organizer, staff, admin. |
 | F1.2   | Email verification                   | High     | On registration, a verification token is sent by email. The account remains inactive until the user clicks the activation link. Token expires after a configurable delay. |
 | F1.3   | User profile                         | Medium   | Display screen name, player ID, owned decks, borrow history, and upcoming event participation. |
-| F1.4   | Role-based access control            | High     | Admin can manage users. Organizers can create events and assign staff. Staff can receive, lend, and collect decks on behalf of owners. Players can register decks and request borrows. |
+| F1.4   | Role-based access control            | High     | Global roles: admin, organizer, player. Staff is a **per-event assignment**, not a global role (see F3.5). Admin can manage users. Organizers can create events and assign staff. Players can register decks and request borrows. |
 | F1.5   | MFA with TOTP (planned)              | Low      | Multi-factor authentication using TOTP (Google Authenticator, Authy, etc.). Not in initial release — planned for a future iteration. |
 | F1.6   | Pokemon SSO (to investigate)         | Low      | Investigate feasibility of integrating Pokemon Company SSO for seamless player identification. Requires outreach to The Pokemon Company to assess API availability and authorization. |
 
@@ -35,11 +35,12 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F3.1   | Create an event                      | High     | An organizer (or admin) declares an upcoming event with name, date, location, and format. |
+| F3.1   | Create an event                      | High     | An organizer (or admin) declares an upcoming event with name, event ID (free text, recommended to use the official Pokemon sanctioned tournament ID), date, location, and format. |
 | F3.2   | Event listing                        | Medium   | Browse upcoming and past events with date, location, and participant count. |
 | F3.3   | Event detail view                    | Medium   | Show event info, list of borrow requests, and deck assignments for that event. |
 | F3.4   | Register participation to an event   | Medium   | A player declares they intend to attend an event (prerequisite to requesting a borrow). |
-| F3.5   | Assign event staff team              | High     | An organizer assigns staff members to an event. Staff can then act as intermediaries for deck lending at that event. |
+| F3.5   | Assign event staff team              | High     | An organizer assigns staff members to an event. Staff role is **per event** (not a global role). Staff can then act as intermediaries for deck lending at that event only. |
+| F3.6   | Tournament ID verification (to investigate) | Low | Investigate whether the Pokemon tournament system exposes an API to verify that the organizer is the actual TO of the referenced tournament ID. |
 
 ## F4 — Borrow Workflow
 
