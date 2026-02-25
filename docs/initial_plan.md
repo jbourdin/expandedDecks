@@ -81,9 +81,13 @@ The following documentation was created before the skeleton implementation:
 - `CLAUDE.md` — AI context with coding standards, file headers, CLI conventions
 - `README.md` — Project overview, stack, feature summary
 - `LICENSE` — Apache License 2.0
-- `docs/features.md` — Full feature list (31 features across 7 domains, including staff-delegated lending)
+- `docs/features.md` — Full feature list (32 features across 7 domains, including staff-delegated lending)
 - `docs/credits.md` — External references and articles
 - `docs/initial_plan.md` — This file
+- `docs/models/user.md` — User entity with email verification, roles (global only, staff is per-event)
+- `docs/models/event.md` — Event and EventStaff entities with per-event staff assignment
+- `docs/models/deck.md` — Deck, DeckCard entities with paste-only import and card data stack
+- `docs/models/borrow.md` — Borrow entity with full state machine (direct + staff-delegated)
 - `docs/technicalities/scanner.md` — Barcode scanner HID detection strategy
 - `docs/standards/coding.md` — PHP & JS coding standards
 - `docs/standards/naming.md` — Naming conventions and namespace structure
@@ -93,19 +97,30 @@ The following documentation was created before the skeleton implementation:
 
 ### Key Domain Concepts
 
-The feature list defines 4 user roles:
+The feature list defines 3 global roles + per-event staff:
 
-| Role       | Capabilities |
-|------------|-------------|
-| **Player** | Register decks, request borrows, attend events |
-| **Staff**  | Receive decks from owners, lend/collect on their behalf at events |
-| **Organizer** | Create events, assign staff teams |
-| **Admin**  | Full access, user management, audit log |
+| Role       | Scope | Capabilities |
+|------------|-------|-------------|
+| **Player** | Global | Register decks, request borrows, attend events |
+| **Organizer** | Global | Create events, assign staff teams |
+| **Admin**  | Global | Full access, user management, audit log |
+| **Staff**  | Per-event | Receive decks from owners, lend/collect on their behalf — assigned per event via `EventStaff` |
 
 The borrow workflow supports two modes:
 
 - **Direct** (F4.1–F4.4): Owner approves, hands off, and collects the deck personally
 - **Staff-delegated** (F4.8): Owner opts in per deck per event — staff acts as intermediary (owner → staff → borrower → staff → owner). Owners can keep costly decks under personal control.
+
+### Card Data Stack
+
+Deck lists are imported via copy-paste of standard PTCG text format (no editor, no Limitless dependency):
+
+| Layer | Tool | Role |
+|-------|------|------|
+| Parse | `ptcgo-parser` (npm) | Converts PTCG text → structured JS objects |
+| Card data | TCGdex (`@tcgdex/sdk`) | Card metadata, types, subtypes, images (multilingual) |
+| Validation | Custom service | Expanded legality: set range (BLW onward), banned list, card counts |
+| Display | Custom React component | Categorized list (Pokemon / Trainer by subtype / Energy) with image hover |
 
 ## Files to Create (skeleton implementation)
 
