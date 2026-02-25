@@ -192,3 +192,38 @@ See [PDF Label Card](technicalities/pdf_label.md) for full technical details.
 | Visibility  | Deck owner only                                                       |
 | Placement   | Deck detail action bar (alongside edit, retire, etc.)                 |
 | Behavior    | Opens the PDF (`/deck/{id}/label.pdf`) in a new tab for browser print dialog |
+
+---
+
+## Localization & Internationalization
+
+> **@see** docs/features.md F9 — Localization & Internationalization
+
+### Locale Switcher
+
+A `Select` or `SegmentedControl` component in the user profile/settings page allows the user to choose their preferred UI language. The selection is persisted to `User.preferredLocale` (F9.1).
+
+For **unauthenticated pages** (login, registration), the locale falls back to the browser's `Accept-Language` header.
+
+### Translation Infrastructure
+
+| Layer    | Library                  | Catalogue format | Locale source |
+|----------|--------------------------|------------------|---------------|
+| Backend  | Symfony Translation      | YAML (`.yaml`)   | `User.preferredLocale` via locale listener, or `Accept-Language` fallback |
+| Frontend | `react-i18next`          | JSON (`.json`)   | `data-locale` attribute on the root HTML element, set by Twig |
+
+- Translation keys use **dot notation** (e.g. `app.deck.status.available`) matching the project convention
+- Catalogue files live in `translations/` (Symfony) and `assets/translations/` (React)
+- Initial languages: **en** (default), **fr**
+
+### Datetime Display
+
+| Context                   | Timezone used            | Format helper                    | Example |
+|---------------------------|--------------------------|----------------------------------|---------|
+| Event dates               | Event's `timezone`       | `Intl.DateTimeFormat` / `date-fns-tz` | "Sat 15 Mar 2026, 10:00 CET" |
+| Event dates (user hint)   | User's `timezone` (F9.2) | Same, appended                   | "(16:00 your time)" |
+| Borrow timestamps         | User's `timezone`        | `Intl.DateTimeFormat`            | "Requested 2 Mar 2026, 14:30" |
+| Notification timestamps   | User's `timezone`        | Relative or absolute             | "3 hours ago" / "2 Mar, 09:00" |
+
+- Mantine date components (`@mantine/dates`) are configured with the active locale for calendar labels and day names
+- The `data-timezone` attribute on the root HTML element carries the user's timezone to React

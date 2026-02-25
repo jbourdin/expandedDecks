@@ -84,8 +84,33 @@ lent ──(event end + grace period)──→ overdue → returned
 
 - A user cannot borrow their own deck
 - A user must be a participant of the event to request a borrow (F3.4)
-- A deck can only have one active borrow at a time (`pending`, `approved`, or `lent`)
+- A deck can only have one active borrow **per event** (`pending`, `approved`, or `lent`). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
 - `isDelegatedToStaff`: set when the owner opts in to delegation (F4.8), cannot be changed after approval
+
+### Conflict Detection
+
+> **@see** docs/features.md F4.11 — Borrow conflict detection
+
+When a deck is requested or approved for an event, the system checks for **temporal overlaps** with other borrows for the same deck at different events.
+
+#### Overlap Rule
+
+Two events overlap when:
+
+```
+event_A.date < event_B.endDate AND event_B.date < event_A.endDate
+```
+
+For **single-day events** (where `endDate` is null), `endDate` is treated as equal to `date` — meaning the event occupies the full day.
+
+#### Conflict Severity Matrix
+
+| Existing borrow status | Action attempted       | Result        | Detail |
+|------------------------|------------------------|---------------|--------|
+| `approved` or `lent`   | Approve new borrow     | **Blocked**   | Hard block — the deck is already committed for an overlapping event. New approval is prevented. |
+| `approved` or `lent`   | Submit new request     | **Warning**   | Warning shown to the borrower at request time. The request can still be submitted. |
+| `pending`              | Approve new borrow     | **Warning**   | Warning shown to the owner. Approval is allowed — the owner decides which request to prioritize. |
+| `pending`              | Submit new request     | **Allowed**   | No conflict — multiple pending requests for overlapping events are permitted. |
 
 ### Relations
 
