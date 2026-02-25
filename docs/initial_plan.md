@@ -74,7 +74,23 @@ Two parallel jobs on every PR and push to main/develop:
 - Commit on `chore/symfony-skeleton` branch
 - Push and open PR to `develop`
 
-## Files Created/Modified (29 files)
+## Prerequisites (already committed)
+
+The following documentation was created before the skeleton implementation:
+
+- `CLAUDE.md` — AI context with coding standards, file headers, CLI conventions
+- `README.md` — Project overview, stack, feature summary
+- `LICENSE` — Apache License 2.0
+- `docs/features.md` — Full feature list (28 features across 7 domains)
+- `docs/credits.md` — External references and articles
+- `docs/technicalities/scanner.md` — Barcode scanner HID detection strategy
+- `docs/standards/coding.md` — PHP & JS coding standards
+- `docs/standards/naming.md` — Naming conventions and namespace structure
+- `docs/standards/version_control.md` — Gitflow, conventional commits, PR rules
+- `docs/standards/documentation.md` — Documentation structure and templates
+- `docs/standards/file_headers.md` — Copyright and license header format
+
+## Files to Create (skeleton implementation)
 
 Skeleton: `bin/console`, `public/index.php`, `config/*`, `src/Kernel.php`, `composer.json`, `composer.lock`, `symfony.lock`
 Docker: `docker-compose.yml`, `docker/php/Dockerfile`, `docker/nginx/default.conf`, `.dockerignore`
