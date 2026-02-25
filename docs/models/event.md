@@ -46,6 +46,7 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 | `participants`     | ManyToMany   | `User`         | Players registered to attend |
 | `staff`            | OneToMany    | `EventStaff`   | Staff members assigned to this event |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow requests linked to this event |
+| `deckEntries`      | OneToMany    | [`EventDeckEntry`](deck.md#entity-appentityeventdeckentry) | Deck versions registered for this event (F3.7) |
 
 ---
 
