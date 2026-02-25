@@ -74,6 +74,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F5.4   | Reprint label                        | Low      | Reprint a label for a deck (e.g. after box replacement). |
 | F5.5   | PrintNode printer management         | Medium   | Configure PrintNode API key and select target printer from available PrintNode printers. |
 | F5.6   | Camera QR scan (mobile fallback)     | Medium   | Tap scan button to open device camera and scan deck label QR code. Uses `html5-qrcode`. Same lookup/action as HID scanner (F5.3). See [Camera Scanner Technicality](technicalities/camera_scanner.md). |
+| F5.7   | PDF label card (home printing)       | Medium   | Generate a downloadable PDF with a TCG card-sized label (63.5 × 88.9 mm) containing deck ID, name, owner, and QR code. Printed on any home printer, cut out, and slipped into a card sleeve. Uses Dompdf + `endroid/qr-code`. Same QR encoding as ZPL label — scannable by F5.3 and F5.6. See [PDF Label Technicality](technicalities/pdf_label.md). |
 
 ## F6 — Card Data & Validation
 

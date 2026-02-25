@@ -165,3 +165,30 @@ The modal is fullscreen on mobile viewports for easier aiming. The camera auto-s
 ### Unified Behavior
 
 Both methods feed into the same `onScan(deckId)` callback. The `useDeckScanner` hook combines HID detection (always active) with camera scanning (on-demand), ensuring consistent downstream behavior regardless of the input method.
+
+---
+
+## Label Printing
+
+The application supports two methods for producing physical deck labels, each targeting a different context.
+
+### ZPL Label (Venue Printing)
+
+At event venues equipped with a Zebra thermal printer, labels are generated as ZPL code and sent to the printer via the PrintNode cloud API (F5.1, F5.2). This is the primary labelling method — fast, adhesive labels printed on-site. See [PrintNode printer management](features.md) (F5.5) for configuration.
+
+### PDF Label Card (Home Printing)
+
+For pre-event preparation at home where no Zebra printer is available, deck owners can generate a **downloadable PDF** containing a TCG card-sized label (63.5 × 88.9 mm). The label is printed on any home inkjet or laser printer, cut out along crop marks, and slipped into a card sleeve at the front of the deck box (F5.7).
+
+The QR code on the PDF label uses the same deck identifier encoding as the ZPL label, so it is fully compatible with both the USB HID scanner (F5.3) and the camera QR scanner (F5.6).
+
+See [PDF Label Card](technicalities/pdf_label.md) for full technical details.
+
+### Deck Detail Action — Print Label
+
+| Attribute   | Value                                                                 |
+|-------------|-----------------------------------------------------------------------|
+| Button      | "Print label" with `IconPrinter`                                      |
+| Visibility  | Deck owner only                                                       |
+| Placement   | Deck detail action bar (alongside edit, retire, etc.)                 |
+| Behavior    | Opens the PDF (`/deck/{id}/label.pdf`) in a new tab for browser print dialog |
