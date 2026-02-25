@@ -23,6 +23,10 @@
 | `lastLoginAt`      | `DateTimeImmutable`| Yes     | Last successful login timestamp. |
 | `resetToken`       | `string(64)`      | Yes      | Random token sent by email for password reset. Cleared after successful reset. Only one active reset token at a time. |
 | `resetTokenExpiresAt` | `DateTimeImmutable` | Yes  | Expiration timestamp for the reset token. |
+| `preferredLocale` | `string(5)`     | No       | ISO 639-1 UI language. Default: `"en"`. See F9.1. |
+| `timezone`        | `string(50)`    | No       | IANA timezone string. Default: `"UTC"`. See F9.2. |
+| `deletedAt`       | `DateTimeImmutable` | Yes  | Soft-delete timestamp. Null = active. See F1.8. |
+| `isAnonymized`    | `bool`          | No       | Personal data anonymized after deletion. Default: `false`. See F1.8. |
 
 ### Roles
 
@@ -48,6 +52,10 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 - `verificationToken`: generated as 64-character random hex string
 - `resetToken`: generated as 64-character random hex string, same pattern as `verificationToken`
 - `resetTokenExpiresAt`: must be in the future at generation time
+- `preferredLocale`: required, must be a supported locale (`en`, `fr`). Default: `"en"`
+- `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`
+- `deletedAt`: once set, cannot be cleared (irreversible)
+- `isAnonymized`: only `false → true` transition allowed (irreversible). Anonymized users cannot log in.
 
 ### Authentication Flow
 
@@ -70,10 +78,42 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 
 > **@see** docs/features.md F1.7 — Password reset
 
+### GDPR — Data Export & Account Deletion
+
+> **@see** docs/features.md F1.8 — Account deletion & data export (GDPR)
+
+#### Data Export
+
+Users can download all their personal data as a **JSON file** from their profile page. The export includes:
+
+- Profile information (email, screenName, playerId, roles, preferredLocale, timezone, createdAt)
+- Owned decks (name, archetype, versions, card lists)
+- Borrow history (requests made, as borrower)
+- Event participations
+- Notifications
+
+#### Account Deletion Flow
+
+1. User requests deletion from their profile
+2. A confirmation email is sent with a tokenized link (expires **24 hours**)
+3. User clicks the confirmation link
+4. **Anonymization** is applied (not hard delete — preserves data integrity):
+   - `email` → `deleted_<id>@anon.local`
+   - `screenName` → `[deleted_<id>]`
+   - `playerId` → `null`
+   - `password` → invalidated (random hash)
+   - `verificationToken`, `resetToken` → cleared
+   - `deletedAt` → set to current timestamp
+   - `isAnonymized` → `true`
+5. All relations (borrows, event participations, deck ownership) are **preserved** for historical integrity
+6. In the UI, anonymized users display as `[deleted user]`
+7. Anonymized accounts cannot log in (authentication check on `isAnonymized`)
+
 ### Future Considerations
 
 - **F1.5 — MFA/TOTP**: Will add `totpSecret` field and a `isTotpEnabled` flag. Planned for later.
 - **F1.6 — Pokemon SSO**: If feasible, would add an `externalId` field for the Pokemon Company account link. Requires investigation.
+- **F9 — Localization**: `preferredLocale` and `timezone` fields are now part of the core model.
 
 ### Relations
 

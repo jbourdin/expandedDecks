@@ -44,6 +44,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `format`               | `string(30)`       | No       | Play format. Default: `"Expanded"`. Could also be `"Standard"`, `"Unlimited"`, etc. |
 | `date`                 | `DateTimeImmutable` | No      | Event date (start). |
 | `endDate`              | `DateTimeImmutable` | Yes     | Event end date. Defaults to same as `date` for single-day events. Used for overdue tracking (F4.6). |
+| `timezone`             | `string(50)`       | No       | IANA timezone for the event's local time (e.g. `"Europe/Paris"`). Default: `"UTC"`. Event dates are stored in UTC and displayed in this timezone. See F9.4. |
 | `location`             | `string(255)`      | Yes      | Venue name and/or address. Nullable — can be derived from the league's address when a league is linked. |
 | `description`          | `text`             | Yes      | Optional free-text description or notes about the event. |
 | `organizer`            | `User`             | No       | The user who created the event (must have `ROLE_ORGANIZER` or `ROLE_ADMIN`). |
@@ -85,6 +86,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 - `topCutRoundDuration`: optional, >= 1, only valid when `tournamentStructure` is `swiss_top_cut`
 - `entryFeeAmount` and `entryFeeCurrency`: both null (free) or both set (paid). `entryFeeAmount` >= 0.
 - `cancelledAt`: once set, cannot be cleared (cancellation is irreversible). A cancelled event cannot be edited further (F3.10).
+- `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`.
 
 ### Cancellation Behavior
 
@@ -103,6 +105,14 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 - Potential future integration with Pokemon tournament APIs
 
 > **Future consideration (F3.6):** Investigate whether the Pokemon tournament system exposes an API to verify that the organizer creating the event is the actual owner/TO of the referenced tournament ID. This would prevent unauthorized event creation with someone else's tournament ID.
+
+### Timezone Display
+
+> **@see** docs/features.md F9.4 — UTC datetime storage
+
+- Event times are displayed in the event's `timezone` for **all users**, regardless of their personal timezone setting
+- When the user's timezone (F9.2) differs from the event's timezone, an optional user-relative hint is appended — e.g. "10:00 CET (16:00 your time)"
+- The event creation form defaults the timezone picker to the user's own timezone (`User.timezone`, F9.2), which the organizer can override
 
 ### Relations
 
