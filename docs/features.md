@@ -12,9 +12,12 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F1.1   | User registration & authentication   | High     | Players can create an account and log in. Basic roles: player, organizer, staff, admin. |
-| F1.2   | User profile                         | Medium   | Display user info, owned decks, borrow history, and upcoming event participation. |
-| F1.3   | Role-based access control            | High     | Admin can manage users. Organizers can create events and assign staff. Staff can receive, lend, and collect decks on behalf of owners. Players can register decks and request borrows. |
+| F1.1   | User registration & authentication   | High     | Players register with email, screen name, and player ID (Pokemon TCG player ID). Email must be verified via a token-based activation link before the account becomes active. Basic roles: player, organizer, staff, admin. |
+| F1.2   | Email verification                   | High     | On registration, a verification token is sent by email. The account remains inactive until the user clicks the activation link. Token expires after a configurable delay. |
+| F1.3   | User profile                         | Medium   | Display screen name, player ID, owned decks, borrow history, and upcoming event participation. |
+| F1.4   | Role-based access control            | High     | Admin can manage users. Organizers can create events and assign staff. Staff can receive, lend, and collect decks on behalf of owners. Players can register decks and request borrows. |
+| F1.5   | MFA with TOTP (planned)              | Low      | Multi-factor authentication using TOTP (Google Authenticator, Authy, etc.). Not in initial release — planned for a future iteration. |
+| F1.6   | Pokemon SSO (to investigate)         | Low      | Investigate feasibility of integrating Pokemon Company SSO for seamless player identification. Requires outreach to The Pokemon Company to assess API availability and authorization. |
 
 ## F2 — Deck Library
 

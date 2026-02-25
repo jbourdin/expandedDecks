@@ -19,7 +19,7 @@ Deck lists are synchronized with the **Limitless TCG** API, and physical deck bo
 
 | Domain | Summary |
 |--------|---------|
-| **F1 — User Management** | Registration, authentication, roles (player, organizer, staff, admin), user profiles. |
+| **F1 — User Management** | Registration with email verification, screen name, player ID. Roles: player, organizer, staff, admin. MFA and Pokemon SSO planned. |
 | **F2 — Deck Library** | Register physical decks, import lists from Limitless TCG, browse catalog, track availability. |
 | **F3 — Event Management** | Declare events, list upcoming/past events, register participation, assign event staff. |
 | **F4 — Borrow Workflow** | Request, approve, hand-off, return — full lending lifecycle with staff-delegated lending, custody tracking, history, and overdue tracking. |
