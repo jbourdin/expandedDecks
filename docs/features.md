@@ -73,6 +73,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F5.3   | Scan label to identify deck          | High     | Scan a deck box label (barcode/QR) using a USB HID barcode reader in the browser to pull up the deck detail or trigger a lend/return action. See [Scanner Technicality](technicalities/scanner.md). |
 | F5.4   | Reprint label                        | Low      | Reprint a label for a deck (e.g. after box replacement). |
 | F5.5   | PrintNode printer management         | Medium   | Configure PrintNode API key and select target printer from available PrintNode printers. |
+| F5.6   | Camera QR scan (mobile fallback)     | Medium   | Tap scan button to open device camera and scan deck label QR code. Uses `html5-qrcode`. Same lookup/action as HID scanner (F5.3). See [Camera Scanner Technicality](technicalities/camera_scanner.md). |
 
 ## F6 — Card Data & Validation
 
