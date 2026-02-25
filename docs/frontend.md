@@ -148,6 +148,20 @@ Appended when the user has the admin role. Mirrors the admin dashboard (F7.1):
 
 ## Scanner Availability
 
+The application supports two complementary methods for scanning deck labels:
+
+### USB HID Scanner (passive)
+
 A global keyboard listener detects USB HID barcode scanner input from any page (F5.3). When a scan is detected, the application performs a deck lookup and navigates to the deck detail or triggers a lend/return action depending on context.
 
 No dedicated scan button is required — the scanner fires keystrokes that the detection algorithm picks up automatically. See [Scanner Detection](technicalities/scanner.md) for implementation details.
+
+### Camera QR Scanner (on-demand)
+
+On smartphones and tablets where no USB HID scanner is available, a **scan button** in the `AppShell` header opens a camera-based QR scanner modal (F5.6). The device's rear camera decodes QR codes and Code128 barcodes from deck labels using the `html5-qrcode` library.
+
+The modal is fullscreen on mobile viewports for easier aiming. The camera auto-stops after 60 seconds of inactivity to save battery. See [Camera QR Scanner](technicalities/camera_scanner.md) for implementation details.
+
+### Unified Behavior
+
+Both methods feed into the same `onScan(deckId)` callback. The `useDeckScanner` hook combines HID detection (always active) with camera scanning (on-demand), ensuring consistent downstream behavior regardless of the input method.

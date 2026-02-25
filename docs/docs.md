@@ -33,6 +33,7 @@
 ## Technical Deep-Dives
 
 - [Barcode Scanner Detection](technicalities/scanner.md) — USB HID scanner integration
+- [Camera QR Scanner](technicalities/camera_scanner.md) — Mobile camera fallback for QR code scanning
 
 ## Other
 

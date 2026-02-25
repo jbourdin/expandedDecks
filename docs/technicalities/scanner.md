@@ -139,6 +139,14 @@ The scanner detection should be set up as a React hook (`useScannerDetection`) t
 
 This hook is used in the lend/return views (F4.3, F4.4) to trigger deck lookup by scanned barcode ID.
 
+## Camera Fallback (Mobile)
+
+On smartphones and tablets where no USB HID scanner is available, the application offers a **camera-based QR code scanner** as a fallback (F5.6). The camera scanner uses the device's rear camera and the `html5-qrcode` library to decode deck label QR codes.
+
+Both methods share the same `onScan(deckId)` callback, so downstream behavior (deck lookup, lend/return action) is identical regardless of the input method.
+
+See [Camera QR Scanner](camera_scanner.md) for full technical details.
+
 ## References
 
 - Inspired by the POS scanner implementation in `ecommerce-sylius` (BHV theme, `_tpeSelector.html.twig`)
