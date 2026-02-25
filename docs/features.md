@@ -12,9 +12,9 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F1.1   | User registration & authentication   | High     | Players can create an account and log in. Basic roles: player, organizer, admin. |
+| F1.1   | User registration & authentication   | High     | Players can create an account and log in. Basic roles: player, organizer, staff, admin. |
 | F1.2   | User profile                         | Medium   | Display user info, owned decks, borrow history, and upcoming event participation. |
-| F1.3   | Role-based access control            | High     | Admin can manage users. Organizers can create events. Players can register decks and request borrows. |
+| F1.3   | Role-based access control            | High     | Admin can manage users. Organizers can create events and assign staff. Staff can receive, lend, and collect decks on behalf of owners. Players can register decks and request borrows. |
 
 ## F2 — Deck Library
 
@@ -36,6 +36,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F3.2   | Event listing                        | Medium   | Browse upcoming and past events with date, location, and participant count. |
 | F3.3   | Event detail view                    | Medium   | Show event info, list of borrow requests, and deck assignments for that event. |
 | F3.4   | Register participation to an event   | Medium   | A player declares they intend to attend an event (prerequisite to requesting a borrow). |
+| F3.5   | Assign event staff team              | High     | An organizer assigns staff members to an event. Staff can then act as intermediaries for deck lending at that event. |
 
 ## F4 — Borrow Workflow
 
@@ -43,11 +44,13 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 |--------|------------------------------------------|----------|-------------|
 | F4.1   | Request to borrow a deck for an event    | High     | A participant requests a specific deck (or archetype preference) for a declared event. |
 | F4.2   | Approve / deny borrow request            | High     | The deck owner reviews and approves or denies the request. |
-| F4.3   | Confirm deck hand-off (lend)             | High     | At the event, the lend is confirmed — deck status changes to "lent". Ideally done by scanning the deck label. |
-| F4.4   | Confirm deck return                      | High     | After the event, the return is confirmed — deck status changes back to "available". Ideally done by scanning the deck label. |
+| F4.3   | Confirm deck hand-off (lend)             | High     | At the event, the lend is confirmed — deck status changes to "lent". Ideally done by scanning the deck label. Can be performed by the owner or by event staff (see F4.8). |
+| F4.4   | Confirm deck return                      | High     | After the event, the return is confirmed — deck status changes back to "available". Ideally done by scanning the deck label. Can be performed by the owner or by event staff (see F4.8). |
 | F4.5   | Borrow history                           | Medium   | Full history of borrows per deck and per user: who borrowed what, when, for which event. |
 | F4.6   | Overdue tracking                         | Low      | Flag decks that haven't been returned within a configurable delay after the event end date. |
 | F4.7   | Cancel a borrow request                  | Medium   | A borrower can cancel their pending request, or an owner can revoke an approved request before hand-off. |
+| F4.8   | Staff-delegated lending                  | High     | A deck owner can opt-in to delegate deck handling to the event staff **per deck, per event**. The owner chooses which decks to delegate (e.g. keeping costly or sentimental decks under personal control). When delegated, the workflow becomes: (1) owner hands the deck to staff before/at the event, (2) staff receives and holds the deck, (3) staff approves borrow requests and lends the deck to the borrower, (4) staff collects the deck back from the borrower, (5) staff returns the deck to the owner after the event. Each step is tracked and can be confirmed by scanning the deck label. Non-delegated decks follow the standard owner-to-borrower workflow (F4.1–F4.4). |
+| F4.9   | Staff deck custody tracking             | Medium   | Track which staff member currently holds which decks. The staff dashboard shows all decks in their custody for a given event, with pending borrow requests to fulfill. |
 
 ## F5 — Zebra Label Printing (via PrintNode)
 

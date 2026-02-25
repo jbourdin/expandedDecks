@@ -19,10 +19,10 @@ Deck lists are synchronized with the **Limitless TCG** API, and physical deck bo
 
 | Domain | Summary |
 |--------|---------|
-| **F1 — User Management** | Registration, authentication, roles (player, organizer, admin), user profiles. |
+| **F1 — User Management** | Registration, authentication, roles (player, organizer, staff, admin), user profiles. |
 | **F2 — Deck Library** | Register physical decks, import lists from Limitless TCG, browse catalog, track availability. |
-| **F3 — Event Management** | Declare events, list upcoming/past events, register participation. |
-| **F4 — Borrow Workflow** | Request, approve, hand-off, return — full lending lifecycle with history and overdue tracking. |
+| **F3 — Event Management** | Declare events, list upcoming/past events, register participation, assign event staff. |
+| **F4 — Borrow Workflow** | Request, approve, hand-off, return — full lending lifecycle with staff-delegated lending, custody tracking, history, and overdue tracking. |
 | **F5 — Zebra Label Printing** | Generate ZPL labels, push to Zebra printer via PrintNode, scan barcodes for deck identification. |
 | **F6 — Limitless TCG Integration** | Search, import, and sync deck lists; display card images. |
 | **F7 — Administration** | Dashboard, user management, audit log. |
