@@ -8,7 +8,7 @@ Deck lists are synchronized with the **Limitless TCG** API, and physical deck bo
 
 ## Stack
 
-- **Backend:** PHP 8.3, Symfony 7.2, Doctrine ORM
+- **Backend:** PHP 8.5, Symfony 7.2, Doctrine ORM
 - **Frontend:** React.js (via Symfony UX / Webpack Encore)
 - **Database:** MySQL 8
 - **Infrastructure:** Docker, Docker Compose

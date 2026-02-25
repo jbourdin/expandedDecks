@@ -6,7 +6,7 @@
 
 **Expanded Decks** is a Symfony application for managing a shared library of physical Pokemon TCG decks (Expanded format). It tracks deck ownership, event-based borrowing, and integrates with the Limitless TCG API for deck list data. It includes Zebra label printing for physical deck box identification and scanning.
 
-**Stack:** PHP 8.3 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode
+**Stack:** PHP 8.5 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode
 
 ## CLI Commands: Always Use Symfony Wrapper
 
@@ -31,6 +31,52 @@
 | Translations      | dot.notation      | `app.deck.status.available`      |
 | Test methods      | camelCase         | `testDeckCanBeBorrowed()`        |
 | Enums             | PascalCase        | `BorrowStatus`                   |
+
+## File Headers (Copyright & License)
+
+Every source file **MUST** include a copyright and license header as the first comment block.
+
+**PHP files** (after `declare(strict_types=1);`):
+```php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Expanded Decks project.
+ *
+ * (c) Expanded Decks contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+```
+
+**TypeScript / JavaScript files**:
+```typescript
+/*
+ * This file is part of the Expanded Decks project.
+ *
+ * (c) Expanded Decks contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+```
+
+**Twig templates** (optional but recommended for non-trivial templates):
+```twig
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+```
+
+PHP-CS-Fixer enforces this header automatically via the `header_comment` rule.
 
 ## Coding Standards
 
