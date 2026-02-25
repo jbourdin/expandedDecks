@@ -6,7 +6,7 @@
 
 **Expanded Decks** is a Symfony application for managing a shared library of physical Pokemon TCG decks (Expanded format). It tracks deck ownership, event-based borrowing, and integrates with the Limitless TCG API for deck list data. It includes Zebra label printing for physical deck box identification and scanning.
 
-**Stack:** PHP 8.3 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode
+**Stack:** PHP 8.5 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode
 
 ## CLI Commands: Always Use Symfony Wrapper
 

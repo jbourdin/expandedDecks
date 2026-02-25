@@ -25,9 +25,9 @@ Work on a `chore/symfony-skeleton` branch off `develop`. Create the Symfony skel
 
 | File | Description |
 |------|-------------|
-| `docker/php/Dockerfile` | PHP 8.3-FPM Alpine + pdo_mysql, intl, opcache + Composer |
+| `docker/php/Dockerfile` | PHP 8.5-FPM Alpine + pdo_mysql, intl, opcache + Composer |
 | `docker/nginx/default.conf` | Standard Symfony Nginx config, fastcgi to php:9000 |
-| `docker-compose.yml` | Services: php, nginx (:8080), database (MySQL 8, healthcheck), node (20-alpine, run-only) |
+| `docker-compose.yml` | Services: php, nginx (:8080), database (MySQL 8, healthcheck), node (24-alpine, run-only) |
 | `.dockerignore` | .git, vendor, node_modules, var |
 
 ### 3. Config Files (6 files)
@@ -64,9 +64,9 @@ Targets using `symfony` CLI wrapper (matching CLAUDE.md convention):
 
 Two parallel jobs on every PR and push to main/develop:
 
-**`php-quality`**: Setup PHP 8.3 + MySQL 8 service → Composer install (cached) → PHP-CS-Fixer dry-run → PHPStan → PHPUnit
+**`php-quality`**: Setup PHP 8.5 + MySQL 8 service → Composer install (cached) → PHP-CS-Fixer dry-run → PHPStan → PHPUnit
 
-**`frontend-quality`**: Setup Node 20 → yarn install (cached) → ESLint → TypeScript check (`tsc --noEmit`)
+**`frontend-quality`**: Setup Node 24 → yarn install (cached) → ESLint → TypeScript check (`tsc --noEmit`)
 
 ### 7. Verify & PR
 
