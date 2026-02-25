@@ -10,6 +10,10 @@
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
 
+## Frontend
+
+- [Frontend Architecture](frontend.md) — UI library (Mantine), application shell, homepage layout
+
 ## Data Models
 
 - [User Model](models/user.md) — Player accounts, roles, authentication
