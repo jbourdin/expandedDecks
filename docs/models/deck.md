@@ -62,7 +62,8 @@ A **card list snapshot** — one point-in-time version of a deck. Created when t
 | `archetype`        | `string(80)`       | Yes      | Archetype identifier (e.g. `"lugia-vstar"`). Manually set by the owner. |
 | `archetypeName`    | `string(100)`      | Yes      | Human-readable archetype name (e.g. `"Lugia VSTAR"`). |
 | `languages`        | `json`             | No       | Array of ISO 639-1 language codes present in this version (e.g. `["en", "ja"]`). |
-| `estimatedValue`   | `decimal(8,2)`     | Yes      | Owner-provided estimated monetary value (in EUR). Visible to the owner, organizers, and event staff. |
+| `estimatedValueAmount`   | `int`        | Yes      | Owner-provided estimated monetary value in cents of the currency. Visible to the owner, organizers, and event staff. |
+| `estimatedValueCurrency` | `string(3)`  | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `estimatedValueAmount` is set. |
 | `rawList`          | `text`             | Yes      | The original PTCG text format pasted by the owner. Preserved for reference and re-import. |
 | `createdAt`        | `DateTimeImmutable` | No      | When this version was created. |
 
@@ -88,7 +89,7 @@ A deck version can contain cards in multiple languages (e.g. `["en", "ja"]` for 
 
 - Unique constraint on (`deck`, `versionNumber`) — no duplicate version numbers per deck
 - `languages`: required, at least one language code
-- `estimatedValue`: optional, >= 0 when provided
+- `estimatedValueAmount` and `estimatedValueCurrency`: both null or both set. `estimatedValueAmount` >= 0 when provided.
 
 ### Relations
 
