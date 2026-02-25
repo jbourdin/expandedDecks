@@ -18,6 +18,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F1.4   | Role-based access control            | High     | Global roles: admin, organizer, player. Staff is a **per-event assignment**, not a global role (see F3.5). Admin can manage users. Organizers can create events and assign staff. Players can register decks and request borrows. |
 | F1.5   | MFA with TOTP (planned)              | Low      | Multi-factor authentication using TOTP (Google Authenticator, Authy, etc.). Not in initial release — planned for a future iteration. |
 | F1.6   | Pokemon SSO (to investigate)         | Low      | Investigate feasibility of integrating Pokemon Company SSO for seamless player identification. Requires outreach to The Pokemon Company to assess API availability and authorization. |
+| F1.7   | Password reset                       | High     | Standard forgot-password flow: user requests a reset link by email, receives a tokenized URL, and sets a new password. Mirrors the existing verification token pattern (`verificationToken` / `tokenExpiresAt`). Only one active reset token per user at a time. |
 
 ## F2 — Deck Library
 
@@ -45,6 +46,8 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F3.6   | Tournament ID verification (to investigate) | Low | Investigate whether the Pokemon tournament system exposes an API to verify that the organizer is the actual TO of the referenced tournament ID. |
 | F3.7   | Register played deck for event       | Medium   | A player (deck owner or borrower) records which deck version they played at an event, creating an `EventDeckEntry`. This is separate from borrowing — it tracks tournament deck registration for history and traceability. |
 | F3.8   | League/Store management              | Medium   | Create and manage leagues/stores with name, website, address, and contact details. Events can be linked to a league for recurring venue tracking. |
+| F3.9   | Edit an event                        | High     | An organizer can update an event's details (name, date, location, tournament structure, entry fee, attendee limits, round durations, registration link, league link, decklist requirement) as long as the event has not ended. Participants are notified of material changes (date, location, cancellation — see F8.2). |
+| F3.10  | Cancel an event                      | Medium   | An organizer can cancel an event. Cancellation cascades: all `pending` and `approved` borrows for this event are automatically cancelled, and participants/owners are notified (F8.2). Cancelled events remain visible (for history) but are clearly marked. A cancelled event cannot be un-cancelled or edited further. |
 
 ## F4 — Borrow Workflow
 
@@ -59,6 +62,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F4.7   | Cancel a borrow request                  | Medium   | A borrower can cancel their pending request, or an owner can revoke an approved request before hand-off. |
 | F4.8   | Staff-delegated lending                  | High     | A deck owner can opt-in to delegate deck handling to the event staff **per deck, per event**. The owner chooses which decks to delegate (e.g. keeping costly or sentimental decks under personal control). When delegated, the workflow becomes: (1) owner hands the deck to staff before/at the event, (2) staff receives and holds the deck, (3) staff approves borrow requests and lends the deck to the borrower, (4) staff collects the deck back from the borrower, (5) staff returns the deck to the owner after the event. Each step is tracked and can be confirmed by scanning the deck label. Non-delegated decks follow the standard owner-to-borrower workflow (F4.1–F4.4). |
 | F4.9   | Staff deck custody tracking             | Medium   | Track which staff member currently holds which decks. The staff dashboard shows all decks in their custody for a given event, with pending borrow requests to fulfill. |
+| F4.10  | Owner borrow inbox                      | Medium   | A dedicated view for deck owners showing all actionable borrow requests across all their decks. Displays pending requests (requiring approval), approved requests (awaiting hand-off), and active lends — grouped by upcoming event. Provides quick approve/deny actions inline. This is the owner's primary pre-event preparation screen. |
 
 ## F5 — Zebra Label Printing (via PrintNode)
 
@@ -86,3 +90,35 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F7.1   | Dashboard                            | Medium   | Admin overview: total decks, active borrows, upcoming events, overdue returns. |
 | F7.2   | User management                      | Medium   | Admin CRUD for user accounts and role assignment. |
 | F7.3   | Audit log                            | Low      | Log significant actions (deck registered, borrow approved, return confirmed) for traceability. |
+
+## F8 — Notifications
+
+Both email (via Symfony Mailer + Messenger async transport) and in-app (stored in DB, displayed in UI).
+
+| ID     | Feature                              | Priority | Description |
+|--------|--------------------------------------|----------|-------------|
+| F8.1   | Borrow workflow notifications        | High     | Notify relevant parties at each borrow state transition. See notification matrix below. |
+| F8.2   | Event notifications                  | Medium   | Notify participants and deck owners of event changes and reminders. See notification matrix below. |
+| F8.3   | Notification preferences             | Low      | Users can opt out of specific notification types (per-type toggle). Email and in-app channels are controlled independently. Critical notifications (overdue, event cancellation) cannot be disabled. |
+| F8.4   | In-app notification center           | Medium   | A notification bell/inbox in the UI showing unread and recent notifications. Notifications can be marked as read individually or in bulk. Links to the relevant entity (borrow, event, deck). |
+
+### Notification Matrix — F8.1 Borrow Workflow
+
+| Trigger                          | Recipient                              | Channel        |
+|----------------------------------|----------------------------------------|----------------|
+| New borrow request (F4.1)        | Deck owner (or staff if delegated)     | Email + in-app |
+| Request approved (F4.2)          | Borrower                               | Email + in-app |
+| Request denied (F4.2)            | Borrower                               | Email + in-app |
+| Deck handed off (F4.3)           | Borrower, owner                        | In-app         |
+| Deck returned (F4.4)             | Owner                                  | In-app         |
+| Deck overdue (F4.6)              | Owner, borrower                        | Email + in-app |
+| Borrow cancelled (F4.7)          | Other party (owner or borrower)        | Email + in-app |
+
+### Notification Matrix — F8.2 Event Notifications
+
+| Trigger                          | Recipient                                          | Channel        |
+|----------------------------------|----------------------------------------------------|----------------|
+| Staff assigned to event (F3.5)   | Staff member                                       | Email + in-app |
+| Event details changed (F3.9)     | All participants                                   | Email + in-app |
+| Event cancelled (F3.10)          | All participants + deck owners with borrows        | Email + in-app |
+| Event reminder (1 day before)    | Participants with active borrows                   | Email          |
