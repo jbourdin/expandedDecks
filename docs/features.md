@@ -37,13 +37,14 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F3.1   | Create an event                      | High     | An organizer (or admin) declares an upcoming event with name, event ID (free text, recommended to use the official Pokemon sanctioned tournament ID), date, location, and format. |
+| F3.1   | Create an event                      | High     | An organizer (or admin) declares an upcoming event with name, event ID, date, location, format, registration link, tournament structure (`TournamentStructure` enum), entry fee (cents + ISO 4217 currency), min/max attendees, round durations, decklist requirement, and optional league link. |
 | F3.2   | Event listing                        | Medium   | Browse upcoming and past events with date, location, and participant count. |
-| F3.3   | Event detail view                    | Medium   | Show event info, list of borrow requests, and deck assignments for that event. |
+| F3.3   | Event detail view                    | Medium   | Show event info (tournament structure, entry fee, league info, registration link, round durations, attendee limits, decklist requirement), list of borrow requests, and deck assignments for that event. |
 | F3.4   | Register participation to an event   | Medium   | A player declares they intend to attend an event (prerequisite to requesting a borrow). |
 | F3.5   | Assign event staff team              | High     | An organizer assigns staff members to an event. Staff role is **per event** (not a global role). Staff can then act as intermediaries for deck lending at that event only. |
 | F3.6   | Tournament ID verification (to investigate) | Low | Investigate whether the Pokemon tournament system exposes an API to verify that the organizer is the actual TO of the referenced tournament ID. |
 | F3.7   | Register played deck for event       | Medium   | A player (deck owner or borrower) records which deck version they played at an event, creating an `EventDeckEntry`. This is separate from borrowing — it tracks tournament deck registration for history and traceability. |
+| F3.8   | League/Store management              | Medium   | Create and manage leagues/stores with name, website, address, and contact details. Events can be linked to a league for recurring venue tracking. |
 
 ## F4 — Borrow Workflow
 
