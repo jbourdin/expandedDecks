@@ -12,7 +12,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F1.1   | User registration & authentication   | High     | Players register with email, screen name, and player ID (Pokemon TCG player ID). Email must be verified via a token-based activation link before the account becomes active. Basic roles: player, organizer, staff, admin. |
+| F1.1   | User registration & authentication   | High     | Players register with email, screen name, and player ID (Pokemon TCG player ID). Email must be verified via a token-based activation link before the account becomes active. Global roles: player, organizer, admin. Staff is a per-event assignment (see F3.5). |
 | F1.2   | Email verification                   | High     | On registration, a verification token is sent by email. The account remains inactive until the user clicks the activation link. Token expires after a configurable delay. |
 | F1.3   | User profile                         | Medium   | Display screen name, player ID, owned decks, borrow history, and upcoming event participation. |
 | F1.4   | Role-based access control            | High     | Global roles: admin, organizer, player. Staff is a **per-event assignment**, not a global role (see F3.5). Admin can manage users. Organizers can create events and assign staff. Players can register decks and request borrows. |
@@ -24,8 +24,8 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
 | F2.1   | Register a deck                      | High     | A user registers a physical deck they own, assigning it a name, archetype, and format (Expanded). |
-| F2.2   | Import deck list from Limitless TCG  | High     | Fetch and attach a full card list to a deck using the Limitless TCG API (by list URL or manual search). |
-| F2.3   | Deck detail view                     | Medium   | Display deck info: owner, archetype, card list, availability status, borrow history. |
+| F2.2   | Import deck list (copy-paste)        | High     | User pastes a deck list in standard PTCG text format. The system parses it (`ptcgo-parser`), validates each card against TCGdex, checks Expanded legality (Black & White onward + banned list), and stores the parsed cards. The raw text is preserved for reference. |
+| F2.3   | Deck detail view                     | Medium   | Display deck info: owner, archetype, card list (categorized: Pokemon / Trainer by subtype / Energy, sorted by quantity then name), availability status, languages, borrow history. Mouse over a card name shows the card image (from TCGdex). |
 | F2.4   | Deck catalog (browse & search)       | Medium   | List all registered decks with filters: archetype, owner, availability, format. |
 | F2.5   | Deck availability status             | High     | Each deck has a real-time status: available, lent, reserved, retired. |
 | F2.6   | Deck archetype management            | Low      | Admin-managed list of archetypes (e.g. "Lugia VSTAR", "Mew VMAX") for consistent categorization. |
@@ -66,14 +66,14 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F5.4   | Reprint label                        | Low      | Reprint a label for a deck (e.g. after box replacement). |
 | F5.5   | PrintNode printer management         | Medium   | Configure PrintNode API key and select target printer from available PrintNode printers. |
 
-## F6 — Limitless TCG Integration
+## F6 — Card Data & Validation
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F6.1   | Search deck lists on Limitless TCG   | High     | Query the Limitless TCG API to find deck lists by archetype, tournament, or player. |
-| F6.2   | Import and store deck list           | High     | Import a deck list (card names, quantities, set codes) and persist it locally linked to a deck. |
-| F6.3   | Display card images                  | Medium   | Show card images in the deck detail view (via Pokemon TCG API or cached). |
-| F6.4   | Sync / update a deck list            | Low      | Re-fetch a deck list from Limitless TCG to update local data if the source was modified. |
+| F6.1   | Parse PTCG text format               | High     | Parse pasted deck lists using `ptcgo-parser` (npm) into structured card objects (name, set code, card number, quantity). |
+| F6.2   | Card validation via TCGdex           | High     | Validate each parsed card against TCGdex (`@tcgdex/sdk`): confirm card exists, resolve card type (pokemon/trainer/energy) and trainer subtype (supporter/item/tool/stadium). |
+| F6.3   | Expanded format validation           | High     | Custom validator: all cards must be from Black & White (BLW) series onward, not on the banned list, 60 cards total, max 4 copies of any card (except basic energy). |
+| F6.4   | Display card images                  | Medium   | Show card images on hover in the deck detail view (fetched from TCGdex, cached client-side). |
 
 ## F7 — Administration
 

@@ -16,7 +16,10 @@
 - [ESLint](https://eslint.org/) — JavaScript/TypeScript linter
 - [PHPUnit](https://phpunit.de/) — PHP testing framework
 - [PrintNode](https://www.printnode.com/) — Cloud printing API
-- [Limitless TCG](https://limitlesstcg.com/) — Pokemon TCG deck list data
+- [TCGdex](https://tcgdex.dev/) — Multilingual Pokemon TCG card database (130k+ cards, 10+ languages)
+- [pokemontcg.io](https://pokemontcg.io/) — Official Pokemon TCG card API (images, sets, legality)
+- [ptcgo-parser](https://github.com/Hamatti/ptcgo-parser) — PTCG text format parser (npm)
+- [pkmn.gg](https://www.pkmn.gg/) — Deck validation reference (Standard, Expanded, GLC)
 
 ## Articles & Guides
 

@@ -4,9 +4,9 @@
 
 ## Project Overview
 
-**Expanded Decks** is a Symfony application for managing a shared library of physical Pokemon TCG decks (Expanded format). It tracks deck ownership, event-based borrowing, and integrates with the Limitless TCG API for deck list data. It includes Zebra label printing for physical deck box identification and scanning.
+**Expanded Decks** is a Symfony application for managing a shared library of physical Pokemon TCG decks (Expanded format). It tracks deck ownership, event-based borrowing, and deck lists (imported via copy-paste of PTCG text format, validated against TCGdex). It includes Zebra label printing for physical deck box identification and scanning.
 
-**Stack:** PHP 8.5 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode
+**Stack:** PHP 8.5 | Symfony 7.2 | React.js | MySQL 8 | Docker | PrintNode | TCGdex | ptcgo-parser
 
 ## CLI Commands: Always Use Symfony Wrapper
 
@@ -137,7 +137,7 @@ Scopes: `deck`, `borrow`, `event`, `user`, `label`, `api`, `auth`, `infra`
 
 Examples:
 ```
-feat(deck): add deck import from Limitless TCG API
+feat(deck): add deck list paste and validation
 fix(borrow): correct return date validation
 docs(readme): update feature list
 chore(infra): add Docker Compose for MySQL
@@ -183,9 +183,9 @@ make test       # Run test suite
 
 ## External APIs
 
-- **Limitless TCG API** — used for deck list data (card lists, archetypes)
-- API client service: `App\Service\LimitlessTcg\ApiClient`
-- Always cache API responses to avoid rate limiting
+- **TCGdex API** — multilingual Pokemon TCG card database (card metadata, types, subtypes, images)
+- Package: `@tcgdex/sdk` (npm) — no API key needed
+- Used for card validation and image display
 - **PrintNode API** — cloud printing service to push ZPL payloads to Zebra printers
 - API client service: `App\Service\PrintNode\ApiClient`
 - Zebra printer runs a local PrintNode client; the app sends print jobs via the PrintNode REST API

@@ -34,7 +34,7 @@ App\
 ├── Enum\              # PHP enums (BorrowStatus, DeckStatus, UserRole)
 ├── Repository\        # Doctrine repositories
 ├── Service\           # Business logic services
-│   ├── LimitlessTcg\  # Limitless TCG API client
+│   ├── CardData\      # TCGdex card validation and data
 │   └── PrintNode\     # PrintNode API client
 ├── Form\              # Symfony form types
 ├── Security\          # Voters, authenticators

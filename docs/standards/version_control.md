@@ -74,7 +74,7 @@ main          ← production-ready code (protected, PR-only)
 ### Examples
 
 ```
-feat(deck): add deck import from Limitless TCG API
+feat(deck): add deck list paste and validation
 fix(borrow): correct return date validation
 docs(readme): update feature list
 chore(infra): add Docker Compose for MySQL
