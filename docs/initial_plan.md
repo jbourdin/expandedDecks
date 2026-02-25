@@ -38,7 +38,7 @@ Work on a `chore/symfony-skeleton` branch off `develop`. Create the Symfony skel
 | `.env.test` | Test env: APP_SECRET, test DATABASE_URL |
 | `.gitignore` | Merge Symfony defaults + .idea, .DS_Store, .claude, docker data |
 | `phpstan.neon` | Level 10, paths: src, includes: symfony + doctrine extensions |
-| `.php-cs-fixer.dist.php` | @Symfony + @Symfony:risky, strict_types, void_return, ordered imports |
+| `.php-cs-fixer.dist.php` | @Symfony + @Symfony:risky, strict_types, void_return, ordered imports, header_comment (Apache 2.0) |
 | `phpunit.xml.dist` | PHPUnit 11, bootstrap tests/bootstrap.php, test suite in tests/ |
 
 ### 4. Frontend Scaffold (5 files)
@@ -81,14 +81,31 @@ The following documentation was created before the skeleton implementation:
 - `CLAUDE.md` — AI context with coding standards, file headers, CLI conventions
 - `README.md` — Project overview, stack, feature summary
 - `LICENSE` — Apache License 2.0
-- `docs/features.md` — Full feature list (28 features across 7 domains)
+- `docs/features.md` — Full feature list (31 features across 7 domains, including staff-delegated lending)
 - `docs/credits.md` — External references and articles
+- `docs/initial_plan.md` — This file
 - `docs/technicalities/scanner.md` — Barcode scanner HID detection strategy
 - `docs/standards/coding.md` — PHP & JS coding standards
 - `docs/standards/naming.md` — Naming conventions and namespace structure
 - `docs/standards/version_control.md` — Gitflow, conventional commits, PR rules
 - `docs/standards/documentation.md` — Documentation structure and templates
 - `docs/standards/file_headers.md` — Copyright and license header format
+
+### Key Domain Concepts
+
+The feature list defines 4 user roles:
+
+| Role       | Capabilities |
+|------------|-------------|
+| **Player** | Register decks, request borrows, attend events |
+| **Staff**  | Receive decks from owners, lend/collect on their behalf at events |
+| **Organizer** | Create events, assign staff teams |
+| **Admin**  | Full access, user management, audit log |
+
+The borrow workflow supports two modes:
+
+- **Direct** (F4.1–F4.4): Owner approves, hands off, and collects the deck personally
+- **Staff-delegated** (F4.8): Owner opts in per deck per event — staff acts as intermediary (owner → staff → borrower → staff → owner). Owners can keep costly decks under personal control.
 
 ## Files to Create (skeleton implementation)
 
