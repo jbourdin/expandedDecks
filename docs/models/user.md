@@ -21,6 +21,8 @@
 | `tokenExpiresAt`   | `DateTimeImmutable`| Yes     | Expiration timestamp for the verification token. |
 | `createdAt`        | `DateTimeImmutable`| No      | Account creation timestamp. |
 | `lastLoginAt`      | `DateTimeImmutable`| Yes     | Last successful login timestamp. |
+| `resetToken`       | `string(64)`      | Yes      | Random token sent by email for password reset. Cleared after successful reset. Only one active reset token at a time. |
+| `resetTokenExpiresAt` | `DateTimeImmutable` | Yes  | Expiration timestamp for the reset token. |
 
 ### Roles
 
@@ -44,6 +46,8 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 - `playerId`: optional, unique when provided
 - `password`: minimum 8 characters (validated at form level, stored hashed)
 - `verificationToken`: generated as 64-character random hex string
+- `resetToken`: generated as 64-character random hex string, same pattern as `verificationToken`
+- `resetTokenExpiresAt`: must be in the future at generation time
 
 ### Authentication Flow
 
@@ -53,6 +57,18 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 4. User clicks the link → token is validated against `verificationToken` and `tokenExpiresAt`
 5. On success: `isVerified = true`, token fields are cleared
 6. Login is only allowed when `isVerified = true`
+
+### Password Reset Flow
+
+1. User submits the forgot-password form with their email
+2. If the email matches an active (`isVerified = true`) account, a reset token is generated
+3. `resetToken` is set to a 64-character random hex string, `resetTokenExpiresAt` is set to a configurable delay from now
+4. A password reset email is sent with a tokenized reset link
+5. User clicks the link → token is validated against `resetToken` and `resetTokenExpiresAt`
+6. On success: user sets a new password, both `resetToken` and `resetTokenExpiresAt` are cleared
+7. If the token is expired or invalid, the user is prompted to request a new one
+
+> **@see** docs/features.md F1.7 — Password reset
 
 ### Future Considerations
 
@@ -67,3 +83,4 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 | `borrowRequests`   | OneToMany    | `Borrow`      | Borrow requests made by this user |
 | `eventParticipations` | ManyToMany | `Event`      | Events this user participates in (as player) |
 | `staffAssignments` | OneToMany    | `EventStaff`  | Events where this user is assigned as staff (see [Event model](event.md)) |
+| `notifications`    | OneToMany    | `Notification`| Notifications addressed to this user (see [Notification model](notification.md)) |

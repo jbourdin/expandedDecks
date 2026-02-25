@@ -58,6 +58,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `entryFeeCurrency`     | `string(3)`        | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `entryFeeAmount` is set. |
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
+| `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
 
 ### Tournament Structure Enum: `App\Enum\TournamentStructure`
 
@@ -83,6 +84,16 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 - `roundDuration`: optional, >= 1 (minutes)
 - `topCutRoundDuration`: optional, >= 1, only valid when `tournamentStructure` is `swiss_top_cut`
 - `entryFeeAmount` and `entryFeeCurrency`: both null (free) or both set (paid). `entryFeeAmount` >= 0.
+- `cancelledAt`: once set, cannot be cleared (cancellation is irreversible). A cancelled event cannot be edited further (F3.10).
+
+### Cancellation Behavior
+
+When an event is cancelled (F3.10):
+1. `cancelledAt` is set to the current timestamp
+2. All `pending` and `approved` borrows linked to this event are automatically cancelled
+3. All participants and deck owners with active borrows are notified (F8.2)
+4. The event remains visible in listings for historical reference, but is clearly marked as cancelled
+5. No further edits, borrow requests, or participation changes are allowed
 
 ### Event ID & Tournament Verification
 
