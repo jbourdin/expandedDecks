@@ -31,7 +31,7 @@ namespace App\Service;
 class DeckListParser
 {
     private const string SECTION_HEADER_PATTERN = '/^(Pok[eé]mon|Trainer|Energy)\s*:\s*(\d+)$/iu';
-    private const string CARD_LINE_PATTERN = '/^(\d+)\s+(.+?)\s+([A-Z][A-Za-z0-9]{1,5})\s+(\S+)$/';
+    private const string CARD_LINE_PATTERN = '/^(\d+)\s+(.+?)\s+([A-Z][A-Za-z0-9-]{1,5})\s+(\S+)$/';
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
 
     private const array SECTION_MAP = [

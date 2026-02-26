@@ -182,6 +182,24 @@ class DeckListParserTest extends TestCase
         self::assertCount(0, $result->errors);
     }
 
+    public function testParsePromoSetCodesWithHyphen(): void
+    {
+        $rawList = <<<'PTCG'
+            Pokémon: 2
+            1 Roaring Moon ex PR-SV 67
+            1 Mew CELE PR-SW 129
+            PTCG;
+
+        $result = $this->parser->parse($rawList);
+
+        self::assertTrue($result->isValid());
+        self::assertCount(2, $result->cards);
+        self::assertSame('Roaring Moon ex', $result->cards[0]->cardName);
+        self::assertSame('PR-SV', $result->cards[0]->setCode);
+        self::assertSame('67', $result->cards[0]->cardNumber);
+        self::assertSame('PR-SW', $result->cards[1]->setCode);
+    }
+
     public function testParseCardBeforeSectionHeaderProducesError(): void
     {
         $rawList = <<<'PTCG'
