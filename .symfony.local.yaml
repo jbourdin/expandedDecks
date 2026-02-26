@@ -1,0 +1,5 @@
+proxy:
+    domains:
+        - expanded-decks
+http:
+    port: 8742
