@@ -28,6 +28,7 @@ Encore
 
     .enableTypeScriptLoader()
     .enableReactPreset()
+    .enableSassLoader()
 ;
 
 module.exports = Encore.getWebpackConfig();

@@ -1,0 +1,109 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard — Expanded Decks{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Welcome, {{ user.screenName }}!</h1>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">My Decks</h5>
+                </div>
+                <div class="card-body">
+                    {% if ownedDecks|length > 0 %}
+                        <ul class="list-group list-group-flush">
+                            {% for deck in ownedDecks %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ deck.name }}
+                                    {% if deck.status.value == 'available' %}
+                                        <span class="badge badge-available">Available</span>
+                                    {% elseif deck.status.value == 'lent' %}
+                                        <span class="badge badge-lent">Lent</span>
+                                    {% elseif deck.status.value == 'reserved' %}
+                                        <span class="badge badge-reserved">Reserved</span>
+                                    {% elseif deck.status.value == 'retired' %}
+                                        <span class="badge badge-retired">Retired</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">You don't own any decks yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if events|length > 0 %}
+                        <ul class="list-group list-group-flush">
+                            {% for event in events %}
+                                <li class="list-group-item">
+                                    <strong>{{ event.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ event.date|date('M j, Y') }}
+                                        {% if event.location %} &mdash; {{ event.location }}{% endif %}
+                                    </small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">No upcoming events.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">Recent Borrow Activity</h5>
+        </div>
+        <div class="card-body">
+            {% if recentBorrows|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-themed mb-0">
+                        <thead>
+                            <tr>
+                                <th>Deck</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for borrow in recentBorrows %}
+                                <tr>
+                                    <td>{{ borrow.deck.name }}</td>
+                                    <td>{{ borrow.event.name }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ borrow.status.value }}</span>
+                                    </td>
+                                    <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No borrow activity yet.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
