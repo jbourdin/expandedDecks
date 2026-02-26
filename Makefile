@@ -16,6 +16,7 @@ install: ## Install project dependencies
 .PHONY: start
 start: ## Start dev server and Docker services
 	docker compose up -d
+	symfony proxy:start
 	symfony server:start -d
 
 .PHONY: stop
