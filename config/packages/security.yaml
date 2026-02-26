@@ -38,6 +38,7 @@ security:
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_USER }
+        - { path: ^/deck, roles: ROLE_USER }
 
 when@test:
     security:
