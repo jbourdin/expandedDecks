@@ -32,7 +32,10 @@ migrations: ## Execute Doctrine migrations
 
 .PHONY: fixtures
 fixtures: ## Load fixture data
-	symfony console doctrine:fixtures:load --no-interaction
+	symfony console doctrine:database:drop --force --if-exists
+	symfony console doctrine:database:create
+	symfony console doctrine:migrations:migrate --no-interaction
+	symfony console doctrine:fixtures:load --no-interaction --append
 
 ## —— Assets ——————————————————————————————————————————————————————————
 
