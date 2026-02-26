@@ -19,6 +19,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F1.5   | MFA with TOTP (planned)              | Low      | Multi-factor authentication using TOTP (Google Authenticator, Authy, etc.). Not in initial release — planned for a future iteration. |
 | F1.6   | Pokemon SSO (to investigate)         | Low      | Investigate feasibility of integrating Pokemon Company SSO for seamless player identification. Requires outreach to The Pokemon Company to assess API availability and authorization. |
 | F1.7   | Password reset                       | High     | Standard forgot-password flow: user requests a reset link by email, receives a tokenized URL, and sets a new password. Mirrors the existing verification token pattern (`verificationToken` / `tokenExpiresAt`). Only one active reset token per user at a time. |
+| F1.8   | Account deletion & data export (GDPR) | Medium  | User can request account deletion from their profile. Soft-delete with **anonymization**: personal data (email, screenName, playerId) replaced with anonymous placeholders, borrow/event history preserved for data integrity. Confirmation via **email link** (expires 24 h). Users can also **export all personal data as JSON** (profile, borrows, events, decks). See [User model — GDPR](models/user.md). |
 
 ## F2 — Deck Library
 
@@ -29,7 +30,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F2.3   | Deck detail view                     | Medium   | Display deck info: owner, current version's archetype and card list (categorized: Pokemon / Trainer by subtype / Energy, sorted by quantity then name), availability status, languages, borrow history, and version history with the ability to view past versions. Mouse over a card name shows the card image (from TCGdex). |
 | F2.4   | Deck catalog (browse & search)       | Medium   | List all registered decks with filters: archetype, owner, availability, format. |
 | F2.5   | Deck availability status             | High     | Each deck has a real-time status: available, lent, reserved, retired. |
-| F2.6   | Deck archetype management            | Low      | Admin-managed list of archetypes (e.g. "Lugia VSTAR", "Mew VMAX") for consistent categorization. |
+| F2.6   | Deck archetype management            | Low      | Admin-managed list of archetypes (e.g. "Lugia VSTAR", "Mew VMAX") for consistent categorization. **Note:** needs further specification — archetype entity structure, CRUD screens, and whether deck archetypes are strictly from the managed list or free-text with suggestions. |
 | F2.7   | Retire / reactivate a deck           | Low      | Owner can mark a deck as retired (no longer available) or reactivate it. |
 | F2.8   | Update deck list (new version)       | High     | Owner pastes an updated deck list → creates a new `DeckVersion`. `Deck.currentVersion` moves to the new version. Previous versions are preserved for history. Archetype, languages, and estimated value can be updated per version. |
 | F2.9   | Deck version history                 | Medium   | View all past versions of a deck: version number, archetype, creation date, and card list. Compare versions to see what changed (cards added/removed/quantity changed). |
@@ -63,6 +64,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F4.8   | Staff-delegated lending                  | High     | A deck owner can opt-in to delegate deck handling to the event staff **per deck, per event**. The owner chooses which decks to delegate (e.g. keeping costly or sentimental decks under personal control). When delegated, the workflow becomes: (1) owner hands the deck to staff before/at the event, (2) staff receives and holds the deck, (3) staff approves borrow requests and lends the deck to the borrower, (4) staff collects the deck back from the borrower, (5) staff returns the deck to the owner after the event. Each step is tracked and can be confirmed by scanning the deck label. Non-delegated decks follow the standard owner-to-borrower workflow (F4.1–F4.4). |
 | F4.9   | Staff deck custody tracking             | Medium   | Track which staff member currently holds which decks. The staff dashboard shows all decks in their custody for a given event, with pending borrow requests to fulfill. |
 | F4.10  | Owner borrow inbox                      | Medium   | A dedicated view for deck owners showing all actionable borrow requests across all their decks. Displays pending requests (requiring approval), approved requests (awaiting hand-off), and active lends — grouped by upcoming event. Provides quick approve/deny actions inline. This is the owner's primary pre-event preparation screen. |
+| F4.11  | Borrow conflict detection               | High     | Detect **temporal conflicts** when a deck is requested for overlapping events. **Hard block:** if the deck is `approved` or `lent` for an overlapping event, new approvals are blocked. **Soft warning:** `pending` requests for overlapping events show a warning but the owner can still approve. Overlap rule: `event_A.date < event_B.endDate AND event_B.date < event_A.endDate`. See [Borrow model — Conflict Detection](models/borrow.md). |
 
 ## F5 — Zebra Label Printing (via PrintNode)
 
@@ -76,6 +78,8 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F5.6   | Camera QR scan (mobile fallback)     | Medium   | Tap scan button to open device camera and scan deck label QR code. Uses `html5-qrcode`. Same lookup/action as HID scanner (F5.3). See [Camera Scanner Technicality](technicalities/camera_scanner.md). |
 | F5.7   | PDF label card (home printing)       | Medium   | Generate a downloadable PDF with a TCG card-sized label (63.5 × 88.9 mm) containing deck ID, name, owner, and QR code. Printed on any home printer, cut out, and slipped into a card sleeve. Uses Dompdf + `endroid/qr-code`. Same QR encoding as ZPL label — scannable by F5.3 and F5.6. See [PDF Label Technicality](technicalities/pdf_label.md). |
 
+> **Future:** A dedicated technicality document for PrintNode integration (ZPL generation, API client, printer selection) is planned — `docs/technicalities/printnode.md`.
+
 ## F6 — Card Data & Validation
 
 | ID     | Feature                              | Priority | Description |
@@ -84,6 +88,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F6.2   | Card validation via TCGdex           | High     | Validate each parsed card against TCGdex (`@tcgdex/sdk`): confirm card exists, resolve card type (pokemon/trainer/energy) and trainer subtype (supporter/item/tool/stadium). |
 | F6.3   | Expanded format validation           | High     | Custom validator: all cards must be from Black & White (BLW) series onward, not on the banned list, 60 cards total, max 4 copies of any card (except basic energy). |
 | F6.4   | Display card images                  | Medium   | Show card images on hover in the deck detail view (fetched from TCGdex, cached client-side). |
+| F6.5   | Banned card list management          | Medium   | Admin-managed list of banned cards for Expanded format. Each entry: card name, set code, card number, ban date, optional announcement URL. Existing deck versions are **NOT retroactively invalidated** — a **warning badge** is shown on affected decks. New imports (F2.2, F2.8) are validated against the current banned list. Admin CRUD accessible from F7 area. |
 
 ## F7 — Administration
 
@@ -124,3 +129,12 @@ Both email (via Symfony Mailer + Messenger async transport) and in-app (stored i
 | Event details changed (F3.9)     | All participants                                   | Email + in-app |
 | Event cancelled (F3.10)          | All participants + deck owners with borrows        | Email + in-app |
 | Event reminder (1 day before)    | Participants with active borrows                   | Email          |
+
+## F9 — Localization & Internationalization
+
+| ID     | Feature                              | Priority | Description |
+|--------|--------------------------------------|----------|-------------|
+| F9.1   | User language preference             | Medium   | Each user has a `preferredLocale` (ISO 639-1, default `en`). Applied server-side via a Symfony locale listener and client-side via a React context. All translatable strings use the active locale. See [User model](models/user.md). |
+| F9.2   | User timezone                        | Medium   | Each user has a `timezone` (IANA string, default `UTC`). All UI datetimes are converted to the user's timezone for display. See [User model](models/user.md). |
+| F9.3   | Application translation              | Medium   | Symfony Translation component (YAML catalogues) for backend strings and `react-i18next` (JSON catalogues) for frontend strings. Initial languages: `en`, `fr`. Dot-notation keys (e.g. `app.deck.status.available`). All user-facing strings wrapped in translation calls (`trans()` / `t()`). |
+| F9.4   | UTC datetime storage                 | High     | All database datetimes stored in **UTC**. Event dates are displayed in the event's `timezone` field (see [Event model](models/event.md)). When the user's timezone differs from the event's timezone, a user-relative hint is shown — e.g. "10:00 CET (16:00 your time)". Borrow and notification timestamps displayed in the user's timezone (F9.2). |
