@@ -34,8 +34,8 @@ class EventRepository extends ServiceEntityRepository
      */
     public function findUpcoming(int $limit = 5): array
     {
-        /** @var list<Event> */
-        return $this->createQueryBuilder('e')
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
             ->join('e.organizer', 'o')
             ->addSelect('o')
             ->where('e.date >= :today')
@@ -45,5 +45,7 @@ class EventRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $events;
     }
 }

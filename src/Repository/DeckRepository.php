@@ -35,8 +35,8 @@ class DeckRepository extends ServiceEntityRepository
      */
     public function findAvailableDecks(): array
     {
-        /** @var list<Deck> */
-        return $this->createQueryBuilder('d')
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
             ->join('d.owner', 'o')
             ->leftJoin('d.currentVersion', 'cv')
             ->addSelect('o', 'cv')
@@ -45,5 +45,7 @@ class DeckRepository extends ServiceEntityRepository
             ->orderBy('d.name', 'ASC')
             ->getQuery()
             ->getResult();
+
+        return $decks;
     }
 }

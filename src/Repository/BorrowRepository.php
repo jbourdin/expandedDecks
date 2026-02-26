@@ -35,8 +35,8 @@ class BorrowRepository extends ServiceEntityRepository
      */
     public function findRecentByBorrower(User $user, int $limit = 10): array
     {
-        /** @var list<Borrow> */
-        return $this->createQueryBuilder('b')
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
             ->join('b.event', 'e')
             ->addSelect('d', 'e')
@@ -46,5 +46,7 @@ class BorrowRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $borrows;
     }
 }
