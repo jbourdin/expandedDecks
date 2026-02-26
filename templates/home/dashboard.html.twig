@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header card-header-themed">
                     <h5 class="mb-0">My Decks</h5>
                 </div>
                 <div class="card-body">
@@ -26,13 +26,13 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ deck.name }}
                                     {% if deck.status.value == 'available' %}
-                                        <span class="badge bg-success">Available</span>
+                                        <span class="badge badge-available">Available</span>
                                     {% elseif deck.status.value == 'lent' %}
-                                        <span class="badge bg-warning text-dark">Lent</span>
+                                        <span class="badge badge-lent">Lent</span>
                                     {% elseif deck.status.value == 'reserved' %}
-                                        <span class="badge bg-info">Reserved</span>
+                                        <span class="badge badge-reserved">Reserved</span>
                                     {% elseif deck.status.value == 'retired' %}
-                                        <span class="badge bg-secondary">Retired</span>
+                                        <span class="badge badge-retired">Retired</span>
                                     {% endif %}
                                 </li>
                             {% endfor %}
@@ -46,7 +46,7 @@
 
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header card-header-themed">
                     <h5 class="mb-0">Upcoming Events</h5>
                 </div>
                 <div class="card-body">
@@ -72,13 +72,13 @@
     </div>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header card-header-themed">
             <h5 class="mb-0">Recent Borrow Activity</h5>
         </div>
         <div class="card-body">
             {% if recentBorrows|length > 0 %}
                 <div class="table-responsive">
-                    <table class="table table-striped mb-0">
+                    <table class="table table-striped table-themed mb-0">
                         <thead>
                             <tr>
                                 <th>Deck</th>

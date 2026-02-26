@@ -11,13 +11,13 @@
 {% block title %}Expanded Decks — Shared Pokemon TCG Deck Library{% endblock %}
 
 {% block body %}
-    <div class="p-5 mb-4 bg-light rounded-3">
+    <div class="hero-pokemon p-5 mb-4">
         <div class="container-fluid py-3">
-            <h1 class="display-5 fw-bold">Expanded Decks</h1>
-            <p class="col-md-8 fs-4">A shared library of physical Pokemon TCG decks for the Expanded format. Browse available decks, borrow them for events, and manage your collection.</p>
+            <h1 class="display-5 fw-bold hero-title">Expanded Decks</h1>
+            <p class="col-md-8 fs-4 hero-text">A shared library of physical Pokemon TCG decks for the Expanded format. Browse available decks, borrow them for events, and manage your collection.</p>
             <div class="d-flex gap-2">
-                <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg">Register</a>
-                <a href="{{ path('app_login') }}" class="btn btn-outline-secondary btn-lg">Login</a>
+                <a href="{{ path('app_register') }}" class="btn btn-gold btn-lg">Register</a>
+                <a href="{{ path('app_login') }}" class="btn btn-outline-light-gold btn-lg">Login</a>
             </div>
         </div>
     </div>
@@ -27,14 +27,14 @@
         <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
             {% for event in events %}
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card card-event h-100">
                         <div class="card-body">
                             <h5 class="card-title">{{ event.name }}</h5>
                             <p class="card-text text-muted">
                                 {{ event.date|date('M j, Y') }}
                                 {% if event.location %} &mdash; {{ event.location }}{% endif %}
                             </p>
-                            <span class="badge bg-secondary">{{ event.format }}</span>
+                            <span class="badge bg-primary">{{ event.format }}</span>
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
     <h2 class="mb-3">Available Decks</h2>
     {% if decks|length > 0 %}
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped table-themed">
                 <thead>
                     <tr>
                         <th>Name</th>
