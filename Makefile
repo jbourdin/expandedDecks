@@ -76,6 +76,22 @@ assets.watch: ## Build frontend assets and watch for changes
 test: ## Run test suite
 	symfony php bin/phpunit
 
+.PHONY: test.unit
+test.unit: ## Run PHP unit tests only
+	symfony php bin/phpunit --testsuite unit
+
+.PHONY: test.functional
+test.functional: ## Run PHP functional tests only
+	symfony php bin/phpunit --testsuite functional
+
+.PHONY: coverage
+coverage: ## Run PHP tests with coverage (requires pcov)
+	symfony php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
+
+.PHONY: test.front
+test.front: ## Run frontend (Vitest) tests
+	npx vitest run
+
 .PHONY: phpstan
 phpstan: ## Run PHPStan static analysis
 	symfony php vendor/bin/phpstan analyse --memory-limit=512M

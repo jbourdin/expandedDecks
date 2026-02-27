@@ -54,7 +54,7 @@ jobs:
       - name: Warm up cache
         run: php bin/console cache:warmup --env=dev
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
       - name: PHP-CS-Fixer (dry-run)
         run: php vendor/bin/php-cs-fixer fix --dry-run --diff
@@ -62,12 +62,74 @@ jobs:
       - name: PHPStan
         run: php vendor/bin/phpstan analyse --memory-limit=512M
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
-      - name: PHPUnit
-        run: php bin/phpunit
+      - name: PHPUnit (unit)
+        run: php bin/phpunit --testsuite unit
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
+
+      - name: PHPUnit (functional)
+        run: php bin/phpunit --testsuite functional
+        env:
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
+
+  php-coverage:
+    name: PHP Coverage
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: expanded_decks_test
+          MYSQL_USER: expanded_decks
+          MYSQL_PASSWORD: expanded_decks
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, pdo_mysql, zip, apcu
+          coverage: pcov
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: PHPUnit with coverage
+        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
+        env:
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
+
+      - name: Coverage comment
+        uses: lucassabreu/comment-coverage-clover@main
+        with:
+          file: var/coverage/clover.xml
 
   frontend-quality:
     name: Frontend Quality
@@ -90,6 +152,9 @@ jobs:
 
       - name: TypeScript check
         run: npx tsc --noEmit
+
+      - name: Vitest
+        run: npx vitest run
 
       - name: Encore production build
         run: npx encore production
