@@ -54,7 +54,7 @@ jobs:
       - name: Warm up cache
         run: php bin/console cache:warmup --env=dev
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
       - name: PHP-CS-Fixer (dry-run)
         run: php vendor/bin/php-cs-fixer fix --dry-run --diff
@@ -62,22 +62,17 @@ jobs:
       - name: PHPStan
         run: php vendor/bin/phpstan analyse --memory-limit=512M
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
-
-      - name: Create test database
-        run: php bin/console doctrine:database:create --if-not-exists --env=test
-        env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
       - name: PHPUnit (unit)
         run: php bin/phpunit --testsuite unit
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
       - name: PHPUnit (functional)
         run: php bin/phpunit --testsuite functional
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
   php-coverage:
     name: PHP Coverage
@@ -124,15 +119,10 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Create test database
-        run: php bin/console doctrine:database:create --if-not-exists --env=test
-        env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
-
       - name: PHPUnit with coverage
         run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
         env:
-          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
       - name: Coverage comment
         uses: lucassabreu/comment-coverage-clover@main
