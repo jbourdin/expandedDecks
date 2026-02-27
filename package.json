@@ -7,7 +7,9 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress",
-        "lint": "eslint assets/"
+        "lint": "eslint assets/",
+        "test": "vitest",
+        "test:run": "vitest run"
     },
     "devDependencies": {
         "@babel/core": "^7.17.0",
@@ -19,6 +21,9 @@
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
         "@symfony/webpack-encore": "^5.1.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@testing-library/user-event": "^14.6.1",
         "@types/react": "^18.0.0",
         "@types/react-dom": "^18.0.0",
         "core-js": "^3.38.0",
@@ -26,6 +31,7 @@
         "eslint-plugin-react": "^7.0.0",
         "eslint-plugin-react-hooks": "^5.0.0",
         "globals": "^16.0.0",
+        "jsdom": "^28.1.0",
         "react": "^18.0.0",
         "react-dom": "^18.0.0",
         "regenerator-runtime": "^0.13.9",
@@ -34,6 +40,7 @@
         "ts-loader": "^9.0.0",
         "typescript": "^5.0.0",
         "typescript-eslint": "^8.0.0",
+        "vitest": "^4.0.18",
         "webpack": "^5.74.0",
         "webpack-cli": "^5.1.0"
     },

@@ -255,6 +255,20 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ---
 
+## Cross-Cutting: Testing Infrastructure
+
+> Test framework setup and continuous quality assurance.
+
+| Item                                  | State       | Notes                                  |
+|---------------------------------------|-------------|----------------------------------------|
+| PHP unit tests (PHPUnit)              | Done        | Service-layer tests, 34 methods        |
+| PHP coverage in CI (pcov)             | Done        | PR comment via GitHub Action            |
+| PHP functional tests (WebTestCase)    | Done        | Base class + smoke tests               |
+| Frontend unit tests (Vitest)          | Done        | Vitest + @testing-library/react        |
+| E2E tests (Playwright)               | Not started | Future: browser-based end-to-end tests |
+
+---
+
 ## Summary
 
 | Phase | Name                              | Done | Partial | Not started | Total |
