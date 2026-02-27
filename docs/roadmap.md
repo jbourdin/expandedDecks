@@ -28,13 +28,13 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | ID   | Feature                            | Priority | State       | Depends on |
 |------|------------------------------------|----------|-------------|------------|
-| F1.1 | User registration & authentication | High     | Partial     | —          |
-| F1.2 | Email verification                 | High     | Not started | F1.1       |
-| F1.4 | Role-based access control          | High     | Partial     | F1.1       |
-| F1.7 | Password reset                     | High     | Not started | F1.1       |
+| F1.1 | User registration & authentication | High     | Done        | —          |
+| F1.2 | Email verification                 | High     | Done        | F1.1       |
+| F1.4 | Role-based access control          | High     | Done        | F1.1       |
+| F1.7 | Password reset                     | High     | Done        | F1.1       |
 | F9.4 | UTC datetime storage               | High     | Done        | —          |
 
-**Progress: 1/5 done · 2 partial · 2 not started**
+**Progress: 5/5 done**
 
 **Deliverable:** Users can register, verify email, log in, reset passwords. RBAC in place for all future access checks. All datetimes stored in UTC.
 
@@ -251,7 +251,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | Phase | Name                              | Done | Partial | Not started | Total |
 |-------|-----------------------------------|------|---------|-------------|-------|
-| 1     | Auth & Foundation                 | 1    | 2       | 2           | 5     |
+| 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 0    | 3       | 2           | 5     |
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
@@ -261,6 +261,6 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 18          | 19    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **10** | **22** | **46**      | **78** |
+|       | **Total**                         | **14** | **18** | **46**      | **78** |
 
 All 78 features from [features.md](features.md) are represented exactly once.

@@ -9,8 +9,10 @@ security:
                 class: App\Entity\User
 
     role_hierarchy:
+        ROLE_ARCHETYPE_EDITOR: ROLE_USER
+        ROLE_CMS_EDITOR: ROLE_USER
         ROLE_ORGANIZER: ROLE_USER
-        ROLE_ADMIN: ROLE_ORGANIZER
+        ROLE_ADMIN: [ROLE_ORGANIZER, ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR]
 
     firewalls:
         dev:
@@ -19,6 +21,7 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -36,6 +39,9 @@ security:
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/verify, roles: PUBLIC_ACCESS }
+        - { path: ^/forgot-password$, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password/, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }

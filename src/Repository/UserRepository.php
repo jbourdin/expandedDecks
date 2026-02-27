@@ -47,4 +47,20 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
         return $user;
     }
+
+    /**
+     * @see docs/features.md F1.2 — Email verification
+     */
+    public function findOneByVerificationToken(string $token): ?User
+    {
+        return $this->findOneBy(['verificationToken' => $token]);
+    }
+
+    /**
+     * @see docs/features.md F1.7 — Password reset
+     */
+    public function findOneByResetToken(string $token): ?User
+    {
+        return $this->findOneBy(['resetToken' => $token]);
+    }
 }

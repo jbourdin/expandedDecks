@@ -1,0 +1,38 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Resend Verification — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card card-auth shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title h3 mb-4 text-center">Resend Verification Email</h1>
+
+                    <p class="text-muted text-center mb-4">Enter your email address and we'll send you a new verification link.</p>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">Email</label>
+                            <input type="email" name="email" id="inputEmail" class="form-control" required autofocus>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Resend verification email</button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0">
+                        <a href="{{ path('app_login') }}">Back to login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

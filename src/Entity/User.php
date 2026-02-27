@@ -50,6 +50,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 50)]
     private string $screenName = '';
 
+    #[ORM\Column(length: 50)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 50)]
+    private string $firstName = '';
+
+    #[ORM\Column(length: 50)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 50)]
+    private string $lastName = '';
+
     #[ORM\Column(length: 30, unique: true, nullable: true)]
     #[Assert\Length(max: 30)]
     private ?string $playerId = null;
@@ -151,6 +161,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->screenName = $screenName;
 
         return $this;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): static
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    /**
+     * Returns a privacy-friendly display name: "FirstName L.".
+     */
+    public function getPublicDisplayName(): string
+    {
+        $initial = '' !== $this->lastName ? mb_strtoupper(mb_substr($this->lastName, 0, 1)).'.' : '';
+
+        return trim($this->firstName.' '.$initial);
     }
 
     public function getPlayerId(): ?string
