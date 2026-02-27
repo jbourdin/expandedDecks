@@ -6,6 +6,10 @@
 
 ---
 
+## Project
+
+- [Philosophy](philosophy.md) — Mission, values, and relationship to official services
+
 ## Features
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
