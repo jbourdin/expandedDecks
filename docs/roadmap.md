@@ -129,11 +129,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F9.1 | User language preference   | Medium   | Partial     | F1.1       |
 | F9.2 | User timezone              | Medium   | Partial     | F1.1, F9.4 |
 | F9.3 | Application translation    | Medium   | Not started | —          |
-| F1.3 | User profile               | Medium   | Not started | F1.1       |
+| F1.3  | User profile               | Medium   | Not started | F1.1       |
+| F1.11 | Gravatar avatar & navbar user menu | Medium | Not started | F1.1 |
 
-**Progress: 0/4 done · 2 partial · 2 not started**
+**Progress: 0/5 done · 2 partial · 3 not started**
 
-**Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, and a profile page showing owned decks, borrow history, and upcoming events.
+**Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, a profile page showing owned decks, borrow history, and upcoming events, and a Gravatar-powered navbar avatar with user dropdown menu.
 
 ---
 
@@ -263,11 +264,11 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 3     | Events & Staff                    | 0    | 3       | 2           | 5     |
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
 | 5     | Core Views & Navigation           | 2    | 2       | 5           | 9     |
-| 6     | Localization                      | 0    | 2       | 2           | 4     |
+| 6     | Localization                      | 0    | 2       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 3       | 5           | 8     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **14** | **18** | **48**      | **80** |
+|       | **Total**                         | **14** | **18** | **49**      | **81** |
 
-All 80 features from [features.md](features.md) are represented exactly once.
+All 81 features from [features.md](features.md) are represented exactly once.
