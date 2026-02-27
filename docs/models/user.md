@@ -33,17 +33,19 @@
 
 ### Roles
 
-| Role             | Constant              | Description |
-|------------------|-----------------------|-------------|
-| `ROLE_PLAYER`    | Default for all users | Register decks, request borrows, attend events |
-| `ROLE_ORGANIZER` | Granted by admin      | Create events, assign staff teams |
-| `ROLE_ADMIN`     | Granted manually      | Full access: user management, audit log, all operations |
+| Role                   | Constant              | Description |
+|------------------------|-----------------------|-------------|
+| `ROLE_PLAYER`          | Default for all users | Register decks, request borrows, attend events |
+| `ROLE_ARCHETYPE_EDITOR`| Granted by admin      | Create, edit, and publish archetype descriptions (F2.6, F2.10) |
+| `ROLE_CMS_EDITOR`      | Granted by admin      | Create, edit, and publish content pages and menu categories (F11.1, F11.2) |
+| `ROLE_ORGANIZER`       | Granted by admin      | Create events, assign staff teams |
+| `ROLE_ADMIN`           | Granted manually      | Full access: user management, audit log, all operations |
 
 > **Note:** Staff is **not** a global role. It is a **per-event assignment** modeled via the `EventStaff` join entity (see [Event model](event.md)). A user can be staff at one event and a regular player at another.
 
 Symfony role hierarchy:
 ```
-ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
+ROLE_ADMIN > ROLE_ORGANIZER > ROLE_CMS_EDITOR > ROLE_ARCHETYPE_EDITOR > ROLE_PLAYER
 ```
 
 ### Constraints
