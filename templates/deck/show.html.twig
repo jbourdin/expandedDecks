@@ -27,7 +27,16 @@
                     {% for card in cards %}
                         <tr>
                             <td>{{ card.quantity }}</td>
-                            <td>{{ card.cardName }}</td>
+                            <td>
+                                {% if card.imageUrl %}
+                                    <span class="card-hover">
+                                        {{ card.cardName }}
+                                        <img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}">
+                                    </span>
+                                {% else %}
+                                    {{ card.cardName }}
+                                {% endif %}
+                            </td>
                             <td><code>{{ card.setCode }}</code></td>
                             <td>{{ card.cardNumber }}</td>
                         </tr>
@@ -63,6 +72,19 @@
                 <span><strong>Format:</strong> {{ deck.format }}</span>
                 {% if deck.currentVersion %}
                     <span><strong>Version:</strong> v{{ deck.currentVersion.versionNumber }}</span>
+                    {% set enrichStatus = deck.currentVersion.enrichmentStatus %}
+                    {% if enrichStatus == 'done' %}
+                        <span class="badge bg-success" title="Card data enriched">Enriched</span>
+                    {% elseif enrichStatus == 'enriching' %}
+                        <span class="badge bg-info" title="Card enrichment in progress">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Enriching…
+                        </span>
+                    {% elseif enrichStatus == 'failed' %}
+                        <span class="badge bg-danger" title="Card enrichment failed">Enrichment failed</span>
+                    {% else %}
+                        <span class="badge bg-secondary" title="Card enrichment pending">Pending enrichment</span>
+                    {% endif %}
                     {% if deck.currentVersion.archetypeName %}
                         <span><strong>Archetype:</strong> {{ deck.currentVersion.archetypeName }}</span>
                     {% endif %}
@@ -124,4 +146,10 @@
             </div>
         </div>
     {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('deck_show') }}
 {% endblock %}
