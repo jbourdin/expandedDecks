@@ -50,9 +50,9 @@ class DevFixtures extends Fixture
     private function createAdmin(ObjectManager $manager): User
     {
         $admin = new User();
-        $admin->setEmail('jbourdin@gmail.com');
-        $admin->setFirstName('Jean');
-        $admin->setLastName('Bourdin');
+        $admin->setEmail('admin@example.com');
+        $admin->setFirstName('Jean-Michel');
+        $admin->setLastName('Admin');
         $admin->setScreenName('Admin');
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
         $admin->setRoles(['ROLE_ADMIN']);
