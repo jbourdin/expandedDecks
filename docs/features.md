@@ -141,3 +141,9 @@ Both email (via Symfony Mailer + Messenger async transport) and in-app (stored i
 | F9.2   | User timezone                        | Medium   | Each user has a `timezone` (IANA string, default `UTC`). All UI datetimes are converted to the user's timezone for display. See [User model](models/user.md). |
 | F9.3   | Application translation              | Medium   | Symfony Translation component (YAML catalogues) for backend strings and `react-i18next` (JSON catalogues) for frontend strings. Initial languages: `en`, `fr`. Dot-notation keys (e.g. `app.deck.status.available`). All user-facing strings wrapped in translation calls (`trans()` / `t()`). |
 | F9.4   | UTC datetime storage                 | High     | All database datetimes stored in **UTC**. Event dates are displayed in the event's `timezone` field (see [Event model](models/event.md)). When the user's timezone differs from the event's timezone, a user-relative hint is shown — e.g. "10:00 CET (16:00 your time)". Borrow and notification timestamps displayed in the user's timezone (F9.2). |
+
+## F10 — Global UX Concerns
+
+| ID      | Feature                              | Priority | Description |
+|---------|--------------------------------------|----------|-------------|
+| F10.1   | Mobile UX review                     | Medium   | The current desktop-first UI needs a thorough mobile responsiveness pass. Key areas: (1) **Card image overlay** (F6.4): hover-based preview does not work on touch devices — consider tap-to-preview, a bottom sheet, or a modal with swipe-to-dismiss; (2) **Deck detail tables**: two-column layout may be too narrow on small screens — consider stacking columns vertically on mobile; (3) **Dashboard and event listing**: ensure cards, buttons, and forms are touch-friendly with adequate tap targets (min 44×44 px). A mobile-first CSS review should be planned before the first production release. |
