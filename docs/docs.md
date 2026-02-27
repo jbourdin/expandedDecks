@@ -13,6 +13,7 @@
 ## Features
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
+- [Implementation Roadmap](roadmap.md) — Recommended build order across 10 phases
 
 ## Frontend
 
