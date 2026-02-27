@@ -66,6 +66,10 @@ class DeckCard
     #[Assert\Length(max: 30)]
     private ?string $tcgdexId = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $imageUrl = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -163,6 +167,18 @@ class DeckCard
     public function setTcgdexId(?string $tcgdexId): static
     {
         $this->tcgdexId = $tcgdexId;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): static
+    {
+        $this->imageUrl = $imageUrl;
 
         return $this;
     }

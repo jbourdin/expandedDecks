@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Deck;
+use App\Entity\User;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,6 +43,26 @@ class DeckRepository extends ServiceEntityRepository
             ->addSelect('o', 'cv')
             ->where('d.status = :status')
             ->setParameter('status', DeckStatus::Available)
+            ->orderBy('d.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     *
+     * @return list<Deck>
+     */
+    public function findByOwner(User $owner): array
+    {
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->leftJoin('d.currentVersion', 'cv')
+            ->addSelect('cv')
+            ->where('d.owner = :owner')
+            ->setParameter('owner', $owner)
             ->orderBy('d.name', 'ASC')
             ->getQuery()
             ->getResult();

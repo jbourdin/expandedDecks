@@ -16,15 +16,16 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                <div class="card-header card-header-themed">
+                <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">My Decks</h5>
+                    <a href="{{ path('app_deck_new') }}" class="btn btn-sm btn-gold">+ New</a>
                 </div>
                 <div class="card-body">
                     {% if ownedDecks|length > 0 %}
                         <ul class="list-group list-group-flush">
                             {% for deck in ownedDecks %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ deck.name }}
+                                    <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
                                     {% if deck.status.value == 'available' %}
                                         <span class="badge badge-available">Available</span>
                                     {% elseif deck.status.value == 'lent' %}

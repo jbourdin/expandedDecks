@@ -1,0 +1,38 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Import List — {{ deck.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">Import Deck List — {{ deck.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Paste your PTCG-format deck list below. This will create <strong>version {{ nextVersion }}</strong>.
+                    </p>
+
+                    {{ form_start(form) }}
+                        {{ form_row(form.rawList) }}
+                        {{ form_row(form.archetype) }}
+                        {{ form_row(form.archetypeName) }}
+
+                        <button type="submit" class="btn btn-gold w-100">Import</button>
+                    {{ form_end(form) }}
+
+                    <a href="{{ path('app_deck_show', {id: deck.id}) }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
