@@ -89,6 +89,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F6.3   | Expanded format validation           | High     | Custom validator: all cards must be from Black & White (BLW) series onward, not on the banned list, 60 cards total, max 4 copies of any card (except basic energy). |
 | F6.4   | Display card images                  | Medium   | Show card images on hover in the deck detail view (fetched from TCGdex, cached client-side). |
 | F6.5   | Banned card list management          | Medium   | Admin-managed list of banned cards for Expanded format. Each entry: card name, set code, card number, ban date, optional announcement URL. Existing deck versions are **NOT retroactively invalidated** — a **warning badge** is shown on affected decks. New imports (F2.2, F2.8) are validated against the current banned list. Admin CRUD accessible from F7 area. |
+| F6.6   | Visual deck list (card mosaic)       | Low      | Alternative view for the deck detail page: display the deck as a mosaic grid of card images instead of the tabular list. Cards are grouped in the same order as the table view (Pokemon, Trainer, Energy) with section headers. Each card tile shows the card image (from TCGdex) with a quantity badge overlay (top-left corner). Toggled via a view-mode switch on the deck detail page. Falls back to the table view for cards without an image. |
 
 ## F7 — Administration
 
