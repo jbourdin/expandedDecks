@@ -136,17 +136,19 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Mew
 
 ### Fields
 
-| Field        | Type               | Nullable | Description |
-|--------------|--------------------|----------|-------------|
-| `id`         | `int` (auto)       | No       | Primary key |
-| `slug`       | `string(100)`      | No       | URL-friendly identifier (e.g. `"lugia-vstar"`). Used in the archetype page route. |
-| `isPublished`| `bool`             | No       | Whether the archetype page is publicly visible. Default: `false`. Unpublished archetypes can still be selected for decks, but have no public page. |
-| `createdAt`  | `DateTimeImmutable` | No      | Creation timestamp. |
-| `updatedAt`  | `DateTimeImmutable` | No      | Last modification timestamp. |
+| Field          | Type               | Nullable | Description |
+|----------------|--------------------|----------|-------------|
+| `id`           | `int` (auto)       | No       | Primary key |
+| `slug`         | `string(100)`      | No       | URL-friendly identifier (e.g. `"lugia-vstar"`). Used in the archetype page route. |
+| `pokemonSlugs` | `json`            | No       | Array of Pokemon slug identifiers used to render sprite pictograms via PokéSprite (F2.12). Each slug maps to a Gen 8 box sprite file (e.g. `["lugia"]` → `pokemon-gen8/regular/lugia.png`). Supports multiple Pokemon for multi-Pokemon archetypes (e.g. `["mew", "genesect"]`). Order determines display order. |
+| `isPublished`  | `bool`             | No       | Whether the archetype page is publicly visible. Default: `false`. Unpublished archetypes can still be selected for decks, but have no public page. |
+| `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
+| `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
 
 ### Constraints
 
 - `slug`: required, unique, 1–100 characters, URL-friendly (`[a-z0-9-]+`)
+- `pokemonSlugs`: required, non-empty JSON array. Each entry must be a valid PokéSprite slug (lowercase, matching a file in `pokemon-gen8/regular/`). Max 4 entries.
 
 ### Relations
 
