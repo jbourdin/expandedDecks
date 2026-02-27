@@ -208,6 +208,15 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.16 | Public iCal feed               | Low      | Not started | F3.11            |
 | F3.6  | Tournament ID verification     | Low      | Not started | F3.18            |
 
+### Auth Hardening
+
+| ID    | Feature                            | Priority | State       | Depends on |
+|-------|------------------------------------|----------|-------------|------------|
+| F1.9  | Login with screen name or email    | Low      | Not started | F1.1       |
+| F1.10 | Password strength scoring (zxcvbn) | Low      | Not started | F1.1       |
+| F1.5  | MFA with TOTP (planned)            | Low      | Not started | F1.1       |
+| F1.6  | Pokemon SSO (to investigate)       | Low      | Not started | F1.1       |
+
 ### Remaining Features
 
 | ID    | Feature                        | Priority | State       | Depends on       |
@@ -218,12 +227,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F4.6  | Overdue tracking               | Low      | Not started | F4.4             |
 | F7.3  | Audit log                      | Low      | Not started | —                |
 | F8.3  | Notification preferences       | Low      | Not started | F8.1             |
-| F1.5  | MFA with TOTP (planned)        | Low      | Not started | F1.1             |
-| F1.6  | Pokemon SSO (to investigate)   | Low      | Not started | F1.1             |
 
-**Progress: 0/19 done · 1 partial · 18 not started**
+**Progress: 0/21 done · 1 partial · 20 not started**
 
-**Deliverable:** Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, notification preferences, audit log, and future auth enhancements (MFA, Pokemon SSO).
+**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, notification preferences, and audit log.
 
 ---
 
@@ -259,8 +266,8 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 6     | Localization                      | 0    | 2       | 2           | 4     |
 | 7     | Engagement, Results & Discovery   | 0    | 3       | 5           | 8     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
-| 9     | Content, Archetypes & Low Priority | 0   | 1       | 18          | 19    |
+| 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **14** | **18** | **46**      | **78** |
+|       | **Total**                         | **14** | **18** | **48**      | **80** |
 
-All 78 features from [features.md](features.md) are represented exactly once.
+All 80 features from [features.md](features.md) are represented exactly once.
