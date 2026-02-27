@@ -24,6 +24,16 @@ stop: ## Stop dev server and Docker services
 	symfony server:stop
 	docker compose down
 
+## —— Messenger ————————————————————————————————————————————————————————
+
+.PHONY: worker.enrichment
+worker.enrichment: ## Run the deck enrichment Messenger worker
+	symfony console messenger:consume deck_enrichment -vv --no-debug
+
+.PHONY: worker.all
+worker.all: ## Run all Messenger workers (async + deck enrichment)
+	symfony console messenger:consume async deck_enrichment -vv --no-debug
+
 ## —— Database —————————————————————————————————————————————————————————
 
 .PHONY: migrations
@@ -31,8 +41,12 @@ migrations: ## Execute Doctrine migrations
 	symfony console doctrine:migrations:migrate --no-interaction
 
 .PHONY: fixtures
-fixtures: ## Load fixture data
-	symfony console doctrine:fixtures:load --no-interaction
+fixtures: ## Load fixture data and dispatch enrichment
+	symfony console doctrine:database:drop --force --if-exists
+	symfony console doctrine:database:create
+	symfony console doctrine:migrations:migrate --no-interaction
+	symfony console doctrine:fixtures:load --no-interaction --append
+	symfony console app:enrich:retry
 
 ## —— Assets ——————————————————————————————————————————————————————————
 

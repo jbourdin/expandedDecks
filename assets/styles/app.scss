@@ -1,0 +1,233 @@
+/*
+ * This file is part of the Expanded Decks project.
+ *
+ * (c) Expanded Decks contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+// --- Pokemon-inspired palette ---
+// Derived from Pokemon brand colors (blue, gold, red) and
+// the clean white aesthetic of support.pokemon.com.
+//
+// Deep blue (navbar, headings — Pokemon blue family)
+$ed-navy:        #213568;
+// Vivid link blue (inspired by support.pokemon.com #0039EF)
+$ed-blue:        #0046d5;
+// Golden yellow (Pokemon brand yellow — accents, highlights)
+$ed-gold:        #ffd12a;
+// Pokemon red (danger, alerts — from brand red, softened)
+$ed-red:         #cc2936;
+// Clean white background (matching support site's white-first approach)
+$ed-bg:          #f5f5f7;
+
+// --- Bootstrap variable overrides (before import) ---
+$primary:        $ed-blue;
+$secondary:      #5a6577;
+$success:        #1eb848;
+$info:           #4a90d9;
+$warning:        $ed-gold;
+$danger:         $ed-red;
+$light:          #f0f2f5;
+$dark:           $ed-navy;
+
+$body-bg:        $ed-bg;
+$body-color:     #333;
+
+$link-color:           $ed-blue;
+$link-hover-color:     darken($ed-blue, 12%);
+
+$navbar-dark-color:              rgba(#fff, .85);
+$navbar-dark-hover-color:        $ed-gold;
+$navbar-dark-active-color:       $ed-gold;
+$navbar-dark-brand-color:        #fff;
+$navbar-dark-brand-hover-color:  $ed-gold;
+
+$card-bg:             #fff;
+$card-border-color:   #ddd;
+$card-cap-bg:         #f7f7f7;
+
+$table-striped-bg:    rgba(0, 0, 0, .02);
+
+$btn-border-radius:   .375rem;
+
+$font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+@import "~bootstrap/scss/bootstrap";
+
+// --- Layout ---
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    // Subtle cross-hatch texture on the body background.
+    // Cards and panels sit on top with solid white, making them pop.
+    background-color: $ed-bg;
+    background-image:
+        linear-gradient(45deg, rgba($ed-navy, .03) 25%, transparent 25%, transparent 75%, rgba($ed-navy, .03) 75%),
+        linear-gradient(-45deg, rgba($ed-navy, .03) 25%, transparent 25%, transparent 75%, rgba($ed-navy, .03) 75%);
+    background-size: 20px 20px;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+// --- Navbar ---
+
+.navbar-pokemon {
+    background-color: $ed-navy;
+    border-bottom: 3px solid $ed-gold;
+}
+
+.navbar-pokemon .navbar-brand {
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.navbar-pokemon .nav-link-user {
+    color: $ed-gold !important;
+    font-weight: 600;
+}
+
+// --- Hero (anonymous homepage) ---
+
+.hero-pokemon {
+    background: linear-gradient(135deg, $ed-navy 0%, lighten($ed-navy, 8%) 100%);
+    color: #fff;
+    border-radius: .5rem;
+    border-bottom: 3px solid $ed-gold;
+}
+
+.hero-pokemon .hero-title {
+    color: $ed-gold;
+    font-weight: 800;
+}
+
+.hero-pokemon .hero-text {
+    color: rgba(#fff, .85);
+}
+
+// --- Buttons ---
+
+.btn-gold {
+    background-color: $ed-gold;
+    border-color: darken($ed-gold, 5%);
+    color: $ed-navy;
+    font-weight: 600;
+
+    &:hover, &:focus {
+        background-color: darken($ed-gold, 8%);
+        border-color: darken($ed-gold, 12%);
+        color: $ed-navy;
+    }
+}
+
+.btn-outline-light-gold {
+    color: #fff;
+    border-color: rgba(#fff, .5);
+
+    &:hover, &:focus {
+        background-color: rgba(#fff, .1);
+        border-color: #fff;
+        color: #fff;
+    }
+}
+
+// --- Cards ---
+
+.card-header-themed {
+    background-color: rgba($ed-navy, .88);
+    color: #fff;
+    border-bottom: 2px solid $ed-gold;
+
+    h5 { color: #fff; margin-bottom: 0; }
+}
+
+// --- Tables ---
+
+.table-themed {
+    thead {
+        background-color: rgba($ed-navy, .88);
+        color: #fff;
+
+        th {
+            font-weight: 600;
+            border-bottom: 2px solid $ed-gold;
+        }
+    }
+}
+
+// --- Event cards ---
+
+.card-event {
+    border-left: 3px solid $ed-blue;
+    transition: box-shadow .15s ease-in-out;
+
+    &:hover {
+        box-shadow: 0 .2rem .5rem rgba(0, 0, 0, .08);
+    }
+}
+
+// --- Status badges ---
+
+.badge-available { background-color: $success; color: #fff; }
+.badge-lent      { background-color: $ed-gold; color: $ed-navy; }
+.badge-reserved  { background-color: $ed-blue; color: #fff; }
+.badge-retired   { background-color: #999; color: #fff; }
+
+// --- Auth cards (login / register) ---
+
+.card-auth {
+    border-top: 3px solid $ed-blue;
+}
+
+// --- Card image hover tooltip ---
+
+.card-hover {
+    position: relative;
+    cursor: pointer;
+
+    &:hover .card-hover-img {
+        display: block;
+    }
+}
+
+.card-hover-img {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    bottom: 100%;
+    left: 0;
+    width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+    pointer-events: none;
+
+    &.show-below {
+        bottom: auto;
+        top: 100%;
+    }
+}
+
+// --- Footer ---
+
+.footer-pokemon {
+    background-color: $ed-navy;
+    color: rgba(#fff, .55);
+    border-top: 3px solid $ed-gold;
+
+    a {
+        color: rgba(#fff, .7);
+        &:hover { color: $ed-gold; }
+    }
+}

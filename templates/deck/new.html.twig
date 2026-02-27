@@ -1,0 +1,32 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}New Deck — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">New Deck</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.format) }}
+                        {{ form_row(form.notes) }}
+
+                        <button type="submit" class="btn btn-gold w-100">Create Deck</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

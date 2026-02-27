@@ -9,6 +9,13 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            deck_enrichment:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: deck_enrichment
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 
@@ -21,6 +28,4 @@ framework:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
-
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            App\Message\EnrichDeckVersionMessage: deck_enrichment

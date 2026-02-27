@@ -18,6 +18,7 @@ Encore
     .setPublicPath('/build')
 
     .addEntry('app', './assets/app.tsx')
+    .addEntry('deck_show', './assets/deck-show.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
@@ -28,6 +29,7 @@ Encore
 
     .enableTypeScriptLoader()
     .enableReactPreset()
+    .enableSassLoader()
 ;
 
 module.exports = Encore.getWebpackConfig();
