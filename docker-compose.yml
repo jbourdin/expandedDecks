@@ -16,5 +16,14 @@ services:
     volumes:
       - database_data:/var/lib/mysql
 
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1035:1025"
+      - "8035:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
 volumes:
   database_data:

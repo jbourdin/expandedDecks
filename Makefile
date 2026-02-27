@@ -24,6 +24,10 @@ stop: ## Stop dev server and Docker services
 	symfony server:stop
 	docker compose down
 
+.PHONY: mailpit
+mailpit: ## Open Mailpit web UI
+	open http://localhost:8035
+
 ## —— Messenger ————————————————————————————————————————————————————————
 
 .PHONY: worker.enrichment
