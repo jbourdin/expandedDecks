@@ -39,8 +39,10 @@ class DevFixtures extends Fixture
         $league = $this->createLeague($manager);
         $this->createEventToday($manager, $admin, $league);
         $this->createEventInTwoMonths($manager, $admin, $league);
-        $deck = $this->createDeck($manager, $admin);
-        $this->createDeckVersion($manager, $deck);
+        $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
+        $this->createIronThornsDeckVersion($manager, $ironThorns);
+        $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
+        $this->createAncientBoxDeckVersion($manager, $ancientBox);
 
         $manager->flush();
     }
@@ -122,10 +124,10 @@ class DevFixtures extends Fixture
         $manager->persist($event);
     }
 
-    private function createDeck(ObjectManager $manager, User $owner): Deck
+    private function createDeck(ObjectManager $manager, User $owner, string $name): Deck
     {
         $deck = new Deck();
-        $deck->setName('Iron Thorns');
+        $deck->setName($name);
         $deck->setOwner($owner);
         $deck->setFormat('Expanded');
         $deck->setStatus(DeckStatus::Available);
@@ -135,7 +137,7 @@ class DevFixtures extends Fixture
         return $deck;
     }
 
-    private function createDeckVersion(ObjectManager $manager, Deck $deck): void
+    private function createIronThornsDeckVersion(ObjectManager $manager, Deck $deck): void
     {
         $version = new DeckVersion();
         $version->setDeck($deck);
@@ -143,9 +145,9 @@ class DevFixtures extends Fixture
         $version->setArchetype('iron-thorns-ex');
         $version->setArchetypeName('Iron Thorns ex');
         $version->setLanguages(['en']);
-        $version->setRawList($this->getRawDeckList());
+        $version->setRawList($this->getIronThornsRawDeckList());
 
-        foreach ($this->getDeckCards() as $cardData) {
+        foreach ($this->getIronThornsDeckCards() as $cardData) {
             $card = new DeckCard();
             $card->setCardName($cardData['name']);
             $card->setSetCode($cardData['set']);
@@ -165,7 +167,7 @@ class DevFixtures extends Fixture
     /**
      * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
      */
-    private function getDeckCards(): array
+    private function getIronThornsDeckCards(): array
     {
         return [
             // Pokemon (4)
@@ -213,7 +215,7 @@ class DevFixtures extends Fixture
         ];
     }
 
-    private function getRawDeckList(): string
+    private function getIronThornsRawDeckList(): string
     {
         return <<<'PTCG'
             Pokémon: 4
@@ -252,6 +254,118 @@ class DevFixtures extends Fixture
             4 Speed Lightning Energy RCL 173
             4 Double Colorless Energy SLG 69
             1 Capture Energy RCL 171
+
+            Total Cards: 60
+            PTCG;
+    }
+
+    private function createAncientBoxDeckVersion(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setArchetype('ancient-box');
+        $version->setArchetypeName('Ancient Box');
+        $version->setLanguages(['en']);
+        $version->setRawList($this->getAncientBoxRawDeckList());
+
+        foreach ($this->getAncientBoxDeckCards() as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+            $card->setQuantity($cardData['quantity']);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
+     */
+    private function getAncientBoxDeckCards(): array
+    {
+        return [
+            // Pokemon (13)
+            ['name' => 'Flutter Mane', 'set' => 'TEF', 'number' => '78', 'quantity' => 4, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Roaring Moon', 'set' => 'TEF', 'number' => '109', 'quantity' => 4, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Roaring Moon ex', 'set' => 'PR-SV', 'number' => '67', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Great Tusk', 'set' => 'TEF', 'number' => '97', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Koraidon', 'set' => 'SSP', 'number' => '116', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Munkidori', 'set' => 'TWM', 'number' => '95', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Pecharunt ex', 'set' => 'SFA', 'number' => '85', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+
+            // Trainer — Supporter (16)
+            ['name' => "Professor Sada's Vitality", 'set' => 'PAR', 'number' => '170', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => "Explorer's Guidance", 'set' => 'TEF', 'number' => '147', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => "Boss's Orders", 'set' => 'PAL', 'number' => '172', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Surfer', 'set' => 'SSP', 'number' => '187', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => "Janine's Secret Art", 'set' => 'PRE', 'number' => '112', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => "Professor's Research", 'set' => 'PAF', 'number' => '87', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+
+            // Trainer — Item (17)
+            ['name' => 'Earthen Vessel', 'set' => 'PAR', 'number' => '163', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Nest Ball', 'set' => 'SVI', 'number' => '181', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Pokégear 3.0', 'set' => 'SVI', 'number' => '186', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Counter Catcher', 'set' => 'PAR', 'number' => '160', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Night Stretcher', 'set' => 'SFA', 'number' => '61', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Pal Pad', 'set' => 'SVI', 'number' => '182', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Superior Energy Retrieval', 'set' => 'PAL', 'number' => '189', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Super Rod', 'set' => 'PAL', 'number' => '188', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Brilliant Blender', 'set' => 'SSP', 'number' => '164', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+
+            // Trainer — Tool (5)
+            ['name' => 'Ancient Booster Energy Capsule', 'set' => 'TEF', 'number' => '140', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'tool'],
+            ['name' => 'Exp. Share', 'set' => 'SVI', 'number' => '174', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+
+            // Trainer — Stadium (2)
+            ['name' => 'Artazon', 'set' => 'PAL', 'number' => '171', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'stadium'],
+
+            // Energy (7)
+            ['name' => 'Darkness Energy', 'set' => 'SVE', 'number' => '7', 'quantity' => 7, 'type' => 'energy', 'subtype' => null],
+        ];
+    }
+
+    private function getAncientBoxRawDeckList(): string
+    {
+        return <<<'PTCG'
+            Pokémon: 13
+            4 Flutter Mane TEF 78
+            4 Roaring Moon TEF 109
+            1 Roaring Moon ex PR-SV 67
+            1 Great Tusk TEF 97
+            1 Koraidon SSP 116
+            1 Munkidori TWM 95
+            1 Pecharunt ex SFA 85
+
+            Trainer: 40
+            4 Professor Sada's Vitality PAR 170
+            4 Explorer's Guidance TEF 147
+            2 Boss's Orders PAL 172
+            2 Surfer SSP 187
+            2 Janine's Secret Art PRE 112
+            2 Professor's Research PAF 87
+            4 Earthen Vessel PAR 163
+            3 Nest Ball SVI 181
+            2 Pokégear 3.0 SVI 186
+            2 Counter Catcher PAR 160
+            2 Night Stretcher SFA 61
+            1 Pal Pad SVI 182
+            1 Superior Energy Retrieval PAL 189
+            1 Super Rod PAL 188
+            1 Brilliant Blender SSP 164
+            4 Ancient Booster Energy Capsule TEF 140
+            1 Exp. Share SVI 174
+            2 Artazon PAL 171
+
+            Energy: 7
+            7 Darkness Energy SVE 7
 
             Total Cards: 60
             PTCG;

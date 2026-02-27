@@ -64,6 +64,9 @@ class DeckVersion
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $rawList = null;
 
+    #[ORM\Column(length: 20)]
+    private string $enrichmentStatus = 'pending';
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -180,6 +183,18 @@ class DeckVersion
     public function setRawList(?string $rawList): static
     {
         $this->rawList = $rawList;
+
+        return $this;
+    }
+
+    public function getEnrichmentStatus(): string
+    {
+        return $this->enrichmentStatus;
+    }
+
+    public function setEnrichmentStatus(string $enrichmentStatus): static
+    {
+        $this->enrichmentStatus = $enrichmentStatus;
 
         return $this;
     }

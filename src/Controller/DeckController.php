@@ -19,12 +19,15 @@ use App\Entity\DeckVersion;
 use App\Entity\User;
 use App\Form\DeckFormType;
 use App\Form\DeckImportFormType;
+use App\Message\EnrichDeckVersionMessage;
 use App\Repository\DeckVersionRepository;
 use App\Service\DeckListParser;
+use App\Service\DeckListValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -146,7 +149,9 @@ class DeckController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         DeckListParser $parser,
+        DeckListValidator $validator,
         DeckVersionRepository $versionRepo,
+        MessageBusInterface $messageBus,
     ): Response {
         $this->denyAccessUnlessOwner($deck);
 
@@ -170,6 +175,25 @@ class DeckController extends AbstractController
                     'form' => $form,
                     'nextVersion' => $nextVersion,
                 ]);
+            }
+
+            // Validate deck rules (60 cards, max 4 copies)
+            $validation = $validator->validate($result);
+
+            if (!$validation->isValid()) {
+                foreach ($validation->errors as $error) {
+                    $this->addFlash('danger', $error);
+                }
+
+                return $this->render('deck/import.html.twig', [
+                    'deck' => $deck,
+                    'form' => $form,
+                    'nextVersion' => $nextVersion,
+                ]);
+            }
+
+            foreach ($validation->warnings as $warning) {
+                $this->addFlash('warning', $warning);
             }
 
             $version = new DeckVersion();
@@ -204,8 +228,12 @@ class DeckController extends AbstractController
             $deck->setCurrentVersion($version);
             $em->flush();
 
+            /** @var int $versionId */
+            $versionId = $version->getId();
+            $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+
             $this->addFlash('success', \sprintf(
-                'Deck list imported (version %d, %d cards).',
+                'Deck list imported (version %d, %d cards). Card enrichment is processing in the background.',
                 $nextVersion,
                 $result->totalCards(),
             ));

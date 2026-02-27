@@ -29,6 +29,21 @@ class DeckVersionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return list<DeckVersion>
+     */
+    public function findNotEnriched(): array
+    {
+        /** @var list<DeckVersion> $results */
+        $results = $this->createQueryBuilder('dv')
+            ->where('dv.enrichmentStatus IN (:statuses)')
+            ->setParameter('statuses', ['pending', 'failed'])
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.2 — Import deck list (PTCG text format)
      */
     public function findMaxVersionNumber(Deck $deck): int
