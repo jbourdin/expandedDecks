@@ -30,13 +30,21 @@ mailpit: ## Open Mailpit web UI
 
 ## —— Messenger ————————————————————————————————————————————————————————
 
+.PHONY: worker.email
+worker.email: ## Run the transactional email Messenger worker
+	symfony console messenger:consume transactional_email -vv --no-debug
+
 .PHONY: worker.enrichment
 worker.enrichment: ## Run the deck enrichment Messenger worker
 	symfony console messenger:consume deck_enrichment -vv --no-debug
 
+.PHONY: worker.notification
+worker.notification: ## Run the notification Messenger worker
+	symfony console messenger:consume notification -vv --no-debug
+
 .PHONY: worker.all
-worker.all: ## Run all Messenger workers (async + deck enrichment)
-	symfony console messenger:consume async deck_enrichment -vv --no-debug
+worker.all: ## Run all Messenger workers
+	symfony console messenger:consume transactional_email deck_enrichment notification -vv --no-debug
 
 ## —— Database —————————————————————————————————————————————————————————
 
