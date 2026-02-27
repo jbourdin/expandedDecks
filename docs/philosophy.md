@@ -26,7 +26,7 @@ By lending a deck for a tournament, an experienced player gives a newcomer the c
 
 - **Share decks, share knowledge.** A shared deck library isn't just about physical cards — it's about decklists, archetypes, and the conversations that happen when a veteran lends a deck and explains how it works. We encourage owners to share their lists publicly so that others can learn, adapt, and build their own versions over time.
 
-- **Lower the entry barrier for new players.** The format shouldn't be gatekept by card availability. A player who shows up to a League Challenge shouldn't have to sit out because they don't own an Expanded deck yet. With this tool, organizers and community members can ensure that anyone who wants to play can play.
+- **Lower the entry barrier for new players.** The format shouldn't be gatekept by card availability. A player who shows up to an Expanded tournament shouldn't have to sit out because they don't own a deck yet. With this tool, organizers and community members can ensure that anyone who wants to play can play.
 
 - **Support organizers and communities.** Running an Expanded event takes effort. This project provides organizers with tools to manage deck lending logistics, track custody, and coordinate with staff — so they can focus on running great tournaments instead of juggling spreadsheets.
 

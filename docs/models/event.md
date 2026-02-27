@@ -39,7 +39,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | Field                  | Type               | Nullable | Description |
 |------------------------|--------------------|----------|-------------|
 | `id`                   | `int` (auto)       | No       | Primary key |
-| `name`                 | `string(150)`      | No       | Event name (e.g. "Paris League Challenge Q1 2026"). |
+| `name`                 | `string(150)`      | No       | Event name (e.g. "Paris Expanded Cup Q1 2026"). |
 | `eventId`              | `string(50)`       | Yes      | Free text identifier. Recommended to use the official Pokemon sanctioned tournament ID when applicable. |
 | `format`               | `string(30)`       | No       | Play format. Default: `"Expanded"`. Could also be `"Standard"`, `"Unlimited"`, etc. |
 | `date`                 | `DateTimeImmutable` | No      | Event date (start). |
@@ -66,7 +66,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 
 | Value                | Description |
 |----------------------|-------------|
-| `swiss`              | Swiss rounds only (e.g. League Challenges). |
+| `swiss`              | Swiss rounds only (e.g. small local tournaments). |
 | `swiss_top_cut`      | Swiss rounds followed by a top-cut single-elimination bracket (e.g. League Cups, Regionals). |
 | `single_elimination` | Single-elimination bracket throughout. |
 | `round_robin`        | Round-robin (every player plays every other player). |
