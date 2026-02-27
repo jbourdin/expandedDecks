@@ -57,6 +57,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `topCutRoundDuration`  | `int`              | Yes      | Duration in minutes for top cut rounds. Only applicable for `swiss_top_cut`. |
 | `entryFeeAmount`       | `int`              | Yes      | Entry fee in cents of the currency. Null = free event. |
 | `entryFeeCurrency`     | `string(3)`        | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `entryFeeAmount` is set. |
+| `visibility`           | `EventVisibility`  | No       | Event discoverability mode: `public`, `series`, or `invitation_only`. Default: `public`. See F3.11 and `EventVisibility` enum below. |
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
 | `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
@@ -120,7 +121,7 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 |--------------------|--------------|----------------|-------------|
 | `league`           | ManyToOne    | `League`       | The league/store hosting this event |
 | `organizer`        | ManyToOne    | `User`         | User who created this event |
-| `participants`     | ManyToMany   | `User`         | Players registered to attend |
+| `engagements`      | OneToMany    | `EventEngagement` | Player engagement states for this event (F3.13) |
 | `staff`            | OneToMany    | `EventStaff`   | Staff members assigned to this event |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow requests linked to this event |
 | `deckEntries`      | OneToMany    | [`EventDeckEntry`](deck.md#entity-appentityeventdeckentry) | Deck versions registered for this event (F3.7) |
@@ -157,3 +158,71 @@ When a user is assigned as staff for an event, they gain the ability to:
 - View their staff custody dashboard for that event (F4.9)
 
 These permissions are **scoped to the event** — the same user has no staff capabilities at other events unless also assigned there.
+
+---
+
+## Entity: `App\Entity\EventEngagement`
+
+> **@see** docs/features.md F3.13 — Player engagement states
+
+Join entity modeling a player's relationship with an event. Replaces the former `Event.participants` ManyToMany — engagement is richer than a simple attendance flag.
+
+### Fields
+
+| Field              | Type                  | Nullable | Description |
+|--------------------|-----------------------|----------|-------------|
+| `id`               | `int` (auto)          | No       | Primary key |
+| `event`            | `Event`               | No       | The event. |
+| `user`             | `User`                | No       | The player. |
+| `state`            | `EngagementState`     | No       | Current engagement state. See enum below. |
+| `participationMode`| `ParticipationMode`   | Yes      | `playing` or `spectating`. Set when the state is `registered_playing` or `registered_spectating`. Null when only `interested` or `invited`. |
+| `invitedBy`        | `User`                | Yes      | The organizer/staff who sent the invitation. Null for self-declared states (`interested`, registered). |
+| `createdAt`        | `DateTimeImmutable`   | No       | When the engagement was first created. |
+| `updatedAt`        | `DateTimeImmutable`   | No       | When the state was last changed. |
+
+### Engagement State Enum: `App\Enum\EngagementState`
+
+| Value                  | Set by           | Description |
+|------------------------|------------------|-------------|
+| `interested`           | Player (self)    | Player marked interest — event appears in their agenda and iCal feed (F3.14). No commitment to attend. |
+| `invited`              | Staff / Organizer| Grants visibility for invitation-only events (F3.11). Acts as both access grant and interest marker. |
+| `registered_playing`   | Player (self)    | Player committed to attend and compete. Prerequisite for borrowing a deck (F4.1). |
+| `registered_spectating`| Player (self)    | Player committed to attend as spectator. Can lend decks but cannot borrow. |
+
+### Participation Mode Enum: `App\Enum\ParticipationMode`
+
+| Value        | Description |
+|--------------|-------------|
+| `playing`    | Intends to compete. Can borrow and lend decks. |
+| `spectating` | Attends without playing. Can lend decks, cannot borrow. |
+
+### Constraints
+
+- Unique constraint on (`event`, `user`) — one engagement per player per event
+- `invited` state can only be set by event staff or organizer
+- A player can transition: `interested` → `registered_*`, `invited` → `registered_*`, `registered_*` → `interested` (un-register)
+- `invited` is sticky: once invited, the `invitedBy` field is preserved even if the player later registers or reverts to `interested`
+- Changing participation mode (`playing` ↔ `spectating`) is allowed while the event hasn't ended
+- When an event is cancelled (F3.10), engagements are frozen — no further state changes allowed
+
+### Relations
+
+| Relation    | Type      | Target  | Description |
+|-------------|-----------|---------|-------------|
+| `event`     | ManyToOne | `Event` | The event |
+| `user`      | ManyToOne | `User`  | The player |
+| `invitedBy` | ManyToOne | `User`  | The inviter (nullable) |
+
+---
+
+## Enum: `App\Enum\EventVisibility`
+
+> **@see** docs/features.md F3.11 — Event visibility
+
+| Value             | Description |
+|-------------------|-------------|
+| `public`          | Visible to all visitors, listed in the event finder (F3.15) and agendas. Default. |
+| `series`          | Not independently discoverable. Visible only from the parent series page (F3.12). |
+| `invitation_only` | Visible only to users with an `invited` or `registered` engagement state. The `invited` state (F3.13) doubles as access grant. |
+
+The `Event` entity gains a `visibility` field of type `EventVisibility` (default: `public`). This replaces any previous binary visibility concept.
