@@ -25,6 +25,7 @@
 - [Event Model](models/event.md) — Tournaments, leagues, event lifecycle
 - [Borrow Model](models/borrow.md) — Deck lending and return workflow
 - [Notification Model](models/notification.md) — In-app notification system
+- [CMS Model](models/cms.md) — Content pages, menu categories, translations
 
 ## Standards
 

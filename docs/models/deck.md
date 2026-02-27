@@ -59,8 +59,7 @@ A **card list snapshot** — one point-in-time version of a deck. Created when t
 | `id`               | `int` (auto)       | No       | Primary key |
 | `deck`             | `Deck`             | No       | The deck this version belongs to. |
 | `versionNumber`    | `int`              | No       | Sequential version number (1, 2, 3…). Auto-incremented per deck. |
-| `archetype`        | `string(80)`       | Yes      | Archetype identifier (e.g. `"lugia-vstar"`). Manually set by the owner. |
-| `archetypeName`    | `string(100)`      | Yes      | Human-readable archetype name (e.g. `"Lugia VSTAR"`). |
+| `archetype`        | `Archetype`        | Yes      | Reference to the managed `Archetype` entity (F2.6). Selected by the owner from the archetype catalogue (with autocomplete). Null if no archetype assigned yet. |
 | `languages`        | `json`             | No       | Array of ISO 639-1 language codes present in this version (e.g. `["en", "ja"]`). |
 | `estimatedValueAmount`   | `int`        | Yes      | Owner-provided estimated monetary value in cents of the currency. Visible to the owner, organizers, and event staff. |
 | `estimatedValueCurrency` | `string(3)`  | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `estimatedValueAmount` is set. |
@@ -96,6 +95,7 @@ A deck version can contain cards in multiple languages (e.g. `["en", "ja"]` for 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
 | `deck`             | ManyToOne    | `Deck`         | Parent deck |
+| `archetype`        | ManyToOne    | `Archetype`    | Archetype for this version (F2.6) |
 | `cards`            | OneToMany    | `DeckCard`     | Cards in this version (the list) |
 
 ---
@@ -124,6 +124,76 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 - `quantity`: required, >= 1
 - `cardType`: required, one of `"pokemon"`, `"trainer"`, `"energy"`
 - `trainerSubtype`: required when `cardType` is `"trainer"`, null otherwise
+
+---
+
+## Entity: `App\Entity\Archetype`
+
+> **@see** docs/features.md F2.6 — Deck archetype management
+> **@see** docs/features.md F2.10 — Archetype detail page
+
+A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Mew VMAX"). Translatable fields follow the same Knp Translatable pattern as CMS pages. Managed by users with `ROLE_ARCHETYPE_EDITOR` or `ROLE_ADMIN`.
+
+### Fields
+
+| Field          | Type               | Nullable | Description |
+|----------------|--------------------|----------|-------------|
+| `id`           | `int` (auto)       | No       | Primary key |
+| `slug`         | `string(100)`      | No       | URL-friendly identifier (e.g. `"lugia-vstar"`). Used in the archetype page route. |
+| `pokemonSlugs` | `json`            | No       | Array of Pokemon slug identifiers used to render sprite pictograms via a PokéSprite fork (F2.12). Each slug maps to a box sprite file (e.g. `["lugia"]` → `pokemon-gen8/regular/lugia.png`). Covers Gen 1–9 (including Scarlet/Violet and DLC Pokemon like Raging Bolt, Walking Wake). Supports multiple Pokemon for multi-Pokemon archetypes (e.g. `["mew", "genesect"]`). Order determines display order. |
+| `isPublished`  | `bool`             | No       | Whether the archetype page is publicly visible. Default: `false`. Unpublished archetypes can still be selected for decks, but have no public page. |
+| `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
+| `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
+
+### Constraints
+
+- `slug`: required, unique, 1–100 characters, URL-friendly (`[a-z0-9-]+`)
+- `pokemonSlugs`: required, non-empty JSON array. Each entry must be a valid PokéSprite slug (lowercase, matching a sprite file in the PokéSprite fork's `pokemon-gen8/regular/` directory). Covers Gen 1–9. Max 4 entries.
+
+### Relations
+
+| Relation       | Type      | Target                  | Description |
+|----------------|-----------|-------------------------|-------------|
+| `translations` | OneToMany | `ArchetypeTranslation`  | Localized name, description, and SEO |
+| `deckVersions` | OneToMany | `DeckVersion`           | Deck versions using this archetype |
+
+---
+
+## Entity: `App\Entity\ArchetypeTranslation`
+
+Localized fields for `Archetype`. One row per locale per archetype.
+
+### Fields
+
+| Field             | Type          | Nullable | Description |
+|-------------------|---------------|----------|-------------|
+| `id`              | `int` (auto)  | No       | Primary key |
+| `locale`          | `string(5)`   | No       | ISO 639-1 locale code (e.g. `"en"`, `"fr"`). |
+| `name`            | `string(100)` | No       | Translated archetype name (e.g. `"Lugia VSTAR"`, `"Lugia VSTAR"`). |
+| `description`     | `text`        | Yes      | Archetype presentation in **Markdown** format. Rendered to HTML on the archetype detail page (F2.10). Null = no description available for this locale. |
+| `metaDescription` | `string(160)` | Yes      | SEO `<meta name="description">` for the archetype page. Max 160 chars. |
+
+### Constraints
+
+- Unique constraint on (`translatable_id`, `locale`) — one translation per locale per archetype
+- `name`: required, 1–100 characters
+- `metaDescription`: max 160 characters when provided
+
+### Locale Fallback
+
+Same chain as CMS pages (F11.3): user locale → `en` → 404.
+
+### URL Routing
+
+Archetype pages are served at:
+
+```
+/{locale}/archetypes/{slug}
+```
+
+Example:
+- `/en/archetypes/lugia-vstar`
+- `/fr/archetypes/lugia-vstar` (slug is not localized — archetype names are typically the same across languages)
 
 ---
 

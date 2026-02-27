@@ -20,6 +20,7 @@
 - [pokemontcg.io](https://pokemontcg.io/) — Official Pokemon TCG card API (images, sets, legality)
 - [ptcgo-parser](https://github.com/Hamatti/ptcgo-parser) — PTCG text format parser (npm)
 - [pkmn.gg](https://www.pkmn.gg/) — Deck validation reference (Standard, Expanded, GLC)
+- [PokéSprite](https://github.com/msikma/pokesprite) — Pokemon box sprite database (Gen 8 style, 68×56 px). Using [martimlobao's fork](https://github.com/martimlobao/pokesprite) which adds Gen 9 (Scarlet/Violet + DLC) support. Sprites are copied into the project's public assets at build time for archetype pictograms (F2.12). Pokemon sprites are © Nintendo/Creatures Inc./GAME FREAK Inc.
 
 ## Articles & Guides
 
