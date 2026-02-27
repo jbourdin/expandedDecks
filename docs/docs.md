@@ -6,9 +6,14 @@
 
 ---
 
+## Project
+
+- [Philosophy](philosophy.md) — Mission, values, and relationship to official services
+
 ## Features
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
+- [Implementation Roadmap](roadmap.md) — Recommended build order across 10 phases
 
 ## Frontend
 
@@ -21,6 +26,7 @@
 - [Event Model](models/event.md) — Tournaments, leagues, event lifecycle
 - [Borrow Model](models/borrow.md) — Deck lending and return workflow
 - [Notification Model](models/notification.md) — In-app notification system
+- [CMS Model](models/cms.md) — Content pages, menu categories, translations
 
 ## Standards
 

@@ -12,7 +12,9 @@
 |--------------------|-------------------|----------|-------------|
 | `id`               | `int` (auto)      | No       | Primary key |
 | `email`            | `string(180)`     | No       | Unique. Used for login. |
-| `screenName`       | `string(50)`      | No       | Unique. Public display name visible to other users. |
+| `screenName`       | `string(50)`      | No       | Unique. Public display name visible to other users (shown to authenticated users). |
+| `firstName`        | `string(50)`      | No       | User's first name. Used for the anonymous public display format "FirstName L." in tournament results (F3.17). |
+| `lastName`         | `string(50)`      | No       | User's last name. Only the first letter is shown publicly ("FirstName L.") in tournament results. Full last name visible only to the user themselves and admins. |
 | `playerId`         | `string(30)`      | Yes      | Pokemon TCG player ID (e.g. tournament ID). Optional at registration, can be added later. |
 | `password`         | `string`          | No       | Hashed password (Symfony PasswordHasher). |
 | `roles`            | `json`            | No       | Array of role strings. Default: `["ROLE_PLAYER"]`. |
@@ -27,26 +29,31 @@
 | `timezone`        | `string(50)`    | No       | IANA timezone string. Default: `"UTC"`. See F9.2. |
 | `deletedAt`       | `DateTimeImmutable` | Yes  | Soft-delete timestamp. Null = active. See F1.8. |
 | `isAnonymized`    | `bool`          | No       | Personal data anonymized after deletion. Default: `false`. See F1.8. |
+| `iCalToken`       | `string(64)`    | Yes      | Random token for the personal iCal feed URL. Generated on first access, regenerable from profile (invalidates previous URL). See F3.14. |
 
 ### Roles
 
-| Role             | Constant              | Description |
-|------------------|-----------------------|-------------|
-| `ROLE_PLAYER`    | Default for all users | Register decks, request borrows, attend events |
-| `ROLE_ORGANIZER` | Granted by admin      | Create events, assign staff teams |
-| `ROLE_ADMIN`     | Granted manually      | Full access: user management, audit log, all operations |
+| Role                   | Constant              | Description |
+|------------------------|-----------------------|-------------|
+| `ROLE_PLAYER`          | Default for all users | Register decks, request borrows, attend events |
+| `ROLE_ARCHETYPE_EDITOR`| Granted by admin      | Create, edit, and publish archetype descriptions (F2.6, F2.10) |
+| `ROLE_CMS_EDITOR`      | Granted by admin      | Create, edit, and publish content pages and menu categories (F11.1, F11.2) |
+| `ROLE_ORGANIZER`       | Granted by admin      | Create events, assign staff teams |
+| `ROLE_ADMIN`           | Granted manually      | Full access: user management, audit log, all operations |
 
 > **Note:** Staff is **not** a global role. It is a **per-event assignment** modeled via the `EventStaff` join entity (see [Event model](event.md)). A user can be staff at one event and a regular player at another.
 
 Symfony role hierarchy:
 ```
-ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
+ROLE_ADMIN > ROLE_ORGANIZER > ROLE_CMS_EDITOR > ROLE_ARCHETYPE_EDITOR > ROLE_PLAYER
 ```
 
 ### Constraints
 
 - `email`: unique, valid email format
 - `screenName`: unique, 3–50 characters, alphanumeric + underscores
+- `firstName`: required, 1–50 characters
+- `lastName`: required, 1–50 characters
 - `playerId`: optional, unique when provided
 - `password`: minimum 8 characters (validated at form level, stored hashed)
 - `verificationToken`: generated as 64-character random hex string
@@ -56,10 +63,11 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_PLAYER
 - `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`
 - `deletedAt`: once set, cannot be cleared (irreversible)
 - `isAnonymized`: only `false → true` transition allowed (irreversible). Anonymized users cannot log in.
+- `iCalToken`: generated as 64-character random hex string. Unique. Regenerable (old token immediately invalidated).
 
 ### Authentication Flow
 
-1. User submits registration form (email, screen name, password, optional player ID)
+1. User submits registration form (email, first name, last name, screen name, password, optional player ID)
 2. Account is created with `isVerified = false`
 3. A verification email is sent with a tokenized activation link
 4. User clicks the link → token is validated against `verificationToken` and `tokenExpiresAt`
@@ -113,6 +121,7 @@ Users can download all their personal data as a **JSON file** from their profile
 
 - **F1.5 — MFA/TOTP**: Will add `totpSecret` field and a `isTotpEnabled` flag. Planned for later.
 - **F1.6 — Pokemon SSO**: If feasible, would add an `externalId` field for the Pokemon Company account link. Requires investigation.
+- **F3.14 — iCal agenda feed**: `iCalToken` field supports the personal iCal feed URL. Token-authenticated (no login required for calendar clients).
 - **F9 — Localization**: `preferredLocale` and `timezone` fields are now part of the core model.
 
 ### Relations
@@ -121,6 +130,6 @@ Users can download all their personal data as a **JSON file** from their profile
 |--------------------|--------------|---------------|-------------|
 | `ownedDecks`       | OneToMany    | `Deck`        | Decks owned by this user |
 | `borrowRequests`   | OneToMany    | `Borrow`      | Borrow requests made by this user |
-| `eventParticipations` | ManyToMany | `Event`      | Events this user participates in (as player) |
+| `eventEngagements` | OneToMany    | `EventEngagement` | Player engagement states for events (interested, invited, registered). See [Event model](event.md) and F3.13. |
 | `staffAssignments` | OneToMany    | `EventStaff`  | Events where this user is assigned as staff (see [Event model](event.md)) |
 | `notifications`    | OneToMany    | `Notification`| Notifications addressed to this user (see [Notification model](notification.md)) |

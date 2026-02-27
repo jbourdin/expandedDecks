@@ -1,0 +1,13 @@
+app:
+    event:
+        philosophy_notice:
+            title: Community tool — not an official service
+            body: >
+                Expanded Decks is an independent community project designed to promote
+                the Expanded format and make it easier for new players to try it by
+                borrowing decks at events. This tool does not replace or compete with
+                official Pokemon Organized Play services. By creating or updating an
+                event here, you confirm that you will comply with all official Pokemon
+                tournament rules and policies. The tournament ID is used solely for
+                cross-referencing — this platform has no affiliation with The Pokemon
+                Company.
