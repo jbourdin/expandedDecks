@@ -139,12 +139,18 @@ Records which deck version a player played at a specific event. Separate from bo
 | `event`            | `Event`            | No       | The event/tournament. |
 | `player`           | `User`             | No       | The player who played this deck. |
 | `deckVersion`      | `DeckVersion`      | No       | The specific version that was played. |
+| `placement`        | `int`              | Yes      | Final standing / ranking (1 = winner, 2 = runner-up, etc.). Set by organizer or staff after the event. Null until results are entered. |
+| `wins`             | `int`              | Yes      | Number of match wins in the tournament. |
+| `losses`           | `int`              | Yes      | Number of match losses in the tournament. |
+| `ties`             | `int`              | Yes      | Number of match ties in the tournament. |
 | `createdAt`        | `DateTimeImmutable` | No      | When this entry was recorded. |
 
 ### Constraints
 
 - Unique constraint on (`event`, `player`, `deckVersion`) — a player can't register the same version twice for the same event
 - `player` must be a participant of the event (F3.4)
+- `placement`: optional, >= 1 when provided
+- `wins`, `losses`, `ties`: all null or all set. Each >= 0 when provided.
 
 ### Relations
 
