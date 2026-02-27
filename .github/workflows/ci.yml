@@ -76,7 +76,6 @@ jobs:
 
   php-coverage:
     name: PHP Coverage
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -126,7 +125,13 @@ jobs:
         env:
           DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: var/coverage/clover.xml
+
       - name: Coverage comment
+        if: github.event_name == 'pull_request'
         uses: lucassabreu/comment-coverage-clover@main
         with:
           file: var/coverage/clover.xml
