@@ -34,6 +34,7 @@ Read the full **[Project Philosophy](docs/philosophy.md)**.
 | **F5 — Zebra Label Printing** | Generate ZPL labels, push to Zebra printer via PrintNode, scan barcodes for deck identification. |
 | **F6 — Card Data & Validation** | Parse PTCG text (`ptcgo-parser`), validate via TCGdex, Expanded format rules, card image display. |
 | **F7 — Administration** | Dashboard, user management, audit log. |
+| **F11 — CMS Content Pages** | Admin-managed content pages with Markdown, translatable fields (title, slug, content, SEO), menu categories, English fallback. |
 
 See the **[full feature list](docs/features.md)** for detailed descriptions and priorities.
 

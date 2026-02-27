@@ -150,6 +150,18 @@ Both email (via Symfony Mailer + Messenger async transport) and in-app (stored i
 | F9.3   | Application translation              | Medium   | Symfony Translation component (YAML catalogues) for backend strings and `react-i18next` (JSON catalogues) for frontend strings. Initial languages: `en`, `fr`. Dot-notation keys (e.g. `app.deck.status.available`). All user-facing strings wrapped in translation calls (`trans()` / `t()`). |
 | F9.4   | UTC datetime storage                 | High     | All database datetimes stored in **UTC**. Event dates are displayed in the event's `timezone` field (see [Event model](models/event.md)). When the user's timezone differs from the event's timezone, a user-relative hint is shown — e.g. "10:00 CET (16:00 your time)". Borrow and notification timestamps displayed in the user's timezone (F9.2). |
 
+## F11 — CMS Content Pages
+
+Lightweight content management for static informational pages (e.g. "About", "How to borrow a deck", "Expanded format FAQ"). All user-facing text is translatable via the Knp Translatable pattern (companion `*Translation` entities). English (`en`) serves as the **fallback locale** — if no translation exists for the user's preferred locale, the English version is displayed.
+
+| ID      | Feature                              | Priority | Description |
+|---------|--------------------------------------|----------|-------------|
+| F11.1   | Content pages                        | Low      | Admin-managed content pages. Each page has a **slug** (URL-friendly, unique), an optional **menu category** (F11.2), a **published** flag, and timestamps. Translatable fields (stored in `PageTranslation`): **title**, **slug** (localized URL, with the non-translatable slug as canonical fallback), and **content** (Markdown, rendered to HTML on display). SEO fields (also translatable, in `PageTranslation`): **metaTitle** (falls back to title if empty), **metaDescription**, and **ogImage** URL. Non-translatable SEO fields on the page itself: **canonicalUrl** (optional override) and **noIndex** flag (default `false`). Pages are served at `/{locale}/pages/{localizedSlug}` (or `/{locale}/pages/{slug}` when no localized slug exists). Admin CRUD in the F7 area. See [CMS model](models/cms.md). |
+| F11.2   | Menu categories                      | Low      | Admin-managed grouping for content pages. Each category has a **position** (integer for ordering) and a translatable **name** (stored in `MenuCategoryTranslation`). Categories are displayed in position order in the site navigation or footer. A page can belong to zero or one category. Categories without any published page are hidden from the navigation. Admin CRUD with drag-to-reorder or position input. See [CMS model](models/cms.md). |
+| F11.3   | Page rendering & locale fallback     | Low      | Public page view: resolves the page by localized slug (or canonical slug), renders Markdown content to HTML (via `league/commonmark`), applies the current locale from F9.1. **Fallback chain:** if no `PageTranslation` exists for the user's locale, the `en` translation is used. If no `en` translation exists either, the page returns 404. The page layout includes the translated title, rendered content, and SEO meta tags in the `<head>`. Menu categories are resolved with the same fallback chain for their names. |
+
+---
+
 ## F10 — Global UX Concerns
 
 | ID      | Feature                              | Priority | Description |
