@@ -1,0 +1,75 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-info">
+                <strong>{{ 'Philosophy notice'|trans }}</strong>
+                <p class="mb-0">Events created here are meant for friendly, community-driven tournaments. Please ensure your event follows the Pokémon Organized Play guidelines and fosters a welcoming atmosphere for all players.</p>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">Edit {{ event.name }}</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.name) }}
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.eventId) }}</div>
+                            <div class="col-md-6">{{ form_row(form.format) }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.date) }}</div>
+                            <div class="col-md-6">{{ form_row(form.endDate) }}</div>
+                        </div>
+
+                        {{ form_row(form.timezone) }}
+                        {{ form_row(form.location) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.registrationLink) }}
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.league) }}</div>
+                            <div class="col-md-6">{{ form_row(form.tournamentStructure) }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.minAttendees) }}</div>
+                            <div class="col-md-6">{{ form_row(form.maxAttendees) }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.roundDuration) }}</div>
+                            <div class="col-md-6">{{ form_row(form.topCutRoundDuration) }}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.entryFeeAmount) }}</div>
+                            <div class="col-md-6">{{ form_row(form.entryFeeCurrency) }}</div>
+                        </div>
+
+                        {{ form_row(form.isDecklistMandatory) }}
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-gold">Save Changes</button>
+                            <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

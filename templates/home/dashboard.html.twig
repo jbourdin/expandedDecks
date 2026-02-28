@@ -47,15 +47,18 @@
 
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                <div class="card-header card-header-themed">
+                <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Upcoming Events</h5>
+                    {% if is_granted('ROLE_ORGANIZER') %}
+                        <a href="{{ path('app_event_new') }}" class="btn btn-sm btn-gold">+ New</a>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     {% if events|length > 0 %}
                         <ul class="list-group list-group-flush">
                             {% for event in events %}
                                 <li class="list-group-item">
-                                    <strong>{{ event.name }}</strong>
+                                    <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
                                     <br>
                                     <small class="text-muted">
                                         {{ event.date|date('M j, Y') }}
