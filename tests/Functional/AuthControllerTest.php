@@ -138,6 +138,32 @@ class AuthControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // LastLoginListener
+    // ---------------------------------------------------------------
+
+    public function testLoginUpdatesLastLoginAt(): void
+    {
+        /** @var UserRepository $repo */
+        $repo = static::getContainer()->get(UserRepository::class);
+        $user = $repo->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($user);
+        $previousLogin = $user->getLastLoginAt();
+
+        $this->loginAs('admin@example.com');
+
+        // Refresh from DB
+        /** @var UserRepository $freshRepo */
+        $freshRepo = static::getContainer()->get(UserRepository::class);
+        $updated = $freshRepo->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getLastLoginAt());
+
+        if (null !== $previousLogin) {
+            self::assertGreaterThanOrEqual($previousLogin, $updated->getLastLoginAt());
+        }
+    }
+
+    // ---------------------------------------------------------------
     // Homepage redirect
     // ---------------------------------------------------------------
 
