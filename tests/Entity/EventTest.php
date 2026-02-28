@@ -40,6 +40,12 @@ class EventTest extends TestCase
         self::assertSame(0, $event->countByState(EngagementState::RegisteredPlaying));
     }
 
+    public function testUserGetEventEngagementsReturnsEmptyCollection(): void
+    {
+        $user = new User();
+        self::assertCount(0, $user->getEventEngagements());
+    }
+
     private function createUserWithId(int $id): User
     {
         $user = new User();

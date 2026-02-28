@@ -20,6 +20,7 @@
     <testsuites>
         <testsuite name="unit">
             <directory>tests/Service</directory>
+            <directory>tests/Entity</directory>
         </testsuite>
         <testsuite name="functional">
             <directory>tests/Functional</directory>
