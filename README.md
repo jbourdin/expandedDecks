@@ -1,5 +1,11 @@
 # Expanded Decks
 
+[![CI](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/jbourdin/expandedDecks/graph/badge.svg)](https://codecov.io/gh/jbourdin/expandedDecks)
+[![PHP 8.5+](https://img.shields.io/badge/PHP-≥8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Symfony 7.2](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)](https://symfony.com/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 > **Audience:** Developer, Player, Organizer · **Scope:** Overview
 
 A web application for managing a shared library of physical Pokemon TCG decks in the **Expanded format**. It enables a community of players to register their decks, declare upcoming events, request to borrow decks, and track the full lending lifecycle — from request to return.

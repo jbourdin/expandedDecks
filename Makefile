@@ -24,15 +24,27 @@ stop: ## Stop dev server and Docker services
 	symfony server:stop
 	docker compose down
 
+.PHONY: mailpit
+mailpit: ## Open Mailpit web UI
+	open http://localhost:8035
+
 ## —— Messenger ————————————————————————————————————————————————————————
+
+.PHONY: worker.email
+worker.email: ## Run the transactional email Messenger worker
+	symfony console messenger:consume transactional_email -vv --no-debug
 
 .PHONY: worker.enrichment
 worker.enrichment: ## Run the deck enrichment Messenger worker
 	symfony console messenger:consume deck_enrichment -vv --no-debug
 
+.PHONY: worker.notification
+worker.notification: ## Run the notification Messenger worker
+	symfony console messenger:consume notification -vv --no-debug
+
 .PHONY: worker.all
-worker.all: ## Run all Messenger workers (async + deck enrichment)
-	symfony console messenger:consume async deck_enrichment -vv --no-debug
+worker.all: ## Run all Messenger workers
+	symfony console messenger:consume transactional_email deck_enrichment notification -vv --no-debug
 
 ## —— Database —————————————————————————————————————————————————————————
 
@@ -63,6 +75,22 @@ assets.watch: ## Build frontend assets and watch for changes
 .PHONY: test
 test: ## Run test suite
 	symfony php bin/phpunit
+
+.PHONY: test.unit
+test.unit: ## Run PHP unit tests only
+	symfony php bin/phpunit --testsuite unit
+
+.PHONY: test.functional
+test.functional: ## Run PHP functional tests only
+	symfony php bin/phpunit --testsuite functional
+
+.PHONY: coverage
+coverage: ## Run PHP tests with coverage (requires pcov)
+	symfony php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
+
+.PHONY: test.front
+test.front: ## Run frontend (Vitest) tests
+	npx vitest run
 
 .PHONY: phpstan
 phpstan: ## Run PHPStan static analysis

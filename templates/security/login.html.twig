@@ -42,7 +42,15 @@
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
 
-                    <p class="text-center mt-3 mb-0">
+                    <p class="text-center mt-3 mb-2">
+                        <a href="{{ path('app_forgot_password') }}">Forgot your password?</a>
+                    </p>
+
+                    <p class="text-center mb-2">
+                        <a href="{{ path('app_verify_resend') }}">Didn't receive a verification email?</a>
+                    </p>
+
+                    <p class="text-center mb-0">
                         Don't have an account? <a href="{{ path('app_register') }}">Register</a>
                     </p>
                 </div>

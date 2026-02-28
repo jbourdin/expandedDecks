@@ -28,13 +28,13 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | ID   | Feature                            | Priority | State       | Depends on |
 |------|------------------------------------|----------|-------------|------------|
-| F1.1 | User registration & authentication | High     | Partial     | —          |
-| F1.2 | Email verification                 | High     | Not started | F1.1       |
-| F1.4 | Role-based access control          | High     | Partial     | F1.1       |
-| F1.7 | Password reset                     | High     | Not started | F1.1       |
+| F1.1 | User registration & authentication | High     | Done        | —          |
+| F1.2 | Email verification                 | High     | Done        | F1.1       |
+| F1.4 | Role-based access control          | High     | Done        | F1.1       |
+| F1.7 | Password reset                     | High     | Done        | F1.1       |
 | F9.4 | UTC datetime storage               | High     | Done        | —          |
 
-**Progress: 1/5 done · 2 partial · 2 not started**
+**Progress: 5/5 done**
 
 **Deliverable:** Users can register, verify email, log in, reset passwords. RBAC in place for all future access checks. All datetimes stored in UTC.
 
@@ -129,11 +129,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F9.1 | User language preference   | Medium   | Partial     | F1.1       |
 | F9.2 | User timezone              | Medium   | Partial     | F1.1, F9.4 |
 | F9.3 | Application translation    | Medium   | Not started | —          |
-| F1.3 | User profile               | Medium   | Not started | F1.1       |
+| F1.3  | User profile               | Medium   | Not started | F1.1       |
+| F1.11 | Gravatar avatar & navbar user menu | Medium | Not started | F1.1 |
 
-**Progress: 0/4 done · 2 partial · 2 not started**
+**Progress: 0/5 done · 2 partial · 3 not started**
 
-**Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, and a profile page showing owned decks, borrow history, and upcoming events.
+**Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, a profile page showing owned decks, borrow history, and upcoming events, and a Gravatar-powered navbar avatar with user dropdown menu.
 
 ---
 
@@ -208,6 +209,15 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.16 | Public iCal feed               | Low      | Not started | F3.11            |
 | F3.6  | Tournament ID verification     | Low      | Not started | F3.18            |
 
+### Auth Hardening
+
+| ID    | Feature                            | Priority | State       | Depends on |
+|-------|------------------------------------|----------|-------------|------------|
+| F1.9  | Login with screen name or email    | Low      | Not started | F1.1       |
+| F1.10 | Password strength scoring (zxcvbn) | Low      | Not started | F1.1       |
+| F1.5  | MFA with TOTP (planned)            | Low      | Not started | F1.1       |
+| F1.6  | Pokemon SSO (to investigate)       | Low      | Not started | F1.1       |
+
 ### Remaining Features
 
 | ID    | Feature                        | Priority | State       | Depends on       |
@@ -218,12 +228,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F4.6  | Overdue tracking               | Low      | Not started | F4.4             |
 | F7.3  | Audit log                      | Low      | Not started | —                |
 | F8.3  | Notification preferences       | Low      | Not started | F8.1             |
-| F1.5  | MFA with TOTP (planned)        | Low      | Not started | F1.1             |
-| F1.6  | Pokemon SSO (to investigate)   | Low      | Not started | F1.1             |
 
-**Progress: 0/19 done · 1 partial · 18 not started**
+**Progress: 0/21 done · 1 partial · 20 not started**
 
-**Deliverable:** Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, notification preferences, audit log, and future auth enhancements (MFA, Pokemon SSO).
+**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, notification preferences, and audit log.
 
 ---
 
@@ -247,20 +255,34 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ---
 
+## Cross-Cutting: Testing Infrastructure
+
+> Test framework setup and continuous quality assurance.
+
+| Item                                  | State       | Notes                                  |
+|---------------------------------------|-------------|----------------------------------------|
+| PHP unit tests (PHPUnit)              | Done        | Service-layer tests, 34 methods        |
+| PHP coverage in CI (pcov)             | Done        | PR comment via GitHub Action            |
+| PHP functional tests (WebTestCase)    | Done        | Base class + smoke tests               |
+| Frontend unit tests (Vitest)          | Done        | Vitest + @testing-library/react        |
+| E2E tests (Playwright)               | Not started | Future: browser-based end-to-end tests |
+
+---
+
 ## Summary
 
 | Phase | Name                              | Done | Partial | Not started | Total |
 |-------|-----------------------------------|------|---------|-------------|-------|
-| 1     | Auth & Foundation                 | 1    | 2       | 2           | 5     |
+| 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 0    | 3       | 2           | 5     |
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
 | 5     | Core Views & Navigation           | 2    | 2       | 5           | 9     |
-| 6     | Localization                      | 0    | 2       | 2           | 4     |
+| 6     | Localization                      | 0    | 2       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 3       | 5           | 8     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
-| 9     | Content, Archetypes & Low Priority | 0   | 1       | 18          | 19    |
+| 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **10** | **22** | **46**      | **78** |
+|       | **Total**                         | **14** | **18** | **49**      | **81** |
 
-All 78 features from [features.md](features.md) are represented exactly once.
+All 81 features from [features.md](features.md) are represented exactly once.

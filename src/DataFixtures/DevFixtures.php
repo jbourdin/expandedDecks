@@ -50,7 +50,9 @@ class DevFixtures extends Fixture
     private function createAdmin(ObjectManager $manager): User
     {
         $admin = new User();
-        $admin->setEmail('jbourdin@gmail.com');
+        $admin->setEmail('admin@example.com');
+        $admin->setFirstName('Jean-Michel');
+        $admin->setLastName('Admin');
         $admin->setScreenName('Admin');
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
         $admin->setRoles(['ROLE_ADMIN']);
@@ -67,6 +69,8 @@ class DevFixtures extends Fixture
     {
         $borrower = new User();
         $borrower->setEmail('borrower@example.com');
+        $borrower->setFirstName('Alice');
+        $borrower->setLastName('Dupont');
         $borrower->setScreenName('Borrower');
         $borrower->setPassword($this->passwordHasher->hashPassword($borrower, 'password'));
         $borrower->setIsVerified(true);

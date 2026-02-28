@@ -13,8 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,49 +22,39 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * @see docs/features.md F1.1 — Register a new account
  * @see docs/features.md F1.2 — Email verification
  */
-class RegistrationController extends AbstractController
+class VerificationController extends AbstractController
 {
-    #[Route('/register', name: 'app_register')]
-    public function register(
+    #[Route('/verify/resend', name: 'app_verify_resend', methods: ['GET', 'POST'])]
+    public function resend(
         Request $request,
-        UserPasswordHasherInterface $passwordHasher,
+        UserRepository $userRepository,
         EntityManagerInterface $entityManager,
         MailerInterface $mailer,
         #[Autowire('%app.verification_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
     ): Response {
-        if ($this->getUser()) {
-            return $this->redirectToRoute('app_dashboard');
+        if ('POST' !== $request->getMethod()) {
+            return $this->render('verification/resend.html.twig');
         }
 
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
+        $email = $request->getPayload()->getString('email');
+        $user = $userRepository->findOneBy(['email' => $email]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
-
+        if (null !== $user && !$user->isVerified() && !$user->isAnonymized()) {
             $token = bin2hex(random_bytes(32));
             $user->setVerificationToken($token);
             $user->setTokenExpiresAt(new \DateTimeImmutable('+'.$tokenTtl.' seconds', new \DateTimeZone('UTC')));
-
-            $entityManager->persist($user);
             $entityManager->flush();
 
             $verificationUrl = $this->generateUrl('app_verify', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-            $email = (new TemplatedEmail())
+            $emailMessage = (new TemplatedEmail())
                 ->from(new Address($mailSender, 'Expanded Decks'))
                 ->to($user->getEmail())
                 ->subject('Verify your Expanded Decks account')
@@ -76,15 +65,44 @@ class RegistrationController extends AbstractController
                     'expiresInHours' => (int) ($tokenTtl / 3600),
                 ]);
 
-            $mailer->send($email);
+            $mailer->send($emailMessage);
+        }
 
-            $this->addFlash('success', 'Your account has been created. Please check your email to verify your address.');
+        // Anti-enumeration: always show the same success message
+        $this->addFlash('success', 'If an account exists with that email and is not yet verified, a new verification email has been sent.');
+
+        return $this->redirectToRoute('app_login');
+    }
+
+    #[Route('/verify/{token}', name: 'app_verify', methods: ['GET'])]
+    public function verify(
+        string $token,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $user = $userRepository->findOneBy(['verificationToken' => $token]);
+
+        if (null === $user) {
+            $this->addFlash('danger', 'Invalid verification link.');
 
             return $this->redirectToRoute('app_login');
         }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
-        ]);
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        if (null !== $user->getTokenExpiresAt() && $user->getTokenExpiresAt() < $now) {
+            $this->addFlash('danger', 'This verification link has expired. Please request a new one.');
+
+            return $this->redirectToRoute('app_verify_resend');
+        }
+
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+        $user->setTokenExpiresAt(null);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Your email has been verified. You can now log in.');
+
+        return $this->redirectToRoute('app_login');
     }
 }
