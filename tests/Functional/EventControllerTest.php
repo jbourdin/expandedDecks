@@ -270,6 +270,17 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testEditEventDeniedForOtherOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('organizer@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d/edit', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testEditCancelledEventRedirectsWithWarning(): void
     {
         $event = $this->getFixtureEvent();
@@ -385,6 +396,17 @@ class EventControllerTest extends AbstractFunctionalTest
         $event = $this->getFixtureEvent();
 
         $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', \sprintf('/event/%d/cancel', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testCancelEventDeniedForOtherOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('organizer@example.com');
 
         $this->client->request('POST', \sprintf('/event/%d/cancel', $event->getId()));
 

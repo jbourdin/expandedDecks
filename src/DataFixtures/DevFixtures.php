@@ -35,7 +35,9 @@ class DevFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $admin = $this->createAdmin($manager);
+        $this->createOrganizer($manager);
         $this->createBorrower($manager);
+        $this->createUnverifiedUser($manager);
         $league = $this->createLeague($manager);
         $this->createEventToday($manager, $admin, $league);
         $this->createEventInTwoMonths($manager, $admin, $league);
@@ -65,6 +67,24 @@ class DevFixtures extends Fixture
         return $admin;
     }
 
+    private function createOrganizer(ObjectManager $manager): User
+    {
+        $organizer = new User();
+        $organizer->setEmail('organizer@example.com');
+        $organizer->setFirstName('Bob');
+        $organizer->setLastName('Martin');
+        $organizer->setScreenName('Organizer');
+        $organizer->setPassword($this->passwordHasher->hashPassword($organizer, 'password'));
+        $organizer->setRoles(['ROLE_ORGANIZER']);
+        $organizer->setIsVerified(true);
+        $organizer->setPreferredLocale('en');
+        $organizer->setTimezone('Europe/Paris');
+
+        $manager->persist($organizer);
+
+        return $organizer;
+    }
+
     private function createBorrower(ObjectManager $manager): User
     {
         $borrower = new User();
@@ -80,6 +100,25 @@ class DevFixtures extends Fixture
         $manager->persist($borrower);
 
         return $borrower;
+    }
+
+    private function createUnverifiedUser(ObjectManager $manager): User
+    {
+        $user = new User();
+        $user->setEmail('unverified@example.com');
+        $user->setFirstName('Charlie');
+        $user->setLastName('Pending');
+        $user->setScreenName('Unverified');
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setIsVerified(false);
+        $user->setVerificationToken('test-verification-token');
+        $user->setTokenExpiresAt(new \DateTimeImmutable('+1 day', new \DateTimeZone('UTC')));
+        $user->setPreferredLocale('en');
+        $user->setTimezone('UTC');
+
+        $manager->persist($user);
+
+        return $user;
     }
 
     private function createLeague(ObjectManager $manager): League
