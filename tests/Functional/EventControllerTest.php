@@ -316,8 +316,8 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorExists('a.btn-outline-primary');
-        $editLink = $crawler->filter('a.btn-outline-primary')->first();
+        self::assertSelectorExists('a.btn-outline-light');
+        $editLink = $crawler->filter('a.btn-outline-light')->first();
         self::assertStringContainsString('/edit', $editLink->attr('href') ?? '');
     }
 
@@ -330,7 +330,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorNotExists('a.btn-outline-primary');
+        self::assertSelectorNotExists('a.btn-outline-light');
     }
 
     public function testEditEventShowButtonHiddenWhenCancelled(): void
@@ -347,7 +347,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorNotExists('a.btn-outline-primary');
+        self::assertSelectorNotExists('a.btn-outline-light');
         self::assertSelectorTextContains('.badge.bg-danger', 'Cancelled');
     }
 
