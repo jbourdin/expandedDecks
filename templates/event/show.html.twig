@@ -21,6 +21,9 @@
                 {% if event.eventId %}
                     <span class="badge bg-secondary">ID: {{ event.eventId }}</span>
                 {% endif %}
+                {% if isOrganizer and not event.cancelledAt %}
+                    <a href="{{ path('app_event_edit', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                {% endif %}
             </div>
         </div>
         <div class="card-body">

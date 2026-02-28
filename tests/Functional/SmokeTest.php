@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Repository\EventRepository;
+
 class SmokeTest extends AbstractFunctionalTest
 {
     public function testHomepageReturnsOk(): void
@@ -83,6 +85,35 @@ class SmokeTest extends AbstractFunctionalTest
         $this->loginAs('admin@example.com');
 
         $this->client->request('GET', '/event/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form');
+    }
+
+    public function testEventEditRequiresOrganizer(): void
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy([]);
+        self::assertNotNull($event);
+
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d/edit', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testEventEditAccessibleForOrganizer(): void
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy([]);
+        self::assertNotNull($event);
+
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d/edit', $event->getId()));
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form');

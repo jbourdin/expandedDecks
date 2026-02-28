@@ -28,6 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.2 — Event listing
  * @see docs/features.md F3.3 — Event detail view
+ * @see docs/features.md F3.9 — Edit an event
  */
 #[Route('/event')]
 #[IsGranted('ROLE_USER')]
@@ -80,6 +81,38 @@ class EventController extends AbstractController
     }
 
     /**
+     * @see docs/features.md F3.9 — Edit an event
+     */
+    #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function edit(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'A cancelled event cannot be edited.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $form = $this->createForm(EventFormType::class, $event);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', \sprintf('Event "%s" updated.', $event->getName()));
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        return $this->render('event/edit.html.twig', [
+            'event' => $event,
+            'form' => $form,
+        ]);
+    }
+
+    /**
      * @see docs/features.md F3.2 — Event listing
      */
     #[Route('', name: 'app_event_list', methods: ['GET'])]
@@ -88,5 +121,15 @@ class EventController extends AbstractController
         return $this->render('event/list.html.twig', [
             'events' => $eventRepository->findUpcoming(20),
         ]);
+    }
+
+    private function denyAccessUnlessOrganizer(Event $event): void
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($event->getOrganizer()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('You are not the organizer of this event.');
+        }
     }
 }
