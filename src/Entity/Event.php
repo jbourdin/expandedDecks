@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @see docs/features.md F3.1 — Create a new event
+ * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F3.10 — Cancel an event
  */
 #[ORM\Entity(repositoryClass: EventRepository::class)]
@@ -431,6 +432,20 @@ class Event
     public function getStaff(): Collection
     {
         return $this->staff;
+    }
+
+    /**
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    public function getStaffFor(User $user): ?EventStaff
+    {
+        foreach ($this->staff as $staffMember) {
+            if ($staffMember->getUser()->getId() === $user->getId()) {
+                return $staffMember;
+            }
+        }
+
+        return null;
     }
 
     /**

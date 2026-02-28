@@ -15,11 +15,13 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Entity\EventEngagement;
+use App\Entity\EventStaff;
 use App\Entity\User;
 use App\Enum\EngagementState;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Repository\EventRepository;
+use App\Repository\EventStaffRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +34,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.2 — Event listing
  * @see docs/features.md F3.3 — Event detail view
  * @see docs/features.md F3.4 — Register participation to an event
+ * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  */
@@ -231,6 +234,99 @@ class EventController extends AbstractController
         }
 
         $this->addFlash('success', 'You have withdrawn from this event.');
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    #[Route('/{id}/assign-staff', name: 'app_event_assign_staff', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function assignStaff(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('assign-staff-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'Cannot assign staff to a cancelled event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $screenName = $request->getPayload()->getString('screen_name');
+        $targetUser = $em->getRepository(User::class)->findOneBy(['screenName' => $screenName]);
+
+        if (null === $targetUser) {
+            $this->addFlash('warning', \sprintf('User "%s" not found.', $screenName));
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
+        if ($targetUser->getId() === $event->getOrganizer()->getId()) {
+            $this->addFlash('warning', 'The organizer cannot be assigned as staff.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getStaffFor($targetUser)) {
+            $this->addFlash('warning', \sprintf('"%s" is already a staff member.', $screenName));
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $staff = new EventStaff();
+        $staff->setEvent($event);
+        $staff->setUser($targetUser);
+        $staff->setAssignedBy($currentUser);
+
+        $em->persist($staff);
+        $em->flush();
+
+        $this->addFlash('success', \sprintf('"%s" has been added to the staff team.', $screenName));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    #[Route('/{id}/remove-staff/{staffId}', name: 'app_event_remove_staff', methods: ['POST'], requirements: ['id' => '\d+', 'staffId' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function removeStaff(Event $event, int $staffId, Request $request, EntityManagerInterface $em, EventStaffRepository $staffRepository): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('remove-staff-'.$staffId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'Cannot remove staff from a cancelled event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $staffMember = $staffRepository->find($staffId);
+
+        if (null === $staffMember || $staffMember->getEvent()->getId() !== $event->getId()) {
+            throw $this->createNotFoundException('Staff member not found for this event.');
+        }
+
+        $em->remove($staffMember);
+        $em->flush();
+
+        $this->addFlash('success', \sprintf('"%s" has been removed from the staff team.', $staffMember->getUser()->getScreenName()));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
