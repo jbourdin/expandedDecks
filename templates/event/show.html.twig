@@ -122,6 +122,56 @@
         </div>
     </div>
 
+    {% if not event.cancelledAt %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Participation</h6>
+            </div>
+            <div class="card-body">
+                {% set playerCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredPlaying')) %}
+                {% set spectatorCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredSpectating')) %}
+
+                <p class="mb-3">
+                    <strong>{{ playerCount }}</strong> player{{ playerCount != 1 ? 's' : '' }},
+                    <strong>{{ spectatorCount }}</strong> spectator{{ spectatorCount != 1 ? 's' : '' }}
+                </p>
+
+                {% if userEngagement %}
+                    {% if userEngagement.state.value == 'registered_playing' %}
+                        <span class="badge bg-success me-2">Registered (Playing)</span>
+                        <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                            <input type="hidden" name="mode" value="spectating">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Switch to Spectator</button>
+                        </form>
+                    {% elseif userEngagement.state.value == 'registered_spectating' %}
+                        <span class="badge bg-info me-2">Registered (Spectating)</span>
+                        <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                            <input type="hidden" name="mode" value="playing">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Switch to Player</button>
+                        </form>
+                    {% endif %}
+                    <form method="post" action="{{ path('app_event_withdraw', {id: event.id}) }}" class="d-inline ms-1">
+                        <input type="hidden" name="_token" value="{{ csrf_token('withdraw-event-' ~ event.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Withdraw</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
+                        <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                        <input type="hidden" name="mode" value="playing">
+                        <button type="submit" class="btn btn-sm btn-primary">Register as Player</button>
+                    </form>
+                    <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                        <input type="hidden" name="mode" value="spectating">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Register as Spectator</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
     <div class="d-flex gap-2">
         <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
         {% if isOrganizer and not event.cancelledAt %}

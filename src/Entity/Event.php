@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\EngagementState;
 use App\Enum\TournamentStructure;
 use App\Repository\EventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -117,12 +118,9 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $cancelledAt = null;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class)]
-    #[ORM\JoinTable(name: 'event_participant')]
-    private Collection $participants;
+    /** @var Collection<int, EventEngagement> */
+    #[ORM\OneToMany(targetEntity: EventEngagement::class, mappedBy: 'event')]
+    private Collection $engagements;
 
     /** @var Collection<int, EventStaff> */
     #[ORM\OneToMany(targetEntity: EventStaff::class, mappedBy: 'event')]
@@ -140,7 +138,7 @@ class Event
     {
         $this->date = new \DateTimeImmutable();
         $this->createdAt = new \DateTimeImmutable();
-        $this->participants = new ArrayCollection();
+        $this->engagements = new ArrayCollection();
         $this->staff = new ArrayCollection();
         $this->borrows = new ArrayCollection();
         $this->deckEntries = new ArrayCollection();
@@ -397,27 +395,34 @@ class Event
     }
 
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, EventEngagement>
      */
-    public function getParticipants(): Collection
+    public function getEngagements(): Collection
     {
-        return $this->participants;
+        return $this->engagements;
     }
 
-    public function addParticipant(User $participant): static
+    public function getEngagementFor(User $user): ?EventEngagement
     {
-        if (!$this->participants->contains($participant)) {
-            $this->participants->add($participant);
+        foreach ($this->engagements as $engagement) {
+            if ($engagement->getUser()->getId() === $user->getId()) {
+                return $engagement;
+            }
         }
 
-        return $this;
+        return null;
     }
 
-    public function removeParticipant(User $participant): static
+    public function countByState(EngagementState $state): int
     {
-        $this->participants->removeElement($participant);
+        $count = 0;
+        foreach ($this->engagements as $engagement) {
+            if ($engagement->getState() === $state) {
+                ++$count;
+            }
+        }
 
-        return $this;
+        return $count;
     }
 
     /**

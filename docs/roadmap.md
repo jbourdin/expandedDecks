@@ -69,10 +69,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.1 | Create an event                    | High     | Done        | F1.4       |
 | F3.9 | Edit an event                      | High     | Done        | F3.1       |
 | F3.5 | Assign event staff team            | High     | Partial     | F3.1, F1.4 |
-| F3.4 | Register participation to an event | Medium   | Not started | F3.1, F1.1 |
+| F3.4 | Register participation to an event | Medium   | Done        | F3.1, F1.1 |
 | F3.8 | League/Store management            | Medium   | Partial     | —          |
 
-**Progress: 2/5 done · 2 partial · 1 not started**
+**Progress: 3/5 done · 2 partial · 0 not started**
 
 **Deliverable:** Organizers can create/edit events, assign staff, and link leagues. Players can register participation (playing or spectating).
 
@@ -275,7 +275,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|-----------------------------------|------|---------|-------------|-------|
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
-| 3     | Events & Staff                    | 2    | 2       | 1           | 5     |
+| 3     | Events & Staff                    | 3    | 2       | 0           | 5     |
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
 | 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
@@ -283,6 +283,6 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **18** | **15** | **48**      | **81** |
+|       | **Total**                         | **19** | **15** | **47**      | **81** |
 
 All 81 features from [features.md](features.md) are represented exactly once.

@@ -17,9 +17,12 @@ use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
+use App\Entity\EventEngagement;
 use App\Entity\League;
 use App\Entity\User;
 use App\Enum\DeckStatus;
+use App\Enum\EngagementState;
+use App\Enum\ParticipationMode;
 use App\Enum\TournamentStructure;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -145,9 +148,15 @@ class DevFixtures extends Fixture
         $event->setRegistrationLink('https://pokemon-lyon.example.com/events/42');
         $event->setTournamentStructure(TournamentStructure::Swiss);
         $event->setFormat('Expanded');
-        $event->addParticipant($organizer);
 
         $manager->persist($event);
+
+        $engagement = new EventEngagement();
+        $engagement->setEvent($event);
+        $engagement->setUser($organizer);
+        $engagement->setState(EngagementState::RegisteredPlaying);
+        $engagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($engagement);
     }
 
     private function createEventInTwoMonths(ObjectManager $manager, User $organizer, League $league): void
@@ -162,9 +171,15 @@ class DevFixtures extends Fixture
         $event->setRegistrationLink('https://pokemon-lyon.example.com/events/cup-2026');
         $event->setTournamentStructure(TournamentStructure::SwissTopCut);
         $event->setFormat('Expanded');
-        $event->addParticipant($organizer);
 
         $manager->persist($event);
+
+        $engagement = new EventEngagement();
+        $engagement->setEvent($event);
+        $engagement->setUser($organizer);
+        $engagement->setState(EngagementState::RegisteredPlaying);
+        $engagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($engagement);
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name): Deck
