@@ -93,10 +93,11 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 
 When an event is cancelled (F3.10):
 1. `cancelledAt` is set to the current timestamp
-2. All `pending` and `approved` borrows linked to this event are automatically cancelled
-3. All participants and deck owners with active borrows are notified (F8.2)
-4. The event remains visible in listings for historical reference, but is clearly marked as cancelled
-5. No further edits, borrow requests, or participation changes are allowed
+2. **Pre-handoff borrows are cancelled:** all `pending` and `approved` borrows linked to this event are automatically moved to `cancelled` status and their deck status reverts to `available`
+3. **Already-lent decks are untouched:** borrows in `lent` or `overdue` status remain active — the physical deck is out and must still be returned by the borrower through the normal return flow (F4.4). These borrows continue through their lifecycle independently of the event's cancelled state
+4. All participants and affected deck owners are notified (F8.2). Owners of lent decks receive a specific notification that the event was cancelled but their deck is still out
+5. The event remains visible in listings for historical reference, but is clearly marked as cancelled
+6. No further edits, borrow requests, or participation changes are allowed
 
 ### Event ID & Tournament Verification
 

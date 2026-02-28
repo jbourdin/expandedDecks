@@ -38,7 +38,7 @@ class League
     private string $name = '';
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url]
+    #[Assert\Url(requireTld: true)]
     #[Assert\Length(max: 255)]
     private ?string $website = null;
 

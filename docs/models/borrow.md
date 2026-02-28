@@ -49,16 +49,18 @@ Represents the full lifecycle of a deck borrow request — from request to retur
 
 ```
 pending → approved → lent → returned
-    │         │        │
-    └─────────┴────────┴──→ cancelled
+    │         │
+    └─────────┴──→ cancelled
 ```
+
+Cancellation is only possible **before hand-off** (`pending` or `approved`). Once a deck is physically `lent`, the borrow must go through the return flow — even if the event is cancelled (F3.10).
 
 #### Staff-Delegated Workflow
 
 ```
 pending → approved → lent → returned → returned_to_owner
-    │         │        │        │
-    └─────────┴────────┴────────┴──→ cancelled
+    │         │
+    └─────────┴──→ cancelled
 ```
 
 #### Overdue (applies to both workflows)

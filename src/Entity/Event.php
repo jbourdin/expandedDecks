@@ -77,7 +77,7 @@ class Event
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Url]
+    #[Assert\Url(requireTld: true)]
     #[Assert\Length(max: 255)]
     private string $registrationLink = '';
 
