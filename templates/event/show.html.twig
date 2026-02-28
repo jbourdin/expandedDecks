@@ -1,0 +1,123 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ event.name }}</h5>
+            <div class="d-flex align-items-center gap-2">
+                {% if event.cancelledAt %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
+                {% if event.eventId %}
+                    <span class="badge bg-secondary">ID: {{ event.eventId }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-sm table-themed mb-0">
+                        <tbody>
+                            <tr>
+                                <th>Date</th>
+                                <td>
+                                    {{ event.date|date('M j, Y g:ia') }}
+                                    {% if event.endDate %}
+                                        — {{ event.endDate|date('M j, Y g:ia') }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Timezone</th>
+                                <td>{{ event.timezone }}</td>
+                            </tr>
+                            <tr>
+                                <th>Format</th>
+                                <td>{{ event.format }}</td>
+                            </tr>
+                            <tr>
+                                <th>Organizer</th>
+                                <td>{{ event.organizer.screenName }}</td>
+                            </tr>
+                            {% if event.location %}
+                                <tr>
+                                    <th>Location</th>
+                                    <td>{{ event.location }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if event.league %}
+                                <tr>
+                                    <th>League</th>
+                                    <td>{{ event.league.name }}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Registration</th>
+                                <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-sm table-themed mb-0">
+                        <tbody>
+                            {% if event.tournamentStructure %}
+                                <tr>
+                                    <th>Structure</th>
+                                    <td>{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if event.minAttendees or event.maxAttendees %}
+                                <tr>
+                                    <th>Attendees</th>
+                                    <td>
+                                        {% if event.minAttendees %}Min: {{ event.minAttendees }}{% endif %}
+                                        {% if event.minAttendees and event.maxAttendees %} / {% endif %}
+                                        {% if event.maxAttendees %}Max: {{ event.maxAttendees }}{% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if event.roundDuration or event.topCutRoundDuration %}
+                                <tr>
+                                    <th>Round duration</th>
+                                    <td>
+                                        {% if event.roundDuration %}{{ event.roundDuration }} min{% endif %}
+                                        {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
+                                        {% if event.topCutRoundDuration %}Top cut: {{ event.topCutRoundDuration }} min{% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            {% if event.entryFeeAmount is not null %}
+                                <tr>
+                                    <th>Entry fee</th>
+                                    <td>{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Decklist mandatory</th>
+                                <td>{{ event.decklistMandatory ? 'Yes' : 'No' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if event.description %}
+                <hr>
+                <p class="mb-0">{{ event.description|nl2br }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
+{% endblock %}

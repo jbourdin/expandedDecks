@@ -52,4 +52,39 @@ class SmokeTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
     }
+
+    public function testEventListRequiresAuth(): void
+    {
+        $this->client->request('GET', '/event');
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testEventListAccessibleAfterLogin(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/event');
+
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testEventNewRequiresOrganizer(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('GET', '/event/new');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testEventNewAccessibleForOrganizer(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/event/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form');
+    }
 }
