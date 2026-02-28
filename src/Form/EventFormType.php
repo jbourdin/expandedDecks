@@ -51,7 +51,9 @@ class EventFormType extends AbstractType
             ])
             ->add('format', TextType::class, [
                 'label' => 'Format',
-                'attr' => ['readonly' => true],
+                'mapped' => false,
+                'data' => 'Expanded',
+                'disabled' => true,
             ])
             ->add('date', DateTimeType::class, [
                 'label' => 'Start date & time',

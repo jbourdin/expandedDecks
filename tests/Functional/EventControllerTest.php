@@ -34,7 +34,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Test Tournament',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-06-15T14:00',
             'event_form[timezone]' => 'Europe/Paris',
             'event_form[registrationLink]' => 'https://example.com/register',
@@ -77,7 +76,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Redirect Test Event',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-07-01T10:00',
             'event_form[timezone]' => 'UTC',
             'event_form[registrationLink]' => 'https://example.com/redirect-test',
@@ -98,7 +96,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Organizer Check Event',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-08-01T10:00',
             'event_form[timezone]' => 'UTC',
             'event_form[registrationLink]' => 'https://example.com/org-check',
@@ -119,7 +116,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Flash Test Event',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-09-01T10:00',
             'event_form[timezone]' => 'UTC',
             'event_form[registrationLink]' => 'https://example.com/flash',
@@ -138,7 +134,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Ab',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-06-15T14:00',
             'event_form[timezone]' => 'Europe/Paris',
             'event_form[registrationLink]' => 'https://example.com/register',
@@ -155,7 +150,6 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/event/new');
         $this->client->submitForm('Create Event', [
             'event_form[name]' => 'Minimal Event',
-            'event_form[format]' => 'Expanded',
             'event_form[date]' => '2026-06-15T14:00',
             'event_form[timezone]' => 'UTC',
             'event_form[registrationLink]' => 'https://example.com/minimal',
