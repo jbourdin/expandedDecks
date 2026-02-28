@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Entity\EventEngagement;
 use App\Entity\User;
+use App\Enum\EngagementState;
+use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,6 +31,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.2 — Event listing
  * @see docs/features.md F3.3 — Event detail view
+ * @see docs/features.md F3.4 — Register participation to an event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  */
@@ -79,6 +83,7 @@ class EventController extends AbstractController
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
+            'userEngagement' => $event->getEngagementFor($user),
         ]);
     }
 
@@ -140,6 +145,92 @@ class EventController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', \sprintf('Event "%s" has been cancelled.', $event->getName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.4 — Register participation to an event
+     */
+    #[Route('/{id}/participate', name: 'app_event_participate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function participate(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('participate-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'Cannot register for a cancelled event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $modeValue = $request->getPayload()->getString('mode');
+        $mode = ParticipationMode::tryFrom($modeValue);
+
+        if (null === $mode) {
+            $this->addFlash('danger', 'Invalid participation mode.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $state = ParticipationMode::Playing === $mode
+            ? EngagementState::RegisteredPlaying
+            : EngagementState::RegisteredSpectating;
+
+        $engagement = $event->getEngagementFor($user);
+
+        if (null === $engagement) {
+            $engagement = new EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($user);
+            $em->persist($engagement);
+        }
+
+        $engagement->setState($state);
+        $engagement->setParticipationMode($mode);
+        $em->flush();
+
+        $label = ParticipationMode::Playing === $mode ? 'player' : 'spectator';
+        $this->addFlash('success', \sprintf('You are now registered as a %s.', $label));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.4 — Register participation to an event
+     */
+    #[Route('/{id}/withdraw', name: 'app_event_withdraw', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function withdraw(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('withdraw-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'Cannot withdraw from a cancelled event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $engagement = $event->getEngagementFor($user);
+
+        if (null !== $engagement) {
+            $em->remove($engagement);
+            $em->flush();
+        }
+
+        $this->addFlash('success', 'You have withdrawn from this event.');
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
