@@ -29,6 +29,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.2 — Event listing
  * @see docs/features.md F3.3 — Event detail view
  * @see docs/features.md F3.9 — Edit an event
+ * @see docs/features.md F3.10 — Cancel an event
  */
 #[Route('/event')]
 #[IsGranted('ROLE_USER')]
@@ -112,6 +113,35 @@ class EventController extends AbstractController
             'event' => $event,
             'form' => $form,
         ]);
+    }
+
+    /**
+     * @see docs/features.md F3.10 — Cancel an event
+     */
+    #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function cancel(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('cancel-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'This event is already cancelled.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->setCancelledAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->addFlash('success', \sprintf('Event "%s" has been cancelled.', $event->getName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
     /**

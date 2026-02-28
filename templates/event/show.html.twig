@@ -122,5 +122,13 @@
         </div>
     </div>
 
-    <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
+        {% if isOrganizer and not event.cancelledAt %}
+            <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('Are you sure you want to cancel this event? This cannot be undone.')">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel Event</button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}

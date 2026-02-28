@@ -20,6 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.9 — Edit an event
+ * @see docs/features.md F3.10 — Cancel an event
  */
 class EventControllerTest extends AbstractFunctionalTest
 {
@@ -349,6 +350,135 @@ class EventControllerTest extends AbstractFunctionalTest
 
         self::assertSelectorNotExists('a.btn-outline-light');
         self::assertSelectorTextContains('.badge.bg-danger', 'Cancelled');
+    }
+
+    // ---------------------------------------------------------------
+    // F3.10 — Cancel an event
+    // ---------------------------------------------------------------
+
+    public function testCancelEventSucceeds(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        self::assertNull($event->getCancelledAt());
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Cancel Event');
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', \sprintf('Event "%s" has been cancelled.', $event->getName()));
+        self::assertSelectorTextContains('.badge.bg-danger', 'Cancelled');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getCancelledAt());
+    }
+
+    public function testCancelEventDeniedForNonOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', \sprintf('/event/%d/cancel', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testCancelEventInvalidCsrfRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('POST', \sprintf('/event/%d/cancel', $event->getId()), [
+            '_token' => 'invalid-token',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'Invalid security token.');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNull($updated->getCancelledAt());
+    }
+
+    public function testCancelAlreadyCancelledEventShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Cancel once via the UI
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $crawler->filter('form input[name="_token"]')->attr('value');
+        self::assertNotNull($csrfToken);
+        $this->client->submitForm('Cancel Event');
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'has been cancelled');
+
+        // Try to cancel again with the same CSRF token
+        $this->client->request('POST', \sprintf('/event/%d/cancel', $event->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'This event is already cancelled.');
+    }
+
+    public function testCancelButtonVisibleForOrganizer(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorExists('button.btn-outline-danger');
+    }
+
+    public function testCancelButtonHiddenForNonOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorNotExists('button.btn-outline-danger');
+    }
+
+    public function testCancelButtonHiddenWhenAlreadyCancelled(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $event->setCancelledAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorNotExists('button.btn-outline-danger');
     }
 
     // ---------------------------------------------------------------
