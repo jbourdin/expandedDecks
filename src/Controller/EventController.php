@@ -52,6 +52,7 @@ class EventController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event->setOrganizer($user);
+            $event->setFormat('Expanded');
             $em->persist($event);
             $em->flush();
 
@@ -99,6 +100,7 @@ class EventController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $event->setFormat('Expanded');
             $em->flush();
 
             $this->addFlash('success', \sprintf('Event "%s" updated.', $event->getName()));
