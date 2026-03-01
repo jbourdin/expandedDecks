@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F3.20 — Mark event as finished
  */
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -114,6 +115,9 @@ class Event
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $cancelledAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $finishedAt = null;
 
     /** @var Collection<int, EventEngagement> */
     #[ORM\OneToMany(targetEntity: EventEngagement::class, mappedBy: 'event')]
@@ -375,6 +379,18 @@ class Event
     public function setCancelledAt(?\DateTimeImmutable $cancelledAt): static
     {
         $this->cancelledAt = $cancelledAt;
+
+        return $this;
+    }
+
+    public function getFinishedAt(): ?\DateTimeImmutable
+    {
+        return $this->finishedAt;
+    }
+
+    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
+    {
+        $this->finishedAt = $finishedAt;
 
         return $this;
     }

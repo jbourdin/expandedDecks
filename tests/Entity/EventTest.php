@@ -40,6 +40,22 @@ class EventTest extends TestCase
         self::assertSame(0, $event->countByState(EngagementState::RegisteredPlaying));
     }
 
+    public function testFinishedAtDefaultsToNull(): void
+    {
+        $event = new Event();
+        self::assertNull($event->getFinishedAt());
+    }
+
+    public function testSetFinishedAt(): void
+    {
+        $event = new Event();
+        $now = new \DateTimeImmutable();
+
+        $event->setFinishedAt($now);
+
+        self::assertSame($now, $event->getFinishedAt());
+    }
+
     public function testUserGetEventEngagementsReturnsEmptyCollection(): void
     {
         $user = new User();

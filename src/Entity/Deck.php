@@ -32,6 +32,12 @@ class Deck
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 6, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(exactly: 6)]
+    #[Assert\Regex(pattern: '/^[A-HJ-NP-Z0-9]{6}$/', message: 'Short tag must be 6 characters from A-H, J-N, P-Z, 0-9.')]
+    private string $shortTag = '';
+
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 100)]
@@ -80,6 +86,11 @@ class Deck
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getShortTag(): string
+    {
+        return $this->shortTag;
     }
 
     public function getName(): string
@@ -184,11 +195,25 @@ class Deck
     public function onPrePersist(): void
     {
         $this->createdAt = new \DateTimeImmutable();
+        if ('' === $this->shortTag) {
+            $this->shortTag = self::generateShortTag();
+        }
     }
 
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    private static function generateShortTag(): string
+    {
+        $charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+        $tag = '';
+        for ($i = 0; $i < 6; ++$i) {
+            $tag .= $charset[random_int(0, 33)];
+        }
+
+        return $tag;
     }
 }
