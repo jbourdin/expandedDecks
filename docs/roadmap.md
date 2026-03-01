@@ -255,6 +255,20 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ---
 
+## Phase 11 — Play Pokemon QR Integration
+
+> Scan Play! Pokemon access QR codes (JWT) for quick account creation, staff assignment, and player identification. Depends on scanner infrastructure from Phase 10.
+
+| ID    | Feature                                        | Priority | State       | Depends on       |
+|-------|------------------------------------------------|----------|-------------|------------------|
+| F1.12 | Play Pokemon QR scan for player identification | Medium   | Not started | F1.1, F5.3/F5.6  |
+
+**Progress: 0/1 done · 1 not started**
+
+**Deliverable:** Scan a player's Play! Pokemon QR code to decode their JWT identity — enabling admin-initiated quick account creation, instant staff assignment by QR, and on-site player lookup at events.
+
+---
+
 ## Cross-Cutting: Testing Infrastructure
 
 > Test framework setup and continuous quality assurance.
@@ -283,6 +297,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **20** | **14** | **47**      | **81** |
+| 11    | Play Pokemon QR Integration       | 0    | 0       | 1           | 1     |
+|       | **Total**                         | **20** | **14** | **48**      | **82** |
 
-All 81 features from [features.md](features.md) are represented exactly once.
+All 82 features from [features.md](features.md) are represented exactly once.
