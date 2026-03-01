@@ -62,6 +62,20 @@ class UserSearchTest extends AbstractFunctionalTest
         self::assertSame('PKM-ORG-001', $data[0]['playerId']);
     }
 
+    public function testSearchByNumericPlayerId(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/api/user/search?q=101');
+
+        self::assertResponseIsSuccessful();
+        $data = $this->getJsonResponse();
+
+        self::assertCount(1, $data);
+        self::assertSame('StaffOne', $data[0]['screenName']);
+        self::assertSame('101', $data[0]['playerId']);
+    }
+
     public function testSearchMinQueryLength(): void
     {
         $this->loginAs('admin@example.com');

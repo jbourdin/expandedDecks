@@ -41,6 +41,9 @@ class DevFixtures extends Fixture
         $admin = $this->createAdmin($manager);
         $this->createOrganizer($manager);
         $borrower = $this->createBorrower($manager);
+        $this->createStaff1($manager);
+        $this->createStaff2($manager);
+        $this->createLender($manager);
         $this->createUnverifiedUser($manager);
         $league = $this->createLeague($manager);
         $this->createEventToday($manager, $admin, $borrower, $league);
@@ -60,6 +63,7 @@ class DevFixtures extends Fixture
         $admin->setFirstName('Jean-Michel');
         $admin->setLastName('Admin');
         $admin->setScreenName('Admin');
+        $admin->setPlayerId('007');
         $admin->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setIsVerified(true);
@@ -97,7 +101,7 @@ class DevFixtures extends Fixture
         $borrower->setFirstName('Alice');
         $borrower->setLastName('Dupont');
         $borrower->setScreenName('Borrower');
-        $borrower->setPlayerId('PKM-BOR-002');
+        $borrower->setPlayerId('201');
         $borrower->setPassword($this->passwordHasher->hashPassword($borrower, 'password'));
         $borrower->setIsVerified(true);
         $borrower->setPreferredLocale('en');
@@ -106,6 +110,60 @@ class DevFixtures extends Fixture
         $manager->persist($borrower);
 
         return $borrower;
+    }
+
+    private function createStaff1(ObjectManager $manager): User
+    {
+        $user = new User();
+        $user->setEmail('staff1@example.com');
+        $user->setFirstName('Diana');
+        $user->setLastName('Rousseau');
+        $user->setScreenName('StaffOne');
+        $user->setPlayerId('101');
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setIsVerified(true);
+        $user->setPreferredLocale('en');
+        $user->setTimezone('Europe/Paris');
+
+        $manager->persist($user);
+
+        return $user;
+    }
+
+    private function createStaff2(ObjectManager $manager): User
+    {
+        $user = new User();
+        $user->setEmail('staff2@example.com');
+        $user->setFirstName('Ethan');
+        $user->setLastName('Moreau');
+        $user->setScreenName('StaffTwo');
+        $user->setPlayerId('102');
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setIsVerified(true);
+        $user->setPreferredLocale('en');
+        $user->setTimezone('Europe/Paris');
+
+        $manager->persist($user);
+
+        return $user;
+    }
+
+    private function createLender(ObjectManager $manager): User
+    {
+        $user = new User();
+        $user->setEmail('lender@example.com');
+        $user->setFirstName('Fiona');
+        $user->setLastName('Leclerc');
+        $user->setScreenName('Lender');
+        $user->setPlayerId('301');
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setIsVerified(true);
+        $user->setPreferredLocale('en');
+        $user->setTimezone('Europe/Paris');
+
+        $manager->persist($user);
+
+        return $user;
     }
 
     private function createUnverifiedUser(ObjectManager $manager): User
