@@ -97,8 +97,19 @@
                                 <tr>
                                     <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
                                     <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
+                                    {% set statusColors = {
+                                        pending: 'warning',
+                                        approved: 'info',
+                                        lent: 'primary',
+                                        returned: 'success',
+                                        returned_to_owner: 'success',
+                                        cancelled: 'secondary',
+                                        overdue: 'danger',
+                                    } %}
                                     <td>
-                                        <span class="badge bg-secondary">{{ borrow.status.value }}</span>
+                                        <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">
+                                            {{ borrow.status.value|replace({'_': ' '})|title }}
+                                        </span>
                                     </td>
                                     <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
                                     <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
