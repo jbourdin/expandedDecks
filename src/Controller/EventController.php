@@ -22,6 +22,7 @@ use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -243,7 +244,7 @@ class EventController extends AbstractController
      */
     #[Route('/{id}/assign-staff', name: 'app_event_assign_staff', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function assignStaff(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function assignStaff(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -259,17 +260,19 @@ class EventController extends AbstractController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        $screenName = $request->getPayload()->getString('screen_name');
-        $targetUser = $em->getRepository(User::class)->findOneBy(['screenName' => $screenName]);
+        $userQuery = $request->getPayload()->getString('user_query');
+        $targetUser = $userRepository->findByMultiField($userQuery);
 
         if (null === $targetUser) {
-            $this->addFlash('warning', \sprintf('User "%s" not found.', $screenName));
+            $this->addFlash('warning', \sprintf('User "%s" not found.', $userQuery));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
+
+        $screenName = $targetUser->getScreenName();
 
         if ($targetUser->getId() === $event->getOrganizer()->getId()) {
             $this->addFlash('warning', 'The organizer cannot be assigned as staff.');

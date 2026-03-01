@@ -63,4 +63,39 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     {
         return $this->findOneBy(['resetToken' => $token]);
     }
+
+    /**
+     * Searches users by screen name, email, or Pokemon ID.
+     *
+     * @see docs/features.md F3.5 — Assign event staff team
+     *
+     * @return list<User>
+     */
+    public function searchUsers(string $query, int $limit = 10): array
+    {
+        /** @var list<User> $results */
+        $results = $this->createQueryBuilder('u')
+            ->where('u.isAnonymized = false')
+            ->andWhere('u.isVerified = true')
+            ->andWhere('u.screenName LIKE :query OR u.email LIKE :query OR u.playerId LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->setMaxResults($limit)
+            ->orderBy('u.screenName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
+     * Finds a user by screen name, email, or Pokemon ID (first match wins).
+     *
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    public function findByMultiField(string $query): ?User
+    {
+        return $this->findOneBy(['screenName' => $query])
+            ?? $this->findOneBy(['email' => $query])
+            ?? $this->findOneBy(['playerId' => $query]);
+    }
 }

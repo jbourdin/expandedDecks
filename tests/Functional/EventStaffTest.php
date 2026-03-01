@@ -38,7 +38,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => $csrfToken,
-            'screen_name' => 'Organizer',
+            'user_query' => 'Organizer',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -75,7 +75,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => 'invalid-token',
-            'screen_name' => 'Organizer',
+            'user_query' => 'Organizer',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -102,7 +102,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => $csrfToken,
-            'screen_name' => 'NonExistentUser',
+            'user_query' => 'NonExistentUser',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -123,7 +123,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => $csrfToken,
-            'screen_name' => 'Borrower',
+            'user_query' => 'Borrower',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -143,7 +143,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => $csrfToken,
-            'screen_name' => 'Admin',
+            'user_query' => 'Admin',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -171,7 +171,7 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => $csrfToken,
-            'screen_name' => 'Organizer',
+            'user_query' => 'Organizer',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -188,10 +188,50 @@ class EventStaffTest extends AbstractFunctionalTest
 
         $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
             '_token' => 'any-token',
-            'screen_name' => 'Borrower',
+            'user_query' => 'Borrower',
         ]);
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testAssignStaffByEmail(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->getAssignStaffCsrfToken($crawler, $event->getId());
+
+        $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
+            '_token' => $csrfToken,
+            'user_query' => 'organizer@example.com',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', '"Organizer" has been added to the staff team.');
+    }
+
+    public function testAssignStaffByPlayerId(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->getAssignStaffCsrfToken($crawler, $event->getId());
+
+        $this->client->request('POST', \sprintf('/event/%d/assign-staff', $event->getId()), [
+            '_token' => $csrfToken,
+            'user_query' => 'PKM-ORG-001',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', '"Organizer" has been added to the staff team.');
     }
 
     // ---------------------------------------------------------------
