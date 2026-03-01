@@ -58,12 +58,6 @@
                                     <td>{{ event.location }}</td>
                                 </tr>
                             {% endif %}
-                            {% if event.league %}
-                                <tr>
-                                    <th>League</th>
-                                    <td>{{ event.league.name }}</td>
-                                </tr>
-                            {% endif %}
                             <tr>
                                 <th>Registration</th>
                                 <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>

@@ -4,34 +4,6 @@
 
 ← Back to [Main Documentation](../docs.md) | [Features](../features.md)
 
-## Entity: `App\Entity\League`
-
-Represents a recurring Pokemon TCG organized play location — typically a local game store hosting a league. Multiple events can be linked to the same league.
-
-### Fields
-
-| Field            | Type               | Nullable | Description |
-|------------------|--------------------|----------|-------------|
-| `id`             | `int` (auto)       | No       | Primary key |
-| `name`           | `string(150)`      | No       | League or store name (e.g. "Paris TCG League"). |
-| `website`        | `string(255)`      | Yes      | Main website URL. |
-| `address`        | `string(255)`      | Yes      | Physical address. |
-| `contactDetails` | `json`             | Yes      | Flexible key-value: `{"email": "...", "phone": "...", "discord": "..."}`. |
-| `createdAt`      | `DateTimeImmutable` | No      | Creation timestamp. |
-
-### Constraints
-
-- `name`: required, 2–150 characters
-- `contactDetails`: when provided, must be a JSON object (not array)
-
-### Relations
-
-| Relation | Type      | Target  | Description |
-|----------|-----------|---------|-------------|
-| `events` | OneToMany | `Event` | Events hosted at this league |
-
----
-
 ## Entity: `App\Entity\Event`
 
 ### Fields
@@ -48,7 +20,6 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `location`             | `string(255)`      | Yes      | Venue name and/or address. Nullable — can be derived from the league's address when a league is linked. |
 | `description`          | `text`             | Yes      | Optional free-text description or notes about the event. |
 | `organizer`            | `User`             | No       | The user who created the event (must have `ROLE_ORGANIZER` or `ROLE_ADMIN`). |
-| `league`               | `League`           | Yes      | The league/store hosting this event. Null for independent events. |
 | `registrationLink`     | `string(255)`      | No       | External registration URL (this project doesn't handle registration). |
 | `tournamentStructure`  | `string(30)`       | No       | Tournament format. See `TournamentStructure` enum below. |
 | `minAttendees`         | `int`              | Yes      | Minimum number of attendees for the event to take place. |
@@ -78,7 +49,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 - `format`: required, from a predefined list of allowed values
 - `date`: required, must be in the future at creation time
 - `endDate`: if provided, must be >= `date`
-- `location`: **nullable** (was required). When null and a league is linked, the league's address serves as the effective location.
+- `location`: **nullable**.
 - `registrationLink`: required, valid URL format
 - `tournamentStructure`: required, must be a valid `TournamentStructure` value
 - `minAttendees`: optional, >= 1 when provided
@@ -120,7 +91,6 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
-| `league`           | ManyToOne    | `League`       | The league/store hosting this event |
 | `organizer`        | ManyToOne    | `User`         | User who created this event |
 | `engagements`      | OneToMany    | `EventEngagement` | Player engagement states for this event (F3.13) |
 | `staff`            | OneToMany    | `EventStaff`   | Staff members assigned to this event |
