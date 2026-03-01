@@ -149,12 +149,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.7  | Register played deck for event   | Medium   | Partial     | F3.4, F2.2       |
 | F3.17 | Tournament results               | Medium   | Not started | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Partial     | F3.1, F4.1       |
-| F3.20 | Mark event as finished           | Medium   | Not started | F3.1, F4.6       |
+| F3.20 | Mark event as finished           | Medium   | Partial     | F3.1, F4.6       |
 | F3.15 | Event discovery                  | Medium   | Not started | F3.11, F3.13     |
 | F8.2  | Event notifications              | Medium   | Partial     | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 0/9 done · 3 partial · 6 not started**
+**Progress: 0/9 done · 4 partial · 5 not started**
 
 **Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
@@ -295,11 +295,11 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 2           | 8     |
 | 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
-| 7     | Engagement, Results & Discovery   | 0    | 3       | 6           | 9     |
+| 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **20** | **13** | **51**      | **84** |
+|       | **Total**                         | **20** | **14** | **50**      | **84** |
 
 All 84 features from [features.md](features.md) are represented exactly once.
