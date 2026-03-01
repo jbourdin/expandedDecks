@@ -32,6 +32,7 @@
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
 | `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
+| `finishedAt`           | `DateTimeImmutable` | Yes     | When the event was marked as finished by the organizer. Null = event not yet finished. Set via F3.20. |
 
 ### Tournament Structure Enum: `App\Enum\TournamentStructure`
 
@@ -58,6 +59,7 @@
 - `topCutRoundDuration`: optional, >= 1, only valid when `tournamentStructure` is `swiss_top_cut`
 - `entryFeeAmount` and `entryFeeCurrency`: both null (free) or both set (paid). `entryFeeAmount` >= 0.
 - `cancelledAt`: once set, cannot be cleared (cancellation is irreversible). A cancelled event cannot be edited further (F3.10).
+- `finishedAt`: once set, cannot be cleared (finishment is irreversible). A finished event cannot be un-finished, cancelled, or edited further (F3.20). Mutually exclusive with `cancelledAt` — an event cannot be both cancelled and finished.
 - `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`.
 
 ### Cancellation Behavior
@@ -69,6 +71,31 @@ When an event is cancelled (F3.10):
 4. All participants and affected deck owners are notified (F8.2). Owners of lent decks receive a specific notification that the event was cancelled but their deck is still out
 5. The event remains visible in listings for historical reference, but is clearly marked as cancelled
 6. No further edits, borrow requests, or participation changes are allowed
+
+### Finishment Behavior
+
+> **@see** docs/features.md F3.20 — Mark event as finished
+
+When an event is marked as finished (F3.20):
+1. `finishedAt` is set to the current timestamp
+2. **Overdue reminders triggered:** all borrows in `lent` status for this event are flagged — borrowers receive immediate overdue reminders (email + in-app per F8.3 preferences) for unreturned decks
+3. **Event closed:** no new borrows, registrations, engagement state changes, or edits are allowed
+4. **Tournament results unlocked:** organizer and staff can now enter final standings, match records, and placements (F3.17)
+5. The event remains visible in listings and is marked as finished (distinct from cancelled)
+6. A finished event **cannot be un-finished** — this is an irreversible terminal state
+
+#### Finished vs Cancelled
+
+| Aspect              | Finished (F3.20)                        | Cancelled (F3.10)                      |
+|---------------------|-----------------------------------------|----------------------------------------|
+| Meaning             | Event completed normally                | Event didn't happen                    |
+| Pre-handoff borrows | Unchanged (should already be lent)      | Automatically cancelled                |
+| Lent decks          | Flagged as overdue, reminders sent      | Remain active, owners notified         |
+| Tournament results  | Unlocked for entry                      | N/A                                    |
+| Further edits       | Blocked                                 | Blocked                                |
+| Reversible          | No                                      | No                                     |
+
+---
 
 ### Event ID & Tournament Verification
 
