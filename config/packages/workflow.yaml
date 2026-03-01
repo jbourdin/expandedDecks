@@ -1,0 +1,48 @@
+framework:
+    workflows:
+        borrow:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: marking
+            supports:
+                - App\Entity\Borrow
+            initial_marking: pending
+            places:
+                - pending
+                - approved
+                - lent
+                - returned
+                - returned_to_owner
+                - cancelled
+                - overdue
+            transitions:
+                approve:
+                    from: pending
+                    to: approved
+                deny:
+                    from: pending
+                    to: cancelled
+                cancel_pending:
+                    from: pending
+                    to: cancelled
+                cancel_approved:
+                    from: approved
+                    to: cancelled
+                hand_off:
+                    from: approved
+                    to: lent
+                return:
+                    from: lent
+                    to: returned
+                return_overdue:
+                    from: overdue
+                    to: returned
+                return_to_owner:
+                    from: returned
+                    to: returned_to_owner
+                mark_overdue:
+                    from: lent
+                    to: overdue

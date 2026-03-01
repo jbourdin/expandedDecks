@@ -20,6 +20,8 @@ use App\Entity\User;
 use App\Enum\EngagementState;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
+use App\Repository\BorrowRepository;
+use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
@@ -79,15 +81,26 @@ class EventController extends AbstractController
      * @see docs/features.md F3.3 — Event detail view
      */
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Event $event): Response
+    public function show(Event $event, BorrowRepository $borrowRepository, DeckRepository $deckRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
 
+        $userEngagement = $event->getEngagementFor($user);
+        $isParticipant = null !== $userEngagement;
+
+        $availableDecks = [];
+        if ($isParticipant && null === $event->getCancelledAt() && null === $event->getFinishedAt()) {
+            $availableDecks = $deckRepository->findAvailableForEvent($event, $user);
+        }
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
-            'userEngagement' => $event->getEngagementFor($user),
+            'userEngagement' => $userEngagement,
+            'isParticipant' => $isParticipant,
+            'eventBorrows' => $borrowRepository->findByEvent($event),
+            'availableDecks' => $availableDecks,
         ]);
     }
 

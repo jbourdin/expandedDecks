@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use App\Entity\Borrow;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
@@ -20,6 +21,7 @@ use App\Entity\Event;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
 use App\Entity\User;
+use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
 use App\Enum\ParticipationMode;
@@ -42,14 +44,20 @@ class DevFixtures extends Fixture
         $borrower = $this->createBorrower($manager);
         $this->createStaff1($manager);
         $this->createStaff2($manager);
-        $this->createLender($manager);
+        $lender = $this->createLender($manager);
         $this->createUnverifiedUser($manager);
-        $this->createEventToday($manager, $admin, $borrower);
+        $todayEvent = $this->createEventToday($manager, $admin, $borrower);
         $this->createEventInTwoMonths($manager, $admin);
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $this->createIronThornsDeckVersion($manager, $ironThorns);
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
         $this->createAncientBoxDeckVersion($manager, $ancientBox);
+        $lenderDeck = $this->createDeck($manager, $lender, 'Lugia VSTAR');
+        $this->createLenderDeckVersion($manager, $lenderDeck);
+
+        $manager->flush();
+
+        $this->createBorrowFixtures($manager, $todayEvent, $borrower, $admin, $ironThorns, $ancientBox);
 
         $manager->flush();
     }
@@ -183,7 +191,7 @@ class DevFixtures extends Fixture
         return $user;
     }
 
-    private function createEventToday(ObjectManager $manager, User $organizer, User $borrower): void
+    private function createEventToday(ObjectManager $manager, User $organizer, User $borrower): Event
     {
         $event = new Event();
         $event->setName('Expanded Weekly #42');
@@ -204,11 +212,20 @@ class DevFixtures extends Fixture
         $engagement->setParticipationMode(ParticipationMode::Playing);
         $manager->persist($engagement);
 
+        $borrowerEngagement = new EventEngagement();
+        $borrowerEngagement->setEvent($event);
+        $borrowerEngagement->setUser($borrower);
+        $borrowerEngagement->setState(EngagementState::RegisteredPlaying);
+        $borrowerEngagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($borrowerEngagement);
+
         $staff = new EventStaff();
         $staff->setEvent($event);
         $staff->setUser($borrower);
         $staff->setAssignedBy($organizer);
         $manager->persist($staff);
+
+        return $event;
     }
 
     private function createEventInTwoMonths(ObjectManager $manager, User $organizer): void
@@ -478,5 +495,52 @@ class DevFixtures extends Fixture
 
             Total Cards: 60
             PTCG;
+    }
+
+    private function createLenderDeckVersion(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setArchetype('lugia-vstar');
+        $version->setArchetypeName('Lugia VSTAR');
+        $version->setLanguages(['en']);
+        $version->setRawList('Pokémon: 4\n4 Lugia V SIT 138\n\nTrainer: 47\n\nEnergy: 9\n\nTotal Cards: 60');
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @see docs/features.md F4.1 — Request to borrow a deck
+     */
+    private function createBorrowFixtures(ObjectManager $manager, Event $event, User $borrower, User $admin, Deck $ironThorns, Deck $ancientBox): void
+    {
+        $ironThornsVersion = $ironThorns->getCurrentVersion();
+        \assert(null !== $ironThornsVersion);
+
+        $pendingBorrow = new Borrow();
+        $pendingBorrow->setDeck($ironThorns);
+        $pendingBorrow->setDeckVersion($ironThornsVersion);
+        $pendingBorrow->setBorrower($borrower);
+        $pendingBorrow->setEvent($event);
+        $pendingBorrow->setNotes('Need it for round 1');
+        $manager->persist($pendingBorrow);
+
+        $ancientBoxVersion = $ancientBox->getCurrentVersion();
+        \assert(null !== $ancientBoxVersion);
+
+        $approvedBorrow = new Borrow();
+        $approvedBorrow->setDeck($ancientBox);
+        $approvedBorrow->setDeckVersion($ancientBoxVersion);
+        $approvedBorrow->setBorrower($borrower);
+        $approvedBorrow->setEvent($event);
+        $approvedBorrow->setStatus(BorrowStatus::Approved);
+        $approvedBorrow->setApprovedAt(new \DateTimeImmutable());
+        $approvedBorrow->setApprovedBy($admin);
+        $manager->persist($approvedBorrow);
+
+        $ancientBox->setStatus(DeckStatus::Reserved);
     }
 }

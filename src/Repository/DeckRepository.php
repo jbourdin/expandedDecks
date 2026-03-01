@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Deck;
+use App\Entity\Event;
 use App\Entity\User;
+use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -63,6 +65,41 @@ class DeckRepository extends ServiceEntityRepository
             ->addSelect('cv')
             ->where('d.owner = :owner')
             ->setParameter('owner', $owner)
+            ->orderBy('d.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
+     * @see docs/features.md F4.1 — Request to borrow a deck
+     *
+     * @return list<Deck>
+     */
+    public function findAvailableForEvent(Event $event, User $excludeOwner): array
+    {
+        $activeStatuses = array_map(
+            static fn (BorrowStatus $s): string => $s->value,
+            [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
+        );
+
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->join('d.owner', 'o')
+            ->addSelect('o')
+            ->where('d.status = :status')
+            ->andWhere('d.owner != :excludeOwner')
+            ->andWhere('NOT EXISTS (
+                SELECT 1 FROM App\Entity\Borrow b
+                WHERE b.deck = d
+                AND b.event = :event
+                AND b.status IN (:activeStatuses)
+            )')
+            ->setParameter('status', DeckStatus::Available)
+            ->setParameter('excludeOwner', $excludeOwner)
+            ->setParameter('event', $event)
+            ->setParameter('activeStatuses', $activeStatuses)
             ->orderBy('d.name', 'ASC')
             ->getQuery()
             ->getResult();

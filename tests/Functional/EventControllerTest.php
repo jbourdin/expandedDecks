@@ -486,7 +486,8 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorNotExists('button.btn-outline-danger');
+        // Check specifically for the "Cancel Event" button, not borrow cancel buttons
+        self::assertSelectorNotExists('button:contains("Cancel Event")');
     }
 
     public function testCancelButtonHiddenWhenAlreadyCancelled(): void
@@ -512,7 +513,8 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testParticipateAsPlayer(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Use lender (not a participant in fixtures)
+        $this->loginAs('lender@example.com');
 
         $event = $this->getFixtureEvent();
 
@@ -529,7 +531,7 @@ class EventControllerTest extends AbstractFunctionalTest
 
         /** @var EventEngagementRepository $repo */
         $repo = static::getContainer()->get(EventEngagementRepository::class);
-        $engagement = $repo->findOneBy(['event' => $event->getId()]);
+        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getLenderUserId()]);
         self::assertNotNull($engagement);
         self::assertSame('registered_playing', $engagement->getState()->value);
         self::assertSame('playing', $engagement->getParticipationMode()?->value);
@@ -537,7 +539,8 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testParticipateAsSpectator(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Use lender (not a participant in fixtures)
+        $this->loginAs('lender@example.com');
 
         $event = $this->getFixtureEvent();
 
@@ -554,7 +557,7 @@ class EventControllerTest extends AbstractFunctionalTest
 
         /** @var EventEngagementRepository $repo */
         $repo = static::getContainer()->get(EventEngagementRepository::class);
-        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getBorrowerUserId()]);
+        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getLenderUserId()]);
         self::assertNotNull($engagement);
         self::assertSame('registered_spectating', $engagement->getState()->value);
         self::assertSame('spectating', $engagement->getParticipationMode()?->value);
@@ -562,18 +565,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testSwitchParticipationMode(): void
     {
+        // Borrower is already registered as playing in fixtures
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Register as player first
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($form);
-        self::assertResponseRedirects();
-
         // Switch to spectator
-        $crawler = $this->client->followRedirect();
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         $form = $crawler->selectButton('Switch to Spectator')->form();
         $this->client->submit($form);
         self::assertResponseRedirects();
@@ -590,18 +588,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testWithdrawParticipation(): void
     {
+        // Borrower is already registered as playing in fixtures
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Register first
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($form);
-        self::assertResponseRedirects();
-
         // Withdraw
-        $crawler = $this->client->followRedirect();
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         $form = $crawler->selectButton('Withdraw')->form();
         $this->client->submit($form);
         self::assertResponseRedirects();
@@ -611,14 +604,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
         /** @var EventEngagementRepository $repo */
         $repo = static::getContainer()->get(EventEngagementRepository::class);
-        $engagement = $repo->findOneBy(['event' => $event->getId()]);
-        // The fixture creates an engagement for admin, so check specifically for borrower
         self::assertNull($repo->findOneBy(['event' => $event->getId(), 'user' => $this->getBorrowerUserId()]));
     }
 
     public function testParticipateCancelledEventDenied(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Use lender who is not yet a participant
+        $this->loginAs('lender@example.com');
 
         $event = $this->getFixtureEvent();
         $eventId = $event->getId();
@@ -650,17 +642,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testParticipateShowsOnEventPage(): void
     {
+        // Borrower is already registered as playing in fixtures
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Register as player
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($form);
-        self::assertResponseRedirects();
-
-        $crawler = $this->client->followRedirect();
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
 
         self::assertSelectorTextContains('.badge.bg-success', 'Registered (Playing)');
         self::assertSelectorExists('button:contains("Withdraw")');
@@ -686,13 +674,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testParticipateInvalidModeRedirects(): void
     {
+        // Borrower is already registered as playing — use the "Switch to Spectator" form for CSRF token
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Get a valid CSRF token from the page
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
+        $form = $crawler->selectButton('Switch to Spectator')->form();
         $csrfToken = $form->get('_token')->getValue();
 
         $this->client->request('POST', \sprintf('/event/%d/participate', $event->getId()), [
@@ -724,16 +712,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testWithdrawCancelledEventDenied(): void
     {
+        // Borrower is already registered as playing in fixtures
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Get a valid CSRF token from the withdraw form (register first)
+        // Get a valid CSRF token from the withdraw form
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($form);
-        self::assertResponseRedirects();
-        $crawler = $this->client->followRedirect();
         $withdrawForm = $crawler->selectButton('Withdraw')->form();
         $csrfToken = $withdrawForm->get('_token')->getValue();
 
@@ -758,30 +743,13 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testWithdrawWithoutEngagementSucceeds(): void
     {
+        // Borrower is already registered as playing in fixtures
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
 
-        // Register then withdraw to get a withdraw CSRF token
+        // Get a valid CSRF token from the withdraw form
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($form);
-        self::assertResponseRedirects();
-        $crawler = $this->client->followRedirect();
-
-        // Withdraw once
-        $withdrawForm = $crawler->selectButton('Withdraw')->form();
-        $this->client->submit($withdrawForm);
-        self::assertResponseRedirects();
-        $crawler = $this->client->followRedirect();
-
-        self::assertSelectorTextContains('.alert-success', 'You have withdrawn from this event.');
-
-        // Now get a fresh withdraw CSRF token and POST withdraw again (no engagement exists)
-        $registerForm = $crawler->selectButton('Register as Player')->form();
-        $this->client->submit($registerForm);
-        self::assertResponseRedirects();
-        $crawler = $this->client->followRedirect();
         $withdrawForm = $crawler->selectButton('Withdraw')->form();
         $csrfToken = $withdrawForm->get('_token')->getValue();
 
@@ -830,12 +798,12 @@ class EventControllerTest extends AbstractFunctionalTest
 
         $event = $this->getFixtureEvent();
 
-        // Fixture has admin registered as playing
+        // Fixture has admin + borrower registered as playing
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Should show "1 player, 0 spectators"
-        self::assertSelectorExists('.card-body:contains("1 player")');
+        // Should show "2 players, 0 spectators"
+        self::assertSelectorExists('.card-body:contains("2 players")');
         self::assertSelectorExists('.card-body:contains("0 spectators")');
     }
 
@@ -858,6 +826,16 @@ class EventControllerTest extends AbstractFunctionalTest
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'borrower@example.com']);
+        self::assertNotNull($user);
+
+        return (int) $user->getId();
+    }
+
+    private function getLenderUserId(): int
+    {
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'lender@example.com']);
         self::assertNotNull($user);
 
         return (int) $user->getId();

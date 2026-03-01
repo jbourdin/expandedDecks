@@ -200,6 +200,82 @@
         </div>
     {% endif %}
 
+    {% if not event.cancelledAt and not event.finishedAt %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Deck Borrowing</h6>
+            </div>
+            <div class="card-body">
+                {% if isParticipant and availableDecks is not empty %}
+                    <form method="post" action="{{ path('app_borrow_request') }}" class="mb-3">
+                        <input type="hidden" name="_token" value="{{ csrf_token('borrow-request-' ~ event.id) }}">
+                        <input type="hidden" name="event_id" value="{{ event.id }}">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-5">
+                                <label for="borrow_deck" class="form-label">Deck</label>
+                                <select name="deck_id" id="borrow_deck" class="form-select form-select-sm" required>
+                                    <option value="">Select a deck...</option>
+                                    {% for deck in availableDecks %}
+                                        <option value="{{ deck.id }}">{{ deck.name }} ({{ deck.owner.screenName }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="borrow_notes" class="form-label">Notes (optional)</label>
+                                <input type="text" name="notes" id="borrow_notes" class="form-control form-control-sm" placeholder="e.g. round 1 only">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-sm btn-primary w-100">Request</button>
+                            </div>
+                        </div>
+                    </form>
+                {% elseif isParticipant %}
+                    <p class="text-muted mb-3">No decks are available for borrowing at this event.</p>
+                {% else %}
+                    <p class="text-muted mb-3">Register as a participant to request deck borrows.</p>
+                {% endif %}
+
+                {% if eventBorrows is not empty %}
+                    {% set statusColors = {
+                        pending: 'warning',
+                        approved: 'info',
+                        lent: 'primary',
+                        returned: 'success',
+                        returned_to_owner: 'success',
+                        cancelled: 'secondary',
+                        overdue: 'danger',
+                    } %}
+                    <table class="table table-sm table-themed mb-0">
+                        <thead>
+                            <tr>
+                                <th>Deck</th>
+                                <th>Borrower</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for borrow in eventBorrows %}
+                                <tr>
+                                    <td>{{ borrow.deck.name }}</td>
+                                    <td>{{ borrow.borrower.screenName }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">
+                                            {{ borrow.status.value|replace({'_': ' '})|title }}
+                                        </span>
+                                    </td>
+                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted mb-0">No borrow activity yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
     <div class="d-flex gap-2">
         <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
         {% if isOrganizer and not event.cancelledAt %}

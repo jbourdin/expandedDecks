@@ -83,16 +83,16 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | ID    | Feature                         | Priority | State       | Depends on           |
 |-------|---------------------------------|----------|-------------|----------------------|
-| F4.1  | Request to borrow a deck        | High     | Partial     | F2.5, F3.4           |
-| F4.2  | Approve / deny borrow request   | High     | Partial     | F4.1                 |
-| F4.3  | Confirm deck hand-off (lend)    | High     | Partial     | F4.2                 |
-| F4.4  | Confirm deck return             | High     | Partial     | F4.3                 |
+| F4.1  | Request to borrow a deck        | High     | Done        | F2.5, F3.4           |
+| F4.2  | Approve / deny borrow request   | High     | Done        | F4.1                 |
+| F4.3  | Confirm deck hand-off (lend)    | High     | Done        | F4.2                 |
+| F4.4  | Confirm deck return             | High     | Done        | F4.3                 |
 | F4.8  | Staff-delegated lending         | High     | Partial     | F4.1–F4.4, F3.5      |
 | F4.11 | Borrow conflict detection       | High     | Not started | F4.1                 |
 | F4.12 | Walk-up lending (direct lend)   | High     | Not started | F2.5, F3.5           |
 | F8.1  | Borrow workflow notifications   | High     | Partial     | F4.1–F4.4            |
 
-**Progress: 0/8 done · 6 partial · 2 not started**
+**Progress: 4/8 done · 2 partial · 2 not started**
 
 **Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, walk-up lending for on-the-day situations, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
 
@@ -110,11 +110,11 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.2  | Event listing                | Medium   | Done        | F3.1             |
 | F3.3  | Event detail view            | Medium   | Done        | F3.1             |
 | F4.5  | Borrow history               | Medium   | Not started | F4.1–F4.4        |
-| F4.7  | Cancel a borrow request      | Medium   | Partial     | F4.1, F4.2       |
+| F4.7  | Cancel a borrow request      | Medium   | Done        | F4.1, F4.2       |
 | F4.9  | Staff deck custody tracking  | Medium   | Not started | F4.8             |
 | F4.10 | Owner borrow inbox           | Medium   | Not started | F4.1, F4.2       |
 
-**Progress: 4/9 done · 0 partial · 5 not started**
+**Progress: 5/9 done · 0 partial · 4 not started**
 
 **Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, and the owner's borrow inbox.
 
@@ -292,14 +292,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
-| 4     | Borrow Workflow & Notifications   | 0    | 6       | 2           | 8     |
-| 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
+| 4     | Borrow Workflow & Notifications   | 4    | 2       | 2           | 8     |
+| 5     | Core Views & Navigation           | 5    | 0       | 4           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **20** | **14** | **50**      | **84** |
+|       | **Total**                         | **25** | **12** | **47**      | **84** |
 
 All 84 features from [features.md](features.md) are represented exactly once.
