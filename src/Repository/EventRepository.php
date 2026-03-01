@@ -40,6 +40,7 @@ class EventRepository extends ServiceEntityRepository
             ->addSelect('o')
             ->where('e.date >= :today')
             ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('e.date', 'ASC')
             ->setMaxResults($limit)
