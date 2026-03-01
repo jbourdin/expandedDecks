@@ -89,11 +89,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F4.4  | Confirm deck return             | High     | Partial     | F4.3                 |
 | F4.8  | Staff-delegated lending         | High     | Partial     | F4.1–F4.4, F3.5      |
 | F4.11 | Borrow conflict detection       | High     | Not started | F4.1                 |
+| F4.12 | Walk-up lending (direct lend)   | High     | Not started | F2.5, F3.5           |
 | F8.1  | Borrow workflow notifications   | High     | Partial     | F4.1–F4.4            |
 
-**Progress: 0/7 done · 6 partial · 1 not started**
+**Progress: 0/8 done · 6 partial · 2 not started**
 
-**Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
+**Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, walk-up lending for on-the-day situations, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
 
 ---
 
@@ -148,13 +149,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.7  | Register played deck for event   | Medium   | Partial     | F3.4, F2.2       |
 | F3.17 | Tournament results               | Medium   | Not started | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Partial     | F3.1, F4.1       |
+| F3.20 | Mark event as finished           | Medium   | Not started | F3.1, F4.6       |
 | F3.15 | Event discovery                  | Medium   | Not started | F3.11, F3.13     |
 | F8.2  | Event notifications              | Medium   | Partial     | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 0/8 done · 3 partial · 5 not started**
+**Progress: 0/9 done · 3 partial · 6 not started**
 
-**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event discovery page, event notifications, and Pokemon event page sync.
+**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
 ---
 
@@ -290,14 +292,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
-| 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
+| 4     | Borrow Workflow & Notifications   | 0    | 6       | 2           | 8     |
 | 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
-| 7     | Engagement, Results & Discovery   | 0    | 3       | 5           | 8     |
+| 7     | Engagement, Results & Discovery   | 0    | 3       | 6           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **20** | **13** | **49**      | **82** |
+|       | **Total**                         | **20** | **13** | **51**      | **84** |
 
-All 82 features from [features.md](features.md) are represented exactly once.
+All 84 features from [features.md](features.md) are represented exactly once.

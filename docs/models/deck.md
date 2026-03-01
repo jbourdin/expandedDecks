@@ -13,6 +13,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | Field              | Type               | Nullable | Description |
 |--------------------|--------------------|----------|-------------|
 | `id`               | `int` (auto)       | No       | Primary key |
+| `shortTag`         | `string(6)`        | No       | Auto-generated 6-character unique code for physical identification. Charset: `A-H, J-N, P-Z, 0-9` (34 characters — excludes `I` and `O` to prevent confusion with `1` and `0`). Generated on deck creation, immutable thereafter. Used as a verbal identifier at events, a searchable field in the app, and printed on the deck box label (F5.x). Unique DB index. See F2.1. |
 | `name`             | `string(100)`      | No       | Owner-given name for this deck (e.g. "My Lugia VSTAR"). |
 | `owner`            | `User`             | No       | The user who owns this physical deck. |
 | `format`           | `string(30)`       | No       | Play format. Default: `"Expanded"`. |
@@ -33,6 +34,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 
 ### Constraints
 
+- `shortTag`: required, exactly 6 characters, unique, immutable after creation. Characters drawn from `ABCDEFGHJKLMNPQRSTUVWXYZ0123456789` (34-char alphabet). Auto-generated on deck creation using a cryptographically random selection with uniqueness retry. 34^6 ≈ 1.54 billion possible codes — collision probability negligible at any realistic deck count
 - `name`: required, 2–100 characters
 - `owner`: required, must be a verified user
 - `status`: required, must be a valid `DeckStatus` value
