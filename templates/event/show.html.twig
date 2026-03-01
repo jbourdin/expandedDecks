@@ -122,6 +122,37 @@
         </div>
     </div>
 
+    {% if isOrganizer and not event.cancelledAt %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Staff Team</h6>
+            </div>
+            <div class="card-body">
+                {% if event.staff is not empty %}
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for staffMember in event.staff %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ staffMember.user.screenName }}
+                                <form method="post" action="{{ path('app_event_remove_staff', {id: event.id, staffId: staffMember.id}) }}" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('remove-staff-' ~ staffMember.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-3">No staff assigned yet.</p>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_event_assign_staff', {id: event.id}) }}" class="d-flex gap-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('assign-staff-' ~ event.id) }}">
+                    <input type="text" name="screen_name" class="form-control form-control-sm" placeholder="Screen name" required>
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">Add Staff</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
     {% if not event.cancelledAt %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">

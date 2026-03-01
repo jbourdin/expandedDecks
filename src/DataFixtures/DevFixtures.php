@@ -18,6 +18,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\EventEngagement;
+use App\Entity\EventStaff;
 use App\Entity\League;
 use App\Entity\User;
 use App\Enum\DeckStatus;
@@ -39,10 +40,10 @@ class DevFixtures extends Fixture
     {
         $admin = $this->createAdmin($manager);
         $this->createOrganizer($manager);
-        $this->createBorrower($manager);
+        $borrower = $this->createBorrower($manager);
         $this->createUnverifiedUser($manager);
         $league = $this->createLeague($manager);
-        $this->createEventToday($manager, $admin, $league);
+        $this->createEventToday($manager, $admin, $borrower, $league);
         $this->createEventInTwoMonths($manager, $admin, $league);
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $this->createIronThornsDeckVersion($manager, $ironThorns);
@@ -136,7 +137,7 @@ class DevFixtures extends Fixture
         return $league;
     }
 
-    private function createEventToday(ObjectManager $manager, User $organizer, League $league): void
+    private function createEventToday(ObjectManager $manager, User $organizer, User $borrower, League $league): void
     {
         $event = new Event();
         $event->setName('Expanded Weekly #42');
@@ -157,6 +158,12 @@ class DevFixtures extends Fixture
         $engagement->setState(EngagementState::RegisteredPlaying);
         $engagement->setParticipationMode(ParticipationMode::Playing);
         $manager->persist($engagement);
+
+        $staff = new EventStaff();
+        $staff->setEvent($event);
+        $staff->setUser($borrower);
+        $staff->setAssignedBy($organizer);
+        $manager->persist($staff);
     }
 
     private function createEventInTwoMonths(ObjectManager $manager, User $organizer, League $league): void
