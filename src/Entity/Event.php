@@ -73,10 +73,6 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private User $organizer;
 
-    #[ORM\ManyToOne(targetEntity: League::class, inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?League $league = null;
-
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Url(requireTld: true)]
@@ -254,18 +250,6 @@ class Event
     public function setOrganizer(User $organizer): static
     {
         $this->organizer = $organizer;
-
-        return $this;
-    }
-
-    public function getLeague(): ?League
-    {
-        return $this->league;
-    }
-
-    public function setLeague(?League $league): static
-    {
-        $this->league = $league;
 
         return $this;
     }

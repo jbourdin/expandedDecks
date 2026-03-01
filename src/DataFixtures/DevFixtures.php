@@ -19,7 +19,6 @@ use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
-use App\Entity\League;
 use App\Entity\User;
 use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
@@ -45,9 +44,8 @@ class DevFixtures extends Fixture
         $this->createStaff2($manager);
         $this->createLender($manager);
         $this->createUnverifiedUser($manager);
-        $league = $this->createLeague($manager);
-        $this->createEventToday($manager, $admin, $borrower, $league);
-        $this->createEventInTwoMonths($manager, $admin, $league);
+        $this->createEventToday($manager, $admin, $borrower);
+        $this->createEventInTwoMonths($manager, $admin);
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $this->createIronThornsDeckVersion($manager, $ironThorns);
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
@@ -185,19 +183,7 @@ class DevFixtures extends Fixture
         return $user;
     }
 
-    private function createLeague(ObjectManager $manager): League
-    {
-        $league = new League();
-        $league->setName('Ligue des Professeurs Développeurs');
-        $league->setWebsite('https://pokemon-lyon.example.com');
-        $league->setAddress('12 Rue de la République, 69001 Lyon, France');
-
-        $manager->persist($league);
-
-        return $league;
-    }
-
-    private function createEventToday(ObjectManager $manager, User $organizer, User $borrower, League $league): void
+    private function createEventToday(ObjectManager $manager, User $organizer, User $borrower): void
     {
         $event = new Event();
         $event->setName('Expanded Weekly #42');
@@ -205,7 +191,6 @@ class DevFixtures extends Fixture
         $event->setTimezone('Europe/Paris');
         $event->setLocation('12 Rue de la République, 69001 Lyon, France');
         $event->setOrganizer($organizer);
-        $event->setLeague($league);
         $event->setRegistrationLink('https://pokemon-lyon.example.com/events/42');
         $event->setTournamentStructure(TournamentStructure::Swiss);
         $event->setFormat('Expanded');
@@ -226,7 +211,7 @@ class DevFixtures extends Fixture
         $manager->persist($staff);
     }
 
-    private function createEventInTwoMonths(ObjectManager $manager, User $organizer, League $league): void
+    private function createEventInTwoMonths(ObjectManager $manager, User $organizer): void
     {
         $event = new Event();
         $event->setName('Lyon Expanded Cup 2026');
@@ -234,7 +219,6 @@ class DevFixtures extends Fixture
         $event->setTimezone('Europe/Paris');
         $event->setLocation('12 Rue de la République, 69001 Lyon, France');
         $event->setOrganizer($organizer);
-        $event->setLeague($league);
         $event->setRegistrationLink('https://pokemon-lyon.example.com/events/cup-2026');
         $event->setTournamentStructure(TournamentStructure::SwissTopCut);
         $event->setFormat('Expanded');

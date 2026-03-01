@@ -70,11 +70,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.9 | Edit an event                      | High     | Done        | F3.1       |
 | F3.5 | Assign event staff team            | High     | Done        | F3.1, F1.4 |
 | F3.4 | Register participation to an event | Medium   | Done        | F3.1, F1.1 |
-| F3.8 | League/Store management            | Medium   | Partial     | —          |
 
-**Progress: 4/5 done · 1 partial · 0 not started**
+**Progress: 4/4 done**
 
-**Deliverable:** Organizers can create/edit events, assign staff, and link leagues. Players can register participation (playing or spectating).
+**Deliverable:** Organizers can create/edit events and assign staff. Players can register participation (playing or spectating).
 
 ---
 
@@ -262,10 +261,11 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | ID    | Feature                                        | Priority | State       | Depends on       |
 |-------|------------------------------------------------|----------|-------------|------------------|
 | F1.12 | Play Pokemon QR scan for player identification | Medium   | Not started | F1.1, F5.3/F5.6  |
+| F3.19 | League deduction from Pokemon ID               | Low      | Not started | F1.1             |
 
-**Progress: 0/1 done · 1 not started**
+**Progress: 0/2 done · 2 not started**
 
-**Deliverable:** Scan a player's Play! Pokemon QR code to decode their JWT identity — enabling admin-initiated quick account creation, instant staff assignment by QR, and on-site player lookup at events.
+**Deliverable:** Scan a player's Play! Pokemon QR code to decode their JWT identity — enabling admin-initiated quick account creation, instant staff assignment by QR, and on-site player lookup at events. Investigate whether league affiliation can be deduced from a player's Pokemon ID via official APIs.
 
 ---
 
@@ -289,7 +289,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|-----------------------------------|------|---------|-------------|-------|
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
-| 3     | Events & Staff                    | 4    | 1       | 0           | 5     |
+| 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
 | 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
 | 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
@@ -297,7 +297,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-| 11    | Play Pokemon QR Integration       | 0    | 0       | 1           | 1     |
-|       | **Total**                         | **20** | **14** | **48**      | **82** |
+| 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
+|       | **Total**                         | **20** | **13** | **49**      | **82** |
 
 All 82 features from [features.md](features.md) are represented exactly once.
