@@ -222,7 +222,7 @@
                             </div>
                             <div class="col-md-5">
                                 <label for="borrow_notes" class="form-label">Notes (optional)</label>
-                                <input type="text" name="notes" id="borrow_notes" class="form-control form-control-sm" placeholder="e.g. round 1 only">
+                                <input type="text" name="notes" id="borrow_notes" class="form-control form-control-sm" placeholder="e.g. I'll bring it back right after my match">
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-sm btn-primary w-100">Request</button>
@@ -257,7 +257,7 @@
                         <tbody>
                             {% for borrow in eventBorrows %}
                                 <tr>
-                                    <td>{{ borrow.deck.name }}</td>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>
                                         <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">

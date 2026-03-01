@@ -13,7 +13,7 @@
 {% block body %}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Borrow: {{ borrow.deck.name }}</h5>
+            <h5 class="mb-0">Borrow: <a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}" class="text-white">{{ borrow.deck.name }}</a></h5>
             {% set statusColors = {
                 pending: 'warning',
                 approved: 'info',
