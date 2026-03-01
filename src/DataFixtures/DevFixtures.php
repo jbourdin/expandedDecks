@@ -78,6 +78,7 @@ class DevFixtures extends Fixture
         $organizer->setFirstName('Bob');
         $organizer->setLastName('Martin');
         $organizer->setScreenName('Organizer');
+        $organizer->setPlayerId('PKM-ORG-001');
         $organizer->setPassword($this->passwordHasher->hashPassword($organizer, 'password'));
         $organizer->setRoles(['ROLE_ORGANIZER']);
         $organizer->setIsVerified(true);
@@ -96,6 +97,7 @@ class DevFixtures extends Fixture
         $borrower->setFirstName('Alice');
         $borrower->setLastName('Dupont');
         $borrower->setScreenName('Borrower');
+        $borrower->setPlayerId('PKM-BOR-002');
         $borrower->setPassword($this->passwordHasher->hashPassword($borrower, 'password'));
         $borrower->setIsVerified(true);
         $borrower->setPreferredLocale('en');

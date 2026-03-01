@@ -19,6 +19,7 @@ Encore
 
     .addEntry('app', './assets/app.tsx')
     .addEntry('deck_show', './assets/deck-show.ts')
+    .addEntry('staff_autocomplete', './assets/staff-autocomplete.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
