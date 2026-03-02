@@ -1,0 +1,132 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+{% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
+
+{% block title %}Borrow — {{ borrow.deck.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Borrow: <a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}" class="text-white">{{ borrow.deck.name }}</a></h5>
+            {{ borrowBadge(borrow) }}
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-themed mb-0">
+                <tbody>
+                    <tr>
+                        <th>Deck</th>
+                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                    </tr>
+                    <tr>
+                        <th>Event</th>
+                        <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
+                    </tr>
+                    <tr>
+                        <th>Borrower</th>
+                        <td>{{ borrow.borrower.screenName }}</td>
+                    </tr>
+                    <tr>
+                        <th>Owner</th>
+                        <td>{{ borrow.deck.owner.screenName }}</td>
+                    </tr>
+                    {% if borrow.notes %}
+                        <tr>
+                            <th>Notes</th>
+                            <td>{{ borrow.notes }}</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h6 class="mb-0">Timeline</h6>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li>
+                    <strong>Requested:</strong>
+                    {{ borrow.requestedAt|date('M j, Y g:ia') }}
+                    by {{ borrow.borrower.screenName }}
+                </li>
+                {% if borrow.approvedAt %}
+                    <li class="mt-1">
+                        <strong>Approved:</strong>
+                        {{ borrow.approvedAt|date('M j, Y g:ia') }}
+                        {% if borrow.approvedBy %}by {{ borrow.approvedBy.screenName }}{% endif %}
+                    </li>
+                {% endif %}
+                {% if borrow.handedOffAt %}
+                    <li class="mt-1">
+                        <strong>Handed off:</strong>
+                        {{ borrow.handedOffAt|date('M j, Y g:ia') }}
+                        {% if borrow.handedOffBy %}by {{ borrow.handedOffBy.screenName }}{% endif %}
+                    </li>
+                {% endif %}
+                {% if borrow.returnedAt %}
+                    <li class="mt-1">
+                        <strong>Returned:</strong>
+                        {{ borrow.returnedAt|date('M j, Y g:ia') }}
+                        {% if borrow.returnedTo %}to {{ borrow.returnedTo.screenName }}{% endif %}
+                    </li>
+                {% endif %}
+                {% if borrow.cancelledAt %}
+                    <li class="mt-1">
+                        <strong>Cancelled:</strong>
+                        {{ borrow.cancelledAt|date('M j, Y g:ia') }}
+                        {% if borrow.cancelledBy %}by {{ borrow.cancelledBy.screenName }}{% endif %}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    {% if canApprove or canHandOff or canReturn or canCancel %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Actions</h6>
+            </div>
+            <div class="card-body d-flex gap-2 flex-wrap">
+                {% if canApprove %}
+                    <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Deny this borrow request?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Deny</button>
+                    </form>
+                {% endif %}
+                {% if canHandOff %}
+                    <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Confirm Hand-off</button>
+                    </form>
+                {% endif %}
+                {% if canReturn %}
+                    <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Confirm Return</button>
+                    </form>
+                {% endif %}
+                {% if canCancel %}
+                    <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Cancel this borrow?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <a href="{{ path('app_event_show', {id: borrow.event.id}) }}" class="btn btn-sm btn-outline-secondary">Back to event</a>
+{% endblock %}

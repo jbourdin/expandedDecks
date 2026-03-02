@@ -1,0 +1,57 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Available Decks — {{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Available Decks</h4>
+        <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">Back to event</a>
+    </div>
+
+    <p class="text-muted mb-4">
+        Decks available to borrow for <strong>{{ event.name }}</strong>
+        ({{ event.date|date('M j, Y') }}).
+    </p>
+
+    {% if availableDecks is not empty %}
+        <div class="row">
+            {% for deck in availableDecks %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
+                            </h6>
+                            <p class="card-text text-muted mb-2">
+                                Owner: {{ deck.owner.screenName }}
+                                {% if deck.currentVersion and deck.currentVersion.archetypeName %}
+                                    <br>Archetype: {{ deck.currentVersion.archetypeName }}
+                                {% endif %}
+                            </p>
+                            <form method="post" action="{{ path('app_borrow_request') }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('borrow-request-' ~ event.id) }}">
+                                <input type="hidden" name="event_id" value="{{ event.id }}">
+                                <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                <input type="hidden" name="redirect_to" value="event_decks">
+                                <div class="mb-2">
+                                    <input type="text" name="notes" class="form-control form-control-sm" placeholder="Notes (optional)">
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">Request to borrow</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No decks are currently available for borrowing at this event.</p>
+    {% endif %}
+{% endblock %}

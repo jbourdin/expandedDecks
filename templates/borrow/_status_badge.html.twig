@@ -1,0 +1,24 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+
+{# Reusable macro for borrow status badges #}
+{% macro badge(borrow) %}
+    {% set statusColors = {
+        pending: 'warning',
+        approved: 'info',
+        lent: 'primary',
+        returned: 'success',
+        returned_to_owner: 'success',
+        cancelled: 'secondary',
+        overdue: 'danger',
+    } %}
+    <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">
+        {{ borrow.status.value|replace({'_': ' '})|title }}
+    </span>
+{% endmacro %}

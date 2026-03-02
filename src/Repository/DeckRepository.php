@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Deck;
+use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -63,6 +64,46 @@ class DeckRepository extends ServiceEntityRepository
             ->addSelect('cv')
             ->where('d.owner = :owner')
             ->setParameter('owner', $owner)
+            ->orderBy('d.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
+     * @see docs/features.md F4.1 — Request to borrow a deck
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     *
+     * @return list<Deck>
+     */
+    public function findAvailableForEvent(Event $event, User $excludeOwner): array
+    {
+        $eventDate = $event->getDate();
+        $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
+        $endDate = $event->getEndDate() ?? $eventDate;
+        $endOfDay = new \DateTimeImmutable($endDate->format('Y-m-d').' 23:59:59');
+
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->join('d.owner', 'o')
+            ->addSelect('o')
+            ->where('d.status != :retired')
+            ->andWhere('d.owner != :excludeOwner')
+            ->andWhere('d.currentVersion IS NOT NULL')
+            ->andWhere('NOT EXISTS (
+                SELECT 1 FROM App\Entity\Borrow b
+                JOIN b.event e2
+                WHERE b.deck = d
+                AND b.status IN (:activeStatuses)
+                AND e2.date <= :endOfDay
+                AND COALESCE(e2.endDate, e2.date) >= :startOfDay
+            )')
+            ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('excludeOwner', $excludeOwner)
+            ->setParameter('activeStatuses', BorrowRepository::activeStatusValues())
+            ->setParameter('startOfDay', $startOfDay)
+            ->setParameter('endOfDay', $endOfDay)
             ->orderBy('d.name', 'ASC')
             ->getQuery()
             ->getResult();

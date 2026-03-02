@@ -449,6 +449,17 @@ class Event
     }
 
     /**
+     * Whether the user is the event organizer or a staff member.
+     *
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    public function isOrganizerOrStaff(User $user): bool
+    {
+        return $this->organizer->getId() === $user->getId()
+            || null !== $this->getStaffFor($user);
+    }
+
+    /**
      * @return Collection<int, Borrow>
      */
     public function getBorrows(): Collection
