@@ -1215,9 +1215,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->loginAs('lender@example.com');
 
         $event = $this->getFutureEvent();
-
-        // Register as participant to get a select-deck form with CSRF token
-        $this->registerParticipant($event);
+        
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
 
