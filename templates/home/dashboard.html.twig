@@ -26,7 +26,7 @@
                         <ul class="list-group list-group-flush">
                             {% for deck in ownedDecks %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
+                                    <a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a>
                                     {% if deck.status.value == 'lent' %}
                                         <span class="badge badge-lent">Lent</span>
                                     {% elseif deck.status.value == 'retired' %}
@@ -96,7 +96,7 @@
                         <tbody>
                             {% for borrow in recentBorrows %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                                     <td>{{ borrowBadge(borrow) }}</td>
                                     <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
@@ -134,7 +134,7 @@
                         <tbody>
                             {% for borrow in recentLends %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>{{ borrowBadge(borrow) }}</td>
@@ -173,7 +173,7 @@
                             <tbody>
                                 {% for borrow in recentManagedBorrows %}
                                     <tr>
-                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                         <td>{{ borrow.borrower.screenName }}</td>
                                         <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                                         <td>{{ borrowBadge(borrow) }}</td>

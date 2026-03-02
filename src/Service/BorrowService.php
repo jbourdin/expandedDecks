@@ -16,12 +16,16 @@ namespace App\Service;
 use App\Entity\Borrow;
 use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\EventEngagement;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
+use App\Enum\EngagementState;
 use App\Enum\NotificationType;
+use App\Enum\ParticipationMode;
 use App\Repository\BorrowRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -32,6 +36,8 @@ use Symfony\Component\Workflow\WorkflowInterface;
  * @see docs/features.md F4.3 — Confirm deck hand-off (lend)
  * @see docs/features.md F4.4 — Confirm deck return
  * @see docs/features.md F4.7 — Cancel a borrow request
+ * @see docs/features.md F4.8 — Staff-delegated lending
+ * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 class BorrowService
 {
@@ -39,6 +45,8 @@ class BorrowService
         private readonly WorkflowInterface $borrowStateMachine,
         private readonly EntityManagerInterface $em,
         private readonly BorrowRepository $borrowRepository,
+        private readonly BorrowNotificationEmailService $emailService,
+        private readonly EventDeckRegistrationRepository $registrationRepository,
     ) {
     }
 
@@ -88,6 +96,11 @@ class BorrowService
         $borrow->setEvent($event);
         $borrow->setNotes($notes);
 
+        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
+        if (null !== $registration && $registration->isDelegateToStaff()) {
+            $borrow->setIsDelegatedToStaff(true);
+        }
+
         $this->em->persist($borrow);
         $this->em->flush();
 
@@ -99,15 +112,18 @@ class BorrowService
             $borrow,
         );
 
+        $this->emailService->sendBorrowRequested($borrow);
+
         return $borrow;
     }
 
     /**
      * @see docs/features.md F4.2 — Approve / deny a borrow request
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     public function approve(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'approve');
 
@@ -123,14 +139,17 @@ class BorrowService
             \sprintf('Your request to borrow "%s" has been approved.', $borrow->getDeck()->getName()),
             $borrow,
         );
+
+        $this->emailService->sendBorrowApproved($borrow);
     }
 
     /**
      * @see docs/features.md F4.2 — Approve / deny a borrow request
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     public function deny(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'deny');
 
@@ -146,14 +165,17 @@ class BorrowService
             \sprintf('Your request to borrow "%s" has been denied.', $borrow->getDeck()->getName()),
             $borrow,
         );
+
+        $this->emailService->sendBorrowDenied($borrow);
     }
 
     /**
      * @see docs/features.md F4.3 — Confirm deck hand-off (lend)
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     public function handOff(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'hand_off');
 
@@ -175,10 +197,11 @@ class BorrowService
 
     /**
      * @see docs/features.md F4.4 — Confirm deck return
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     public function confirmReturn(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $transitionName = BorrowStatus::Overdue === $borrow->getStatus() ? 'return_overdue' : 'return';
         $this->borrowStateMachine->apply($borrow, $transitionName);
@@ -225,12 +248,141 @@ class BorrowService
             \sprintf('The borrow of "%s" has been cancelled by %s.', $borrow->getDeck()->getName(), $actor->getScreenName()),
             $borrow,
         );
+
+        $this->emailService->sendBorrowCancelled($borrow, $actor);
     }
 
-    private function assertDeckOwner(Borrow $borrow, User $actor): void
+    /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    public function createWalkUpBorrow(Deck $deck, User $borrower, Event $event, User $initiator): Borrow
     {
-        if ($borrow->getDeck()->getOwner()->getId() !== $actor->getId()) {
-            throw new AccessDeniedHttpException('Only the deck owner can perform this action.');
+        if ($deck->getOwner()->getId() === $borrower->getId()) {
+            throw new \DomainException('The borrower cannot be the deck owner.');
+        }
+
+        if (DeckStatus::Retired === $deck->getStatus()) {
+            throw new \DomainException('This deck is retired and cannot be lent.');
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            throw new \DomainException('Cannot lend decks at a cancelled event.');
+        }
+
+        if (null !== $event->getFinishedAt()) {
+            throw new \DomainException('Cannot lend decks at a finished event.');
+        }
+
+        if (null !== $this->borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event)) {
+            throw new \DomainException('This deck already has an active borrow for this event.');
+        }
+
+        if ([] !== $this->borrowRepository->findConflictingBorrowsOnSameDay($deck, $event)) {
+            throw new \DomainException('This deck already has an active borrow at another event on the same day.');
+        }
+
+        $currentVersion = $deck->getCurrentVersion();
+        if (null === $currentVersion) {
+            throw new \DomainException('This deck has no version and cannot be lent.');
+        }
+
+        $isOwner = $deck->getOwner()->getId() === $initiator->getId();
+        if (!$isOwner && !$event->isOrganizerOrStaff($initiator)) {
+            throw new AccessDeniedHttpException('Only the deck owner or event staff can initiate a walk-up lend.');
+        }
+
+        // Auto-register borrower as participant if not engaged
+        if (null === $event->getEngagementFor($borrower)) {
+            $engagement = new EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($borrower);
+            $engagement->setState(EngagementState::RegisteredPlaying);
+            $engagement->setParticipationMode(ParticipationMode::Playing);
+            $this->em->persist($engagement);
+        }
+
+        $now = new \DateTimeImmutable();
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($currentVersion);
+        $borrow->setBorrower($borrower);
+        $borrow->setEvent($event);
+        $borrow->setIsWalkUp(true);
+
+        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
+        if (null !== $registration && $registration->isDelegateToStaff()) {
+            $borrow->setIsDelegatedToStaff(true);
+        }
+
+        $this->em->persist($borrow);
+
+        $this->borrowStateMachine->apply($borrow, 'walk_up_lend');
+
+        $borrow->setApprovedAt($now);
+        $borrow->setApprovedBy($initiator);
+        $borrow->setHandedOffAt($now);
+        $borrow->setHandedOffBy($initiator);
+
+        $this->syncDeckStatus($deck, DeckStatus::Lent);
+
+        $this->em->flush();
+
+        // Notify owner if initiator is staff (not the owner)
+        if (!$isOwner) {
+            $this->createNotification(
+                $deck->getOwner(),
+                NotificationType::BorrowHandedOff,
+                'Walk-up lend initiated',
+                \sprintf('"%s" was lent to %s by event staff at %s.', $deck->getName(), $borrower->getScreenName(), $event->getName()),
+                $borrow,
+            );
+        }
+
+        $this->createNotification(
+            $borrower,
+            NotificationType::BorrowHandedOff,
+            'Deck handed to you',
+            \sprintf('"%s" has been handed off to you at %s.', $deck->getName(), $event->getName()),
+            $borrow,
+        );
+
+        return $borrow;
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    public function returnToOwner(Borrow $borrow, User $actor): void
+    {
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
+
+        $this->borrowStateMachine->apply($borrow, 'return_to_owner');
+
+        $borrow->setReturnedToOwnerAt(new \DateTimeImmutable());
+
+        $this->syncDeckStatus($borrow->getDeck(), DeckStatus::Available);
+
+        $this->em->flush();
+
+        $this->createNotification(
+            $borrow->getDeck()->getOwner(),
+            NotificationType::BorrowReturned,
+            'Deck returned to owner',
+            \sprintf('"%s" has been returned to your custody by %s.', $borrow->getDeck()->getName(), $actor->getScreenName()),
+            $borrow,
+        );
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    private function assertOwnerOrDelegatedStaff(Borrow $borrow, User $actor): void
+    {
+        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actor->getId();
+        $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($actor);
+
+        if (!$isOwner && !$isDelegatedStaff) {
+            throw new AccessDeniedHttpException('Only the deck owner or delegated staff can perform this action.');
         }
     }
 

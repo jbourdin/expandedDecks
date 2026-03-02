@@ -28,7 +28,7 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h6 class="card-title">
-                                <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
+                                <a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a>
                             </h6>
                             <p class="card-text text-muted mb-2">
                                 Owner: {{ deck.owner.screenName }}

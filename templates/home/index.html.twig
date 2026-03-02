@@ -57,7 +57,7 @@
                 <tbody>
                     {% for deck in decks %}
                         <tr>
-                            <td>{{ deck.name }}</td>
+                            <td><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</td>
                             <td>{{ deck.format }}</td>
                             <td>{{ deck.owner.screenName }}</td>
                             <td>{{ deck.currentVersion ? deck.currentVersion.cards|length : '—' }}</td>

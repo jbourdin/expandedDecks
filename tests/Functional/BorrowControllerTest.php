@@ -16,11 +16,14 @@ namespace App\Tests\Functional;
 use App\Entity\Borrow;
 use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\EventDeckRegistration;
+use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -29,6 +32,8 @@ use Doctrine\ORM\EntityManagerInterface;
  * @see docs/features.md F4.3 — Confirm deck hand-off (lend)
  * @see docs/features.md F4.4 — Confirm deck return
  * @see docs/features.md F4.7 — Cancel a borrow request
+ * @see docs/features.md F4.8 — Staff-delegated lending
+ * @see docs/features.md F8.1 — Borrow workflow email notifications
  */
 class BorrowControllerTest extends AbstractFunctionalTest
 {
@@ -202,8 +207,8 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         $em = $this->getEntityManager();
 
-        /** @var \App\Repository\UserRepository $userRepo */
-        $userRepo = static::getContainer()->get(\App\Repository\UserRepository::class);
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
         $borrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
         self::assertNotNull($borrower);
 
@@ -222,6 +227,13 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
         $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
         $em->persist($engagement);
+
+        // Register Regidrago at the second event so it appears in available decks
+        $regidragoReg = new EventDeckRegistration();
+        $regidragoReg->setEvent($secondEvent);
+        $regidragoReg->setDeck($deck);
+        $regidragoReg->setDelegateToStaff(false);
+        $em->persist($regidragoReg);
         $em->flush();
 
         $secondEventId = $secondEvent->getId();
@@ -238,8 +250,8 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $currentVersion = $freshDeck->getCurrentVersion();
         self::assertNotNull($currentVersion);
 
-        /** @var \App\Repository\UserRepository $userRepo */
-        $userRepo = static::getContainer()->get(\App\Repository\UserRepository::class);
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
         $freshBorrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
         self::assertNotNull($freshBorrower);
 
@@ -604,6 +616,361 @@ class BorrowControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F4.8 — Staff-delegated lending
+    // ---------------------------------------------------------------
+
+    public function testBorrowAutoInheritsDelegationFromRegistration(): void
+    {
+        // Iron Thorns already has a delegation registration from fixtures
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Cancel existing borrow so we can request again
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[action="/borrow/request"]')->first();
+        $csrfToken = $form->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $event->getId(),
+            'deck_id' => $deck->getId(),
+            'redirect_to' => 'event_decks',
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d/decks', $event->getId()));
+
+        /** @var BorrowRepository $repo */
+        $repo = static::getContainer()->get(BorrowRepository::class);
+        $borrows = $repo->findByEvent($event);
+
+        $found = false;
+        foreach ($borrows as $borrow) {
+            if (BorrowStatus::Pending === $borrow->getStatus() && $borrow->isDelegatedToStaff()) {
+                $found = true;
+            }
+        }
+        self::assertTrue($found, 'New borrow should inherit isDelegatedToStaff from EventDeckRegistration.');
+    }
+
+    public function testStaffCanHandOffDelegatedBorrow(): void
+    {
+        // borrower@example.com is staff for the fixture event
+        $this->loginAs('borrower@example.com');
+
+        $borrow = $this->getApprovedBorrow();
+        $this->setDelegated($borrow);
+
+        // Need a different borrower — use a fresh pending borrow that won't be the current user
+        // Actually the approved borrow's borrower IS borrower@example.com. We need a borrow
+        // where the borrower is someone else and borrower@example.com is staff.
+        // Let's create a dedicated borrow for this test.
+        $borrow = $this->createDelegatedBorrowForStaffTest();
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        self::assertResponseIsSuccessful();
+
+        $handOffForm = $crawler->filter(\sprintf('form[action="/borrow/%d/hand-off"]', $borrow->getId()));
+        self::assertGreaterThan(0, $handOffForm->count(), 'Staff should see hand-off button for delegated borrow.');
+        $csrfToken = $handOffForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/hand-off', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Deck has been handed off.');
+
+        $fresh = $this->refetchBorrow((int) $borrow->getId());
+        self::assertSame(BorrowStatus::Lent, $fresh->getStatus());
+    }
+
+    public function testStaffCanReturnDelegatedBorrow(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $borrow = $this->createDelegatedBorrowForStaffTest();
+        $this->transitionToLent($borrow);
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        self::assertResponseIsSuccessful();
+
+        $returnForm = $crawler->filter(\sprintf('form[action="/borrow/%d/return"]', $borrow->getId()));
+        self::assertGreaterThan(0, $returnForm->count(), 'Staff should see return button for delegated borrow.');
+        $csrfToken = $returnForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/return', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Deck return confirmed.');
+
+        $fresh = $this->refetchBorrow((int) $borrow->getId());
+        self::assertSame(BorrowStatus::Returned, $fresh->getStatus());
+    }
+
+    public function testStaffCannotActOnNonDelegatedBorrow(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        // Create a borrow where borrower@example.com is staff but deck has no delegation registration
+        $em = $this->getEntityManager();
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Regidrago');
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        $nonDelegated = new Borrow();
+        $nonDelegated->setDeck($deck);
+        $nonDelegated->setDeckVersion($currentVersion);
+        $nonDelegated->setBorrower($userRepo->findOneBy(['email' => 'admin@example.com']));
+        $nonDelegated->setEvent($event);
+        $nonDelegated->setStatus(BorrowStatus::Approved);
+        $nonDelegated->setApprovedAt(new \DateTimeImmutable());
+        // isDelegatedToStaff defaults to false — no registration exists
+        $em->persist($nonDelegated);
+        $em->flush();
+
+        // Staff tries to hand off non-delegated borrow
+        $this->client->request('POST', \sprintf('/borrow/%d/hand-off', $nonDelegated->getId()), [
+            '_token' => 'dummy',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $nonDelegated->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
+    public function testStaffCanApproveDelegatedBorrow(): void
+    {
+        // Enable delegation on existing Regidrago registration at the fixture event
+        $em = $this->getEntityManager();
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Regidrago');
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        /** @var \App\Repository\EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(\App\Repository\EventDeckRegistrationRepository::class);
+        $registration = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($registration);
+        $registration->setDelegateToStaff(true);
+
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+        $admin = $userRepo->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($admin);
+
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($currentVersion);
+        $borrow->setBorrower($admin);
+        $borrow->setEvent($event);
+        $borrow->setIsDelegatedToStaff(true);
+        $em->persist($borrow);
+        $em->flush();
+
+        // borrower@example.com is staff for the fixture event
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        self::assertResponseIsSuccessful();
+
+        $approveForm = $crawler->filter(\sprintf('form[action="/borrow/%d/approve"]', $borrow->getId()));
+        self::assertGreaterThan(0, $approveForm->count(), 'Staff should see approve button for delegated borrow.');
+        $csrfToken = $approveForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/approve', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow request approved.');
+
+        $fresh = $this->refetchBorrow((int) $borrow->getId());
+        self::assertSame(BorrowStatus::Approved, $fresh->getStatus());
+    }
+
+    public function testStaffCanDenyDelegatedBorrow(): void
+    {
+        $em = $this->getEntityManager();
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Regidrago');
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        /** @var \App\Repository\EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(\App\Repository\EventDeckRegistrationRepository::class);
+        $registration = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($registration);
+        $registration->setDelegateToStaff(true);
+
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+        $admin = $userRepo->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($admin);
+
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($currentVersion);
+        $borrow->setBorrower($admin);
+        $borrow->setEvent($event);
+        $borrow->setIsDelegatedToStaff(true);
+        $em->persist($borrow);
+        $em->flush();
+
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        self::assertResponseIsSuccessful();
+
+        $denyForm = $crawler->filter(\sprintf('form[action="/borrow/%d/deny"]', $borrow->getId()));
+        self::assertGreaterThan(0, $denyForm->count(), 'Staff should see deny button for delegated borrow.');
+        $csrfToken = $denyForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/deny', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow request denied.');
+
+        $fresh = $this->refetchBorrow((int) $borrow->getId());
+        self::assertSame(BorrowStatus::Cancelled, $fresh->getStatus());
+    }
+
+    public function testReturnToOwnerTransition(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $borrow = $this->createDelegatedBorrowForStaffTest();
+        $this->transitionToLent($borrow);
+
+        // Return the deck (staff)
+        $em = $this->getEntityManager();
+        $borrow->setStatus(BorrowStatus::Returned);
+        $borrow->setReturnedAt(new \DateTimeImmutable());
+        $borrow->getDeck()->setStatus(DeckStatus::Available);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        self::assertResponseIsSuccessful();
+
+        $returnToOwnerForm = $crawler->filter(\sprintf('form[action="/borrow/%d/return-to-owner"]', $borrow->getId()));
+        self::assertGreaterThan(0, $returnToOwnerForm->count(), 'Return to Owner button should appear.');
+        $csrfToken = $returnToOwnerForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/return-to-owner', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Deck returned to owner.');
+
+        $fresh = $this->refetchBorrow((int) $borrow->getId());
+        self::assertSame(BorrowStatus::ReturnedToOwner, $fresh->getStatus());
+        self::assertNotNull($fresh->getReturnedToOwnerAt());
+    }
+
+    // ---------------------------------------------------------------
+    // F8.1 — Borrow workflow email notifications
+    // ---------------------------------------------------------------
+
+    public function testBorrowRequestSendsEmailToOwner(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[action="/borrow/request"]')->first();
+        $csrfToken = $form->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $event->getId(),
+            'deck_id' => $deck->getId(),
+            'redirect_to' => 'event_decks',
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertEmailCount(1);
+    }
+
+    public function testApproveSendsEmailToBorrower(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $borrow = $this->getPendingBorrow();
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        $approveForm = $crawler->filter(\sprintf('form[action="/borrow/%d/approve"]', $borrow->getId()));
+        $csrfToken = $approveForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/approve', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertEmailCount(1);
+    }
+
+    public function testDenySendsEmailToBorrower(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $borrow = $this->getPendingBorrow();
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        $denyForm = $crawler->filter(\sprintf('form[action="/borrow/%d/deny"]', $borrow->getId()));
+        $csrfToken = $denyForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/deny', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertEmailCount(1);
+    }
+
+    public function testCancelSendsEmailToOtherParty(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $borrow = $this->getPendingBorrow();
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
+        $cancelForm = $crawler->filter(\sprintf('form[action="/borrow/%d/cancel"]', $borrow->getId()));
+        $csrfToken = $cancelForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/cancel', $borrow->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertEmailCount(1);
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
@@ -672,6 +1039,63 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $borrow->setHandedOffAt(new \DateTimeImmutable());
         $borrow->getDeck()->setStatus(DeckStatus::Lent);
         $em->flush();
+    }
+
+    private function setDelegated(Borrow $borrow): void
+    {
+        $em = $this->getEntityManager();
+        $borrow->setIsDelegatedToStaff(true);
+        $em->flush();
+    }
+
+    /**
+     * Creates a borrow where:
+     * - Deck owner: lender@example.com (Regidrago)
+     * - Borrower: admin@example.com
+     * - Event: Expanded Weekly #42 (borrower@example.com is staff)
+     * - Delegated to staff: true
+     * - Status: Approved.
+     */
+    private function createDelegatedBorrowForStaffTest(): Borrow
+    {
+        $em = $this->getEntityManager();
+
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+        $admin = $userRepo->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($admin);
+        $lender = $userRepo->findOneBy(['email' => 'lender@example.com']);
+        self::assertNotNull($lender);
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Regidrago');
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        // Add lender engagement if missing
+        if (null === $event->getEngagementFor($lender)) {
+            $engagement = new \App\Entity\EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($lender);
+            $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
+            $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
+            $em->persist($engagement);
+        }
+
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($currentVersion);
+        $borrow->setBorrower($admin);
+        $borrow->setEvent($event);
+        $borrow->setStatus(BorrowStatus::Approved);
+        $borrow->setApprovedAt(new \DateTimeImmutable());
+        $borrow->setApprovedBy($lender);
+        $borrow->setIsDelegatedToStaff(true);
+
+        $em->persist($borrow);
+        $em->flush();
+
+        return $borrow;
     }
 
     private function cancelExistingBorrowsForDeck(Deck $deck, Event $event): void

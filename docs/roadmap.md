@@ -87,12 +87,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F4.2  | Approve / deny borrow request   | High     | Done        | F4.1                 |
 | F4.3  | Confirm deck hand-off (lend)    | High     | Done        | F4.2                 |
 | F4.4  | Confirm deck return             | High     | Done        | F4.3                 |
-| F4.8  | Staff-delegated lending         | High     | Partial     | F4.1–F4.4, F3.5      |
+| F4.8  | Staff-delegated lending         | High     | Done        | F4.1–F4.4, F3.5      |
 | F4.11 | Borrow conflict detection       | High     | Done        | F4.1                 |
-| F4.12 | Walk-up lending (direct lend)   | High     | Not started | F2.5, F3.5           |
-| F8.1  | Borrow workflow notifications   | High     | Partial     | F4.1–F4.4            |
+| F4.12 | Walk-up lending (direct lend)   | High     | Done        | F2.5, F3.5           |
+| F8.1  | Borrow workflow notifications   | High     | Done        | F4.1–F4.4            |
 
-**Progress: 5/8 done · 2 partial · 1 not started**
+**Progress: 8/8 done**
 
 **Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, walk-up lending for on-the-day situations, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
 
@@ -292,7 +292,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
-| 4     | Borrow Workflow & Notifications   | 5    | 2       | 1           | 8     |
+| 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
 | 5     | Core Views & Navigation           | 5    | 2       | 2           | 9     |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
@@ -300,6 +300,6 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **26** | **14** | **44**      | **84** |
+|       | **Total**                         | **29** | **11** | **44**      | **84** |
 
 All 84 features from [features.md](features.md) are represented exactly once.
