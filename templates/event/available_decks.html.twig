@@ -32,8 +32,8 @@
                             </h6>
                             <p class="card-text text-muted mb-2">
                                 Owner: {{ deck.owner.screenName }}
-                                {% if deck.currentVersion and deck.currentVersion.archetypeName %}
-                                    <br>Archetype: {{ deck.currentVersion.archetypeName }}
+                                {% if deck.archetype %}
+                                    <br>Archetype: {{ deck.archetype.name }}
                                 {% endif %}
                             </p>
                             <form method="post" action="{{ path('app_borrow_request') }}">

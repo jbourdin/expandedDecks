@@ -15,6 +15,7 @@ namespace App\Tests\Functional;
 
 /**
  * @see docs/features.md F2.3 — Detail view
+ * @see docs/features.md F2.6 — Archetype management
  * @see docs/features.md F4.5 — Borrow history
  */
 class DeckControllerTest extends AbstractFunctionalTest
@@ -53,6 +54,46 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         // Owner should NOT see a borrow request form (can't borrow own deck)
         self::assertSelectorNotExists('#borrow_event');
+    }
+
+    public function testDeckShowDisplaysArchetypeFromDeck(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/1');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Iron Thorns ex', $crawler->text());
+    }
+
+    public function testDeckShowDisplaysLanguagesFromDeck(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/1');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('en', $crawler->text());
+    }
+
+    public function testNewDeckFormDoesNotContainFormatField(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, $crawler->filter('#deck_form_format')->count(), 'Format field should not be present.');
+    }
+
+    public function testEditDeckFormDoesNotContainFormatField(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/1/edit');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, $crawler->filter('#deck_form_format')->count(), 'Format field should not be present.');
     }
 
     public function testDeckShowShowsBorrowFormForEligibleUser(): void

@@ -33,6 +33,12 @@
 | `@mantine/dates`           | Date pickers and calendars           |
 | `@tabler/icons-react`      | Icon set (peer dependency)           |
 
+### Installation Status
+
+`@mantine/core` and `@mantine/hooks` are installed. First usage: **deck form React islands** (`deck_form` Encore entry) for the archetype autocomplete (`ArchetypeSelect`) and language multi-select (`LanguageSelect`) components. Mantine styles are imported in the `deck-form.tsx` entry point (scoped to deck form pages only, to avoid Bootstrap style conflicts on other pages).
+
+Additional packages (`@mantine/form`, `@mantine/notifications`, `@mantine/dates`, `@tabler/icons-react`) will be installed as needed for future features.
+
 ### CSS
 
 Import `@mantine/core/styles.css` in the application entrypoint. PostCSS is not required for basic usage.

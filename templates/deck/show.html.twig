@@ -69,9 +69,12 @@
                 <span><strong>Format:</strong> {{ deck.format }}</span>
                 {% if deck.currentVersion %}
                     <span><strong>Version:</strong> v{{ deck.currentVersion.versionNumber }}</span>
-                    {% if deck.currentVersion.archetypeName %}
-                        <span><strong>Archetype:</strong> {{ deck.currentVersion.archetypeName }}</span>
-                    {% endif %}
+                {% endif %}
+                {% if deck.archetype %}
+                    <span><strong>Archetype:</strong> {{ deck.archetype.name }}</span>
+                {% endif %}
+                {% if deck.languages is not empty %}
+                    <span><strong>Languages:</strong> {{ deck.languages|join(', ') }}</span>
                 {% endif %}
                 {% if deck.notes %}
                     <span><strong>Notes:</strong> {{ deck.notes }}</span>
