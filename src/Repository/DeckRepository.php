@@ -16,7 +16,6 @@ namespace App\Repository;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
-use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -74,32 +73,37 @@ class DeckRepository extends ServiceEntityRepository
 
     /**
      * @see docs/features.md F4.1 — Request to borrow a deck
+     * @see docs/features.md F4.11 — Borrow conflict detection
      *
      * @return list<Deck>
      */
     public function findAvailableForEvent(Event $event, User $excludeOwner): array
     {
-        $activeStatuses = array_map(
-            static fn (BorrowStatus $s): string => $s->value,
-            [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
-        );
+        $eventDate = $event->getDate();
+        $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
+        $endDate = $event->getEndDate() ?? $eventDate;
+        $endOfDay = new \DateTimeImmutable($endDate->format('Y-m-d').' 23:59:59');
 
         /** @var list<Deck> $decks */
         $decks = $this->createQueryBuilder('d')
             ->join('d.owner', 'o')
             ->addSelect('o')
-            ->where('d.status = :status')
+            ->where('d.status != :retired')
             ->andWhere('d.owner != :excludeOwner')
+            ->andWhere('d.currentVersion IS NOT NULL')
             ->andWhere('NOT EXISTS (
                 SELECT 1 FROM App\Entity\Borrow b
+                JOIN b.event e2
                 WHERE b.deck = d
-                AND b.event = :event
                 AND b.status IN (:activeStatuses)
+                AND e2.date <= :endOfDay
+                AND COALESCE(e2.endDate, e2.date) >= :startOfDay
             )')
-            ->setParameter('status', DeckStatus::Available)
+            ->setParameter('retired', DeckStatus::Retired)
             ->setParameter('excludeOwner', $excludeOwner)
-            ->setParameter('event', $event)
-            ->setParameter('activeStatuses', $activeStatuses)
+            ->setParameter('activeStatuses', BorrowRepository::activeStatusValues())
+            ->setParameter('startOfDay', $startOfDay)
+            ->setParameter('endOfDay', $endOfDay)
             ->orderBy('d.name', 'ASC')
             ->getQuery()
             ->getResult();

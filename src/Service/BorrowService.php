@@ -56,8 +56,8 @@ class BorrowService
             throw new \DomainException('You must be a participant of this event to request a borrow.');
         }
 
-        if (DeckStatus::Available !== $deck->getStatus()) {
-            throw new \DomainException('This deck is not available for borrowing.');
+        if (DeckStatus::Retired === $deck->getStatus()) {
+            throw new \DomainException('This deck is retired and cannot be borrowed.');
         }
 
         if (null !== $event->getCancelledAt()) {
@@ -70,6 +70,10 @@ class BorrowService
 
         if (null !== $this->borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event)) {
             throw new \DomainException('This deck already has an active borrow request for this event.');
+        }
+
+        if ([] !== $this->borrowRepository->findConflictingBorrowsOnSameDay($deck, $event)) {
+            throw new \DomainException('This deck already has an active borrow at another event on the same day.');
         }
 
         $currentVersion = $deck->getCurrentVersion();
@@ -109,8 +113,6 @@ class BorrowService
 
         $borrow->setApprovedAt(new \DateTimeImmutable());
         $borrow->setApprovedBy($actor);
-
-        $this->syncDeckStatus($borrow->getDeck(), DeckStatus::Reserved);
 
         $this->em->flush();
 
@@ -207,15 +209,8 @@ class BorrowService
         $transitionName = BorrowStatus::Pending === $borrow->getStatus() ? 'cancel_pending' : 'cancel_approved';
         $this->borrowStateMachine->apply($borrow, $transitionName);
 
-        $wasApproved = BorrowStatus::Cancelled === $borrow->getStatus()
-            && null !== $borrow->getApprovedAt();
-
         $borrow->setCancelledAt(new \DateTimeImmutable());
         $borrow->setCancelledBy($actor);
-
-        if ($wasApproved) {
-            $this->syncDeckStatus($borrow->getDeck(), DeckStatus::Available);
-        }
 
         $this->em->flush();
 

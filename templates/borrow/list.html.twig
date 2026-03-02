@@ -1,0 +1,83 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+{% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
+
+{% block title %}{{ pageTitle }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">{{ pageTitle }}</h1>
+        <a href="{{ path('app_dashboard') }}" class="btn btn-sm btn-outline-secondary">Dashboard</a>
+    </div>
+
+    <div class="mb-3 d-flex flex-wrap gap-1">
+        <a href="{{ path(mode == 'lends' ? 'app_lend_list' : 'app_borrow_list') }}"
+           class="btn btn-sm {{ currentStatus is null ? 'btn-primary' : 'btn-outline-secondary' }}">
+            All
+        </a>
+        {% for status in statuses %}
+            <a href="{{ path(mode == 'lends' ? 'app_lend_list' : 'app_borrow_list', {status: status.value}) }}"
+               class="btn btn-sm {{ currentStatus is not null and currentStatus.value == status.value ? 'btn-primary' : 'btn-outline-secondary' }}">
+                {{ status.value|replace({'_': ' '})|title }}
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if borrows|length > 0 %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-themed mb-0">
+                        <thead>
+                            <tr>
+                                <th>Deck</th>
+                                <th>Event</th>
+                                {% if mode == 'lends' %}
+                                    <th>Borrower</th>
+                                {% else %}
+                                    <th>Owner</th>
+                                {% endif %}
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for borrow in borrows %}
+                                <tr>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
+                                    {% if mode == 'lends' %}
+                                        <td>{{ borrow.borrower.screenName }}</td>
+                                    {% else %}
+                                        <td>{{ borrow.deck.owner.screenName }}</td>
+                                    {% endif %}
+                                    <td>{{ borrowBadge(borrow) }}</td>
+                                    <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                {% if mode == 'lends' %}
+                    <p class="text-muted mb-0">No lend activity{% if currentStatus is not null %} with status "{{ currentStatus.value|replace({'_': ' '})|title }}"{% endif %}.</p>
+                {% else %}
+                    <p class="text-muted mb-0">No borrow activity{% if currentStatus is not null %} with status "{{ currentStatus.value|replace({'_': ' '})|title }}"{% endif %}.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

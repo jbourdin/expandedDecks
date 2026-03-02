@@ -7,6 +7,7 @@
  # file that was distributed with this source code.
  #}
 {% extends 'base.html.twig' %}
+{% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
 {% block title %}Borrow — {{ borrow.deck.name }} — Expanded Decks{% endblock %}
 
@@ -14,18 +15,7 @@
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Borrow: <a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}" class="text-white">{{ borrow.deck.name }}</a></h5>
-            {% set statusColors = {
-                pending: 'warning',
-                approved: 'info',
-                lent: 'primary',
-                returned: 'success',
-                returned_to_owner: 'success',
-                cancelled: 'secondary',
-                overdue: 'danger',
-            } %}
-            <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">
-                {{ borrow.status.value|replace({'_': ' '})|title }}
-            </span>
+            {{ borrowBadge(borrow) }}
         </div>
         <div class="card-body">
             <table class="table table-sm table-themed mb-0">

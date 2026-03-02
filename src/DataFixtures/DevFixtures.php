@@ -541,6 +541,6 @@ class DevFixtures extends Fixture
         $approvedBorrow->setApprovedBy($admin);
         $manager->persist($approvedBorrow);
 
-        $ancientBox->setStatus(DeckStatus::Reserved);
+        // Deck stays Available — approval no longer sets Reserved (per-event concern)
     }
 }
