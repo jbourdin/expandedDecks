@@ -222,10 +222,13 @@
                             {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
                             {% set isRegistered = regInfo is not null and regInfo.registered %}
                             {% set isDelegated = regInfo is not null and regInfo.delegated %}
+                            {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
                             <tr>
                                 <td><a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                 <td>
-                                    {% if isDelegated %}
+                                    {% if isPlayed %}
+                                        <span class="badge bg-primary">Played</span>
+                                    {% elseif isDelegated %}
                                         <span class="badge bg-info">Delegated to staff</span>
                                     {% elseif isRegistered %}
                                         <span class="badge bg-success">Registered</span>
