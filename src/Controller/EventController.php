@@ -13,15 +13,21 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Deck;
+use App\Entity\DeckVersion;
 use App\Entity\Event;
+use App\Entity\EventDeckEntry;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
 use App\Entity\User;
+use App\Enum\BorrowStatus;
+use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
+use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
@@ -38,6 +44,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.3 — Event detail view
  * @see docs/features.md F3.4 — Register participation to an event
  * @see docs/features.md F3.5 — Assign event staff team
+ * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  */
@@ -79,15 +86,37 @@ class EventController extends AbstractController
 
     /**
      * @see docs/features.md F3.3 — Event detail view
+     * @see docs/features.md F3.7 — Register played deck for event
      */
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Event $event, BorrowRepository $borrowRepository): Response
-    {
+    public function show(
+        Event $event,
+        BorrowRepository $borrowRepository,
+        DeckRepository $deckRepository,
+        EventDeckEntryRepository $entryRepository,
+    ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
         $userEngagement = $event->getEngagementFor($user);
         $isParticipant = null !== $userEngagement;
+
+        $playableOwnDecks = [];
+        $currentDeckEntry = null;
+        $canChangeDeck = false;
+
+        if ($isParticipant) {
+            $playableOwnDecks = array_filter(
+                $deckRepository->findByOwner($user),
+                static fn (Deck $deck): bool => DeckStatus::Lent !== $deck->getStatus()
+                    && DeckStatus::Retired !== $deck->getStatus()
+                    && null !== $deck->getCurrentVersion(),
+            );
+            $playableOwnDecks = array_values($playableOwnDecks);
+
+            $currentDeckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
+            $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
+        }
 
         return $this->render('event/show.html.twig', [
             'event' => $event,
@@ -96,6 +125,9 @@ class EventController extends AbstractController
             'userEngagement' => $userEngagement,
             'isParticipant' => $isParticipant,
             'eventBorrows' => $borrowRepository->findByEventForUser($event, $user),
+            'playableOwnDecks' => $playableOwnDecks,
+            'currentDeckEntry' => $currentDeckEntry,
+            'canChangeDeck' => $canChangeDeck,
         ]);
     }
 
@@ -128,6 +160,94 @@ class EventController extends AbstractController
             'event' => $event,
             'availableDecks' => $deckRepository->findAvailableForEvent($event, $user),
         ]);
+    }
+
+    /**
+     * @see docs/features.md F3.7 — Register played deck for event
+     */
+    #[Route('/{id}/select-deck', name: 'app_event_select_deck', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function selectDeck(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        DeckRepository $deckRepository,
+        BorrowRepository $borrowRepository,
+        EventDeckEntryRepository $entryRepository,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('select-deck-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null === $event->getEngagementFor($user)) {
+            $this->addFlash('warning', 'You must be a participant to select a deck.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Deck selection is not available for cancelled or finished events.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $existingEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
+
+        // Allow first selection even after event start; block changes only when already selected
+        if (null !== $existingEntry && $event->getDate() <= new \DateTimeImmutable()) {
+            $this->addFlash('warning', 'Deck selection cannot be changed after the event has started.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (0 === $deckId) {
+            if (null !== $existingEntry) {
+                $em->remove($existingEntry);
+                $em->flush();
+            }
+
+            $this->addFlash('success', 'Deck selection cleared.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $deck = $deckRepository->find($deckId);
+
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $currentVersion = $this->resolvePlayableDeckVersion($deck, $user, $event, $borrowRepository);
+
+        if (null === $currentVersion) {
+            $this->addFlash('danger', 'This deck is not available for selection.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $existingEntry) {
+            $em->remove($existingEntry);
+            $em->flush();
+        }
+
+        $entry = new EventDeckEntry();
+        $entry->setEvent($event);
+        $entry->setPlayer($user);
+        $entry->setDeckVersion($currentVersion);
+
+        $em->persist($entry);
+        $em->flush();
+
+        $this->addFlash('success', \sprintf('Playing with "%s".', $deck->getName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
     /**
@@ -382,6 +502,45 @@ class EventController extends AbstractController
         return $this->render('event/list.html.twig', [
             'events' => $eventRepository->findUpcoming(20),
         ]);
+    }
+
+    /**
+     * Resolves the deck version to use for the given deck, checking ownership
+     * or an active borrow at the event. Returns null if the deck is not playable.
+     *
+     * @see docs/features.md F3.7 — Register played deck for event
+     */
+    private function resolvePlayableDeckVersion(
+        Deck $deck,
+        User $user,
+        Event $event,
+        BorrowRepository $borrowRepository,
+    ): ?DeckVersion {
+        // Own deck: must not be lent or retired, and must have a current version
+        if ($deck->getOwner()->getId() === $user->getId()) {
+            if (DeckStatus::Lent === $deck->getStatus() || DeckStatus::Retired === $deck->getStatus()) {
+                return null;
+            }
+
+            return $deck->getCurrentVersion();
+        }
+
+        // Borrowed deck: must have an approved or lent borrow at this event
+        $borrow = $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event);
+
+        if (null === $borrow) {
+            return null;
+        }
+
+        if ($borrow->getBorrower()->getId() !== $user->getId()) {
+            return null;
+        }
+
+        if (BorrowStatus::Approved !== $borrow->getStatus() && BorrowStatus::Lent !== $borrow->getStatus()) {
+            return null;
+        }
+
+        return $borrow->getDeckVersion();
     }
 
     private function denyAccessUnlessOrganizer(Event $event): void

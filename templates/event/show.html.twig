@@ -208,7 +208,68 @@
             </div>
             <div class="card-body">
                 {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
-                {% if activeBorrows is not empty %}
+
+                {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
+                    {% set selectedDeckId = currentDeckEntry ? currentDeckEntry.deckVersion.deck.id : 0 %}
+                    <h6 class="text-muted mb-2">Your borrows and playable decks</h6>
+                    <form method="post" action="{{ path('app_event_select_deck', {id: event.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('select-deck-' ~ event.id) }}">
+                        <table class="table table-sm table-themed mb-2">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">Play</th>
+                                    <th>Deck</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="deck_id" value="0" class="form-check-input"
+                                            {{ selectedDeckId == 0 ? 'checked' }}
+                                            {{ not canChangeDeck ? 'disabled' }}>
+                                    </td>
+                                    <td colspan="2" class="text-muted">No deck selected</td>
+                                    <td></td>
+                                </tr>
+                                {% for deck in playableOwnDecks %}
+                                    <tr>
+                                        <td>
+                                            <input type="radio" name="deck_id" value="{{ deck.id }}" class="form-check-input"
+                                                {{ selectedDeckId == deck.id ? 'checked' }}
+                                                {{ not canChangeDeck ? 'disabled' }}>
+                                        </td>
+                                        <td><a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a></td>
+                                        <td><span class="badge bg-secondary">Own deck</span></td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                                {% for borrow in activeBorrows %}
+                                    {% set isBorrowPlayable = borrow.status.value in ['approved', 'lent'] %}
+                                    <tr>
+                                        <td>
+                                            <input type="radio" name="deck_id" value="{{ borrow.deck.id }}" class="form-check-input"
+                                                {{ selectedDeckId == borrow.deck.id ? 'checked' }}
+                                                {{ (not canChangeDeck or not isBorrowPlayable) ? 'disabled' }}>
+                                        </td>
+                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                        <td>{{ borrowBadge(borrow) }}</td>
+                                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="d-flex align-items-center gap-2 mt-3">
+                            {% if canChangeDeck %}
+                                <button type="submit" class="btn btn-sm btn-primary">Save selection</button>
+                            {% endif %}
+                            <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">
+                                Browse available decks
+                            </a>
+                        </div>
+                    </form>
+                {% elseif activeBorrows is not empty %}
                     <h6 class="text-muted mb-2">Your borrows</h6>
                     <table class="table table-sm table-themed mb-3">
                         <thead>
@@ -230,12 +291,12 @@
                     </table>
                 {% endif %}
 
-                {% if isParticipant %}
+                {% if not isParticipant %}
+                    <p class="text-muted mb-3">Register as a participant to browse and borrow decks.</p>
+                {% elseif playableOwnDecks is empty and activeBorrows is empty %}
                     <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-primary mb-3">
                         Browse available decks
                     </a>
-                {% else %}
-                    <p class="text-muted mb-3">Register as a participant to browse and borrow decks.</p>
                 {% endif %}
 
                 {% set otherBorrows = eventBorrows|filter(b => not (b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue'])) %}

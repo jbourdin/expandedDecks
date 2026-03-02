@@ -13,7 +13,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Borrow;
+use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\User;
+use App\Enum\BorrowStatus;
+use App\Repository\DeckRepository;
+use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventEngagementRepository;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.4 — Register participation to an event
+ * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  */
@@ -845,10 +852,15 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Lender should see no borrow rows in the Deck Borrowing card
+        // Lender should see no borrow rows in the "other borrows" table (the non-personal one)
+        // The Deck Borrowing card may contain a playable decks section with the lender's own deck
         $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
-        $borrowRows = $borrowCard->filter('tbody tr');
-        self::assertSame(0, $borrowRows->count(), 'Non-involved participant should see no borrow rows.');
+        $otherBorrowHeaders = $borrowCard->filter('th:contains("Borrower")');
+        if ($otherBorrowHeaders->count() > 0) {
+            $otherTable = $otherBorrowHeaders->closest('table');
+            $otherRows = $otherTable->filter('tbody tr');
+            self::assertSame(0, $otherRows->count(), 'Non-involved participant should see no other-user borrow rows.');
+        }
     }
 
     public function testStaffSeesAllEventBorrows(): void
@@ -929,7 +941,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        $browseLink = $crawler->filter('a.btn-primary:contains("Browse available decks")');
+        $browseLink = $crawler->filter('a:contains("Browse available decks")');
         self::assertSame(1, $browseLink->count(), 'Participant should see "Browse available decks" button.');
     }
 
@@ -972,6 +984,325 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F3.7 — Deck selection
+    // ---------------------------------------------------------------
+
+    public function testSelectOwnDeckCreatesEntry(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFutureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Playing with "Iron Thorns".');
+
+        /** @var EventDeckEntryRepository $repo */
+        $repo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $entry = $repo->findOneByEventAndPlayer($event, $this->getUser('admin@example.com'));
+        self::assertNotNull($entry);
+        self::assertSame($deck->getCurrentVersion()?->getId(), $entry->getDeckVersion()->getId());
+    }
+
+    public function testSelectBorrowedDeckCreatesEntry(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFutureEvent();
+
+        // Register borrower as participant on the future event
+        $this->registerParticipant($event);
+
+        // Re-fetch entities after browser requests (previous references are detached)
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        /** @var Event $event */
+        $event = $em->getRepository(Event::class)->findOneBy(['name' => 'Lyon Expanded Cup 2026']);
+        self::assertNotNull($event);
+
+        $deck = $this->getAdminDeck('Ancient Box');
+        $borrower = $this->getUser('borrower@example.com');
+        $admin = $this->getUser('admin@example.com');
+
+        // Create an approved borrow at this event for the borrower
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($deck->getCurrentVersion());
+        $borrow->setBorrower($borrower);
+        $borrow->setEvent($event);
+        $borrow->setStatus(BorrowStatus::Approved);
+        $borrow->setApprovedAt(new \DateTimeImmutable());
+        $borrow->setApprovedBy($admin);
+        $em->persist($borrow);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Playing with "Ancient Box".');
+
+        /** @var EventDeckEntryRepository $repo */
+        $repo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $freshBorrower = $this->getUser('borrower@example.com');
+        $freshEvent = $this->getFutureEvent();
+        $entry = $repo->findOneByEventAndPlayer($freshEvent, $freshBorrower);
+        self::assertNotNull($entry);
+    }
+
+    public function testClearDeckSelection(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFutureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // First select a deck
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        // Now clear the selection
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => '0',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Deck selection cleared.');
+
+        /** @var EventDeckEntryRepository $repo */
+        $repo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $entry = $repo->findOneByEventAndPlayer($event, $this->getUser('admin@example.com'));
+        self::assertNull($entry);
+    }
+
+    public function testChangeDeckSelection(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFutureEvent();
+        $ironThorns = $this->getAdminDeck('Iron Thorns');
+        $ancientBox = $this->getAdminDeck('Ancient Box');
+
+        // Select Iron Thorns
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $ironThorns->getId(),
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        // Change to Ancient Box
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $ancientBox->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Playing with "Ancient Box".');
+
+        /** @var EventDeckEntryRepository $repo */
+        $repo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $entry = $repo->findOneByEventAndPlayer($event, $this->getUser('admin@example.com'));
+        self::assertNotNull($entry);
+        self::assertSame($ancientBox->getCurrentVersion()?->getId(), $entry->getDeckVersion()->getId());
+    }
+
+    public function testSelectDeckAllowedFirstTimeAfterEventStart(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // The "Expanded Weekly #42" event has date = today (already started)
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // No existing entry → first selection is allowed even after start
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Playing with "Iron Thorns".');
+    }
+
+    public function testChangeDeckDeniedAfterEventStart(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // The "Expanded Weekly #42" event has date = today (already started)
+        $event = $this->getFixtureEvent();
+        $ironThorns = $this->getAdminDeck('Iron Thorns');
+        $ancientBox = $this->getAdminDeck('Ancient Box');
+
+        // First selection (allowed — no existing entry)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $ironThorns->getId(),
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Playing with "Iron Thorns".');
+
+        // Second selection (denied — entry exists and event started)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $ancientBox->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'Deck selection cannot be changed after the event has started.');
+    }
+
+    public function testSelectDeckDeniedForNonParticipant(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFutureEvent();
+
+        // Register as participant to get a select-deck form with CSRF token
+        $this->registerParticipant($event);
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        // Withdraw to become a non-participant
+        $withdrawForm = $crawler->selectButton('Withdraw')->form();
+        $this->client->submit($withdrawForm);
+        $this->client->followRedirect();
+
+        // Now POST with the previously obtained CSRF token
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => '1',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'You must be a participant to select a deck.');
+    }
+
+    public function testPlayableDecksShownOnEventPage(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFutureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Admin owns Iron Thorns + Ancient Box → should see radio buttons
+        self::assertSelectorExists('input[type="radio"][name="deck_id"]');
+        self::assertSelectorExists('button:contains("Save selection")');
+
+        // Should see "Your borrows and playable decks" heading
+        $heading = $crawler->filter('h6:contains("Your borrows and playable decks")');
+        self::assertSame(1, $heading->count(), 'Should see "Your borrows and playable decks" heading.');
+
+        // Should see "Own deck" badge
+        $ownBadges = $crawler->filter('.badge:contains("Own deck")');
+        self::assertGreaterThanOrEqual(1, $ownBadges->count());
+    }
+
+    public function testPendingBorrowRadioDisabledInTable(): void
+    {
+        // Borrower is a participant at the today event with a pending borrow (Iron Thorns)
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Pending borrow (Iron Thorns) should have a disabled radio
+        $disabledRadios = $crawler->filter('input[type="radio"][name="deck_id"][disabled]');
+        self::assertGreaterThanOrEqual(1, $disabledRadios->count(), 'Pending borrow should have a disabled radio.');
+    }
+
+    public function testRadiosDisabledAfterEntryAndEventStart(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // The "Expanded Weekly #42" event has date = today (already started)
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // First select a deck (allowed — no entry yet)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        // Now revisit — entry exists + event started → canChangeDeck is false
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // All radios should be disabled
+        $allRadios = $crawler->filter('input[type="radio"][name="deck_id"]');
+        $disabledRadios = $crawler->filter('input[type="radio"][name="deck_id"][disabled]');
+        self::assertGreaterThan(0, $allRadios->count());
+        self::assertSame($allRadios->count(), $disabledRadios->count(), 'All radios should be disabled when entry exists and event started.');
+
+        // Save button should NOT exist
+        self::assertSelectorNotExists('button:contains("Save selection")');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
@@ -985,23 +1316,65 @@ class EventControllerTest extends AbstractFunctionalTest
         return $event;
     }
 
-    private function getBorrowerUserId(): int
+    private function getFutureEvent(): Event
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy(['name' => 'Lyon Expanded Cup 2026']);
+        self::assertNotNull($event);
+
+        return $event;
+    }
+
+    private function getAdminDeck(string $name): Deck
+    {
+        /** @var DeckRepository $repo */
+        $repo = static::getContainer()->get(DeckRepository::class);
+        $deck = $repo->findOneBy(['name' => $name]);
+        self::assertNotNull($deck);
+
+        return $deck;
+    }
+
+    private function getUser(string $email): User
     {
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'borrower@example.com']);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
         self::assertNotNull($user);
 
-        return (int) $user->getId();
+        return $user;
+    }
+
+    private function getBorrowerUserId(): int
+    {
+        return (int) $this->getUser('borrower@example.com')->getId();
     }
 
     private function getLenderUserId(): int
     {
-        /** @var EntityManagerInterface $em */
-        $em = static::getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'lender@example.com']);
-        self::assertNotNull($user);
+        return (int) $this->getUser('lender@example.com')->getId();
+    }
 
-        return (int) $user->getId();
+    /**
+     * Registers the currently logged-in user as a player on the given event via POST.
+     */
+    private function registerParticipant(Event $event): void
+    {
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+    }
+
+    private function extractSelectDeckCsrfToken(\Symfony\Component\DomCrawler\Crawler $crawler): string
+    {
+        $form = $crawler->filter('form[action*="select-deck"]');
+        self::assertGreaterThan(0, $form->count(), 'Select-deck form should exist.');
+
+        $token = $form->filter('input[name="_token"]')->attr('value');
+        self::assertNotNull($token);
+
+        return $token;
     }
 }
