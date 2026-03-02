@@ -72,6 +72,46 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     *
+     * @return list<Deck>
+     */
+    public function searchAvailableForEvent(string $query, Event $event, int $limit = 10): array
+    {
+        $eventDate = $event->getDate();
+        $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
+        $endDate = $event->getEndDate() ?? $eventDate;
+        $endOfDay = new \DateTimeImmutable($endDate->format('Y-m-d').' 23:59:59');
+
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->join('d.owner', 'o')
+            ->addSelect('o')
+            ->where('d.status != :retired')
+            ->andWhere('d.currentVersion IS NOT NULL')
+            ->andWhere('d.name LIKE :query OR d.shortTag LIKE :query')
+            ->andWhere('NOT EXISTS (
+                SELECT 1 FROM App\Entity\Borrow b
+                JOIN b.event e2
+                WHERE b.deck = d
+                AND b.status IN (:activeStatuses)
+                AND e2.date <= :endOfDay
+                AND COALESCE(e2.endDate, e2.date) >= :startOfDay
+            )')
+            ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('query', '%'.$query.'%')
+            ->setParameter('activeStatuses', BorrowRepository::activeStatusValues())
+            ->setParameter('startOfDay', $startOfDay)
+            ->setParameter('endOfDay', $endOfDay)
+            ->orderBy('d.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
      * @see docs/features.md F4.1 — Request to borrow a deck
      * @see docs/features.md F4.11 — Borrow conflict detection
      *

@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
+use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventEngagementRepository;
@@ -30,6 +31,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 class EventControllerTest extends AbstractFunctionalTest
 {
@@ -1303,8 +1305,152 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F4.12 — Walk-up lending
+    // ---------------------------------------------------------------
+
+    public function testWalkUpPageAccessibleForOrganizer(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h5', 'Walk-up Lend');
+    }
+
+    public function testWalkUpPageAccessibleForStaff(): void
+    {
+        // borrower@example.com is staff for the fixture event
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h5', 'Walk-up Lend');
+    }
+
+    public function testWalkUpPageDeniedForRegularUser(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testWalkUpCreatesBorrowInLentState(): void
+    {
+        // Admin is organizer of the event
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // Cancel existing borrow for Iron Thorns so we can walk-up lend it
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        $borrower = $this->getUser('lender@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        $csrfToken = $crawler->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/walk-up', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+            'borrower_id' => (string) $borrower->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'lent to');
+
+        /** @var \App\Repository\BorrowRepository $borrowRepo */
+        $borrowRepo = static::getContainer()->get(\App\Repository\BorrowRepository::class);
+        $borrows = $borrowRepo->findByEvent($event);
+        $found = false;
+        foreach ($borrows as $borrow) {
+            if ($borrow->isWalkUp() && BorrowStatus::Lent === $borrow->getStatus()) {
+                $found = true;
+                self::assertSame(DeckStatus::Lent, $borrow->getDeck()->getStatus());
+                self::assertNotNull($borrow->getApprovedAt());
+                self::assertNotNull($borrow->getHandedOffAt());
+                break;
+            }
+        }
+        self::assertTrue($found, 'Walk-up borrow in Lent state should exist.');
+    }
+
+    public function testWalkUpAutoRegistersParticipant(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        // Lender is NOT a participant of the event
+        $lender = $this->getUser('lender@example.com');
+        /** @var EventEngagementRepository $engRepo */
+        $engRepo = static::getContainer()->get(EventEngagementRepository::class);
+        $engagementBefore = $engRepo->findOneBy(['event' => $event->getId(), 'user' => $lender->getId()]);
+        self::assertNull($engagementBefore, 'Lender should not be engaged in event before walk-up.');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        $csrfToken = $crawler->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/walk-up', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+            'borrower_id' => (string) $lender->getId(),
+        ]);
+
+        self::assertResponseRedirects();
+
+        // Verify auto-registration
+        $engagementAfter = $engRepo->findOneBy(['event' => $event->getId(), 'user' => $lender->getId()]);
+        self::assertNotNull($engagementAfter, 'Lender should be auto-registered as participant after walk-up.');
+    }
+
+    public function testWalkUpDeniedForCancelledEvent(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $event->setCancelledAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-warning', 'Walk-up lending is not available');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
+
+    private function cancelExistingBorrowsForDeck(Deck $deck, Event $event): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        /** @var \App\Repository\BorrowRepository $repo */
+        $repo = static::getContainer()->get(\App\Repository\BorrowRepository::class);
+        $existing = $repo->findActiveBorrowForDeckAtEvent($deck, $event);
+
+        if (null !== $existing) {
+            $existing->setStatus(BorrowStatus::Cancelled);
+            $existing->setCancelledAt(new \DateTimeImmutable());
+            $em->flush();
+        }
+    }
 
     private function getFixtureEvent(): Event
     {

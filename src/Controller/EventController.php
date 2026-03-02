@@ -31,6 +31,7 @@ use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
+use App\Service\BorrowService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,6 +48,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 #[Route('/event')]
 #[IsGranted('ROLE_USER')]
@@ -502,6 +504,78 @@ class EventController extends AbstractController
         return $this->render('event/list.html.twig', [
             'events' => $eventRepository->findUpcoming(20),
         ]);
+    }
+
+    /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    #[Route('/{id}/walk-up', name: 'app_event_walk_up', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function walkUp(Event $event): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$event->isOrganizerOrStaff($user)) {
+            throw $this->createAccessDeniedException('Only organizers or staff can initiate walk-up lending.');
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Walk-up lending is not available for cancelled or finished events.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        return $this->render('event/walk_up.html.twig', [
+            'event' => $event,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    #[Route('/{id}/walk-up', name: 'app_event_walk_up_submit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function walkUpSubmit(Event $event, Request $request, BorrowService $borrowService, DeckRepository $deckRepository, UserRepository $userRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$event->isOrganizerOrStaff($user)) {
+            throw $this->createAccessDeniedException('Only organizers or staff can initiate walk-up lending.');
+        }
+
+        if (!$this->isCsrfTokenValid('walk-up-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $borrowerId = $request->getPayload()->getInt('borrower_id');
+
+        $deck = $deckRepository->find($deckId);
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        $borrower = $userRepository->find($borrowerId);
+        if (null === $borrower) {
+            $this->addFlash('danger', 'Borrower not found.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        try {
+            $borrowService->createWalkUpBorrow($deck, $borrower, $event, $user);
+            $this->addFlash('success', \sprintf('"%s" lent to %s.', $deck->getName(), $borrower->getScreenName()));
+        } catch (\DomainException $e) {
+            $this->addFlash('danger', $e->getMessage());
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
     /**

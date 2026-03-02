@@ -31,6 +31,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F4.3 — Confirm deck hand-off (lend)
  * @see docs/features.md F4.4 — Confirm deck return
  * @see docs/features.md F4.7 — Cancel a borrow request
+ * @see docs/features.md F4.8 — Staff-delegated lending
  */
 #[Route('/borrow')]
 #[IsGranted('ROLE_USER')]
@@ -38,6 +39,7 @@ class BorrowController extends AbstractController
 {
     /**
      * @see docs/features.md F4.1 — Request to borrow a deck
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     #[Route('/{id}', name: 'app_borrow_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Borrow $borrow): Response
@@ -46,13 +48,15 @@ class BorrowController extends AbstractController
         $user = $this->getUser();
         $isOwner = $borrow->getDeck()->getOwner()->getId() === $user->getId();
         $isBorrower = $borrow->getBorrower()->getId() === $user->getId();
+        $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($user);
 
         return $this->render('borrow/show.html.twig', [
             'borrow' => $borrow,
             'canApprove' => $isOwner && BorrowStatus::Pending === $borrow->getStatus(),
-            'canHandOff' => $isOwner && BorrowStatus::Approved === $borrow->getStatus(),
-            'canReturn' => $isOwner && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
+            'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus(),
+            'canReturn' => ($isOwner || $isDelegatedStaff) && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
             'canCancel' => ($isBorrower || $isOwner) && $borrow->isCancellable(),
+            'canReturnToOwner' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Returned === $borrow->getStatus() && $borrow->isDelegatedToStaff(),
         ]);
     }
 
@@ -112,9 +116,10 @@ class BorrowController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
+        $delegateToStaff = '1' === $request->getPayload()->getString('delegate_to_staff');
 
         try {
-            $borrowService->approve($borrow, $user);
+            $borrowService->approve($borrow, $user, $delegateToStaff);
             $this->addFlash('success', 'Borrow request approved.');
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
@@ -216,6 +221,31 @@ class BorrowController extends AbstractController
         try {
             $borrowService->cancel($borrow, $user);
             $this->addFlash('success', 'Borrow has been cancelled.');
+        } catch (\Exception $e) {
+            $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[Route('/{id}/return-to-owner', name: 'app_borrow_return_to_owner', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function returnToOwner(Borrow $borrow, Request $request, BorrowService $borrowService): Response
+    {
+        if (!$this->isCsrfTokenValid('return-to-owner-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        try {
+            $borrowService->returnToOwner($borrow, $user);
+            $this->addFlash('success', 'Deck returned to owner.');
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }

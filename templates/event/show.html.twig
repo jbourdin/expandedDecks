@@ -291,6 +291,12 @@
                     </table>
                 {% endif %}
 
+                {% if isStaff %}
+                    <a href="{{ path('app_event_walk_up', {id: event.id}) }}" class="btn btn-sm btn-outline-primary mb-3">
+                        Walk-up lend
+                    </a>
+                {% endif %}
+
                 {% if not isParticipant %}
                     <p class="text-muted mb-3">Register as a participant to browse and borrow decks.</p>
                 {% elseif playableOwnDecks is empty and activeBorrows is empty %}
