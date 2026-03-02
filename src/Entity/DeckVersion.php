@@ -41,18 +41,6 @@ class DeckVersion
     #[Assert\Positive]
     private int $versionNumber = 1;
 
-    #[ORM\Column(length: 80, nullable: true)]
-    #[Assert\Length(max: 80)]
-    private ?string $archetype = null;
-
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\Length(max: 100)]
-    private ?string $archetypeName = null;
-
-    /** @var list<string> */
-    #[ORM\Column(type: Types::JSON)]
-    private array $languages = [];
-
     #[ORM\Column(nullable: true)]
     #[Assert\Positive]
     private ?int $estimatedValueAmount = null;
@@ -105,48 +93,6 @@ class DeckVersion
     public function setVersionNumber(int $versionNumber): static
     {
         $this->versionNumber = $versionNumber;
-
-        return $this;
-    }
-
-    public function getArchetype(): ?string
-    {
-        return $this->archetype;
-    }
-
-    public function setArchetype(?string $archetype): static
-    {
-        $this->archetype = $archetype;
-
-        return $this;
-    }
-
-    public function getArchetypeName(): ?string
-    {
-        return $this->archetypeName;
-    }
-
-    public function setArchetypeName(?string $archetypeName): static
-    {
-        $this->archetypeName = $archetypeName;
-
-        return $this;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getLanguages(): array
-    {
-        return $this->languages;
-    }
-
-    /**
-     * @param list<string> $languages
-     */
-    public function setLanguages(array $languages): static
-    {
-        $this->languages = $languages;
 
         return $this;
     }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use App\Entity\Archetype;
 use App\Entity\Borrow;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
@@ -49,13 +50,31 @@ class DevFixtures extends Fixture
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower);
         $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
+
+        // Create archetypes
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box');
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago');
+        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops');
+
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
+        $ironThorns->setArchetype($archetypeIronThorns);
+        $ironThorns->setLanguages(['en']);
         $this->createIronThornsDeckVersion($manager, $ironThorns);
+
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
+        $ancientBox->setArchetype($archetypeAncientBox);
+        $ancientBox->setLanguages(['en']);
         $this->createAncientBoxDeckVersion($manager, $ancientBox);
+
         $lenderDeck = $this->createDeck($manager, $lender, 'Regidrago');
+        $lenderDeck->setArchetype($archetypeRegidrago);
+        $lenderDeck->setLanguages(['en']);
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
+
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
+        $borrowerDeck->setArchetype($archetypeLugia);
+        $borrowerDeck->setLanguages(['en']);
         $this->createLugiaArcheopsDeckVersion($manager, $borrowerDeck);
 
         $manager->flush();
@@ -275,6 +294,16 @@ class DevFixtures extends Fixture
         return $event;
     }
 
+    private function createArchetype(ObjectManager $manager, string $name): Archetype
+    {
+        $archetype = new Archetype();
+        $archetype->setName($name);
+
+        $manager->persist($archetype);
+
+        return $archetype;
+    }
+
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
     {
         $deck = new Deck();
@@ -293,9 +322,6 @@ class DevFixtures extends Fixture
         $version = new DeckVersion();
         $version->setDeck($deck);
         $version->setVersionNumber(1);
-        $version->setArchetype('iron-thorns-ex');
-        $version->setArchetypeName('Iron Thorns ex');
-        $version->setLanguages(['en']);
         $version->setRawList($this->getIronThornsRawDeckList());
 
         foreach ($this->getIronThornsDeckCards() as $cardData) {
@@ -415,9 +441,6 @@ class DevFixtures extends Fixture
         $version = new DeckVersion();
         $version->setDeck($deck);
         $version->setVersionNumber(1);
-        $version->setArchetype('ancient-box');
-        $version->setArchetypeName('Ancient Box');
-        $version->setLanguages(['en']);
         $version->setRawList($this->getAncientBoxRawDeckList());
 
         foreach ($this->getAncientBoxDeckCards() as $cardData) {
@@ -527,9 +550,6 @@ class DevFixtures extends Fixture
         $version = new DeckVersion();
         $version->setDeck($deck);
         $version->setVersionNumber(1);
-        $version->setArchetype('Regidrago');
-        $version->setArchetypeName('Regidrago');
-        $version->setLanguages(['en']);
         $version->setRawList($this->getRegidragoRawDeckList());
 
         foreach ($this->getRegidragoDeckCards() as $cardData) {
@@ -659,8 +679,6 @@ class DevFixtures extends Fixture
         $version = new DeckVersion();
         $version->setDeck($deck);
         $version->setVersionNumber(1);
-        $version->setArchetype('Lugia Archeops');
-        $version->setArchetypeName('Lugia Archeops');
         $version->setRawList($this->getLugiaArcheopsRawDeckList());
 
         foreach ($this->getLugiaArcheopsDeckCards() as $cardData) {

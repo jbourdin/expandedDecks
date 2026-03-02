@@ -15,6 +15,7 @@ namespace App\Form;
 
 use App\Entity\Deck;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -34,11 +35,6 @@ class DeckFormType extends AbstractType
                 'label' => 'Deck name',
                 'attr' => ['placeholder' => 'e.g. Giratina VSTAR / Comfey'],
             ])
-            ->add('format', TextType::class, [
-                'label' => 'Format',
-                'data' => 'Expanded',
-                'attr' => ['placeholder' => 'Expanded'],
-            ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notes (optional)',
                 'required' => false,
@@ -46,6 +42,14 @@ class DeckFormType extends AbstractType
                     'rows' => 3,
                     'placeholder' => 'Any notes about this deck...',
                 ],
+            ])
+            ->add('archetype', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
+            ->add('languages', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
             ]);
     }
 

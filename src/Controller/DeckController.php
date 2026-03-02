@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Archetype;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
@@ -59,6 +60,7 @@ class DeckController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $deck->setOwner($user);
+            $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->persist($deck);
             $em->flush();
 
@@ -149,6 +151,7 @@ class DeckController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->flush();
 
             $this->addFlash('success', \sprintf('Deck "%s" updated.', $deck->getName()));
@@ -224,19 +227,6 @@ class DeckController extends AbstractController
             $version->setVersionNumber($nextVersion);
             $version->setRawList($rawList);
 
-            /** @var string|null $archetype */
-            $archetype = $form->get('archetype')->getData();
-
-            /** @var string|null $archetypeName */
-            $archetypeName = $form->get('archetypeName')->getData();
-
-            if (null !== $archetype && '' !== $archetype) {
-                $version->setArchetype($archetype);
-            }
-            if (null !== $archetypeName && '' !== $archetypeName) {
-                $version->setArchetypeName($archetypeName);
-            }
-
             foreach ($result->cards as $parsedCard) {
                 $card = new DeckCard();
                 $card->setCardName($parsedCard->cardName);
@@ -269,6 +259,33 @@ class DeckController extends AbstractController
             'form' => $form,
             'nextVersion' => $nextVersion,
         ]);
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormInterface<Deck> $form
+     */
+    private function handleArchetypeAndLanguages(\Symfony\Component\Form\FormInterface $form, Deck $deck, EntityManagerInterface $em): void
+    {
+        /** @var string|null $archetypeId */
+        $archetypeId = $form->get('archetype')->getData();
+
+        if (null !== $archetypeId && '' !== $archetypeId) {
+            $archetype = $em->getRepository(Archetype::class)->find((int) $archetypeId);
+            $deck->setArchetype($archetype);
+        } else {
+            $deck->setArchetype(null);
+        }
+
+        /** @var string|null $languagesJson */
+        $languagesJson = $form->get('languages')->getData();
+
+        if (null !== $languagesJson && '' !== $languagesJson) {
+            /** @var list<string> $languages */
+            $languages = json_decode($languagesJson, true);
+            $deck->setLanguages($languages);
+        } else {
+            $deck->setLanguages([]);
+        }
     }
 
     private function denyAccessUnlessOwner(Deck $deck): void
