@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Event;
 use App\Entity\EventDeckEntry;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,5 +27,26 @@ class EventDeckEntryRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EventDeckEntry::class);
+    }
+
+    /**
+     * @see docs/features.md F3.7 — Register played deck for event
+     */
+    public function findOneByEventAndPlayer(Event $event, User $player): ?EventDeckEntry
+    {
+        /** @var EventDeckEntry|null $entry */
+        $entry = $this->createQueryBuilder('e')
+            ->join('e.deckVersion', 'dv')
+            ->join('dv.deck', 'd')
+            ->addSelect('dv', 'd')
+            ->where('e.event = :event')
+            ->andWhere('e.player = :player')
+            ->setParameter('event', $event)
+            ->setParameter('player', $player)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $entry;
     }
 }

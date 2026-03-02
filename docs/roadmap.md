@@ -68,13 +68,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |------|------------------------------------|----------|-------------|------------|
 | F3.1 | Create an event                    | High     | Done        | F1.4       |
 | F3.9 | Edit an event                      | High     | Done        | F3.1       |
-| F3.5 | Assign event staff team            | High     | Partial     | F3.1, F1.4 |
-| F3.4 | Register participation to an event | Medium   | Not started | F3.1, F1.1 |
-| F3.8 | League/Store management            | Medium   | Partial     | —          |
+| F3.5 | Assign event staff team            | High     | Done        | F3.1, F1.4 |
+| F3.4 | Register participation to an event | Medium   | Done        | F3.1, F1.1 |
 
-**Progress: 2/5 done · 2 partial · 1 not started**
+**Progress: 4/4 done**
 
-**Deliverable:** Organizers can create/edit events, assign staff, and link leagues. Players can register participation (playing or spectating).
+**Deliverable:** Organizers can create/edit events and assign staff. Players can register participation (playing or spectating).
 
 ---
 
@@ -84,17 +83,18 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | ID    | Feature                         | Priority | State       | Depends on           |
 |-------|---------------------------------|----------|-------------|----------------------|
-| F4.1  | Request to borrow a deck        | High     | Partial     | F2.5, F3.4           |
-| F4.2  | Approve / deny borrow request   | High     | Partial     | F4.1                 |
-| F4.3  | Confirm deck hand-off (lend)    | High     | Partial     | F4.2                 |
-| F4.4  | Confirm deck return             | High     | Partial     | F4.3                 |
-| F4.8  | Staff-delegated lending         | High     | Partial     | F4.1–F4.4, F3.5      |
-| F4.11 | Borrow conflict detection       | High     | Not started | F4.1                 |
-| F8.1  | Borrow workflow notifications   | High     | Partial     | F4.1–F4.4            |
+| F4.1  | Request to borrow a deck        | High     | Done        | F2.5, F3.4           |
+| F4.2  | Approve / deny borrow request   | High     | Done        | F4.1                 |
+| F4.3  | Confirm deck hand-off (lend)    | High     | Done        | F4.2                 |
+| F4.4  | Confirm deck return             | High     | Done        | F4.3                 |
+| F4.8  | Staff-delegated lending         | High     | Done        | F4.1–F4.4, F3.5      |
+| F4.11 | Borrow conflict detection       | High     | Done        | F4.1                 |
+| F4.12 | Walk-up lending (direct lend)   | High     | Done        | F2.5, F3.5           |
+| F8.1  | Borrow workflow notifications   | High     | Done        | F4.1–F4.4            |
 
-**Progress: 0/7 done · 6 partial · 1 not started**
+**Progress: 8/8 done**
 
-**Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
+**Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, walk-up lending for on-the-day situations, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
 
 ---
 
@@ -102,21 +102,26 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 > Rich read views, catalogs, and dashboards that surface data from Phases 1–4.
 
-| ID    | Feature                      | Priority | State       | Depends on       |
-|-------|------------------------------|----------|-------------|------------------|
-| F2.3  | Deck detail view             | Medium   | Done        | F2.2             |
-| F2.4  | Deck catalog (browse & search) | Medium | Not started | F2.1, F2.5       |
-| F6.4  | Display card images          | Medium   | Done        | F6.2             |
-| F3.2  | Event listing                | Medium   | Done        | F3.1             |
-| F3.3  | Event detail view            | Medium   | Done        | F3.1             |
-| F4.5  | Borrow history               | Medium   | Not started | F4.1–F4.4        |
-| F4.7  | Cancel a borrow request      | Medium   | Partial     | F4.1, F4.2       |
-| F4.9  | Staff deck custody tracking  | Medium   | Not started | F4.8             |
-| F4.10 | Owner borrow inbox           | Medium   | Not started | F4.1, F4.2       |
+| ID    | Feature                              | Priority | State       | Depends on       |
+|-------|--------------------------------------|----------|-------------|------------------|
+| F2.3  | Deck detail view                     | Medium   | Done        | F2.2             |
+| F2.4  | Deck catalog (browse & search)       | Medium   | Not started | F2.1, F2.5       |
+| F2.13 | Inline deck list import on creation  | Medium   | Not started | F2.1, F2.2       |
+| F2.14 | Deck event status overview           | Medium   | Not started | F2.3, F3.13      |
+| F6.4  | Display card images                  | Medium   | Done        | F6.2             |
+| F3.2  | Event listing                        | Medium   | Done        | F3.1             |
+| F3.3  | Event detail view                    | Medium   | Done        | F3.1             |
+| F3.21 | Clear deck selection on withdrawal   | Medium   | Not started | F3.4, F3.7       |
+| F4.5  | Borrow history                       | Medium   | Partial     | F4.1–F4.4        |
+| F4.7  | Cancel a borrow request              | Medium   | Done        | F4.1, F4.2       |
+| F4.9  | Staff deck custody tracking          | Medium   | Not started | F4.8             |
+| F4.10 | Owner borrow inbox                   | Medium   | Partial     | F4.1, F4.2       |
+| F4.13 | Event-scoped autocompletes           | Medium   | Not started | F4.1, F3.4       |
+| F4.14 | Staff custody handover tracking      | Medium   | Not started | F4.8, F4.9       |
 
-**Progress: 4/9 done · 0 partial · 5 not started**
+**Progress: 5/14 done · 2 partial · 7 not started**
 
-**Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, and the owner's borrow inbox.
+**Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, owner's borrow inbox, inline deck list import on creation, deck event status overview, event-scoped autocompletes, staff custody handover tracking, and clearing deck selection on withdrawal.
 
 ---
 
@@ -149,13 +154,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.7  | Register played deck for event   | Medium   | Partial     | F3.4, F2.2       |
 | F3.17 | Tournament results               | Medium   | Not started | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Partial     | F3.1, F4.1       |
+| F3.20 | Mark event as finished           | Medium   | Partial     | F3.1, F4.6       |
 | F3.15 | Event discovery                  | Medium   | Not started | F3.11, F3.13     |
 | F8.2  | Event notifications              | Medium   | Partial     | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 0/8 done · 3 partial · 5 not started**
+**Progress: 0/9 done · 4 partial · 5 not started**
 
-**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event discovery page, event notifications, and Pokemon event page sync.
+**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
 ---
 
@@ -220,18 +226,19 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ### Remaining Features
 
-| ID    | Feature                        | Priority | State       | Depends on       |
-|-------|--------------------------------|----------|-------------|------------------|
-| F2.7  | Retire / reactivate a deck     | Low      | Partial     | F2.5             |
-| F2.9  | Deck version history           | Medium   | Not started | F2.8             |
-| F6.6  | Visual deck list (card mosaic) | Low      | Not started | F6.4             |
-| F4.6  | Overdue tracking               | Low      | Not started | F4.4             |
-| F7.3  | Audit log                      | Low      | Not started | —                |
-| F8.3  | Notification preferences       | Low      | Not started | F8.1             |
+| ID    | Feature                                 | Priority | State       | Depends on       |
+|-------|-----------------------------------------|----------|-------------|------------------|
+| F2.7  | Retire / reactivate a deck              | Low      | Partial     | F2.5             |
+| F2.9  | Deck version history                    | Medium   | Not started | F2.8             |
+| F4.15 | Friend delegation for borrow completion | Low      | Not started | F4.2, F4.3, F3.4 |
+| F6.6  | Visual deck list (card mosaic)          | Low      | Not started | F6.4             |
+| F4.6  | Overdue tracking                        | Low      | Not started | F4.4             |
+| F7.3  | Audit log                               | Low      | Not started | —                |
+| F8.3  | Notification preferences                | Low      | Not started | F8.1             |
 
-**Progress: 0/21 done · 1 partial · 20 not started**
+**Progress: 0/22 done · 1 partial · 21 not started**
 
-**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, notification preferences, and audit log.
+**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, friend delegation for borrow completion, notification preferences, and audit log.
 
 ---
 
@@ -255,6 +262,36 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ---
 
+## Phase 11 — Play Pokemon QR Integration
+
+> Scan Play! Pokemon access QR codes (JWT) for quick account creation, staff assignment, and player identification. Depends on scanner infrastructure from Phase 10.
+
+| ID    | Feature                                        | Priority | State       | Depends on       |
+|-------|------------------------------------------------|----------|-------------|------------------|
+| F1.12 | Play Pokemon QR scan for player identification | Medium   | Not started | F1.1, F5.3/F5.6  |
+| F3.19 | League deduction from Pokemon ID               | Low      | Not started | F1.1             |
+
+**Progress: 0/2 done · 2 not started**
+
+**Deliverable:** Scan a player's Play! Pokemon QR code to decode their JWT identity — enabling admin-initiated quick account creation, instant staff assignment by QR, and on-site player lookup at events. Investigate whether league affiliation can be deduced from a player's Pokemon ID via official APIs.
+
+---
+
+## Phase 12 — Quality & Security Consolidation
+
+> Final hardening pass before production: security audit and state conflict protection. Placed last because it audits all controllers and flows built in previous phases.
+
+| ID     | Feature                                  | Priority | State       | Depends on       |
+|--------|------------------------------------------|----------|-------------|------------------|
+| F12.1  | Controller role & context security audit | High     | Not started | All controllers  |
+| F12.2  | Optimistic state conflict detection      | Medium   | Not started | All state-changing actions |
+
+**Progress: 0/2 done · 2 not started**
+
+**Deliverable:** Comprehensive security audit documenting the access matrix for every controller action, with missing guards added. Optimistic conflict detection on all state-changing forms to prevent race conditions at busy events.
+
+---
+
 ## Cross-Cutting: Testing Infrastructure
 
 > Test framework setup and continuous quality assurance.
@@ -275,14 +312,16 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|-----------------------------------|------|---------|-------------|-------|
 | 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
-| 3     | Events & Staff                    | 2    | 2       | 1           | 5     |
-| 4     | Borrow Workflow & Notifications   | 0    | 6       | 1           | 7     |
-| 5     | Core Views & Navigation           | 4    | 0       | 5           | 9     |
+| 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
+| 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
+| 5     | Core Views & Navigation           | 5    | 2       | 7           | 14    |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
-| 7     | Engagement, Results & Discovery   | 0    | 3       | 5           | 8     |
+| 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
-| 9     | Content, Archetypes & Low Priority | 0   | 1       | 20          | 21    |
+| 9     | Content, Archetypes & Low Priority | 0   | 1       | 21          | 22    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-|       | **Total**                         | **18** | **15** | **48**      | **81** |
+| 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
+| 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
+|       | **Total**                         | **29** | **12** | **51**      | **92** |
 
-All 81 features from [features.md](features.md) are represented exactly once.
+All 92 features from [features.md](features.md) are represented exactly once.

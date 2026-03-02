@@ -55,6 +55,8 @@ class HomeController extends AbstractController
             'ownedDecks' => $user->getOwnedDecks(),
             'events' => $eventRepository->findUpcoming(),
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
+            'recentLends' => $borrowRepository->findRecentByDeckOwner($user),
+            'recentManagedBorrows' => $borrowRepository->findRecentByEventOrganizerOrStaff($user),
         ]);
     }
 }

@@ -54,6 +54,9 @@ class Borrow
     private bool $isDelegatedToStaff = false;
 
     #[ORM\Column]
+    private bool $isWalkUp = false;
+
+    #[ORM\Column]
     private \DateTimeImmutable $requestedAt;
 
     #[ORM\Column(nullable: true)]
@@ -168,6 +171,18 @@ class Borrow
     public function setIsDelegatedToStaff(bool $isDelegatedToStaff): static
     {
         $this->isDelegatedToStaff = $isDelegatedToStaff;
+
+        return $this;
+    }
+
+    public function isWalkUp(): bool
+    {
+        return $this->isWalkUp;
+    }
+
+    public function setIsWalkUp(bool $isWalkUp): static
+    {
+        $this->isWalkUp = $isWalkUp;
 
         return $this;
     }
@@ -295,6 +310,40 @@ class Borrow
         $this->notes = $notes;
 
         return $this;
+    }
+
+    /**
+     * Used by the Symfony Workflow MethodMarkingStore (reads string places).
+     */
+    public function getMarking(): string
+    {
+        return $this->status->value;
+    }
+
+    /**
+     * Used by the Symfony Workflow MethodMarkingStore (writes string places).
+     */
+    public function setMarking(string $marking): void
+    {
+        $this->status = BorrowStatus::from($marking);
+    }
+
+    public function isActive(): bool
+    {
+        return \in_array($this->status, [
+            BorrowStatus::Pending,
+            BorrowStatus::Approved,
+            BorrowStatus::Lent,
+            BorrowStatus::Overdue,
+        ], true);
+    }
+
+    public function isCancellable(): bool
+    {
+        return \in_array($this->status, [
+            BorrowStatus::Pending,
+            BorrowStatus::Approved,
+        ], true);
     }
 
     #[ORM\PrePersist]

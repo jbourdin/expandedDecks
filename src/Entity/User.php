@@ -117,6 +117,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Borrow::class, mappedBy: 'borrower')]
     private Collection $borrowRequests;
 
+    /** @var Collection<int, EventEngagement> */
+    #[ORM\OneToMany(targetEntity: EventEngagement::class, mappedBy: 'user')]
+    private Collection $eventEngagements;
+
     /** @var Collection<int, EventStaff> */
     #[ORM\OneToMany(targetEntity: EventStaff::class, mappedBy: 'user')]
     private Collection $staffAssignments;
@@ -130,6 +134,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdAt = new \DateTimeImmutable();
         $this->ownedDecks = new ArrayCollection();
         $this->borrowRequests = new ArrayCollection();
+        $this->eventEngagements = new ArrayCollection();
         $this->staffAssignments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
     }
@@ -403,6 +408,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getBorrowRequests(): Collection
     {
         return $this->borrowRequests;
+    }
+
+    /**
+     * @return Collection<int, EventEngagement>
+     */
+    public function getEventEngagements(): Collection
+    {
+        return $this->eventEngagements;
     }
 
     /**

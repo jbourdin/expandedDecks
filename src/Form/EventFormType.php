@@ -14,9 +14,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Event;
-use App\Entity\League;
 use App\Enum\TournamentStructure;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
@@ -85,13 +83,6 @@ class EventFormType extends AbstractType
             ->add('registrationLink', UrlType::class, [
                 'label' => 'Registration link',
                 'attr' => ['placeholder' => 'https://...'],
-            ])
-            ->add('league', EntityType::class, [
-                'class' => League::class,
-                'choice_label' => 'name',
-                'required' => false,
-                'placeholder' => '— No league —',
-                'label' => 'League (optional)',
             ])
             ->add('tournamentStructure', EnumType::class, [
                 'class' => TournamentStructure::class,

@@ -4,34 +4,6 @@
 
 ← Back to [Main Documentation](../docs.md) | [Features](../features.md)
 
-## Entity: `App\Entity\League`
-
-Represents a recurring Pokemon TCG organized play location — typically a local game store hosting a league. Multiple events can be linked to the same league.
-
-### Fields
-
-| Field            | Type               | Nullable | Description |
-|------------------|--------------------|----------|-------------|
-| `id`             | `int` (auto)       | No       | Primary key |
-| `name`           | `string(150)`      | No       | League or store name (e.g. "Paris TCG League"). |
-| `website`        | `string(255)`      | Yes      | Main website URL. |
-| `address`        | `string(255)`      | Yes      | Physical address. |
-| `contactDetails` | `json`             | Yes      | Flexible key-value: `{"email": "...", "phone": "...", "discord": "..."}`. |
-| `createdAt`      | `DateTimeImmutable` | No      | Creation timestamp. |
-
-### Constraints
-
-- `name`: required, 2–150 characters
-- `contactDetails`: when provided, must be a JSON object (not array)
-
-### Relations
-
-| Relation | Type      | Target  | Description |
-|----------|-----------|---------|-------------|
-| `events` | OneToMany | `Event` | Events hosted at this league |
-
----
-
 ## Entity: `App\Entity\Event`
 
 ### Fields
@@ -48,7 +20,6 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `location`             | `string(255)`      | Yes      | Venue name and/or address. Nullable — can be derived from the league's address when a league is linked. |
 | `description`          | `text`             | Yes      | Optional free-text description or notes about the event. |
 | `organizer`            | `User`             | No       | The user who created the event (must have `ROLE_ORGANIZER` or `ROLE_ADMIN`). |
-| `league`               | `League`           | Yes      | The league/store hosting this event. Null for independent events. |
 | `registrationLink`     | `string(255)`      | No       | External registration URL (this project doesn't handle registration). |
 | `tournamentStructure`  | `string(30)`       | No       | Tournament format. See `TournamentStructure` enum below. |
 | `minAttendees`         | `int`              | Yes      | Minimum number of attendees for the event to take place. |
@@ -61,6 +32,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
 | `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
+| `finishedAt`           | `DateTimeImmutable` | Yes     | When the event was marked as finished by the organizer. Null = event not yet finished. Set via F3.20. |
 
 ### Tournament Structure Enum: `App\Enum\TournamentStructure`
 
@@ -78,7 +50,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 - `format`: required, from a predefined list of allowed values
 - `date`: required, must be in the future at creation time
 - `endDate`: if provided, must be >= `date`
-- `location`: **nullable** (was required). When null and a league is linked, the league's address serves as the effective location.
+- `location`: **nullable**.
 - `registrationLink`: required, valid URL format
 - `tournamentStructure`: required, must be a valid `TournamentStructure` value
 - `minAttendees`: optional, >= 1 when provided
@@ -87,6 +59,7 @@ Represents a recurring Pokemon TCG organized play location — typically a local
 - `topCutRoundDuration`: optional, >= 1, only valid when `tournamentStructure` is `swiss_top_cut`
 - `entryFeeAmount` and `entryFeeCurrency`: both null (free) or both set (paid). `entryFeeAmount` >= 0.
 - `cancelledAt`: once set, cannot be cleared (cancellation is irreversible). A cancelled event cannot be edited further (F3.10).
+- `finishedAt`: once set, cannot be cleared (finishment is irreversible). A finished event cannot be un-finished, cancelled, or edited further (F3.20). Mutually exclusive with `cancelledAt` — an event cannot be both cancelled and finished.
 - `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`.
 
 ### Cancellation Behavior
@@ -98,6 +71,31 @@ When an event is cancelled (F3.10):
 4. All participants and affected deck owners are notified (F8.2). Owners of lent decks receive a specific notification that the event was cancelled but their deck is still out
 5. The event remains visible in listings for historical reference, but is clearly marked as cancelled
 6. No further edits, borrow requests, or participation changes are allowed
+
+### Finishment Behavior
+
+> **@see** docs/features.md F3.20 — Mark event as finished
+
+When an event is marked as finished (F3.20):
+1. `finishedAt` is set to the current timestamp
+2. **Overdue reminders triggered:** all borrows in `lent` status for this event are flagged — borrowers receive immediate overdue reminders (email + in-app per F8.3 preferences) for unreturned decks
+3. **Event closed:** no new borrows, registrations, engagement state changes, or edits are allowed
+4. **Tournament results unlocked:** organizer and staff can now enter final standings, match records, and placements (F3.17)
+5. The event remains visible in listings and is marked as finished (distinct from cancelled)
+6. A finished event **cannot be un-finished** — this is an irreversible terminal state
+
+#### Finished vs Cancelled
+
+| Aspect              | Finished (F3.20)                        | Cancelled (F3.10)                      |
+|---------------------|-----------------------------------------|----------------------------------------|
+| Meaning             | Event completed normally                | Event didn't happen                    |
+| Pre-handoff borrows | Unchanged (should already be lent)      | Automatically cancelled                |
+| Lent decks          | Flagged as overdue, reminders sent      | Remain active, owners notified         |
+| Tournament results  | Unlocked for entry                      | N/A                                    |
+| Further edits       | Blocked                                 | Blocked                                |
+| Reversible          | No                                      | No                                     |
+
+---
 
 ### Event ID & Tournament Verification
 
@@ -120,12 +118,48 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
-| `league`           | ManyToOne    | `League`       | The league/store hosting this event |
 | `organizer`        | ManyToOne    | `User`         | User who created this event |
 | `engagements`      | OneToMany    | `EventEngagement` | Player engagement states for this event (F3.13) |
 | `staff`            | OneToMany    | `EventStaff`   | Staff members assigned to this event |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow requests linked to this event |
 | `deckEntries`      | OneToMany    | [`EventDeckEntry`](deck.md#entity-appentityeventdeckentry) | Deck versions registered for this event (F3.7) |
+| `deckRegistrations`| OneToMany    | `EventDeckRegistration` | Per-deck delegation preferences for this event (F4.8) |
+
+---
+
+## Entity: `App\Entity\EventDeckRegistration`
+
+Records per-deck-per-event availability. A deck owner first **registers** their deck at an event (making it available for borrowing), then optionally **delegates** handling to event staff. Registration and delegation are separate concerns with independent toggles:
+
+- **Register** (`toggle-registration`): creates or removes the `EventDeckRegistration`. Unregistering is blocked if there is an active borrow for the deck at this event.
+- **Delegate** (`toggle-delegation`): flips `delegateToStaff` on an existing registration. Requires the deck to be registered first.
+
+When `delegateToStaff` is true, any new borrow for this deck at this event will auto-inherit `isDelegatedToStaff = true`, allowing staff to approve, hand off, and confirm return without the owner's intervention. Only decks with a registration appear in the "Browse available decks" page for other participants.
+
+> **@see** docs/features.md F4.8 — Staff-delegated lending
+
+### Fields
+
+| Field              | Type               | Nullable | Description |
+|--------------------|--------------------|----------|-------------|
+| `id`               | `int` (auto)       | No       | Primary key |
+| `event`            | `Event`            | No       | The event this registration belongs to. |
+| `deck`             | `Deck`             | No       | The deck being registered. |
+| `delegateToStaff`  | `bool`             | No       | Whether staff can handle this deck (approve, hand off, return). Default: `false`. |
+| `registeredAt`     | `DateTimeImmutable` | No      | When the owner registered this deck for the event. |
+
+### Constraints
+
+- Unique constraint on (`event`, `deck`) — a deck can only be registered once per event
+- Only the deck owner can create or toggle the registration
+- Cannot be created/toggled for cancelled or finished events
+
+### Relations
+
+| Relation    | Type      | Target  | Description |
+|-------------|-----------|---------|-------------|
+| `event`     | ManyToOne | `Event` | The event |
+| `deck`      | ManyToOne | `Deck`  | The deck |
 
 ---
 

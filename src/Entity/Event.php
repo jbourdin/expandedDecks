@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\EngagementState;
 use App\Enum\TournamentStructure;
 use App\Repository\EventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,7 +24,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @see docs/features.md F3.1 — Create a new event
+ * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F3.20 — Mark event as finished
  */
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -71,10 +74,6 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private User $organizer;
 
-    #[ORM\ManyToOne(targetEntity: League::class, inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?League $league = null;
-
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Url(requireTld: true)]
@@ -117,12 +116,12 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $cancelledAt = null;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class)]
-    #[ORM\JoinTable(name: 'event_participant')]
-    private Collection $participants;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $finishedAt = null;
+
+    /** @var Collection<int, EventEngagement> */
+    #[ORM\OneToMany(targetEntity: EventEngagement::class, mappedBy: 'event')]
+    private Collection $engagements;
 
     /** @var Collection<int, EventStaff> */
     #[ORM\OneToMany(targetEntity: EventStaff::class, mappedBy: 'event')]
@@ -136,14 +135,19 @@ class Event
     #[ORM\OneToMany(targetEntity: EventDeckEntry::class, mappedBy: 'event')]
     private Collection $deckEntries;
 
+    /** @var Collection<int, EventDeckRegistration> */
+    #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'event')]
+    private Collection $deckRegistrations;
+
     public function __construct()
     {
         $this->date = new \DateTimeImmutable();
         $this->createdAt = new \DateTimeImmutable();
-        $this->participants = new ArrayCollection();
+        $this->engagements = new ArrayCollection();
         $this->staff = new ArrayCollection();
         $this->borrows = new ArrayCollection();
         $this->deckEntries = new ArrayCollection();
+        $this->deckRegistrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -255,18 +259,6 @@ class Event
     public function setOrganizer(User $organizer): static
     {
         $this->organizer = $organizer;
-
-        return $this;
-    }
-
-    public function getLeague(): ?League
-    {
-        return $this->league;
-    }
-
-    public function setLeague(?League $league): static
-    {
-        $this->league = $league;
 
         return $this;
     }
@@ -396,28 +388,47 @@ class Event
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getParticipants(): Collection
+    public function getFinishedAt(): ?\DateTimeImmutable
     {
-        return $this->participants;
+        return $this->finishedAt;
     }
 
-    public function addParticipant(User $participant): static
+    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
     {
-        if (!$this->participants->contains($participant)) {
-            $this->participants->add($participant);
+        $this->finishedAt = $finishedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EventEngagement>
+     */
+    public function getEngagements(): Collection
+    {
+        return $this->engagements;
+    }
+
+    public function getEngagementFor(User $user): ?EventEngagement
+    {
+        foreach ($this->engagements as $engagement) {
+            if ($engagement->getUser()->getId() === $user->getId()) {
+                return $engagement;
+            }
         }
 
-        return $this;
+        return null;
     }
 
-    public function removeParticipant(User $participant): static
+    public function countByState(EngagementState $state): int
     {
-        $this->participants->removeElement($participant);
+        $count = 0;
+        foreach ($this->engagements as $engagement) {
+            if ($engagement->getState() === $state) {
+                ++$count;
+            }
+        }
 
-        return $this;
+        return $count;
     }
 
     /**
@@ -426,6 +437,31 @@ class Event
     public function getStaff(): Collection
     {
         return $this->staff;
+    }
+
+    /**
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    public function getStaffFor(User $user): ?EventStaff
+    {
+        foreach ($this->staff as $staffMember) {
+            if ($staffMember->getUser()->getId() === $user->getId()) {
+                return $staffMember;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether the user is the event organizer or a staff member.
+     *
+     * @see docs/features.md F3.5 — Assign event staff team
+     */
+    public function isOrganizerOrStaff(User $user): bool
+    {
+        return $this->organizer->getId() === $user->getId()
+            || null !== $this->getStaffFor($user);
     }
 
     /**
@@ -442,6 +478,14 @@ class Event
     public function getDeckEntries(): Collection
     {
         return $this->deckEntries;
+    }
+
+    /**
+     * @return Collection<int, EventDeckRegistration>
+     */
+    public function getDeckRegistrations(): Collection
+    {
+        return $this->deckRegistrations;
     }
 
     #[ORM\PrePersist]
