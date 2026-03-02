@@ -18,13 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 class DeckTest extends TestCase
 {
-    public function testShortTagGeneratedOnPrePersist(): void
+    public function testShortTagGeneratedOnConstruction(): void
     {
         $deck = new Deck();
-        self::assertSame('', $deck->getShortTag());
-
-        $deck->onPrePersist();
-
         self::assertNotSame('', $deck->getShortTag());
         self::assertSame(6, \strlen($deck->getShortTag()));
     }

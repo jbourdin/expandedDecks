@@ -78,6 +78,7 @@ class Deck
 
     public function __construct()
     {
+        $this->shortTag = self::generateShortTag();
         $this->createdAt = new \DateTimeImmutable();
         $this->versions = new ArrayCollection();
         $this->borrows = new ArrayCollection();
