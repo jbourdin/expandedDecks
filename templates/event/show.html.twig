@@ -141,9 +141,11 @@
 
                 <form method="post" action="{{ path('app_event_assign_staff', {id: event.id}) }}" class="d-flex gap-2">
                     <input type="hidden" name="_token" value="{{ csrf_token('assign-staff-' ~ event.id) }}">
-                    <input type="hidden" name="user_query" value="">
-                    <div class="flex-grow-1" style="position: relative;">
-                        <input type="text" class="form-control form-control-sm" placeholder="Screen name, email, or Pokemon ID" required data-staff-autocomplete data-search-url="{{ path('app_user_search') }}">
+                    <div class="flex-grow-1"
+                         data-staff-autocomplete
+                         data-search-url="{{ path('app_user_search') }}"
+                         data-hidden-input="user_query"
+                         data-placeholder="Screen name, email, or Pokemon ID">
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary text-nowrap">Add Staff</button>
                 </form>
@@ -394,6 +396,13 @@
             </form>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if isOrganizer and not event.cancelledAt %}
+        {{ encore_entry_link_tags('staff_autocomplete') }}
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

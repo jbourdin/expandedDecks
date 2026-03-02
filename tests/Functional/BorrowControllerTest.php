@@ -215,7 +215,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         // Create a second event on the same day with borrower engaged
         $secondEvent = new Event();
         $secondEvent->setName('Same Day Event');
-        $secondEvent->setDate(new \DateTimeImmutable('today', new \DateTimeZone('Europe/Paris')));
+        $secondEvent->setDate(new \DateTimeImmutable('today'));
         $secondEvent->setTimezone('Europe/Paris');
         $secondEvent->setOrganizer($userRepo->findOneBy(['email' => 'admin@example.com']));
         $secondEvent->setRegistrationLink('https://example.com/same-day');

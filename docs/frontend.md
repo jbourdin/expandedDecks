@@ -35,7 +35,15 @@
 
 ### Installation Status
 
-`@mantine/core` and `@mantine/hooks` are installed. First usage: **deck form React islands** (`deck_form` Encore entry) for the archetype autocomplete (`ArchetypeSelect`) and language multi-select (`LanguageSelect`) components. Mantine styles are imported in the `deck-form.tsx` entry point (scoped to deck form pages only, to avoid Bootstrap style conflicts on other pages).
+`@mantine/core` and `@mantine/hooks` are installed. Current usage:
+
+- **Deck form React islands** (`deck_form` entry): `ArchetypeSelect` (creatable autocomplete) and `LanguageSelect` (multi-select).
+- **Staff autocomplete** (`staff_autocomplete` entry): uses the shared `AsyncAutocomplete` component to search users when assigning event staff.
+- **Walk-up autocomplete** (`walk_up_autocomplete` entry): uses two `AsyncAutocomplete` instances for deck and borrower search on the walk-up lending page.
+
+The `AsyncAutocomplete` component (`assets/components/AsyncAutocomplete.tsx`) is a generic Mantine `Combobox`-based search widget with debounced fetch, `AbortController` cancellation, and hidden input sync. It replaces the previous vanilla JS autocomplete widgets.
+
+Mantine styles are imported per entry point (scoped to pages that use Mantine, to avoid Bootstrap style conflicts).
 
 Additional packages (`@mantine/form`, `@mantine/notifications`, `@mantine/dates`, `@tabler/icons-react`) will be installed as needed for future features.
 

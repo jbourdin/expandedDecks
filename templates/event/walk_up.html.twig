@@ -20,28 +20,22 @@
 
             <form method="post" action="{{ path('app_event_walk_up_submit', {id: event.id}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('walk-up-' ~ event.id) }}">
-                <input type="hidden" name="deck_id" value="">
-                <input type="hidden" name="borrower_id" value="">
 
                 <div class="mb-3">
-                    <label class="form-label" for="walkUpDeck">Deck</label>
-                    <div style="position: relative;">
-                        <input type="text" class="form-control" id="walkUpDeck" placeholder="Search by deck name or tag..."
-                            required
-                            data-walk-up-deck-autocomplete
-                            data-search-url="{{ path('app_deck_search') }}?event_id={{ event.id }}"
-                            autocomplete="off">
+                    <label class="form-label">Deck</label>
+                    <div data-walk-up-deck-autocomplete
+                         data-search-url="{{ path('app_deck_search') }}?event_id={{ event.id }}"
+                         data-hidden-input="deck_id"
+                         data-placeholder="Search by deck name or tag...">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="walkUpBorrower">Borrower</label>
-                    <div style="position: relative;">
-                        <input type="text" class="form-control" id="walkUpBorrower" placeholder="Search by screen name, email, or Pokemon ID..."
-                            required
-                            data-walk-up-user-autocomplete
-                            data-search-url="{{ path('app_user_search') }}?event_id={{ event.id }}"
-                            autocomplete="off">
+                    <label class="form-label">Borrower</label>
+                    <div data-walk-up-user-autocomplete
+                         data-search-url="{{ path('app_user_search') }}?event_id={{ event.id }}"
+                         data-hidden-input="borrower_id"
+                         data-placeholder="Search by screen name, email, or Pokemon ID...">
                     </div>
                 </div>
 
@@ -52,6 +46,11 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('walk_up_autocomplete') }}
 {% endblock %}
 
 {% block javascripts %}
