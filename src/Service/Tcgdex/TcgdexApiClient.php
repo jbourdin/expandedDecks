@@ -45,6 +45,19 @@ class TcgdexApiClient
         'SVI' => 'sv01',
     ];
 
+    /**
+     * TCGdex prefixes card numbers with an era tag for promo sets.
+     *
+     * PTCG lists "Karen XYP 177" but TCGdex stores it as xyp-XY177.
+     * SV promos use plain numbers (svp-001) and need no prefix.
+     */
+    private const array PROMO_CARD_NUMBER_PREFIXES = [
+        'swshp' => 'SWSH',
+        'smp' => 'SM',
+        'xyp' => 'XY',
+        'bwp' => 'BW',
+    ];
+
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly CacheInterface $cache,
@@ -80,12 +93,16 @@ class TcgdexApiClient
             return null;
         }
 
-        // Try original card number first
-        $card = $this->fetchCard($setId, $cardNumber);
+        // Promo sets use era-prefixed card numbers in TCGdex (e.g. XY177, SWSH001)
+        $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
+        $lookupNumber = null !== $prefix ? $prefix.$cardNumber : $cardNumber;
+
+        // Try the resolved card number first
+        $card = $this->fetchCard($setId, $lookupNumber);
 
         // If not found and number is < 3 digits, retry with zero-padded
-        if (null === $card && \strlen($cardNumber) < 3 && ctype_digit($cardNumber)) {
-            $paddedNumber = str_pad($cardNumber, 3, '0', \STR_PAD_LEFT);
+        if (null === $card && \strlen($lookupNumber) < 3 && ctype_digit($lookupNumber)) {
+            $paddedNumber = str_pad($lookupNumber, 3, '0', \STR_PAD_LEFT);
             $card = $this->fetchCard($setId, $paddedNumber);
         }
 
