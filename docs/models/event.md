@@ -129,7 +129,12 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 
 ## Entity: `App\Entity\EventDeckRegistration`
 
-Records per-deck-per-event delegation preference. A deck owner registers their deck at an event and optionally delegates handling to event staff. When `delegateToStaff` is true, any new borrow for this deck at this event will auto-inherit `isDelegatedToStaff = true`, allowing staff to approve, hand off, and confirm return without the owner's intervention.
+Records per-deck-per-event availability. A deck owner first **registers** their deck at an event (making it available for borrowing), then optionally **delegates** handling to event staff. Registration and delegation are separate concerns with independent toggles:
+
+- **Register** (`toggle-registration`): creates or removes the `EventDeckRegistration`. Unregistering is blocked if there is an active borrow for the deck at this event.
+- **Delegate** (`toggle-delegation`): flips `delegateToStaff` on an existing registration. Requires the deck to be registered first.
+
+When `delegateToStaff` is true, any new borrow for this deck at this event will auto-inherit `isDelegatedToStaff = true`, allowing staff to approve, hand off, and confirm return without the owner's intervention. Only decks with a registration appear in the "Browse available decks" page for other participants.
 
 > **@see** docs/features.md F4.8 — Staff-delegated lending
 

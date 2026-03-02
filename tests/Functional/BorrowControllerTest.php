@@ -227,6 +227,13 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
         $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
         $em->persist($engagement);
+
+        // Register Regidrago at the second event so it appears in available decks
+        $regidragoReg = new EventDeckRegistration();
+        $regidragoReg->setEvent($secondEvent);
+        $regidragoReg->setDeck($deck);
+        $regidragoReg->setDelegateToStaff(false);
+        $em->persist($regidragoReg);
         $em->flush();
 
         $secondEventId = $secondEvent->getId();
@@ -747,18 +754,18 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
     public function testStaffCanApproveDelegatedBorrow(): void
     {
-        // Register Regidrago with delegation at the fixture event
+        // Enable delegation on existing Regidrago registration at the fixture event
         $em = $this->getEntityManager();
         $event = $this->getFixtureEvent();
         $deck = $this->getDeckByName('Regidrago');
         $currentVersion = $deck->getCurrentVersion();
         self::assertNotNull($currentVersion);
 
-        $registration = new EventDeckRegistration();
-        $registration->setEvent($event);
-        $registration->setDeck($deck);
+        /** @var \App\Repository\EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(\App\Repository\EventDeckRegistrationRepository::class);
+        $registration = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($registration);
         $registration->setDelegateToStaff(true);
-        $em->persist($registration);
 
         /** @var UserRepository $userRepo */
         $userRepo = static::getContainer()->get(UserRepository::class);
@@ -804,11 +811,11 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $currentVersion = $deck->getCurrentVersion();
         self::assertNotNull($currentVersion);
 
-        $registration = new EventDeckRegistration();
-        $registration->setEvent($event);
-        $registration->setDeck($deck);
+        /** @var \App\Repository\EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(\App\Repository\EventDeckRegistrationRepository::class);
+        $registration = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($registration);
         $registration->setDelegateToStaff(true);
-        $em->persist($registration);
 
         /** @var UserRepository $userRepo */
         $userRepo = static::getContainer()->get(UserRepository::class);

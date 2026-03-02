@@ -213,29 +213,45 @@
                         <tr>
                             <th>Deck</th>
                             <th>Status</th>
+                            <th>Available</th>
                             <th>Delegate to Staff</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for deck in ownedDecksWithVersion %}
-                            {% set isDelegated = deckDelegationMap[deck.id] ?? false %}
+                            {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
+                            {% set isRegistered = regInfo is not null and regInfo.registered %}
+                            {% set isDelegated = regInfo is not null and regInfo.delegated %}
                             <tr>
                                 <td><a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a></td>
                                 <td>
                                     {% if isDelegated %}
                                         <span class="badge bg-info">Delegated to staff</span>
+                                    {% elseif isRegistered %}
+                                        <span class="badge bg-success">Registered</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">Owner-managed</span>
+                                        <span class="badge bg-secondary">Not registered</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('app_event_toggle_registration', {id: event.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
+                                        <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                        {% if isRegistered %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Unregister</button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Register</button>
+                                        {% endif %}
+                                    </form>
                                 </td>
                                 <td>
                                     <form method="post" action="{{ path('app_event_toggle_delegation', {id: event.id}) }}" class="d-inline">
                                         <input type="hidden" name="_token" value="{{ csrf_token('toggle-delegation-' ~ event.id) }}">
                                         <input type="hidden" name="deck_id" value="{{ deck.id }}">
                                         {% if isDelegated %}
-                                            <button type="submit" class="btn btn-sm btn-outline-warning">Revoke</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" {{ not isRegistered ? 'disabled' }}>Revoke</button>
                                         {% else %}
-                                            <button type="submit" class="btn btn-sm btn-outline-info">Delegate</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>Delegate</button>
                                         {% endif %}
                                     </form>
                                 </td>
@@ -248,16 +264,15 @@
     {% endif %}
 
     {% if not event.cancelledAt and not event.finishedAt %}
-        <div class="card shadow-sm mb-3">
-            <div class="card-header card-header-themed">
-                <h6 class="mb-0">Deck Borrowing</h6>
-            </div>
-            <div class="card-body">
-                {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
+        {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
 
-                {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
+        {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
+            <div class="card shadow-sm mb-3">
+                <div class="card-header card-header-themed">
+                    <h6 class="mb-0">Deck Selection</h6>
+                </div>
+                <div class="card-body">
                     {% set selectedDeckId = currentDeckEntry ? currentDeckEntry.deckVersion.deck.id : 0 %}
-                    <h6 class="text-muted mb-2">Your borrows and playable decks</h6>
                     <form method="post" action="{{ path('app_event_select_deck', {id: event.id}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('select-deck-' ~ event.id) }}">
                         <table class="table table-sm table-themed mb-2">
@@ -306,7 +321,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <div class="d-flex align-items-center gap-2 mt-3 mb-3">
+                        <div class="d-flex align-items-center gap-2 mt-3">
                             {% if canChangeDeck %}
                                 <button type="submit" class="btn btn-sm btn-primary">Save selection</button>
                             {% endif %}
@@ -315,28 +330,15 @@
                             </a>
                         </div>
                     </form>
-                {% elseif activeBorrows is not empty %}
-                    <h6 class="text-muted mb-2">Your borrows</h6>
-                    <table class="table table-sm table-themed mb-3">
-                        <thead>
-                            <tr>
-                                <th>Deck</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for borrow in activeBorrows %}
-                                <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
-                                    <td>{{ borrowBadge(borrow) }}</td>
-                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Deck Borrowing</h6>
+            </div>
+            <div class="card-body">
                 {% if isStaff %}
                     <a href="{{ path('app_event_walk_up', {id: event.id}) }}" class="btn btn-sm btn-outline-primary mb-3">
                         Walk-up lend
@@ -373,7 +375,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                {% elseif activeBorrows is empty %}
+                {% else %}
                     <p class="text-muted mb-0">No borrow activity yet.</p>
                 {% endif %}
             </div>

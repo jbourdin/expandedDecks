@@ -869,7 +869,7 @@ class EventControllerTest extends AbstractFunctionalTest
 
     public function testStaffSeesAllEventBorrows(): void
     {
-        // Borrower is a staff member in fixtures — should see all borrows
+        // Borrower is a staff member in fixtures — should see borrows in Deck Selection card
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
@@ -877,10 +877,11 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Should see both borrows (Iron Thorns + Ancient Box)
-        $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
-        $rows = $borrowCard->filter('tbody tr');
-        self::assertGreaterThanOrEqual(2, $rows->count(), 'Staff should see all borrows.');
+        // Borrower's active borrows (Iron Thorns + Ancient Box) appear in the Deck Selection card
+        $selectionCard = $crawler->filter('h6:contains("Deck Selection")')->closest('.card');
+        $rows = $selectionCard->filter('tbody tr');
+        // "No deck selected" row + own decks + borrow rows
+        self::assertGreaterThanOrEqual(3, $rows->count(), 'Staff should see borrows in Deck Selection.');
     }
 
     // ---------------------------------------------------------------
@@ -1246,13 +1247,13 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Admin owns Iron Thorns + Ancient Box → should see radio buttons
+        // Admin owns Iron Thorns + Ancient Box → should see radio buttons in Deck Selection card
         self::assertSelectorExists('input[type="radio"][name="deck_id"]');
         self::assertSelectorExists('button:contains("Save selection")');
 
-        // Should see "Your borrows and playable decks" heading
-        $heading = $crawler->filter('h6:contains("Your borrows and playable decks")');
-        self::assertSame(1, $heading->count(), 'Should see "Your borrows and playable decks" heading.');
+        // Should see "Deck Selection" card header
+        $heading = $crawler->filter('h6:contains("Deck Selection")');
+        self::assertSame(1, $heading->count(), 'Should see "Deck Selection" card header.');
 
         // Should see "Own deck" badge
         $ownBadges = $crawler->filter('.badge:contains("Own deck")');
@@ -1435,41 +1436,71 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
-    // F4.8 — Staff delegation toggle
+    // F4.8 — Deck registration & staff delegation toggles
     // ---------------------------------------------------------------
 
-    public function testToggleDelegationCreatesRegistration(): void
+    public function testToggleRegistrationCreatesAndRemoves(): void
     {
         $this->loginAs('admin@example.com');
 
         $event = $this->getFixtureEvent();
-        // Ancient Box has no fixture registration — toggling creates one
         $deck = $this->getAdminDeck('Ancient Box');
+
+        /** @var EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(EventDeckRegistrationRepository::class);
+
+        // Remove existing registration if any (from fixtures)
+        $existing = $regRepo->findOneByEventAndDeck($event, $deck);
+        if (null !== $existing) {
+            /** @var EntityManagerInterface $em */
+            $em = static::getContainer()->get('doctrine.orm.entity_manager');
+            $em->remove($existing);
+            $em->flush();
+        }
 
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        $toggleForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
-        self::assertGreaterThan(0, $toggleForm->count(), 'Toggle delegation form should exist.');
-        $csrfToken = $toggleForm->filter('input[name="_token"]')->attr('value');
+        $regForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-registration"]', $event->getId()))->first();
+        self::assertGreaterThan(0, $regForm->count(), 'Toggle registration form should exist.');
+        $csrfToken = $regForm->filter('input[name="_token"]')->attr('value');
 
-        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+        // Register the deck
+        $this->client->request('POST', \sprintf('/event/%d/toggle-registration', $event->getId()), [
             '_token' => $csrfToken,
             'deck_id' => (string) $deck->getId(),
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert-success', 'Staff delegation enabled');
+        self::assertSelectorTextContains('.alert-success', 'registered for this event');
 
-        /** @var EventDeckRegistrationRepository $regRepo */
-        $regRepo = static::getContainer()->get(EventDeckRegistrationRepository::class);
         $reg = $regRepo->findOneByEventAndDeck($event, $deck);
         self::assertNotNull($reg);
-        self::assertTrue($reg->isDelegateToStaff());
+        self::assertFalse($reg->isDelegateToStaff());
+
+        // Cancel existing borrows so we can unregister
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        // Unregister the deck (toggle again)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $regForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-registration"]', $event->getId()))->first();
+        $csrfToken = $regForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/toggle-registration', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'unregistered from this event');
+
+        $reg = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNull($reg);
     }
 
-    public function testToggleDelegationTogglesExistingFlag(): void
+    public function testToggleDelegationTogglesOnRegisteredDeck(): void
     {
         $this->loginAs('admin@example.com');
 
@@ -1478,8 +1509,8 @@ class EventControllerTest extends AbstractFunctionalTest
         $deck = $this->getAdminDeck('Iron Thorns');
 
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $toggleForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
-        $csrfToken = $toggleForm->filter('input[name="_token"]')->attr('value');
+        $delegationForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
+        $csrfToken = $delegationForm->filter('input[name="_token"]')->attr('value');
 
         // Toggle OFF (currently ON from fixtures)
         $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
@@ -1496,9 +1527,60 @@ class EventControllerTest extends AbstractFunctionalTest
         $reg = $regRepo->findOneByEventAndDeck($event, $deck);
         self::assertNotNull($reg);
         self::assertFalse($reg->isDelegateToStaff());
+
+        // Toggle ON again
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $delegationForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
+        $csrfToken = $delegationForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Staff delegation enabled');
+
+        $reg = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($reg);
+        self::assertTrue($reg->isDelegateToStaff());
     }
 
-    public function testToggleDelegationRequiresDeckOwnership(): void
+    public function testToggleDelegationRequiresRegistration(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Ancient Box');
+
+        /** @var EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(EventDeckRegistrationRepository::class);
+
+        // Remove existing registration if any (from fixtures)
+        $existing = $regRepo->findOneByEventAndDeck($event, $deck);
+        if (null !== $existing) {
+            /** @var EntityManagerInterface $em */
+            $em = static::getContainer()->get('doctrine.orm.entity_manager');
+            $em->remove($existing);
+            $em->flush();
+        }
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $delegationForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
+        $csrfToken = $delegationForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-warning', 'must be registered before enabling delegation');
+    }
+
+    public function testToggleRegistrationRequiresDeckOwnership(): void
     {
         $this->loginAs('borrower@example.com');
 
@@ -1506,11 +1588,7 @@ class EventControllerTest extends AbstractFunctionalTest
         // Iron Thorns is owned by admin, not borrower
         $deck = $this->getAdminDeck('Iron Thorns');
 
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-
-        // borrower@example.com should not see toggle forms for admin's decks in "Your Decks"
-        // but they might see their own decks. Let's POST directly to test server-side guard.
-        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+        $this->client->request('POST', \sprintf('/event/%d/toggle-registration', $event->getId()), [
             '_token' => 'dummy',
             'deck_id' => (string) $deck->getId(),
         ]);
@@ -1518,6 +1596,28 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
         $this->client->followRedirect();
         self::assertSelectorExists('.alert-danger');
+    }
+
+    public function testAvailableDecksOnlyShowsRegistered(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Cancel existing borrows so Iron Thorns becomes available
+        $ironThorns = $this->getAdminDeck('Iron Thorns');
+        $this->cancelExistingBorrowsForDeck($ironThorns, $event);
+
+        // Iron Thorns is registered at the event (from fixtures) and now has no active borrow
+        // Borrower's own Lugia Archeops is excluded (own deck)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $pageText = $crawler->text();
+        self::assertStringContainsString('Iron Thorns', $pageText);
+
+        // Verify that Lugia Archeops (borrower's own, not registered) does NOT appear
+        self::assertStringNotContainsString('Lugia Archeops', $pageText);
     }
 
     // ---------------------------------------------------------------
