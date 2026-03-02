@@ -20,8 +20,8 @@ Encore
     .addEntry('app', './assets/app.tsx')
     .addEntry('deck_form', './assets/deck-form.tsx')
     .addEntry('deck_show', './assets/deck-show.ts')
-    .addEntry('staff_autocomplete', './assets/staff-autocomplete.ts')
-    .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.ts')
+    .addEntry('staff_autocomplete', './assets/staff-autocomplete.tsx')
+    .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
