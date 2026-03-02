@@ -223,7 +223,7 @@
                             {% set isRegistered = regInfo is not null and regInfo.registered %}
                             {% set isDelegated = regInfo is not null and regInfo.delegated %}
                             <tr>
-                                <td><a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a></td>
+                                <td><a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                 <td>
                                     {% if isDelegated %}
                                         <span class="badge bg-info">Delegated to staff</span>
@@ -301,7 +301,7 @@
                                                 {{ selectedDeckId == deck.id ? 'checked' }}
                                                 {{ not canChangeDeck ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                         <td><span class="badge bg-secondary">Own deck</span></td>
                                         <td></td>
                                     </tr>
@@ -314,7 +314,7 @@
                                                 {{ selectedDeckId == borrow.deck.id ? 'checked' }}
                                                 {{ (not canChangeDeck or not isBorrowPlayable) ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                         <td>{{ borrowBadge(borrow) }}</td>
                                         <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
                                     </tr>
@@ -367,7 +367,7 @@
                         <tbody>
                             {% for borrow in otherBorrows %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>{{ borrowBadge(borrow) }}</td>
                                     <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>

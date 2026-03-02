@@ -52,7 +52,7 @@
                         <tbody>
                             {% for borrow in borrows %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                                     {% if mode == 'lends' %}
                                         <td>{{ borrow.borrower.screenName }}</td>
