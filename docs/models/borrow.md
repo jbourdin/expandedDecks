@@ -18,7 +18,7 @@ Represents the full lifecycle of a deck borrow request — from request to retur
 | `borrower`         | `User`             | No       | The user requesting to borrow the deck. |
 | `event`            | `Event`            | No       | The event this borrow is for. |
 | `status`           | `string(30)`       | No       | Current borrow status. See Status enum below. Default: `"pending"`. |
-| `isDelegatedToStaff` | `bool`           | No       | Whether the owner delegated this deck to event staff for this event. Default: `false`. |
+| `isDelegatedToStaff` | `bool`           | No       | Auto-set from `EventDeckRegistration.delegateToStaff` at borrow creation time (F4.8). When true, event staff can approve, deny, hand off, and confirm return. Default: `false`. |
 | `requestedAt`      | `DateTimeImmutable` | No      | When the borrow request was made. |
 | `approvedAt`       | `DateTimeImmutable` | Yes     | When the request was approved (by owner or staff). |
 | `approvedBy`       | `User`             | Yes      | Who approved the request (owner or staff member). |
@@ -87,8 +87,8 @@ lent ──(event end + grace period)──→ overdue → returned
 
 | From               | To                  | Who can trigger | Condition |
 |--------------------|---------------------|-----------------|-----------|
-| `pending`          | `approved`          | Owner or staff (if delegated) | Deck must be `available` or `reserved` |
-| `pending`          | `cancelled`         | Borrower, owner, or staff | — |
+| `pending`          | `approved`          | Owner or staff (if deck registered with delegation at this event) | Deck must be `available` or `reserved` |
+| `pending`          | `cancelled`         | Borrower, owner, or staff (if delegated) | — |
 | `approved`         | `lent`              | Owner or staff (if delegated) | Ideally confirmed by scanning deck label |
 | `approved`         | `cancelled`         | Borrower, owner, or staff | Before hand-off only |
 | *(walk-up)*        | `lent`              | Owner, organizer, or staff | Walk-up lend (F4.12). Deck must be `available`. No prior `Borrow` entity — created directly in `lent`. |
@@ -102,7 +102,7 @@ lent ──(event end + grace period)──→ overdue → returned
 - A user cannot borrow their own deck
 - A user must be a participant of the event to request a borrow (F3.4). For walk-up lends (F4.12), the borrower is **auto-registered** as event participant if not already
 - A deck can only have one active borrow **per event** (`pending`, `approved`, or `lent`). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
-- `isDelegatedToStaff`: set when the owner opts in to delegation (F4.8), cannot be changed after approval
+- `isDelegatedToStaff`: derived from `EventDeckRegistration.delegateToStaff` at request/walk-up creation time (F4.8). The owner controls delegation at the event level (per deck, per event), not per-borrow
 - **Walk-up lend (F4.12):** the initiator (owner, organizer, or staff) must themselves be engaged in the event (spectating, interested, or participating). The deck must be `available`. When the initiator is engaged in multiple active events, they must select the target event
 
 ### Conflict Detection

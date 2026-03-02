@@ -201,6 +201,52 @@
         </div>
     {% endif %}
 
+    {% if not event.cancelledAt and not event.finishedAt and ownedDecksWithVersion is not empty %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">Your Decks</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-2">Register your decks for this event and choose whether event staff can handle them on your behalf.</p>
+                <table class="table table-sm table-themed mb-0">
+                    <thead>
+                        <tr>
+                            <th>Deck</th>
+                            <th>Status</th>
+                            <th>Delegate to Staff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deck in ownedDecksWithVersion %}
+                            {% set isDelegated = deckDelegationMap[deck.id] ?? false %}
+                            <tr>
+                                <td><a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a></td>
+                                <td>
+                                    {% if isDelegated %}
+                                        <span class="badge bg-info">Delegated to staff</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Owner-managed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{{ path('app_event_toggle_delegation', {id: event.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-delegation-' ~ event.id) }}">
+                                        <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                        {% if isDelegated %}
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">Revoke</button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-outline-info">Delegate</button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
     {% if not event.cancelledAt and not event.finishedAt %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">

@@ -17,6 +17,7 @@ use App\Entity\Deck;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\EventDeckEntry;
+use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
 use App\Entity\User;
@@ -28,6 +29,7 @@ use App\Form\EventFormType;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
@@ -48,6 +50,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F4.8 — Staff-delegated lending
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 #[Route('/event')]
@@ -96,6 +99,7 @@ class EventController extends AbstractController
         BorrowRepository $borrowRepository,
         DeckRepository $deckRepository,
         EventDeckEntryRepository $entryRepository,
+        EventDeckRegistrationRepository $registrationRepository,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -120,6 +124,22 @@ class EventController extends AbstractController
             $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
         }
 
+        // Delegation: show owner's decks with version (eligible for registration)
+        $ownedDecksWithVersion = array_filter(
+            $deckRepository->findByOwner($user),
+            static fn (Deck $deck): bool => null !== $deck->getCurrentVersion()
+                && DeckStatus::Retired !== $deck->getStatus(),
+        );
+        $ownedDecksWithVersion = array_values($ownedDecksWithVersion);
+
+        $deckDelegationMap = [];
+        foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
+            $deckId = $reg->getDeck()->getId();
+            if (null !== $deckId) {
+                $deckDelegationMap[$deckId] = $reg->isDelegateToStaff();
+            }
+        }
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
@@ -130,6 +150,8 @@ class EventController extends AbstractController
             'playableOwnDecks' => $playableOwnDecks,
             'currentDeckEntry' => $currentDeckEntry,
             'canChangeDeck' => $canChangeDeck,
+            'ownedDecksWithVersion' => $ownedDecksWithVersion,
+            'deckDelegationMap' => $deckDelegationMap,
         ]);
     }
 
@@ -491,6 +513,67 @@ class EventController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', \sprintf('"%s" has been removed from the staff team.', $staffMember->getUser()->getScreenName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[Route('/{id}/toggle-delegation', name: 'app_event_toggle_delegation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function toggleDeckDelegation(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        DeckRepository $deckRepository,
+        EventDeckRegistrationRepository $registrationRepository,
+    ): Response {
+        if (!$this->isCsrfTokenValid('toggle-delegation-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Cannot change delegation for a cancelled or finished event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $deck = $deckRepository->find($deckId);
+
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if ($deck->getOwner()->getId() !== $user->getId()) {
+            $this->addFlash('danger', 'You can only manage delegation for your own decks.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->findOneByEventAndDeck($event, $deck);
+
+        if (null === $registration) {
+            $registration = new EventDeckRegistration();
+            $registration->setEvent($event);
+            $registration->setDeck($deck);
+            $registration->setDelegateToStaff(true);
+            $em->persist($registration);
+        } else {
+            $registration->setDelegateToStaff(!$registration->isDelegateToStaff());
+        }
+
+        $em->flush();
+
+        $label = $registration->isDelegateToStaff() ? 'enabled' : 'disabled';
+        $this->addFlash('success', \sprintf('Staff delegation %s for "%s".', $label, $deck->getName()));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }

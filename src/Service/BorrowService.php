@@ -25,6 +25,7 @@ use App\Enum\EngagementState;
 use App\Enum\NotificationType;
 use App\Enum\ParticipationMode;
 use App\Repository\BorrowRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -45,6 +46,7 @@ class BorrowService
         private readonly EntityManagerInterface $em,
         private readonly BorrowRepository $borrowRepository,
         private readonly BorrowNotificationEmailService $emailService,
+        private readonly EventDeckRegistrationRepository $registrationRepository,
     ) {
     }
 
@@ -94,6 +96,11 @@ class BorrowService
         $borrow->setEvent($event);
         $borrow->setNotes($notes);
 
+        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
+        if (null !== $registration && $registration->isDelegateToStaff()) {
+            $borrow->setIsDelegatedToStaff(true);
+        }
+
         $this->em->persist($borrow);
         $this->em->flush();
 
@@ -114,15 +121,14 @@ class BorrowService
      * @see docs/features.md F4.2 — Approve / deny a borrow request
      * @see docs/features.md F4.8 — Staff-delegated lending
      */
-    public function approve(Borrow $borrow, User $actor, bool $delegateToStaff = false): void
+    public function approve(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'approve');
 
         $borrow->setApprovedAt(new \DateTimeImmutable());
         $borrow->setApprovedBy($actor);
-        $borrow->setIsDelegatedToStaff($delegateToStaff);
 
         $this->em->flush();
 
@@ -139,10 +145,11 @@ class BorrowService
 
     /**
      * @see docs/features.md F4.2 — Approve / deny a borrow request
+     * @see docs/features.md F4.8 — Staff-delegated lending
      */
     public function deny(Borrow $borrow, User $actor): void
     {
-        $this->assertDeckOwner($borrow, $actor);
+        $this->assertOwnerOrDelegatedStaff($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'deny');
 
@@ -302,6 +309,11 @@ class BorrowService
         $borrow->setEvent($event);
         $borrow->setIsWalkUp(true);
 
+        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
+        if (null !== $registration && $registration->isDelegateToStaff()) {
+            $borrow->setIsDelegatedToStaff(true);
+        }
+
         $this->em->persist($borrow);
 
         $this->borrowStateMachine->apply($borrow, 'walk_up_lend');
@@ -359,13 +371,6 @@ class BorrowService
             \sprintf('"%s" has been returned to your custody by %s.', $borrow->getDeck()->getName(), $actor->getScreenName()),
             $borrow,
         );
-    }
-
-    private function assertDeckOwner(Borrow $borrow, User $actor): void
-    {
-        if ($borrow->getDeck()->getOwner()->getId() !== $actor->getId()) {
-            throw new AccessDeniedHttpException('Only the deck owner can perform this action.');
-        }
     }
 
     /**

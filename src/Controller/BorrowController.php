@@ -52,7 +52,8 @@ class BorrowController extends AbstractController
 
         return $this->render('borrow/show.html.twig', [
             'borrow' => $borrow,
-            'canApprove' => $isOwner && BorrowStatus::Pending === $borrow->getStatus(),
+            'canApprove' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
+            'canDeny' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
             'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus(),
             'canReturn' => ($isOwner || $isDelegatedStaff) && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
             'canCancel' => ($isBorrower || $isOwner) && $borrow->isCancellable(),
@@ -116,10 +117,9 @@ class BorrowController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser();
-        $delegateToStaff = '1' === $request->getPayload()->getString('delegate_to_staff');
 
         try {
-            $borrowService->approve($borrow, $user, $delegateToStaff);
+            $borrowService->approve($borrow, $user);
             $this->addFlash('success', 'Borrow request approved.');
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());

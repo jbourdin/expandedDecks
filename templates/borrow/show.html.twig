@@ -102,7 +102,7 @@
         </div>
     </div>
 
-    {% if canApprove or canHandOff or canReturn or canCancel or canReturnToOwner %}
+    {% if canApprove or canDeny or canHandOff or canReturn or canCancel or canReturnToOwner %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">Actions</h6>
@@ -111,16 +111,10 @@
                 {% if canApprove %}
                     <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                            {% if borrow.event.staff is not empty %}
-                                <div class="form-check mb-0">
-                                    <input type="checkbox" name="delegate_to_staff" value="1" class="form-check-input" id="delegateStaff">
-                                    <label class="form-check-label" for="delegateStaff">Delegate to event staff</label>
-                                </div>
-                            {% endif %}
-                        </div>
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
                     </form>
+                {% endif %}
+                {% if canDeny %}
                     <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Deny this borrow request?')">
                         <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger">Deny</button>

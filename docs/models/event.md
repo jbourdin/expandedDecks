@@ -123,6 +123,38 @@ The `eventId` field is **free text** intended to hold the official Pokemon sanct
 | `staff`            | OneToMany    | `EventStaff`   | Staff members assigned to this event |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow requests linked to this event |
 | `deckEntries`      | OneToMany    | [`EventDeckEntry`](deck.md#entity-appentityeventdeckentry) | Deck versions registered for this event (F3.7) |
+| `deckRegistrations`| OneToMany    | `EventDeckRegistration` | Per-deck delegation preferences for this event (F4.8) |
+
+---
+
+## Entity: `App\Entity\EventDeckRegistration`
+
+Records per-deck-per-event delegation preference. A deck owner registers their deck at an event and optionally delegates handling to event staff. When `delegateToStaff` is true, any new borrow for this deck at this event will auto-inherit `isDelegatedToStaff = true`, allowing staff to approve, hand off, and confirm return without the owner's intervention.
+
+> **@see** docs/features.md F4.8 — Staff-delegated lending
+
+### Fields
+
+| Field              | Type               | Nullable | Description |
+|--------------------|--------------------|----------|-------------|
+| `id`               | `int` (auto)       | No       | Primary key |
+| `event`            | `Event`            | No       | The event this registration belongs to. |
+| `deck`             | `Deck`             | No       | The deck being registered. |
+| `delegateToStaff`  | `bool`             | No       | Whether staff can handle this deck (approve, hand off, return). Default: `false`. |
+| `registeredAt`     | `DateTimeImmutable` | No      | When the owner registered this deck for the event. |
+
+### Constraints
+
+- Unique constraint on (`event`, `deck`) — a deck can only be registered once per event
+- Only the deck owner can create or toggle the registration
+- Cannot be created/toggled for cancelled or finished events
+
+### Relations
+
+| Relation    | Type      | Target  | Description |
+|-------------|-----------|---------|-------------|
+| `event`     | ManyToOne | `Event` | The event |
+| `deck`      | ManyToOne | `Deck`  | The deck |
 
 ---
 

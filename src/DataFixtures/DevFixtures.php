@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
+use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
 use App\Entity\User;
@@ -60,6 +61,7 @@ class DevFixtures extends Fixture
         $manager->flush();
 
         $this->createBorrowFixtures($manager, $todayEvent, $borrower, $admin, $ironThorns, $ancientBox);
+        $this->createDeckRegistrations($manager, $todayEvent, $ironThorns);
 
         $manager->flush();
     }
@@ -748,6 +750,18 @@ class DevFixtures extends Fixture
 
             Total Cards: 60
             PTCG;
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    private function createDeckRegistrations(ObjectManager $manager, Event $event, Deck $ironThorns): void
+    {
+        $registration = new EventDeckRegistration();
+        $registration->setEvent($event);
+        $registration->setDeck($ironThorns);
+        $registration->setDelegateToStaff(true);
+        $manager->persist($registration);
     }
 
     /**

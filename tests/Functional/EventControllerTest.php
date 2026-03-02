@@ -21,6 +21,7 @@ use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventEngagementRepository;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,6 +32,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F4.8 — Staff-delegated lending
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 class EventControllerTest extends AbstractFunctionalTest
@@ -1430,6 +1432,92 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-warning', 'Walk-up lending is not available');
+    }
+
+    // ---------------------------------------------------------------
+    // F4.8 — Staff delegation toggle
+    // ---------------------------------------------------------------
+
+    public function testToggleDelegationCreatesRegistration(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        // Ancient Box has no fixture registration — toggling creates one
+        $deck = $this->getAdminDeck('Ancient Box');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $toggleForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
+        self::assertGreaterThan(0, $toggleForm->count(), 'Toggle delegation form should exist.');
+        $csrfToken = $toggleForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Staff delegation enabled');
+
+        /** @var EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(EventDeckRegistrationRepository::class);
+        $reg = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($reg);
+        self::assertTrue($reg->isDelegateToStaff());
+    }
+
+    public function testToggleDelegationTogglesExistingFlag(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        // Iron Thorns has an existing registration with delegation ON from fixtures
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $toggleForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-delegation"]', $event->getId()))->first();
+        $csrfToken = $toggleForm->filter('input[name="_token"]')->attr('value');
+
+        // Toggle OFF (currently ON from fixtures)
+        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Staff delegation disabled');
+
+        /** @var EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(EventDeckRegistrationRepository::class);
+        $reg = $regRepo->findOneByEventAndDeck($event, $deck);
+        self::assertNotNull($reg);
+        self::assertFalse($reg->isDelegateToStaff());
+    }
+
+    public function testToggleDelegationRequiresDeckOwnership(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        // Iron Thorns is owned by admin, not borrower
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+
+        // borrower@example.com should not see toggle forms for admin's decks in "Your Decks"
+        // but they might see their own decks. Let's POST directly to test server-side guard.
+        $this->client->request('POST', \sprintf('/event/%d/toggle-delegation', $event->getId()), [
+            '_token' => 'dummy',
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
     }
 
     // ---------------------------------------------------------------
