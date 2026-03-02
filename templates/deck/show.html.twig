@@ -54,7 +54,7 @@
     {# Deck info — compact header #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{{ deck.name }}</h5>
+            <h5 class="mb-0"><span class="badge bg-dark me-2">{{ deck.shortTag }}</span>{{ deck.name }}</h5>
             <div class="d-flex align-items-center gap-2">
                 {% if deck.status.value == 'lent' %}
                     <span class="badge badge-lent">Lent</span>
@@ -69,19 +69,6 @@
                 <span><strong>Format:</strong> {{ deck.format }}</span>
                 {% if deck.currentVersion %}
                     <span><strong>Version:</strong> v{{ deck.currentVersion.versionNumber }}</span>
-                    {% set enrichStatus = deck.currentVersion.enrichmentStatus %}
-                    {% if enrichStatus == 'done' %}
-                        <span class="badge bg-success" title="Card data enriched">Enriched</span>
-                    {% elseif enrichStatus == 'enriching' %}
-                        <span class="badge bg-info" title="Card enrichment in progress">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Enriching…
-                        </span>
-                    {% elseif enrichStatus == 'failed' %}
-                        <span class="badge bg-danger" title="Card enrichment failed">Enrichment failed</span>
-                    {% else %}
-                        <span class="badge bg-secondary" title="Card enrichment pending">Pending enrichment</span>
-                    {% endif %}
                     {% if deck.currentVersion.archetypeName %}
                         <span><strong>Archetype:</strong> {{ deck.currentVersion.archetypeName }}</span>
                     {% endif %}

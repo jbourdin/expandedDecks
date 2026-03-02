@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+@use "sass:color";
+
 // --- Pokemon-inspired palette ---
 // Derived from Pokemon brand colors (blue, gold, red) and
 // the clean white aesthetic of support.pokemon.com.
@@ -36,7 +38,7 @@ $body-bg:        $ed-bg;
 $body-color:     #333;
 
 $link-color:           $ed-blue;
-$link-hover-color:     darken($ed-blue, 12%);
+$link-hover-color:     color.adjust($ed-blue, $lightness: -12%);
 
 $navbar-dark-color:              rgba(#fff, .85);
 $navbar-dark-hover-color:        $ed-gold;
@@ -102,7 +104,7 @@ footer {
 // --- Hero (anonymous homepage) ---
 
 .hero-pokemon {
-    background: linear-gradient(135deg, $ed-navy 0%, lighten($ed-navy, 8%) 100%);
+    background: linear-gradient(135deg, $ed-navy 0%, color.adjust($ed-navy, $lightness: 8%) 100%);
     color: #fff;
     border-radius: .5rem;
     border-bottom: 3px solid $ed-gold;
@@ -121,13 +123,13 @@ footer {
 
 .btn-gold {
     background-color: $ed-gold;
-    border-color: darken($ed-gold, 5%);
+    border-color: color.adjust($ed-gold, $lightness: -5%);
     color: $ed-navy;
     font-weight: 600;
 
     &:hover, &:focus {
-        background-color: darken($ed-gold, 8%);
-        border-color: darken($ed-gold, 12%);
+        background-color: color.adjust($ed-gold, $lightness: -8%);
+        border-color: color.adjust($ed-gold, $lightness: -12%);
         color: $ed-navy;
     }
 }

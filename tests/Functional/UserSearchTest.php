@@ -88,13 +88,16 @@ class UserSearchTest extends AbstractFunctionalTest
         self::assertSame([], $data);
     }
 
-    public function testSearchRequiresOrganizerRole(): void
+    public function testSearchRequiresOrganizerRoleOrEventAccess(): void
     {
+        // Non-organizer without event_id context gets empty results
         $this->loginAs('borrower@example.com');
 
         $this->client->request('GET', '/api/user/search?q=Admin');
 
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseIsSuccessful();
+        $data = $this->getJsonResponse();
+        self::assertSame([], $data);
     }
 
     public function testSearchExcludesAnonymized(): void

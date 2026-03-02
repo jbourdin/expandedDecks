@@ -20,6 +20,7 @@ Encore
     .addEntry('app', './assets/app.tsx')
     .addEntry('deck_show', './assets/deck-show.ts')
     .addEntry('staff_autocomplete', './assets/staff-autocomplete.ts')
+    .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
@@ -30,7 +31,12 @@ Encore
 
     .enableTypeScriptLoader()
     .enableReactPreset()
-    .enableSassLoader()
+    .enableSassLoader((options) => {
+        options.sassOptions = {
+            quietDeps: true,
+            silenceDeprecations: ['import'],
+        };
+    })
 ;
 
 module.exports = Encore.getWebpackConfig();

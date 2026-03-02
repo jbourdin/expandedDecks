@@ -135,6 +135,10 @@ class Event
     #[ORM\OneToMany(targetEntity: EventDeckEntry::class, mappedBy: 'event')]
     private Collection $deckEntries;
 
+    /** @var Collection<int, EventDeckRegistration> */
+    #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'event')]
+    private Collection $deckRegistrations;
+
     public function __construct()
     {
         $this->date = new \DateTimeImmutable();
@@ -143,6 +147,7 @@ class Event
         $this->staff = new ArrayCollection();
         $this->borrows = new ArrayCollection();
         $this->deckEntries = new ArrayCollection();
+        $this->deckRegistrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -473,6 +478,14 @@ class Event
     public function getDeckEntries(): Collection
     {
         return $this->deckEntries;
+    }
+
+    /**
+     * @return Collection<int, EventDeckRegistration>
+     */
+    public function getDeckRegistrations(): Collection
+    {
+        return $this->deckRegistrations;
     }
 
     #[ORM\PrePersist]

@@ -76,12 +76,17 @@ class Deck
     #[ORM\OneToMany(targetEntity: Borrow::class, mappedBy: 'deck')]
     private Collection $borrows;
 
+    /** @var Collection<int, EventDeckRegistration> */
+    #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'deck')]
+    private Collection $eventRegistrations;
+
     public function __construct()
     {
         $this->shortTag = self::generateShortTag();
         $this->createdAt = new \DateTimeImmutable();
         $this->versions = new ArrayCollection();
         $this->borrows = new ArrayCollection();
+        $this->eventRegistrations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -190,6 +195,14 @@ class Deck
     public function getBorrows(): Collection
     {
         return $this->borrows;
+    }
+
+    /**
+     * @return Collection<int, EventDeckRegistration>
+     */
+    public function getEventRegistrations(): Collection
+    {
+        return $this->eventRegistrations;
     }
 
     #[ORM\PrePersist]

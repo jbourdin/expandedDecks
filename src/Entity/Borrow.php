@@ -54,6 +54,9 @@ class Borrow
     private bool $isDelegatedToStaff = false;
 
     #[ORM\Column]
+    private bool $isWalkUp = false;
+
+    #[ORM\Column]
     private \DateTimeImmutable $requestedAt;
 
     #[ORM\Column(nullable: true)]
@@ -168,6 +171,18 @@ class Borrow
     public function setIsDelegatedToStaff(bool $isDelegatedToStaff): static
     {
         $this->isDelegatedToStaff = $isDelegatedToStaff;
+
+        return $this;
+    }
+
+    public function isWalkUp(): bool
+    {
+        return $this->isWalkUp;
+    }
+
+    public function setIsWalkUp(bool $isWalkUp): static
+    {
+        $this->isWalkUp = $isWalkUp;
 
         return $this;
     }

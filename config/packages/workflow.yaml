@@ -43,6 +43,9 @@ framework:
                 return_to_owner:
                     from: returned
                     to: returned_to_owner
+                walk_up_lend:
+                    from: pending
+                    to: lent
                 mark_overdue:
                     from: lent
                     to: overdue

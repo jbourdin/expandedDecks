@@ -36,6 +36,12 @@
                         <th>Owner</th>
                         <td>{{ borrow.deck.owner.screenName }}</td>
                     </tr>
+                    {% if borrow.isDelegatedToStaff %}
+                        <tr>
+                            <th>Delegation</th>
+                            <td><span class="badge bg-info">Delegated to event staff</span></td>
+                        </tr>
+                    {% endif %}
                     {% if borrow.notes %}
                         <tr>
                             <th>Notes</th>
@@ -79,6 +85,12 @@
                         {% if borrow.returnedTo %}to {{ borrow.returnedTo.screenName }}{% endif %}
                     </li>
                 {% endif %}
+                {% if borrow.returnedToOwnerAt %}
+                    <li class="mt-1">
+                        <strong>Returned to owner:</strong>
+                        {{ borrow.returnedToOwnerAt|date('M j, Y g:ia') }}
+                    </li>
+                {% endif %}
                 {% if borrow.cancelledAt %}
                     <li class="mt-1">
                         <strong>Cancelled:</strong>
@@ -90,17 +102,19 @@
         </div>
     </div>
 
-    {% if canApprove or canHandOff or canReturn or canCancel %}
+    {% if canApprove or canDeny or canHandOff or canReturn or canCancel or canReturnToOwner %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">Actions</h6>
             </div>
-            <div class="card-body d-flex gap-2 flex-wrap">
+            <div class="card-body d-flex gap-2 flex-wrap align-items-center">
                 {% if canApprove %}
                     <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                         <button type="submit" class="btn btn-sm btn-success">Approve</button>
                     </form>
+                {% endif %}
+                {% if canDeny %}
                     <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Deny this borrow request?')">
                         <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger">Deny</button>
@@ -116,6 +130,12 @@
                     <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
                         <button type="submit" class="btn btn-sm btn-primary">Confirm Return</button>
+                    </form>
+                {% endif %}
+                {% if canReturnToOwner %}
+                    <form method="post" action="{{ path('app_borrow_return_to_owner', {id: borrow.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('return-to-owner-borrow-' ~ borrow.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Return to Owner</button>
                     </form>
                 {% endif %}
                 {% if canCancel %}

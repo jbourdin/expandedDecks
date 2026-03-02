@@ -17,6 +17,7 @@ use App\Entity\Deck;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\EventDeckEntry;
+use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
 use App\Entity\User;
@@ -28,9 +29,11 @@ use App\Form\EventFormType;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
+use App\Service\BorrowService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,6 +50,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F4.8 — Staff-delegated lending
+ * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 #[Route('/event')]
 #[IsGranted('ROLE_USER')]
@@ -94,6 +99,7 @@ class EventController extends AbstractController
         BorrowRepository $borrowRepository,
         DeckRepository $deckRepository,
         EventDeckEntryRepository $entryRepository,
+        EventDeckRegistrationRepository $registrationRepository,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -118,6 +124,25 @@ class EventController extends AbstractController
             $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
         }
 
+        // Delegation: show owner's decks with version (eligible for registration)
+        $ownedDecksWithVersion = array_filter(
+            $deckRepository->findByOwner($user),
+            static fn (Deck $deck): bool => null !== $deck->getCurrentVersion()
+                && DeckStatus::Retired !== $deck->getStatus(),
+        );
+        $ownedDecksWithVersion = array_values($ownedDecksWithVersion);
+
+        $deckRegistrationMap = [];
+        foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
+            $deckId = $reg->getDeck()->getId();
+            if (null !== $deckId) {
+                $deckRegistrationMap[$deckId] = [
+                    'registered' => true,
+                    'delegated' => $reg->isDelegateToStaff(),
+                ];
+            }
+        }
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
@@ -128,6 +153,8 @@ class EventController extends AbstractController
             'playableOwnDecks' => $playableOwnDecks,
             'currentDeckEntry' => $currentDeckEntry,
             'canChangeDeck' => $canChangeDeck,
+            'ownedDecksWithVersion' => $ownedDecksWithVersion,
+            'deckRegistrationMap' => $deckRegistrationMap,
         ]);
     }
 
@@ -494,6 +521,139 @@ class EventController extends AbstractController
     }
 
     /**
+     * Toggle deck registration (available) for an event.
+     *
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[Route('/{id}/toggle-registration', name: 'app_event_toggle_registration', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function toggleDeckRegistration(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        DeckRepository $deckRepository,
+        BorrowRepository $borrowRepository,
+        EventDeckRegistrationRepository $registrationRepository,
+    ): Response {
+        if (!$this->isCsrfTokenValid('toggle-registration-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Cannot change registration for a cancelled or finished event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $deck = $deckRepository->find($deckId);
+
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if ($deck->getOwner()->getId() !== $user->getId()) {
+            $this->addFlash('danger', 'You can only manage registration for your own decks.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->findOneByEventAndDeck($event, $deck);
+
+        if (null === $registration) {
+            $registration = new EventDeckRegistration();
+            $registration->setEvent($event);
+            $registration->setDeck($deck);
+            $registration->setDelegateToStaff(false);
+            $em->persist($registration);
+            $em->flush();
+
+            $this->addFlash('success', \sprintf('"%s" registered for this event.', $deck->getName()));
+        } else {
+            // Guard: cannot unregister if there is an active borrow for this deck at this event
+            $activeBorrow = $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event);
+            if (null !== $activeBorrow) {
+                $this->addFlash('warning', \sprintf('Cannot unregister "%s" — it has an active borrow at this event.', $deck->getName()));
+
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            }
+
+            $em->remove($registration);
+            $em->flush();
+
+            $this->addFlash('success', \sprintf('"%s" unregistered from this event.', $deck->getName()));
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Toggle staff delegation for a registered deck at an event.
+     *
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[Route('/{id}/toggle-delegation', name: 'app_event_toggle_delegation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function toggleDeckDelegation(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        DeckRepository $deckRepository,
+        EventDeckRegistrationRepository $registrationRepository,
+    ): Response {
+        if (!$this->isCsrfTokenValid('toggle-delegation-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Cannot change delegation for a cancelled or finished event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $deck = $deckRepository->find($deckId);
+
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if ($deck->getOwner()->getId() !== $user->getId()) {
+            $this->addFlash('danger', 'You can only manage delegation for your own decks.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->findOneByEventAndDeck($event, $deck);
+
+        if (null === $registration) {
+            $this->addFlash('warning', \sprintf('"%s" must be registered before enabling delegation.', $deck->getName()));
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration->setDelegateToStaff(!$registration->isDelegateToStaff());
+        $em->flush();
+
+        $label = $registration->isDelegateToStaff() ? 'enabled' : 'disabled';
+        $this->addFlash('success', \sprintf('Staff delegation %s for "%s".', $label, $deck->getName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
      * @see docs/features.md F3.2 — Event listing
      */
     #[Route('', name: 'app_event_list', methods: ['GET'])]
@@ -502,6 +662,78 @@ class EventController extends AbstractController
         return $this->render('event/list.html.twig', [
             'events' => $eventRepository->findUpcoming(20),
         ]);
+    }
+
+    /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    #[Route('/{id}/walk-up', name: 'app_event_walk_up', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function walkUp(Event $event): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$event->isOrganizerOrStaff($user)) {
+            throw $this->createAccessDeniedException('Only organizers or staff can initiate walk-up lending.');
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Walk-up lending is not available for cancelled or finished events.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        return $this->render('event/walk_up.html.twig', [
+            'event' => $event,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    #[Route('/{id}/walk-up', name: 'app_event_walk_up_submit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function walkUpSubmit(Event $event, Request $request, BorrowService $borrowService, DeckRepository $deckRepository, UserRepository $userRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$event->isOrganizerOrStaff($user)) {
+            throw $this->createAccessDeniedException('Only organizers or staff can initiate walk-up lending.');
+        }
+
+        if (!$this->isCsrfTokenValid('walk-up-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        $deckId = $request->getPayload()->getInt('deck_id');
+        $borrowerId = $request->getPayload()->getInt('borrower_id');
+
+        $deck = $deckRepository->find($deckId);
+        if (null === $deck) {
+            $this->addFlash('danger', 'Deck not found.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        $borrower = $userRepository->find($borrowerId);
+        if (null === $borrower) {
+            $this->addFlash('danger', 'Borrower not found.');
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        try {
+            $borrowService->createWalkUpBorrow($deck, $borrower, $event, $user);
+            $this->addFlash('success', \sprintf('"%s" lent to %s.', $deck->getName(), $borrower->getScreenName()));
+        } catch (\DomainException $e) {
+            $this->addFlash('danger', $e->getMessage());
+
+            return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
     /**

@@ -1,0 +1,60 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Walk-up Lend — {{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">Walk-up Lend — {{ event.name }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Lend a deck directly to a player without a prior borrow request.</p>
+
+            <form method="post" action="{{ path('app_event_walk_up_submit', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('walk-up-' ~ event.id) }}">
+                <input type="hidden" name="deck_id" value="">
+                <input type="hidden" name="borrower_id" value="">
+
+                <div class="mb-3">
+                    <label class="form-label" for="walkUpDeck">Deck</label>
+                    <div style="position: relative;">
+                        <input type="text" class="form-control" id="walkUpDeck" placeholder="Search by deck name or tag..."
+                            required
+                            data-walk-up-deck-autocomplete
+                            data-search-url="{{ path('app_deck_search') }}?event_id={{ event.id }}"
+                            autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="walkUpBorrower">Borrower</label>
+                    <div style="position: relative;">
+                        <input type="text" class="form-control" id="walkUpBorrower" placeholder="Search by screen name, email, or Pokemon ID..."
+                            required
+                            data-walk-up-user-autocomplete
+                            data-search-url="{{ path('app_user_search') }}?event_id={{ event.id }}"
+                            autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Lend Deck</button>
+                    <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('walk_up_autocomplete') }}
+{% endblock %}
