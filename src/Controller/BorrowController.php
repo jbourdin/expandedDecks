@@ -64,6 +64,7 @@ class BorrowController extends AbstractController
     {
         $eventId = $request->getPayload()->getInt('event_id');
         $deckId = $request->getPayload()->getInt('deck_id');
+        $redirectTo = $request->getPayload()->getString('redirect_to');
 
         $event = $eventRepository->find($eventId);
         if (null === $event) {
@@ -73,14 +74,14 @@ class BorrowController extends AbstractController
         if (!$this->isCsrfTokenValid('borrow-request-'.$eventId, $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'Invalid security token.');
 
-            return $this->redirectToRoute('app_event_show', ['id' => $eventId]);
+            return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
         }
 
         $deck = $deckRepository->find($deckId);
         if (null === $deck) {
             $this->addFlash('danger', 'Deck not found.');
 
-            return $this->redirectToRoute('app_event_show', ['id' => $eventId]);
+            return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
         }
 
         /** @var User $user */
@@ -94,7 +95,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_event_show', ['id' => $eventId]);
+        return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
     }
 
     /**
@@ -220,5 +221,18 @@ class BorrowController extends AbstractController
         }
 
         return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+    }
+
+    private function buildBorrowRedirect(string $redirectTo, int $eventId, int $deckId): Response
+    {
+        if ('deck' === $redirectTo) {
+            return $this->redirectToRoute('app_deck_show', ['id' => $deckId]);
+        }
+
+        if ('event_decks' === $redirectTo) {
+            return $this->redirectToRoute('app_event_decks', ['id' => $eventId]);
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $eventId]);
     }
 }

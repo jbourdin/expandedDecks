@@ -46,11 +46,11 @@ class BorrowControllerTest extends AbstractFunctionalTest
         // Cancel existing borrow for Iron Thorns so we can request again
         $this->cancelExistingBorrowsForDeck($deck, $event);
 
-        // Visit the event page to get the borrow request form
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        // Visit the available decks page to get the per-deck borrow request form
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        $form = $crawler->filter('form[action="/borrow/request"]');
+        $form = $crawler->filter('form[action="/borrow/request"]')->first();
         self::assertGreaterThan(0, $form->count(), 'Borrow request form should be present.');
 
         $csrfToken = $form->filter('input[name="_token"]')->attr('value');
@@ -59,10 +59,11 @@ class BorrowControllerTest extends AbstractFunctionalTest
             'event_id' => $event->getId(),
             'deck_id' => $deck->getId(),
             'notes' => 'Need it for round 2',
+            'redirect_to' => 'event_decks',
             '_token' => $csrfToken,
         ]);
 
-        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        self::assertResponseRedirects(\sprintf('/event/%d/decks', $event->getId()));
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Borrow request for "Iron Thorns" submitted.');
 
@@ -115,9 +116,9 @@ class BorrowControllerTest extends AbstractFunctionalTest
         // Cancel existing borrow so Iron Thorns is available
         $this->cancelExistingBorrowsForDeck($deck, $event);
 
-        // Admin sees the borrow form (Lugia VSTAR from lender is available), but Iron Thorns
-        // won't be in the dropdown. POST directly to test server-side validation.
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        // Admin sees the available decks page (Lugia VSTAR from lender is available),
+        // but Iron Thorns won't be listed. POST directly to test server-side validation.
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         $form = $crawler->filter('form[action="/borrow/request"]');
         $csrfToken = $form->filter('input[name="_token"]')->attr('value');
 
@@ -132,30 +133,35 @@ class BorrowControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-danger', 'You cannot borrow your own deck.');
     }
 
-    public function testRequestBorrowDeniedIfDeckNotAvailable(): void
+    public function testRequestBorrowDeniedIfDeckRetired(): void
     {
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
-        $deck = $this->getDeckByName('Ancient Box');
+        $deck = $this->getDeckByName('Lugia VSTAR');
+        $eventId = $event->getId();
+        $deckId = $deck->getId();
 
-        // Ancient Box is already Reserved in fixtures
-        self::assertSame(DeckStatus::Reserved, $deck->getStatus());
+        // Visit available decks page BEFORE retiring to get a valid CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $eventId));
+        $csrfToken = $crawler->filter('form[action="/borrow/request"] input[name="_token"]')->attr('value');
 
-        // Visit event page — Ancient Box won't appear in dropdown (reserved), POST directly
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
-        $form = $crawler->filter('form[action="/borrow/request"]');
-        $csrfToken = $form->filter('input[name="_token"]')->attr('value');
+        // Re-fetch deck from current kernel's EM and retire it
+        $em = $this->getEntityManager();
+        /** @var Deck $freshDeck */
+        $freshDeck = $em->find(Deck::class, $deckId);
+        $freshDeck->setStatus(DeckStatus::Retired);
+        $em->flush();
 
         $this->client->request('POST', '/borrow/request', [
-            'event_id' => $event->getId(),
-            'deck_id' => $deck->getId(),
+            'event_id' => $eventId,
+            'deck_id' => $deckId,
             '_token' => $csrfToken,
         ]);
 
-        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        self::assertResponseRedirects(\sprintf('/event/%d', $eventId));
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert-danger', 'This deck is not available for borrowing.');
+        self::assertSelectorTextContains('.alert-danger', 'This deck is retired and cannot be borrowed.');
     }
 
     public function testRequestBorrowDeniedIfActiveBorrowExists(): void
@@ -165,8 +171,9 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $event = $this->getFixtureEvent();
         $deck = $this->getDeckByName('Iron Thorns');
 
-        // Iron Thorns already has a pending borrow in fixtures
-        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        // Iron Thorns already has a pending borrow in fixtures.
+        // Get CSRF token from the available decks page.
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         $form = $crawler->filter('form[action="/borrow/request"]');
         $csrfToken = $form->filter('input[name="_token"]')->attr('value');
 
@@ -179,6 +186,85 @@ class BorrowControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-danger', 'already has an active borrow');
+    }
+
+    /**
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function testRequestBorrowDeniedIfSameDayConflict(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Lugia VSTAR');
+        $eventId = $event->getId();
+        $deckId = $deck->getId();
+
+        $em = $this->getEntityManager();
+
+        /** @var \App\Repository\UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(\App\Repository\UserRepository::class);
+        $borrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
+        self::assertNotNull($borrower);
+
+        // Create a second event on the same day with borrower engaged
+        $secondEvent = new Event();
+        $secondEvent->setName('Same Day Event');
+        $secondEvent->setDate(new \DateTimeImmutable('today', new \DateTimeZone('Europe/Paris')));
+        $secondEvent->setTimezone('Europe/Paris');
+        $secondEvent->setOrganizer($userRepo->findOneBy(['email' => 'admin@example.com']));
+        $secondEvent->setRegistrationLink('https://example.com/same-day');
+        $em->persist($secondEvent);
+
+        $engagement = new \App\Entity\EventEngagement();
+        $engagement->setEvent($secondEvent);
+        $engagement->setUser($borrower);
+        $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
+        $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
+        $em->persist($engagement);
+        $em->flush();
+
+        $secondEventId = $secondEvent->getId();
+
+        // Visit available decks page BEFORE creating the conflicting borrow to get CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $secondEventId));
+        self::assertResponseIsSuccessful();
+        $csrfToken = $crawler->filter('form[action="/borrow/request"] input[name="_token"]')->attr('value');
+
+        // Re-fetch entities from current kernel's EM (previous EM is stale after client request)
+        $em = $this->getEntityManager();
+        /** @var Deck $freshDeck */
+        $freshDeck = $em->find(Deck::class, $deckId);
+        $currentVersion = $freshDeck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        /** @var \App\Repository\UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(\App\Repository\UserRepository::class);
+        $freshBorrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
+        self::assertNotNull($freshBorrower);
+
+        /** @var Event $freshEvent */
+        $freshEvent = $em->find(Event::class, $eventId);
+
+        // Now create a borrow for Lugia VSTAR at the first event — this creates the conflict
+        $existingBorrow = new Borrow();
+        $existingBorrow->setDeck($freshDeck);
+        $existingBorrow->setDeckVersion($currentVersion);
+        $existingBorrow->setBorrower($freshBorrower);
+        $existingBorrow->setEvent($freshEvent);
+        $em->persist($existingBorrow);
+        $em->flush();
+
+        // Try to borrow Lugia VSTAR at the second event — should be blocked (same-day conflict)
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $secondEventId,
+            'deck_id' => $deckId,
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $secondEventId));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'already has an active borrow at another event on the same day');
     }
 
     public function testRequestBorrowInvalidCsrf(): void
@@ -199,11 +285,77 @@ class BorrowControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-danger', 'Invalid security token.');
     }
 
+    public function testRequestBorrowFromAvailableDecksPageRedirectsBack(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Cancel existing borrow for Iron Thorns so we can request again
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        // Visit the available decks page to get per-deck forms
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[action="/borrow/request"]')->first();
+        $csrfToken = $form->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $event->getId(),
+            'deck_id' => $deck->getId(),
+            'notes' => 'From available decks page',
+            'redirect_to' => 'event_decks',
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d/decks', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow request for "Iron Thorns" submitted.');
+    }
+
+    public function testRequestBorrowFromDeckPageRedirectsToDeck(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Cancel existing borrow for Iron Thorns so we can request again
+        $this->cancelExistingBorrowsForDeck($deck, $event);
+
+        // Visit the deck page to verify the borrow form is present
+        $crawler = $this->client->request('GET', \sprintf('/deck/%d', $deck->getId()));
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[action="/borrow/request"]');
+        self::assertGreaterThan(0, $form->count(), 'Borrow request form should be present on deck page.');
+
+        // Extract CSRF token from the event option's data-token attribute
+        // (the form uses JS to copy this to the hidden _token input on change)
+        $option = $form->filter(\sprintf('option[value="%d"]', $event->getId()));
+        self::assertGreaterThan(0, $option->count(), 'Event option should be present.');
+        $csrfToken = $option->attr('data-token');
+
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $event->getId(),
+            'deck_id' => $deck->getId(),
+            'notes' => 'Requesting from deck page',
+            'redirect_to' => 'deck',
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/deck/%d', $deck->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow request for "Iron Thorns" submitted.');
+    }
+
     // ---------------------------------------------------------------
     // F4.2 — Approve / deny a borrow request
     // ---------------------------------------------------------------
 
-    public function testApproveSetsApprovedAndDeckReserved(): void
+    public function testApproveSetsApproved(): void
     {
         $this->loginAs('admin@example.com');
 
@@ -228,7 +380,8 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         self::assertSame(BorrowStatus::Approved, $fresh->getStatus());
         self::assertNotNull($fresh->getApprovedAt());
-        self::assertSame(DeckStatus::Reserved, $fresh->getDeck()->getStatus());
+        // Deck stays Available — approval no longer sets Reserved (per-event concern)
+        self::assertSame(DeckStatus::Available, $fresh->getDeck()->getStatus());
     }
 
     public function testDenySetsStatusCancelled(): void
@@ -406,12 +559,11 @@ class BorrowControllerTest extends AbstractFunctionalTest
         self::assertSame(DeckStatus::Available, $fresh->getDeck()->getStatus());
     }
 
-    public function testCancelApprovedBorrowRevertsDeck(): void
+    public function testCancelApprovedBorrow(): void
     {
         $this->loginAs('borrower@example.com');
 
         $borrow = $this->getApprovedBorrow();
-        self::assertSame(DeckStatus::Reserved, $borrow->getDeck()->getStatus());
 
         $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow->getId()));
         $cancelForm = $crawler->filter(\sprintf('form[action="/borrow/%d/cancel"]', $borrow->getId()));

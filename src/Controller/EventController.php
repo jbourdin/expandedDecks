@@ -81,7 +81,7 @@ class EventController extends AbstractController
      * @see docs/features.md F3.3 — Event detail view
      */
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Event $event, BorrowRepository $borrowRepository, DeckRepository $deckRepository): Response
+    public function show(Event $event, BorrowRepository $borrowRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -89,18 +89,44 @@ class EventController extends AbstractController
         $userEngagement = $event->getEngagementFor($user);
         $isParticipant = null !== $userEngagement;
 
-        $availableDecks = [];
-        if ($isParticipant && null === $event->getCancelledAt() && null === $event->getFinishedAt()) {
-            $availableDecks = $deckRepository->findAvailableForEvent($event, $user);
-        }
-
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
+            'isStaff' => $event->isOrganizerOrStaff($user),
             'userEngagement' => $userEngagement,
             'isParticipant' => $isParticipant,
-            'eventBorrows' => $borrowRepository->findByEvent($event),
-            'availableDecks' => $availableDecks,
+            'eventBorrows' => $borrowRepository->findByEventForUser($event, $user),
+        ]);
+    }
+
+    /**
+     * Browse decks available to borrow for this event.
+     *
+     * @see docs/features.md F4.1 — Request to borrow a deck
+     */
+    #[Route('/{id}/decks', name: 'app_event_decks', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function availableDecks(Event $event, DeckRepository $deckRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'Decks cannot be browsed for a cancelled or finished event.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $userEngagement = $event->getEngagementFor($user);
+
+        if (null === $userEngagement) {
+            $this->addFlash('warning', 'Register as a participant to browse and borrow decks.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        return $this->render('event/available_decks.html.twig', [
+            'event' => $event,
+            'availableDecks' => $deckRepository->findAvailableForEvent($event, $user),
         ]);
     }
 

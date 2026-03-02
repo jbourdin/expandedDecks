@@ -808,6 +808,170 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // Borrow visibility — role-based filtering
+    // ---------------------------------------------------------------
+
+    public function testOrganizerSeesAllEventBorrows(): void
+    {
+        // Admin is the organizer — should see all borrows at the event
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Fixtures create 2 borrows (Iron Thorns pending + Ancient Box approved)
+        $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
+        $rows = $borrowCard->filter('tbody tr');
+        self::assertGreaterThanOrEqual(2, $rows->count(), 'Organizer should see all borrows.');
+    }
+
+    public function testParticipantSeesOnlyOwnBorrows(): void
+    {
+        // Lender is not a participant and doesn't own any borrowed decks at this event
+        // Register lender, then check they don't see other user's borrows
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Register as participant first
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Now visit the event page — lender has no borrows and doesn't own Iron Thorns/Ancient Box
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Lender should see no borrow rows in the Deck Borrowing card
+        $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
+        $borrowRows = $borrowCard->filter('tbody tr');
+        self::assertSame(0, $borrowRows->count(), 'Non-involved participant should see no borrow rows.');
+    }
+
+    public function testStaffSeesAllEventBorrows(): void
+    {
+        // Borrower is a staff member in fixtures — should see all borrows
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Should see both borrows (Iron Thorns + Ancient Box)
+        $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
+        $rows = $borrowCard->filter('tbody tr');
+        self::assertGreaterThanOrEqual(2, $rows->count(), 'Staff should see all borrows.');
+    }
+
+    // ---------------------------------------------------------------
+    // Available decks page
+    // ---------------------------------------------------------------
+
+    public function testAvailableDecksPageForParticipant(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Should show available decks with per-deck request forms
+        self::assertSelectorTextContains('h4', 'Available Decks');
+        self::assertSelectorExists('form[action="/borrow/request"]');
+    }
+
+    public function testAvailableDecksPageRedirectsForNonParticipant(): void
+    {
+        // Lender is not a participant
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'Register as a participant to browse and borrow decks.');
+    }
+
+    public function testAvailableDecksPageRedirectsForCancelledEvent(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $event->setCancelledAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'Decks cannot be browsed for a cancelled or finished event.');
+    }
+
+    public function testEventShowHasBrowseDecksButton(): void
+    {
+        // Borrower is a participant
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $browseLink = $crawler->filter('a.btn-primary:contains("Browse available decks")');
+        self::assertSame(1, $browseLink->count(), 'Participant should see "Browse available decks" button.');
+    }
+
+    public function testEventShowNoDropdownFormForParticipant(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // Old dropdown borrow form should no longer exist on event page
+        $select = $crawler->filter('select[name="deck_id"]');
+        self::assertSame(0, $select->count(), 'Deck dropdown should no longer be on event page.');
+    }
+
+    // ---------------------------------------------------------------
+    // Dashboard — event management activity
+    // ---------------------------------------------------------------
+
+    public function testDashboardShowsEventManagementActivityForOrganizer(): void
+    {
+        // Admin is the organizer of the event with borrows
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/dashboard');
+        self::assertResponseIsSuccessful();
+
+        // Admin has ROLE_ADMIN (includes ROLE_ORGANIZER), so the section should be visible
+        $headers = $crawler->filter('.card-header');
+        $found = false;
+        foreach ($headers as $header) {
+            if (str_contains($header->textContent, 'Event Management Activity')) {
+                $found = true;
+                break;
+            }
+        }
+        self::assertTrue($found, 'Dashboard should show "Event Management Activity" section for organizer.');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
