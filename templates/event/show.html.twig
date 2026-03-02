@@ -209,18 +209,25 @@
             <div class="card-body">
                 {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
                 {% if activeBorrows is not empty %}
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Your borrows</h6>
-                        {% for borrow in activeBorrows %}
-                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
-                                <div>
-                                    <a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a>
-                                    {{ borrowBadge(borrow) }}
-                                </div>
-                                <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    <h6 class="text-muted mb-2">Your borrows</h6>
+                    <table class="table table-sm table-themed mb-3">
+                        <thead>
+                            <tr>
+                                <th>Deck</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for borrow in activeBorrows %}
+                                <tr>
+                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
+                                    <td>{{ borrowBadge(borrow) }}</td>
+                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 {% endif %}
 
                 {% if isParticipant %}
@@ -231,7 +238,8 @@
                     <p class="text-muted mb-3">Register as a participant to browse and borrow decks.</p>
                 {% endif %}
 
-                {% if eventBorrows is not empty %}
+                {% set otherBorrows = eventBorrows|filter(b => not (b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue'])) %}
+                {% if otherBorrows is not empty %}
                     <table class="table table-sm table-themed mb-0">
                         <thead>
                             <tr>
@@ -242,7 +250,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for borrow in eventBorrows %}
+                            {% for borrow in otherBorrows %}
                                 <tr>
                                     <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}">{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
@@ -252,7 +260,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                {% else %}
+                {% elseif activeBorrows is empty %}
                     <p class="text-muted mb-0">No borrow activity yet.</p>
                 {% endif %}
             </div>
