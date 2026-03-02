@@ -116,7 +116,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         // Cancel existing borrow so Iron Thorns is available
         $this->cancelExistingBorrowsForDeck($deck, $event);
 
-        // Admin sees the available decks page (Lugia VSTAR from lender is available),
+        // Admin sees the available decks page (Regidrago from lender is available),
         // but Iron Thorns won't be listed. POST directly to test server-side validation.
         $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         $form = $crawler->filter('form[action="/borrow/request"]');
@@ -138,7 +138,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
-        $deck = $this->getDeckByName('Lugia VSTAR');
+        $deck = $this->getDeckByName('Regidrago');
         $eventId = $event->getId();
         $deckId = $deck->getId();
 
@@ -196,7 +196,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
-        $deck = $this->getDeckByName('Lugia VSTAR');
+        $deck = $this->getDeckByName('Regidrago');
         $eventId = $event->getId();
         $deckId = $deck->getId();
 
@@ -246,7 +246,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         /** @var Event $freshEvent */
         $freshEvent = $em->find(Event::class, $eventId);
 
-        // Now create a borrow for Lugia VSTAR at the first event — this creates the conflict
+        // Now create a borrow for Regidrago at the first event — this creates the conflict
         $existingBorrow = new Borrow();
         $existingBorrow->setDeck($freshDeck);
         $existingBorrow->setDeckVersion($currentVersion);
@@ -255,7 +255,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $em->persist($existingBorrow);
         $em->flush();
 
-        // Try to borrow Lugia VSTAR at the second event — should be blocked (same-day conflict)
+        // Try to borrow Regidrago at the second event — should be blocked (same-day conflict)
         $this->client->request('POST', '/borrow/request', [
             'event_id' => $secondEventId,
             'deck_id' => $deckId,

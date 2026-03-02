@@ -52,8 +52,10 @@ class DevFixtures extends Fixture
         $this->createIronThornsDeckVersion($manager, $ironThorns);
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
         $this->createAncientBoxDeckVersion($manager, $ancientBox);
-        $lenderDeck = $this->createDeck($manager, $lender, 'Lugia VSTAR');
-        $this->createLenderDeckVersion($manager, $lenderDeck);
+        $lenderDeck = $this->createDeck($manager, $lender, 'Regidrago');
+        $this->createRegidragoDeckVersion($manager, $lenderDeck);
+        $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
+        $this->createLugiaArcheopsDeckVersion($manager, $borrowerDeck);
 
         $manager->flush();
 
@@ -250,13 +252,13 @@ class DevFixtures extends Fixture
         $manager->persist($engagement);
     }
 
-    private function createDeck(ObjectManager $manager, User $owner, string $name): Deck
+    private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
     {
         $deck = new Deck();
         $deck->setName($name);
         $deck->setOwner($owner);
         $deck->setFormat('Expanded');
-        $deck->setStatus(DeckStatus::Available);
+        $deck->setStatus($status);
 
         $manager->persist($deck);
 
@@ -497,19 +499,255 @@ class DevFixtures extends Fixture
             PTCG;
     }
 
-    private function createLenderDeckVersion(ObjectManager $manager, Deck $deck): void
+    private function createRegidragoDeckVersion(ObjectManager $manager, Deck $deck): void
     {
         $version = new DeckVersion();
         $version->setDeck($deck);
         $version->setVersionNumber(1);
-        $version->setArchetype('lugia-vstar');
-        $version->setArchetypeName('Lugia VSTAR');
+        $version->setArchetype('Regidrago');
+        $version->setArchetypeName('Regidrago');
         $version->setLanguages(['en']);
-        $version->setRawList('Pokémon: 4\n4 Lugia V SIT 138\n\nTrainer: 47\n\nEnergy: 9\n\nTotal Cards: 60');
+        $version->setRawList($this->getRegidragoRawDeckList());
+
+        foreach ($this->getRegidragoDeckCards() as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+            $card->setQuantity($cardData['quantity']);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
 
         $manager->persist($version);
 
         $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
+     */
+    private function getRegidragoDeckCards(): array
+    {
+        return [
+            // Pokemon (19)
+            ['name' => 'Regidrago V', 'set' => 'SIT', 'number' => '135', 'quantity' => 4, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Regidrago VSTAR', 'set' => 'SIT', 'number' => '136', 'quantity' => 3, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Dialga-GX', 'set' => 'UPR', 'number' => '100', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Kyurem', 'set' => 'SFA', 'number' => '47', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Dragapult ex', 'set' => 'TWM', 'number' => '130', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Salamence ex', 'set' => 'JTG', 'number' => '114', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Noivern-GX', 'set' => 'BUS', 'number' => '99', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Noivern ex', 'set' => 'PAL', 'number' => '153', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Dedenne-GX', 'set' => 'UNB', 'number' => '57', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Crobat V', 'set' => 'DAA', 'number' => '104', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Tapu Lele-GX', 'set' => 'GRI', 'number' => '60', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Latias ex', 'set' => 'SSP', 'number' => '76', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Budew', 'set' => 'PRE', 'number' => '4', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Wobbuffet', 'set' => 'PHF', 'number' => '36', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+
+            // Trainer — Supporter (11)
+            ['name' => "Professor's Research", 'set' => 'JTG', 'number' => '155', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Guzma', 'set' => 'BUS', 'number' => '115', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'N', 'set' => 'FCO', 'number' => '105', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Iono', 'set' => 'PAL', 'number' => '185', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Marnie', 'set' => 'SSH', 'number' => '169', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Crispin', 'set' => 'SCR', 'number' => '133', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Raihan', 'set' => 'EVS', 'number' => '152', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Faba', 'set' => 'LOT', 'number' => '173', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+
+            // Trainer — Item (16)
+            ['name' => 'Mysterious Treasure', 'set' => 'FLI', 'number' => '113', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Quick Ball', 'set' => 'FST', 'number' => '237', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'VS Seeker', 'set' => 'PHF', 'number' => '109', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Battle Compressor', 'set' => 'PHF', 'number' => '92', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Hisuian Heavy Ball', 'set' => 'ASR', 'number' => '146', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Megaton Blower', 'set' => 'SSP', 'number' => '182', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Super Rod', 'set' => 'PAL', 'number' => '188', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+
+            // Trainer — Tool (2)
+            ['name' => 'Muscle Band', 'set' => 'XY', 'number' => '121', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+            ['name' => 'Leafy Camo Poncho', 'set' => 'SIT', 'number' => '160', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+
+            // Trainer — Stadium (2)
+            ['name' => 'Parallel City', 'set' => 'BKT', 'number' => '145', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'stadium'],
+            ['name' => 'Path to the Peak', 'set' => 'CRE', 'number' => '148', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'stadium'],
+
+            // Energy (10)
+            ['name' => 'Double Dragon Energy', 'set' => 'ROS', 'number' => '97', 'quantity' => 4, 'type' => 'energy', 'subtype' => null],
+            ['name' => 'Grass Energy', 'set' => 'SVE', 'number' => '1', 'quantity' => 4, 'type' => 'energy', 'subtype' => null],
+            ['name' => 'Fire Energy', 'set' => 'SVE', 'number' => '2', 'quantity' => 2, 'type' => 'energy', 'subtype' => null],
+        ];
+    }
+
+    private function getRegidragoRawDeckList(): string
+    {
+        return <<<'PTCG'
+            Pokémon: 19
+            4 Regidrago V SIT 135
+            3 Regidrago VSTAR SIT 136
+            1 Dialga-GX UPR 100
+            1 Kyurem SFA 47
+            1 Dragapult ex TWM 130
+            1 Salamence ex JTG 114
+            1 Noivern-GX BUS 99
+            1 Noivern ex PAL 153
+            1 Dedenne-GX UNB 57
+            1 Crobat V DAA 104
+            1 Tapu Lele-GX GRI 60
+            1 Latias ex SSP 76
+            1 Budew PRE 4
+            1 Wobbuffet PHF 36
+
+            Trainer: 31
+            3 Professor's Research JTG 155
+            2 Guzma BUS 115
+            1 N FCO 105
+            1 Iono PAL 185
+            1 Marnie SSH 169
+            1 Crispin SCR 133
+            1 Raihan EVS 152
+            1 Faba LOT 173
+            4 Mysterious Treasure FLI 113
+            4 Quick Ball FST 237
+            3 VS Seeker PHF 109
+            2 Battle Compressor PHF 92
+            1 Hisuian Heavy Ball ASR 146
+            1 Megaton Blower SSP 182
+            1 Super Rod PAL 188
+            1 Muscle Band XY 121
+            1 Leafy Camo Poncho SIT 160
+            1 Parallel City BKT 145
+            1 Path to the Peak CRE 148
+
+            Energy: 10
+            4 Double Dragon Energy ROS 97
+            4 Grass Energy SVE 1
+            2 Fire Energy SVE 2
+
+            Total Cards: 60
+            PTCG;
+    }
+
+    private function createLugiaArcheopsDeckVersion(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setArchetype('Lugia Archeops');
+        $version->setArchetypeName('Lugia Archeops');
+        $version->setRawList($this->getLugiaArcheopsRawDeckList());
+
+        foreach ($this->getLugiaArcheopsDeckCards() as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+            $card->setQuantity($cardData['quantity']);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
+     */
+    private function getLugiaArcheopsDeckCards(): array
+    {
+        return [
+            // Pokemon (16)
+            ['name' => 'Lugia V', 'set' => 'SIT', 'number' => '138', 'quantity' => 3, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Lugia VSTAR', 'set' => 'SIT', 'number' => '139', 'quantity' => 2, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Archeops', 'set' => 'SIT', 'number' => '147', 'quantity' => 3, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Garchomp & Giratina-GX', 'set' => 'UNM', 'number' => '146', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Naganadel & Guzzlord-GX', 'set' => 'CEC', 'number' => '158', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Garchomp V', 'set' => 'ASR', 'number' => '117', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Koraidon ex', 'set' => 'TEF', 'number' => '120', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Kyurem', 'set' => 'SFA', 'number' => '47', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Dedenne-GX', 'set' => 'UNB', 'number' => '57', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Crobat V', 'set' => 'DAA', 'number' => '104', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Tapu Lele-GX', 'set' => 'GRI', 'number' => '60', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+
+            // Trainer — Supporter (8)
+            ['name' => 'Wally', 'set' => 'ROS', 'number' => '94', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Thorton', 'set' => 'LOR', 'number' => '167', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Professor Juniper', 'set' => 'PLB', 'number' => '84', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'N', 'set' => 'FCO', 'number' => '105', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Marnie', 'set' => 'SSH', 'number' => '169', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Guzma', 'set' => 'BUS', 'number' => '115', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Faba', 'set' => 'LOT', 'number' => '173', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+
+            // Trainer — Item (22)
+            ['name' => 'Quick Ball', 'set' => 'FST', 'number' => '237', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Ultra Ball', 'set' => 'SVI', 'number' => '196', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Battle Compressor', 'set' => 'PHF', 'number' => '92', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'VS Seeker', 'set' => 'PHF', 'number' => '109', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => "Trainers' Mail", 'set' => 'ROS', 'number' => '92', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Special Charge', 'set' => 'STS', 'number' => '105', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Field Blower', 'set' => 'GRI', 'number' => '125', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Secret Box', 'set' => 'TWM', 'number' => '163', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+
+            // Trainer — Tool (1)
+            ['name' => 'Stealthy Hood', 'set' => 'UNB', 'number' => '186', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+
+            // Trainer — Stadium (3)
+            ['name' => 'Silent Lab', 'set' => 'PRC', 'number' => '140', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'stadium'],
+
+            // Energy (8)
+            ['name' => 'Double Colorless Energy', 'set' => 'SUM', 'number' => '136', 'quantity' => 4, 'type' => 'energy', 'subtype' => null],
+            ['name' => 'Double Dragon Energy', 'set' => 'ROS', 'number' => '97', 'quantity' => 4, 'type' => 'energy', 'subtype' => null],
+        ];
+    }
+
+    private function getLugiaArcheopsRawDeckList(): string
+    {
+        return <<<'PTCG'
+            Pokémon: 16
+            3 Lugia V SIT 138
+            2 Lugia VSTAR SIT 139
+            3 Archeops SIT 147
+            1 Garchomp & Giratina-GX UNM 146
+            1 Naganadel & Guzzlord-GX CEC 158
+            1 Garchomp V ASR 117
+            1 Koraidon ex TEF 120
+            1 Kyurem SFA 47
+            1 Dedenne-GX UNB 57
+            1 Crobat V DAA 104
+            1 Tapu Lele-GX GRI 60
+
+            Trainer: 36
+            2 Wally ROS 94
+            1 Thorton LOR 167
+            1 Professor Juniper PLB 84
+            1 N FCO 105
+            1 Marnie SSH 169
+            1 Guzma BUS 115
+            1 Faba LOT 173
+            4 Quick Ball FST 237
+            4 Ultra Ball SVI 196
+            4 Battle Compressor PHF 92
+            3 VS Seeker PHF 109
+            3 Trainers' Mail ROS 92
+            3 Special Charge STS 105
+            2 Field Blower GRI 125
+            1 Secret Box TWM 163
+            1 Stealthy Hood UNB 186
+            3 Silent Lab PRC 140
+
+            Energy: 8
+            4 Double Colorless Energy SUM 136
+            4 Double Dragon Energy ROS 97
+
+            Total Cards: 60
+            PTCG;
     }
 
     /**

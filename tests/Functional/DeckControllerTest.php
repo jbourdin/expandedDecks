@@ -59,7 +59,7 @@ class DeckControllerTest extends AbstractFunctionalTest
     {
         $this->loginAs('borrower@example.com');
 
-        // Lugia VSTAR is owned by lender, status available, borrower has engagement
+        // Regidrago is owned by lender, status available, borrower has engagement
         $crawler = $this->client->request('GET', '/deck/3');
 
         self::assertResponseIsSuccessful();
