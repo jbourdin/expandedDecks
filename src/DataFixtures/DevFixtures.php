@@ -43,12 +43,12 @@ class DevFixtures extends Fixture
         $admin = $this->createAdmin($manager);
         $this->createOrganizer($manager);
         $borrower = $this->createBorrower($manager);
-        $this->createStaff1($manager);
-        $this->createStaff2($manager);
+        $staff1 = $this->createStaff1($manager);
+        $staff2 = $this->createStaff2($manager);
         $lender = $this->createLender($manager);
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower);
-        $this->createEventInTwoMonths($manager, $admin);
+        $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $this->createIronThornsDeckVersion($manager, $ironThorns);
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
@@ -232,7 +232,7 @@ class DevFixtures extends Fixture
         return $event;
     }
 
-    private function createEventInTwoMonths(ObjectManager $manager, User $organizer): void
+    private function createEventInTwoMonths(ObjectManager $manager, User $organizer, User $lender, User $staff1, User $staff2): Event
     {
         $event = new Event();
         $event->setName('Lyon Expanded Cup 2026');
@@ -249,9 +249,30 @@ class DevFixtures extends Fixture
         $engagement = new EventEngagement();
         $engagement->setEvent($event);
         $engagement->setUser($organizer);
-        $engagement->setState(EngagementState::RegisteredPlaying);
-        $engagement->setParticipationMode(ParticipationMode::Playing);
+        $engagement->setState(EngagementState::RegisteredSpectating);
+        $engagement->setParticipationMode(ParticipationMode::Spectating);
         $manager->persist($engagement);
+
+        $lenderEngagement = new EventEngagement();
+        $lenderEngagement->setEvent($event);
+        $lenderEngagement->setUser($lender);
+        $lenderEngagement->setState(EngagementState::RegisteredPlaying);
+        $lenderEngagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($lenderEngagement);
+
+        $staff1Assignment = new EventStaff();
+        $staff1Assignment->setEvent($event);
+        $staff1Assignment->setUser($staff1);
+        $staff1Assignment->setAssignedBy($organizer);
+        $manager->persist($staff1Assignment);
+
+        $staff2Assignment = new EventStaff();
+        $staff2Assignment->setEvent($event);
+        $staff2Assignment->setUser($staff2);
+        $staff2Assignment->setAssignedBy($organizer);
+        $manager->persist($staff2Assignment);
+
+        return $event;
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
