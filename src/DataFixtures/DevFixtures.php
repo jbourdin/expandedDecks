@@ -218,7 +218,7 @@ class DevFixtures extends Fixture
     {
         $event = new Event();
         $event->setName('Expanded Weekly #42');
-        $event->setDate(new \DateTimeImmutable('today', new \DateTimeZone('Europe/Paris')));
+        $event->setDate(new \DateTimeImmutable('today'));
         $event->setTimezone('Europe/Paris');
         $event->setLocation('12 Rue de la République, 69001 Lyon, France');
         $event->setOrganizer($organizer);
