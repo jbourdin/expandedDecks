@@ -21,6 +21,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | `languages`        | `json`             | No       | Array of ISO 639-1 language codes present in this deck (e.g. `["en", "ja"]`). Default: `[]`. |
 | `status`           | `string(20)`       | No       | Current availability status. See Status enum below. Default: `"available"`. |
 | `notes`            | `text`             | Yes      | Owner's private notes about the deck (e.g. sleeve color, missing cards, condition). |
+| `public`           | `bool`             | No       | Whether the deck is visible in the public catalog and accessible via its shortTag URL to anonymous users. Default: `false`. Cannot be unpublished while the deck has active event registrations. |
 | `currentVersion`   | `DeckVersion`      | Yes      | The latest/active version of this deck. Null only before the first list import. |
 | `createdAt`        | `DateTimeImmutable` | No      | Deck registration timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
@@ -41,6 +42,12 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 - `owner`: required, must be a verified user
 - `status`: required, must be a valid `DeckStatus` value
 
+### Public Access Control
+
+When `public` is `true`, the deck is listed in the public catalog (F2.4) and its detail page (F2.3) is accessible to anonymous visitors via the shortTag URL (`/deck/{shortTag}`). When `public` is `false`, only the deck owner, admins, and organizers/staff of events where the deck is registered can view the detail page — anonymous visitors receive a 403.
+
+A public deck cannot be unpublished while it has active `EventDeckRegistration` entries to prevent breaking event workflows.
+
 ### Relations
 
 | Relation           | Type         | Target entity  | Description |
@@ -50,6 +57,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | `versions`         | OneToMany    | `DeckVersion`  | All versions of this deck (card list snapshots) |
 | `currentVersion`   | ManyToOne    | `DeckVersion`  | Pointer to the active version |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow history for this deck |
+| `eventRegistrations` | OneToMany  | `EventDeckRegistration` | Per-event deck availability/delegation entries |
 
 ---
 
