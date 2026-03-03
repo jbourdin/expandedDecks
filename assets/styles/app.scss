@@ -67,13 +67,13 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
-    // Subtle cross-hatch texture on the body background.
+    // Quincunx (staggered) Fairy energy texture on the body background.
+    // Two offset layers of the same tile create the honeycomb-like pattern.
     // Cards and panels sit on top with solid white, making them pop.
     background-color: $ed-bg;
-    background-image:
-        linear-gradient(45deg, rgba($ed-navy, .03) 25%, transparent 25%, transparent 75%, rgba($ed-navy, .03) 75%),
-        linear-gradient(-45deg, rgba($ed-navy, .03) 25%, transparent 25%, transparent 75%, rgba($ed-navy, .03) 75%);
-    background-size: 20px 20px;
+    background-image: url('../images/bg_fairy_quincunx.png');
+    background-size: 96px 80px;
+    background-repeat: repeat;
 }
 
 main {
