@@ -1687,6 +1687,36 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
     }
 
+    /**
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     */
+    public function testCancelFromCustodyCardRedirectsToEvent(): void
+    {
+        // Borrower is staff at the today event and can cancel delegated borrows
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $custodyCard = $crawler->filter('h6:contains("Staff Custody")')->closest('.card');
+        $cancelForm = $custodyCard->filter('form[action*="/cancel"]');
+        self::assertGreaterThan(0, $cancelForm->count(), 'Cancel form should exist in custody card.');
+
+        $csrfToken = $cancelForm->filter('input[name="_token"]')->attr('value');
+        $borrowId = preg_replace('/.*\/borrow\/(\d+)\/cancel/', '$1', $cancelForm->attr('action'));
+
+        $this->client->request('POST', \sprintf('/borrow/%s/cancel', $borrowId), [
+            '_token' => $csrfToken,
+            'redirect_to' => 'event',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow has been cancelled.');
+    }
+
     // ---------------------------------------------------------------
     // F3.21 — Clear deck selection on withdrawal
     // ---------------------------------------------------------------

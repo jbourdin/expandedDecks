@@ -227,7 +227,7 @@ class BorrowService
      */
     public function cancel(Borrow $borrow, User $actor): void
     {
-        $this->assertBorrowerOrOwner($borrow, $actor);
+        $this->assertBorrowerOrOwnerOrDelegatedStaff($borrow, $actor);
 
         $transitionName = BorrowStatus::Pending === $borrow->getStatus() ? 'cancel_pending' : 'cancel_approved';
         $this->borrowStateMachine->apply($borrow, $transitionName);
@@ -386,11 +386,15 @@ class BorrowService
         }
     }
 
-    private function assertBorrowerOrOwner(Borrow $borrow, User $actor): void
+    private function assertBorrowerOrOwnerOrDelegatedStaff(Borrow $borrow, User $actor): void
     {
         $actorId = $actor->getId();
-        if ($borrow->getBorrower()->getId() !== $actorId && $borrow->getDeck()->getOwner()->getId() !== $actorId) {
-            throw new AccessDeniedHttpException('Only the borrower or deck owner can cancel this borrow.');
+        $isBorrower = $borrow->getBorrower()->getId() === $actorId;
+        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actorId;
+        $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($actor);
+
+        if (!$isBorrower && !$isOwner && !$isDelegatedStaff) {
+            throw new AccessDeniedHttpException('Only the borrower, deck owner, or delegated staff can cancel this borrow.');
         }
     }
 

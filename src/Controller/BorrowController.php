@@ -57,7 +57,7 @@ class BorrowController extends AbstractController
             'canDeny' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
             'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus(),
             'canReturn' => ($isOwner || $isDelegatedStaff) && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
-            'canCancel' => ($isBorrower || $isOwner) && $borrow->isCancellable(),
+            'canCancel' => ($isBorrower || $isOwner || $isDelegatedStaff) && $borrow->isCancellable(),
             'canReturnToOwner' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Returned === $borrow->getStatus() && $borrow->isDelegatedToStaff(),
         ]);
     }

@@ -321,6 +321,13 @@
                                                 <button type="submit" class="btn btn-sm btn-warning">Mark returned</button>
                                             </form>
                                         {% endif %}
+                                        {% if borrow.status.value in ['pending', 'approved'] %}
+                                            <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Cancel this borrow?')">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
+                                                <input type="hidden" name="redirect_to" value="event">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                            </form>
+                                        {% endif %}
                                         <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
                                     </td>
                                 </tr>
