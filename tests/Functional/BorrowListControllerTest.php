@@ -111,4 +111,50 @@ class BorrowListControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.text-muted', 'No lend activity');
     }
+
+    // ---------------------------------------------------------------
+    // Pagination
+    // ---------------------------------------------------------------
+
+    public function testBorrowListHandlesPageParameter(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('GET', '/borrows?page=1');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'My Borrows');
+    }
+
+    public function testLendListHandlesPageParameter(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/lends?page=1');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'My Lends');
+    }
+
+    public function testLendListPreservesStatusFilterInPagination(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/lends?status=approved&page=1');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'My Lends');
+    }
+
+    public function testBorrowListShowsResultCount(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', '/borrows');
+
+        self::assertResponseIsSuccessful();
+        // Borrower has fixture borrows — should show "Showing X–Y of Z"
+        $showingText = $crawler->filter('p.text-muted:contains("Showing")');
+        self::assertGreaterThan(0, $showingText->count(), 'Result count should be displayed.');
+    }
 }

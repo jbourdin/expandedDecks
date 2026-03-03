@@ -30,7 +30,16 @@
         {% endfor %}
     </div>
 
-    {% if borrows|length > 0 %}
+    {% if totalItems > 0 %}
+        {% set routeName = mode == 'lends' ? 'app_lend_list' : 'app_borrow_list' %}
+        {% set params = currentStatus is not null ? {status: currentStatus.value} : {} %}
+
+        <p class="text-muted mb-3">
+            {% set firstItem = ((currentPage - 1) * 20) + 1 %}
+            {% set lastItem = currentPage * 20 %}
+            Showing {{ firstItem }}–{{ lastItem < totalItems ? lastItem : totalItems }} of {{ totalItems }}
+        </p>
+
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -69,6 +78,24 @@
                 </div>
             </div>
         </div>
+
+        {% if totalPages > 1 %}
+            <nav class="mt-3">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path(routeName, params|merge({page: currentPage - 1})) }}">Previous</a>
+                    </li>
+                    {% for p in 1..totalPages %}
+                        <li class="page-item {% if p == currentPage %}active{% endif %}">
+                            <a class="page-link" href="{{ path(routeName, params|merge({page: p})) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path(routeName, params|merge({page: currentPage + 1})) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
