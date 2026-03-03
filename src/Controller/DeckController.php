@@ -24,6 +24,7 @@ use App\Form\DeckImportFormType;
 use App\Message\EnrichDeckVersionMessage;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckVersionRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Service\DeckListParser;
 use App\Service\DeckListValidator;
@@ -141,16 +142,29 @@ class DeckController extends AbstractController
 
     /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      */
     #[Route('/{id}/edit', name: 'app_deck_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Deck $deck, Request $request, EntityManagerInterface $em): Response
+    public function edit(Deck $deck, Request $request, EntityManagerInterface $em, EventDeckRegistrationRepository $registrationRepository): Response
     {
         $this->denyAccessUnlessOwner($deck);
 
-        $form = $this->createForm(DeckFormType::class, $deck);
+        $hasActiveRegistrations = $registrationRepository->hasActiveRegistrations($deck);
+        $wasPublic = $deck->isPublic();
+
+        $form = $this->createForm(DeckFormType::class, $deck, [
+            'public_disabled' => $hasActiveRegistrations && $wasPublic,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($wasPublic && !$deck->isPublic() && $hasActiveRegistrations) {
+                $deck->setPublic(true);
+                $this->addFlash('warning', 'Cannot unpublish this deck — it has active event registrations.');
+
+                return $this->redirectToRoute('app_deck_edit', ['id' => $deck->getId()]);
+            }
+
             $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->flush();
 
@@ -162,6 +176,7 @@ class DeckController extends AbstractController
         return $this->render('deck/edit.html.twig', [
             'deck' => $deck,
             'form' => $form,
+            'has_active_registrations' => $hasActiveRegistrations,
         ]);
     }
 

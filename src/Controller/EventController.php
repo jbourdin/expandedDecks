@@ -571,6 +571,9 @@ class EventController extends AbstractController
             $registration->setEvent($event);
             $registration->setDeck($deck);
             $registration->setDelegateToStaff(false);
+            if (!$deck->isPublic()) {
+                $deck->setPublic(true);
+            }
             $em->persist($registration);
             $em->flush();
 

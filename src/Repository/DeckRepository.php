@@ -18,6 +18,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -160,5 +161,54 @@ class DeckRepository extends ServiceEntityRepository
             ->getResult();
 
         return $decks;
+    }
+
+    /**
+     * Build a query for the public deck catalog with optional filters.
+     *
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     *
+     * @param array{search?: string, archetype?: string, owner?: int, status?: string, format?: string} $filters
+     */
+    public function createCatalogQueryBuilder(array $filters = []): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->join('d.owner', 'o')
+            ->leftJoin('d.archetype', 'a')
+            ->addSelect('o', 'a')
+            ->where('d.public = :public')
+            ->setParameter('public', true)
+            ->orderBy('d.updatedAt', 'DESC')
+            ->addOrderBy('d.createdAt', 'DESC');
+
+        if (isset($filters['search']) && '' !== $filters['search']) {
+            $qb->andWhere('d.name LIKE :search OR d.shortTag LIKE :search')
+                ->setParameter('search', '%'.$filters['search'].'%');
+        }
+
+        if (isset($filters['archetype']) && '' !== $filters['archetype']) {
+            $qb->andWhere('a.slug = :archetype')
+                ->setParameter('archetype', $filters['archetype']);
+        }
+
+        if (isset($filters['owner']) && $filters['owner'] > 0) {
+            $qb->andWhere('o.id = :owner')
+                ->setParameter('owner', $filters['owner']);
+        }
+
+        if (isset($filters['status']) && '' !== $filters['status']) {
+            $status = DeckStatus::tryFrom($filters['status']);
+            if (null !== $status) {
+                $qb->andWhere('d.status = :status')
+                    ->setParameter('status', $status);
+            }
+        }
+
+        if (isset($filters['format']) && '' !== $filters['format']) {
+            $qb->andWhere('d.format = :format')
+                ->setParameter('format', $filters['format']);
+        }
+
+        return $qb;
     }
 }

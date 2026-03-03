@@ -54,4 +54,29 @@ class EventDeckRegistrationRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['event' => $event, 'deck' => $deck]);
     }
+
+    /**
+     * Check if a deck has registrations at events that are still active
+     * (not cancelled, not finished, and not more than 1 day in the past).
+     *
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     */
+    public function hasActiveRegistrations(Deck $deck): bool
+    {
+        $oneDayAgo = new \DateTimeImmutable('-1 day');
+
+        $count = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->join('r.event', 'e')
+            ->where('r.deck = :deck')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('e.date >= :oneDayAgo')
+            ->setParameter('deck', $deck)
+            ->setParameter('oneDayAgo', $oneDayAgo)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $count > 0;
+    }
 }

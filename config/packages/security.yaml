@@ -43,6 +43,7 @@ security:
         - { path: ^/forgot-password$, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password/, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/deck$, roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
         - { path: ^/event, roles: ROLE_USER }

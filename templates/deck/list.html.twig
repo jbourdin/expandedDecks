@@ -1,0 +1,112 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Deck Catalog — Expanded Decks{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Deck Catalog</h1>
+
+    {# Filter bar #}
+    <form method="get" action="{{ path('app_deck_list') }}" class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label for="filter-search" class="form-label">Search</label>
+                    <input type="text" id="filter-search" name="q" class="form-control" placeholder="Name or short tag..." value="{{ filters.search ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-archetype" class="form-label">Archetype</label>
+                    <select id="filter-archetype" name="archetype" class="form-select">
+                        <option value="">All</option>
+                        {% for arch in archetypes %}
+                            <option value="{{ arch.slug }}" {% if (filters.archetype ?? '') == arch.slug %}selected{% endif %}>{{ arch.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-status" class="form-label">Status</label>
+                    <select id="filter-status" name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="available" {% if (filters.status ?? '') == 'available' %}selected{% endif %}>Available</option>
+                        <option value="reserved" {% if (filters.status ?? '') == 'reserved' %}selected{% endif %}>Reserved</option>
+                        <option value="lent" {% if (filters.status ?? '') == 'lent' %}selected{% endif %}>Lent</option>
+                        <option value="retired" {% if (filters.status ?? '') == 'retired' %}selected{% endif %}>Retired</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-format" class="form-label">Format</label>
+                    <select id="filter-format" name="format" class="form-select">
+                        <option value="">All</option>
+                        <option value="Expanded" {% if (filters.format ?? '') == 'Expanded' %}selected{% endif %}>Expanded</option>
+                        <option value="Standard" {% if (filters.format ?? '') == 'Standard' %}selected{% endif %}>Standard</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-gold">Filter</button>
+                    <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {# Result count #}
+    <p class="text-muted mb-3">{{ totalItems }} deck{{ totalItems != 1 ? 's' : '' }} found</p>
+
+    {% if totalItems > 0 %}
+        {# Card grid #}
+        <div class="row">
+            {% for deck in decks %}
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <span class="badge bg-dark me-1">{{ deck.shortTag }}</span>
+                                <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
+                            </h5>
+                            <p class="card-text mb-1">
+                                Owner: <a href="{{ path('app_deck_list', {owner: deck.owner.id}) }}">{{ deck.owner.screenName }}</a>
+                            </p>
+                            {% if deck.archetype %}
+                                <p class="card-text mb-1">
+                                    Archetype: <a href="{{ path('app_deck_list', {archetype: deck.archetype.slug}) }}">{{ deck.archetype.name }}</a>
+                                </p>
+                            {% endif %}
+                            <p class="card-text mb-0">
+                                <span class="badge badge-{{ deck.status.value }}">{{ deck.status.value|capitalize }}</span>
+                                <span class="badge bg-secondary">{{ deck.format }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Pagination #}
+        {% if totalPages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage - 1})) }}">Previous</a>
+                    </li>
+                    {% for p in 1..totalPages %}
+                        <li class="page-item {% if p == currentPage %}active{% endif %}">
+                            <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: p})) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage + 1})) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">No decks match your search criteria.</div>
+    {% endif %}
+{% endblock %}

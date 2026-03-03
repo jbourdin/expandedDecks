@@ -47,6 +47,13 @@
                             {{ form_widget(form.languages) }}
                         </div>
 
+                        <div class="mb-3">
+                            {{ form_row(form.public) }}
+                            {% if has_active_registrations is defined and has_active_registrations %}
+                                <div class="form-text text-warning">This deck has active event registrations and cannot be unpublished.</div>
+                            {% endif %}
+                        </div>
+
                         <button type="submit" class="btn btn-gold w-100">Save Changes</button>
                     {{ form_end(form) }}
 
