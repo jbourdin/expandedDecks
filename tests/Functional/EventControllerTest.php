@@ -1688,6 +1688,142 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F3.21 — Clear deck selection on withdrawal
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testWithdrawClearsDeckEntry(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Select a deck first (borrower's own Lugia Archeops)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $token = $this->extractSelectDeckCsrfToken($crawler);
+
+        /** @var DeckRepository $deckRepo */
+        $deckRepo = static::getContainer()->get(DeckRepository::class);
+        $lugiaArcheops = $deckRepo->findOneBy(['name' => 'Lugia Archeops']);
+        self::assertNotNull($lugiaArcheops);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $token,
+            'deck_id' => (string) $lugiaArcheops->getId(),
+        ]);
+        $this->client->followRedirect();
+
+        // Verify deck entry exists
+        /** @var EventDeckEntryRepository $entryRepo */
+        $entryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $user = $this->getUser('borrower@example.com');
+        self::assertNotNull($entryRepo->findOneByEventAndPlayer($event, $user));
+
+        // Now withdraw
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $withdrawForm = $crawler->selectButton('Withdraw')->form();
+        $this->client->submit($withdrawForm);
+        $this->client->followRedirect();
+
+        // Verify deck entry was cleared
+        /** @var EventDeckEntryRepository $freshEntryRepo */
+        $freshEntryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $freshEvent = static::getContainer()->get(EventRepository::class)->find($event->getId());
+        self::assertNotNull($freshEvent);
+        self::assertNull($freshEntryRepo->findOneByEventAndPlayer($freshEvent, $user));
+
+        self::assertSelectorTextContains('.alert-info', 'Your deck selection has been cleared.');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testSwitchToSpectatorClearsDeckEntry(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Select a deck first
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $token = $this->extractSelectDeckCsrfToken($crawler);
+
+        /** @var DeckRepository $deckRepo */
+        $deckRepo = static::getContainer()->get(DeckRepository::class);
+        $lugiaArcheops = $deckRepo->findOneBy(['name' => 'Lugia Archeops']);
+        self::assertNotNull($lugiaArcheops);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $token,
+            'deck_id' => (string) $lugiaArcheops->getId(),
+        ]);
+        $this->client->followRedirect();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // Verify deck entry was cleared
+        /** @var EventDeckEntryRepository $freshEntryRepo */
+        $freshEntryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $user = $this->getUser('borrower@example.com');
+        $freshEvent = static::getContainer()->get(EventRepository::class)->find($event->getId());
+        self::assertNotNull($freshEvent);
+        self::assertNull($freshEntryRepo->findOneByEventAndPlayer($freshEvent, $user));
+
+        self::assertSelectorTextContains('.alert-info', 'Your deck selection has been cleared.');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testSwitchToPlayerDoesNotClearDeckEntry(): void
+    {
+        // Switch borrower to spectator first, then back to player
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // Switch back to player — should NOT clear deck entries
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Player')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // No "deck selection has been cleared" flash
+        self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testWithdrawWithoutDeckEntrySucceeds(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Withdraw without selecting a deck — should work normally
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $withdrawForm = $crawler->selectButton('Withdraw')->form();
+        $this->client->submit($withdrawForm);
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'You have withdrawn from this event.');
+        self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
