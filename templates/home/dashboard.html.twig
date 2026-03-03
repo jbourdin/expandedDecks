@@ -19,7 +19,10 @@
             <div class="card h-100">
                 <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">My Decks</h5>
-                    <a href="{{ path('app_deck_new') }}" class="btn btn-sm btn-gold">+ New</a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_deck_list', {owner: user.id}) }}" class="btn btn-sm btn-outline-light">See all</a>
+                        <a href="{{ path('app_deck_new') }}" class="btn btn-sm btn-gold">+ New</a>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if ownedDecks|length > 0 %}

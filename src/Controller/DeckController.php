@@ -37,6 +37,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.2 — Import deck list (PTCG text format)
  * @see docs/features.md F2.8 — Update list
+ * @see docs/features.md F2.13 — Inline deck list import on creation
  */
 #[Route('/deck')]
 #[IsGranted('ROLE_USER')]
@@ -44,24 +45,62 @@ class DeckController extends AbstractController
 {
     /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
+     * @see docs/features.md F2.13 — Inline deck list import on creation
      */
     #[Route('/new', name: 'app_deck_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        DeckListParser $parser,
+        DeckListValidator $validator,
+        DeckVersionRepository $versionRepo,
+        MessageBusInterface $messageBus,
+    ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
         $deck = new Deck();
-        $form = $this->createForm(DeckFormType::class, $deck);
+        $form = $this->createForm(DeckFormType::class, $deck, ['include_raw_list' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var string|null $rawListData */
+            $rawListData = $form->get('rawList')->getData();
+            $rawList = $rawListData ?? '';
+
+            // If a deck list is provided, validate it before persisting anything
+            if ('' !== trim($rawList)) {
+                $importErrors = $this->validateRawList($rawList, $parser, $validator);
+
+                if ([] !== $importErrors) {
+                    foreach ($importErrors as $error) {
+                        $this->addFlash('danger', $error);
+                    }
+
+                    return $this->render('deck/new.html.twig', [
+                        'form' => $form,
+                    ]);
+                }
+            }
+
             $deck->setOwner($user);
             $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->persist($deck);
             $em->flush();
 
-            $this->addFlash('success', \sprintf('Deck "%s" created.', $deck->getName()));
+            // Import deck list inline if provided
+            if ('' !== trim($rawList)) {
+                $version = $this->createDeckVersion($rawList, $deck, $parser, $versionRepo, $em);
+                $em->flush();
+
+                /** @var int $versionId */
+                $versionId = $version->getId();
+                $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+
+                $this->addFlash('success', \sprintf('Deck "%s" created with deck list imported.', $deck->getName()));
+            } else {
+                $this->addFlash('success', \sprintf('Deck "%s" created.', $deck->getName()));
+            }
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
@@ -135,25 +174,11 @@ class DeckController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $rawList */
             $rawList = $form->get('rawList')->getData();
-            $result = $parser->parse($rawList);
 
-            if (!$result->isValid()) {
-                foreach ($result->errors as $error) {
-                    $this->addFlash('warning', $error);
-                }
+            $importErrors = $this->validateRawList($rawList, $parser, $validator);
 
-                return $this->render('deck/import.html.twig', [
-                    'deck' => $deck,
-                    'form' => $form,
-                    'nextVersion' => $nextVersion,
-                ]);
-            }
-
-            // Validate deck rules (60 cards, max 4 copies)
-            $validation = $validator->validate($result);
-
-            if (!$validation->isValid()) {
-                foreach ($validation->errors as $error) {
+            if ([] !== $importErrors) {
+                foreach ($importErrors as $error) {
                     $this->addFlash('danger', $error);
                 }
 
@@ -164,27 +189,14 @@ class DeckController extends AbstractController
                 ]);
             }
 
+            $result = $parser->parse($rawList);
+            $validation = $validator->validate($result);
+
             foreach ($validation->warnings as $warning) {
                 $this->addFlash('warning', $warning);
             }
 
-            $version = new DeckVersion();
-            $version->setDeck($deck);
-            $version->setVersionNumber($nextVersion);
-            $version->setRawList($rawList);
-
-            foreach ($result->cards as $parsedCard) {
-                $card = new DeckCard();
-                $card->setCardName($parsedCard->cardName);
-                $card->setSetCode($parsedCard->setCode);
-                $card->setCardNumber($parsedCard->cardNumber);
-                $card->setQuantity($parsedCard->quantity);
-                $card->setCardType($parsedCard->cardType);
-                $version->addCard($card);
-            }
-
-            $em->persist($version);
-            $deck->setCurrentVersion($version);
+            $version = $this->createDeckVersion($rawList, $deck, $parser, $versionRepo, $em);
             $em->flush();
 
             /** @var int $versionId */
@@ -205,6 +217,66 @@ class DeckController extends AbstractController
             'form' => $form,
             'nextVersion' => $nextVersion,
         ]);
+    }
+
+    /**
+     * Validates a raw deck list string, returning all parse and validation errors.
+     *
+     * @return list<string> errors (empty if valid)
+     */
+    private function validateRawList(string $rawList, DeckListParser $parser, DeckListValidator $validator): array
+    {
+        $errors = [];
+        $result = $parser->parse($rawList);
+
+        if (!$result->isValid()) {
+            return $result->errors;
+        }
+
+        $validation = $validator->validate($result);
+
+        if (!$validation->isValid()) {
+            return $validation->errors;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Creates a DeckVersion with cards from a validated raw list.
+     *
+     * The caller must flush the EntityManager and then dispatch
+     * the enrichment message (the version ID is only available after flush).
+     */
+    private function createDeckVersion(
+        string $rawList,
+        Deck $deck,
+        DeckListParser $parser,
+        DeckVersionRepository $versionRepo,
+        EntityManagerInterface $em,
+    ): DeckVersion {
+        $nextVersion = $versionRepo->findMaxVersionNumber($deck) + 1;
+        $result = $parser->parse($rawList);
+
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber($nextVersion);
+        $version->setRawList($rawList);
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $em->persist($version);
+        $deck->setCurrentVersion($version);
+
+        return $version;
     }
 
     /**

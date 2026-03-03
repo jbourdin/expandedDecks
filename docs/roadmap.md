@@ -106,20 +106,20 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|--------------------------------------|----------|-------------|------------------|
 | F2.3  | Deck detail view                     | Medium   | Done        | F2.2             |
 | F2.4  | Deck catalog (browse & search)       | Medium   | Done        | F2.1, F2.5       |
-| F2.13 | Inline deck list import on creation  | Medium   | Not started | F2.1, F2.2       |
+| F2.13 | Inline deck list import on creation  | Medium   | Done        | F2.1, F2.2       |
 | F2.14 | Deck event status overview           | Medium   | Not started | F2.3, F3.13      |
 | F6.4  | Display card images                  | Medium   | Done        | F6.2             |
 | F3.2  | Event listing                        | Medium   | Done        | F3.1             |
 | F3.3  | Event detail view                    | Medium   | Done        | F3.1             |
 | F3.21 | Clear deck selection on withdrawal   | Medium   | Not started | F3.4, F3.7       |
-| F4.5  | Borrow history                       | Medium   | Partial     | F4.1–F4.4        |
+| F4.5  | Borrow history                       | Medium   | Done        | F4.1–F4.4        |
 | F4.7  | Cancel a borrow request              | Medium   | Done        | F4.1, F4.2       |
 | F4.9  | Staff deck custody tracking          | Medium   | Not started | F4.8             |
 | F4.10 | Owner borrow inbox                   | Medium   | Partial     | F4.1, F4.2       |
 | F4.13 | Event-scoped autocompletes           | Medium   | Not started | F4.1, F3.4       |
 | F4.14 | Staff custody handover tracking      | Medium   | Not started | F4.8, F4.9       |
 
-**Progress: 6/14 done · 2 partial · 6 not started**
+**Progress: 8/14 done · 1 partial · 5 not started**
 
 **Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, owner's borrow inbox, inline deck list import on creation, deck event status overview, event-scoped autocompletes, staff custody handover tracking, and clearing deck selection on withdrawal.
 
@@ -314,7 +314,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
 | 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
-| 5     | Core Views & Navigation           | 6    | 2       | 6           | 14    |
+| 5     | Core Views & Navigation           | 8    | 1       | 5           | 14    |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
@@ -322,6 +322,6 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **30** | **13** | **49**      | **92** |
+|       | **Total**                         | **32** | **12** | **48**      | **92** |
 
 All 92 features from [features.md](features.md) are represented exactly once.

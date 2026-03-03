@@ -43,6 +43,15 @@
                             {{ form_row(form.public) }}
                         </div>
 
+                        {# Deck list — optional inline import (F2.13) #}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.rawList.vars.id }}">
+                                Deck list <small class="text-muted">(optional, PTCG format)</small>
+                            </label>
+                            {{ form_widget(form.rawList, {attr: {class: 'form-control font-monospace'}}) }}
+                            <div class="form-text">Paste a deck list to import it immediately. Leave empty to add one later.</div>
+                        </div>
+
                         <button type="submit" class="btn btn-gold w-100">Create Deck</button>
                     {{ form_end(form) }}
                 </div>

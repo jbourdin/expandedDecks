@@ -19,6 +19,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -276,13 +277,9 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
-     * Full borrow history for a borrower, with optional status filter.
-     *
      * @see docs/features.md F4.5 — Borrow history
-     *
-     * @return list<Borrow>
      */
-    public function findAllByBorrower(User $borrower, ?BorrowStatus $status = null): array
+    public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
@@ -298,20 +295,13 @@ class BorrowRepository extends ServiceEntityRepository
                 ->setParameter('status', $status->value);
         }
 
-        /** @var list<Borrow> $borrows */
-        $borrows = $qb->getQuery()->getResult();
-
-        return $borrows;
+        return $qb;
     }
 
     /**
-     * Full lend history for a deck owner, with optional status filter.
-     *
      * @see docs/features.md F4.10 — Owner borrow inbox
-     *
-     * @return list<Borrow>
      */
-    public function findAllByDeckOwner(User $owner, ?BorrowStatus $status = null): array
+    public function createDeckOwnerQueryBuilder(User $owner, ?BorrowStatus $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
@@ -327,9 +317,6 @@ class BorrowRepository extends ServiceEntityRepository
                 ->setParameter('status', $status->value);
         }
 
-        /** @var list<Borrow> $borrows */
-        $borrows = $qb->getQuery()->getResult();
-
-        return $borrows;
+        return $qb;
     }
 }
