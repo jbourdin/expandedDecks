@@ -29,6 +29,13 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            borrow_lifecycle:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: borrow_lifecycle
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
 
         default_bus: messenger.bus.default
@@ -41,3 +48,4 @@ framework:
             Symfony\Component\Notifier\Message\ChatMessage: notification
             Symfony\Component\Notifier\Message\SmsMessage: notification
             App\Message\EnrichDeckVersionMessage: deck_enrichment
+            App\Message\DeclineCompetingBorrowsMessage: borrow_lifecycle

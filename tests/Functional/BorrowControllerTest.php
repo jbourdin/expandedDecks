@@ -1059,6 +1059,160 @@ class BorrowControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F4.11 — Auto-decline competing pending borrows on approval
+    // ---------------------------------------------------------------
+
+    /**
+     * Approving a borrow should auto-decline all other pending borrows
+     * for the same deck at the same event.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function testApproveAutoDeclinesPendingCompetingBorrows(): void
+    {
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Cancel all existing borrows so we start fresh
+        $this->cancelAllActiveBorrowsForDeck($deck, $event);
+
+        // Create two pending borrows from different borrowers
+        $em = $this->getEntityManager();
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+
+        $borrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
+        self::assertNotNull($borrower);
+        $lender = $userRepo->findOneBy(['email' => 'lender@example.com']);
+        self::assertNotNull($lender);
+
+        // Ensure lender is engaged in the event
+        if (null === $event->getEngagementFor($lender)) {
+            $engagement = new \App\Entity\EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($lender);
+            $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
+            $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
+            $em->persist($engagement);
+        }
+
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        $borrow1 = new Borrow();
+        $borrow1->setDeck($deck);
+        $borrow1->setDeckVersion($currentVersion);
+        $borrow1->setBorrower($borrower);
+        $borrow1->setEvent($event);
+        $em->persist($borrow1);
+
+        $borrow2 = new Borrow();
+        $borrow2->setDeck($deck);
+        $borrow2->setDeckVersion($currentVersion);
+        $borrow2->setBorrower($lender);
+        $borrow2->setEvent($event);
+        $em->persist($borrow2);
+
+        $em->flush();
+
+        $borrow1Id = $borrow1->getId();
+        $borrow2Id = $borrow2->getId();
+        self::assertNotNull($borrow1Id);
+        self::assertNotNull($borrow2Id);
+
+        // Login as deck owner (admin) and approve borrow1
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/borrow/%d', $borrow1Id));
+        self::assertResponseIsSuccessful();
+
+        $approveForm = $crawler->filter(\sprintf('form[action="/borrow/%d/approve"]', $borrow1Id));
+        $csrfToken = $approveForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/borrow/%d/approve', $borrow1Id), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/borrow/%d', $borrow1Id));
+
+        // borrow2 should have been auto-declined (sync transport runs handler immediately)
+        $fresh2 = $this->refetchBorrow($borrow2Id);
+        self::assertSame(BorrowStatus::Cancelled, $fresh2->getStatus(), 'Competing pending borrow should be auto-declined.');
+        self::assertNotNull($fresh2->getCancelledAt());
+        self::assertNotNull($fresh2->getCancelledBy());
+        self::assertSame(
+            $deck->getOwner()->getId(),
+            $fresh2->getCancelledBy()->getId(),
+            'Auto-declined borrow should be cancelled by the deck owner.',
+        );
+    }
+
+    /**
+     * Walk-up lending should auto-decline all pending borrows for the same deck at the same event.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     * @see docs/features.md F4.12 — Walk-up lending
+     */
+    public function testWalkUpLendAutoDeclinesPendingBorrows(): void
+    {
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Cancel all existing borrows so we start fresh
+        $this->cancelAllActiveBorrowsForDeck($deck, $event);
+
+        // Create a pending borrow from borrower
+        $em = $this->getEntityManager();
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+
+        $borrower = $userRepo->findOneBy(['email' => 'borrower@example.com']);
+        self::assertNotNull($borrower);
+        $lender = $userRepo->findOneBy(['email' => 'lender@example.com']);
+        self::assertNotNull($lender);
+
+        $currentVersion = $deck->getCurrentVersion();
+        self::assertNotNull($currentVersion);
+
+        $pending = new Borrow();
+        $pending->setDeck($deck);
+        $pending->setDeckVersion($currentVersion);
+        $pending->setBorrower($borrower);
+        $pending->setEvent($event);
+        $em->persist($pending);
+        $em->flush();
+
+        $pendingId = $pending->getId();
+        self::assertNotNull($pendingId);
+
+        // Login as admin (deck owner + organizer) and walk-up lend to lender
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        self::assertResponseIsSuccessful();
+        $csrfToken = $crawler->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/walk-up', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+            'borrower_id' => (string) $lender->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+
+        // Pending borrow should have been auto-declined
+        $freshPending = $this->refetchBorrow($pendingId);
+        self::assertSame(BorrowStatus::Cancelled, $freshPending->getStatus(), 'Pending borrow should be auto-declined after walk-up lend.');
+        self::assertNotNull($freshPending->getCancelledAt());
+        self::assertNotNull($freshPending->getCancelledBy());
+        self::assertSame(
+            $deck->getOwner()->getId(),
+            $freshPending->getCancelledBy()->getId(),
+            'Auto-declined borrow should be cancelled by the deck owner.',
+        );
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
@@ -1184,6 +1338,24 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $em->flush();
 
         return $borrow;
+    }
+
+    private function cancelAllActiveBorrowsForDeck(Deck $deck, Event $event): void
+    {
+        $em = $this->getEntityManager();
+
+        /** @var BorrowRepository $repo */
+        $repo = static::getContainer()->get(BorrowRepository::class);
+
+        do {
+            $existing = $repo->findActiveBorrowForDeckAtEvent($deck, $event);
+
+            if (null !== $existing) {
+                $existing->setStatus(BorrowStatus::Cancelled);
+                $existing->setCancelledAt(new \DateTimeImmutable());
+                $em->flush();
+            }
+        } while (null !== $existing);
     }
 
     private function cancelExistingBorrowsForDeck(Deck $deck, Event $event): void

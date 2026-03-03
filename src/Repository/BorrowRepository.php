@@ -136,6 +136,31 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all pending borrows for a deck at an event, excluding a specific borrow.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     *
+     * @return list<Borrow>
+     */
+    public function findPendingBorrowsForDeckAtEvent(Deck $deck, Event $event, Borrow $exclude): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.id != :excludeId')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('status', BorrowStatus::Pending->value)
+            ->setParameter('excludeId', $exclude->getId())
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * @return list<string>
      */
     public static function activeStatusValues(): array

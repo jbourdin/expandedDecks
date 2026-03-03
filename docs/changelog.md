@@ -12,6 +12,14 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [Unreleased]
+
+### Borrow Workflow
+
+- **F4.11** — Auto-decline competing pending borrows: when a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at the same event are automatically declined via `DeclineCompetingBorrowsMessage` (async `borrow_lifecycle` Messenger transport). The deck owner is recorded as the cancelling actor.
+
+---
+
 ## [0.1.0] — 2026-03-03
 
 First tagged release. Covers the core domain: authentication, deck library, event management, full borrow workflow with notifications, and card data pipeline.

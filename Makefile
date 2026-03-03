@@ -42,9 +42,13 @@ worker.enrichment: ## Run the deck enrichment Messenger worker
 worker.notification: ## Run the notification Messenger worker
 	symfony console messenger:consume notification -vv --no-debug
 
+.PHONY: worker.borrow
+worker.borrow: ## Run the borrow lifecycle Messenger worker
+	symfony console messenger:consume borrow_lifecycle -vv --no-debug
+
 .PHONY: worker.all
 worker.all: ## Run all Messenger workers
-	symfony console messenger:consume transactional_email deck_enrichment notification -vv --no-debug
+	symfony console messenger:consume transactional_email deck_enrichment notification borrow_lifecycle -vv --no-debug
 
 ## —— Database —————————————————————————————————————————————————————————
 

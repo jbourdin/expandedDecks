@@ -315,6 +315,7 @@ class BorrowService
         }
 
         $this->em->persist($borrow);
+        $this->em->flush();
 
         $this->borrowStateMachine->apply($borrow, 'walk_up_lend');
 
