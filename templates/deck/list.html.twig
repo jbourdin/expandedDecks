@@ -77,7 +77,7 @@
                         <div class="card-body">
                             <h5 class="card-title">
                                 <span class="badge bg-dark me-1">{{ deck.shortTag }}</span>
-                                <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
+                                <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
                             </h5>
                             <p class="card-text mb-1">
                                 Owner: <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>

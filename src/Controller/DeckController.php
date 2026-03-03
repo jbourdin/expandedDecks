@@ -18,14 +18,11 @@ use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\User;
-use App\Enum\DeckStatus;
 use App\Form\DeckFormType;
 use App\Form\DeckImportFormType;
 use App\Message\EnrichDeckVersionMessage;
-use App\Repository\BorrowRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\EventDeckRegistrationRepository;
-use App\Repository\EventRepository;
 use App\Service\DeckListParser;
 use App\Service\DeckListValidator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,7 +36,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.2 — Import deck list (PTCG text format)
- * @see docs/features.md F2.3 — Detail view
  * @see docs/features.md F2.8 — Update list
  */
 #[Route('/deck')]
@@ -67,76 +63,11 @@ class DeckController extends AbstractController
 
             $this->addFlash('success', \sprintf('Deck "%s" created.', $deck->getName()));
 
-            return $this->redirectToRoute('app_deck_show', ['id' => $deck->getId()]);
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
         return $this->render('deck/new.html.twig', [
             'form' => $form,
-        ]);
-    }
-
-    /**
-     * @see docs/features.md F2.3 — Detail view
-     * @see docs/features.md F4.5 — Borrow history
-     */
-    #[Route('/{id}', name: 'app_deck_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Deck $deck, BorrowRepository $borrowRepository, EventRepository $eventRepository): Response
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $groupedCards = [];
-        $currentVersion = $deck->getCurrentVersion();
-
-        if (null !== $currentVersion) {
-            foreach ($currentVersion->getCards() as $card) {
-                $groupedCards[$card->getCardType()][] = $card;
-            }
-
-            // Sort within each group: quantity desc, name asc
-            foreach ($groupedCards as &$cards) {
-                usort($cards, static function (DeckCard $a, DeckCard $b): int {
-                    if ($a->getQuantity() !== $b->getQuantity()) {
-                        return $b->getQuantity() - $a->getQuantity();
-                    }
-
-                    return strcmp($a->getCardName(), $b->getCardName());
-                });
-            }
-            unset($cards);
-        }
-
-        // Ensure consistent section order
-        $orderedGroups = [];
-        foreach (['pokemon', 'trainer', 'energy'] as $section) {
-            if (isset($groupedCards[$section])) {
-                $orderedGroups[$section] = $groupedCards[$section];
-            }
-        }
-
-        $isOwner = $deck->getOwner()->getId() === $user->getId();
-        $deckBorrows = $borrowRepository->findByDeckForUser($deck, $user);
-
-        // Only show eligible events if deck is not retired, user is not owner, and deck has a version
-        $eligibleEvents = [];
-        if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && null !== $currentVersion) {
-            $candidates = $eventRepository->findEligibleForBorrow($user, $deck);
-
-            // Filter out events with same-day conflicts
-            foreach ($candidates as $candidate) {
-                if (null === $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $candidate)
-                    && [] === $borrowRepository->findConflictingBorrowsOnSameDay($deck, $candidate)) {
-                    $eligibleEvents[] = $candidate;
-                }
-            }
-        }
-
-        return $this->render('deck/show.html.twig', [
-            'deck' => $deck,
-            'groupedCards' => $orderedGroups,
-            'isOwner' => $isOwner,
-            'deckBorrows' => $deckBorrows,
-            'eligibleEvents' => $eligibleEvents,
         ]);
     }
 
@@ -170,7 +101,7 @@ class DeckController extends AbstractController
 
             $this->addFlash('success', \sprintf('Deck "%s" updated.', $deck->getName()));
 
-            return $this->redirectToRoute('app_deck_show', ['id' => $deck->getId()]);
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
         return $this->render('deck/edit.html.twig', [
@@ -266,7 +197,7 @@ class DeckController extends AbstractController
                 $result->totalCards(),
             ));
 
-            return $this->redirectToRoute('app_deck_show', ['id' => $deck->getId()]);
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
         return $this->render('deck/import.html.twig', [

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Borrow;
+use App\Entity\Deck;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Repository\DeckRepository;
@@ -79,14 +80,14 @@ class BorrowController extends AbstractController
         if (!$this->isCsrfTokenValid('borrow-request-'.$eventId, $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'Invalid security token.');
 
-            return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
+            return $this->buildBorrowRedirect($redirectTo, $eventId, null);
         }
 
         $deck = $deckRepository->find($deckId);
         if (null === $deck) {
             $this->addFlash('danger', 'Deck not found.');
 
-            return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
+            return $this->buildBorrowRedirect($redirectTo, $eventId, null);
         }
 
         /** @var User $user */
@@ -100,7 +101,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->buildBorrowRedirect($redirectTo, $eventId, $deckId);
+        return $this->buildBorrowRedirect($redirectTo, $eventId, $deck);
     }
 
     /**
@@ -253,10 +254,10 @@ class BorrowController extends AbstractController
         return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
     }
 
-    private function buildBorrowRedirect(string $redirectTo, int $eventId, int $deckId): Response
+    private function buildBorrowRedirect(string $redirectTo, int $eventId, ?Deck $deck): Response
     {
-        if ('deck' === $redirectTo) {
-            return $this->redirectToRoute('app_deck_show', ['id' => $deckId]);
+        if ('deck' === $redirectTo && null !== $deck) {
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
         if ('event_decks' === $redirectTo) {

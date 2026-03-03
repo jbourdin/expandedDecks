@@ -47,7 +47,7 @@ Pattern: `app_{entity}_{action}`
 
 ```
 app_deck_index        GET    /decks
-app_deck_show         GET    /decks/{id}
+app_deck_show         GET    /deck/{short_tag}
 app_deck_create       GET    /decks/new
 app_deck_store        POST   /decks
 app_deck_edit         GET    /decks/{id}/edit

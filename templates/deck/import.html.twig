@@ -28,7 +28,7 @@
                         <button type="submit" class="btn btn-gold w-100">Import</button>
                     {{ form_end(form) }}
 
-                    <a href="{{ path('app_deck_show', {id: deck.id}) }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                    <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
                 </div>
             </div>
         </div>
