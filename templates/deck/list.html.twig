@@ -11,7 +11,12 @@
 {% block title %}Deck Catalog — Expanded Decks{% endblock %}
 
 {% block body %}
-    <h1 class="mb-4">Deck Catalog</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Deck Catalog</h1>
+        {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('app_deck_new') }}" class="btn btn-gold">+ New Deck</a>
+        {% endif %}
+    </div>
 
     {# Filter bar #}
     <form method="get" action="{{ path('app_deck_list') }}" class="card shadow-sm mb-4">
