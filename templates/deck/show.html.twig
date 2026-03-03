@@ -85,11 +85,6 @@
                         <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">Import List</a>
                     {% endif %}
-                    {% if app.user %}
-                        <a href="{{ path('app_dashboard') }}" class="btn btn-sm btn-outline-secondary">Dashboard</a>
-                    {% else %}
-                        <a href="{{ path('app_deck_list') }}" class="btn btn-sm btn-outline-secondary">Back to Catalog</a>
-                    {% endif %}
                 </span>
             </div>
         </div>
