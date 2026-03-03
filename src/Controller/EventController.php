@@ -30,7 +30,6 @@ use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
-use App\Repository\EventRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
 use App\Service\BorrowService;
@@ -43,7 +42,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * @see docs/features.md F3.1 — Create a new event
- * @see docs/features.md F3.2 — Event listing
  * @see docs/features.md F3.3 — Event detail view
  * @see docs/features.md F3.4 — Register participation to an event
  * @see docs/features.md F3.5 — Assign event staff team
@@ -654,17 +652,6 @@ class EventController extends AbstractController
         $this->addFlash('success', \sprintf('Staff delegation %s for "%s".', $label, $deck->getName()));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
-    }
-
-    /**
-     * @see docs/features.md F3.2 — Event listing
-     */
-    #[Route('', name: 'app_event_list', methods: ['GET'])]
-    public function list(EventRepository $eventRepository): Response
-    {
-        return $this->render('event/list.html.twig', [
-            'events' => $eventRepository->findUpcoming(20),
-        ]);
     }
 
     /**

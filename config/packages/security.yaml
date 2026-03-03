@@ -49,6 +49,7 @@ security:
         - { path: ^/api/event/search$, roles: PUBLIC_ACCESS }
         - { path: ^/api/archetype/search$, roles: PUBLIC_ACCESS }
         - { path: ^/api/deck-owner/search$, roles: PUBLIC_ACCESS }
+        - { path: ^/event$, roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
         - { path: ^/event, roles: ROLE_USER }

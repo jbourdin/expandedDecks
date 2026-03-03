@@ -32,6 +32,24 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F10.2 — Anonymous homepage
+     */
+    public function countPublicDecks(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.public = :public')
+            ->andWhere('d.status != :retired')
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
      *
      * @return list<Deck>

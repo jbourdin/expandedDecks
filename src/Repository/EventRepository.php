@@ -30,6 +30,24 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F10.2 — Anonymous homepage
+     */
+    public function countUpcoming(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F3.1 — Create a new event
      *
      * @return list<Event>
