@@ -58,7 +58,8 @@ class BorrowListControllerTest extends AbstractFunctionalTest
 
     public function testBorrowListEmptyForUserWithNoBorrows(): void
     {
-        $this->loginAs('lender@example.com');
+        // Admin has no borrows as a borrower (only as a deck owner/lender)
+        $this->loginAs('admin@example.com');
 
         $this->client->request('GET', '/borrows');
 
@@ -125,13 +126,11 @@ class BorrowListControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'My Lends');
-        // Inbox should show the event name as a group header
-        self::assertSelectorExists('.card-header-themed');
-        $eventHeader = $crawler->filter('.card-header-themed a');
-        self::assertGreaterThan(0, $eventHeader->count(), 'Event group header should be visible.');
-        self::assertStringContainsString('Expanded Weekly', $eventHeader->first()->text());
-        // Should list both borrows (Iron Thorns pending, Ancient Box approved)
-        self::assertGreaterThanOrEqual(2, $crawler->filter('table tbody tr')->count());
+        // Two event groups: "Expanded Weekly #42" (today) and "Lyon Expanded Cup 2026" (future)
+        $eventHeaders = $crawler->filter('.card-header-themed a');
+        self::assertSame(2, $eventHeaders->count(), 'Should show 2 event groups.');
+        // 3 borrows total: today (1 pending + 1 approved), future (1 pending)
+        self::assertSame(3, $crawler->filter('table tbody tr')->count());
     }
 
     public function testLendInboxShowsInlineActionButtons(): void
@@ -157,7 +156,9 @@ class BorrowListControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         // Still in inbox mode (pending is non-terminal)
         self::assertSelectorExists('.card-header-themed');
+        // 2 pending borrows across 2 events (1 at today + 1 at future)
         $rows = $crawler->filter('table tbody tr');
+        self::assertSame(2, $rows->count(), 'Should show exactly 2 pending borrows.');
         foreach ($rows as $row) {
             self::assertStringContainsString('Pending', $row->textContent);
         }
