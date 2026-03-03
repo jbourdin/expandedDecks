@@ -67,6 +67,9 @@ class Deck
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $public = false;
+
     #[ORM\ManyToOne(targetEntity: DeckVersion::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?DeckVersion $currentVersion = null;
@@ -194,6 +197,18 @@ class Deck
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): static
+    {
+        $this->public = $public;
 
         return $this;
     }

@@ -40,6 +40,7 @@
 - **Deck form React islands** (`deck_form` entry): `ArchetypeSelect` (creatable autocomplete) and `LanguageSelect` (multi-select).
 - **Staff autocomplete** (`staff_autocomplete` entry): uses the shared `AsyncAutocomplete` component to search users when assigning event staff.
 - **Walk-up autocomplete** (`walk_up_autocomplete` entry): uses two `AsyncAutocomplete` instances for deck and borrower search on the walk-up lending page.
+- **Catalog filters** (`catalog_filters` entry): mounts `AsyncAutocomplete` instances for archetype, event, and owner search fields in the public deck catalog filter bar (F2.4). Each autocomplete targets a public JSON search endpoint (`/api/archetype/search`, `/api/event/search`, `/api/deck-owner/search`) that does not require authentication.
 
 The `AsyncAutocomplete` component (`assets/components/AsyncAutocomplete.tsx`) is a generic Mantine `Combobox`-based search widget with debounced fetch, `AbortController` cancellation, and hidden input sync. It replaces the previous vanilla JS autocomplete widgets.
 

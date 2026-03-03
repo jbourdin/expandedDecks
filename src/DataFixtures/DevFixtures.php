@@ -60,6 +60,7 @@ class DevFixtures extends Fixture
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
         $ironThorns->setLanguages(['en']);
+        $ironThorns->setPublic(true);
         $this->createIronThornsDeckVersion($manager, $ironThorns);
 
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
@@ -70,6 +71,7 @@ class DevFixtures extends Fixture
         $lenderDeck = $this->createDeck($manager, $lender, 'Regidrago');
         $lenderDeck->setArchetype($archetypeRegidrago);
         $lenderDeck->setLanguages(['en']);
+        $lenderDeck->setPublic(true);
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
 
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');

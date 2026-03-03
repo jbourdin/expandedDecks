@@ -55,17 +55,8 @@ class SmokeTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
-    public function testEventListRequiresAuth(): void
+    public function testEventListIsPublic(): void
     {
-        $this->client->request('GET', '/event');
-
-        self::assertResponseRedirects('/login');
-    }
-
-    public function testEventListAccessibleAfterLogin(): void
-    {
-        $this->loginAs('admin@example.com');
-
         $this->client->request('GET', '/event');
 
         self::assertResponseIsSuccessful();

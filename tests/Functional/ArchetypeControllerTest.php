@@ -18,17 +18,8 @@ namespace App\Tests\Functional;
  */
 class ArchetypeControllerTest extends AbstractFunctionalTest
 {
-    public function testSearchRequiresAuthentication(): void
+    public function testSearchIsPubliclyAccessible(): void
     {
-        $this->client->request('GET', '/api/archetype/search?q=iron');
-
-        self::assertResponseRedirects('/login');
-    }
-
-    public function testSearchReturnsResultsForMatchingQuery(): void
-    {
-        $this->loginAs('admin@example.com');
-
         $this->client->request('GET', '/api/archetype/search?q=iron');
 
         self::assertResponseIsSuccessful();
@@ -40,8 +31,6 @@ class ArchetypeControllerTest extends AbstractFunctionalTest
 
     public function testSearchReturnsEmptyForShortQuery(): void
     {
-        $this->loginAs('admin@example.com');
-
         $this->client->request('GET', '/api/archetype/search?q=i');
 
         self::assertResponseIsSuccessful();
@@ -51,8 +40,6 @@ class ArchetypeControllerTest extends AbstractFunctionalTest
 
     public function testSearchReturnsEmptyForNoMatch(): void
     {
-        $this->loginAs('admin@example.com');
-
         $this->client->request('GET', '/api/archetype/search?q=nonexistent');
 
         self::assertResponseIsSuccessful();

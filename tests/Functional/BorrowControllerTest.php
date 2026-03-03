@@ -338,7 +338,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $this->cancelExistingBorrowsForDeck($deck, $event);
 
         // Visit the deck page to verify the borrow form is present
-        $crawler = $this->client->request('GET', \sprintf('/deck/%d', $deck->getId()));
+        $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
         self::assertResponseIsSuccessful();
 
         $form = $crawler->filter('form[action="/borrow/request"]');
@@ -358,7 +358,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
             '_token' => $csrfToken,
         ]);
 
-        self::assertResponseRedirects(\sprintf('/deck/%d', $deck->getId()));
+        self::assertResponseRedirects('/deck/'.$deck->getShortTag());
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Borrow request for "Iron Thorns" submitted.');
     }

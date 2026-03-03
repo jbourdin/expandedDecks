@@ -30,6 +30,24 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F10.2 — Anonymous homepage
+     */
+    public function countUpcoming(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F3.1 — Create a new event
      *
      * @return list<Event>
@@ -45,6 +63,26 @@ class EventRepository extends ServiceEntityRepository
             ->andWhere('e.finishedAt IS NULL')
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('e.date', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     *
+     * @return list<Event>
+     */
+    public function searchByName(string $query, int $limit = 10): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->where('e.name LIKE :query')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->setParameter('query', '%'.$query.'%')
+            ->orderBy('e.date', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

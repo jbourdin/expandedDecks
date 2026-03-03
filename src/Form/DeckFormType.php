@@ -15,6 +15,7 @@ namespace App\Form;
 
 use App\Entity\Deck;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -50,6 +51,11 @@ class DeckFormType extends AbstractType
             ->add('languages', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
+            ])
+            ->add('public', CheckboxType::class, [
+                'label' => 'Public (visible in deck catalog)',
+                'required' => false,
+                'disabled' => $options['public_disabled'],
             ]);
     }
 
@@ -57,6 +63,9 @@ class DeckFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Deck::class,
+            'public_disabled' => false,
         ]);
+
+        $resolver->setAllowedTypes('public_disabled', 'bool');
     }
 }
