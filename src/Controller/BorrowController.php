@@ -126,7 +126,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -151,7 +151,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -176,7 +176,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -201,7 +201,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -226,7 +226,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -249,6 +249,15 @@ class BorrowController extends AbstractController
             $this->addFlash('success', 'Deck returned to owner.');
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->resolveActionRedirect($request, $borrow);
+    }
+
+    private function resolveActionRedirect(Request $request, Borrow $borrow): Response
+    {
+        if ('lends' === $request->getPayload()->getString('redirect_to')) {
+            return $this->redirectToRoute('app_lend_list');
         }
 
         return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);

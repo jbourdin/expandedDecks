@@ -49,7 +49,7 @@ class DevFixtures extends Fixture
         $lender = $this->createLender($manager);
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower);
-        $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
+        $futureEvent = $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
 
         // Create archetypes
         $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
@@ -81,7 +81,7 @@ class DevFixtures extends Fixture
 
         $manager->flush();
 
-        $this->createBorrowFixtures($manager, $todayEvent, $borrower, $admin, $ironThorns, $ancientBox);
+        $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox);
         $this->createDeckRegistrations($manager, $todayEvent, $ironThorns, $ancientBox, $lenderDeck);
 
         $manager->flush();
@@ -819,32 +819,47 @@ class DevFixtures extends Fixture
 
     /**
      * @see docs/features.md F4.1 — Request to borrow a deck
+     * @see docs/features.md F4.10 — Owner borrow inbox
      */
-    private function createBorrowFixtures(ObjectManager $manager, Event $event, User $borrower, User $admin, Deck $ironThorns, Deck $ancientBox): void
+    private function createBorrowFixtures(ObjectManager $manager, Event $todayEvent, Event $futureEvent, User $borrower, User $lender, User $admin, Deck $ironThorns, Deck $ancientBox): void
     {
         $ironThornsVersion = $ironThorns->getCurrentVersion();
         \assert(null !== $ironThornsVersion);
+
+        $ancientBoxVersion = $ancientBox->getCurrentVersion();
+        \assert(null !== $ancientBoxVersion);
+
+        // --- Today's event: 1 pending + 1 approved (borrower borrows from admin) ---
 
         $pendingBorrow = new Borrow();
         $pendingBorrow->setDeck($ironThorns);
         $pendingBorrow->setDeckVersion($ironThornsVersion);
         $pendingBorrow->setBorrower($borrower);
-        $pendingBorrow->setEvent($event);
+        $pendingBorrow->setEvent($todayEvent);
         $pendingBorrow->setNotes('Need it for round 1');
         $manager->persist($pendingBorrow);
-
-        $ancientBoxVersion = $ancientBox->getCurrentVersion();
-        \assert(null !== $ancientBoxVersion);
 
         $approvedBorrow = new Borrow();
         $approvedBorrow->setDeck($ancientBox);
         $approvedBorrow->setDeckVersion($ancientBoxVersion);
         $approvedBorrow->setBorrower($borrower);
-        $approvedBorrow->setEvent($event);
+        $approvedBorrow->setEvent($todayEvent);
         $approvedBorrow->setStatus(BorrowStatus::Approved);
         $approvedBorrow->setApprovedAt(new \DateTimeImmutable());
         $approvedBorrow->setApprovedBy($admin);
         $manager->persist($approvedBorrow);
+
+        // --- Future event: 1 pending (lender borrows Iron Thorns from admin) ---
+        // Gives 2 total pending borrows across events to exercise inbox grouping.
+        // Note: Ancient Box is kept free at this event for EventControllerTest scenarios.
+
+        $pendingBorrow2 = new Borrow();
+        $pendingBorrow2->setDeck($ironThorns);
+        $pendingBorrow2->setDeckVersion($ironThornsVersion);
+        $pendingBorrow2->setBorrower($lender);
+        $pendingBorrow2->setEvent($futureEvent);
+        $pendingBorrow2->setNotes('Would love to try this deck at Lyon');
+        $manager->persist($pendingBorrow2);
 
         // Deck stays Available — approval no longer sets Reserved (per-event concern)
     }

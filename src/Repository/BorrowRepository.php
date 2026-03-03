@@ -277,6 +277,34 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Non-terminal borrows for decks owned by the user, grouped-ready
+     * (ordered by event date ASC, then requestedAt DESC).
+     *
+     * @see docs/features.md F4.10 — Owner borrow inbox
+     *
+     * @return list<Borrow>
+     */
+    public function findActiveBorrowsForOwner(User $owner): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'e', 'u')
+            ->where('d.owner = :owner')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('owner', $owner)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->orderBy('e.date', 'ASC')
+            ->addOrderBy('b.requestedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * @see docs/features.md F4.5 — Borrow history
      */
     public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder
