@@ -299,23 +299,6 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
-     * Full borrow history for a borrower, with optional status filter.
-     *
-     * @see docs/features.md F4.5 — Borrow history
-     *
-     * @return list<Borrow>
-     */
-    public function findAllByBorrower(User $borrower, ?BorrowStatus $status = null): array
-    {
-        /** @var list<Borrow> $borrows */
-        $borrows = $this->createBorrowerQueryBuilder($borrower, $status)
-            ->getQuery()
-            ->getResult();
-
-        return $borrows;
-    }
-
-    /**
      * @see docs/features.md F4.10 — Owner borrow inbox
      */
     public function createDeckOwnerQueryBuilder(User $owner, ?BorrowStatus $status = null): QueryBuilder
@@ -335,22 +318,5 @@ class BorrowRepository extends ServiceEntityRepository
         }
 
         return $qb;
-    }
-
-    /**
-     * Full lend history for a deck owner, with optional status filter.
-     *
-     * @see docs/features.md F4.10 — Owner borrow inbox
-     *
-     * @return list<Borrow>
-     */
-    public function findAllByDeckOwner(User $owner, ?BorrowStatus $status = null): array
-    {
-        /** @var list<Borrow> $borrows */
-        $borrows = $this->createDeckOwnerQueryBuilder($owner, $status)
-            ->getQuery()
-            ->getResult();
-
-        return $borrows;
     }
 }

@@ -306,4 +306,116 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         self::assertSame(1, $crawler->filter('#deck_form_rawList')->count(), 'Raw list textarea should be present on new deck form.');
     }
+
+    /**
+     * @see docs/features.md F2.13 — Inline deck list import on creation
+     */
+    public function testCreateDeckWithUnparseableListShowsErrors(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        $form = $crawler->selectButton('Create Deck')->form([
+            'deck_form[name]' => 'Parse Error Deck',
+            'deck_form[rawList]' => "this is not a valid deck list at all\ngarbage data",
+        ]);
+        $this->client->submit($form);
+
+        // Should re-render the form (not redirect) with error flashes
+        self::assertResponseIsSuccessful();
+
+        // Verify the deck was NOT created
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck|null $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'Parse Error Deck']);
+        self::assertNull($deck, 'Deck should not have been created when deck list is unparseable.');
+    }
+
+    // ---------------------------------------------------------------
+    // Deck list import action (F2.2 / F2.8)
+    // ---------------------------------------------------------------
+
+    private function getDeckId(string $name): int
+    {
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => $name]);
+
+        /** @var int $id */
+        $id = $deck->getId();
+
+        return $id;
+    }
+
+    /**
+     * @see docs/features.md F2.2 — Import deck list (PTCG text format)
+     */
+    public function testImportDeckListSucceeds(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $deckId = $this->getDeckId('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$deckId.'/import');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Import')->form([
+            'deck_import_form[rawList]' => self::VALID_DECK_LIST,
+        ]);
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+    }
+
+    /**
+     * @see docs/features.md F2.2 — Import deck list (PTCG text format)
+     */
+    public function testImportDeckListWithParseErrorShowsErrors(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $deckId = $this->getDeckId('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$deckId.'/import');
+
+        $form = $crawler->selectButton('Import')->form([
+            'deck_import_form[rawList]' => "not a valid deck list\ngarbage",
+        ]);
+        $this->client->submit($form);
+
+        // Should re-render the import form (not redirect)
+        self::assertResponseIsSuccessful();
+    }
+
+    /**
+     * @see docs/features.md F2.2 — Import deck list (PTCG text format)
+     */
+    public function testImportDeckListWithValidationErrorShowsErrors(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $deckId = $this->getDeckId('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$deckId.'/import');
+
+        // Valid parse format but wrong card count (not 60)
+        $form = $crawler->selectButton('Import')->form([
+            'deck_import_form[rawList]' => "Pokémon: 2\n2 Pikachu V CEL 25",
+        ]);
+        $this->client->submit($form);
+
+        // Should re-render the import form (not redirect)
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testImportDeckListDeniedForNonOwner(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        // Iron Thorns is owned by admin
+        $deckId = $this->getDeckId('Iron Thorns');
+        $this->client->request('GET', '/deck/'.$deckId.'/import');
+
+        self::assertResponseStatusCodeSame(403);
+    }
 }
