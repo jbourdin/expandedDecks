@@ -171,8 +171,8 @@
         <div class="card shadow-sm mb-3">
             <div class="card-body text-center py-4">
                 <p class="mb-2">Want to borrow this deck for an event?</p>
-                <a href="{{ path('app_login') }}" class="btn btn-primary me-2">Log in</a>
-                <a href="{{ path('app_register') }}" class="btn btn-outline-secondary">Create an account</a>
+                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">Log in</a>
+                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">Create an account</a>
             </div>
         </div>
     {% endif %}

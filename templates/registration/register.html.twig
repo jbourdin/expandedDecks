@@ -30,8 +30,9 @@
                         <button type="submit" class="btn btn-primary w-100">Register</button>
                     {{ form_end(registrationForm) }}
 
+                    {% set targetPath = app.request.query.get('_target_path', '') %}
                     <p class="text-center mt-3 mb-0">
-                        Already have an account? <a href="{{ path('app_login') }}">Login</a>
+                        Already have an account? <a href="{{ path('app_login', targetPath ? {'_target_path': targetPath} : {}) }}">Login</a>
                     </p>
                 </div>
             </div>

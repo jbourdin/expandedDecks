@@ -170,7 +170,7 @@ class DeckControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('#borrow_event');
-        $loginLink = $crawler->filter('a[href="/login"]');
+        $loginLink = $crawler->filter('a[href^="/login"]');
         self::assertGreaterThan(0, $loginLink->count(), 'Login CTA should be present for anonymous users.');
     }
 }

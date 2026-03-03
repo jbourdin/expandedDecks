@@ -29,6 +29,7 @@ security:
                 password_parameter: _password
                 enable_csrf: true
                 default_target_path: app_dashboard
+                success_handler: App\Security\SafeAuthenticationSuccessHandler
             logout:
                 path: app_logout
                 target: app_home

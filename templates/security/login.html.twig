@@ -50,8 +50,9 @@
                         <a href="{{ path('app_verify_resend') }}">Didn't receive a verification email?</a>
                     </p>
 
+                    {% set targetPath = app.request.query.get('_target_path', '') %}
                     <p class="text-center mb-0">
-                        Don't have an account? <a href="{{ path('app_register') }}">Register</a>
+                        Don't have an account? <a href="{{ path('app_register', targetPath ? {'_target_path': targetPath} : {}) }}">Register</a>
                     </p>
                 </div>
             </div>
