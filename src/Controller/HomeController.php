@@ -56,7 +56,8 @@ class HomeController extends AbstractController
         return $this->render('home/dashboard.html.twig', [
             'user' => $user,
             'ownedDecks' => $user->getOwnedDecks(),
-            'events' => $eventRepository->findUpcoming(),
+            'myEvents' => $eventRepository->findUpcomingByEngagement($user),
+            'staffingEvents' => $eventRepository->findRecentByOrganizerOrStaff($user),
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
             'recentLends' => $borrowRepository->findRecentByDeckOwner($user),
             'recentManagedBorrows' => $borrowRepository->findRecentByEventOrganizerOrStaff($user),

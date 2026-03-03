@@ -118,7 +118,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 
 | ID     | Feature                              | Priority | Description |
 |--------|--------------------------------------|----------|-------------|
-| F7.1   | Dashboard                            | Medium   | Admin overview: total decks, active borrows, upcoming events, overdue returns. |
+| F7.1   | Dashboard                            | Medium   | Admin overview: total decks, active borrows, upcoming events, overdue returns. Includes a **"Staffing"** card showing events where the user is organizer or staff (start date within the last 7 days or in the future, hidden when empty), and a **"My Events"** card showing upcoming events where the user has an engagement (interested, playing, spectating) with state badges. |
 | F7.2   | User management                      | Medium   | Admin CRUD for user accounts and role assignment. |
 | F7.3   | Audit log                            | Low      | Log significant actions (deck registered, borrow approved, return confirmed) for traceability. |
 
