@@ -36,6 +36,7 @@
 - [Version Control](standards/version_control.md) — Gitflow, commits, PRs
 - [Documentation Standards](standards/documentation.md) — File structure, headers, linking
 - [File Headers](standards/file_headers.md) — Copyright & license blocks
+- [Release Process](standards/release_process.md) — Release workflow, tagging, and GitHub releases
 
 ## Technical Deep-Dives
 

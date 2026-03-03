@@ -30,7 +30,8 @@ docs/
 │   ├── naming.md              # Naming conventions
 │   ├── version_control.md     # Gitflow, commits, PRs
 │   ├── documentation.md       # This file
-│   └── file_headers.md        # Copyright & license headers
+│   ├── file_headers.md        # Copyright & license headers
+│   └── release_process.md    # Release workflow and tagging
 └── technicalities/            # Technical deep-dives
     └── scanner.md             # Barcode scanner HID detection
 ```
