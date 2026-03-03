@@ -1,0 +1,4 @@
+services:
+    App\Tests\DBAL\StaticConnectionMiddleware:
+        tags:
+            - { name: doctrine.middleware }
