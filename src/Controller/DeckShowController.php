@@ -108,8 +108,8 @@ class DeckShowController extends AbstractController
 
                 // Filter out events with same-day conflicts
                 foreach ($candidates as $candidate) {
-                    if (null === $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $candidate)
-                        && [] === $borrowRepository->findConflictingBorrowsOnSameDay($deck, $candidate)) {
+                    if (null === $borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $candidate)
+                        && [] === $borrowRepository->findBlockingBorrowsOnSameDay($deck, $candidate)) {
                         $eligibleEvents[] = $candidate;
                     }
                 }

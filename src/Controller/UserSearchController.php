@@ -25,6 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+ * @see docs/features.md F4.13 — Event-scoped autocompletes
  */
 #[Route('/api/user')]
 #[IsGranted('ROLE_USER')]
@@ -33,6 +34,7 @@ class UserSearchController extends AbstractController
     /**
      * @see docs/features.md F3.5 — Assign event staff team
      * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     * @see docs/features.md F4.13 — Event-scoped autocompletes
      */
     #[Route('/search', name: 'app_user_search', methods: ['GET'])]
     public function search(Request $request, UserRepository $userRepository, EventRepository $eventRepository): JsonResponse
@@ -42,6 +44,7 @@ class UserSearchController extends AbstractController
 
         // Event staff/organizer can search users for walk-up lending
         $eventId = $request->query->getInt('event_id');
+        $event = null;
         $hasEventAccess = false;
 
         if ($eventId > 0) {
@@ -61,7 +64,9 @@ class UserSearchController extends AbstractController
             return $this->json([]);
         }
 
-        $users = $userRepository->searchUsers($query);
+        $users = $hasEventAccess && null !== $event
+            ? $userRepository->searchEventParticipants($query, $event)
+            : $userRepository->searchUsers($query);
 
         $results = array_map(static fn ($user) => [
             'id' => $user->getId(),

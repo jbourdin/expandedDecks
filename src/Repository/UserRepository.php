@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Event;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -78,6 +79,31 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->where('u.isAnonymized = false')
             ->andWhere('u.isVerified = true')
             ->andWhere('u.screenName LIKE :query OR u.email LIKE :query OR u.playerId LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->setMaxResults($limit)
+            ->orderBy('u.screenName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
+     * Searches users who are participants at the given event.
+     *
+     * @see docs/features.md F4.13 — Event-scoped autocompletes
+     *
+     * @return list<User>
+     */
+    public function searchEventParticipants(string $query, Event $event, int $limit = 10): array
+    {
+        /** @var list<User> $results */
+        $results = $this->createQueryBuilder('u')
+            ->join('App\Entity\EventEngagement', 'eg', 'WITH', 'eg.user = u AND eg.event = :event')
+            ->where('u.isAnonymized = false')
+            ->andWhere('u.isVerified = true')
+            ->andWhere('u.screenName LIKE :query OR u.email LIKE :query OR u.playerId LIKE :query')
+            ->setParameter('event', $event)
             ->setParameter('query', '%'.$query.'%')
             ->setMaxResults($limit)
             ->orderBy('u.screenName', 'ASC')

@@ -14,6 +14,10 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Deck;
+use App\Entity\Event;
+use App\Enum\BorrowStatus;
+use App\Repository\BorrowRepository;
+use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -123,8 +127,25 @@ class DeckControllerTest extends AbstractFunctionalTest
     {
         $this->loginAs('borrower@example.com');
 
+        // Cancel Regidrago's delegated borrow so the deck is available for borrowing
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'Regidrago']);
+        /** @var Event $event */
+        $event = static::getContainer()->get(EventRepository::class)->findOneBy([]);
+
+        /** @var BorrowRepository $borrowRepo */
+        $borrowRepo = static::getContainer()->get(BorrowRepository::class);
+        $existing = $borrowRepo->findActiveBorrowForDeckAtEvent($deck, $event);
+        if (null !== $existing) {
+            $existing->setStatus(BorrowStatus::Cancelled);
+            $existing->setCancelledAt(new \DateTimeImmutable());
+            $em->flush();
+        }
+
         // Regidrago is owned by lender, status available, borrower has engagement
-        $shortTag = $this->getDeckShortTag('Regidrago');
+        $shortTag = $deck->getShortTag();
         $crawler = $this->client->request('GET', '/deck/'.$shortTag);
 
         self::assertResponseIsSuccessful();

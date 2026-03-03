@@ -101,7 +101,7 @@ lent ──(event end + grace period)──→ overdue → returned
 
 - A user cannot borrow their own deck
 - A user must be a participant of the event to request a borrow (F3.4). For walk-up lends (F4.12), the borrower is **auto-registered** as event participant if not already
-- A deck can only have one active borrow **per event** (`pending`, `approved`, or `lent`). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
+- A deck can have **multiple pending** borrow requests per event (allowing the owner to compare and choose). However, only one borrow can be `approved` or `lent` at a time. When a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at that event are **automatically declined** (via `DeclineCompetingBorrowsMessage` on the `borrow_lifecycle` Messenger transport). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
 - `isDelegatedToStaff`: derived from `EventDeckRegistration.delegateToStaff` at request/walk-up creation time (F4.8). The owner controls delegation at the event level (per deck, per event), not per-borrow
 - **Walk-up lend (F4.12):** the initiator (owner, organizer, or staff) must themselves be engaged in the event (spectating, interested, or participating). The deck must be `available`. When the initiator is engaged in multiple active events, they must select the target event
 

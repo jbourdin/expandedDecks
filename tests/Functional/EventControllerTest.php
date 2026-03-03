@@ -19,6 +19,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
+use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
@@ -809,12 +810,12 @@ class EventControllerTest extends AbstractFunctionalTest
 
         $event = $this->getFixtureEvent();
 
-        // Fixture has admin + borrower registered as playing
+        // Fixture has admin + borrower + staff1 registered as playing
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Should show "2 players, 0 spectators"
-        self::assertSelectorExists('.card-body:contains("2 players")');
+        // Should show "3 players, 0 spectators"
+        self::assertSelectorExists('.card-body:contains("3 players")');
         self::assertSelectorExists('.card-body:contains("0 spectators")');
     }
 
@@ -856,14 +857,14 @@ class EventControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        // Lender should see no borrow rows in the "other borrows" table (the non-personal one)
-        // The Deck Borrowing card may contain a playable decks section with the lender's own deck
+        // Lender should see only borrows involving their own decks (Regidrago delegated borrow)
         $borrowCard = $crawler->filter('h6:contains("Deck Borrowing")')->closest('.card');
         $otherBorrowHeaders = $borrowCard->filter('th:contains("Borrower")');
         if ($otherBorrowHeaders->count() > 0) {
             $otherTable = $otherBorrowHeaders->closest('table');
             $otherRows = $otherTable->filter('tbody tr');
-            self::assertSame(0, $otherRows->count(), 'Non-involved participant should see no other-user borrow rows.');
+            // Lender owns Regidrago which has a delegated borrow at this event
+            self::assertSame(1, $otherRows->count(), 'Lender should see borrows involving their own decks.');
         }
     }
 
@@ -893,6 +894,10 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->loginAs('borrower@example.com');
 
         $event = $this->getFixtureEvent();
+
+        // Cancel Regidrago's delegated borrow so it appears as available
+        $regidrago = $this->getAdminDeck('Regidrago');
+        $this->cancelExistingBorrowsForDeck($regidrago, $event);
 
         $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         self::assertResponseIsSuccessful();
@@ -1368,8 +1373,8 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'lent to');
 
-        /** @var \App\Repository\BorrowRepository $borrowRepo */
-        $borrowRepo = static::getContainer()->get(\App\Repository\BorrowRepository::class);
+        /** @var BorrowRepository $borrowRepo */
+        $borrowRepo = static::getContainer()->get(BorrowRepository::class);
         $borrows = $borrowRepo->findByEvent($event);
         $found = false;
         foreach ($borrows as $borrow) {
@@ -1619,6 +1624,236 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F4.9 — Staff deck custody tracking
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     */
+    public function testStaffCustodyCardVisibleForStaff(): void
+    {
+        // Borrower is staff at the today event (fixture)
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorExists('h6:contains("Staff Custody")');
+        // The delegated borrow for Regidrago should appear
+        self::assertStringContainsString('Regidrago', $crawler->text());
+    }
+
+    /**
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     */
+    public function testStaffCustodyCardHiddenForNonStaff(): void
+    {
+        // Lender is not staff at the today event
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorNotExists('h6:contains("Staff Custody")');
+    }
+
+    /**
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     */
+    public function testApproveFromCustodyCardRedirectsToEvent(): void
+    {
+        // Borrower is staff at the today event and can approve delegated borrows
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Load the event page to get the CSRF token from the rendered custody card
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $approveForm = $crawler->filter('h6:contains("Staff Custody")')->closest('.card')->filter('form[action*="/approve"]');
+        self::assertGreaterThan(0, $approveForm->count(), 'Approve form should exist in custody card.');
+
+        $csrfToken = $approveForm->filter('input[name="_token"]')->attr('value');
+        $borrowId = preg_replace('/.*\/borrow\/(\d+)\/approve/', '$1', $approveForm->attr('action'));
+
+        $this->client->request('POST', \sprintf('/borrow/%s/approve', $borrowId), [
+            '_token' => $csrfToken,
+            'redirect_to' => 'event',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+    }
+
+    /**
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     */
+    public function testCancelFromCustodyCardRedirectsToEvent(): void
+    {
+        // Borrower is staff at the today event and can cancel delegated borrows
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        $custodyCard = $crawler->filter('h6:contains("Staff Custody")')->closest('.card');
+        $cancelForm = $custodyCard->filter('form[action*="/cancel"]');
+        self::assertGreaterThan(0, $cancelForm->count(), 'Cancel form should exist in custody card.');
+
+        $csrfToken = $cancelForm->filter('input[name="_token"]')->attr('value');
+        $borrowId = preg_replace('/.*\/borrow\/(\d+)\/cancel/', '$1', $cancelForm->attr('action'));
+
+        $this->client->request('POST', \sprintf('/borrow/%s/cancel', $borrowId), [
+            '_token' => $csrfToken,
+            'redirect_to' => 'event',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Borrow has been cancelled.');
+    }
+
+    // ---------------------------------------------------------------
+    // F3.21 — Clear deck selection on withdrawal
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testWithdrawClearsDeckEntry(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Select a deck first (borrower's own Lugia Archeops)
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $token = $this->extractSelectDeckCsrfToken($crawler);
+
+        /** @var DeckRepository $deckRepo */
+        $deckRepo = static::getContainer()->get(DeckRepository::class);
+        $lugiaArcheops = $deckRepo->findOneBy(['name' => 'Lugia Archeops']);
+        self::assertNotNull($lugiaArcheops);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $token,
+            'deck_id' => (string) $lugiaArcheops->getId(),
+        ]);
+        $this->client->followRedirect();
+
+        // Verify deck entry exists
+        /** @var EventDeckEntryRepository $entryRepo */
+        $entryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $user = $this->getUser('borrower@example.com');
+        self::assertNotNull($entryRepo->findOneByEventAndPlayer($event, $user));
+
+        // Now withdraw
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $withdrawForm = $crawler->selectButton('Withdraw')->form();
+        $this->client->submit($withdrawForm);
+        $this->client->followRedirect();
+
+        // Verify deck entry was cleared
+        /** @var EventDeckEntryRepository $freshEntryRepo */
+        $freshEntryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $freshEvent = static::getContainer()->get(EventRepository::class)->find($event->getId());
+        self::assertNotNull($freshEvent);
+        self::assertNull($freshEntryRepo->findOneByEventAndPlayer($freshEvent, $user));
+
+        self::assertSelectorTextContains('.alert-info', 'Your deck selection has been cleared.');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testSwitchToSpectatorClearsDeckEntry(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Select a deck first
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $token = $this->extractSelectDeckCsrfToken($crawler);
+
+        /** @var DeckRepository $deckRepo */
+        $deckRepo = static::getContainer()->get(DeckRepository::class);
+        $lugiaArcheops = $deckRepo->findOneBy(['name' => 'Lugia Archeops']);
+        self::assertNotNull($lugiaArcheops);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $token,
+            'deck_id' => (string) $lugiaArcheops->getId(),
+        ]);
+        $this->client->followRedirect();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // Verify deck entry was cleared
+        /** @var EventDeckEntryRepository $freshEntryRepo */
+        $freshEntryRepo = static::getContainer()->get(EventDeckEntryRepository::class);
+        $user = $this->getUser('borrower@example.com');
+        $freshEvent = static::getContainer()->get(EventRepository::class)->find($event->getId());
+        self::assertNotNull($freshEvent);
+        self::assertNull($freshEntryRepo->findOneByEventAndPlayer($freshEvent, $user));
+
+        self::assertSelectorTextContains('.alert-info', 'Your deck selection has been cleared.');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testSwitchToPlayerDoesNotClearDeckEntry(): void
+    {
+        // Switch borrower to spectator first, then back to player
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // Switch back to player — should NOT clear deck entries
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $switchForm = $crawler->selectButton('Switch to Player')->form();
+        $this->client->submit($switchForm);
+        $this->client->followRedirect();
+
+        // No "deck selection has been cleared" flash
+        self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
+    }
+
+    /**
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+     */
+    public function testWithdrawWithoutDeckEntrySucceeds(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Withdraw without selecting a deck — should work normally
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $withdrawForm = $crawler->selectButton('Withdraw')->form();
+        $this->client->submit($withdrawForm);
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'You have withdrawn from this event.');
+        self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
@@ -1627,8 +1862,8 @@ class EventControllerTest extends AbstractFunctionalTest
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get('doctrine.orm.entity_manager');
 
-        /** @var \App\Repository\BorrowRepository $repo */
-        $repo = static::getContainer()->get(\App\Repository\BorrowRepository::class);
+        /** @var BorrowRepository $repo */
+        $repo = static::getContainer()->get(BorrowRepository::class);
         $existing = $repo->findActiveBorrowForDeckAtEvent($deck, $event);
 
         if (null !== $existing) {
