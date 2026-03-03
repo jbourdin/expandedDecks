@@ -91,6 +91,54 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Events where the user is organizer or staff, with start date >= 7 days ago.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Event>
+     */
+    public function findRecentByOrganizerOrStaff(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :cutoff')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('cutoff', new \DateTimeImmutable('-7 days'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Upcoming events where the user has any engagement (interested, playing, spectating).
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingByEngagement(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
      * Upcoming events where the user has an engagement (candidate events for borrow).
      * Same-day conflict filtering is done in the controller via BorrowRepository.
      *

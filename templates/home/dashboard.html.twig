@@ -45,7 +45,7 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Upcoming Events</h5>
+                    <h5 class="mb-0">My Events</h5>
                     <div class="d-flex gap-2">
                         <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-light">See all</a>
                         {% if is_granted('ROLE_ORGANIZER') %}
@@ -54,16 +54,30 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    {% if events|length > 0 %}
+                    {% if myEvents|length > 0 %}
                         <ul class="list-group list-group-flush">
-                            {% for event in events %}
-                                <li class="list-group-item">
-                                    <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ event.date|date('M j, Y') }}
-                                        {% if event.location %} &mdash; {{ event.location }}{% endif %}
-                                    </small>
+                            {% for event in myEvents %}
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ event.date|date('M j, Y') }}
+                                            {% if event.location %} &mdash; {{ event.location }}{% endif %}
+                                        </small>
+                                    </div>
+                                    {% set engagement = event.engagementFor(user) %}
+                                    {% if engagement %}
+                                        {% if engagement.state.value == 'registered_playing' %}
+                                            <span class="badge bg-success">Playing</span>
+                                        {% elseif engagement.state.value == 'registered_spectating' %}
+                                            <span class="badge bg-info">Spectating</span>
+                                        {% elseif engagement.state.value == 'invited' %}
+                                            <span class="badge bg-warning text-dark">Invited</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Interested</span>
+                                        {% endif %}
+                                    {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -74,6 +88,33 @@
             </div>
         </div>
     </div>
+
+    {% if staffingEvents|length > 0 %}
+        <div class="card mb-4">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">Staffing</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for event in staffingEvents %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
+                            <br>
+                            <small class="text-muted">
+                                {{ event.date|date('M j, Y') }}
+                                {% if event.location %} &mdash; {{ event.location }}{% endif %}
+                            </small>
+                        </div>
+                        {% if event.organizer == user %}
+                            <span class="badge bg-primary">Organizer</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Staff</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 
     <div class="card mb-4">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
