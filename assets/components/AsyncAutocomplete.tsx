@@ -22,6 +22,7 @@ interface AsyncAutocompleteProps {
     hiddenInputName: string;
     placeholder?: string;
     initialValue?: string;
+    initialHiddenValue?: string;
     queryParam?: string;
     mapResult: (item: Record<string, unknown>) => AutocompleteItem;
     onSelect?: (item: AutocompleteItem) => void;
@@ -42,6 +43,7 @@ export default function AsyncAutocomplete({
     hiddenInputName,
     placeholder = 'Search...',
     initialValue = '',
+    initialHiddenValue = '',
     queryParam = 'q',
     mapResult,
     onSelect,
@@ -49,7 +51,7 @@ export default function AsyncAutocomplete({
     const [search, setSearch] = useState(initialValue);
     const [debouncedSearch] = useDebouncedValue(search, 300);
     const [options, setOptions] = useState<AutocompleteItem[]>([]);
-    const [hiddenValue, setHiddenValue] = useState('');
+    const [hiddenValue, setHiddenValue] = useState(initialHiddenValue);
     const abortRef = useRef<AbortController | null>(null);
 
     const combobox = useCombobox({

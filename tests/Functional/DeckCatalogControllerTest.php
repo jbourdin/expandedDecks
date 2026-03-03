@@ -38,6 +38,26 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
+    public function testEmptyFilterParamsDoNotCauseError(): void
+    {
+        $this->client->request('GET', '/deck?q=&archetype=&event=&owner=');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', '2 decks found');
+    }
+
+    public function testArchetypeSearchIsPubliclyAccessible(): void
+    {
+        $this->client->request('GET', '/api/archetype/search?q=Iron');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertNotEmpty($data);
+        self::assertArrayHasKey('name', $data[0]);
+        self::assertArrayHasKey('slug', $data[0]);
+    }
+
     public function testOnlyPublicDecksAreListed(): void
     {
         $this->client->request('GET', '/deck');
@@ -97,12 +117,37 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         self::assertStringContainsString('Iron Thorns', $cardTitles->first()->text());
     }
 
-    public function testStatusFilter(): void
+    public function testEventFilter(): void
     {
-        $this->client->request('GET', '/deck?status=available');
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Event|null $event */
+        $event = $em->getRepository(Event::class)->findOneBy(['name' => 'Expanded Weekly #42']);
+        self::assertNotNull($event);
+
+        $crawler = $this->client->request('GET', '/deck?event='.$event->getId());
 
         self::assertResponseIsSuccessful();
+        // Iron Thorns and Regidrago are registered at this event (both public)
+        // Ancient Box is also registered but not public
         self::assertSelectorTextContains('body', '2 decks found');
+    }
+
+    public function testRetiredDecksExcluded(): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        // Make Iron Thorns retired — it should disappear from catalog
+        /** @var Deck $ironThorns */
+        $ironThorns = $em->getRepository(Deck::class)->findOneBy(['name' => 'Iron Thorns']);
+        $ironThorns->setStatus(\App\Enum\DeckStatus::Retired);
+        $em->flush();
+
+        $this->client->request('GET', '/deck');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', '1 deck found');
     }
 
     public function testOwnerFilter(): void
@@ -180,6 +225,63 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         /** @var Deck $ancientBox */
         $ancientBox = $em->getRepository(Deck::class)->findOneBy(['name' => 'Ancient Box']);
         self::assertTrue($ancientBox->isPublic());
+    }
+
+    public function testEventSearchApiReturnsResults(): void
+    {
+        $this->client->request('GET', '/api/event/search?q=Expanded');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertNotEmpty($data);
+        self::assertArrayHasKey('name', $data[0]);
+        self::assertArrayHasKey('date', $data[0]);
+    }
+
+    public function testEventSearchApiReturnsEmptyForShortQuery(): void
+    {
+        $this->client->request('GET', '/api/event/search?q=E');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertEmpty($data);
+    }
+
+    public function testDeckOwnerSearchApiReturnsResults(): void
+    {
+        $this->client->request('GET', '/api/deck-owner/search?q=Admin');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertNotEmpty($data);
+        self::assertArrayHasKey('screenName', $data[0]);
+        self::assertArrayHasKey('id', $data[0]);
+    }
+
+    public function testDeckOwnerSearchApiReturnsEmptyForShortQuery(): void
+    {
+        $this->client->request('GET', '/api/deck-owner/search?q=A');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertEmpty($data);
+    }
+
+    public function testDeckOwnerSearchApiExcludesOwnersWithoutPublicDecks(): void
+    {
+        $this->client->request('GET', '/api/deck-owner/search?q=Borrower');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        // "Borrower" owns Lugia Archeops which is NOT public
+        // So they should not appear in the owner search results
+        $screenNames = array_column($data, 'screenName');
+        self::assertNotContains('Borrower', $screenNames);
     }
 
     public function testCannotUnpublishWithActiveRegistration(): void

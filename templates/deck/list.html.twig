@@ -21,34 +21,43 @@
                     <label for="filter-search" class="form-label">Search</label>
                     <input type="text" id="filter-search" name="q" class="form-control" placeholder="Name or short tag..." value="{{ filters.search ?? '' }}">
                 </div>
-                <div class="col-md-2">
-                    <label for="filter-archetype" class="form-label">Archetype</label>
-                    <select id="filter-archetype" name="archetype" class="form-select">
-                        <option value="">All</option>
-                        {% for arch in archetypes %}
-                            <option value="{{ arch.slug }}" {% if (filters.archetype ?? '') == arch.slug %}selected{% endif %}>{{ arch.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="col-md-3">
+                    <label class="form-label">Archetype</label>
+                    <div data-catalog-archetype
+                         data-search-url="{{ path('app_archetype_search') }}"
+                         data-hidden-input="archetype"
+                         data-placeholder="Search archetype..."
+                         {% if (filters.archetype ?? '') != '' %}
+                             data-initial-value="{{ archetypeName }}"
+                             data-initial-id="{{ filters.archetype }}"
+                         {% endif %}
+                    ></div>
                 </div>
                 <div class="col-md-2">
-                    <label for="filter-status" class="form-label">Status</label>
-                    <select id="filter-status" name="status" class="form-select">
-                        <option value="">All</option>
-                        <option value="available" {% if (filters.status ?? '') == 'available' %}selected{% endif %}>Available</option>
-                        <option value="reserved" {% if (filters.status ?? '') == 'reserved' %}selected{% endif %}>Reserved</option>
-                        <option value="lent" {% if (filters.status ?? '') == 'lent' %}selected{% endif %}>Lent</option>
-                        <option value="retired" {% if (filters.status ?? '') == 'retired' %}selected{% endif %}>Retired</option>
-                    </select>
+                    <label class="form-label">Event</label>
+                    <div data-catalog-event
+                         data-search-url="{{ path('app_event_search') }}"
+                         data-hidden-input="event"
+                         data-placeholder="Search event..."
+                         {% if (filters.event ?? 0) > 0 %}
+                             data-initial-value="{{ eventName }}"
+                             data-initial-id="{{ filters.event }}"
+                         {% endif %}
+                    ></div>
                 </div>
                 <div class="col-md-2">
-                    <label for="filter-format" class="form-label">Format</label>
-                    <select id="filter-format" name="format" class="form-select">
-                        <option value="">All</option>
-                        <option value="Expanded" {% if (filters.format ?? '') == 'Expanded' %}selected{% endif %}>Expanded</option>
-                        <option value="Standard" {% if (filters.format ?? '') == 'Standard' %}selected{% endif %}>Standard</option>
-                    </select>
+                    <label class="form-label">Owner</label>
+                    <div data-catalog-owner
+                         data-search-url="{{ path('app_deck_owner_search') }}"
+                         data-hidden-input="owner"
+                         data-placeholder="Search owner..."
+                         {% if (filters.owner ?? 0) > 0 %}
+                             data-initial-value="{{ ownerName }}"
+                             data-initial-id="{{ filters.owner }}"
+                         {% endif %}
+                    ></div>
                 </div>
-                <div class="col-md-3 d-flex gap-2">
+                <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-gold">Filter</button>
                     <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">Clear</a>
                 </div>
@@ -71,17 +80,13 @@
                                 <a href="{{ path('app_deck_show', {id: deck.id}) }}">{{ deck.name }}</a>
                             </h5>
                             <p class="card-text mb-1">
-                                Owner: <a href="{{ path('app_deck_list', {owner: deck.owner.id}) }}">{{ deck.owner.screenName }}</a>
+                                Owner: <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
                             </p>
                             {% if deck.archetype %}
-                                <p class="card-text mb-1">
-                                    Archetype: <a href="{{ path('app_deck_list', {archetype: deck.archetype.slug}) }}">{{ deck.archetype.name }}</a>
+                                <p class="card-text mb-0">
+                                    Archetype: <a href="{{ path('app_deck_list', filters|merge({archetype: deck.archetype.slug})) }}">{{ deck.archetype.name }}</a>
                                 </p>
                             {% endif %}
-                            <p class="card-text mb-0">
-                                <span class="badge badge-{{ deck.status.value }}">{{ deck.status.value|capitalize }}</span>
-                                <span class="badge bg-secondary">{{ deck.format }}</span>
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -109,4 +114,14 @@
     {% else %}
         <div class="alert alert-info">No decks match your search criteria.</div>
     {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('catalog_filters') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('catalog_filters') }}
 {% endblock %}

@@ -34,29 +34,6 @@ class ArchetypeController extends AbstractController
     /**
      * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
      */
-    #[Route('/search', name: 'app_archetype_search', methods: ['GET'])]
-    public function search(Request $request, ArchetypeRepository $archetypeRepository): JsonResponse
-    {
-        $query = $request->query->getString('q');
-
-        if (\strlen($query) < 2) {
-            return $this->json([]);
-        }
-
-        $archetypes = $archetypeRepository->searchByName($query);
-
-        $data = array_map(static fn (Archetype $a): array => [
-            'id' => $a->getId(),
-            'name' => $a->getName(),
-            'slug' => $a->getSlug(),
-        ], $archetypes);
-
-        return $this->json($data);
-    }
-
-    /**
-     * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
-     */
     #[Route('', name: 'app_archetype_create', methods: ['POST'])]
     public function create(
         Request $request,

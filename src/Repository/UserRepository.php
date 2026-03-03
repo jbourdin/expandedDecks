@@ -88,6 +88,36 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     }
 
     /**
+     * Searches users who own at least one public, non-retired deck.
+     *
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     *
+     * @return list<User>
+     */
+    public function searchDeckOwners(string $query, int $limit = 10): array
+    {
+        /** @var list<User> $results */
+        $results = $this->createQueryBuilder('u')
+            ->where('u.isAnonymized = false')
+            ->andWhere('u.isVerified = true')
+            ->andWhere('u.screenName LIKE :query')
+            ->andWhere('EXISTS (
+                SELECT 1 FROM App\Entity\Deck d
+                WHERE d.owner = u
+                AND d.public = true
+                AND d.status != :retired
+            )')
+            ->setParameter('query', '%'.$query.'%')
+            ->setParameter('retired', \App\Enum\DeckStatus::Retired)
+            ->setMaxResults($limit)
+            ->orderBy('u.screenName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Finds a user by screen name, email, or Pokemon ID (first match wins).
      *
      * @see docs/features.md F3.5 — Assign event staff team

@@ -168,7 +168,7 @@ class DeckRepository extends ServiceEntityRepository
      *
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      *
-     * @param array{search?: string, archetype?: string, owner?: int, status?: string, format?: string} $filters
+     * @param array{search?: string, archetype?: string, owner?: int, event?: int} $filters
      */
     public function createCatalogQueryBuilder(array $filters = []): QueryBuilder
     {
@@ -177,7 +177,9 @@ class DeckRepository extends ServiceEntityRepository
             ->leftJoin('d.archetype', 'a')
             ->addSelect('o', 'a')
             ->where('d.public = :public')
+            ->andWhere('d.status != :retired')
             ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
             ->orderBy('d.updatedAt', 'DESC')
             ->addOrderBy('d.createdAt', 'DESC');
 
@@ -196,17 +198,9 @@ class DeckRepository extends ServiceEntityRepository
                 ->setParameter('owner', $filters['owner']);
         }
 
-        if (isset($filters['status']) && '' !== $filters['status']) {
-            $status = DeckStatus::tryFrom($filters['status']);
-            if (null !== $status) {
-                $qb->andWhere('d.status = :status')
-                    ->setParameter('status', $status);
-            }
-        }
-
-        if (isset($filters['format']) && '' !== $filters['format']) {
-            $qb->andWhere('d.format = :format')
-                ->setParameter('format', $filters['format']);
+        if (isset($filters['event']) && $filters['event'] > 0) {
+            $qb->join('App\Entity\EventDeckRegistration', 'edr', 'WITH', 'edr.deck = d AND edr.event = :event')
+                ->setParameter('event', $filters['event']);
         }
 
         return $qb;

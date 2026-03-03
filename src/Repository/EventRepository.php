@@ -53,6 +53,26 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     *
+     * @return list<Event>
+     */
+    public function searchByName(string $query, int $limit = 10): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->where('e.name LIKE :query')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->setParameter('query', '%'.$query.'%')
+            ->orderBy('e.date', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
      * Upcoming events where the user has an engagement (candidate events for borrow).
      * Same-day conflict filtering is done in the controller via BorrowRepository.
      *

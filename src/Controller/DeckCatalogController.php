@@ -15,6 +15,8 @@ namespace App\Controller;
 
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
+use App\Repository\EventRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,20 +31,54 @@ class DeckCatalogController extends AbstractController
     private const int PER_PAGE = 12;
 
     #[Route('/deck', name: 'app_deck_list', methods: ['GET'], priority: 10)]
-    public function list(Request $request, DeckRepository $deckRepository, ArchetypeRepository $archetypeRepository): Response
-    {
+    public function list(
+        Request $request,
+        DeckRepository $deckRepository,
+        ArchetypeRepository $archetypeRepository,
+        EventRepository $eventRepository,
+        UserRepository $userRepository,
+    ): Response {
         $page = max(1, $request->query->getInt('page', 1));
 
         $filters = [
             'search' => $request->query->getString('q'),
             'archetype' => $request->query->getString('archetype'),
-            'status' => $request->query->getString('status'),
-            'format' => $request->query->getString('format'),
         ];
 
-        $ownerId = $request->query->getInt('owner');
-        if ($ownerId > 0) {
-            $filters['owner'] = $ownerId;
+        // Resolve owner filter + display name (guard against empty string before getInt)
+        $ownerName = '';
+        if ('' !== $request->query->getString('owner')) {
+            $ownerId = $request->query->getInt('owner');
+            if ($ownerId > 0) {
+                $filters['owner'] = $ownerId;
+                $owner = $userRepository->find($ownerId);
+                if (null !== $owner) {
+                    $ownerName = $owner->getScreenName();
+                }
+            }
+        }
+
+        // Resolve event filter + display name (guard against empty string before getInt)
+        $eventName = '';
+        if ('' !== $request->query->getString('event')) {
+            $eventId = $request->query->getInt('event');
+            if ($eventId > 0) {
+                $filters['event'] = $eventId;
+                $event = $eventRepository->find($eventId);
+                if (null !== $event) {
+                    $eventName = $event->getName();
+                }
+            }
+        }
+
+        // Resolve archetype filter + display name
+        $archetypeName = '';
+        $archetypeSlug = $filters['archetype'];
+        if ('' !== $archetypeSlug) {
+            $archetype = $archetypeRepository->findOneBy(['slug' => $archetypeSlug]);
+            if (null !== $archetype) {
+                $archetypeName = $archetype->getName();
+            }
         }
 
         $qb = $deckRepository->createCatalogQueryBuilder($filters);
@@ -59,7 +95,9 @@ class DeckCatalogController extends AbstractController
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'filters' => $filters,
-            'archetypes' => $archetypeRepository->findBy([], ['name' => 'ASC']),
+            'archetypeName' => $archetypeName,
+            'eventName' => $eventName,
+            'ownerName' => $ownerName,
         ]);
     }
 }
