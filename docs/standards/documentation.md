@@ -91,6 +91,15 @@ Every documentation file should follow this template:
 - Every doc file (except `docs/docs.md`) **MUST** include a back-link to its parent
 - Code references use `@see` in PHPDoc/JSDoc to link to documentation (see [coding.md](coding.md))
 
+## Changelog
+
+- Every **tagged release** (`develop → main`) **MUST** include an entry in [`docs/changelog.md`](../changelog.md)
+- The entry lists all features (by ID from [features.md](../features.md)) that are **Done** or **Partial** in the release
+- Features are grouped by domain (Auth, Deck, Event, Borrow, etc.) and ordered by ID
+- Partial features are explicitly marked with *(partial)* and a short note on what remains
+- The entry includes the release version and date: `## [x.y.z] — YYYY-MM-DD`
+- Cross-cutting items (test infrastructure, CI, tooling) are listed in a dedicated section
+
 ## PHPDoc / JSDoc
 
 - Use `@see docs/features.md F4.3` to link methods to their feature specification

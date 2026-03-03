@@ -198,6 +198,7 @@ For detailed documentation beyond this file, see:
 - **[docs/docs.md](docs/docs.md)** — Full technical documentation (entry point)
 - **[docs/features.md](docs/features.md)** — Full feature list with priorities
 - **[docs/technicalities/](docs/technicalities/)** — Technical deep-dives (scanner detection, etc.)
+- **[docs/changelog.md](docs/changelog.md)** — Release history with implemented features per version
 
 ### Documentation Rules
 

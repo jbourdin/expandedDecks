@@ -14,6 +14,7 @@
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
 - [Implementation Roadmap](roadmap.md) — Recommended build order across 12 phases
+- [Changelog](changelog.md) — Release history with implemented features per version
 
 ## Frontend
 
