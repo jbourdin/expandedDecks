@@ -55,6 +55,8 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find any active (non-terminal) borrow for this deck at this event.
+     *
      * @see docs/features.md F4.11 — Borrow conflict detection
      */
     public function findActiveBorrowForDeckAtEvent(Deck $deck, Event $event): ?Borrow
@@ -75,14 +77,37 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
-     * Finds active borrows for a deck at events whose date range overlaps
-     * with the given event's date range (same-day conflict detection).
+     * Find a borrow that blocks new requests for this deck at this event.
+     * Only approved/lent/overdue borrows block; pending borrows do not.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function findBlockingBorrowForDeckAtEvent(Deck $deck, Event $event): ?Borrow
+    {
+        /** @var Borrow|null $borrow */
+        $borrow = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::blockingStatusValues())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $borrow;
+    }
+
+    /**
+     * Finds borrows that block a new request for this deck on the same day
+     * at a different event. Only approved/lent/overdue borrows block.
      *
      * @see docs/features.md F4.11 — Borrow conflict detection
      *
      * @return list<Borrow>
      */
-    public function findConflictingBorrowsOnSameDay(Deck $deck, Event $event): array
+    public function findBlockingBorrowsOnSameDay(Deck $deck, Event $event): array
     {
         $eventDate = $event->getDate();
         $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
@@ -101,7 +126,7 @@ class BorrowRepository extends ServiceEntityRepository
             ->andWhere('COALESCE(e.endDate, e.date) >= :startOfDay')
             ->setParameter('deck', $deck)
             ->setParameter('event', $event)
-            ->setParameter('statuses', self::activeStatusValues())
+            ->setParameter('statuses', self::blockingStatusValues())
             ->setParameter('startOfDay', $startOfDay)
             ->setParameter('endOfDay', $endOfDay)
             ->getQuery()
@@ -118,6 +143,22 @@ class BorrowRepository extends ServiceEntityRepository
         return array_map(
             static fn (BorrowStatus $s): string => $s->value,
             [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
+        );
+    }
+
+    /**
+     * Statuses that hard-block new borrow requests and hide decks from availability lists.
+     * Pending is excluded: multiple pending requests are allowed so the owner can choose.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     *
+     * @return list<string>
+     */
+    public static function blockingStatusValues(): array
+    {
+        return array_map(
+            static fn (BorrowStatus $s): string => $s->value,
+            [BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
         );
     }
 

@@ -76,12 +76,12 @@ class BorrowService
             throw new \DomainException('Cannot borrow decks for a finished event.');
         }
 
-        if (null !== $this->borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event)) {
-            throw new \DomainException('This deck already has an active borrow request for this event.');
+        if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
+            throw new \DomainException('This deck is already approved or lent for this event.');
         }
 
-        if ([] !== $this->borrowRepository->findConflictingBorrowsOnSameDay($deck, $event)) {
-            throw new \DomainException('This deck already has an active borrow at another event on the same day.');
+        if ([] !== $this->borrowRepository->findBlockingBorrowsOnSameDay($deck, $event)) {
+            throw new \DomainException('This deck is already approved or lent at another event on the same day.');
         }
 
         $currentVersion = $deck->getCurrentVersion();
@@ -273,12 +273,12 @@ class BorrowService
             throw new \DomainException('Cannot lend decks at a finished event.');
         }
 
-        if (null !== $this->borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event)) {
-            throw new \DomainException('This deck already has an active borrow for this event.');
+        if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
+            throw new \DomainException('This deck is already approved or lent for this event.');
         }
 
-        if ([] !== $this->borrowRepository->findConflictingBorrowsOnSameDay($deck, $event)) {
-            throw new \DomainException('This deck already has an active borrow at another event on the same day.');
+        if ([] !== $this->borrowRepository->findBlockingBorrowsOnSameDay($deck, $event)) {
+            throw new \DomainException('This deck is already approved or lent at another event on the same day.');
         }
 
         $currentVersion = $deck->getCurrentVersion();

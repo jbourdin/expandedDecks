@@ -174,19 +174,38 @@ class BorrowControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-danger', 'This deck is retired and cannot be borrowed.');
     }
 
-    public function testRequestBorrowDeniedIfActiveBorrowExists(): void
+    /**
+     * A pending borrow should NOT block another player from requesting the same deck.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function testRequestBorrowAllowedWhenOnlyPendingBorrowExists(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Iron Thorns already has a pending borrow from borrower in fixtures.
+        // A different player should still be able to request it.
+        $this->loginAs('lender@example.com');
 
         $event = $this->getFixtureEvent();
         $deck = $this->getDeckByName('Iron Thorns');
-        $regidrago = $this->getDeckByName('Regidrago');
 
-        // Cancel Regidrago's delegated borrow so the available decks page has a form
-        $this->cancelExistingBorrowsForDeck($regidrago, $event);
+        // Ensure lender is engaged in the event
+        $em = $this->getEntityManager();
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+        $lender = $userRepo->findOneBy(['email' => 'lender@example.com']);
+        self::assertNotNull($lender);
 
-        // Iron Thorns already has a pending borrow in fixtures.
-        // Get CSRF token from the available decks page.
+        if (null === $event->getEngagementFor($lender)) {
+            $engagement = new \App\Entity\EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($lender);
+            $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
+            $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
+            $em->persist($engagement);
+            $em->flush();
+        }
+
+        // Get CSRF token from the available decks page
         $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
         $form = $crawler->filter('form[action="/borrow/request"]');
         $csrfToken = $form->filter('input[name="_token"]')->attr('value');
@@ -199,7 +218,62 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert-danger', 'already has an active borrow');
+        self::assertSelectorTextContains('.alert-success', 'Borrow request');
+    }
+
+    /**
+     * An approved borrow MUST block new requests for the same deck at the same event.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function testRequestBorrowDeniedIfApprovedBorrowExists(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getDeckByName('Iron Thorns');
+
+        // Ensure lender is engaged in the event
+        $em = $this->getEntityManager();
+        /** @var UserRepository $userRepo */
+        $userRepo = static::getContainer()->get(UserRepository::class);
+        $lender = $userRepo->findOneBy(['email' => 'lender@example.com']);
+        self::assertNotNull($lender);
+
+        if (null === $event->getEngagementFor($lender)) {
+            $engagement = new \App\Entity\EventEngagement();
+            $engagement->setEvent($event);
+            $engagement->setUser($lender);
+            $engagement->setState(\App\Enum\EngagementState::RegisteredPlaying);
+            $engagement->setParticipationMode(\App\Enum\ParticipationMode::Playing);
+            $em->persist($engagement);
+            $em->flush();
+        }
+
+        // Get CSRF token from the available decks page BEFORE approving
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+        $form = $crawler->filter('form[action="/borrow/request"]');
+        $csrfToken = $form->filter('input[name="_token"]')->attr('value');
+
+        // Now approve the existing pending borrow so it becomes blocking
+        $em = $this->getEntityManager();
+        /** @var BorrowRepository $borrowRepo */
+        $borrowRepo = static::getContainer()->get(BorrowRepository::class);
+        $existing = $borrowRepo->findActiveBorrowForDeckAtEvent($deck, $event);
+        self::assertNotNull($existing);
+        $existing->setStatus(BorrowStatus::Approved);
+        $existing->setApprovedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->client->request('POST', '/borrow/request', [
+            'event_id' => $event->getId(),
+            'deck_id' => $deck->getId(),
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'already approved or lent');
     }
 
     /**
@@ -270,16 +344,18 @@ class BorrowControllerTest extends AbstractFunctionalTest
         /** @var Event $freshEvent */
         $freshEvent = $em->find(Event::class, $eventId);
 
-        // Now create a borrow for Regidrago at the first event — this creates the conflict
+        // Create an approved borrow for Regidrago at the first event — this creates a blocking conflict
         $existingBorrow = new Borrow();
         $existingBorrow->setDeck($freshDeck);
         $existingBorrow->setDeckVersion($currentVersion);
         $existingBorrow->setBorrower($freshBorrower);
         $existingBorrow->setEvent($freshEvent);
+        $existingBorrow->setStatus(BorrowStatus::Approved);
+        $existingBorrow->setApprovedAt(new \DateTimeImmutable());
         $em->persist($existingBorrow);
         $em->flush();
 
-        // Try to borrow Regidrago at the second event — should be blocked (same-day conflict)
+        // Try to borrow Regidrago at the second event — should be blocked (approved same-day conflict)
         $this->client->request('POST', '/borrow/request', [
             'event_id' => $secondEventId,
             'deck_id' => $deckId,
@@ -288,7 +364,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects(\sprintf('/event/%d', $secondEventId));
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert-danger', 'already has an active borrow at another event on the same day');
+        self::assertSelectorTextContains('.alert-danger', 'already approved or lent at another event on the same day');
     }
 
     public function testRequestBorrowInvalidCsrf(): void
