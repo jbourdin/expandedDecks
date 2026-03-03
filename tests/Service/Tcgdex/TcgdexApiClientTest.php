@@ -292,12 +292,12 @@ class TcgdexApiClientTest extends TestCase
         $callCount = 0;
         $listData = array_map(static fn (array $set): array => ['id' => $set['id']], $sets);
 
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $httpClient->method('request')
             ->willReturnCallback(function (string $method, string $url) use ($sets, $listData, &$callCount): ResponseInterface {
                 ++$callCount;
 
-                $response = $this->createMock(ResponseInterface::class);
+                $response = $this->createStub(ResponseInterface::class);
 
                 if (str_ends_with($url, '/sets')) {
                     $response->method('toArray')->willReturn(array_values($listData));
@@ -332,10 +332,10 @@ class TcgdexApiClientTest extends TestCase
     {
         $listData = array_map(static fn (array $set): array => ['id' => $set['id']], $sets);
 
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $httpClient->method('request')
             ->willReturnCallback(function (string $method, string $url) use ($sets, $listData, $cards): ResponseInterface {
-                $response = $this->createMock(ResponseInterface::class);
+                $response = $this->createStub(ResponseInterface::class);
 
                 // /sets (list)
                 if (str_ends_with($url, '/sets')) {
@@ -382,10 +382,10 @@ class TcgdexApiClientTest extends TestCase
      */
     private function createSearchMockClient(array $searchResults): HttpClientInterface
     {
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient = $this->createStub(HttpClientInterface::class);
         $httpClient->method('request')
             ->willReturnCallback(function (string $method, string $url) use ($searchResults): ResponseInterface {
-                $response = $this->createMock(ResponseInterface::class);
+                $response = $this->createStub(ResponseInterface::class);
 
                 if (str_contains($url, '/cards?name=')) {
                     $response->method('getStatusCode')->willReturn(200);

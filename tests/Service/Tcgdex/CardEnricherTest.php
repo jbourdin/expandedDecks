@@ -30,7 +30,7 @@ class CardEnricherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->em = $this->createMock(EntityManagerInterface::class);
+        $this->em = $this->createStub(EntityManagerInterface::class);
         $this->em->method('flush');
     }
 
@@ -45,9 +45,8 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')
-            ->with('BRS', '123')
             ->willReturn(new TcgdexCard(
                 id: 'swsh9-123',
                 name: 'Arceus VSTAR',
@@ -81,7 +80,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')
             ->willReturn(new TcgdexCard(
                 id: 'swsh9-132',
@@ -131,7 +130,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
 
         $enricher = new CardEnricher($apiClient, $this->em);
         $report = $enricher->enrichVersion($version);
@@ -151,7 +150,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
 
         $enricher = new CardEnricher($apiClient, $this->em);
@@ -174,7 +173,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')
             ->willReturn(new TcgdexCard(
                 id: 'swsh9-1',
@@ -268,7 +267,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')
             ->willThrowException(new \RuntimeException('API error'));
 
