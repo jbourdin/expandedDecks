@@ -176,7 +176,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F6.5  | Banned card list management      | Medium   | Not started | F6.3                 |
 | F8.4  | In-app notification center       | Medium   | Not started | F8.1                 |
 | F10.1 | Mobile UX review                 | Medium   | Not started | F6.4, F2.3           |
-| F10.2 | Anonymous homepage               | Medium   | Partial     | F3.2, F2.4, F3.17    |
+| F10.2 | Anonymous homepage               | Medium   | Partial     | F3.2, F2.4           |
 | F1.8  | Account deletion & data export   | Medium   | Partial     | F1.1                 |
 
 **Progress: 0/7 done · 3 partial · 4 not started**
