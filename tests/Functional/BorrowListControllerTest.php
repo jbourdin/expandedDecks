@@ -85,7 +85,7 @@ class BorrowListControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'My Lends');
-        // Admin owns Iron Thorns and Ancient Box which have borrows
+        // Admin owns Iron Thorns and Ancient Box which have borrows — inbox mode
         self::assertGreaterThan(0, $crawler->filter('table tbody tr')->count());
     }
 
@@ -96,6 +96,7 @@ class BorrowListControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/lends?status=approved');
 
         self::assertResponseIsSuccessful();
+        // Non-terminal status → inbox mode with event grouping
         $rows = $crawler->filter('table tbody tr');
         foreach ($rows as $row) {
             self::assertStringContainsString('Approved', $row->textContent);
@@ -109,7 +110,90 @@ class BorrowListControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/lends');
 
         self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.text-muted', 'No active borrows');
+    }
+
+    // ---------------------------------------------------------------
+    // /lends — Inbox mode (active borrows grouped by event)
+    // ---------------------------------------------------------------
+
+    public function testLendInboxShowsEventGroupedBorrows(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/lends');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'My Lends');
+        // Inbox should show the event name as a group header
+        self::assertSelectorExists('.card-header-themed');
+        $eventHeader = $crawler->filter('.card-header-themed a');
+        self::assertGreaterThan(0, $eventHeader->count(), 'Event group header should be visible.');
+        self::assertStringContainsString('Expanded Weekly', $eventHeader->first()->text());
+        // Should list both borrows (Iron Thorns pending, Ancient Box approved)
+        self::assertGreaterThanOrEqual(2, $crawler->filter('table tbody tr')->count());
+    }
+
+    public function testLendInboxShowsInlineActionButtons(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/lends');
+
+        self::assertResponseIsSuccessful();
+        // Pending borrow should have Approve and Deny buttons
+        self::assertSelectorExists('button.btn-success', 'Approve button should be visible.');
+        self::assertSelectorExists('button.btn-outline-danger', 'Deny button should be visible.');
+        // Approved borrow should have Hand off button
+        self::assertSelectorExists('button.btn-primary', 'Hand off button should be visible.');
+    }
+
+    public function testLendInboxFilterByActiveStatus(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/lends?status=pending');
+
+        self::assertResponseIsSuccessful();
+        // Still in inbox mode (pending is non-terminal)
+        self::assertSelectorExists('.card-header-themed');
+        $rows = $crawler->filter('table tbody tr');
+        foreach ($rows as $row) {
+            self::assertStringContainsString('Pending', $row->textContent);
+        }
+    }
+
+    public function testLendHistoryModeForTerminalStatus(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/lends?status=returned');
+
+        self::assertResponseIsSuccessful();
+        // History mode — should show the flat table or empty message, not inbox cards
         self::assertSelectorTextContains('.text-muted', 'No lend activity');
+    }
+
+    public function testApproveFromInboxRedirectsBackToLends(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // First, get the inbox to find the pending borrow's approve form
+        $crawler = $this->client->request('GET', '/lends');
+        $approveForm = $crawler->selectButton('Approve')->form();
+        $this->client->submit($approveForm);
+
+        self::assertResponseRedirects('/lends');
+    }
+
+    public function testLendInboxEmptyForUserWithNoActiveDecks(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('GET', '/lends');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.text-muted', 'No active borrows');
     }
 
     // ---------------------------------------------------------------

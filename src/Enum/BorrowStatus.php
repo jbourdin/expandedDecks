@@ -25,4 +25,12 @@ enum BorrowStatus: string
     case ReturnedToOwner = 'returned_to_owner';
     case Cancelled = 'cancelled';
     case Overdue = 'overdue';
+
+    public function isTerminal(): bool
+    {
+        return match ($this) {
+            self::Returned, self::ReturnedToOwner, self::Cancelled => true,
+            default => false,
+        };
+    }
 }

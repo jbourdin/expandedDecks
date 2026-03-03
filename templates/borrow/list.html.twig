@@ -30,7 +30,18 @@
         {% endfor %}
     </div>
 
-    {% if totalItems > 0 %}
+    {% if inboxMode is defined and inboxMode %}
+        {# Inbox mode: active borrows grouped by event #}
+        {% if eventGroups|length > 0 %}
+            {% include 'borrow/_inbox.html.twig' %}
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <p class="text-muted mb-0">No active borrows{% if currentStatus is not null %} with status "{{ currentStatus.value|replace({'_': ' '})|title }}"{% endif %}.</p>
+                </div>
+            </div>
+        {% endif %}
+    {% elseif totalItems > 0 %}
         {% set routeName = mode == 'lends' ? 'app_lend_list' : 'app_borrow_list' %}
         {% set params = currentStatus is not null ? {status: currentStatus.value} : {} %}
 

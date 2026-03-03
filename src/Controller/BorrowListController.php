@@ -72,6 +72,53 @@ class BorrowListController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $status = $this->resolveStatusFilter($request);
+        $inboxMode = null === $status || !$status->isTerminal();
+
+        if ($inboxMode) {
+            return $this->renderInbox($borrowRepository, $user, $status);
+        }
+
+        return $this->renderHistory($request, $borrowRepository, $user, $status);
+    }
+
+    /**
+     * Inbox mode: active borrows grouped by event.
+     */
+    private function renderInbox(BorrowRepository $borrowRepository, User $user, ?BorrowStatus $status): Response
+    {
+        if (null === $status) {
+            $borrows = $borrowRepository->findActiveBorrowsForOwner($user);
+        } else {
+            /** @var list<\App\Entity\Borrow> $borrows */
+            $borrows = $borrowRepository->createDeckOwnerQueryBuilder($user, $status)
+                ->resetDQLPart('orderBy')
+                ->orderBy('e.date', 'ASC')
+                ->addOrderBy('b.requestedAt', 'DESC')
+                ->getQuery()
+                ->getResult();
+        }
+
+        $eventGroups = $this->groupByEvent($borrows);
+
+        return $this->render('borrow/list.html.twig', [
+            'currentStatus' => $status,
+            'statuses' => BorrowStatus::cases(),
+            'pageTitle' => 'My Lends',
+            'mode' => 'lends',
+            'inboxMode' => true,
+            'eventGroups' => $eventGroups,
+            'totalItems' => 0,
+            'currentPage' => 1,
+            'totalPages' => 1,
+            'borrows' => [],
+        ]);
+    }
+
+    /**
+     * History mode: terminal borrows with pagination.
+     */
+    private function renderHistory(Request $request, BorrowRepository $borrowRepository, User $user, BorrowStatus $status): Response
+    {
         $page = max(1, $request->query->getInt('page', 1));
 
         $qb = $borrowRepository->createDeckOwnerQueryBuilder($user, $status);
@@ -88,10 +135,38 @@ class BorrowListController extends AbstractController
             'statuses' => BorrowStatus::cases(),
             'pageTitle' => 'My Lends',
             'mode' => 'lends',
+            'inboxMode' => false,
+            'eventGroups' => [],
             'totalItems' => $totalItems,
             'currentPage' => $page,
             'totalPages' => $totalPages,
         ]);
+    }
+
+    /**
+     * @param list<\App\Entity\Borrow> $borrows
+     *
+     * @return list<array{event: \App\Entity\Event, borrows: list<\App\Entity\Borrow>}>
+     */
+    private function groupByEvent(array $borrows): array
+    {
+        /** @var array<int, array{event: \App\Entity\Event, borrows: list<\App\Entity\Borrow>}> $groups */
+        $groups = [];
+
+        foreach ($borrows as $borrow) {
+            $eventId = (int) $borrow->getEvent()->getId();
+
+            if (!isset($groups[$eventId])) {
+                $groups[$eventId] = [
+                    'event' => $borrow->getEvent(),
+                    'borrows' => [],
+                ];
+            }
+
+            $groups[$eventId]['borrows'][] = $borrow;
+        }
+
+        return array_values($groups);
     }
 
     private function resolveStatusFilter(Request $request): ?BorrowStatus
