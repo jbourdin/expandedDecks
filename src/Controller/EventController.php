@@ -49,6 +49,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  * @see docs/features.md F4.8 — Staff-delegated lending
+ * @see docs/features.md F4.9 — Staff deck custody tracking
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
 #[Route('/event')]
@@ -141,10 +142,12 @@ class EventController extends AbstractController
             }
         }
 
+        $isStaff = $event->isOrganizerOrStaff($user);
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
-            'isStaff' => $event->isOrganizerOrStaff($user),
+            'isStaff' => $isStaff,
             'userEngagement' => $userEngagement,
             'isParticipant' => $isParticipant,
             'eventBorrows' => $borrowRepository->findByEventForUser($event, $user),
@@ -153,6 +156,7 @@ class EventController extends AbstractController
             'canChangeDeck' => $canChangeDeck,
             'ownedDecksWithVersion' => $ownedDecksWithVersion,
             'deckRegistrationMap' => $deckRegistrationMap,
+            'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
         ]);
     }
 

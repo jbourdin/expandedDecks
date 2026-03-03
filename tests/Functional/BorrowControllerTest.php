@@ -117,9 +117,11 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         $event = $this->getFixtureEvent();
         $deck = $this->getDeckByName('Iron Thorns');
+        $regidrago = $this->getDeckByName('Regidrago');
 
-        // Cancel existing borrow so Iron Thorns is available
+        // Cancel existing borrows so Regidrago becomes available on the decks page
         $this->cancelExistingBorrowsForDeck($deck, $event);
+        $this->cancelExistingBorrowsForDeck($regidrago, $event);
 
         // Admin sees the available decks page (Regidrago from lender is available),
         // but Iron Thorns won't be listed. POST directly to test server-side validation.
@@ -146,6 +148,9 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $deck = $this->getDeckByName('Regidrago');
         $eventId = $event->getId();
         $deckId = $deck->getId();
+
+        // Cancel delegated borrow so Regidrago appears on available decks page
+        $this->cancelExistingBorrowsForDeck($deck, $event);
 
         // Visit available decks page BEFORE retiring to get a valid CSRF token
         $crawler = $this->client->request('GET', \sprintf('/event/%d/decks', $eventId));
@@ -175,6 +180,10 @@ class BorrowControllerTest extends AbstractFunctionalTest
 
         $event = $this->getFixtureEvent();
         $deck = $this->getDeckByName('Iron Thorns');
+        $regidrago = $this->getDeckByName('Regidrago');
+
+        // Cancel Regidrago's delegated borrow so the available decks page has a form
+        $this->cancelExistingBorrowsForDeck($regidrago, $event);
 
         // Iron Thorns already has a pending borrow in fixtures.
         // Get CSRF token from the available decks page.
@@ -204,6 +213,9 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $deck = $this->getDeckByName('Regidrago');
         $eventId = $event->getId();
         $deckId = $deck->getId();
+
+        // Cancel delegated borrow so Regidrago is available for conflict test
+        $this->cancelExistingBorrowsForDeck($deck, $event);
 
         $em = $this->getEntityManager();
 

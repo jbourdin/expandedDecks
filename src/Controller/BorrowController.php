@@ -256,8 +256,14 @@ class BorrowController extends AbstractController
 
     private function resolveActionRedirect(Request $request, Borrow $borrow): Response
     {
-        if ('lends' === $request->getPayload()->getString('redirect_to')) {
+        $redirectTo = $request->getPayload()->getString('redirect_to');
+
+        if ('lends' === $redirectTo) {
             return $this->redirectToRoute('app_lend_list');
+        }
+
+        if ('event' === $redirectTo) {
+            return $this->redirectToRoute('app_event_show', ['id' => $borrow->getEvent()->getId()]);
         }
 
         return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);

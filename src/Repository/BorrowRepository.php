@@ -305,6 +305,32 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Active delegated borrows at an event — for the staff custody dashboard.
+     *
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findDelegatedBorrowsByEvent(Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'u')
+            ->where('b.event = :event')
+            ->andWhere('b.isDelegatedToStaff = true')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->orderBy('b.requestedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * @see docs/features.md F4.5 — Borrow history
      */
     public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder
