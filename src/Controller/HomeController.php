@@ -24,6 +24,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class HomeController extends AbstractController
 {
+    /**
+     * @see docs/features.md F10.2 — Anonymous homepage
+     */
     #[Route('/', name: 'app_home')]
     public function index(DeckRepository $deckRepository, EventRepository $eventRepository): Response
     {
@@ -32,8 +35,8 @@ class HomeController extends AbstractController
         }
 
         return $this->render('home/index.html.twig', [
-            'decks' => $deckRepository->findAvailableDecks(),
-            'events' => $eventRepository->findUpcoming(),
+            'publicDeckCount' => $deckRepository->countPublicDecks(),
+            'upcomingEventCount' => $eventRepository->countUpcoming(),
         ]);
     }
 
@@ -53,7 +56,8 @@ class HomeController extends AbstractController
         return $this->render('home/dashboard.html.twig', [
             'user' => $user,
             'ownedDecks' => $user->getOwnedDecks(),
-            'events' => $eventRepository->findUpcoming(),
+            'myEvents' => $eventRepository->findUpcomingByEngagement($user),
+            'staffingEvents' => $eventRepository->findRecentByOrganizerOrStaff($user),
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
             'recentLends' => $borrowRepository->findRecentByDeckOwner($user),
             'recentManagedBorrows' => $borrowRepository->findRecentByEventOrganizerOrStaff($user),

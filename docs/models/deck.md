@@ -17,8 +17,11 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | `name`             | `string(100)`      | No       | Owner-given name for this deck (e.g. "My Lugia VSTAR"). |
 | `owner`            | `User`             | No       | The user who owns this physical deck. |
 | `format`           | `string(30)`       | No       | Play format. Default: `"Expanded"`. |
+| `archetype`        | `Archetype`        | Yes      | Reference to the managed `Archetype` entity (F2.6). Selected by the owner from the archetype catalogue (with autocomplete). Null if no archetype assigned yet. |
+| `languages`        | `json`             | No       | Array of ISO 639-1 language codes present in this deck (e.g. `["en", "ja"]`). Default: `[]`. |
 | `status`           | `string(20)`       | No       | Current availability status. See Status enum below. Default: `"available"`. |
 | `notes`            | `text`             | Yes      | Owner's private notes about the deck (e.g. sleeve color, missing cards, condition). |
+| `public`           | `bool`             | No       | Whether the deck is visible in the public catalog and accessible via its shortTag URL to anonymous users. Default: `false`. Cannot be unpublished while the deck has active event registrations. |
 | `currentVersion`   | `DeckVersion`      | Yes      | The latest/active version of this deck. Null only before the first list import. |
 | `createdAt`        | `DateTimeImmutable` | No      | Deck registration timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
@@ -39,14 +42,22 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 - `owner`: required, must be a verified user
 - `status`: required, must be a valid `DeckStatus` value
 
+### Public Access Control
+
+When `public` is `true`, the deck is listed in the public catalog (F2.4) and its detail page (F2.3) is accessible to anonymous visitors via the shortTag URL (`/deck/{shortTag}`). When `public` is `false`, only the deck owner, admins, and organizers/staff of events where the deck is registered can view the detail page — anonymous visitors receive a 403.
+
+A public deck cannot be unpublished while it has active `EventDeckRegistration` entries to prevent breaking event workflows.
+
 ### Relations
 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
 | `owner`            | ManyToOne    | `User`         | User who owns this deck |
+| `archetype`        | ManyToOne    | `Archetype`    | Archetype for this deck (F2.6) |
 | `versions`         | OneToMany    | `DeckVersion`  | All versions of this deck (card list snapshots) |
 | `currentVersion`   | ManyToOne    | `DeckVersion`  | Pointer to the active version |
 | `borrows`          | OneToMany    | `Borrow`       | Borrow history for this deck |
+| `eventRegistrations` | OneToMany  | `EventDeckRegistration` | Per-event deck availability/delegation entries |
 
 ---
 
@@ -61,35 +72,14 @@ A **card list snapshot** — one point-in-time version of a deck. Created when t
 | `id`               | `int` (auto)       | No       | Primary key |
 | `deck`             | `Deck`             | No       | The deck this version belongs to. |
 | `versionNumber`    | `int`              | No       | Sequential version number (1, 2, 3…). Auto-incremented per deck. |
-| `archetype`        | `Archetype`        | Yes      | Reference to the managed `Archetype` entity (F2.6). Selected by the owner from the archetype catalogue (with autocomplete). Null if no archetype assigned yet. |
-| `languages`        | `json`             | No       | Array of ISO 639-1 language codes present in this version (e.g. `["en", "ja"]`). |
 | `estimatedValueAmount`   | `int`        | Yes      | Owner-provided estimated monetary value in cents of the currency. Visible to the owner, organizers, and event staff. |
 | `estimatedValueCurrency` | `string(3)`  | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `estimatedValueAmount` is set. |
 | `rawList`          | `text`             | Yes      | The original PTCG text format pasted by the owner. Preserved for reference and re-import. |
 | `createdAt`        | `DateTimeImmutable` | No      | When this version was created. |
 
-### Languages
-
-The `languages` field is a JSON array of ISO 639-1 codes. Common values:
-
-| Code | Language |
-|------|----------|
-| `en` | English |
-| `ja` | Japanese |
-| `fr` | French |
-| `de` | German |
-| `es` | Spanish |
-| `it` | Italian |
-| `pt` | Portuguese |
-| `ko` | Korean |
-| `zh` | Chinese |
-
-A deck version can contain cards in multiple languages (e.g. `["en", "ja"]` for a mixed English/Japanese deck). This helps borrowers know if they'll be able to read the cards.
-
 ### Constraints
 
 - Unique constraint on (`deck`, `versionNumber`) — no duplicate version numbers per deck
-- `languages`: required, at least one language code
 - `estimatedValueAmount` and `estimatedValueCurrency`: both null or both set. `estimatedValueAmount` >= 0 when provided.
 
 ### Relations
@@ -97,7 +87,6 @@ A deck version can contain cards in multiple languages (e.g. `["en", "ja"]` for 
 | Relation           | Type         | Target entity  | Description |
 |--------------------|--------------|----------------|-------------|
 | `deck`             | ManyToOne    | `Deck`         | Parent deck |
-| `archetype`        | ManyToOne    | `Archetype`    | Archetype for this version (F2.6) |
 | `cards`            | OneToMany    | `DeckCard`     | Cards in this version (the list) |
 
 ---
@@ -132,70 +121,29 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 ## Entity: `App\Entity\Archetype`
 
 > **@see** docs/features.md F2.6 — Deck archetype management
-> **@see** docs/features.md F2.10 — Archetype detail page
 
-A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Mew VMAX"). Translatable fields follow the same Knp Translatable pattern as CMS pages. Managed by users with `ROLE_ARCHETYPE_EDITOR` or `ROLE_ADMIN`.
+A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Mew VMAX"). Currently a minimal entity with name and slug; additional fields (pokemonSlugs, translations, isPublished) will be added in later phases.
 
 ### Fields
 
 | Field          | Type               | Nullable | Description |
 |----------------|--------------------|----------|-------------|
 | `id`           | `int` (auto)       | No       | Primary key |
-| `slug`         | `string(100)`      | No       | URL-friendly identifier (e.g. `"lugia-vstar"`). Used in the archetype page route. |
-| `pokemonSlugs` | `json`            | No       | Array of Pokemon slug identifiers used to render sprite pictograms via a PokéSprite fork (F2.12). Each slug maps to a box sprite file (e.g. `["lugia"]` → `pokemon-gen8/regular/lugia.png`). Covers Gen 1–9 (including Scarlet/Violet and DLC Pokemon like Raging Bolt, Walking Wake). Supports multiple Pokemon for multi-Pokemon archetypes (e.g. `["mew", "genesect"]`). Order determines display order. |
-| `isPublished`  | `bool`             | No       | Whether the archetype page is publicly visible. Default: `false`. Unpublished archetypes can still be selected for decks, but have no public page. |
+| `name`         | `string(100)`      | No       | Display name (e.g. `"Iron Thorns ex"`). Required, unique. |
+| `slug`         | `string(100)`      | No       | URL-friendly identifier, auto-generated from name (e.g. `"iron-thorns-ex"`). Unique. |
 | `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
-| `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
+| `updatedAt`    | `DateTimeImmutable` | Yes     | Last modification timestamp. |
 
 ### Constraints
 
-- `slug`: required, unique, 1–100 characters, URL-friendly (`[a-z0-9-]+`)
-- `pokemonSlugs`: required, non-empty JSON array. Each entry must be a valid PokéSprite slug (lowercase, matching a sprite file in the PokéSprite fork's `pokemon-gen8/regular/` directory). Covers Gen 1–9. Max 4 entries.
+- `name`: required, unique, 2–100 characters
+- `slug`: required, unique, auto-generated from name via `AsciiSlugger`
 
 ### Relations
 
-| Relation       | Type      | Target                  | Description |
-|----------------|-----------|-------------------------|-------------|
-| `translations` | OneToMany | `ArchetypeTranslation`  | Localized name, description, and SEO |
-| `deckVersions` | OneToMany | `DeckVersion`           | Deck versions using this archetype |
-
----
-
-## Entity: `App\Entity\ArchetypeTranslation`
-
-Localized fields for `Archetype`. One row per locale per archetype.
-
-### Fields
-
-| Field             | Type          | Nullable | Description |
-|-------------------|---------------|----------|-------------|
-| `id`              | `int` (auto)  | No       | Primary key |
-| `locale`          | `string(5)`   | No       | ISO 639-1 locale code (e.g. `"en"`, `"fr"`). |
-| `name`            | `string(100)` | No       | Translated archetype name (e.g. `"Lugia VSTAR"`, `"Lugia VSTAR"`). |
-| `description`     | `text`        | Yes      | Archetype presentation in **Markdown** format. Rendered to HTML on the archetype detail page (F2.10). Null = no description available for this locale. |
-| `metaDescription` | `string(160)` | Yes      | SEO `<meta name="description">` for the archetype page. Max 160 chars. |
-
-### Constraints
-
-- Unique constraint on (`translatable_id`, `locale`) — one translation per locale per archetype
-- `name`: required, 1–100 characters
-- `metaDescription`: max 160 characters when provided
-
-### Locale Fallback
-
-Same chain as CMS pages (F11.3): user locale → `en` → 404.
-
-### URL Routing
-
-Archetype pages are served at:
-
-```
-/{locale}/archetypes/{slug}
-```
-
-Example:
-- `/en/archetypes/lugia-vstar`
-- `/fr/archetypes/lugia-vstar` (slug is not localized — archetype names are typically the same across languages)
+| Relation       | Type      | Target    | Description |
+|----------------|-----------|-----------|-------------|
+| `decks`        | OneToMany | `Deck`    | Decks using this archetype |
 
 ---
 

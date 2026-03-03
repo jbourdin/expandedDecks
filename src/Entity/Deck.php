@@ -17,6 +17,7 @@ use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -55,8 +56,19 @@ class Deck
     #[ORM\Column(length: 20, enumType: DeckStatus::class)]
     private DeckStatus $status = DeckStatus::Available;
 
+    #[ORM\ManyToOne(targetEntity: Archetype::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Archetype $archetype = null;
+
+    /** @var list<string> */
+    #[ORM\Column(type: Types::JSON)]
+    private array $languages = [];
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $public = false;
 
     #[ORM\ManyToOne(targetEntity: DeckVersion::class)]
     #[ORM\JoinColumn(nullable: true)]
@@ -135,6 +147,36 @@ class Deck
         return $this;
     }
 
+    public function getArchetype(): ?Archetype
+    {
+        return $this->archetype;
+    }
+
+    public function setArchetype(?Archetype $archetype): static
+    {
+        $this->archetype = $archetype;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getLanguages(): array
+    {
+        return $this->languages;
+    }
+
+    /**
+     * @param list<string> $languages
+     */
+    public function setLanguages(array $languages): static
+    {
+        $this->languages = $languages;
+
+        return $this;
+    }
+
     public function getStatus(): DeckStatus
     {
         return $this->status;
@@ -155,6 +197,18 @@ class Deck
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): static
+    {
+        $this->public = $public;
 
         return $this;
     }

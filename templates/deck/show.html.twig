@@ -69,9 +69,12 @@
                 <span><strong>Format:</strong> {{ deck.format }}</span>
                 {% if deck.currentVersion %}
                     <span><strong>Version:</strong> v{{ deck.currentVersion.versionNumber }}</span>
-                    {% if deck.currentVersion.archetypeName %}
-                        <span><strong>Archetype:</strong> {{ deck.currentVersion.archetypeName }}</span>
-                    {% endif %}
+                {% endif %}
+                {% if deck.archetype %}
+                    <span><strong>Archetype:</strong> {{ deck.archetype.name }}</span>
+                {% endif %}
+                {% if deck.languages is not empty %}
+                    <span><strong>Languages:</strong> {{ deck.languages|join(', ') }}</span>
                 {% endif %}
                 {% if deck.notes %}
                     <span><strong>Notes:</strong> {{ deck.notes }}</span>
@@ -82,80 +85,89 @@
                         <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">Import List</a>
                     {% endif %}
-                    <a href="{{ path('app_dashboard') }}" class="btn btn-sm btn-outline-secondary">Dashboard</a>
                 </span>
             </div>
         </div>
     </div>
 
     {# Borrow activity card #}
-    {% if eligibleEvents is not empty or deckBorrows is not empty %}
-        <div class="card shadow-sm mb-3">
-            <div class="card-header card-header-themed">
-                <h5 class="mb-0">Borrow Activity</h5>
-            </div>
-            <div class="card-body">
-                {% if eligibleEvents is not empty %}
-                    <form method="post" action="{{ path('app_borrow_request') }}" class="mb-3">
-                        <input type="hidden" name="deck_id" value="{{ deck.id }}">
-                        <input type="hidden" name="redirect_to" value="deck">
-                        <input type="hidden" name="_token" value="">
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-5">
-                                <label for="borrow_event" class="form-label">Event</label>
-                                <select name="event_id" id="borrow_event" class="form-select form-select-sm" required>
-                                    <option value="">Select an event...</option>
-                                    {% for event in eligibleEvents %}
-                                        <option value="{{ event.id }}" data-token="{{ csrf_token('borrow-request-' ~ event.id) }}">
-                                            {{ event.name }} ({{ event.date|date('M j, Y') }})
-                                        </option>
-                                    {% endfor %}
-                                </select>
+    {% if app.user %}
+        {% if eligibleEvents is not empty or deckBorrows is not empty %}
+            <div class="card shadow-sm mb-3">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">Borrow Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if eligibleEvents is not empty %}
+                        <form method="post" action="{{ path('app_borrow_request') }}" class="mb-3">
+                            <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                            <input type="hidden" name="redirect_to" value="deck">
+                            <input type="hidden" name="_token" value="">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-5">
+                                    <label for="borrow_event" class="form-label">Event</label>
+                                    <select name="event_id" id="borrow_event" class="form-select form-select-sm" required>
+                                        <option value="">Select an event...</option>
+                                        {% for event in eligibleEvents %}
+                                            <option value="{{ event.id }}" data-token="{{ csrf_token('borrow-request-' ~ event.id) }}">
+                                                {{ event.name }} ({{ event.date|date('M j, Y') }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="borrow_notes_deck" class="form-label">Notes (optional)</label>
+                                    <input type="text" name="notes" id="borrow_notes_deck" class="form-control form-control-sm" placeholder="e.g. I'll bring it back right after my match">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-sm btn-primary w-100">Request</button>
+                                </div>
                             </div>
-                            <div class="col-md-5">
-                                <label for="borrow_notes_deck" class="form-label">Notes (optional)</label>
-                                <input type="text" name="notes" id="borrow_notes_deck" class="form-control form-control-sm" placeholder="e.g. I'll bring it back right after my match">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-sm btn-primary w-100">Request</button>
-                            </div>
-                        </div>
-                    </form>
-                    <script>
-                        document.getElementById('borrow_event').addEventListener('change', function() {
-                            var selected = this.options[this.selectedIndex];
-                            var token = selected.getAttribute('data-token') || '';
-                            this.closest('form').querySelector('input[name="_token"]').value = token;
-                        });
-                    </script>
-                {% endif %}
+                        </form>
+                        <script>
+                            document.getElementById('borrow_event').addEventListener('change', function() {
+                                var selected = this.options[this.selectedIndex];
+                                var token = selected.getAttribute('data-token') || '';
+                                this.closest('form').querySelector('input[name="_token"]').value = token;
+                            });
+                        </script>
+                    {% endif %}
 
-                {% if deckBorrows is not empty %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-themed table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Event</th>
-                                    <th>Borrower</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for borrow in deckBorrows %}
+                    {% if deckBorrows is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-themed table-sm mb-0">
+                                <thead>
                                     <tr>
-                                        <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
-                                        <td>{{ borrow.borrower.screenName }}</td>
-                                        <td>{{ borrowBadge(borrow) }}</td>
-                                        <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
-                                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                        <th>Event</th>
+                                        <th>Borrower</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th></th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
+                                </thead>
+                                <tbody>
+                                    {% for borrow in deckBorrows %}
+                                        <tr>
+                                            <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
+                                            <td>{{ borrow.borrower.screenName }}</td>
+                                            <td>{{ borrowBadge(borrow) }}</td>
+                                            <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                            <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body text-center py-4">
+                <p class="mb-2">Want to borrow this deck for an event?</p>
+                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">Log in</a>
+                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">Create an account</a>
             </div>
         </div>
     {% endif %}
@@ -196,7 +208,7 @@
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
                 <p class="text-muted mb-3">No deck list imported yet.</p>
-                {% if isOwner %}
+                {% if app.user and isOwner %}
                     <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-gold">Import Deck List</a>
                 {% endif %}
             </div>

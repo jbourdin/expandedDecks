@@ -151,7 +151,7 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardResolvesPromoCode(): void
     {
-        // No standard sets — only promo overrides
+        // SV promos use plain card numbers (no era prefix)
         $httpClient = $this->createFullMockClient(
             [],
             [
@@ -173,6 +173,61 @@ class TcgdexApiClientTest extends TestCase
 
         self::assertNotNull($card);
         self::assertSame('svp-67', $card->id);
+    }
+
+    public function testFindCardPrefixesCardNumberForXyPromos(): void
+    {
+        // XY promos: PTCG "XYP 177" → TCGdex "xyp-XY177"
+        $httpClient = $this->createFullMockClient(
+            [],
+            [
+                'xyp-XY177' => [
+                    'status' => 200,
+                    'body' => [
+                        'id' => 'xyp-XY177',
+                        'name' => 'Karen',
+                        'category' => 'Trainer',
+                        'trainerType' => 'Supporter',
+                        'image' => 'https://assets.tcgdex.net/en/xy/xyp/XY177',
+                        'legal' => ['expanded' => true],
+                    ],
+                ],
+            ],
+        );
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $card = $client->findCard('PR-XY', '177');
+
+        self::assertNotNull($card);
+        self::assertSame('xyp-XY177', $card->id);
+        self::assertSame('Karen', $card->name);
+        self::assertSame('Supporter', $card->trainerType);
+    }
+
+    public function testFindCardPrefixesCardNumberForSwshPromos(): void
+    {
+        // SWSH promos: PTCG "PR-SW 001" → TCGdex "swshp-SWSH001"
+        $httpClient = $this->createFullMockClient(
+            [],
+            [
+                'swshp-SWSH001' => [
+                    'status' => 200,
+                    'body' => [
+                        'id' => 'swshp-SWSH001',
+                        'name' => 'Grookey',
+                        'category' => 'Pokemon',
+                        'image' => 'https://assets.tcgdex.net/en/swsh/swshp/SWSH001',
+                        'legal' => ['expanded' => true],
+                    ],
+                ],
+            ],
+        );
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $card = $client->findCard('PR-SW', '001');
+
+        self::assertNotNull($card);
+        self::assertSame('swshp-SWSH001', $card->id);
     }
 
     public function testFindCardIncludesTrainerType(): void

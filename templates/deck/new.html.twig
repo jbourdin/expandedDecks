@@ -20,8 +20,28 @@
                 <div class="card-body">
                     {{ form_start(form) }}
                         {{ form_row(form.name) }}
-                        {{ form_row(form.format) }}
                         {{ form_row(form.notes) }}
+
+                        {# Archetype — React island #}
+                        <div class="mb-3">
+                            <label class="form-label">Archetype (optional)</label>
+                            <div id="archetype-select-root"
+                                 data-search-url="{{ path('app_archetype_search') }}"
+                                 data-create-url="{{ path('app_archetype_create') }}"
+                            ></div>
+                            {{ form_widget(form.archetype) }}
+                        </div>
+
+                        {# Languages — React island #}
+                        <div class="mb-3">
+                            <label class="form-label">Languages</label>
+                            <div id="language-select-root"></div>
+                            {{ form_widget(form.languages) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_row(form.public) }}
+                        </div>
 
                         <button type="submit" class="btn btn-gold w-100">Create Deck</button>
                     {{ form_end(form) }}
@@ -29,4 +49,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('deck_form') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('deck_form') }}
 {% endblock %}

@@ -215,7 +215,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         // Create a second event on the same day with borrower engaged
         $secondEvent = new Event();
         $secondEvent->setName('Same Day Event');
-        $secondEvent->setDate(new \DateTimeImmutable('today', new \DateTimeZone('Europe/Paris')));
+        $secondEvent->setDate(new \DateTimeImmutable('today'));
         $secondEvent->setTimezone('Europe/Paris');
         $secondEvent->setOrganizer($userRepo->findOneBy(['email' => 'admin@example.com']));
         $secondEvent->setRegistrationLink('https://example.com/same-day');
@@ -338,7 +338,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
         $this->cancelExistingBorrowsForDeck($deck, $event);
 
         // Visit the deck page to verify the borrow form is present
-        $crawler = $this->client->request('GET', \sprintf('/deck/%d', $deck->getId()));
+        $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
         self::assertResponseIsSuccessful();
 
         $form = $crawler->filter('form[action="/borrow/request"]');
@@ -358,7 +358,7 @@ class BorrowControllerTest extends AbstractFunctionalTest
             '_token' => $csrfToken,
         ]);
 
-        self::assertResponseRedirects(\sprintf('/deck/%d', $deck->getId()));
+        self::assertResponseRedirects('/deck/'.$deck->getShortTag());
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Borrow request for "Iron Thorns" submitted.');
     }

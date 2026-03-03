@@ -42,7 +42,13 @@ class RegistrationController extends AbstractController
         #[Autowire('%app.verification_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
     ): Response {
+        $targetPath = $request->query->getString('_target_path');
+
         if ($this->getUser()) {
+            if ('' !== $targetPath && $this->isSafeRedirectPath($targetPath)) {
+                return $this->redirect($targetPath);
+            }
+
             return $this->redirectToRoute('app_dashboard');
         }
 
@@ -80,11 +86,20 @@ class RegistrationController extends AbstractController
 
             $this->addFlash('success', 'Your account has been created. Please check your email to verify your address.');
 
-            return $this->redirectToRoute('app_login');
+            $loginParams = ('' !== $targetPath) ? ['_target_path' => $targetPath] : [];
+
+            return $this->redirectToRoute('app_login', $loginParams);
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
+    }
+
+    private function isSafeRedirectPath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            && !str_starts_with($path, '//')
+            && !str_contains($path, '://');
     }
 }

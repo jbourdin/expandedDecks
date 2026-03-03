@@ -33,6 +33,21 @@
 | `@mantine/dates`           | Date pickers and calendars           |
 | `@tabler/icons-react`      | Icon set (peer dependency)           |
 
+### Installation Status
+
+`@mantine/core` and `@mantine/hooks` are installed. Current usage:
+
+- **Deck form React islands** (`deck_form` entry): `ArchetypeSelect` (creatable autocomplete) and `LanguageSelect` (multi-select).
+- **Staff autocomplete** (`staff_autocomplete` entry): uses the shared `AsyncAutocomplete` component to search users when assigning event staff.
+- **Walk-up autocomplete** (`walk_up_autocomplete` entry): uses two `AsyncAutocomplete` instances for deck and borrower search on the walk-up lending page.
+- **Catalog filters** (`catalog_filters` entry): mounts `AsyncAutocomplete` instances for archetype, event, and owner search fields in the public deck catalog filter bar (F2.4). Each autocomplete targets a public JSON search endpoint (`/api/archetype/search`, `/api/event/search`, `/api/deck-owner/search`) that does not require authentication.
+
+The `AsyncAutocomplete` component (`assets/components/AsyncAutocomplete.tsx`) is a generic Mantine `Combobox`-based search widget with debounced fetch, `AbortController` cancellation, and hidden input sync. It replaces the previous vanilla JS autocomplete widgets.
+
+Mantine styles are imported per entry point (scoped to pages that use Mantine, to avoid Bootstrap style conflicts).
+
+Additional packages (`@mantine/form`, `@mantine/notifications`, `@mantine/dates`, `@tabler/icons-react`) will be installed as needed for future features.
+
 ### CSS
 
 Import `@mantine/core/styles.css` in the application entrypoint. PostCSS is not required for basic usage.

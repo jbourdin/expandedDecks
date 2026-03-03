@@ -1,0 +1,92 @@
+# Changelog
+
+> **Audience:** Developer, AI Agent · **Scope:** Reference
+
+← Back to [Main Documentation](docs.md) | [README](../README.md)
+
+All notable changes to this project are documented in this file.
+Format inspired by [Keep a Changelog](https://keepachangelog.com/).
+
+Features reference the [Feature List](features.md) by ID.
+Items marked *(partial)* have scaffolding or basic functionality but are not yet complete end-to-end.
+
+---
+
+## [0.1.0] — 2026-03-03
+
+First tagged release. Covers the core domain: authentication, deck library, event management, full borrow workflow with notifications, and card data pipeline.
+
+### Auth & Foundation
+
+- **F1.1** — User registration & authentication (email, screen name, player ID, target-path redirect)
+- **F1.2** — Email verification (token-based activation link)
+- **F1.4** — Role-based access control (admin, organizer, player, per-event staff)
+- **F1.7** — Password reset (tokenized email flow)
+- **F9.4** — UTC datetime storage
+
+### Deck Library
+
+- **F2.1** — Register a deck (name, archetype, format, auto-generated short tag)
+- **F2.2** — Import deck list via copy-paste (PTCG text format, parsed & validated)
+- **F2.3** — Deck detail view (card list, availability, card image hovers, public short-tag URL)
+- **F2.4** — Deck catalog (browse, search, archetype/event/owner filters, paginated)
+- **F2.5** — Deck availability status (available, lent, reserved, retired)
+- **F2.8** — Update deck list (new version, preserves history)
+- **F2.6** — Deck archetype management *(partial)* — name/slug catalogue with autocomplete; published descriptions, sprites, and editor role not yet implemented
+
+### Event Management
+
+- **F3.1** — Create an event (full form with tournament structure, entry fee, sync CTA placeholder)
+- **F3.2** — Event listing (upcoming/past, publicly accessible)
+- **F3.3** — Event detail view (tournament info, borrow requests, deck assignments)
+- **F3.4** — Register participation (playing or spectating modes)
+- **F3.5** — Assign event staff team (multi-field search with autocomplete)
+- **F3.9** — Edit an event
+- **F3.7** — Register played deck for event *(partial)* — `EventDeckEntry` creation works; placement and match record entry not yet implemented
+- **F3.10** — Cancel an event *(partial)* — cancellation with cascading pre-handoff borrows; UI polish pending
+- **F3.20** — Mark event as finished *(partial)* — sets `finishedAt`; overdue triggers not yet wired
+
+### Borrow Workflow
+
+- **F4.1** — Request to borrow a deck for an event
+- **F4.2** — Approve / deny borrow request
+- **F4.3** — Confirm deck hand-off (lend) — manual owner/staff confirmation
+- **F4.4** — Confirm deck return
+- **F4.7** — Cancel a borrow request (borrower or owner)
+- **F4.8** — Staff-delegated lending (per-deck, per-event opt-in)
+- **F4.11** — Borrow conflict detection (hard block on overlapping approved/lent, soft warning on pending)
+- **F4.12** — Walk-up lending (direct lend at event, skips request/approval)
+- **F4.5** — Borrow history *(partial)* — per-deck history visible; per-user history view not yet built
+- **F4.10** — Owner borrow inbox *(partial)* — basic view exists; grouped-by-event layout pending
+
+### Card Data & Validation
+
+- **F6.1** — Parse PTCG text format (PHP `DeckListParser`, regex-based)
+- **F6.2** — Card validation via TCGdex (async Messenger enrichment pipeline)
+- **F6.3** — Expanded format validation (Black & White onward + ban list)
+- **F6.4** — Display card images (high-res from TCGdex, hover overlay, energy fallbacks)
+
+### Notifications
+
+- **F8.1** — Borrow workflow notifications (email + in-app at each state transition)
+- **F8.2** — Event notifications *(partial)* — scaffolding exists; full engagement-state triggers pending
+
+### Dashboard & Homepage
+
+- **F7.1** — Dashboard *(partial)* — basic layout with staffing and events cards; full widget set pending
+- **F10.2** — Anonymous homepage *(partial)* — public landing with event list and deck catalog CTAs; full design pending
+
+### Infrastructure
+
+- **F1.8** — Account deletion & data export *(partial)* — soft-delete with anonymization scaffolded; confirmation email and JSON export not yet implemented
+- **F2.7** — Retire / reactivate a deck *(partial)* — status transitions exist; UI controls pending
+- **F9.1** — User language preference *(partial)* — locale field on User entity; preference UI and full i18n not yet applied
+- **F9.2** — User timezone *(partial)* — timezone field on User entity; display conversion not yet applied
+
+### Cross-Cutting
+
+- PHPUnit test suite (unit + functional, 34+ test methods)
+- PHP coverage reporting in CI (pcov + GitHub Action PR comments)
+- Vitest frontend unit tests (@testing-library/react)
+- PHPStan level 10, PHP-CS-Fixer @Symfony ruleset
+- Docker Compose development environment (MySQL 8)

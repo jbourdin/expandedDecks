@@ -141,9 +141,11 @@
 
                 <form method="post" action="{{ path('app_event_assign_staff', {id: event.id}) }}" class="d-flex gap-2">
                     <input type="hidden" name="_token" value="{{ csrf_token('assign-staff-' ~ event.id) }}">
-                    <input type="hidden" name="user_query" value="">
-                    <div class="flex-grow-1" style="position: relative;">
-                        <input type="text" class="form-control form-control-sm" placeholder="Screen name, email, or Pokemon ID" required data-staff-autocomplete data-search-url="{{ path('app_user_search') }}">
+                    <div class="flex-grow-1"
+                         data-staff-autocomplete
+                         data-search-url="{{ path('app_user_search') }}"
+                         data-hidden-input="user_query"
+                         data-placeholder="Screen name, email, or Pokemon ID">
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary text-nowrap">Add Staff</button>
                 </form>
@@ -224,7 +226,7 @@
                             {% set isDelegated = regInfo is not null and regInfo.delegated %}
                             {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
                             <tr>
-                                <td><a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
+                                <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                 <td>
                                     {% if isPlayed %}
                                         <span class="badge bg-primary">Played</span>
@@ -304,7 +306,7 @@
                                                 {{ selectedDeckId == deck.id ? 'checked' }}
                                                 {{ not canChangeDeck ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {id: deck.id}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                         <td><span class="badge bg-secondary">Own deck</span></td>
                                         <td></td>
                                     </tr>
@@ -317,7 +319,7 @@
                                                 {{ selectedDeckId == borrow.deck.id ? 'checked' }}
                                                 {{ (not canChangeDeck or not isBorrowPlayable) ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                         <td>{{ borrowBadge(borrow) }}</td>
                                         <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
                                     </tr>
@@ -370,7 +372,7 @@
                         <tbody>
                             {% for borrow in otherBorrows %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {id: borrow.deck.id}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>{{ borrowBadge(borrow) }}</td>
                                     <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
@@ -394,6 +396,13 @@
             </form>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if isOrganizer and not event.cancelledAt %}
+        {{ encore_entry_link_tags('staff_autocomplete') }}
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

@@ -1,0 +1,132 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Deck Catalog — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Deck Catalog</h1>
+        {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('app_deck_new') }}" class="btn btn-gold">+ New Deck</a>
+        {% endif %}
+    </div>
+
+    {# Filter bar #}
+    <form method="get" action="{{ path('app_deck_list') }}" class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label for="filter-search" class="form-label">Search</label>
+                    <input type="text" id="filter-search" name="q" class="form-control" placeholder="Name or short tag..." value="{{ filters.search ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Archetype</label>
+                    <div data-catalog-archetype
+                         data-search-url="{{ path('app_archetype_search') }}"
+                         data-hidden-input="archetype"
+                         data-placeholder="Search archetype..."
+                         {% if (filters.archetype ?? '') != '' %}
+                             data-initial-value="{{ archetypeName }}"
+                             data-initial-id="{{ filters.archetype }}"
+                         {% endif %}
+                    ></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Event</label>
+                    <div data-catalog-event
+                         data-search-url="{{ path('app_event_search') }}"
+                         data-hidden-input="event"
+                         data-placeholder="Search event..."
+                         {% if (filters.event ?? 0) > 0 %}
+                             data-initial-value="{{ eventName }}"
+                             data-initial-id="{{ filters.event }}"
+                         {% endif %}
+                    ></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Owner</label>
+                    <div data-catalog-owner
+                         data-search-url="{{ path('app_deck_owner_search') }}"
+                         data-hidden-input="owner"
+                         data-placeholder="Search owner..."
+                         {% if (filters.owner ?? 0) > 0 %}
+                             data-initial-value="{{ ownerName }}"
+                             data-initial-id="{{ filters.owner }}"
+                         {% endif %}
+                    ></div>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-gold">Filter</button>
+                    <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {# Result count #}
+    <p class="text-muted mb-3">{{ totalItems }} deck{{ totalItems != 1 ? 's' : '' }} found</p>
+
+    {% if totalItems > 0 %}
+        {# Card grid #}
+        <div class="row">
+            {% for deck in decks %}
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <span class="badge bg-dark me-1">{{ deck.shortTag }}</span>
+                                <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
+                            </h5>
+                            <p class="card-text mb-1">
+                                Owner: <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
+                            </p>
+                            {% if deck.archetype %}
+                                <p class="card-text mb-0">
+                                    Archetype: <a href="{{ path('app_deck_list', filters|merge({archetype: deck.archetype.slug})) }}">{{ deck.archetype.name }}</a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Pagination #}
+        {% if totalPages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage - 1})) }}">Previous</a>
+                    </li>
+                    {% for p in 1..totalPages %}
+                        <li class="page-item {% if p == currentPage %}active{% endif %}">
+                            <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: p})) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage + 1})) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">No decks match your search criteria.</div>
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('catalog_filters') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('catalog_filters') }}
+{% endblock %}

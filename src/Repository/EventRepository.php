@@ -30,6 +30,24 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F10.2 — Anonymous homepage
+     */
+    public function countUpcoming(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F3.1 — Create a new event
      *
      * @return list<Event>
@@ -46,6 +64,74 @@ class EventRepository extends ServiceEntityRepository
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('e.date', 'ASC')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     *
+     * @return list<Event>
+     */
+    public function searchByName(string $query, int $limit = 10): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->where('e.name LIKE :query')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->setParameter('query', '%'.$query.'%')
+            ->orderBy('e.date', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Events where the user is organizer or staff, with start date >= 7 days ago.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Event>
+     */
+    public function findRecentByOrganizerOrStaff(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :cutoff')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('cutoff', new \DateTimeImmutable('-7 days'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Upcoming events where the user has any engagement (interested, playing, spectating).
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingByEngagement(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
             ->getQuery()
             ->getResult();
 

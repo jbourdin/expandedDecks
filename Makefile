@@ -92,16 +92,16 @@ coverage: ## Run PHP tests with coverage (requires pcov)
 test.front: ## Run frontend (Vitest) tests
 	npx vitest run
 
-.PHONY: phpstan
-phpstan: ## Run PHPStan static analysis
+.PHONY: phpstan test.phpstan
+phpstan test.phpstan: ## Run PHPStan static analysis
 	symfony php vendor/bin/phpstan analyse --memory-limit=512M
 
-.PHONY: cs-fix
-cs-fix: ## Fix code style with PHP-CS-Fixer
+.PHONY: cs-fix test.phpcs.fix
+cs-fix test.phpcs.fix: ## Fix code style with PHP-CS-Fixer
 	symfony php vendor/bin/php-cs-fixer fix
 
-.PHONY: cs-check
-cs-check: ## Check code style (dry-run)
+.PHONY: cs-check test.phpcs
+cs-check test.phpcs: ## Check code style (dry-run)
 	symfony php vendor/bin/php-cs-fixer fix --dry-run --diff
 
 .PHONY: eslint

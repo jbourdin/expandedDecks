@@ -13,7 +13,8 @@
 ## Features
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
-- [Implementation Roadmap](roadmap.md) — Recommended build order across 10 phases
+- [Implementation Roadmap](roadmap.md) — Recommended build order across 12 phases
+- [Changelog](changelog.md) — Release history with implemented features per version
 
 ## Frontend
 
@@ -35,6 +36,7 @@
 - [Version Control](standards/version_control.md) — Gitflow, commits, PRs
 - [Documentation Standards](standards/documentation.md) — File structure, headers, linking
 - [File Headers](standards/file_headers.md) — Copyright & license blocks
+- [Release Process](standards/release_process.md) — Release workflow, tagging, and GitHub releases
 
 ## Technical Deep-Dives
 

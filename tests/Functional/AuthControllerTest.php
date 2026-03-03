@@ -138,6 +138,57 @@ class AuthControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // Target path redirect
+    // ---------------------------------------------------------------
+
+    public function testLoginRedirectsToTargetPath(): void
+    {
+        $this->client->request('GET', '/login?_target_path=/deck');
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
+
+        self::assertResponseRedirects('/deck');
+    }
+
+    public function testLoginIgnoresUnsafeTargetPath(): void
+    {
+        $this->client->request('GET', '/login?_target_path=//evil.com');
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
+
+        self::assertResponseRedirects('/dashboard');
+    }
+
+    public function testLoginPageRedirectsToTargetPathWhenLoggedIn(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/login?_target_path=/deck');
+
+        self::assertResponseRedirects('/deck');
+    }
+
+    public function testRegistrationPreservesTargetPathInLoginRedirect(): void
+    {
+        $this->client->request('GET', '/register?_target_path=/deck/ABC123');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'target-test@example.com',
+            'registration_form[screenName]' => 'TargetTest',
+            'registration_form[firstName]' => 'Target',
+            'registration_form[lastName]' => 'Test',
+            'registration_form[plainPassword][first]' => 'SecurePass123!',
+            'registration_form[plainPassword][second]' => 'SecurePass123!',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        self::assertResponseRedirects('/login?_target_path=/deck/ABC123');
+    }
+
+    // ---------------------------------------------------------------
     // LastLoginListener
     // ---------------------------------------------------------------
 
