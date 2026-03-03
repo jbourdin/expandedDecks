@@ -173,4 +173,137 @@ class DeckControllerTest extends AbstractFunctionalTest
         $loginLink = $crawler->filter('a[href^="/login"]');
         self::assertGreaterThan(0, $loginLink->count(), 'Login CTA should be present for anonymous users.');
     }
+
+    // ---------------------------------------------------------------
+    // Inline deck list import on creation (F2.13)
+    // ---------------------------------------------------------------
+
+    private const string VALID_DECK_LIST = <<<'LIST'
+        Pokémon: 13
+        4 Flutter Mane TEF 78
+        4 Roaring Moon TEF 109
+        1 Roaring Moon ex PR-SV 67
+        1 Great Tusk TEF 97
+        1 Koraidon SSP 116
+        1 Munkidori TWM 95
+        1 Pecharunt ex SFA 85
+
+        Trainer: 40
+        4 Professor Sada's Vitality PAR 170
+        4 Explorer's Guidance TEF 147
+        2 Boss's Orders PAL 172
+        2 Surfer SSP 187
+        2 Janine's Secret Art PRE 112
+        2 Professor's Research PAF 87
+        4 Earthen Vessel PAR 163
+        3 Nest Ball SVI 181
+        2 Pokégear 3.0 SVI 186
+        2 Counter Catcher PAR 160
+        2 Night Stretcher SFA 61
+        1 Pal Pad SVI 182
+        1 Superior Energy Retrieval PAL 189
+        1 Super Rod PAL 188
+        1 Brilliant Blender SSP 164
+        4 Ancient Booster Energy Capsule TEF 140
+        1 Exp. Share SVI 174
+        2 Artazon PAL 171
+
+        Energy: 7
+        7 Darkness Energy SVE 7
+
+        Total Cards: 60
+        LIST;
+
+    /**
+     * @see docs/features.md F2.13 — Inline deck list import on creation
+     */
+    public function testCreateDeckWithInlineImport(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Create Deck')->form([
+            'deck_form[name]' => 'Inline Import Test Deck',
+            'deck_form[rawList]' => self::VALID_DECK_LIST,
+        ]);
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertResponseIsSuccessful();
+
+        // Verify the deck was created with a version
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck|null $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'Inline Import Test Deck']);
+        self::assertNotNull($deck, 'Deck should have been created.');
+        self::assertNotNull($deck->getCurrentVersion(), 'Deck should have a current version from inline import.');
+    }
+
+    /**
+     * @see docs/features.md F2.13 — Inline deck list import on creation
+     */
+    public function testCreateDeckWithInvalidListShowsErrors(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        $form = $crawler->selectButton('Create Deck')->form([
+            'deck_form[name]' => 'Bad Import Deck',
+            'deck_form[rawList]' => "Pokémon: 2\n2 Pikachu V CEL 25",
+        ]);
+        $this->client->submit($form);
+
+        // Should re-render the form (not redirect) with error flashes
+        self::assertResponseIsSuccessful();
+
+        // Verify the deck was NOT created
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck|null $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'Bad Import Deck']);
+        self::assertNull($deck, 'Deck should not have been created when deck list is invalid.');
+    }
+
+    /**
+     * @see docs/features.md F2.13 — Inline deck list import on creation
+     */
+    public function testCreateDeckWithoutListStillWorks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        $form = $crawler->selectButton('Create Deck')->form([
+            'deck_form[name]' => 'No List Deck',
+            'deck_form[rawList]' => '',
+        ]);
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertResponseIsSuccessful();
+
+        // Verify the deck was created without a version
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck|null $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'No List Deck']);
+        self::assertNotNull($deck, 'Deck should have been created.');
+        self::assertNull($deck->getCurrentVersion(), 'Deck should not have a version when no list was provided.');
+    }
+
+    public function testNewDeckFormContainsRawListField(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(1, $crawler->filter('#deck_form_rawList')->count(), 'Raw list textarea should be present on new deck form.');
+    }
 }

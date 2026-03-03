@@ -24,6 +24,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
+ * @see docs/features.md F2.13 — Inline deck list import on creation
  *
  * @extends AbstractType<Deck>
  */
@@ -57,6 +58,18 @@ class DeckFormType extends AbstractType
                 'required' => false,
                 'disabled' => $options['public_disabled'],
             ]);
+
+        if ($options['include_raw_list']) {
+            $builder->add('rawList', TextareaType::class, [
+                'label' => 'Deck list (optional, PTCG format)',
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'rows' => 15,
+                    'placeholder' => "Pokémon: 16\n4 Arceus VSTAR BRS 123\n...\nTrainer: 32\n4 Professor's Research CEL 24\n...\nEnergy: 12\n4 Double Turbo Energy BRS 151\n...",
+                ],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -64,8 +77,10 @@ class DeckFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Deck::class,
             'public_disabled' => false,
+            'include_raw_list' => false,
         ]);
 
         $resolver->setAllowedTypes('public_disabled', 'bool');
+        $resolver->setAllowedTypes('include_raw_list', 'bool');
     }
 }
