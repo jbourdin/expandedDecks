@@ -184,22 +184,30 @@ class DeckRepository extends ServiceEntityRepository
     /**
      * Build a query for the public deck catalog with optional filters.
      *
+     * When selfOwner is true the public-visibility constraint is dropped,
+     * so the owner sees all their own decks (including private ones).
+     *
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      *
-     * @param array{search?: string, archetype?: string, owner?: int, event?: int} $filters
+     * @param array{search?: string, archetype?: string, owner?: int, event?: int, selfOwner?: bool} $filters
      */
     public function createCatalogQueryBuilder(array $filters = []): QueryBuilder
     {
+        $selfOwner = $filters['selfOwner'] ?? false;
+
         $qb = $this->createQueryBuilder('d')
             ->join('d.owner', 'o')
             ->leftJoin('d.archetype', 'a')
             ->addSelect('o', 'a')
-            ->where('d.public = :public')
             ->andWhere('d.status != :retired')
-            ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired)
             ->orderBy('d.updatedAt', 'DESC')
             ->addOrderBy('d.createdAt', 'DESC');
+
+        if (!$selfOwner) {
+            $qb->andWhere('d.public = :public')
+                ->setParameter('public', true);
+        }
 
         if (isset($filters['search']) && '' !== $filters['search']) {
             $qb->andWhere('d.name LIKE :search OR d.shortTag LIKE :search')
