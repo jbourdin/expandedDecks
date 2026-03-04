@@ -131,13 +131,13 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 | ID   | Feature                    | Priority | State       | Depends on |
 |------|----------------------------|----------|-------------|------------|
-| F9.1 | User language preference   | Medium   | Partial     | F1.1       |
+| F9.1 | User language preference   | Medium   | Done        | F1.1       |
 | F9.2 | User timezone              | Medium   | Partial     | F1.1, F9.4 |
 | F9.3 | Application translation    | Medium   | Not started | —          |
 | F1.3  | User profile               | Medium   | Not started | F1.1       |
 | F1.11 | Gravatar avatar & navbar user menu | Medium | Not started | F1.1 |
 
-**Progress: 0/5 done · 2 partial · 3 not started**
+**Progress: 1/5 done · 1 partial · 3 not started**
 
 **Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, a profile page showing owned decks, borrow history, and upcoming events, and a Gravatar-powered navbar avatar with user dropdown menu.
 
@@ -315,13 +315,13 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
 | 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
 | 5     | Core Views & Navigation           | 12   | 0       | 2           | 14    |
-| 6     | Localization                      | 0    | 2       | 3           | 5     |
+| 6     | Localization                      | 1    | 1       | 3           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 2       | 20          | 22    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **36** | **11** | **45**      | **92** |
+|       | **Total**                         | **37** | **10** | **45**      | **92** |
 
 All 92 features from [features.md](features.md) are represented exactly once.

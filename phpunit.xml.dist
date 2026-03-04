@@ -22,6 +22,8 @@
         <testsuite name="unit">
             <directory>tests/Service</directory>
             <directory>tests/Entity</directory>
+            <directory>tests/EventListener</directory>
+            <directory>tests/Twig</directory>
         </testsuite>
         <testsuite name="functional">
             <directory>tests/Functional</directory>
