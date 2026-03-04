@@ -100,6 +100,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F5.5   | PrintNode printer management         | Medium   | Configure PrintNode API key and select target printer from available PrintNode printers. |
 | F5.6   | Camera QR scan (mobile fallback)     | Medium   | Tap scan button to open device camera and scan deck label QR code. Uses `html5-qrcode`. Same lookup/action as HID scanner (F5.3). See [Camera Scanner Technicality](technicalities/camera_scanner.md). |
 | F5.7   | PDF label card (home printing)       | Medium   | Generate a downloadable PDF with a TCG card-sized label (63.5 × 88.9 mm) containing deck ID, name, owner, and QR code. Printed on any home printer, cut out, and slipped into a card sleeve. Uses Dompdf + `endroid/qr-code`. Same QR encoding as ZPL label — scannable by F5.3 and F5.6. See [PDF Label Technicality](technicalities/pdf_label.md). |
+| F5.12  | Deck show activity pagination        | Medium   | Deck detail page shows only the 5 most recent activity entries (borrows, returns, etc.) with a "See more" link to the full history page. Keeps the deck page focused while preserving access to the complete timeline. |
 
 > **Future:** A dedicated technicality document for PrintNode integration (ZPL generation, API client, printer selection) is planned — `docs/technicalities/printnode.md`.
 
@@ -121,6 +122,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F7.1   | Dashboard                            | Medium   | Admin overview: total decks, active borrows, upcoming events, overdue returns. Includes a **"Staffing"** card showing events where the user is organizer or staff (start date within the last 7 days or in the future, hidden when empty), and a **"My Events"** card showing upcoming events where the user has an engagement (interested, playing, spectating) with state badges. |
 | F7.2   | User management                      | Medium   | Admin CRUD for user accounts and role assignment. |
 | F7.3   | Audit log                            | Low      | Log significant actions (deck registered, borrow approved, return confirmed) for traceability. |
+| F7.4   | Dashboard action reminders           | Medium   | Dashboard widget showing upcoming actions due soon (borrows to return, pending requests to review, upcoming events requiring deck selection). Helps users stay on top of time-sensitive tasks. |
 
 ## F8 — Notifications
 
@@ -164,6 +166,7 @@ Both email (via Symfony Mailer + Messenger async transport) and in-app (stored i
 | F9.2   | User timezone                        | Medium   | Each user has a `timezone` (IANA string, default `UTC`). All UI datetimes are converted to the user's timezone for display. See [User model](models/user.md). |
 | F9.3   | Application translation              | Medium   | Symfony Translation component (YAML catalogues) for backend strings and `react-i18next` (JSON catalogues) for frontend strings. Initial languages: `en`, `fr`. Dot-notation keys (e.g. `app.deck.status.available`). All user-facing strings wrapped in translation calls (`trans()` / `t()`). |
 | F9.4   | UTC datetime storage                 | High     | All database datetimes stored in **UTC**. Event dates are displayed in the event's `timezone` field (see [Event model](models/event.md)). When the user's timezone differs from the event's timezone, a user-relative hint is shown — e.g. "10:00 CET (16:00 your time)". Borrow and notification timestamps displayed in the user's timezone (F9.2). |
+| F9.5   | Weblate integration                  | Low      | Cloud-hosted Weblate instance for collaborative editing of translation files (XLIFF catalogues). Translators edit via Weblate web UI; changes sync back to the repository via automated PRs. |
 
 ## F11 — CMS Content Pages
 
