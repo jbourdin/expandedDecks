@@ -102,6 +102,11 @@ footer {
     font-weight: 600;
 }
 
+.navbar-pokemon .dropdown-menu {
+    border: 1px solid rgba($ed-navy, .15);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .15);
+}
+
 // --- Hero (anonymous homepage) ---
 
 .hero-pokemon {
