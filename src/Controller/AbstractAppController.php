@@ -25,7 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 abstract class AbstractAppController extends AbstractController
 {
     public function __construct(
-        private readonly TranslatorInterface $translator,
+        protected readonly TranslatorInterface $translator,
     ) {
     }
 

@@ -7,32 +7,32 @@
  # file that was distributed with this source code.
  #}
 <!DOCTYPE html>
-<html>
+<html lang="{{ locale }}">
 <head>
     <meta charset="UTF-8">
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #2c3e50;">Welcome to Expanded Decks!</h1>
+    <h1 style="color: #2c3e50;">{{ 'app.email.verification_heading'|trans({}, 'messages', locale) }}</h1>
 
-    <p>Hi {{ user.screenName }},</p>
+    <p>{{ 'app.email.greeting'|trans({'%name%': user.screenName}, 'messages', locale) }}</p>
 
-    <p>Thank you for registering. Please verify your email address by clicking the button below:</p>
+    <p>{{ 'app.email.verification_body'|trans({}, 'messages', locale) }}</p>
 
     <p style="text-align: center; margin: 30px 0;">
         <a href="{{ verificationUrl }}"
            style="background-color: #0d6efd; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            Verify my email
+            {{ 'app.email.verification_button'|trans({}, 'messages', locale) }}
         </a>
     </p>
 
-    <p>Or copy and paste this link into your browser:</p>
+    <p>{{ 'app.email.link_fallback'|trans({}, 'messages', locale) }}</p>
     <p style="word-break: break-all; color: #666;">{{ verificationUrl }}</p>
 
-    <p><strong>This link will expire in {{ expiresInHours }} hour{{ expiresInHours > 1 ? 's' : '' }}.</strong></p>
+    <p><strong>{{ 'app.email.verification_expires'|trans({'%hours%': expiresInHours}, 'messages', locale) }}</strong></p>
 
-    <p>If you did not create an account, you can safely ignore this email.</p>
+    <p>{{ 'app.email.verification_ignore'|trans({}, 'messages', locale) }}</p>
 
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-    <p style="color: #999; font-size: 12px;">Expanded Decks — Shared Pokemon TCG deck library</p>
+    <p style="color: #999; font-size: 12px;">{{ 'app.email.footer'|trans({}, 'messages', locale) }}</p>
 </body>
 </html>

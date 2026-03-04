@@ -1823,6 +1823,199 @@
                 <target>e.g. 500 for 5.00</target>
                 <note>Placeholder example for entry fee input</note>
             </trans-unit>
+
+            <!-- Email: shared -->
+            <trans-unit id="app.email.greeting">
+                <source>app.email.greeting</source>
+                <target>Hi %name%,</target>
+                <note>Email greeting with recipient screen name</note>
+            </trans-unit>
+            <trans-unit id="app.email.link_fallback">
+                <source>app.email.link_fallback</source>
+                <target>Or copy and paste this link into your browser:</target>
+                <note>Fallback text before raw URL in emails</note>
+            </trans-unit>
+            <trans-unit id="app.email.footer">
+                <source>app.email.footer</source>
+                <target>Expanded Decks — Shared Pokemon TCG deck library</target>
+                <note>Email footer tagline</note>
+            </trans-unit>
+
+            <!-- Email: verification -->
+            <trans-unit id="app.email.verification_subject">
+                <source>app.email.verification_subject</source>
+                <target>Verify your Expanded Decks account</target>
+                <note>Verification email subject line</note>
+            </trans-unit>
+            <trans-unit id="app.email.verification_heading">
+                <source>app.email.verification_heading</source>
+                <target>Welcome to Expanded Decks!</target>
+                <note>Verification email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.verification_body">
+                <source>app.email.verification_body</source>
+                <target>Thank you for registering. Please verify your email address by clicking the button below:</target>
+                <note>Verification email body text</note>
+            </trans-unit>
+            <trans-unit id="app.email.verification_button">
+                <source>app.email.verification_button</source>
+                <target>Verify my email</target>
+                <note>Verification email CTA button</note>
+            </trans-unit>
+            <trans-unit id="app.email.verification_expires">
+                <source>app.email.verification_expires</source>
+                <target>This link will expire in %hours% hour(s).</target>
+                <note>Verification email expiry notice</note>
+            </trans-unit>
+            <trans-unit id="app.email.verification_ignore">
+                <source>app.email.verification_ignore</source>
+                <target>If you did not create an account, you can safely ignore this email.</target>
+                <note>Verification email ignore notice</note>
+            </trans-unit>
+
+            <!-- Email: password reset -->
+            <trans-unit id="app.email.password_reset_subject">
+                <source>app.email.password_reset_subject</source>
+                <target>Reset your Expanded Decks password</target>
+                <note>Password reset email subject line</note>
+            </trans-unit>
+            <trans-unit id="app.email.password_reset_heading">
+                <source>app.email.password_reset_heading</source>
+                <target>Password Reset</target>
+                <note>Password reset email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.password_reset_body">
+                <source>app.email.password_reset_body</source>
+                <target>We received a request to reset your password. Click the button below to choose a new one:</target>
+                <note>Password reset email body text</note>
+            </trans-unit>
+            <trans-unit id="app.email.password_reset_button">
+                <source>app.email.password_reset_button</source>
+                <target>Reset my password</target>
+                <note>Password reset email CTA button</note>
+            </trans-unit>
+            <trans-unit id="app.email.password_reset_expires">
+                <source>app.email.password_reset_expires</source>
+                <target>This link will expire in %minutes% minute(s).</target>
+                <note>Password reset email expiry notice</note>
+            </trans-unit>
+            <trans-unit id="app.email.password_reset_ignore">
+                <source>app.email.password_reset_ignore</source>
+                <target>If you did not request a password reset, you can safely ignore this email. Your password will not be changed.</target>
+                <note>Password reset email ignore notice</note>
+            </trans-unit>
+
+            <!-- Email: borrow notifications -->
+            <trans-unit id="app.email.borrow.requested_subject">
+                <source>app.email.borrow.requested_subject</source>
+                <target>New borrow request for "%deck%"</target>
+                <note>Borrow request email subject</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.requested_heading">
+                <source>app.email.borrow.requested_heading</source>
+                <target>New Borrow Request</target>
+                <note>Borrow request email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.requested_body">
+                <source>app.email.borrow.requested_body</source>
+                <target>%borrower% wants to borrow your deck "%deck%" for the event %event%.</target>
+                <note>Borrow request email body</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.note">
+                <source>app.email.borrow.note</source>
+                <target>Note:</target>
+                <note>Label before borrower's note in email</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.view_request">
+                <source>app.email.borrow.view_request</source>
+                <target>View Request</target>
+                <note>Borrow request email CTA button</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.approved_subject">
+                <source>app.email.borrow.approved_subject</source>
+                <target>Your borrow request for "%deck%" was approved</target>
+                <note>Borrow approval email subject</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.approved_heading">
+                <source>app.email.borrow.approved_heading</source>
+                <target>Borrow Request Approved</target>
+                <note>Borrow approval email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.approved_body">
+                <source>app.email.borrow.approved_body</source>
+                <target>Your request to borrow "%deck%" for the event %event% has been approved.</target>
+                <note>Borrow approval email body</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.approved_handoff">
+                <source>app.email.borrow.approved_handoff</source>
+                <target>The deck will be handed off to you at the event.</target>
+                <note>Borrow approval email handoff notice</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.view_borrow">
+                <source>app.email.borrow.view_borrow</source>
+                <target>View Borrow</target>
+                <note>Borrow notification CTA button</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.denied_subject">
+                <source>app.email.borrow.denied_subject</source>
+                <target>Your borrow request for "%deck%" was denied</target>
+                <note>Borrow denial email subject</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.denied_heading">
+                <source>app.email.borrow.denied_heading</source>
+                <target>Borrow Request Denied</target>
+                <note>Borrow denial email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.denied_body">
+                <source>app.email.borrow.denied_body</source>
+                <target>Unfortunately, your request to borrow "%deck%" for the event %event% has been denied.</target>
+                <note>Borrow denial email body</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.denied_browse">
+                <source>app.email.borrow.denied_browse</source>
+                <target>You can browse other available decks for this event.</target>
+                <note>Borrow denial email browse suggestion</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.view_details">
+                <source>app.email.borrow.view_details</source>
+                <target>View Details</target>
+                <note>Borrow notification CTA button (details)</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.overdue_subject">
+                <source>app.email.borrow.overdue_subject</source>
+                <target>"%deck%" is overdue for return</target>
+                <note>Borrow overdue email subject</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.overdue_heading">
+                <source>app.email.borrow.overdue_heading</source>
+                <target>Deck Overdue for Return</target>
+                <note>Borrow overdue email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.overdue_body">
+                <source>app.email.borrow.overdue_body</source>
+                <target>The deck "%deck%" borrowed for the event %event% is overdue for return.</target>
+                <note>Borrow overdue email body</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.overdue_action">
+                <source>app.email.borrow.overdue_action</source>
+                <target>Please arrange for the deck to be returned as soon as possible.</target>
+                <note>Borrow overdue email action prompt</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.cancelled_subject">
+                <source>app.email.borrow.cancelled_subject</source>
+                <target>Borrow of "%deck%" was cancelled</target>
+                <note>Borrow cancellation email subject</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.cancelled_heading">
+                <source>app.email.borrow.cancelled_heading</source>
+                <target>Borrow Cancelled</target>
+                <note>Borrow cancellation email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.borrow.cancelled_body">
+                <source>app.email.borrow.cancelled_body</source>
+                <target>The borrow of "%deck%" for the event %event% has been cancelled by %actor%.</target>
+                <note>Borrow cancellation email body</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>
