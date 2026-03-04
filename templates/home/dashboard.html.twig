@@ -65,7 +65,7 @@
                                         <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
                                         <br>
                                         <small class="text-muted">
-                                            {{ event.date|user_date }}
+                                            {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
                                             {% if event.location %} &mdash; {{ event.location }}{% endif %}
                                         </small>
                                     </div>
@@ -104,7 +104,7 @@
                             <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
                             <br>
                             <small class="text-muted">
-                                {{ event.date|user_date }}
+                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
                                 {% if event.location %} &mdash; {{ event.location }}{% endif %}
                             </small>
                         </div>

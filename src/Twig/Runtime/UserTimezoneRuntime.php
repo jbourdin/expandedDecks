@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
- * Formats datetimes in the user's timezone and locale using IntlDateFormatter.
+ * Formats datetimes in a given or user-preferred timezone and locale.
  *
  * @see docs/features.md F9.2 — User timezone
  */
@@ -33,29 +33,67 @@ class UserTimezoneRuntime implements RuntimeExtensionInterface
 
     /**
      * Formats a datetime with both date and time (e.g. "Mar 4, 2026 3:30 PM" / "4 mars 2026 15:30").
+     *
+     * @param string|null $timezone explicit timezone override (e.g. event timezone); null = user preference
      */
-    public function formatDatetime(\DateTimeInterface $date): string
+    public function formatDatetime(\DateTimeInterface $date, ?string $timezone = null): string
     {
-        return $this->format($date, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::SHORT);
+        return $this->format($date, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::SHORT, $timezone);
     }
 
     /**
      * Formats a date only (e.g. "Mar 4, 2026" / "4 mars 2026").
+     *
+     * @param string|null $timezone explicit timezone override; null = user preference
      */
-    public function formatDate(\DateTimeInterface $date): string
+    public function formatDate(\DateTimeInterface $date, ?string $timezone = null): string
     {
-        return $this->format($date, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
+        return $this->format($date, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE, $timezone);
     }
 
-    private function format(\DateTimeInterface $date, int $dateType, int $timeType): string
+    /**
+     * Returns the short timezone abbreviation (e.g. "EST", "CET") for a datetime in a given timezone.
+     */
+    public function timezoneAbbreviation(\DateTimeInterface $date, ?string $timezone = null): string
+    {
+        [$resolvedTimezone] = $this->resolveContext($timezone);
+
+        $dt = \DateTimeImmutable::createFromInterface($date)->setTimezone(new \DateTimeZone($resolvedTimezone));
+
+        return $dt->format('T');
+    }
+
+    private function format(\DateTimeInterface $date, int $dateType, int $timeType, ?string $timezone): string
+    {
+        [$resolvedTimezone, $locale] = $this->resolveContext($timezone);
+
+        $formatter = new \IntlDateFormatter(
+            $locale,
+            $dateType,
+            $timeType,
+            $resolvedTimezone,
+        );
+
+        $result = $formatter->format($date);
+        \assert(false !== $result);
+
+        return $result;
+    }
+
+    /**
+     * @return array{string, string} [timezone, locale]
+     */
+    private function resolveContext(?string $timezone): array
     {
         $user = $this->security->getUser();
 
-        $timezone = 'UTC';
+        $resolvedTimezone = $timezone ?? 'UTC';
         $locale = 'en';
 
         if ($user instanceof User) {
-            $timezone = $user->getTimezone();
+            if (null === $timezone) {
+                $resolvedTimezone = $user->getTimezone();
+            }
             $locale = $user->getPreferredLocale();
         } else {
             $request = $this->requestStack->getCurrentRequest();
@@ -64,16 +102,6 @@ class UserTimezoneRuntime implements RuntimeExtensionInterface
             }
         }
 
-        $formatter = new \IntlDateFormatter(
-            $locale,
-            $dateType,
-            $timeType,
-            $timezone,
-        );
-
-        $result = $formatter->format($date);
-        \assert(false !== $result);
-
-        return $result;
+        return [$resolvedTimezone, $locale];
     }
 }

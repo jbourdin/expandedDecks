@@ -30,6 +30,7 @@ class UserTimezoneExtension extends AbstractExtension
         return [
             new TwigFilter('user_datetime', [UserTimezoneRuntime::class, 'formatDatetime']),
             new TwigFilter('user_date', [UserTimezoneRuntime::class, 'formatDate']),
+            new TwigFilter('tz_abbr', [UserTimezoneRuntime::class, 'timezoneAbbreviation']),
         ];
     }
 }

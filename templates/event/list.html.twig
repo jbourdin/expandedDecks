@@ -28,7 +28,7 @@
                                 <a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a>
                             </h5>
                             <p class="text-muted mb-1">
-                                {{ event.date|user_datetime }}
+                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
                                 {% if event.location %} &mdash; {{ event.location }}{% endif %}
                             </p>
                             <p class="mb-0">

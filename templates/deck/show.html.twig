@@ -110,7 +110,7 @@
                                         <option value="">{{ 'app.borrow.select_event'|trans }}</option>
                                         {% for event in eligibleEvents %}
                                             <option value="{{ event.id }}" data-token="{{ csrf_token('borrow-request-' ~ event.id) }}">
-                                                {{ event.name }} ({{ event.date|user_date }})
+                                                {{ event.name }} ({{ event.date|user_date(event.timezone) }})
                                             </option>
                                         {% endfor %}
                                     </select>

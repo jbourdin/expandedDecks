@@ -38,6 +38,22 @@ class UserTimezoneExtensionTest extends TestCase
         self::assertStringContainsString('mars', $result);
     }
 
+    public function testFormatDatetimeWithExplicitTimezone(): void
+    {
+        $user = new User();
+        $user->setTimezone('Europe/Paris');
+        $user->setPreferredLocale('en');
+
+        $runtime = $this->createRuntime($user);
+        $date = new \DateTimeImmutable('2026-03-04 14:30:00', new \DateTimeZone('UTC'));
+
+        // Explicit timezone overrides user preference
+        $result = $runtime->formatDatetime($date, 'America/New_York');
+
+        // 14:30 UTC → 09:30 EST
+        self::assertStringContainsString('9:30', $result);
+    }
+
     public function testFormatDateWithUserTimezone(): void
     {
         $user = new User();
@@ -79,6 +95,26 @@ class UserTimezoneExtensionTest extends TestCase
 
         self::assertStringContainsString('Mar', $result);
         self::assertStringContainsString('2026', $result);
+    }
+
+    public function testTimezoneAbbreviation(): void
+    {
+        $runtime = $this->createRuntime(null);
+        $date = new \DateTimeImmutable('2026-03-04 14:30:00', new \DateTimeZone('UTC'));
+
+        self::assertSame('EST', $runtime->timezoneAbbreviation($date, 'America/New_York'));
+        self::assertSame('UTC', $runtime->timezoneAbbreviation($date, 'UTC'));
+        self::assertSame('CET', $runtime->timezoneAbbreviation($date, 'Europe/Paris'));
+    }
+
+    public function testTimezoneAbbreviationDst(): void
+    {
+        $runtime = $this->createRuntime(null);
+        // July = DST in New York
+        $date = new \DateTimeImmutable('2026-07-04 14:30:00', new \DateTimeZone('UTC'));
+
+        self::assertSame('EDT', $runtime->timezoneAbbreviation($date, 'America/New_York'));
+        self::assertSame('CEST', $runtime->timezoneAbbreviation($date, 'Europe/Paris'));
     }
 
     private function createRuntime(?User $user, string $requestLocale = 'en'): UserTimezoneRuntime

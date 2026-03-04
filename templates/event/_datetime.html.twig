@@ -1,0 +1,22 @@
+{#
+ # Displays a UTC datetime in the event's timezone, with a tooltip
+ # showing the user's local time when their timezone differs.
+ #
+ # Usage:
+ #   {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+ #   {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
+ #}
+{%- if date_only|default(false) -%}
+    {{- dt|user_date(tz) -}}
+{%- else -%}
+    {{- dt|user_datetime(tz) -}}
+{%- endif %} {{ dt|tz_abbr(tz) }}
+{%- set user_tz = app.user ? app.user.timezone : 'UTC' -%}
+{%- if user_tz != tz -%}
+    {%- if date_only|default(false) -%}
+        {%- set local_time = dt|user_date ~ ' ' ~ dt|tz_abbr -%}
+    {%- else -%}
+        {%- set local_time = dt|user_datetime ~ ' ' ~ dt|tz_abbr -%}
+    {%- endif -%}
+    <i class="bi bi-clock ms-1 text-muted small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'app.event.your_time'|trans }}: {{ local_time }}"></i>
+{%- endif -%}

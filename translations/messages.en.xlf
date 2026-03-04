@@ -548,6 +548,11 @@
                 <target>Timezone</target>
                 <note>Table header label in event detail</note>
             </trans-unit>
+            <trans-unit id="app.event.your_time">
+                <source>app.event.your_time</source>
+                <target>Your time</target>
+                <note>Tooltip label shown before user's local time conversion for event dates</note>
+            </trans-unit>
             <trans-unit id="app.event.format">
                 <source>app.event.format</source>
                 <target>Format</target>

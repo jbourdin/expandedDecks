@@ -35,15 +35,11 @@
                             <tr>
                                 <th>{{ 'app.event.date'|trans }}</th>
                                 <td>
-                                    {{ event.date|user_datetime }}
+                                    {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
                                     {% if event.endDate %}
-                                        — {{ event.endDate|user_datetime }}
+                                        — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
                                     {% endif %}
                                 </td>
-                            </tr>
-                            <tr>
-                                <th>{{ 'app.event.timezone'|trans }}</th>
-                                <td>{{ event.timezone }}</td>
                             </tr>
                             <tr>
                                 <th>{{ 'app.event.format'|trans }}</th>
