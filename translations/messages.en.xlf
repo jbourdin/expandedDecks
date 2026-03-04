@@ -1631,21 +1631,6 @@
                 <target>You are now registered as a spectator.</target>
                 <note>Success flash after registering as spectator</note>
             </trans-unit>
-            <trans-unit id="app.flash.event.registered_as">
-                <source>app.flash.event.registered_as</source>
-                <target>You are now registered as a %role%.</target>
-                <note>Success flash after registering. %role% = translated role name</note>
-            </trans-unit>
-            <trans-unit id="app.flash.event.role_player">
-                <source>app.flash.event.role_player</source>
-                <target>player</target>
-                <note>Participation role label for player</note>
-            </trans-unit>
-            <trans-unit id="app.flash.event.role_spectator">
-                <source>app.flash.event.role_spectator</source>
-                <target>spectator</target>
-                <note>Participation role label for spectator</note>
-            </trans-unit>
             <trans-unit id="app.flash.event.cannot_withdraw_cancelled">
                 <source>app.flash.event.cannot_withdraw_cancelled</source>
                 <target>Cannot withdraw from a cancelled event.</target>

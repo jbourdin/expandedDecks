@@ -25,18 +25,12 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F1.7 — Password reset
  */
 class PasswordResetController extends AbstractAppController
 {
-    public function __construct(
-        private readonly TranslatorInterface $translator,
-    ) {
-    }
-
     #[Route('/forgot-password', name: 'app_forgot_password', methods: ['GET', 'POST'])]
     public function forgotPassword(
         Request $request,
@@ -79,7 +73,7 @@ class PasswordResetController extends AbstractAppController
         }
 
         // Anti-enumeration: always show the same success message
-        $this->addFlash('success', $this->translator->trans('app.flash.auth.reset_link_sent'));
+        $this->addFlash('success', 'app.flash.auth.reset_link_sent');
 
         return $this->redirectToRoute('app_login');
     }
@@ -95,7 +89,7 @@ class PasswordResetController extends AbstractAppController
         $user = $userRepository->findOneBy(['resetToken' => $token]);
 
         if (null === $user) {
-            $this->addFlash('danger', $this->translator->trans('app.flash.auth.invalid_reset_link'));
+            $this->addFlash('danger', 'app.flash.auth.invalid_reset_link');
 
             return $this->redirectToRoute('app_login');
         }
@@ -103,7 +97,7 @@ class PasswordResetController extends AbstractAppController
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         if (null !== $user->getResetTokenExpiresAt() && $user->getResetTokenExpiresAt() < $now) {
-            $this->addFlash('danger', $this->translator->trans('app.flash.auth.reset_link_expired'));
+            $this->addFlash('danger', 'app.flash.auth.reset_link_expired');
 
             return $this->redirectToRoute('app_forgot_password');
         }
@@ -120,7 +114,7 @@ class PasswordResetController extends AbstractAppController
             $user->setResetTokenExpiresAt(null);
             $entityManager->flush();
 
-            $this->addFlash('success', $this->translator->trans('app.flash.auth.password_reset'));
+            $this->addFlash('success', 'app.flash.auth.password_reset');
 
             return $this->redirectToRoute('app_login');
         }
