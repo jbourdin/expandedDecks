@@ -196,17 +196,17 @@
             </trans-unit>
             <trans-unit id="app.dashboard.recent_borrow_activity">
                 <source>app.dashboard.recent_borrow_activity</source>
-                <target>Activité d&apos;emprunt récente</target>
+                <target>Emprunts récents</target>
                 <note>Dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.dashboard.recent_lend_activity">
                 <source>app.dashboard.recent_lend_activity</source>
-                <target>Activité de prêt récente</target>
+                <target>Prêts récents</target>
                 <note>Dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.dashboard.event_management_activity">
                 <source>app.dashboard.event_management_activity</source>
-                <target>Activité de gestion d&apos;événements</target>
+                <target>Historique de gestion d&apos;événements</target>
                 <note>Dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.dashboard.no_decks">
