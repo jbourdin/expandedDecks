@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Translation\LocaleSwitcher;
 
 class LocaleListenerTest extends TestCase
 {
@@ -33,10 +34,13 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn($user);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
+
         $request = $this->createRequestWithSession();
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -48,11 +52,14 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
+
         $request = $this->createRequestWithSession();
         $request->getSession()->set('_locale', 'fr');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -63,11 +70,14 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
+
         $request = $this->createRequestWithSession();
         $request->headers->set('Accept-Language', 'fr-FR,fr;q=0.9,en;q=0.8');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -79,10 +89,13 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
         $request = $this->createRequestWithSession();
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -93,11 +106,14 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
         $request = $this->createRequestWithSession();
         $request->getSession()->set('_locale', 'de');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -108,11 +124,14 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
         $request = $this->createRequestWithSession();
         $request->headers->set('Accept-Language', 'de-DE,de;q=0.9,ja;q=0.8');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security);
+        $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('en', $request->getLocale());

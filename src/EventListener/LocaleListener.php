@@ -16,8 +16,10 @@ namespace App\EventListener;
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Translation\LocaleSwitcher;
 
 /**
  * Sets the request locale based on (in order of priority):
@@ -25,6 +27,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * 2. Existing session locale
  * 3. Accept-Language header detection
  * 4. Default locale (en)
+ *
+ * Runs after the firewall (priority 8) so the authenticated user is available,
+ * and uses LocaleSwitcher to propagate the locale to the Translator and all
+ * other locale-aware services (since Symfony's LocaleAwareListener already ran
+ * at priority 15).
  *
  * @see docs/features.md F9.1 — User language preference
  */
@@ -36,6 +43,7 @@ class LocaleListener
 
     public function __construct(
         private readonly Security $security,
+        private readonly LocaleSwitcher $localeSwitcher,
     ) {
     }
 
@@ -51,22 +59,27 @@ class LocaleListener
 
         if ($user instanceof User) {
             $locale = $user->getPreferredLocale();
-            $request->setLocale($locale);
-            $request->getSession()->set('_locale', $locale);
+            $this->applyLocale($request, $locale);
 
             return;
         }
 
         $sessionLocale = $request->getSession()->get('_locale');
         if (\is_string($sessionLocale) && \in_array($sessionLocale, self::SUPPORTED_LOCALES, true)) {
-            $request->setLocale($sessionLocale);
+            $this->applyLocale($request, $sessionLocale);
 
             return;
         }
 
         $locale = $this->detectFromAcceptLanguage($request->headers->get('Accept-Language', ''));
+        $this->applyLocale($request, $locale);
+    }
+
+    private function applyLocale(Request $request, string $locale): void
+    {
         $request->setLocale($locale);
         $request->getSession()->set('_locale', $locale);
+        $this->localeSwitcher->setLocale($locale);
     }
 
     private function detectFromAcceptLanguage(string $header): string
