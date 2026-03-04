@@ -18,6 +18,30 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [0.3.0] — 2026-03-04
+
+Phase 6 — Localization: multi-language support (en/fr), timezone-aware display, user profile page, and Gravatar navbar avatar.
+
+### Localization
+
+- **F9.1** — User language preference: Symfony locale listener detects user locale from session, user preference, or `Accept-Language` header. All UI strings render in the active locale.
+- **F9.2** — User timezone display: `user_datetime` / `user_date` Twig filters convert UTC timestamps to the user's timezone with locale-aware formatting via `IntlDateFormatter`. Event dates display in the event's timezone with a tooltip showing the user's local time when different.
+- **F9.3** — Application translation: all ~300 user-facing strings extracted to XLIFF catalogues (`messages.en.xlf`, `messages.fr.xlf`). Covers templates, controller flash messages, form labels, and email templates/subjects. Emails render in the recipient's preferred locale.
+- **F9.4** — UTC datetime storage: event form uses `model_timezone` / `view_timezone` for automatic UTC conversion. PHP timezone set to UTC via `.symfony.local.yaml`.
+
+### User Management
+
+- **F1.3** — User profile page: edit screen name, player ID, preferred locale, and timezone. Locale changes apply immediately via `LocaleSwitcher`.
+- **F1.11** — Gravatar avatar & navbar dropdown: 32px Gravatar avatar (64px Retina source) in the navbar with a Bootstrap dropdown menu (Dashboard, Profile, Logout).
+
+### Cross-Cutting
+
+- Abstract base controller (`AbstractAppController`) with auto-translating `addFlash()` for all controllers
+- Bootstrap Icons and tooltip initialization for timezone display
+- 363 tests, PHPStan level 10
+
+---
+
 ## [0.2.0] — 2026-03-04
 
 Borrow workflow maturity: staff custody chain, conflict management, owner inbox, and UI refinements.
@@ -120,8 +144,8 @@ First tagged release. Covers the core domain: authentication, deck library, even
 
 - **F1.8** — Account deletion & data export *(partial)* — soft-delete with anonymization scaffolded; confirmation email and JSON export not yet implemented
 - **F2.7** — Retire / reactivate a deck *(partial)* — status transitions exist; UI controls pending
-- **F9.1** — User language preference *(partial)* — locale field on User entity; preference UI and full i18n not yet applied
-- **F9.2** — User timezone *(partial)* — timezone field on User entity; display conversion not yet applied
+- **F9.1** — User language preference *(partial)* — locale field on User entity; preference UI and full i18n not yet applied *(completed in 0.3.0)*
+- **F9.2** — User timezone *(partial)* — timezone field on User entity; display conversion not yet applied *(completed in 0.3.0)*
 
 ### Cross-Cutting
 
