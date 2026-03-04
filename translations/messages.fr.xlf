@@ -1265,6 +1265,537 @@
                 <target>Expanded Decks</target>
                 <note>Brand name in footer copyright line</note>
             </trans-unit>
+
+            <!-- Flash messages (controllers) -->
+            <trans-unit id="app.flash.invalid_token">
+                <source>app.flash.invalid_token</source>
+                <target>Jeton de sécurité invalide.</target>
+                <note>Generic CSRF token error shown on form submissions</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck_not_found">
+                <source>app.flash.deck_not_found</source>
+                <target>Deck introuvable.</target>
+                <note>Flash error when a deck ID does not exist</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrower_not_found">
+                <source>app.flash.borrower_not_found</source>
+                <target>Emprunteur introuvable.</target>
+                <note>Flash error when a borrower user ID does not exist</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.request_submitted">
+                <source>app.flash.borrow.request_submitted</source>
+                <target>Demande d&apos;emprunt pour « %name% » envoyée.</target>
+                <note>Success flash after submitting a borrow request. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.approved">
+                <source>app.flash.borrow.approved</source>
+                <target>Demande d&apos;emprunt approuvée.</target>
+                <note>Success flash after approving a borrow request</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.denied">
+                <source>app.flash.borrow.denied</source>
+                <target>Demande d&apos;emprunt refusée.</target>
+                <note>Success flash after denying a borrow request</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.handed_off">
+                <source>app.flash.borrow.handed_off</source>
+                <target>Le deck a été remis.</target>
+                <note>Success flash after confirming deck hand-off</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.return_confirmed">
+                <source>app.flash.borrow.return_confirmed</source>
+                <target>Retour du deck confirmé.</target>
+                <note>Success flash after confirming deck return</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.cancelled">
+                <source>app.flash.borrow.cancelled</source>
+                <target>L&apos;emprunt a été annulé.</target>
+                <note>Success flash after cancelling a borrow</note>
+            </trans-unit>
+            <trans-unit id="app.flash.borrow.returned_to_owner">
+                <source>app.flash.borrow.returned_to_owner</source>
+                <target>Deck retourné au propriétaire.</target>
+                <note>Success flash after returning deck to owner (staff delegation)</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.created">
+                <source>app.flash.event.created</source>
+                <target>Événement « %name% » créé.</target>
+                <note>Success flash after creating an event. %name% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.updated">
+                <source>app.flash.event.updated</source>
+                <target>Événement « %name% » mis à jour.</target>
+                <note>Success flash after editing an event. %name% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cancelled">
+                <source>app.flash.event.cancelled</source>
+                <target>L&apos;événement « %name% » a été annulé.</target>
+                <note>Success flash after cancelling an event. %name% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.already_cancelled">
+                <source>app.flash.event.already_cancelled</source>
+                <target>Cet événement est déjà annulé.</target>
+                <note>Warning when trying to cancel an already-cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_edit_cancelled">
+                <source>app.flash.event.cannot_edit_cancelled</source>
+                <target>Un événement annulé ne peut pas être modifié.</target>
+                <note>Warning when trying to edit a cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_browse_cancelled">
+                <source>app.flash.event.cannot_browse_cancelled</source>
+                <target>Les decks ne peuvent pas être consultés pour un événement annulé ou terminé.</target>
+                <note>Warning when trying to browse available decks for a cancelled/finished event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.register_to_browse">
+                <source>app.flash.event.register_to_browse</source>
+                <target>Inscrivez-vous en tant que participant pour parcourir et emprunter des decks.</target>
+                <note>Warning when non-participant tries to browse decks</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.must_be_participant">
+                <source>app.flash.event.must_be_participant</source>
+                <target>Vous devez être participant pour sélectionner un deck.</target>
+                <note>Warning when non-participant tries to select a deck</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.selection_not_available">
+                <source>app.flash.event.selection_not_available</source>
+                <target>La sélection de deck n&apos;est pas disponible pour les événements annulés ou terminés.</target>
+                <note>Warning when trying to select deck for cancelled/finished event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.selection_locked">
+                <source>app.flash.event.selection_locked</source>
+                <target>La sélection de deck ne peut plus être modifiée après le début de l&apos;événement.</target>
+                <note>Warning when trying to change deck after event started</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.selection_cleared">
+                <source>app.flash.event.selection_cleared</source>
+                <target>Sélection de deck effacée.</target>
+                <note>Success flash after clearing deck selection</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_not_available">
+                <source>app.flash.event.deck_not_available</source>
+                <target>Ce deck n&apos;est pas disponible pour la sélection.</target>
+                <note>Error when selected deck is not playable</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.playing_with">
+                <source>app.flash.event.playing_with</source>
+                <target>Vous jouez avec « %name% ».</target>
+                <note>Success flash after selecting a deck to play. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_register_cancelled">
+                <source>app.flash.event.cannot_register_cancelled</source>
+                <target>Impossible de s&apos;inscrire à un événement annulé.</target>
+                <note>Warning when trying to register for a cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.invalid_mode">
+                <source>app.flash.event.invalid_mode</source>
+                <target>Mode de participation invalide.</target>
+                <note>Error for unknown participation mode value</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_selection_cleared">
+                <source>app.flash.event.deck_selection_cleared</source>
+                <target>Votre sélection de deck a été effacée.</target>
+                <note>Info flash when deck selection is auto-cleared (mode switch or withdrawal)</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.registered_as_player">
+                <source>app.flash.event.registered_as_player</source>
+                <target>Vous êtes maintenant inscrit en tant que joueur.</target>
+                <note>Success flash after registering as player</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.registered_as_spectator">
+                <source>app.flash.event.registered_as_spectator</source>
+                <target>Vous êtes maintenant inscrit en tant que spectateur.</target>
+                <note>Success flash after registering as spectator</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_withdraw_cancelled">
+                <source>app.flash.event.cannot_withdraw_cancelled</source>
+                <target>Impossible de se retirer d&apos;un événement annulé.</target>
+                <note>Warning when trying to withdraw from a cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.withdrawn">
+                <source>app.flash.event.withdrawn</source>
+                <target>Vous vous êtes retiré de cet événement.</target>
+                <note>Success flash after withdrawing from event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_assign_staff_cancelled">
+                <source>app.flash.event.cannot_assign_staff_cancelled</source>
+                <target>Impossible d&apos;assigner du staff à un événement annulé.</target>
+                <note>Warning when trying to assign staff to a cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.user_not_found">
+                <source>app.flash.event.user_not_found</source>
+                <target>Utilisateur « %name% » introuvable.</target>
+                <note>Warning when staff search query matches no user. %name% = search query</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.organizer_cannot_be_staff">
+                <source>app.flash.event.organizer_cannot_be_staff</source>
+                <target>L&apos;organisateur ne peut pas être assigné comme staff.</target>
+                <note>Warning when trying to add organizer as staff</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.already_staff">
+                <source>app.flash.event.already_staff</source>
+                <target>« %name% » est déjà membre du staff.</target>
+                <note>Warning when user is already staff. %name% = screen name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.staff_added">
+                <source>app.flash.event.staff_added</source>
+                <target>« %name% » a été ajouté à l&apos;équipe de staff.</target>
+                <note>Success flash after adding staff. %name% = screen name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_remove_staff_cancelled">
+                <source>app.flash.event.cannot_remove_staff_cancelled</source>
+                <target>Impossible de retirer du staff d&apos;un événement annulé.</target>
+                <note>Warning when trying to remove staff from a cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.staff_removed">
+                <source>app.flash.event.staff_removed</source>
+                <target>« %name% » a été retiré de l&apos;équipe de staff.</target>
+                <note>Success flash after removing staff. %name% = screen name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_change_registration">
+                <source>app.flash.event.cannot_change_registration</source>
+                <target>Impossible de modifier l&apos;inscription pour un événement annulé ou terminé.</target>
+                <note>Warning when trying to toggle deck registration for cancelled/finished event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.own_decks_only_registration">
+                <source>app.flash.event.own_decks_only_registration</source>
+                <target>Vous ne pouvez gérer l&apos;inscription que pour vos propres decks.</target>
+                <note>Error when trying to register another user&apos;s deck</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_registered">
+                <source>app.flash.event.deck_registered</source>
+                <target>« %name% » inscrit pour cet événement.</target>
+                <note>Success flash after registering a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_cannot_unregister">
+                <source>app.flash.event.deck_cannot_unregister</source>
+                <target>Impossible de désinscrire « %name% » — un emprunt actif existe pour cet événement.</target>
+                <note>Warning when deck has active borrow. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_unregistered">
+                <source>app.flash.event.deck_unregistered</source>
+                <target>« %name% » désinscrit de cet événement.</target>
+                <note>Success flash after unregistering a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_change_delegation">
+                <source>app.flash.event.cannot_change_delegation</source>
+                <target>Impossible de modifier la délégation pour un événement annulé ou terminé.</target>
+                <note>Warning when trying to toggle delegation for cancelled/finished event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.own_decks_only_delegation">
+                <source>app.flash.event.own_decks_only_delegation</source>
+                <target>Vous ne pouvez gérer la délégation que pour vos propres decks.</target>
+                <note>Error when trying to delegate another user&apos;s deck</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.deck_must_register">
+                <source>app.flash.event.deck_must_register</source>
+                <target>« %name% » doit être inscrit avant d&apos;activer la délégation.</target>
+                <note>Warning when deck is not registered. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.delegation_enabled">
+                <source>app.flash.event.delegation_enabled</source>
+                <target>Délégation au staff activée pour « %name% ».</target>
+                <note>Success flash after enabling staff delegation. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.delegation_disabled">
+                <source>app.flash.event.delegation_disabled</source>
+                <target>Délégation au staff désactivée pour « %name% ».</target>
+                <note>Success flash after disabling staff delegation. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.walkup_not_available">
+                <source>app.flash.event.walkup_not_available</source>
+                <target>Le prêt direct n&apos;est pas disponible pour les événements annulés ou terminés.</target>
+                <note>Warning when walk-up lending blocked by event state</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.walkup_success">
+                <source>app.flash.event.walkup_success</source>
+                <target>« %deck% » prêté à %borrower%.</target>
+                <note>Success flash after walk-up lend. %deck% = deck name, %borrower% = borrower screen name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.created_with_list">
+                <source>app.flash.deck.created_with_list</source>
+                <target>Deck « %name% » créé avec la liste de deck importée.</target>
+                <note>Success flash after creating deck with inline list. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.created">
+                <source>app.flash.deck.created</source>
+                <target>Deck « %name% » créé.</target>
+                <note>Success flash after creating deck without list. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.updated">
+                <source>app.flash.deck.updated</source>
+                <target>Deck « %name% » mis à jour.</target>
+                <note>Success flash after editing a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.cannot_unpublish">
+                <source>app.flash.deck.cannot_unpublish</source>
+                <target>Impossible de dépublier ce deck — il a des inscriptions actives à des événements.</target>
+                <note>Warning when deck cannot be unpublished</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.imported">
+                <source>app.flash.deck.imported</source>
+                <target>Liste de deck importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
+                <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.account_created">
+                <source>app.flash.auth.account_created</source>
+                <target>Votre compte a été créé. Veuillez vérifier votre email pour confirmer votre adresse.</target>
+                <note>Success flash after registration</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.reset_link_sent">
+                <source>app.flash.auth.reset_link_sent</source>
+                <target>Si un compte existe avec cette adresse email, un lien de réinitialisation a été envoyé.</target>
+                <note>Anti-enumeration success flash for password reset request</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.invalid_reset_link">
+                <source>app.flash.auth.invalid_reset_link</source>
+                <target>Lien de réinitialisation de mot de passe invalide.</target>
+                <note>Error when reset token does not match any user</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.reset_link_expired">
+                <source>app.flash.auth.reset_link_expired</source>
+                <target>Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.</target>
+                <note>Error when reset token has expired</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.password_reset">
+                <source>app.flash.auth.password_reset</source>
+                <target>Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.</target>
+                <note>Success flash after password reset</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.verification_sent">
+                <source>app.flash.auth.verification_sent</source>
+                <target>Si un compte existe avec cette adresse email et n&apos;est pas encore vérifié, un nouvel email de vérification a été envoyé.</target>
+                <note>Anti-enumeration success flash for verification resend</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.invalid_verification">
+                <source>app.flash.auth.invalid_verification</source>
+                <target>Lien de vérification invalide.</target>
+                <note>Error when verification token does not match any user</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.verification_expired">
+                <source>app.flash.auth.verification_expired</source>
+                <target>Ce lien de vérification a expiré. Veuillez en demander un nouveau.</target>
+                <note>Error when verification token has expired</note>
+            </trans-unit>
+            <trans-unit id="app.flash.auth.email_verified">
+                <source>app.flash.auth.email_verified</source>
+                <target>Votre email a été vérifié. Vous pouvez maintenant vous connecter.</target>
+                <note>Success flash after email verification</note>
+            </trans-unit>
+
+            <!-- Form labels -->
+            <trans-unit id="app.form.label.deck_name">
+                <source>app.form.label.deck_name</source>
+                <target>Nom du deck</target>
+                <note>Form label for deck name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.notes">
+                <source>app.form.label.notes</source>
+                <target>Notes (optionnel)</target>
+                <note>Form label for notes textarea</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.public">
+                <source>app.form.label.public</source>
+                <target>Public (visible dans le catalogue de decks)</target>
+                <note>Form label for public checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.deck_list_optional">
+                <source>app.form.label.deck_list_optional</source>
+                <target>Liste de deck (optionnel, format PTCG)</target>
+                <note>Form label for inline deck list on creation</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.deck_list">
+                <source>app.form.label.deck_list</source>
+                <target>Liste de deck (format PTCG)</target>
+                <note>Form label for deck list import</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.event_name">
+                <source>app.form.label.event_name</source>
+                <target>Nom de l&apos;événement</target>
+                <note>Form label for event name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.tournament_id">
+                <source>app.form.label.tournament_id</source>
+                <target>Identifiant de tournoi (optionnel)</target>
+                <note>Form label for tournament ID field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.format">
+                <source>app.form.label.format</source>
+                <target>Format</target>
+                <note>Form label for event format field (always Expanded)</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.start_date">
+                <source>app.form.label.start_date</source>
+                <target>Date et heure de début</target>
+                <note>Form label for event start datetime</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.end_date">
+                <source>app.form.label.end_date</source>
+                <target>Date et heure de fin (optionnel)</target>
+                <note>Form label for event end datetime</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.timezone">
+                <source>app.form.label.timezone</source>
+                <target>Fuseau horaire</target>
+                <note>Form label for timezone selector</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.location">
+                <source>app.form.label.location</source>
+                <target>Lieu (optionnel)</target>
+                <note>Form label for event location field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.description">
+                <source>app.form.label.description</source>
+                <target>Description (optionnel)</target>
+                <note>Form label for event description textarea</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.registration_link">
+                <source>app.form.label.registration_link</source>
+                <target>Lien d&apos;inscription</target>
+                <note>Form label for event registration URL</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.tournament_structure">
+                <source>app.form.label.tournament_structure</source>
+                <target>Structure du tournoi (optionnel)</target>
+                <note>Form label for tournament structure selector</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.min_attendees">
+                <source>app.form.label.min_attendees</source>
+                <target>Participants min. (optionnel)</target>
+                <note>Form label for minimum attendees</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.max_attendees">
+                <source>app.form.label.max_attendees</source>
+                <target>Participants max. (optionnel)</target>
+                <note>Form label for maximum attendees</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.round_duration">
+                <source>app.form.label.round_duration</source>
+                <target>Durée des rondes en minutes (optionnel)</target>
+                <note>Form label for round duration</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.top_cut_duration">
+                <source>app.form.label.top_cut_duration</source>
+                <target>Durée du top cut en minutes (optionnel)</target>
+                <note>Form label for top cut round duration</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.entry_fee">
+                <source>app.form.label.entry_fee</source>
+                <target>Frais d&apos;inscription (centimes, optionnel)</target>
+                <note>Form label for entry fee amount</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.currency">
+                <source>app.form.label.currency</source>
+                <target>Devise (optionnel)</target>
+                <note>Form label for entry fee currency</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.decklist_mandatory">
+                <source>app.form.label.decklist_mandatory</source>
+                <target>Liste de deck obligatoire</target>
+                <note>Form label for decklist mandatory checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.email">
+                <source>app.form.label.email</source>
+                <target>Email</target>
+                <note>Form label for email field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.first_name">
+                <source>app.form.label.first_name</source>
+                <target>Prénom</target>
+                <note>Form label for first name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.last_name">
+                <source>app.form.label.last_name</source>
+                <target>Nom</target>
+                <note>Form label for last name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.screen_name">
+                <source>app.form.label.screen_name</source>
+                <target>Pseudo</target>
+                <note>Form label for screen name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.player_id">
+                <source>app.form.label.player_id</source>
+                <target>ID Pokemon (optionnel)</target>
+                <note>Form label for player ID field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.password">
+                <source>app.form.label.password</source>
+                <target>Mot de passe</target>
+                <note>Form label for password field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.repeat_password">
+                <source>app.form.label.repeat_password</source>
+                <target>Confirmer le mot de passe</target>
+                <note>Form label for password confirmation field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.new_password">
+                <source>app.form.label.new_password</source>
+                <target>Nouveau mot de passe</target>
+                <note>Form label for new password field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.repeat_new_password">
+                <source>app.form.label.repeat_new_password</source>
+                <target>Confirmer le nouveau mot de passe</target>
+                <note>Form label for new password confirmation field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.agree_terms">
+                <source>app.form.label.agree_terms</source>
+                <target>J&apos;accepte les conditions</target>
+                <note>Form label for terms agreement checkbox</note>
+            </trans-unit>
+
+            <!-- Form placeholders -->
+            <trans-unit id="app.form.placeholder.deck_name">
+                <source>app.form.placeholder.deck_name</source>
+                <target>ex. Giratina VSTAR / Comfey</target>
+                <note>Placeholder example for deck name input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.notes">
+                <source>app.form.placeholder.notes</source>
+                <target>Notes sur ce deck...</target>
+                <note>Placeholder for notes textarea</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.event_name">
+                <source>app.form.placeholder.event_name</source>
+                <target>ex. Ligue Étendu Hebdomadaire</target>
+                <note>Placeholder example for event name input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.tournament_id">
+                <source>app.form.placeholder.tournament_id</source>
+                <target>ex. 0000118025</target>
+                <note>Placeholder example for tournament ID input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.location">
+                <source>app.form.placeholder.location</source>
+                <target>ex. Le Repaire du Dragon, Lyon</target>
+                <note>Placeholder example for event location input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.description">
+                <source>app.form.placeholder.description</source>
+                <target>Détails de l&apos;événement, règles, etc.</target>
+                <note>Placeholder for event description textarea</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.select">
+                <source>app.form.placeholder.select</source>
+                <target>— Sélectionner —</target>
+                <note>Default placeholder for dropdown selectors</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.round_duration">
+                <source>app.form.placeholder.round_duration</source>
+                <target>ex. 50</target>
+                <note>Placeholder example for round duration input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.top_cut_duration">
+                <source>app.form.placeholder.top_cut_duration</source>
+                <target>ex. 75</target>
+                <note>Placeholder example for top cut duration input</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.entry_fee">
+                <source>app.form.placeholder.entry_fee</source>
+                <target>ex. 500 pour 5,00</target>
+                <note>Placeholder example for entry fee input</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

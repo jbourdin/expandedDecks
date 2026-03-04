@@ -26,7 +26,6 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Service\DeckListParser;
 use App\Service\DeckListValidator;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -41,7 +40,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[Route('/deck')]
 #[IsGranted('ROLE_USER')]
-class DeckController extends AbstractController
+class DeckController extends AbstractAppController
 {
     /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
@@ -97,9 +96,9 @@ class DeckController extends AbstractController
                 $versionId = $version->getId();
                 $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
 
-                $this->addFlash('success', \sprintf('Deck "%s" created with deck list imported.', $deck->getName()));
+                $this->addFlash('success', 'app.flash.deck.created_with_list', ['%name%' => $deck->getName()]);
             } else {
-                $this->addFlash('success', \sprintf('Deck "%s" created.', $deck->getName()));
+                $this->addFlash('success', 'app.flash.deck.created', ['%name%' => $deck->getName()]);
             }
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
@@ -130,7 +129,7 @@ class DeckController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             if ($wasPublic && !$deck->isPublic() && $hasActiveRegistrations) {
                 $deck->setPublic(true);
-                $this->addFlash('warning', 'Cannot unpublish this deck — it has active event registrations.');
+                $this->addFlash('warning', 'app.flash.deck.cannot_unpublish');
 
                 return $this->redirectToRoute('app_deck_edit', ['id' => $deck->getId()]);
             }
@@ -138,7 +137,7 @@ class DeckController extends AbstractController
             $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->flush();
 
-            $this->addFlash('success', \sprintf('Deck "%s" updated.', $deck->getName()));
+            $this->addFlash('success', 'app.flash.deck.updated', ['%name%' => $deck->getName()]);
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
@@ -203,11 +202,7 @@ class DeckController extends AbstractController
             $versionId = $version->getId();
             $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
 
-            $this->addFlash('success', \sprintf(
-                'Deck list imported (version %d, %d cards). Card enrichment is processing in the background.',
-                $nextVersion,
-                $result->totalCards(),
-            ));
+            $this->addFlash('success', 'app.flash.deck.imported', ['%version%' => $nextVersion, '%cards%' => $result->totalCards()]);
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
