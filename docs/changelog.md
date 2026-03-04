@@ -14,12 +14,41 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
+*Nothing yet.*
+
+---
+
+## [0.2.0] — 2026-03-04
+
+Borrow workflow maturity: staff custody chain, conflict management, owner inbox, and UI refinements.
+
+### Deck Library
+
+- **F2.13** — Inline deck list import on creation: owners can import a deck list directly during deck creation, removing the need for a separate import step.
+
+### Event Management
+
+- **F3.21** — Clear deck selection on withdrawal: when a participant withdraws from an event or switches participation mode, their deck selection is automatically cleared.
+- **F4.13** — Event-scoped autocompletes: user search fields in staff assignment and borrow workflows are scoped to event participants for faster results.
+
 ### Borrow Workflow
 
-- **F4.11** — Auto-decline competing pending borrows: when a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at the same event are automatically declined via `DeclineCompetingBorrowsMessage` (async `borrow_lifecycle` Messenger transport). The deck owner is recorded as the cancelling actor.
-- **F4.14** — Staff custody handover tracking: owners can confirm handing a delegated deck to staff; staff can confirm returning the deck to the owner. Tracks `staffReceivedAt`/`staffReceivedBy` and `staffReturnedAt`/`staffReturnedBy` on `EventDeckRegistration`. Full chain-of-custody visibility: owner → staff → borrower → staff → owner. Guard conditions: staff cannot hand off or walk-up lend a delegated deck until the owner confirms physical handover; delegation cannot be revoked while the deck is with staff.
+- **F4.5** — Borrow history: paginated borrow and lend lists with full deck detail (was *(partial)* in 0.1.0).
+- **F4.9** — Staff deck custody tracking: staff members assigned to an event can manage delegated decks on the event page. Delegated staff can also cancel borrows on behalf of the deck owner.
+- **F4.10** — Owner borrow inbox: grouped-by-event layout with inline approve/deny/cancel actions (was *(partial)* in 0.1.0).
+- **F4.11** — Multiple pending borrow requests: a deck can receive multiple pending borrow requests per event, allowing the owner to compare and choose. When a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at that event are automatically declined via `DeclineCompetingBorrowsMessage` (async `borrow_lifecycle` Messenger transport).
+- **F4.14** — Staff custody handover tracking: owners confirm handing a delegated deck to staff; staff confirm returning it. Tracks `staffReceivedAt`/`staffReceivedBy` and `staffReturnedAt`/`staffReturnedBy` on `EventDeckRegistration`. Full chain-of-custody visibility: owner → staff → borrower → staff → owner. Guard conditions: staff cannot hand off or walk-up lend a delegated deck until the owner confirms physical handover; delegation cannot be revoked while the deck is with staff.
 - **F4.14** — Custody return rules: staff cannot mark a deck as returned to owner while it is currently lent to a borrower (must collect it first). When staff returns the deck, remaining active borrows (returned, pending, approved) are auto-closed. New owner reclaim action: the owner can mark "returned to me" at any time, closing both the custody tracking and all active borrows (including lent/overdue) in one step. Borrowers with active lent/overdue borrows are notified.
 - **F4.14** — Deck selection UI: own decks that are currently lent or handed over to staff are shown as disabled rows in the Deck Selection card (with "Lent" / "With staff" badges) instead of being hidden. A "Browse decks" link invites the owner to borrow an alternative.
+
+### Dashboard & Homepage
+
+- **F7.1** — Dashboard: "See all" link added to My Decks section.
+
+### Cross-Cutting
+
+- Transaction rollback for functional test isolation (performance improvement)
+- PHPUnit test suite expanded (46+ test methods, 1 600+ assertions)
 
 ---
 
@@ -67,8 +96,8 @@ First tagged release. Covers the core domain: authentication, deck library, even
 - **F4.8** — Staff-delegated lending (per-deck, per-event opt-in)
 - **F4.11** — Borrow conflict detection (hard block on overlapping approved/lent, soft warning on pending)
 - **F4.12** — Walk-up lending (direct lend at event, skips request/approval)
-- **F4.5** — Borrow history *(partial)* — per-deck history visible; per-user history view not yet built
-- **F4.10** — Owner borrow inbox *(partial)* — basic view exists; grouped-by-event layout pending
+- **F4.5** — Borrow history *(partial)* — per-deck history visible; per-user history view not yet built *(completed in 0.2.0)*
+- **F4.10** — Owner borrow inbox *(partial)* — basic view exists; grouped-by-event layout pending *(completed in 0.2.0)*
 
 ### Card Data & Validation
 
