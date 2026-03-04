@@ -7,30 +7,30 @@
  # file that was distributed with this source code.
  #}
 <!DOCTYPE html>
-<html>
+<html lang="{{ locale }}">
 <head>
     <meta charset="UTF-8">
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #2c3e50;">Borrow Request Approved</h1>
+    <h1 style="color: #2c3e50;">{{ 'app.email.borrow.approved_heading'|trans({}, 'messages', locale) }}</h1>
 
-    <p>Hi {{ recipient.screenName }},</p>
+    <p>{{ 'app.email.greeting'|trans({'%name%': recipient.screenName}, 'messages', locale) }}</p>
 
-    <p>Your request to borrow <strong>"{{ borrow.deck.name }}"</strong> for the event <strong>{{ borrow.event.name }}</strong> has been approved.</p>
+    <p>{{ 'app.email.borrow.approved_body'|trans({'%deck%': borrow.deck.name, '%event%': borrow.event.name}, 'messages', locale) }}</p>
 
-    <p>The deck will be handed off to you at the event.</p>
+    <p>{{ 'app.email.borrow.approved_handoff'|trans({}, 'messages', locale) }}</p>
 
     <p style="text-align: center; margin: 30px 0;">
         <a href="{{ borrowUrl }}"
            style="background-color: #0d6efd; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            View Borrow
+            {{ 'app.email.borrow.view_borrow'|trans({}, 'messages', locale) }}
         </a>
     </p>
 
-    <p>Or copy and paste this link into your browser:</p>
+    <p>{{ 'app.email.link_fallback'|trans({}, 'messages', locale) }}</p>
     <p style="word-break: break-all; color: #666;">{{ borrowUrl }}</p>
 
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-    <p style="color: #999; font-size: 12px;">Expanded Decks — Shared Pokemon TCG deck library</p>
+    <p style="color: #999; font-size: 12px;">{{ 'app.email.footer'|trans({}, 'messages', locale) }}</p>
 </body>
 </html>

@@ -53,15 +53,18 @@ class VerificationController extends AbstractAppController
 
             $verificationUrl = $this->generateUrl('app_verify', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
+            $locale = $user->getPreferredLocale();
+
             $emailMessage = (new TemplatedEmail())
                 ->from(new Address($mailSender, 'Expanded Decks'))
                 ->to($user->getEmail())
-                ->subject('Verify your Expanded Decks account')
+                ->subject($this->translator->trans('app.email.verification_subject', [], null, $locale))
                 ->htmlTemplate('email/verification.html.twig')
                 ->context([
                     'user' => $user,
                     'verificationUrl' => $verificationUrl,
                     'expiresInHours' => (int) ($tokenTtl / 3600),
+                    'locale' => $locale,
                 ]);
 
             $mailer->send($emailMessage);

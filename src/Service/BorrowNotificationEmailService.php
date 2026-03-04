@@ -18,6 +18,7 @@ use App\Entity\User;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F8.1 — Borrow workflow email notifications
@@ -27,18 +28,18 @@ class BorrowNotificationEmailService
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public function sendBorrowRequested(Borrow $borrow): void
     {
-        $recipient = $borrow->isDelegatedToStaff()
-            ? $borrow->getDeck()->getOwner()
-            : $borrow->getDeck()->getOwner();
+        $recipient = $borrow->getDeck()->getOwner();
+        $deckName = $borrow->getDeck()->getName();
 
         $this->sendEmail(
             $recipient,
-            \sprintf('New borrow request for "%s"', $borrow->getDeck()->getName()),
+            $this->trans('app.email.borrow.requested_subject', ['%deck%' => $deckName], $recipient),
             'email/borrow/requested.html.twig',
             $borrow,
         );
@@ -46,9 +47,12 @@ class BorrowNotificationEmailService
 
     public function sendBorrowApproved(Borrow $borrow): void
     {
+        $recipient = $borrow->getBorrower();
+        $deckName = $borrow->getDeck()->getName();
+
         $this->sendEmail(
-            $borrow->getBorrower(),
-            \sprintf('Your borrow request for "%s" was approved', $borrow->getDeck()->getName()),
+            $recipient,
+            $this->trans('app.email.borrow.approved_subject', ['%deck%' => $deckName], $recipient),
             'email/borrow/approved.html.twig',
             $borrow,
         );
@@ -56,9 +60,12 @@ class BorrowNotificationEmailService
 
     public function sendBorrowDenied(Borrow $borrow): void
     {
+        $recipient = $borrow->getBorrower();
+        $deckName = $borrow->getDeck()->getName();
+
         $this->sendEmail(
-            $borrow->getBorrower(),
-            \sprintf('Your borrow request for "%s" was denied', $borrow->getDeck()->getName()),
+            $recipient,
+            $this->trans('app.email.borrow.denied_subject', ['%deck%' => $deckName], $recipient),
             'email/borrow/denied.html.twig',
             $borrow,
         );
@@ -66,17 +73,21 @@ class BorrowNotificationEmailService
 
     public function sendBorrowOverdue(Borrow $borrow): void
     {
+        $deckName = $borrow->getDeck()->getName();
+
         // Notify both owner and borrower
+        $owner = $borrow->getDeck()->getOwner();
         $this->sendEmail(
-            $borrow->getDeck()->getOwner(),
-            \sprintf('"%s" is overdue for return', $borrow->getDeck()->getName()),
+            $owner,
+            $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $owner),
             'email/borrow/overdue.html.twig',
             $borrow,
         );
 
+        $borrower = $borrow->getBorrower();
         $this->sendEmail(
-            $borrow->getBorrower(),
-            \sprintf('"%s" is overdue for return', $borrow->getDeck()->getName()),
+            $borrower,
+            $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $borrower),
             'email/borrow/overdue.html.twig',
             $borrow,
         );
@@ -88,13 +99,23 @@ class BorrowNotificationEmailService
             ? $borrow->getDeck()->getOwner()
             : $borrow->getBorrower();
 
+        $deckName = $borrow->getDeck()->getName();
+
         $this->sendEmail(
             $recipient,
-            \sprintf('Borrow of "%s" was cancelled', $borrow->getDeck()->getName()),
+            $this->trans('app.email.borrow.cancelled_subject', ['%deck%' => $deckName], $recipient),
             'email/borrow/cancelled.html.twig',
             $borrow,
             ['actor' => $actor],
         );
+    }
+
+    /**
+     * @param array<string, string> $params
+     */
+    private function trans(string $key, array $params, User $recipient): string
+    {
+        return $this->translator->trans($key, $params, null, $recipient->getPreferredLocale());
     }
 
     /**
@@ -115,6 +136,7 @@ class BorrowNotificationEmailService
                 'borrow' => $borrow,
                 'recipient' => $recipient,
                 'borrowUrl' => $borrowUrl,
+                'locale' => $recipient->getPreferredLocale(),
             ], $extraContext));
 
         $this->mailer->send($email);

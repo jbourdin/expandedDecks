@@ -55,15 +55,18 @@ class PasswordResetController extends AbstractAppController
 
             $resetUrl = $this->generateUrl('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
+            $locale = $user->getPreferredLocale();
+
             $emailMessage = (new TemplatedEmail())
                 ->from(new Address($mailSender, 'Expanded Decks'))
                 ->to($user->getEmail())
-                ->subject('Reset your Expanded Decks password')
+                ->subject($this->translator->trans('app.email.password_reset_subject', [], null, $locale))
                 ->htmlTemplate('email/password_reset.html.twig')
                 ->context([
                     'user' => $user,
                     'resetUrl' => $resetUrl,
                     'expiresInMinutes' => (int) ($tokenTtl / 60),
+                    'locale' => $locale,
                 ]);
 
             $mailer->send($emailMessage);
