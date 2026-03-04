@@ -37,7 +37,7 @@
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <span class="nav-link nav-link-user">{{ app.user.screenName }}</span>
+                                <a class="nav-link nav-link-user" href="{{ path('app_profile_edit') }}">{{ app.user.screenName }}</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a>

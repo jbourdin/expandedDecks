@@ -134,10 +134,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F9.1 | User language preference   | Medium   | Done        | F1.1       |
 | F9.2 | User timezone              | Medium   | Done        | F1.1, F9.4 |
 | F9.3 | Application translation    | Medium   | Partial     | —          |
-| F1.3  | User profile               | Medium   | Not started | F1.1       |
+| F1.3  | User profile               | Medium   | Done        | F1.1       |
 | F1.11 | Gravatar avatar & navbar user menu | Medium | Not started | F1.1 |
 
-**Progress: 2/5 done · 1 partial · 2 not started**
+**Progress: 3/5 done · 1 partial · 1 not started**
 
 **Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, a profile page showing owned decks, borrow history, and upcoming events, and a Gravatar-powered navbar avatar with user dropdown menu.
 
@@ -315,13 +315,13 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
 | 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
 | 5     | Core Views & Navigation           | 12   | 0       | 2           | 14    |
-| 6     | Localization                      | 2    | 1       | 2           | 5     |
+| 6     | Localization                      | 3    | 1       | 1           | 5     |
 | 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 2       | 20          | 22    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **38** | **10** | **44**      | **92** |
+|       | **Total**                         | **39** | **10** | **43**      | **92** |
 
 All 92 features from [features.md](features.md) are represented exactly once.

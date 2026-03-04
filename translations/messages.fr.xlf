@@ -1583,6 +1583,23 @@
                 <note>Success flash after email verification</note>
             </trans-unit>
 
+            <!-- Profile page -->
+            <trans-unit id="app.profile.title">
+                <source>app.profile.title</source>
+                <target>Mon profil</target>
+                <note>Profile page heading</note>
+            </trans-unit>
+            <trans-unit id="app.profile.save_button">
+                <source>app.profile.save_button</source>
+                <target>Enregistrer</target>
+                <note>Profile form submit button</note>
+            </trans-unit>
+            <trans-unit id="app.flash.profile.saved">
+                <source>app.flash.profile.saved</source>
+                <target>Votre profil a été mis à jour.</target>
+                <note>Success flash after saving profile</note>
+            </trans-unit>
+
             <!-- Form labels -->
             <trans-unit id="app.form.label.deck_name">
                 <source>app.form.label.deck_name</source>
@@ -1718,6 +1735,11 @@
                 <source>app.form.label.player_id</source>
                 <target>ID Pokemon (optionnel)</target>
                 <note>Form label for player ID field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.preferred_locale">
+                <source>app.form.label.preferred_locale</source>
+                <target>Langue</target>
+                <note>Form label for preferred locale selector</note>
             </trans-unit>
             <trans-unit id="app.form.label.password">
                 <source>app.form.label.password</source>
