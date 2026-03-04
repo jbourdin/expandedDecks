@@ -8,27 +8,27 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Import List — {{ deck.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.deck.import_title'|trans({'%name%': deck.name}) }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header card-header-themed">
-                    <h5 class="mb-0">Import Deck List — {{ deck.name }}</h5>
+                    <h5 class="mb-0">{{ 'app.deck.import_title'|trans({'%name%': deck.name}) }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">
-                        Paste your PTCG-format deck list below. This will create <strong>version {{ nextVersion }}</strong>.
+                        {{ 'app.deck.import_version'|trans({'%version%': nextVersion})|raw }}
                     </p>
 
                     {{ form_start(form) }}
                         {{ form_row(form.rawList) }}
 
-                        <button type="submit" class="btn btn-gold w-100">Import</button>
+                        <button type="submit" class="btn btn-gold w-100">{{ 'app.deck.import_button'|trans }}</button>
                     {{ form_end(form) }}
 
-                    <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                    <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}" class="btn btn-outline-secondary w-100 mt-2">{{ 'app.common.cancel'|trans }}</a>
                 </div>
             </div>
         </div>

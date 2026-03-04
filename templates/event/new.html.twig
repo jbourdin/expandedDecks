@@ -8,19 +8,19 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}New Event — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.event.new_title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="alert alert-info">
-                <strong>{{ 'Philosophy notice'|trans }}</strong>
-                <p class="mb-0">Events created here are meant for friendly, community-driven tournaments. Please ensure your event follows the Pokémon Organized Play guidelines and fosters a welcoming atmosphere for all players.</p>
+                <strong>{{ 'app.event.philosophy_notice.title'|trans }}</strong>
+                <p class="mb-0">{{ 'app.event.philosophy_notice.notice_body'|trans }}</p>
             </div>
 
             <div class="card shadow-sm">
                 <div class="card-header card-header-themed">
-                    <h5 class="mb-0">New Event</h5>
+                    <h5 class="mb-0">{{ 'app.event.new_title'|trans }}</h5>
                 </div>
                 <div class="card-body">
                     {{ form_start(form) }}
@@ -60,7 +60,7 @@
 
                         {{ form_row(form.isDecklistMandatory) }}
 
-                        <button type="submit" class="btn btn-gold w-100">Create Event</button>
+                        <button type="submit" class="btn btn-gold w-100">{{ 'app.event.create_button'|trans }}</button>
                     {{ form_end(form) }}
                 </div>
             </div>

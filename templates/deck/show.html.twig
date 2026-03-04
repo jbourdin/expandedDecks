@@ -18,9 +18,9 @@
             <table class="table table-striped table-themed table-sm mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 32px">Qty</th>
-                        <th>Card</th>
-                        <th style="width: 56px">Set</th>
+                        <th style="width: 32px">{{ 'app.deck.table_qty'|trans }}</th>
+                        <th>{{ 'app.deck.table_card'|trans }}</th>
+                        <th style="width: 56px">{{ 'app.deck.table_set'|trans }}</th>
                         <th style="width: 40px">#</th>
                     </tr>
                 </thead>
@@ -57,33 +57,33 @@
             <h5 class="mb-0"><span class="badge bg-dark me-2">{{ deck.shortTag }}</span>{{ deck.name }}</h5>
             <div class="d-flex align-items-center gap-2">
                 {% if deck.status.value == 'lent' %}
-                    <span class="badge badge-lent">Lent</span>
+                    <span class="badge badge-lent">{{ 'app.deck.badge_lent'|trans }}</span>
                 {% elseif deck.status.value == 'retired' %}
-                    <span class="badge badge-retired">Retired</span>
+                    <span class="badge badge-retired">{{ 'app.deck.badge_retired'|trans }}</span>
                 {% endif %}
             </div>
         </div>
         <div class="card-body py-2">
             <div class="d-flex flex-wrap align-items-center gap-3">
-                <span><strong>Owner:</strong> {{ deck.owner.screenName }}</span>
-                <span><strong>Format:</strong> {{ deck.format }}</span>
+                <span><strong>{{ 'app.deck.owner'|trans }}</strong> {{ deck.owner.screenName }}</span>
+                <span><strong>{{ 'app.deck.format'|trans }}</strong> {{ deck.format }}</span>
                 {% if deck.currentVersion %}
-                    <span><strong>Version:</strong> v{{ deck.currentVersion.versionNumber }}</span>
+                    <span><strong>{{ 'app.deck.version'|trans }}</strong> v{{ deck.currentVersion.versionNumber }}</span>
                 {% endif %}
                 {% if deck.archetype %}
-                    <span><strong>Archetype:</strong> {{ deck.archetype.name }}</span>
+                    <span><strong>{{ 'app.deck.archetype_label'|trans }}</strong> {{ deck.archetype.name }}</span>
                 {% endif %}
                 {% if deck.languages is not empty %}
-                    <span><strong>Languages:</strong> {{ deck.languages|join(', ') }}</span>
+                    <span><strong>{{ 'app.deck.languages_label'|trans }}</strong> {{ deck.languages|join(', ') }}</span>
                 {% endif %}
                 {% if deck.notes %}
-                    <span><strong>Notes:</strong> {{ deck.notes }}</span>
+                    <span><strong>{{ 'app.deck.notes_label'|trans }}</strong> {{ deck.notes }}</span>
                 {% endif %}
 
                 <span class="ms-auto d-flex gap-2">
                     {% if isOwner %}
-                        <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">Import List</a>
+                        <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.common.edit'|trans }}</a>
+                        <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">{{ 'app.deck.import_list'|trans }}</a>
                     {% endif %}
                 </span>
             </div>
@@ -95,7 +95,7 @@
         {% if eligibleEvents is not empty or deckBorrows is not empty %}
             <div class="card shadow-sm mb-3">
                 <div class="card-header card-header-themed">
-                    <h5 class="mb-0">Borrow Activity</h5>
+                    <h5 class="mb-0">{{ 'app.deck.borrow_activity'|trans }}</h5>
                 </div>
                 <div class="card-body">
                     {% if eligibleEvents is not empty %}
@@ -105,9 +105,9 @@
                             <input type="hidden" name="_token" value="">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-5">
-                                    <label for="borrow_event" class="form-label">Event</label>
+                                    <label for="borrow_event" class="form-label">{{ 'app.borrow.event_label'|trans }}</label>
                                     <select name="event_id" id="borrow_event" class="form-select form-select-sm" required>
-                                        <option value="">Select an event...</option>
+                                        <option value="">{{ 'app.borrow.select_event'|trans }}</option>
                                         {% for event in eligibleEvents %}
                                             <option value="{{ event.id }}" data-token="{{ csrf_token('borrow-request-' ~ event.id) }}">
                                                 {{ event.name }} ({{ event.date|user_date }})
@@ -116,11 +116,11 @@
                                     </select>
                                 </div>
                                 <div class="col-md-5">
-                                    <label for="borrow_notes_deck" class="form-label">Notes (optional)</label>
-                                    <input type="text" name="notes" id="borrow_notes_deck" class="form-control form-control-sm" placeholder="e.g. I'll bring it back right after my match">
+                                    <label for="borrow_notes_deck" class="form-label">{{ 'app.borrow.notes_label'|trans }}</label>
+                                    <input type="text" name="notes" id="borrow_notes_deck" class="form-control form-control-sm" placeholder="{{ 'app.borrow.notes_placeholder'|trans }}">
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-sm btn-primary w-100">Request</button>
+                                    <button type="submit" class="btn btn-sm btn-primary w-100">{{ 'app.borrow.request_button'|trans }}</button>
                                 </div>
                             </div>
                         </form>
@@ -138,10 +138,10 @@
                             <table class="table table-striped table-themed table-sm mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Event</th>
-                                        <th>Borrower</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
+                                        <th>{{ 'app.borrow.table.event'|trans }}</th>
+                                        <th>{{ 'app.borrow.table.borrower'|trans }}</th>
+                                        <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                        <th>{{ 'app.borrow.table.date'|trans }}</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -152,7 +152,7 @@
                                             <td>{{ borrow.borrower.screenName }}</td>
                                             <td>{{ borrowBadge(borrow) }}</td>
                                             <td>{{ borrow.requestedAt|user_date }}</td>
-                                            <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                            <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -165,9 +165,9 @@
     {% else %}
         <div class="card shadow-sm mb-3">
             <div class="card-body text-center py-4">
-                <p class="mb-2">Want to borrow this deck for an event?</p>
-                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">Log in</a>
-                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">Create an account</a>
+                <p class="mb-2">{{ 'app.deck.borrow_login_cta'|trans }}</p>
+                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">{{ 'app.deck.login_cta'|trans }}</a>
+                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">{{ 'app.deck.register_cta'|trans }}</a>
             </div>
         </div>
     {% endif %}
@@ -183,11 +183,11 @@
             {# Left column: Pokemon + Energy if pokemon is shorter #}
             <div class="col-md-6 mb-3">
                 {% if pokemonCards|length > 0 %}
-                    {{ _self.cardSection('Pokemon', pokemonCards) }}
+                    {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
                 {% endif %}
                 {% if energyInLeft and energyCards|length > 0 %}
                     <div class="mt-3">
-                        {{ _self.cardSection('Energy', energyCards) }}
+                        {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
                     </div>
                 {% endif %}
             </div>
@@ -195,11 +195,11 @@
             {# Right column: Trainer + Energy if trainer is shorter #}
             <div class="col-md-6 mb-3">
                 {% if trainerCards|length > 0 %}
-                    {{ _self.cardSection('Trainer', trainerCards) }}
+                    {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
                 {% endif %}
                 {% if not energyInLeft and energyCards|length > 0 %}
                     <div class="mt-3">
-                        {{ _self.cardSection('Energy', energyCards) }}
+                        {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
                     </div>
                 {% endif %}
             </div>
@@ -207,9 +207,9 @@
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <p class="text-muted mb-3">No deck list imported yet.</p>
+                <p class="text-muted mb-3">{{ 'app.deck.no_list'|trans }}</p>
                 {% if app.user and isOwner %}
-                    <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-gold">Import Deck List</a>
+                    <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-gold">{{ 'app.deck.import_cta'|trans }}</a>
                 {% endif %}
             </div>
         </div>

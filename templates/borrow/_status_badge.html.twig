@@ -19,6 +19,6 @@
         overdue: 'danger',
     } %}
     <span class="badge bg-{{ statusColors[borrow.status.value] ?? 'secondary' }}">
-        {{ borrow.status.value|replace({'_': ' '})|title }}
+        {{ ('app.borrow.status.' ~ borrow.status.value)|trans }}
     </span>
 {% endmacro %}
