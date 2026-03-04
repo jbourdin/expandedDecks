@@ -37,6 +37,9 @@ class EventFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var string $viewTimezone */
+        $viewTimezone = $options['event_timezone'];
+
         $builder
             ->add('name', TextType::class, [
                 'label' => 'app.form.label.event_name',
@@ -57,12 +60,16 @@ class EventFormType extends AbstractType
                 'label' => 'app.form.label.start_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
+                'model_timezone' => 'UTC',
+                'view_timezone' => $viewTimezone,
             ])
             ->add('endDate', DateTimeType::class, [
                 'label' => 'app.form.label.end_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'required' => false,
+                'model_timezone' => 'UTC',
+                'view_timezone' => $viewTimezone,
             ])
             ->add('timezone', TimezoneType::class, [
                 'label' => 'app.form.label.timezone',
@@ -131,6 +138,9 @@ class EventFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Event::class,
+            'event_timezone' => 'UTC',
         ]);
+
+        $resolver->setAllowedTypes('event_timezone', 'string');
     }
 }

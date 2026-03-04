@@ -3,3 +3,6 @@ proxy:
         - expanded-decks
 http:
     port: 8742
+php:
+    ini:
+        date.timezone: UTC

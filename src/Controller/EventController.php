@@ -69,7 +69,9 @@ class EventController extends AbstractAppController
         $event = new Event();
         $event->setTimezone($user->getTimezone());
 
-        $form = $this->createForm(EventFormType::class, $event);
+        $form = $this->createForm(EventFormType::class, $event, [
+            'event_timezone' => $event->getTimezone(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -294,7 +296,9 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        $form = $this->createForm(EventFormType::class, $event);
+        $form = $this->createForm(EventFormType::class, $event, [
+            'event_timezone' => $event->getTimezone(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
