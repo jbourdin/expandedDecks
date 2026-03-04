@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
@@ -43,6 +44,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class DeckController extends AbstractController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
      * @see docs/features.md F2.13 — Inline deck list import on creation
@@ -97,9 +103,9 @@ class DeckController extends AbstractController
                 $versionId = $version->getId();
                 $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
 
-                $this->addFlash('success', \sprintf('Deck "%s" created with deck list imported.', $deck->getName()));
+                $this->addFlash('success', $this->translator->trans('app.flash.deck.created_with_list', ['%name%' => $deck->getName()]));
             } else {
-                $this->addFlash('success', \sprintf('Deck "%s" created.', $deck->getName()));
+                $this->addFlash('success', $this->translator->trans('app.flash.deck.created', ['%name%' => $deck->getName()]));
             }
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
@@ -130,7 +136,7 @@ class DeckController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             if ($wasPublic && !$deck->isPublic() && $hasActiveRegistrations) {
                 $deck->setPublic(true);
-                $this->addFlash('warning', 'Cannot unpublish this deck — it has active event registrations.');
+                $this->addFlash('warning', $this->translator->trans('app.flash.deck.cannot_unpublish'));
 
                 return $this->redirectToRoute('app_deck_edit', ['id' => $deck->getId()]);
             }
@@ -138,7 +144,7 @@ class DeckController extends AbstractController
             $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->flush();
 
-            $this->addFlash('success', \sprintf('Deck "%s" updated.', $deck->getName()));
+            $this->addFlash('success', $this->translator->trans('app.flash.deck.updated', ['%name%' => $deck->getName()]));
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
@@ -203,11 +209,7 @@ class DeckController extends AbstractController
             $versionId = $version->getId();
             $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
 
-            $this->addFlash('success', \sprintf(
-                'Deck list imported (version %d, %d cards). Card enrichment is processing in the background.',
-                $nextVersion,
-                $result->totalCards(),
-            ));
+            $this->addFlash('success', $this->translator->trans('app.flash.deck.imported', ['%version%' => $nextVersion, '%cards%' => $result->totalCards()]));
 
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }

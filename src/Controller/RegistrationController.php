@@ -26,6 +26,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F1.1 — Register a new account
@@ -33,6 +34,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class RegistrationController extends AbstractController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     #[Route('/register', name: 'app_register')]
     public function register(
         Request $request,
@@ -84,7 +90,7 @@ class RegistrationController extends AbstractController
 
             $mailer->send($email);
 
-            $this->addFlash('success', 'Your account has been created. Please check your email to verify your address.');
+            $this->addFlash('success', $this->translator->trans('app.flash.auth.account_created'));
 
             $loginParams = ('' !== $targetPath) ? ['_target_path' => $targetPath] : [];
 
