@@ -8,17 +8,17 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Available Decks — {{ event.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.event.available_decks_title'|trans }} — {{ event.name }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Available Decks</h4>
-        <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">Back to event</a>
+        <h4 class="mb-0">{{ 'app.event.available_decks_title'|trans }}</h4>
+        <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.back_to_event'|trans }}</a>
     </div>
 
     <p class="text-muted mb-4">
-        Decks available to borrow for <strong>{{ event.name }}</strong>
-        ({{ event.date|date('M j, Y') }}).
+        {{ 'app.event.available_decks_for'|trans({'%name%': event.name})|raw }}
+        ({% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}).
     </p>
 
     {% if availableDecks is not empty %}
@@ -31,9 +31,9 @@
                                 <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a>
                             </h6>
                             <p class="card-text text-muted mb-2">
-                                Owner: {{ deck.owner.screenName }}
+                                {{ 'app.deck.owner'|trans }} {{ deck.owner.screenName }}
                                 {% if deck.archetype %}
-                                    <br>Archetype: {{ deck.archetype.name }}
+                                    <br>{{ 'app.deck.archetype_label'|trans }} {{ deck.archetype.name }}
                                 {% endif %}
                             </p>
                             <form method="post" action="{{ path('app_borrow_request') }}">
@@ -42,9 +42,9 @@
                                 <input type="hidden" name="deck_id" value="{{ deck.id }}">
                                 <input type="hidden" name="redirect_to" value="event_decks">
                                 <div class="mb-2">
-                                    <input type="text" name="notes" class="form-control form-control-sm" placeholder="Notes (optional)">
+                                    <input type="text" name="notes" class="form-control form-control-sm" placeholder="{{ 'app.borrow.notes_label'|trans }}">
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-primary">Request to borrow</button>
+                                <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.request_to_borrow'|trans }}</button>
                             </form>
                         </div>
                     </div>
@@ -52,6 +52,6 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-muted">No decks are currently available for borrowing at this event.</p>
+        <p class="text-muted">{{ 'app.event.no_decks_available'|trans }}</p>
     {% endif %}
 {% endblock %}

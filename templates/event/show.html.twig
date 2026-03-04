@@ -17,13 +17,13 @@
             <h5 class="mb-0">{{ event.name }}</h5>
             <div class="d-flex align-items-center gap-2">
                 {% if event.cancelledAt %}
-                    <span class="badge bg-danger">Cancelled</span>
+                    <span class="badge bg-danger">{{ 'app.event.badge_cancelled'|trans }}</span>
                 {% endif %}
                 {% if event.eventId %}
                     <span class="badge bg-secondary">ID: {{ event.eventId }}</span>
                 {% endif %}
                 {% if isOrganizer and not event.cancelledAt %}
-                    <a href="{{ path('app_event_edit', {id: event.id}) }}" class="btn btn-sm btn-outline-light">Edit</a>
+                    <a href="{{ path('app_event_edit', {id: event.id}) }}" class="btn btn-sm btn-outline-light">{{ 'app.common.edit'|trans }}</a>
                 {% endif %}
             </div>
         </div>
@@ -33,34 +33,30 @@
                     <table class="table table-sm table-themed mb-0">
                         <tbody>
                             <tr>
-                                <th>Date</th>
+                                <th>{{ 'app.event.date'|trans }}</th>
                                 <td>
-                                    {{ event.date|date('M j, Y g:ia') }}
+                                    {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
                                     {% if event.endDate %}
-                                        — {{ event.endDate|date('M j, Y g:ia') }}
+                                        — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
                                     {% endif %}
                                 </td>
                             </tr>
                             <tr>
-                                <th>Timezone</th>
-                                <td>{{ event.timezone }}</td>
-                            </tr>
-                            <tr>
-                                <th>Format</th>
+                                <th>{{ 'app.event.format'|trans }}</th>
                                 <td>{{ event.format }}</td>
                             </tr>
                             <tr>
-                                <th>Organizer</th>
+                                <th>{{ 'app.event.organizer'|trans }}</th>
                                 <td>{{ event.organizer.screenName }}</td>
                             </tr>
                             {% if event.location %}
                                 <tr>
-                                    <th>Location</th>
+                                    <th>{{ 'app.event.location'|trans }}</th>
                                     <td>{{ event.location }}</td>
                                 </tr>
                             {% endif %}
                             <tr>
-                                <th>Registration</th>
+                                <th>{{ 'app.event.registration_link'|trans }}</th>
                                 <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>
                             </tr>
                         </tbody>
@@ -71,39 +67,39 @@
                         <tbody>
                             {% if event.tournamentStructure %}
                                 <tr>
-                                    <th>Structure</th>
+                                    <th>{{ 'app.event.structure'|trans }}</th>
                                     <td>{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</td>
                                 </tr>
                             {% endif %}
                             {% if event.minAttendees or event.maxAttendees %}
                                 <tr>
-                                    <th>Attendees</th>
+                                    <th>{{ 'app.event.attendees'|trans }}</th>
                                     <td>
-                                        {% if event.minAttendees %}Min: {{ event.minAttendees }}{% endif %}
+                                        {% if event.minAttendees %}{{ 'app.event.min'|trans({'%count%': event.minAttendees}) }}{% endif %}
                                         {% if event.minAttendees and event.maxAttendees %} / {% endif %}
-                                        {% if event.maxAttendees %}Max: {{ event.maxAttendees }}{% endif %}
+                                        {% if event.maxAttendees %}{{ 'app.event.max'|trans({'%count%': event.maxAttendees}) }}{% endif %}
                                     </td>
                                 </tr>
                             {% endif %}
                             {% if event.roundDuration or event.topCutRoundDuration %}
                                 <tr>
-                                    <th>Round duration</th>
+                                    <th>{{ 'app.event.round_duration'|trans }}</th>
                                     <td>
-                                        {% if event.roundDuration %}{{ event.roundDuration }} min{% endif %}
+                                        {% if event.roundDuration %}{{ 'app.event.round_min'|trans({'%duration%': event.roundDuration}) }}{% endif %}
                                         {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
-                                        {% if event.topCutRoundDuration %}Top cut: {{ event.topCutRoundDuration }} min{% endif %}
+                                        {% if event.topCutRoundDuration %}{{ 'app.event.top_cut'|trans({'%duration%': event.topCutRoundDuration}) }}{% endif %}
                                     </td>
                                 </tr>
                             {% endif %}
                             {% if event.entryFeeAmount is not null %}
                                 <tr>
-                                    <th>Entry fee</th>
+                                    <th>{{ 'app.event.entry_fee'|trans }}</th>
                                     <td>{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</td>
                                 </tr>
                             {% endif %}
                             <tr>
-                                <th>Decklist mandatory</th>
-                                <td>{{ event.decklistMandatory ? 'Yes' : 'No' }}</td>
+                                <th>{{ 'app.event.decklist_mandatory'|trans }}</th>
+                                <td>{{ event.decklistMandatory ? 'app.common.yes'|trans : 'app.common.no'|trans }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -120,7 +116,7 @@
     {% if isOrganizer and not event.cancelledAt %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h6 class="mb-0">Staff Team</h6>
+                <h6 class="mb-0">{{ 'app.event.staff.title'|trans }}</h6>
             </div>
             <div class="card-body">
                 {% if event.staff is not empty %}
@@ -130,13 +126,13 @@
                                 {{ staffMember.user.screenName }}
                                 <form method="post" action="{{ path('app_event_remove_staff', {id: event.id, staffId: staffMember.id}) }}" class="d-inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('remove-staff-' ~ staffMember.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.staff.remove'|trans }}</button>
                                 </form>
                             </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-muted mb-3">No staff assigned yet.</p>
+                    <p class="text-muted mb-3">{{ 'app.event.staff.no_staff'|trans }}</p>
                 {% endif %}
 
                 <form method="post" action="{{ path('app_event_assign_staff', {id: event.id}) }}" class="d-flex gap-2">
@@ -145,9 +141,9 @@
                          data-staff-autocomplete
                          data-search-url="{{ path('app_user_search') }}"
                          data-hidden-input="user_query"
-                         data-placeholder="Screen name, email, or Pokemon ID">
+                         data-placeholder="{{ 'app.event.staff.placeholder'|trans }}">
                     </div>
-                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">Add Staff</button>
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">{{ 'app.event.staff.add'|trans }}</button>
                 </form>
             </div>
         </div>
@@ -156,47 +152,47 @@
     {% if not event.cancelledAt %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h6 class="mb-0">Participation</h6>
+                <h6 class="mb-0">{{ 'app.event.participation.title'|trans }}</h6>
             </div>
             <div class="card-body">
                 {% set playerCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredPlaying')) %}
                 {% set spectatorCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredSpectating')) %}
 
                 <p class="mb-3">
-                    <strong>{{ playerCount }}</strong> player{{ playerCount != 1 ? 's' : '' }},
-                    <strong>{{ spectatorCount }}</strong> spectator{{ spectatorCount != 1 ? 's' : '' }}
+                    <strong>{{ 'app.event.participation.players'|trans({'%count%': playerCount}) }}</strong>,
+                    <strong>{{ 'app.event.participation.spectators'|trans({'%count%': spectatorCount}) }}</strong>
                 </p>
 
                 {% if userEngagement %}
                     {% if userEngagement.state.value == 'registered_playing' %}
-                        <span class="badge bg-success me-2">Registered (Playing)</span>
+                        <span class="badge bg-success me-2">{{ 'app.event.participation.registered_playing'|trans }}</span>
                         <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
                             <input type="hidden" name="mode" value="spectating">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Switch to Spectator</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.participation.switch_to_spectator'|trans }}</button>
                         </form>
                     {% elseif userEngagement.state.value == 'registered_spectating' %}
-                        <span class="badge bg-info me-2">Registered (Spectating)</span>
+                        <span class="badge bg-info me-2">{{ 'app.event.participation.registered_spectating'|trans }}</span>
                         <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
                             <input type="hidden" name="mode" value="playing">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Switch to Player</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.participation.switch_to_player'|trans }}</button>
                         </form>
                     {% endif %}
                     <form method="post" action="{{ path('app_event_withdraw', {id: event.id}) }}" class="d-inline ms-1">
                         <input type="hidden" name="_token" value="{{ csrf_token('withdraw-event-' ~ event.id) }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Withdraw</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.participation.withdraw'|trans }}</button>
                     </form>
                 {% else %}
                     <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
                         <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
                         <input type="hidden" name="mode" value="playing">
-                        <button type="submit" class="btn btn-sm btn-primary">Register as Player</button>
+                        <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
                     </form>
                     <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
                         <input type="hidden" name="mode" value="spectating">
-                        <button type="submit" class="btn btn-sm btn-outline-primary">Register as Spectator</button>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
                     </form>
                 {% endif %}
             </div>
@@ -206,17 +202,17 @@
     {% if not event.cancelledAt and not event.finishedAt and ownedDecksWithVersion is not empty %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h6 class="mb-0">Your Decks</h6>
+                <h6 class="mb-0">{{ 'app.event.your_decks'|trans }}</h6>
             </div>
             <div class="card-body">
-                <p class="text-muted mb-2">Register your decks for this event and choose whether event staff can handle them on your behalf.</p>
+                <p class="text-muted mb-2">{{ 'app.event.your_decks_help'|trans }}</p>
                 <table class="table table-sm table-themed mb-0">
                     <thead>
                         <tr>
-                            <th>Deck</th>
-                            <th>Status</th>
-                            <th>Available</th>
-                            <th>Delegate to Staff</th>
+                            <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                            <th>{{ 'app.borrow.table.status'|trans }}</th>
+                            <th>{{ 'app.borrow.table.available'|trans }}</th>
+                            <th>{{ 'app.borrow.table.delegate_to_staff'|trans }}</th>
                             <th>Custody</th>
                         </tr>
                     </thead>
@@ -230,13 +226,13 @@
                                 <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                 <td>
                                     {% if isPlayed %}
-                                        <span class="badge bg-primary">Played</span>
+                                        <span class="badge bg-primary">{{ 'app.event.deck_status_played'|trans }}</span>
                                     {% elseif isDelegated %}
-                                        <span class="badge bg-info">Delegated to staff</span>
+                                        <span class="badge bg-info">{{ 'app.event.deck_status_delegated'|trans }}</span>
                                     {% elseif isRegistered %}
-                                        <span class="badge bg-success">Registered</span>
+                                        <span class="badge bg-success">{{ 'app.event.deck_status_registered'|trans }}</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">Not registered</span>
+                                        <span class="badge bg-secondary">{{ 'app.event.deck_status_not_registered'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -244,9 +240,9 @@
                                         <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
                                         <input type="hidden" name="deck_id" value="{{ deck.id }}">
                                         {% if isRegistered %}
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Unregister</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.unregister'|trans }}</button>
                                         {% else %}
-                                            <button type="submit" class="btn btn-sm btn-outline-success">Register</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.register_deck'|trans }}</button>
                                         {% endif %}
                                     </form>
                                 </td>
@@ -257,9 +253,9 @@
                                         {% if isDelegated %}
                                             {% set deckWithStaff = regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
                                             <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}
-                                                {% if deckWithStaff %}title="Cannot revoke — deck is currently with staff"{% endif %}>Revoke</button>
+                                                {% if deckWithStaff %}title="Cannot revoke — deck is currently with staff"{% endif %}>{{ 'app.event.revoke'|trans }}</button>
                                         {% else %}
-                                            <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>Delegate</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
                                         {% endif %}
                                     </form>
                                 </td>
@@ -293,7 +289,7 @@
     {% if isStaff and (delegatedRegistrations is not empty or delegatedBorrows is not empty) %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h6 class="mb-0">Staff Custody</h6>
+                <h6 class="mb-0">{{ 'app.event.staff_custody'|trans }}</h6>
             </div>
             <div class="card-body p-0">
                 {% if delegatedRegistrations is not empty %}
@@ -304,8 +300,8 @@
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
-                                    <th>Deck</th>
-                                    <th>Owner</th>
+                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.owner'|trans }}</th>
                                     <th>Custody</th>
                                     <th></th>
                                 </tr>
@@ -358,10 +354,10 @@
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
-                                    <th>Deck</th>
-                                    <th>Owner</th>
-                                    <th>Borrower</th>
-                                    <th>Status</th>
+                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.owner'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.borrower'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.status'|trans }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -381,12 +377,12 @@
                                                 <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                                    <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
                                                 </form>
-                                                <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Deny this borrow request?')">
+                                                <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Deny</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
                                                 </form>
                                             {% elseif borrow.status.value == 'approved' %}
                                                 {% set awaitingCustody = false %}
@@ -399,23 +395,23 @@
                                                     <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
                                                     <button type="submit" class="btn btn-sm btn-primary" {{ awaitingCustody ? 'disabled' }}
-                                                        {% if awaitingCustody %}title="Owner must hand over the deck to staff first"{% endif %}>Hand off</button>
+                                                        {% if awaitingCustody %}title="Owner must hand over the deck to staff first"{% endif %}>{{ 'app.event.hand_off'|trans }}</button>
                                                 </form>
                                             {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
                                                 <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-warning">Mark returned</button>
+                                                    <button type="submit" class="btn btn-sm btn-warning">{{ 'app.event.mark_returned'|trans }}</button>
                                                 </form>
                                             {% endif %}
                                             {% if borrow.status.value in ['pending', 'approved'] %}
-                                                <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Cancel this borrow?')">
+                                                <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
                                                 </form>
                                             {% endif %}
-                                            <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                                            <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -433,7 +429,7 @@
         {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
             <div class="card shadow-sm mb-3">
                 <div class="card-header card-header-themed">
-                    <h6 class="mb-0">Deck Selection</h6>
+                    <h6 class="mb-0">{{ 'app.event.deck_selection'|trans }}</h6>
                 </div>
                 <div class="card-body">
                     {% set selectedDeckId = currentDeckEntry ? currentDeckEntry.deckVersion.deck.id : 0 %}
@@ -442,9 +438,9 @@
                         <table class="table table-sm table-themed mb-2">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px;">Play</th>
-                                    <th>Deck</th>
-                                    <th>Status</th>
+                                    <th style="width: 40px;">{{ 'app.borrow.table.play'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                    <th>{{ 'app.borrow.table.status'|trans }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -455,7 +451,7 @@
                                             {{ selectedDeckId == 0 ? 'checked' }}
                                             {{ not canChangeDeck ? 'disabled' }}>
                                     </td>
-                                    <td colspan="2" class="text-muted">No deck selected</td>
+                                    <td colspan="2" class="text-muted">{{ 'app.event.no_deck_selected'|trans }}</td>
                                     <td></td>
                                 </tr>
                                 {% for deck in playableOwnDecks %}
@@ -476,7 +472,7 @@
                                             {% elseif isDeckLent %}
                                                 <span class="badge bg-warning text-dark">Lent</span>
                                             {% else %}
-                                                <span class="badge bg-secondary">Own deck</span>
+                                                <span class="badge bg-secondary">{{ 'app.event.own_deck'|trans }}</span>
                                             {% endif %}
                                         </td>
                                         <td>
@@ -496,17 +492,17 @@
                                         </td>
                                         <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                         <td>{{ borrowBadge(borrow) }}</td>
-                                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                         <div class="d-flex align-items-center gap-2 mt-3">
                             {% if canChangeDeck %}
-                                <button type="submit" class="btn btn-sm btn-primary">Save selection</button>
+                                <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.save_selection'|trans }}</button>
                             {% endif %}
                             <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">
-                                Browse available decks
+                                {{ 'app.event.browse_available'|trans }}
                             </a>
                         </div>
                     </form>
@@ -516,20 +512,20 @@
 
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h6 class="mb-0">Deck Borrowing</h6>
+                <h6 class="mb-0">{{ 'app.event.deck_borrowing'|trans }}</h6>
             </div>
             <div class="card-body">
                 {% if isStaff %}
                     <a href="{{ path('app_event_walk_up', {id: event.id}) }}" class="btn btn-sm btn-outline-primary mb-3">
-                        Walk-up lend
+                        {{ 'app.event.walk_up.walk_up_lend'|trans }}
                     </a>
                 {% endif %}
 
                 {% if not isParticipant %}
-                    <p class="text-muted mb-3">Register as a participant to browse and borrow decks.</p>
+                    <p class="text-muted mb-3">{{ 'app.event.participation.register_to_browse'|trans }}</p>
                 {% elseif playableOwnDecks is empty and activeBorrows is empty %}
                     <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-primary mb-3">
-                        Browse available decks
+                        {{ 'app.event.browse_available'|trans }}
                     </a>
                 {% endif %}
 
@@ -538,9 +534,9 @@
                     <table class="table table-sm table-themed mb-0">
                         <thead>
                             <tr>
-                                <th>Deck</th>
-                                <th>Borrower</th>
-                                <th>Status</th>
+                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                <th>{{ 'app.borrow.table.borrower'|trans }}</th>
+                                <th>{{ 'app.borrow.table.status'|trans }}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -550,24 +546,24 @@
                                     <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>{{ borrowBadge(borrow) }}</td>
-                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <p class="text-muted mb-0">No borrow activity yet.</p>
+                    <p class="text-muted mb-0">{{ 'app.event.no_borrow_activity'|trans }}</p>
                 {% endif %}
             </div>
         </div>
     {% endif %}
 
     <div class="d-flex gap-2">
-        <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">Back to events</a>
+        <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.back_to_events'|trans }}</a>
         {% if isOrganizer and not event.cancelledAt %}
-            <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('Are you sure you want to cancel this event? This cannot be undone.')">
+            <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.cancel_confirm'|trans }}')">
                 <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel Event</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.cancel_event'|trans }}</button>
             </form>
         {% endif %}
     </div>

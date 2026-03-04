@@ -17,7 +17,6 @@ use App\Entity\User;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +30,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * @see docs/features.md F1.1 — Register a new account
  * @see docs/features.md F1.2 — Email verification
  */
-class RegistrationController extends AbstractController
+class RegistrationController extends AbstractAppController
 {
     #[Route('/register', name: 'app_register')]
     public function register(
@@ -84,7 +83,7 @@ class RegistrationController extends AbstractController
 
             $mailer->send($email);
 
-            $this->addFlash('success', 'Your account has been created. Please check your email to verify your address.');
+            $this->addFlash('success', 'app.flash.auth.account_created');
 
             $loginParams = ('' !== $targetPath) ? ['_target_path' => $targetPath] : [];
 

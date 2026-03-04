@@ -29,7 +29,7 @@ class DeckImportFormType extends AbstractType
     {
         $builder
             ->add('rawList', TextareaType::class, [
-                'label' => 'Deck list (PTCG format)',
+                'label' => 'app.form.label.deck_list',
                 'attr' => [
                     'rows' => 20,
                     'placeholder' => "Pokémon: 16\n4 Arceus VSTAR BRS 123\n...\n\nTrainer: 36\n4 Battle VIP Pass FST 225\n...\n\nEnergy: 8\n4 Psychic Energy SVE 5\n...",

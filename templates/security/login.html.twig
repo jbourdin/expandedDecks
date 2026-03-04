@@ -8,14 +8,14 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Login — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.auth.login.title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card card-auth shadow-sm">
                 <div class="card-body">
-                    <h1 class="card-title h3 mb-4 text-center">Login</h1>
+                    <h1 class="card-title h3 mb-4 text-center">{{ 'app.auth.login.title'|trans }}</h1>
 
                     {% if error %}
                         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -23,36 +23,36 @@
 
                     <form method="post">
                         <div class="mb-3">
-                            <label for="inputEmail" class="form-label">Email</label>
+                            <label for="inputEmail" class="form-label">{{ 'app.auth.login.email'|trans }}</label>
                             <input type="email" name="_email" id="inputEmail" class="form-control" value="{{ last_email }}" required autofocus>
                         </div>
 
                         <div class="mb-3">
-                            <label for="inputPassword" class="form-label">Password</label>
+                            <label for="inputPassword" class="form-label">{{ 'app.auth.login.password'|trans }}</label>
                             <input type="password" name="_password" id="inputPassword" class="form-control" required>
                         </div>
 
                         <div class="mb-3 form-check">
                             <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input">
-                            <label for="rememberMe" class="form-check-label">Remember me</label>
+                            <label for="rememberMe" class="form-check-label">{{ 'app.auth.login.remember_me'|trans }}</label>
                         </div>
 
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.login.submit'|trans }}</button>
                     </form>
 
                     <p class="text-center mt-3 mb-2">
-                        <a href="{{ path('app_forgot_password') }}">Forgot your password?</a>
+                        <a href="{{ path('app_forgot_password') }}">{{ 'app.auth.login.forgot_password'|trans }}</a>
                     </p>
 
                     <p class="text-center mb-2">
-                        <a href="{{ path('app_verify_resend') }}">Didn't receive a verification email?</a>
+                        <a href="{{ path('app_verify_resend') }}">{{ 'app.auth.login.no_verification'|trans }}</a>
                     </p>
 
                     {% set targetPath = app.request.query.get('_target_path', '') %}
                     <p class="text-center mb-0">
-                        Don't have an account? <a href="{{ path('app_register', targetPath ? {'_target_path': targetPath} : {}) }}">Register</a>
+                        {{ 'app.auth.login.no_account'|trans }} <a href="{{ path('app_register', targetPath ? {'_target_path': targetPath} : {}) }}">{{ 'app.auth.login.register_link'|trans }}</a>
                     </p>
                 </div>
             </div>

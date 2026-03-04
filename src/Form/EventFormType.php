@@ -37,92 +37,99 @@ class EventFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var string $viewTimezone */
+        $viewTimezone = $options['event_timezone'];
+
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Event name',
-                'attr' => ['placeholder' => 'e.g. Weekly Expanded League'],
+                'label' => 'app.form.label.event_name',
+                'attr' => ['placeholder' => 'app.form.placeholder.event_name'],
             ])
             ->add('eventId', TextType::class, [
-                'label' => 'Tournament ID (optional)',
+                'label' => 'app.form.label.tournament_id',
                 'required' => false,
-                'attr' => ['placeholder' => 'e.g. 0000118025'],
+                'attr' => ['placeholder' => 'app.form.placeholder.tournament_id'],
             ])
             ->add('format', TextType::class, [
-                'label' => 'Format',
+                'label' => 'app.form.label.format',
                 'mapped' => false,
                 'data' => 'Expanded',
                 'disabled' => true,
             ])
             ->add('date', DateTimeType::class, [
-                'label' => 'Start date & time',
+                'label' => 'app.form.label.start_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
+                'model_timezone' => 'UTC',
+                'view_timezone' => $viewTimezone,
             ])
             ->add('endDate', DateTimeType::class, [
-                'label' => 'End date & time (optional)',
+                'label' => 'app.form.label.end_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'required' => false,
+                'model_timezone' => 'UTC',
+                'view_timezone' => $viewTimezone,
             ])
             ->add('timezone', TimezoneType::class, [
-                'label' => 'Timezone',
+                'label' => 'app.form.label.timezone',
             ])
             ->add('location', TextType::class, [
-                'label' => 'Location (optional)',
+                'label' => 'app.form.label.location',
                 'required' => false,
-                'attr' => ['placeholder' => 'e.g. Le Repaire du Dragon, Lyon'],
+                'attr' => ['placeholder' => 'app.form.placeholder.location'],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description (optional)',
+                'label' => 'app.form.label.description',
                 'required' => false,
                 'attr' => [
                     'rows' => 4,
-                    'placeholder' => 'Event details, rules, etc.',
+                    'placeholder' => 'app.form.placeholder.description',
                 ],
             ])
             ->add('registrationLink', UrlType::class, [
-                'label' => 'Registration link',
+                'label' => 'app.form.label.registration_link',
                 'attr' => ['placeholder' => 'https://...'],
             ])
             ->add('tournamentStructure', EnumType::class, [
                 'class' => TournamentStructure::class,
                 'required' => false,
-                'placeholder' => '— Select —',
-                'label' => 'Tournament structure (optional)',
+                'placeholder' => 'app.form.placeholder.select',
+                'label' => 'app.form.label.tournament_structure',
                 'choice_label' => static fn (TournamentStructure $ts): string => ucwords(str_replace('_', ' ', $ts->value)),
             ])
             ->add('minAttendees', IntegerType::class, [
-                'label' => 'Min attendees (optional)',
+                'label' => 'app.form.label.min_attendees',
                 'required' => false,
                 'attr' => ['min' => 1],
             ])
             ->add('maxAttendees', IntegerType::class, [
-                'label' => 'Max attendees (optional)',
+                'label' => 'app.form.label.max_attendees',
                 'required' => false,
                 'attr' => ['min' => 1],
             ])
             ->add('roundDuration', IntegerType::class, [
-                'label' => 'Round duration in minutes (optional)',
+                'label' => 'app.form.label.round_duration',
                 'required' => false,
-                'attr' => ['min' => 1, 'placeholder' => 'e.g. 50'],
+                'attr' => ['min' => 1, 'placeholder' => 'app.form.placeholder.round_duration'],
             ])
             ->add('topCutRoundDuration', IntegerType::class, [
-                'label' => 'Top cut round duration in minutes (optional)',
+                'label' => 'app.form.label.top_cut_duration',
                 'required' => false,
-                'attr' => ['min' => 1, 'placeholder' => 'e.g. 75'],
+                'attr' => ['min' => 1, 'placeholder' => 'app.form.placeholder.top_cut_duration'],
             ])
             ->add('entryFeeAmount', IntegerType::class, [
-                'label' => 'Entry fee (cents, optional)',
+                'label' => 'app.form.label.entry_fee',
                 'required' => false,
-                'attr' => ['min' => 0, 'placeholder' => 'e.g. 500 for 5.00'],
+                'attr' => ['min' => 0, 'placeholder' => 'app.form.placeholder.entry_fee'],
             ])
             ->add('entryFeeCurrency', CurrencyType::class, [
-                'label' => 'Currency (optional)',
+                'label' => 'app.form.label.currency',
                 'required' => false,
-                'placeholder' => '— Select —',
+                'placeholder' => 'app.form.placeholder.select',
             ])
             ->add('isDecklistMandatory', CheckboxType::class, [
-                'label' => 'Decklist mandatory',
+                'label' => 'app.form.label.decklist_mandatory',
                 'required' => false,
             ]);
     }
@@ -131,6 +138,9 @@ class EventFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Event::class,
+            'event_timezone' => 'UTC',
         ]);
+
+        $resolver->setAllowedTypes('event_timezone', 'string');
     }
 }

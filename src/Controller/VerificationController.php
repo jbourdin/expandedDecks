@@ -16,7 +16,6 @@ namespace App\Controller;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +27,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @see docs/features.md F1.2 — Email verification
  */
-class VerificationController extends AbstractController
+class VerificationController extends AbstractAppController
 {
     #[Route('/verify/resend', name: 'app_verify_resend', methods: ['GET', 'POST'])]
     public function resend(
@@ -69,7 +68,7 @@ class VerificationController extends AbstractController
         }
 
         // Anti-enumeration: always show the same success message
-        $this->addFlash('success', 'If an account exists with that email and is not yet verified, a new verification email has been sent.');
+        $this->addFlash('success', 'app.flash.auth.verification_sent');
 
         return $this->redirectToRoute('app_login');
     }
@@ -83,7 +82,7 @@ class VerificationController extends AbstractController
         $user = $userRepository->findOneBy(['verificationToken' => $token]);
 
         if (null === $user) {
-            $this->addFlash('danger', 'Invalid verification link.');
+            $this->addFlash('danger', 'app.flash.auth.invalid_verification');
 
             return $this->redirectToRoute('app_login');
         }
@@ -91,7 +90,7 @@ class VerificationController extends AbstractController
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         if (null !== $user->getTokenExpiresAt() && $user->getTokenExpiresAt() < $now) {
-            $this->addFlash('danger', 'This verification link has expired. Please request a new one.');
+            $this->addFlash('danger', 'app.flash.auth.verification_expired');
 
             return $this->redirectToRoute('app_verify_resend');
         }
@@ -101,7 +100,7 @@ class VerificationController extends AbstractController
         $user->setTokenExpiresAt(null);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Your email has been verified. You can now log in.');
+        $this->addFlash('success', 'app.flash.auth.email_verified');
 
         return $this->redirectToRoute('app_login');
     }

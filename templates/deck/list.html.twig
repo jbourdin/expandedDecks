@@ -8,13 +8,13 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Deck Catalog — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.deck.catalog_title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Deck Catalog</h1>
+        <h1 class="mb-0">{{ 'app.deck.catalog_title'|trans }}</h1>
         {% if is_granted('ROLE_USER') %}
-            <a href="{{ path('app_deck_new') }}" class="btn btn-gold">+ New Deck</a>
+            <a href="{{ path('app_deck_new') }}" class="btn btn-gold">{{ 'app.deck.new_deck'|trans }}</a>
         {% endif %}
     </div>
 
@@ -23,11 +23,11 @@
         <div class="card-body">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label for="filter-search" class="form-label">Search</label>
-                    <input type="text" id="filter-search" name="q" class="form-control" placeholder="Name or short tag..." value="{{ filters.search ?? '' }}">
+                    <label for="filter-search" class="form-label">{{ 'app.common.search'|trans }}</label>
+                    <input type="text" id="filter-search" name="q" class="form-control" placeholder="{{ 'app.deck.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Archetype</label>
+                    <label class="form-label">{{ 'app.deck.archetype_filter'|trans }}</label>
                     <div data-catalog-archetype
                          data-search-url="{{ path('app_archetype_search') }}"
                          data-hidden-input="archetype"
@@ -39,7 +39,7 @@
                     ></div>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Event</label>
+                    <label class="form-label">{{ 'app.deck.event_filter'|trans }}</label>
                     <div data-catalog-event
                          data-search-url="{{ path('app_event_search') }}"
                          data-hidden-input="event"
@@ -51,7 +51,7 @@
                     ></div>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Owner</label>
+                    <label class="form-label">{{ 'app.deck.owner_filter'|trans }}</label>
                     <div data-catalog-owner
                          data-search-url="{{ path('app_deck_owner_search') }}"
                          data-hidden-input="owner"
@@ -63,15 +63,15 @@
                     ></div>
                 </div>
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-gold">Filter</button>
-                    <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">Clear</a>
+                    <button type="submit" class="btn btn-gold">{{ 'app.common.filter'|trans }}</button>
+                    <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
                 </div>
             </div>
         </div>
     </form>
 
     {# Result count #}
-    <p class="text-muted mb-3">{{ totalItems }} deck{{ totalItems != 1 ? 's' : '' }} found</p>
+    <p class="text-muted mb-3">{{ 'app.deck.results_count'|trans({'%count%': totalItems}) }}</p>
 
     {% if totalItems > 0 %}
         {# Card grid #}
@@ -85,11 +85,11 @@
                                 <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
                             </h5>
                             <p class="card-text mb-1">
-                                Owner: <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
+                                {{ 'app.deck.owner'|trans }} <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
                             </p>
                             {% if deck.archetype %}
                                 <p class="card-text mb-0">
-                                    Archetype: <a href="{{ path('app_deck_list', filters|merge({archetype: deck.archetype.slug})) }}">{{ deck.archetype.name }}</a>
+                                    {{ 'app.deck.archetype_label'|trans }} <a href="{{ path('app_deck_list', filters|merge({archetype: deck.archetype.slug})) }}">{{ deck.archetype.name }}</a>
                                 </p>
                             {% endif %}
                         </div>
@@ -103,7 +103,7 @@
             <nav>
                 <ul class="pagination justify-content-center">
                     <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage - 1})) }}">Previous</a>
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage - 1})) }}">{{ 'app.common.previous'|trans }}</a>
                     </li>
                     {% for p in 1..totalPages %}
                         <li class="page-item {% if p == currentPage %}active{% endif %}">
@@ -111,13 +111,13 @@
                         </li>
                     {% endfor %}
                     <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage + 1})) }}">Next</a>
+                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage + 1})) }}">{{ 'app.common.next'|trans }}</a>
                     </li>
                 </ul>
             </nav>
         {% endif %}
     {% else %}
-        <div class="alert alert-info">No decks match your search criteria.</div>
+        <div class="alert alert-info">{{ 'app.deck.no_results'|trans }}</div>
     {% endif %}
 {% endblock %}
 

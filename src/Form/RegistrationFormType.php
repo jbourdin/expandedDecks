@@ -36,25 +36,27 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'label' => 'app.form.label.email',
+            ])
             ->add('firstName', TextType::class, [
-                'label' => 'First name',
+                'label' => 'app.form.label.first_name',
             ])
             ->add('lastName', TextType::class, [
-                'label' => 'Last name',
+                'label' => 'app.form.label.last_name',
             ])
             ->add('screenName', TextType::class, [
-                'label' => 'Screen name',
+                'label' => 'app.form.label.screen_name',
             ])
             ->add('playerId', TextType::class, [
-                'label' => 'Player ID (optional)',
+                'label' => 'app.form.label.player_id',
                 'required' => false,
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
-                'first_options' => ['label' => 'Password'],
-                'second_options' => ['label' => 'Repeat password'],
+                'first_options' => ['label' => 'app.form.label.password'],
+                'second_options' => ['label' => 'app.form.label.repeat_password'],
                 'invalid_message' => 'The passwords do not match.',
                 'constraints' => [
                     new NotBlank(message: 'Please enter a password.'),
@@ -67,7 +69,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
-                'label' => 'I agree to the terms',
+                'label' => 'app.form.label.agree_terms',
                 'constraints' => [
                     new IsTrue(message: 'You must agree to the terms.'),
                 ],

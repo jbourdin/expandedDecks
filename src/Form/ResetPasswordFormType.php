@@ -33,8 +33,8 @@ class ResetPasswordFormType extends AbstractType
         $builder
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'first_options' => ['label' => 'New password'],
-                'second_options' => ['label' => 'Repeat new password'],
+                'first_options' => ['label' => 'app.form.label.new_password'],
+                'second_options' => ['label' => 'app.form.label.repeat_new_password'],
                 'invalid_message' => 'The passwords do not match.',
                 'constraints' => [
                     new NotBlank(message: 'Please enter a new password.'),

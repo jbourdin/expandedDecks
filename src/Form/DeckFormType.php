@@ -34,15 +34,15 @@ class DeckFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Deck name',
-                'attr' => ['placeholder' => 'e.g. Giratina VSTAR / Comfey'],
+                'label' => 'app.form.label.deck_name',
+                'attr' => ['placeholder' => 'app.form.placeholder.deck_name'],
             ])
             ->add('notes', TextareaType::class, [
-                'label' => 'Notes (optional)',
+                'label' => 'app.form.label.notes',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'placeholder' => 'Any notes about this deck...',
+                    'placeholder' => 'app.form.placeholder.notes',
                 ],
             ])
             ->add('archetype', HiddenType::class, [
@@ -54,14 +54,14 @@ class DeckFormType extends AbstractType
                 'required' => false,
             ])
             ->add('public', CheckboxType::class, [
-                'label' => 'Public (visible in deck catalog)',
+                'label' => 'app.form.label.public',
                 'required' => false,
                 'disabled' => $options['public_disabled'],
             ]);
 
         if ($options['include_raw_list']) {
             $builder->add('rawList', TextareaType::class, [
-                'label' => 'Deck list (optional, PTCG format)',
+                'label' => 'app.form.label.deck_list_optional',
                 'mapped' => false,
                 'required' => false,
                 'attr' => [
