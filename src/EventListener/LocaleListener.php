@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @see docs/features.md F9.1 — User language preference
  */
-#[AsEventListener(event: KernelEvents::REQUEST, priority: 20)]
+#[AsEventListener(event: KernelEvents::REQUEST, priority: 4)]
 class LocaleListener
 {
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
