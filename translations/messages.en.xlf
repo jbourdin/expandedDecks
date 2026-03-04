@@ -1631,6 +1631,21 @@
                 <target>You are now registered as a spectator.</target>
                 <note>Success flash after registering as spectator</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.registered_as">
+                <source>app.flash.event.registered_as</source>
+                <target>You are now registered as a %role%.</target>
+                <note>Success flash after registering. %role% = translated role name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.role_player">
+                <source>app.flash.event.role_player</source>
+                <target>player</target>
+                <note>Participation role label for player</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.role_spectator">
+                <source>app.flash.event.role_spectator</source>
+                <target>spectator</target>
+                <note>Participation role label for spectator</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.cannot_withdraw_cancelled">
                 <source>app.flash.event.cannot_withdraw_cancelled</source>
                 <target>Cannot withdraw from a cancelled event.</target>
@@ -1755,6 +1770,26 @@
                 <source>app.flash.event.delegation_disabled</source>
                 <target>Staff delegation disabled for &quot;%name%&quot;.</target>
                 <note>Success flash after disabling staff delegation. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_revoke_delegation_in_custody">
+                <source>app.flash.event.cannot_revoke_delegation_in_custody</source>
+                <target>Cannot revoke delegation for &quot;%name%&quot; — the deck is currently with staff. Staff must return it first.</target>
+                <note>Error when trying to revoke delegation while deck is in staff custody. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_handed_over">
+                <source>app.flash.event.custody_handed_over</source>
+                <target>&quot;%name%&quot; handed over to staff.</target>
+                <note>Success flash after owner hands deck to staff. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_returned_to_owner">
+                <source>app.flash.event.custody_returned_to_owner</source>
+                <target>&quot;%name%&quot; returned to owner.</target>
+                <note>Success flash after staff returns deck to owner. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_reclaimed">
+                <source>app.flash.event.custody_reclaimed</source>
+                <target>&quot;%name%&quot; returned to you. All active borrows have been closed.</target>
+                <note>Success flash after owner reclaims deck. %name% = deck name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.walkup_not_available">
                 <source>app.flash.event.walkup_not_available</source>

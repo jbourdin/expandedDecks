@@ -44,6 +44,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F3.1 — Create a new event
@@ -64,6 +65,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class EventController extends AbstractAppController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     /**
      * @see docs/features.md F3.1 — Create a new event
      */
@@ -88,7 +94,7 @@ class EventController extends AbstractAppController
             $em->persist($event);
             $em->flush();
 
-            $this->addFlash('success', 'app.flash.event.created', ['%name%' => $event->getName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.event.created', ['%name%' => $event->getName()]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -200,7 +206,7 @@ class EventController extends AbstractAppController
         $user = $this->getUser();
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_browse_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_browse_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -208,7 +214,7 @@ class EventController extends AbstractAppController
         $userEngagement = $event->getEngagementFor($user);
 
         if (null === $userEngagement) {
-            $this->addFlash('warning', 'app.flash.event.register_to_browse');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.register_to_browse'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -235,19 +241,19 @@ class EventController extends AbstractAppController
         $user = $this->getUser();
 
         if (!$this->isCsrfTokenValid('select-deck-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null === $event->getEngagementFor($user)) {
-            $this->addFlash('warning', 'app.flash.event.must_be_participant');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.must_be_participant'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.selection_not_available');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.selection_not_available'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -257,7 +263,7 @@ class EventController extends AbstractAppController
 
         // Allow first selection even after event start; block changes only when already selected
         if (null !== $existingEntry && $event->getDate() <= new \DateTimeImmutable()) {
-            $this->addFlash('warning', 'app.flash.event.selection_locked');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.selection_locked'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -268,7 +274,7 @@ class EventController extends AbstractAppController
                 $em->flush();
             }
 
-            $this->addFlash('success', 'app.flash.event.selection_cleared');
+            $this->addFlash('success', $this->translator->trans('app.flash.event.selection_cleared'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -276,7 +282,7 @@ class EventController extends AbstractAppController
         $deck = $deckRepository->find($deckId);
 
         if (null === $deck) {
-            $this->addFlash('danger', 'app.flash.deck_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.deck_not_found'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -284,7 +290,7 @@ class EventController extends AbstractAppController
         $currentVersion = $this->resolvePlayableDeckVersion($deck, $user, $event, $borrowRepository);
 
         if (null === $currentVersion) {
-            $this->addFlash('danger', 'app.flash.event.deck_not_available');
+            $this->addFlash('danger', $this->translator->trans('app.flash.event.deck_not_available'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -302,7 +308,7 @@ class EventController extends AbstractAppController
         $em->persist($entry);
         $em->flush();
 
-        $this->addFlash('success', 'app.flash.event.playing_with', ['%name%' => $deck->getName()]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.playing_with', ['%name%' => $deck->getName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -317,7 +323,7 @@ class EventController extends AbstractAppController
         $this->denyAccessUnlessOrganizer($event);
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_edit_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_edit_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -333,7 +339,7 @@ class EventController extends AbstractAppController
 
             $notificationService->notifyEventUpdated($event);
 
-            $this->addFlash('success', 'app.flash.event.updated', ['%name%' => $event->getName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.event.updated', ['%name%' => $event->getName()]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -354,13 +360,13 @@ class EventController extends AbstractAppController
         $this->denyAccessUnlessOrganizer($event);
 
         if (!$this->isCsrfTokenValid('cancel-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.already_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.already_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -371,7 +377,7 @@ class EventController extends AbstractAppController
         $messageBus->dispatch(new CancelEventBorrowsMessage((int) $event->getId()));
         $notificationService->notifyEventCancelled($event);
 
-        $this->addFlash('success', 'app.flash.event.cancelled', ['%name%' => $event->getName()]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.cancelled', ['%name%' => $event->getName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -386,19 +392,19 @@ class EventController extends AbstractAppController
         $this->denyAccessUnlessOrganizer($event);
 
         if (!$this->isCsrfTokenValid('finish-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_finish_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_finish_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.already_finished');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.already_finished'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -406,7 +412,7 @@ class EventController extends AbstractAppController
         $event->setFinishedAt(new \DateTimeImmutable());
         $em->flush();
 
-        $this->addFlash('success', 'app.flash.event.finished', ['%name%' => $event->getName()]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.finished', ['%name%' => $event->getName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -419,13 +425,13 @@ class EventController extends AbstractAppController
     public function participate(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('participate-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_register_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_register_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -437,7 +443,7 @@ class EventController extends AbstractAppController
         $mode = ParticipationMode::tryFrom($modeValue);
 
         if (null === $mode) {
-            $this->addFlash('danger', 'app.flash.event.invalid_mode');
+            $this->addFlash('danger', $this->translator->trans('app.flash.event.invalid_mode'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -453,7 +459,7 @@ class EventController extends AbstractAppController
             && ParticipationMode::Playing === $mode
             && !$event->isOrganizerOrStaff($user)
             && (null === $engagement || null === $engagement->getInvitedBy())) {
-            $this->addFlash('warning', 'app.flash.event.invitation_only_player');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.invitation_only_player'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -465,7 +471,7 @@ class EventController extends AbstractAppController
             $deckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
             if (null !== $deckEntry) {
                 $em->remove($deckEntry);
-                $this->addFlash('info', 'app.flash.event.deck_selection_cleared');
+                $this->addFlash('info', $this->translator->trans('app.flash.event.deck_selection_cleared'));
             }
         }
 
@@ -480,8 +486,8 @@ class EventController extends AbstractAppController
         $engagement->setParticipationMode($mode);
         $em->flush();
 
-        $flashKey = ParticipationMode::Playing === $mode ? 'app.flash.event.registered_as_player' : 'app.flash.event.registered_as_spectator';
-        $this->addFlash('success', $flashKey);
+        $roleKey = ParticipationMode::Playing === $mode ? 'app.flash.event.role_player' : 'app.flash.event.role_spectator';
+        $this->addFlash('success', $this->translator->trans('app.flash.event.registered_as', ['%role%' => $this->translator->trans($roleKey)]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -493,13 +499,13 @@ class EventController extends AbstractAppController
     public function interested(Event $event, Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('interested-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_register_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_register_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -510,7 +516,7 @@ class EventController extends AbstractAppController
         $engagement = $event->getEngagementFor($user);
 
         if (null !== $engagement) {
-            $this->addFlash('info', 'app.flash.event.already_engaged');
+            $this->addFlash('info', $this->translator->trans('app.flash.event.already_engaged'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -522,7 +528,7 @@ class EventController extends AbstractAppController
         $em->persist($engagement);
         $em->flush();
 
-        $this->addFlash('success', 'app.flash.event.marked_interested');
+        $this->addFlash('success', $this->translator->trans('app.flash.event.marked_interested'));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -542,13 +548,13 @@ class EventController extends AbstractAppController
         }
 
         if (!$this->isCsrfTokenValid('invite-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_invite_ended');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_invite_ended'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -557,7 +563,7 @@ class EventController extends AbstractAppController
         $targetUser = $userRepository->findByMultiField($userQuery);
 
         if (null === $targetUser) {
-            $this->addFlash('warning', 'app.flash.event.user_not_found', ['%name%' => $userQuery]);
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.user_not_found', ['%name%' => $userQuery]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -565,7 +571,7 @@ class EventController extends AbstractAppController
         $existingEngagement = $event->getEngagementFor($targetUser);
 
         if (null !== $existingEngagement) {
-            $this->addFlash('info', 'app.flash.event.user_already_engaged', ['%name%' => $targetUser->getScreenName()]);
+            $this->addFlash('info', $this->translator->trans('app.flash.event.user_already_engaged', ['%name%' => $targetUser->getScreenName()]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -580,7 +586,7 @@ class EventController extends AbstractAppController
 
         $notificationService->notifyUserInvited($event, $targetUser);
 
-        $this->addFlash('success', 'app.flash.event.user_invited', ['%name%' => $targetUser->getScreenName()]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.user_invited', ['%name%' => $targetUser->getScreenName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -593,13 +599,13 @@ class EventController extends AbstractAppController
     public function withdraw(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('withdraw-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_withdraw_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_withdraw_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -610,7 +616,7 @@ class EventController extends AbstractAppController
         $deckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
         if (null !== $deckEntry) {
             $em->remove($deckEntry);
-            $this->addFlash('info', 'app.flash.event.deck_selection_cleared');
+            $this->addFlash('info', $this->translator->trans('app.flash.event.deck_selection_cleared'));
         }
 
         $engagement = $event->getEngagementFor($user);
@@ -621,7 +627,7 @@ class EventController extends AbstractAppController
 
         $em->flush();
 
-        $this->addFlash('success', 'app.flash.event.withdrawn');
+        $this->addFlash('success', $this->translator->trans('app.flash.event.withdrawn'));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -636,13 +642,13 @@ class EventController extends AbstractAppController
         $this->denyAccessUnlessOrganizer($event);
 
         if (!$this->isCsrfTokenValid('assign-staff-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_assign_staff_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_assign_staff_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -651,7 +657,7 @@ class EventController extends AbstractAppController
         $targetUser = $userRepository->findByMultiField($userQuery);
 
         if (null === $targetUser) {
-            $this->addFlash('warning', 'app.flash.event.user_not_found', ['%name%' => $userQuery]);
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.user_not_found', ['%name%' => $userQuery]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -662,13 +668,13 @@ class EventController extends AbstractAppController
         $screenName = $targetUser->getScreenName();
 
         if ($targetUser->getId() === $event->getOrganizer()->getId()) {
-            $this->addFlash('warning', 'app.flash.event.organizer_cannot_be_staff');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.organizer_cannot_be_staff'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getStaffFor($targetUser)) {
-            $this->addFlash('warning', 'app.flash.event.already_staff', ['%name%' => $screenName]);
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.already_staff', ['%name%' => $screenName]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -683,7 +689,7 @@ class EventController extends AbstractAppController
 
         $notificationService->notifyStaffAssigned($event, $targetUser);
 
-        $this->addFlash('success', 'app.flash.event.staff_added', ['%name%' => $screenName]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.staff_added', ['%name%' => $screenName]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -698,13 +704,13 @@ class EventController extends AbstractAppController
         $this->denyAccessUnlessOrganizer($event);
 
         if (!$this->isCsrfTokenValid('remove-staff-'.$staffId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_remove_staff_cancelled');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_remove_staff_cancelled'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -718,7 +724,7 @@ class EventController extends AbstractAppController
         $em->remove($staffMember);
         $em->flush();
 
-        $this->addFlash('success', 'app.flash.event.staff_removed', ['%name%' => $staffMember->getUser()->getScreenName()]);
+        $this->addFlash('success', $this->translator->trans('app.flash.event.staff_removed', ['%name%' => $staffMember->getUser()->getScreenName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -738,13 +744,13 @@ class EventController extends AbstractAppController
         EventDeckRegistrationRepository $registrationRepository,
     ): Response {
         if (!$this->isCsrfTokenValid('toggle-registration-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_change_registration');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_change_registration'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -756,13 +762,13 @@ class EventController extends AbstractAppController
         $deck = $deckRepository->find($deckId);
 
         if (null === $deck) {
-            $this->addFlash('danger', 'app.flash.deck_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.deck_not_found'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if ($deck->getOwner()->getId() !== $user->getId()) {
-            $this->addFlash('danger', 'app.flash.event.own_decks_only_registration');
+            $this->addFlash('danger', $this->translator->trans('app.flash.event.own_decks_only_registration'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -780,12 +786,12 @@ class EventController extends AbstractAppController
             $em->persist($registration);
             $em->flush();
 
-            $this->addFlash('success', 'app.flash.event.deck_registered', ['%name%' => $deck->getName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.event.deck_registered', ['%name%' => $deck->getName()]));
         } else {
             // Guard: cannot unregister if there is an active borrow for this deck at this event
             $activeBorrow = $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event);
             if (null !== $activeBorrow) {
-                $this->addFlash('warning', 'app.flash.event.deck_cannot_unregister', ['%name%' => $deck->getName()]);
+                $this->addFlash('warning', $this->translator->trans('app.flash.event.deck_cannot_unregister', ['%name%' => $deck->getName()]));
 
                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
             }
@@ -793,7 +799,7 @@ class EventController extends AbstractAppController
             $em->remove($registration);
             $em->flush();
 
-            $this->addFlash('success', 'app.flash.event.deck_unregistered', ['%name%' => $deck->getName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.event.deck_unregistered', ['%name%' => $deck->getName()]));
         }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -813,13 +819,13 @@ class EventController extends AbstractAppController
         EventDeckRegistrationRepository $registrationRepository,
     ): Response {
         if (!$this->isCsrfTokenValid('toggle-delegation-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_change_delegation');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.cannot_change_delegation'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -831,13 +837,13 @@ class EventController extends AbstractAppController
         $deck = $deckRepository->find($deckId);
 
         if (null === $deck) {
-            $this->addFlash('danger', 'app.flash.deck_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.deck_not_found'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         if ($deck->getOwner()->getId() !== $user->getId()) {
-            $this->addFlash('danger', 'app.flash.event.own_decks_only_delegation');
+            $this->addFlash('danger', $this->translator->trans('app.flash.event.own_decks_only_delegation'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -845,14 +851,14 @@ class EventController extends AbstractAppController
         $registration = $registrationRepository->findOneByEventAndDeck($event, $deck);
 
         if (null === $registration) {
-            $this->addFlash('warning', 'app.flash.event.deck_must_register', ['%name%' => $deck->getName()]);
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.deck_must_register', ['%name%' => $deck->getName()]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
         // Cannot revoke delegation while the deck is physically with staff (F4.14)
         if ($registration->isDelegateToStaff() && $registration->hasStaffReceived() && !$registration->hasStaffReturned()) {
-            $this->addFlash('danger', \sprintf('Cannot revoke delegation for "%s" — the deck is currently with staff. Staff must return it first.', $deck->getName()));
+            $this->addFlash('danger', $this->translator->trans('app.flash.event.cannot_revoke_delegation_in_custody', ['%name%' => $deck->getName()]));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -861,7 +867,7 @@ class EventController extends AbstractAppController
         $em->flush();
 
         $flashKey = $registration->isDelegateToStaff() ? 'app.flash.event.delegation_enabled' : 'app.flash.event.delegation_disabled';
-        $this->addFlash('success', $flashKey, ['%name%' => $deck->getName()]);
+        $this->addFlash('success', $this->translator->trans($flashKey, ['%name%' => $deck->getName()]));
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -880,7 +886,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-owner-handover-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -896,7 +902,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->confirmOwnerHandover($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" handed over to staff.', $registration->getDeck()->getName()));
+            $this->addFlash('success', $this->translator->trans('app.flash.event.custody_handed_over', ['%name%' => $registration->getDeck()->getName()]));
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
@@ -920,7 +926,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-staff-return-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -936,7 +942,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->confirmStaffReturn($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" returned to owner.', $registration->getDeck()->getName()));
+            $this->addFlash('success', $this->translator->trans('app.flash.event.custody_returned_to_owner', ['%name%' => $registration->getDeck()->getName()]));
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
@@ -960,7 +966,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-owner-reclaim-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -976,7 +982,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->ownerReclaimDeck($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" returned to you. All active borrows have been closed.', $registration->getDeck()->getName()));
+            $this->addFlash('success', $this->translator->trans('app.flash.event.custody_reclaimed', ['%name%' => $registration->getDeck()->getName()]));
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
@@ -1000,7 +1006,7 @@ class EventController extends AbstractAppController
         }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
-            $this->addFlash('warning', 'app.flash.event.walkup_not_available');
+            $this->addFlash('warning', $this->translator->trans('app.flash.event.walkup_not_available'));
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -1024,7 +1030,7 @@ class EventController extends AbstractAppController
         }
 
         if (!$this->isCsrfTokenValid('walk-up-'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
         }
@@ -1034,21 +1040,21 @@ class EventController extends AbstractAppController
 
         $deck = $deckRepository->find($deckId);
         if (null === $deck) {
-            $this->addFlash('danger', 'app.flash.deck_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.deck_not_found'));
 
             return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
         }
 
         $borrower = $userRepository->find($borrowerId);
         if (null === $borrower) {
-            $this->addFlash('danger', 'app.flash.borrower_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.borrower_not_found'));
 
             return $this->redirectToRoute('app_event_walk_up', ['id' => $event->getId()]);
         }
 
         try {
             $borrowService->createWalkUpBorrow($deck, $borrower, $event, $user);
-            $this->addFlash('success', 'app.flash.event.walkup_success', ['%deck%' => $deck->getName(), '%borrower%' => $borrower->getScreenName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.event.walkup_success', ['%deck%' => $deck->getName(), '%borrower%' => $borrower->getScreenName()]));
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
 

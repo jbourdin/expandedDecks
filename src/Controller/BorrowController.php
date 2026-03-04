@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F4.1 — Request to borrow a deck
@@ -37,6 +38,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class BorrowController extends AbstractAppController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     /**
      * @see docs/features.md F4.1 — Request to borrow a deck
      * @see docs/features.md F4.8 — Staff-delegated lending
@@ -77,14 +83,14 @@ class BorrowController extends AbstractAppController
         }
 
         if (!$this->isCsrfTokenValid('borrow-request-'.$eventId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->buildBorrowRedirect($redirectTo, $eventId, null);
         }
 
         $deck = $deckRepository->find($deckId);
         if (null === $deck) {
-            $this->addFlash('danger', 'app.flash.deck_not_found');
+            $this->addFlash('danger', $this->translator->trans('app.flash.deck_not_found'));
 
             return $this->buildBorrowRedirect($redirectTo, $eventId, null);
         }
@@ -95,7 +101,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->requestBorrow($deck, $user, $event, '' !== $notes ? $notes : null);
-            $this->addFlash('success', 'app.flash.borrow.request_submitted', ['%name%' => $deck->getName()]);
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.request_submitted', ['%name%' => $deck->getName()]));
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -110,7 +116,7 @@ class BorrowController extends AbstractAppController
     public function approve(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('approve-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -120,7 +126,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->approve($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.approved');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.approved'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -135,7 +141,7 @@ class BorrowController extends AbstractAppController
     public function deny(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('deny-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -145,7 +151,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->deny($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.denied');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.denied'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -160,7 +166,7 @@ class BorrowController extends AbstractAppController
     public function handOff(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('hand-off-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -170,7 +176,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->handOff($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.handed_off');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.handed_off'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -185,7 +191,7 @@ class BorrowController extends AbstractAppController
     public function confirmReturn(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('return-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -195,7 +201,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->confirmReturn($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.return_confirmed');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.return_confirmed'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -210,7 +216,7 @@ class BorrowController extends AbstractAppController
     public function cancel(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('cancel-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -220,7 +226,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->cancel($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.cancelled');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.cancelled'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }
@@ -235,7 +241,7 @@ class BorrowController extends AbstractAppController
     public function returnToOwner(Borrow $borrow, Request $request, BorrowService $borrowService): Response
     {
         if (!$this->isCsrfTokenValid('return-to-owner-borrow-'.$borrow->getId(), $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.flash.invalid_token');
+            $this->addFlash('danger', $this->translator->trans('app.flash.invalid_token'));
 
             return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
         }
@@ -245,7 +251,7 @@ class BorrowController extends AbstractAppController
 
         try {
             $borrowService->returnToOwner($borrow, $user);
-            $this->addFlash('success', 'app.flash.borrow.returned_to_owner');
+            $this->addFlash('success', $this->translator->trans('app.flash.borrow.returned_to_owner'));
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
         }

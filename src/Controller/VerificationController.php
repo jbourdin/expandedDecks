@@ -23,12 +23,18 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F1.2 — Email verification
  */
 class VerificationController extends AbstractAppController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     #[Route('/verify/resend', name: 'app_verify_resend', methods: ['GET', 'POST'])]
     public function resend(
         Request $request,
@@ -71,7 +77,7 @@ class VerificationController extends AbstractAppController
         }
 
         // Anti-enumeration: always show the same success message
-        $this->addFlash('success', 'app.flash.auth.verification_sent');
+        $this->addFlash('success', $this->translator->trans('app.flash.auth.verification_sent'));
 
         return $this->redirectToRoute('app_login');
     }
@@ -85,7 +91,7 @@ class VerificationController extends AbstractAppController
         $user = $userRepository->findOneBy(['verificationToken' => $token]);
 
         if (null === $user) {
-            $this->addFlash('danger', 'app.flash.auth.invalid_verification');
+            $this->addFlash('danger', $this->translator->trans('app.flash.auth.invalid_verification'));
 
             return $this->redirectToRoute('app_login');
         }
@@ -93,7 +99,7 @@ class VerificationController extends AbstractAppController
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         if (null !== $user->getTokenExpiresAt() && $user->getTokenExpiresAt() < $now) {
-            $this->addFlash('danger', 'app.flash.auth.verification_expired');
+            $this->addFlash('danger', $this->translator->trans('app.flash.auth.verification_expired'));
 
             return $this->redirectToRoute('app_verify_resend');
         }
@@ -103,7 +109,7 @@ class VerificationController extends AbstractAppController
         $user->setTokenExpiresAt(null);
         $entityManager->flush();
 
-        $this->addFlash('success', 'app.flash.auth.email_verified');
+        $this->addFlash('success', $this->translator->trans('app.flash.auth.email_verified'));
 
         return $this->redirectToRoute('app_login');
     }
