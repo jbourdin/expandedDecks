@@ -18,7 +18,7 @@
 
     <p class="text-muted mb-4">
         Decks available to borrow for <strong>{{ event.name }}</strong>
-        ({{ event.date|date('M j, Y') }}).
+        ({{ event.date|user_date }}).
     </p>
 
     {% if availableDecks is not empty %}

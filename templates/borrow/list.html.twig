@@ -80,7 +80,7 @@
                                         <td>{{ borrow.deck.owner.screenName }}</td>
                                     {% endif %}
                                     <td>{{ borrowBadge(borrow) }}</td>
-                                    <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                    <td>{{ borrow.requestedAt|user_date }}</td>
                                     <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
                                 </tr>
                             {% endfor %}
