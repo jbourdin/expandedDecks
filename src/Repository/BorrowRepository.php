@@ -19,6 +19,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -54,6 +55,8 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find any active (non-terminal) borrow for this deck at this event.
+     *
      * @see docs/features.md F4.11 — Borrow conflict detection
      */
     public function findActiveBorrowForDeckAtEvent(Deck $deck, Event $event): ?Borrow
@@ -74,14 +77,84 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
-     * Finds active borrows for a deck at events whose date range overlaps
-     * with the given event's date range (same-day conflict detection).
+     * Find all active (non-terminal) borrows for this deck at this event.
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findActiveBorrowsForDeckAtEvent(Deck $deck, Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Find all non-closed borrows for this deck at this event.
+     * Includes active statuses plus `returned` (staff-delegated intermediate state).
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findOpenBorrowsForDeckAtEvent(Deck $deck, Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::openStatusValues())
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Find a borrow that blocks new requests for this deck at this event.
+     * Only approved/lent/overdue borrows block; pending borrows do not.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     */
+    public function findBlockingBorrowForDeckAtEvent(Deck $deck, Event $event): ?Borrow
+    {
+        /** @var Borrow|null $borrow */
+        $borrow = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::blockingStatusValues())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $borrow;
+    }
+
+    /**
+     * Finds borrows that block a new request for this deck on the same day
+     * at a different event. Only approved/lent/overdue borrows block.
      *
      * @see docs/features.md F4.11 — Borrow conflict detection
      *
      * @return list<Borrow>
      */
-    public function findConflictingBorrowsOnSameDay(Deck $deck, Event $event): array
+    public function findBlockingBorrowsOnSameDay(Deck $deck, Event $event): array
     {
         $eventDate = $event->getDate();
         $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
@@ -100,9 +173,34 @@ class BorrowRepository extends ServiceEntityRepository
             ->andWhere('COALESCE(e.endDate, e.date) >= :startOfDay')
             ->setParameter('deck', $deck)
             ->setParameter('event', $event)
-            ->setParameter('statuses', self::activeStatusValues())
+            ->setParameter('statuses', self::blockingStatusValues())
             ->setParameter('startOfDay', $startOfDay)
             ->setParameter('endOfDay', $endOfDay)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Find all pending borrows for a deck at an event, excluding a specific borrow.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     *
+     * @return list<Borrow>
+     */
+    public function findPendingBorrowsForDeckAtEvent(Deck $deck, Event $event, Borrow $exclude): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.id != :excludeId')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('status', BorrowStatus::Pending->value)
+            ->setParameter('excludeId', $exclude->getId())
             ->getQuery()
             ->getResult();
 
@@ -117,6 +215,36 @@ class BorrowRepository extends ServiceEntityRepository
         return array_map(
             static fn (BorrowStatus $s): string => $s->value,
             [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
+        );
+    }
+
+    /**
+     * Statuses that are not yet fully closed — includes active statuses plus `returned`
+     * (staff-delegated intermediate state before `returned_to_owner`).
+     *
+     * @return list<string>
+     */
+    public static function openStatusValues(): array
+    {
+        return array_map(
+            static fn (BorrowStatus $s): string => $s->value,
+            [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue, BorrowStatus::Returned],
+        );
+    }
+
+    /**
+     * Statuses that hard-block new borrow requests and hide decks from availability lists.
+     * Pending is excluded: multiple pending requests are allowed so the owner can choose.
+     *
+     * @see docs/features.md F4.11 — Borrow conflict detection
+     *
+     * @return list<string>
+     */
+    public static function blockingStatusValues(): array
+    {
+        return array_map(
+            static fn (BorrowStatus $s): string => $s->value,
+            [BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
         );
     }
 
@@ -276,13 +404,63 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
-     * Full borrow history for a borrower, with optional status filter.
+     * Non-terminal borrows for decks owned by the user, grouped-ready
+     * (ordered by event date ASC, then requestedAt DESC).
      *
-     * @see docs/features.md F4.5 — Borrow history
+     * @see docs/features.md F4.10 — Owner borrow inbox
      *
      * @return list<Borrow>
      */
-    public function findAllByBorrower(User $borrower, ?BorrowStatus $status = null): array
+    public function findActiveBorrowsForOwner(User $owner): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'e', 'u')
+            ->where('d.owner = :owner')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('owner', $owner)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->orderBy('e.date', 'ASC')
+            ->addOrderBy('b.requestedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Active delegated borrows at an event — for the staff custody dashboard.
+     *
+     * @see docs/features.md F4.9 — Staff deck custody tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findDelegatedBorrowsByEvent(Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'u')
+            ->where('b.event = :event')
+            ->andWhere('b.isDelegatedToStaff = true')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->orderBy('b.requestedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * @see docs/features.md F4.5 — Borrow history
+     */
+    public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
@@ -298,20 +476,13 @@ class BorrowRepository extends ServiceEntityRepository
                 ->setParameter('status', $status->value);
         }
 
-        /** @var list<Borrow> $borrows */
-        $borrows = $qb->getQuery()->getResult();
-
-        return $borrows;
+        return $qb;
     }
 
     /**
-     * Full lend history for a deck owner, with optional status filter.
-     *
      * @see docs/features.md F4.10 — Owner borrow inbox
-     *
-     * @return list<Borrow>
      */
-    public function findAllByDeckOwner(User $owner, ?BorrowStatus $status = null): array
+    public function createDeckOwnerQueryBuilder(User $owner, ?BorrowStatus $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
@@ -327,9 +498,6 @@ class BorrowRepository extends ServiceEntityRepository
                 ->setParameter('status', $status->value);
         }
 
-        /** @var list<Borrow> $borrows */
-        $borrows = $qb->getQuery()->getResult();
-
-        return $borrows;
+        return $qb;
     }
 }

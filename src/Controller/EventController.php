@@ -33,10 +33,12 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
 use App\Service\BorrowService;
+use App\Service\StaffCustodyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -49,7 +51,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
  * @see docs/features.md F4.8 — Staff-delegated lending
+ * @see docs/features.md F3.21 — Clear deck selection on withdrawal
+ * @see docs/features.md F4.9 — Staff deck custody tracking
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+ * @see docs/features.md F4.14 — Staff custody handover tracking
  */
 #[Route('/event')]
 #[IsGranted('ROLE_USER')]
@@ -105,6 +110,21 @@ class EventController extends AbstractController
         $userEngagement = $event->getEngagementFor($user);
         $isParticipant = null !== $userEngagement;
 
+        // Build registration map first — needed for both "Your Decks" table and playability filter
+        $deckRegistrationMap = [];
+        foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
+            $deckId = $reg->getDeck()->getId();
+            if (null !== $deckId) {
+                $deckRegistrationMap[$deckId] = [
+                    'registered' => true,
+                    'delegated' => $reg->isDelegateToStaff(),
+                    'registrationId' => $reg->getId(),
+                    'staffReceivedAt' => $reg->getStaffReceivedAt(),
+                    'staffReturnedAt' => $reg->getStaffReturnedAt(),
+                ];
+            }
+        }
+
         $playableOwnDecks = [];
         $currentDeckEntry = null;
         $canChangeDeck = false;
@@ -112,8 +132,7 @@ class EventController extends AbstractController
         if ($isParticipant) {
             $playableOwnDecks = array_filter(
                 $deckRepository->findByOwner($user),
-                static fn (Deck $deck): bool => DeckStatus::Lent !== $deck->getStatus()
-                    && DeckStatus::Retired !== $deck->getStatus()
+                static fn (Deck $deck): bool => DeckStatus::Retired !== $deck->getStatus()
                     && null !== $deck->getCurrentVersion(),
             );
             $playableOwnDecks = array_values($playableOwnDecks);
@@ -130,21 +149,14 @@ class EventController extends AbstractController
         );
         $ownedDecksWithVersion = array_values($ownedDecksWithVersion);
 
-        $deckRegistrationMap = [];
-        foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
-            $deckId = $reg->getDeck()->getId();
-            if (null !== $deckId) {
-                $deckRegistrationMap[$deckId] = [
-                    'registered' => true,
-                    'delegated' => $reg->isDelegateToStaff(),
-                ];
-            }
-        }
+        $isStaff = $event->isOrganizerOrStaff($user);
+
+        $delegatedRegistrations = $isStaff ? $registrationRepository->findDelegatedByEvent($event) : [];
 
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
-            'isStaff' => $event->isOrganizerOrStaff($user),
+            'isStaff' => $isStaff,
             'userEngagement' => $userEngagement,
             'isParticipant' => $isParticipant,
             'eventBorrows' => $borrowRepository->findByEventForUser($event, $user),
@@ -153,6 +165,8 @@ class EventController extends AbstractController
             'canChangeDeck' => $canChangeDeck,
             'ownedDecksWithVersion' => $ownedDecksWithVersion,
             'deckRegistrationMap' => $deckRegistrationMap,
+            'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
+            'delegatedRegistrations' => $delegatedRegistrations,
         ]);
     }
 
@@ -339,9 +353,10 @@ class EventController extends AbstractController
 
     /**
      * @see docs/features.md F3.4 — Register participation to an event
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
     #[Route('/{id}/participate', name: 'app_event_participate', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function participate(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function participate(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('participate-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'Invalid security token.');
@@ -373,6 +388,17 @@ class EventController extends AbstractController
 
         $engagement = $event->getEngagementFor($user);
 
+        // Clear deck entry when switching from Playing to Spectating
+        if (null !== $engagement
+            && ParticipationMode::Spectating === $mode
+            && ParticipationMode::Playing === $engagement->getParticipationMode()) {
+            $deckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
+            if (null !== $deckEntry) {
+                $em->remove($deckEntry);
+                $this->addFlash('info', 'Your deck selection has been cleared.');
+            }
+        }
+
         if (null === $engagement) {
             $engagement = new EventEngagement();
             $engagement->setEvent($event);
@@ -392,9 +418,10 @@ class EventController extends AbstractController
 
     /**
      * @see docs/features.md F3.4 — Register participation to an event
+     * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
     #[Route('/{id}/withdraw', name: 'app_event_withdraw', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function withdraw(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function withdraw(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('withdraw-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'Invalid security token.');
@@ -411,12 +438,19 @@ class EventController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $deckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
+        if (null !== $deckEntry) {
+            $em->remove($deckEntry);
+            $this->addFlash('info', 'Your deck selection has been cleared.');
+        }
+
         $engagement = $event->getEngagementFor($user);
 
         if (null !== $engagement) {
             $em->remove($engagement);
-            $em->flush();
         }
+
+        $em->flush();
 
         $this->addFlash('success', 'You have withdrawn from this event.');
 
@@ -645,11 +679,138 @@ class EventController extends AbstractController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
+        // Cannot revoke delegation while the deck is physically with staff (F4.14)
+        if ($registration->isDelegateToStaff() && $registration->hasStaffReceived() && !$registration->hasStaffReturned()) {
+            $this->addFlash('danger', \sprintf('Cannot revoke delegation for "%s" — the deck is currently with staff. Staff must return it first.', $deck->getName()));
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
         $registration->setDelegateToStaff(!$registration->isDelegateToStaff());
         $em->flush();
 
         $label = $registration->isDelegateToStaff() ? 'enabled' : 'disabled';
         $this->addFlash('success', \sprintf('Staff delegation %s for "%s".', $label, $deck->getName()));
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Owner confirms handing a delegated deck to event staff.
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    #[Route('/{id}/custody/{registrationId}/owner-handover', name: 'app_event_custody_owner_handover', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    public function ownerHandover(
+        Event $event,
+        int $registrationId,
+        Request $request,
+        EventDeckRegistrationRepository $registrationRepository,
+        StaffCustodyService $custodyService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('custody-owner-handover-'.$registrationId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->find($registrationId);
+
+        if (null === $registration || $registration->getEvent()->getId() !== $event->getId()) {
+            throw $this->createNotFoundException('Registration not found for this event.');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        try {
+            $custodyService->confirmOwnerHandover($registration, $user);
+            $this->addFlash('success', \sprintf('"%s" handed over to staff.', $registration->getDeck()->getName()));
+        } catch (\DomainException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        } catch (AccessDeniedHttpException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Staff confirms returning a delegated deck to the owner.
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    #[Route('/{id}/custody/{registrationId}/staff-return', name: 'app_event_custody_staff_return', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    public function staffReturn(
+        Event $event,
+        int $registrationId,
+        Request $request,
+        EventDeckRegistrationRepository $registrationRepository,
+        StaffCustodyService $custodyService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('custody-staff-return-'.$registrationId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->find($registrationId);
+
+        if (null === $registration || $registration->getEvent()->getId() !== $event->getId()) {
+            throw $this->createNotFoundException('Registration not found for this event.');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        try {
+            $custodyService->confirmStaffReturn($registration, $user);
+            $this->addFlash('success', \sprintf('"%s" returned to owner.', $registration->getDeck()->getName()));
+        } catch (\DomainException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        } catch (AccessDeniedHttpException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Owner reclaims a delegated deck directly (closes custody + all active borrows).
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    #[Route('/{id}/custody/{registrationId}/owner-reclaim', name: 'app_event_custody_owner_reclaim', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    public function ownerReclaim(
+        Event $event,
+        int $registrationId,
+        Request $request,
+        EventDeckRegistrationRepository $registrationRepository,
+        StaffCustodyService $custodyService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('custody-owner-reclaim-'.$registrationId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'Invalid security token.');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $registration = $registrationRepository->find($registrationId);
+
+        if (null === $registration || $registration->getEvent()->getId() !== $event->getId()) {
+            throw $this->createNotFoundException('Registration not found for this event.');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        try {
+            $custodyService->ownerReclaimDeck($registration, $user);
+            $this->addFlash('success', \sprintf('"%s" returned to you. All active borrows have been closed.', $registration->getDeck()->getName()));
+        } catch (\DomainException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        } catch (AccessDeniedHttpException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }

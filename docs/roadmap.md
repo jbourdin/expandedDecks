@@ -106,22 +106,21 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|--------------------------------------|----------|-------------|------------------|
 | F2.3  | Deck detail view                     | Medium   | Done        | F2.2             |
 | F2.4  | Deck catalog (browse & search)       | Medium   | Done        | F2.1, F2.5       |
-| F2.13 | Inline deck list import on creation  | Medium   | Not started | F2.1, F2.2       |
-| F2.14 | Deck event status overview           | Medium   | Not started | F2.3, F3.13      |
+| F2.13 | Inline deck list import on creation  | Medium   | Done        | F2.1, F2.2       |
 | F6.4  | Display card images                  | Medium   | Done        | F6.2             |
 | F3.2  | Event listing                        | Medium   | Done        | F3.1             |
 | F3.3  | Event detail view                    | Medium   | Done        | F3.1             |
-| F3.21 | Clear deck selection on withdrawal   | Medium   | Not started | F3.4, F3.7       |
-| F4.5  | Borrow history                       | Medium   | Partial     | F4.1–F4.4        |
+| F3.21 | Clear deck selection on withdrawal   | Medium   | Done        | F3.4, F3.7       |
+| F4.5  | Borrow history                       | Medium   | Done        | F4.1–F4.4        |
 | F4.7  | Cancel a borrow request              | Medium   | Done        | F4.1, F4.2       |
-| F4.9  | Staff deck custody tracking          | Medium   | Not started | F4.8             |
-| F4.10 | Owner borrow inbox                   | Medium   | Partial     | F4.1, F4.2       |
-| F4.13 | Event-scoped autocompletes           | Medium   | Not started | F4.1, F3.4       |
-| F4.14 | Staff custody handover tracking      | Medium   | Not started | F4.8, F4.9       |
+| F4.9  | Staff deck custody tracking          | Medium   | Done        | F4.8             |
+| F4.10 | Owner borrow inbox                   | Medium   | Done        | F4.1, F4.2       |
+| F4.13 | Event-scoped autocompletes           | Medium   | Done        | F4.1, F3.4       |
+| F4.14 | Staff custody handover tracking      | Medium   | Done        | F4.8, F4.9       |
 
-**Progress: 6/14 done · 2 partial · 6 not started**
+**Progress: 13/13 done**
 
-**Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, owner's borrow inbox, inline deck list import on creation, deck event status overview, event-scoped autocompletes, staff custody handover tracking, and clearing deck selection on withdrawal.
+**Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, owner's borrow inbox, inline deck list import on creation, event-scoped autocompletes, staff custody handover tracking, and clearing deck selection on withdrawal.
 
 ---
 
@@ -151,6 +150,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 |-------|----------------------------------|----------|-------------|------------------|
 | F3.11 | Event visibility                 | Medium   | Not started | F3.1             |
 | F3.13 | Player engagement states         | Medium   | Not started | F3.4             |
+| F2.14 | Deck event status overview       | Medium   | Not started | F2.3, F3.13      |
 | F3.7  | Register played deck for event   | Medium   | Partial     | F3.4, F2.2       |
 | F3.17 | Tournament results               | Medium   | Not started | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Partial     | F3.1, F4.1       |
@@ -159,9 +159,9 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F8.2  | Event notifications              | Medium   | Partial     | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 0/9 done · 4 partial · 5 not started**
+**Progress: 0/10 done · 4 partial · 6 not started**
 
-**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
+**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), deck event status overview, tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
 ---
 
@@ -314,14 +314,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
 | 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
 | 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
-| 5     | Core Views & Navigation           | 6    | 2       | 6           | 14    |
+| 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
 | 6     | Localization                      | 0    | 2       | 3           | 5     |
-| 7     | Engagement, Results & Discovery   | 0    | 4       | 5           | 9     |
+| 7     | Engagement, Results & Discovery   | 0    | 4       | 6           | 10    |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 0   | 2       | 20          | 22    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **30** | **13** | **49**      | **92** |
+|       | **Total**                         | **37** | **11** | **44**      | **92** |
 
 All 92 features from [features.md](features.md) are represented exactly once.

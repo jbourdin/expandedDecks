@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
@@ -54,6 +55,13 @@ class DeckCatalogController extends AbstractController
                 $owner = $userRepository->find($ownerId);
                 if (null !== $owner) {
                     $ownerName = $owner->getScreenName();
+                }
+
+                // When the owner filter matches the logged-in user, show all their
+                // decks (including private ones) by skipping the public constraint.
+                $currentUser = $this->getUser();
+                if ($currentUser instanceof User && $currentUser->getId() === $ownerId) {
+                    $filters['selfOwner'] = true;
                 }
             }
         }

@@ -15,6 +15,7 @@ namespace App\Tests\Functional;
 
 use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -269,6 +270,45 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $data = json_decode((string) $this->client->getResponse()->getContent(), true);
         self::assertIsArray($data);
         self::assertEmpty($data);
+    }
+
+    public function testSelfOwnerFilterShowsPrivateDecks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var User $admin */
+        $admin = $em->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']);
+
+        // Admin owns Iron Thorns (public) and Ancient Box (not public)
+        $crawler = $this->client->request('GET', '/deck?owner='.$admin->getId());
+
+        self::assertResponseIsSuccessful();
+        // Should see both public and private decks when filtering own decks
+        $cardTitles = $crawler->filter('.card-title')->each(static fn ($node) => $node->text());
+        $allText = implode(' ', $cardTitles);
+        self::assertStringContainsString('Iron Thorns', $allText);
+        self::assertStringContainsString('Ancient Box', $allText);
+    }
+
+    public function testOtherOwnerFilterHidesPrivateDecks(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var User $admin */
+        $admin = $em->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']);
+
+        // Borrower viewing admin's decks should only see public ones
+        $crawler = $this->client->request('GET', '/deck?owner='.$admin->getId());
+
+        self::assertResponseIsSuccessful();
+        $cardTitles = $crawler->filter('.card-title')->each(static fn ($node) => $node->text());
+        $allText = implode(' ', $cardTitles);
+        self::assertStringContainsString('Iron Thorns', $allText);
+        self::assertStringNotContainsString('Ancient Box', $allText);
     }
 
     public function testDeckOwnerSearchApiExcludesOwnersWithoutPublicDecks(): void

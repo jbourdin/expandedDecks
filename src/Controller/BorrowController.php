@@ -57,7 +57,7 @@ class BorrowController extends AbstractController
             'canDeny' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
             'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus(),
             'canReturn' => ($isOwner || $isDelegatedStaff) && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
-            'canCancel' => ($isBorrower || $isOwner) && $borrow->isCancellable(),
+            'canCancel' => ($isBorrower || $isOwner || $isDelegatedStaff) && $borrow->isCancellable(),
             'canReturnToOwner' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Returned === $borrow->getStatus() && $borrow->isDelegatedToStaff(),
         ]);
     }
@@ -126,7 +126,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -151,7 +151,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -176,7 +176,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -201,7 +201,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -226,7 +226,7 @@ class BorrowController extends AbstractController
             $this->addFlash('danger', $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);
+        return $this->resolveActionRedirect($request, $borrow);
     }
 
     /**
@@ -249,6 +249,21 @@ class BorrowController extends AbstractController
             $this->addFlash('success', 'Deck returned to owner.');
         } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->resolveActionRedirect($request, $borrow);
+    }
+
+    private function resolveActionRedirect(Request $request, Borrow $borrow): Response
+    {
+        $redirectTo = $request->getPayload()->getString('redirect_to');
+
+        if ('lends' === $redirectTo) {
+            return $this->redirectToRoute('app_lend_list');
+        }
+
+        if ('event' === $redirectTo) {
+            return $this->redirectToRoute('app_event_show', ['id' => $borrow->getEvent()->getId()]);
         }
 
         return $this->redirectToRoute('app_borrow_show', ['id' => $borrow->getId()]);

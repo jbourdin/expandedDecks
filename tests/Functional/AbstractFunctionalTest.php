@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\DataFixtures\DevFixtures;
+use App\Tests\DBAL\StaticDriver;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -24,13 +25,32 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 abstract class AbstractFunctionalTest extends WebTestCase
 {
+    private static bool $fixturesLoaded = false;
+
     protected KernelBrowser $client;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
 
-        $this->resetDatabase();
+        if (!self::$fixturesLoaded) {
+            $this->initializeDatabase();
+            self::$fixturesLoaded = true;
+        }
+
+        $conn = StaticDriver::getConnection();
+        \assert(null !== $conn);
+        $conn->beginTestTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $conn = StaticDriver::getConnection();
+        if (null !== $conn) {
+            $conn->rollbackTestTransaction();
+        }
+
+        parent::tearDown();
     }
 
     protected function loginAs(string $email): void
@@ -42,7 +62,7 @@ abstract class AbstractFunctionalTest extends WebTestCase
         ]);
     }
 
-    private function resetDatabase(): void
+    private function initializeDatabase(): void
     {
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get('doctrine.orm.entity_manager');

@@ -101,7 +101,7 @@ lent ──(event end + grace period)──→ overdue → returned
 
 - A user cannot borrow their own deck
 - A user must be a participant of the event to request a borrow (F3.4). For walk-up lends (F4.12), the borrower is **auto-registered** as event participant if not already
-- A deck can only have one active borrow **per event** (`pending`, `approved`, or `lent`). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
+- A deck can have **multiple pending** borrow requests per event (allowing the owner to compare and choose). However, only one borrow can be `approved` or `lent` at a time. When a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at that event are **automatically declined** (via `DeclineCompetingBorrowsMessage` on the `borrow_lifecycle` Messenger transport). Cross-event conflicts are detected at approval time — see [Conflict Detection](#conflict-detection) below.
 - `isDelegatedToStaff`: derived from `EventDeckRegistration.delegateToStaff` at request/walk-up creation time (F4.8). The owner controls delegation at the event level (per deck, per event), not per-borrow
 - **Walk-up lend (F4.12):** the initiator (owner, organizer, or staff) must themselves be engaged in the event (spectating, interested, or participating). The deck must be `available`. When the initiator is engaged in multiple active events, they must select the target event
 
@@ -142,6 +142,34 @@ For **single-day events** (where `endDate` is null), `endDate` is treated as equ
 | `handedOffBy`      | ManyToOne    | `User`         | Who handed off |
 | `returnedTo`       | ManyToOne    | `User`         | Who collected the return |
 | `cancelledBy`      | ManyToOne    | `User`         | Who cancelled |
+
+### Staff Custody Handover (F4.14)
+
+> **@see** [Event Model — EventDeckRegistration](event.md#entity-appentityeventdeckregistration) for field definitions and service details.
+
+When a deck is registered with `delegateToStaff = true`, the `EventDeckRegistration` entity tracks the physical custody handover between owner and staff independently from borrow activity:
+
+| Field              | Type               | Description |
+|--------------------|--------------------|-------------|
+| `staffReceivedAt`  | `?DateTimeImmutable` | When the owner confirmed handing the deck to staff |
+| `staffReceivedBy`  | `?User`            | The owner who confirmed the handover |
+| `staffReturnedAt`  | `?DateTimeImmutable` | When staff confirmed returning the deck to the owner |
+| `staffReturnedBy`  | `?User`            | The staff member who confirmed the return |
+
+This provides full chain-of-custody visibility: **owner → staff → borrower → staff → owner**.
+
+#### Guard Conditions
+
+Custody status enforces constraints on the borrow workflow:
+
+| Guard | Location | Rule |
+|-------|----------|------|
+| **Hand-off guard** | `BorrowService::handOff()` | Staff cannot hand off a delegated deck to a borrower unless `staffReceivedAt` is set. The deck owner is always allowed (they have the deck in hand). |
+| **Walk-up lend guard** | `BorrowService::createWalkUpBorrow()` | Staff cannot initiate a walk-up lend for a delegated deck they haven't physically received (`staffReceivedAt` null). |
+| **Delegation revocation guard** | `EventController::toggleDeckDelegation()` | The owner cannot revoke `delegateToStaff` while the deck is physically with staff (`staffReceivedAt` set, `staffReturnedAt` null). Staff must return the deck first. |
+| **Staff return guard** | `StaffCustodyService::confirmStaffReturn()` | Staff cannot mark a deck as returned to owner while there is a `lent` or `overdue` borrow for that deck at the event. Staff must collect the deck from the borrower first. Auto-closes remaining active borrows (returned → returned_to_owner, pending/approved → cancelled). |
+| **Owner reclaim** | `StaffCustodyService::ownerReclaimDeck()` | The deck owner can reclaim the deck at any time (while `staffReceivedAt` is set, `staffReturnedAt` is null). Closes all active borrows: lent/overdue → returned → returned_to_owner, returned → returned_to_owner, pending/approved → cancelled. Sets deck status to `Available`. Notifies borrowers with active lent/overdue borrows. |
+| **Deck selection guard** | `event/show.html.twig` (Deck Selection) | Own decks that are `lent` or handed over to staff (`staffReceivedAt` set, `staffReturnedAt` null) are shown as disabled rows with status badges ("Lent" / "With staff") and a "Browse decks" link to borrow an alternative. |
 
 ### Deck Status Synchronization
 

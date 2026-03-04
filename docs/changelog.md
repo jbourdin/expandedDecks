@@ -12,6 +12,17 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [Unreleased]
+
+### Borrow Workflow
+
+- **F4.11** — Auto-decline competing pending borrows: when a borrow is approved or a walk-up lend is created, all other pending borrows for the same deck at the same event are automatically declined via `DeclineCompetingBorrowsMessage` (async `borrow_lifecycle` Messenger transport). The deck owner is recorded as the cancelling actor.
+- **F4.14** — Staff custody handover tracking: owners can confirm handing a delegated deck to staff; staff can confirm returning the deck to the owner. Tracks `staffReceivedAt`/`staffReceivedBy` and `staffReturnedAt`/`staffReturnedBy` on `EventDeckRegistration`. Full chain-of-custody visibility: owner → staff → borrower → staff → owner. Guard conditions: staff cannot hand off or walk-up lend a delegated deck until the owner confirms physical handover; delegation cannot be revoked while the deck is with staff.
+- **F4.14** — Custody return rules: staff cannot mark a deck as returned to owner while it is currently lent to a borrower (must collect it first). When staff returns the deck, remaining active borrows (returned, pending, approved) are auto-closed. New owner reclaim action: the owner can mark "returned to me" at any time, closing both the custody tracking and all active borrows (including lent/overdue) in one step. Borrowers with active lent/overdue borrows are notified.
+- **F4.14** — Deck selection UI: own decks that are currently lent or handed over to staff are shown as disabled rows in the Deck Selection card (with "Lent" / "With staff" badges) instead of being hidden. A "Browse decks" link invites the owner to borrow an alternative.
+
+---
+
 ## [0.1.0] — 2026-03-03
 
 First tagged release. Covers the core domain: authentication, deck library, event management, full borrow workflow with notifications, and card data pipeline.
