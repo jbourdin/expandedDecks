@@ -56,6 +56,31 @@ class EventDeckRegistrationRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all delegated registrations for an event, with deck and owner eager-loaded.
+     *
+     * @return EventDeckRegistration[]
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    public function findDelegatedByEvent(Event $event): array
+    {
+        /** @var EventDeckRegistration[] $results */
+        $results = $this->createQueryBuilder('r')
+            ->join('r.deck', 'd')
+            ->addSelect('d')
+            ->join('d.owner', 'o')
+            ->addSelect('o')
+            ->where('r.event = :event')
+            ->andWhere('r.delegateToStaff = true')
+            ->orderBy('d.name', 'ASC')
+            ->setParameter('event', $event)
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Check if a deck has registrations at events that are still active
      * (not cancelled, not finished, and not more than 1 day in the past).
      *

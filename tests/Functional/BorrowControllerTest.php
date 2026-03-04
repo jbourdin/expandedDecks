@@ -1324,6 +1324,15 @@ class BorrowControllerTest extends AbstractFunctionalTest
             $em->persist($engagement);
         }
 
+        // Mark the deck as physically received by staff (F4.14 custody guard)
+        /** @var \App\Repository\EventDeckRegistrationRepository $regRepo */
+        $regRepo = static::getContainer()->get(\App\Repository\EventDeckRegistrationRepository::class);
+        $registration = $regRepo->findOneByEventAndDeck($event, $deck);
+        if (null !== $registration && null === $registration->getStaffReceivedAt()) {
+            $registration->setStaffReceivedAt(new \DateTimeImmutable());
+            $registration->setStaffReceivedBy($lender);
+        }
+
         $borrow = new Borrow();
         $borrow->setDeck($deck);
         $borrow->setDeckVersion($currentVersion);

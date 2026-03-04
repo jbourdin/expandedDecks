@@ -172,10 +172,12 @@ class BorrowService
     /**
      * @see docs/features.md F4.3 — Confirm deck hand-off (lend)
      * @see docs/features.md F4.8 — Staff-delegated lending
+     * @see docs/features.md F4.14 — Staff custody handover tracking
      */
     public function handOff(Borrow $borrow, User $actor): void
     {
         $this->assertOwnerOrDelegatedStaff($borrow, $actor);
+        $this->assertStaffHasCustody($borrow, $actor);
 
         $this->borrowStateMachine->apply($borrow, 'hand_off');
 
@@ -254,6 +256,7 @@ class BorrowService
 
     /**
      * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     * @see docs/features.md F4.14 — Staff custody handover tracking
      */
     public function createWalkUpBorrow(Deck $deck, User $borrower, Event $event, User $initiator): Borrow
     {
@@ -291,6 +294,12 @@ class BorrowService
             throw new AccessDeniedHttpException('Only the deck owner or event staff can initiate a walk-up lend.');
         }
 
+        // Staff cannot walk-up lend a delegated deck they haven't physically received
+        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
+        if (!$isOwner && null !== $registration && $registration->isDelegateToStaff() && !$registration->hasStaffReceived()) {
+            throw new \DomainException('This deck has not been handed over to staff yet. The owner must confirm the handover first.');
+        }
+
         // Auto-register borrower as participant if not engaged
         if (null === $event->getEngagementFor($borrower)) {
             $engagement = new EventEngagement();
@@ -309,7 +318,6 @@ class BorrowService
         $borrow->setEvent($event);
         $borrow->setIsWalkUp(true);
 
-        $registration = $this->registrationRepository->findOneByEventAndDeck($event, $deck);
         if (null !== $registration && $registration->isDelegateToStaff()) {
             $borrow->setIsDelegatedToStaff(true);
         }
@@ -396,6 +404,33 @@ class BorrowService
 
         if (!$isBorrower && !$isOwner && !$isDelegatedStaff) {
             throw new AccessDeniedHttpException('Only the borrower, deck owner, or delegated staff can cancel this borrow.');
+        }
+    }
+
+    /**
+     * Staff cannot hand off a delegated deck that hasn't been physically received.
+     * The owner is always allowed (they have the deck in hand).
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    private function assertStaffHasCustody(Borrow $borrow, User $actor): void
+    {
+        if (!$borrow->isDelegatedToStaff()) {
+            return;
+        }
+
+        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actor->getId();
+        if ($isOwner) {
+            return;
+        }
+
+        $registration = $this->registrationRepository->findOneByEventAndDeck(
+            $borrow->getEvent(),
+            $borrow->getDeck(),
+        );
+
+        if (null !== $registration && !$registration->hasStaffReceived()) {
+            throw new \DomainException('This deck has not been handed over to staff yet. The owner must confirm the handover first.');
         }
     }
 

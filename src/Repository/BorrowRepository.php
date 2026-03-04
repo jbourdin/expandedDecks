@@ -77,6 +77,53 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all active (non-terminal) borrows for this deck at this event.
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findActiveBorrowsForDeckAtEvent(Deck $deck, Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Find all non-closed borrows for this deck at this event.
+     * Includes active statuses plus `returned` (staff-delegated intermediate state).
+     *
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findOpenBorrowsForDeckAtEvent(Deck $deck, Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('statuses', self::openStatusValues())
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * Find a borrow that blocks new requests for this deck at this event.
      * Only approved/lent/overdue borrows block; pending borrows do not.
      *
@@ -168,6 +215,20 @@ class BorrowRepository extends ServiceEntityRepository
         return array_map(
             static fn (BorrowStatus $s): string => $s->value,
             [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue],
+        );
+    }
+
+    /**
+     * Statuses that are not yet fully closed — includes active statuses plus `returned`
+     * (staff-delegated intermediate state before `returned_to_owner`).
+     *
+     * @return list<string>
+     */
+    public static function openStatusValues(): array
+    {
+        return array_map(
+            static fn (BorrowStatus $s): string => $s->value,
+            [BorrowStatus::Pending, BorrowStatus::Approved, BorrowStatus::Lent, BorrowStatus::Overdue, BorrowStatus::Returned],
         );
     }
 
