@@ -12,7 +12,7 @@
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <a href="{{ path('app_event_show', {id: group.event.id}) }}" class="text-white text-decoration-none">{{ group.event.name }}</a>
-            <small class="text-white-50">{{ group.event.date|date('M j, Y') }}</small>
+            <small class="text-white-50">{{ group.event.date|user_date }}</small>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -36,7 +36,7 @@
                                 </td>
                                 <td>{{ borrow.borrower.screenName }}</td>
                                 <td>{{ borrowBadge(borrow) }}</td>
-                                <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                <td>{{ borrow.requestedAt|user_date }}</td>
                                 <td class="text-end">
                                     {% if borrow.status.value == 'pending' %}
                                         <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">

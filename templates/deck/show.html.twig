@@ -110,7 +110,7 @@
                                         <option value="">Select an event...</option>
                                         {% for event in eligibleEvents %}
                                             <option value="{{ event.id }}" data-token="{{ csrf_token('borrow-request-' ~ event.id) }}">
-                                                {{ event.name }} ({{ event.date|date('M j, Y') }})
+                                                {{ event.name }} ({{ event.date|user_date }})
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -151,7 +151,7 @@
                                             <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                                             <td>{{ borrow.borrower.screenName }}</td>
                                             <td>{{ borrowBadge(borrow) }}</td>
-                                            <td>{{ borrow.requestedAt|date('M j, Y') }}</td>
+                                            <td>{{ borrow.requestedAt|user_date }}</td>
                                             <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
                                         </tr>
                                     {% endfor %}

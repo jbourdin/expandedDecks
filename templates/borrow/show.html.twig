@@ -61,40 +61,40 @@
             <ul class="list-unstyled mb-0">
                 <li>
                     <strong>Requested:</strong>
-                    {{ borrow.requestedAt|date('M j, Y g:ia') }}
+                    {{ borrow.requestedAt|user_datetime }}
                     by {{ borrow.borrower.screenName }}
                 </li>
                 {% if borrow.approvedAt %}
                     <li class="mt-1">
                         <strong>Approved:</strong>
-                        {{ borrow.approvedAt|date('M j, Y g:ia') }}
+                        {{ borrow.approvedAt|user_datetime }}
                         {% if borrow.approvedBy %}by {{ borrow.approvedBy.screenName }}{% endif %}
                     </li>
                 {% endif %}
                 {% if borrow.handedOffAt %}
                     <li class="mt-1">
                         <strong>Handed off:</strong>
-                        {{ borrow.handedOffAt|date('M j, Y g:ia') }}
+                        {{ borrow.handedOffAt|user_datetime }}
                         {% if borrow.handedOffBy %}by {{ borrow.handedOffBy.screenName }}{% endif %}
                     </li>
                 {% endif %}
                 {% if borrow.returnedAt %}
                     <li class="mt-1">
                         <strong>Returned:</strong>
-                        {{ borrow.returnedAt|date('M j, Y g:ia') }}
+                        {{ borrow.returnedAt|user_datetime }}
                         {% if borrow.returnedTo %}to {{ borrow.returnedTo.screenName }}{% endif %}
                     </li>
                 {% endif %}
                 {% if borrow.returnedToOwnerAt %}
                     <li class="mt-1">
                         <strong>Returned to owner:</strong>
-                        {{ borrow.returnedToOwnerAt|date('M j, Y g:ia') }}
+                        {{ borrow.returnedToOwnerAt|user_datetime }}
                     </li>
                 {% endif %}
                 {% if borrow.cancelledAt %}
                     <li class="mt-1">
                         <strong>Cancelled:</strong>
-                        {{ borrow.cancelledAt|date('M j, Y g:ia') }}
+                        {{ borrow.cancelledAt|user_datetime }}
                         {% if borrow.cancelledBy %}by {{ borrow.cancelledBy.screenName }}{% endif %}
                     </li>
                 {% endif %}

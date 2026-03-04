@@ -35,9 +35,9 @@
                             <tr>
                                 <th>Date</th>
                                 <td>
-                                    {{ event.date|date('M j, Y g:ia') }}
+                                    {{ event.date|user_datetime }}
                                     {% if event.endDate %}
-                                        — {{ event.endDate|date('M j, Y g:ia') }}
+                                        — {{ event.endDate|user_datetime }}
                                     {% endif %}
                                 </td>
                             </tr>
