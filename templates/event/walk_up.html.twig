@@ -8,40 +8,40 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Walk-up Lend — {{ event.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.event.walk_up.title'|trans({'%name%': event.name}) }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">
-            <h5 class="mb-0">Walk-up Lend — {{ event.name }}</h5>
+            <h5 class="mb-0">{{ 'app.event.walk_up.title'|trans({'%name%': event.name}) }}</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted">Lend a deck directly to a player without a prior borrow request.</p>
+            <p class="text-muted">{{ 'app.event.walk_up.description'|trans }}</p>
 
             <form method="post" action="{{ path('app_event_walk_up_submit', {id: event.id}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('walk-up-' ~ event.id) }}">
 
                 <div class="mb-3">
-                    <label class="form-label">Deck</label>
+                    <label class="form-label">{{ 'app.event.walk_up.deck_label'|trans }}</label>
                     <div data-walk-up-deck-autocomplete
                          data-search-url="{{ path('app_deck_search') }}?event_id={{ event.id }}"
                          data-hidden-input="deck_id"
-                         data-placeholder="Search by deck name or tag...">
+                         data-placeholder="{{ 'app.event.walk_up.deck_placeholder'|trans }}">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Borrower</label>
+                    <label class="form-label">{{ 'app.event.walk_up.borrower_label'|trans }}</label>
                     <div data-walk-up-user-autocomplete
                          data-search-url="{{ path('app_user_search') }}?event_id={{ event.id }}"
                          data-hidden-input="borrower_id"
-                         data-placeholder="Search by screen name, email, or Pokemon ID...">
+                         data-placeholder="{{ 'app.event.walk_up.borrower_placeholder'|trans }}">
                     </div>
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Lend Deck</button>
-                    <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">{{ 'app.event.walk_up.lend_button'|trans }}</button>
+                    <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-outline-secondary">{{ 'app.common.cancel'|trans }}</a>
                 </div>
             </form>
         </div>

@@ -19,10 +19,10 @@
                 <table class="table table-striped table-themed mb-0">
                     <thead>
                         <tr>
-                            <th>Deck</th>
-                            <th>Borrower</th>
-                            <th>Status</th>
-                            <th>Requested</th>
+                            <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                            <th>{{ 'app.borrow.table.borrower'|trans }}</th>
+                            <th>{{ 'app.borrow.table.status'|trans }}</th>
+                            <th>{{ 'app.borrow.inbox_requested'|trans }}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -42,27 +42,27 @@
                                         <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="lends">
-                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                            <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
                                         </form>
-                                        <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('Deny this borrow request?')">
+                                        <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                                             <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="lends">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Deny</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
                                         </form>
                                     {% elseif borrow.status.value == 'approved' %}
                                         <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="lends">
-                                            <button type="submit" class="btn btn-sm btn-primary">Hand off</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.hand_off'|trans }}</button>
                                         </form>
                                     {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
                                         <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="lends">
-                                            <button type="submit" class="btn btn-sm btn-warning">Mark returned</button>
+                                            <button type="submit" class="btn btn-sm btn-warning">{{ 'app.event.mark_returned'|trans }}</button>
                                         </form>
                                     {% endif %}
-                                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
                                 </td>
                             </tr>
                         {% endfor %}

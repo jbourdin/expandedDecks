@@ -1,0 +1,1270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="messages">
+        <body>
+            <!-- Navigation -->
+            <trans-unit id="app.nav.dashboard">
+                <source>app.nav.dashboard</source>
+                <target>Tableau de bord</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.decks">
+                <source>app.nav.decks</source>
+                <target>Decks</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.events">
+                <source>app.nav.events</source>
+                <target>Événements</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.login">
+                <source>app.nav.login</source>
+                <target>Connexion</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.logout">
+                <source>app.nav.logout</source>
+                <target>Déconnexion</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.register">
+                <source>app.nav.register</source>
+                <target>Inscription</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+            <trans-unit id="app.nav.profile">
+                <source>app.nav.profile</source>
+                <target>Profil</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
+
+            <!-- Common buttons and labels -->
+            <trans-unit id="app.common.view">
+                <source>app.common.view</source>
+                <target>Voir</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.edit">
+                <source>app.common.edit</source>
+                <target>Modifier</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.cancel">
+                <source>app.common.cancel</source>
+                <target>Annuler</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.save">
+                <source>app.common.save</source>
+                <target>Enregistrer</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.filter">
+                <source>app.common.filter</source>
+                <target>Filtrer</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.clear">
+                <source>app.common.clear</source>
+                <target>Effacer</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.search">
+                <source>app.common.search</source>
+                <target>Rechercher</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.approve">
+                <source>app.common.approve</source>
+                <target>Approuver</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.deny">
+                <source>app.common.deny</source>
+                <target>Refuser</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.back">
+                <source>app.common.back</source>
+                <target>Retour</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.previous">
+                <source>app.common.previous</source>
+                <target>Précédent</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.next">
+                <source>app.common.next</source>
+                <target>Suivant</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.see_all">
+                <source>app.common.see_all</source>
+                <target>Voir tout</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.new">
+                <source>app.common.new</source>
+                <target>+ Nouveau</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.yes">
+                <source>app.common.yes</source>
+                <target>Oui</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.no">
+                <source>app.common.no</source>
+                <target>Non</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.showing">
+                <source>app.common.showing</source>
+                <target>Affichage de %first%–%last% sur %total%</target>
+                <note>Pagination info. %first% = first item, %last% = last item, %total% = total items</note>
+            </trans-unit>
+            <trans-unit id="app.common.all">
+                <source>app.common.all</source>
+                <target>Tous</target>
+                <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+
+            <!-- Homepage -->
+            <trans-unit id="app.home.title">
+                <source>app.home.title</source>
+                <target>Expanded Decks — Bibliothèque partagée de decks Pokemon TCG</target>
+                <note>HTML page title for anonymous homepage</note>
+            </trans-unit>
+            <trans-unit id="app.home.hero_title">
+                <source>app.home.hero_title</source>
+                <target>Expanded Decks</target>
+                <note>Homepage hero banner</note>
+            </trans-unit>
+            <trans-unit id="app.home.hero_text">
+                <source>app.home.hero_text</source>
+                <target>Une bibliothèque partagée de decks physiques Pokemon TCG au format Étendu. Parcourez les decks disponibles, empruntez-les pour vos événements et gérez votre collection.</target>
+                <note>Homepage hero banner</note>
+            </trans-unit>
+            <trans-unit id="app.home.upcoming_events">
+                <source>app.home.upcoming_events</source>
+                <target>{0}%count% événements à venir|{1}%count% événement à venir|]1,Inf[%count% événements à venir</target>
+                <note>Pluralized label below event count on homepage. %count% = number of events</note>
+            </trans-unit>
+            <trans-unit id="app.home.decks_in_library">
+                <source>app.home.decks_in_library</source>
+                <target>{0}%count% decks dans la bibliothèque|{1}%count% deck dans la bibliothèque|]1,Inf[%count% decks dans la bibliothèque</target>
+                <note>Pluralized label below deck count on homepage. %count% = number of decks</note>
+            </trans-unit>
+            <trans-unit id="app.home.browse_events">
+                <source>app.home.browse_events</source>
+                <target>Parcourir les événements</target>
+                <note>Homepage call-to-action button</note>
+            </trans-unit>
+            <trans-unit id="app.home.browse_library">
+                <source>app.home.browse_library</source>
+                <target>Parcourir la bibliothèque</target>
+                <note>Homepage call-to-action button</note>
+            </trans-unit>
+
+            <!-- Dashboard -->
+            <trans-unit id="app.dashboard.title">
+                <source>app.dashboard.title</source>
+                <target>Tableau de bord — Expanded Decks</target>
+                <note>HTML page title for dashboard</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.welcome">
+                <source>app.dashboard.welcome</source>
+                <target>Bienvenue, %name% !</target>
+                <note>Dashboard greeting. %name% = user screen name</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.my_decks">
+                <source>app.dashboard.my_decks</source>
+                <target>Mes Decks</target>
+                <note>Dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.my_events">
+                <source>app.dashboard.my_events</source>
+                <target>Mes Événements</target>
+                <note>Dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.staffing">
+                <source>app.dashboard.staffing</source>
+                <target>Staff</target>
+                <note>Dashboard section heading for events where user is staff</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.recent_borrow_activity">
+                <source>app.dashboard.recent_borrow_activity</source>
+                <target>Emprunts récents</target>
+                <note>Dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.recent_lend_activity">
+                <source>app.dashboard.recent_lend_activity</source>
+                <target>Prêts récents</target>
+                <note>Dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.event_management_activity">
+                <source>app.dashboard.event_management_activity</source>
+                <target>Historique de gestion d&apos;événements</target>
+                <note>Dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.no_decks">
+                <source>app.dashboard.no_decks</source>
+                <target>Vous ne possédez encore aucun deck.</target>
+                <note>Empty state message shown when no items exist</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.no_events">
+                <source>app.dashboard.no_events</source>
+                <target>Aucun événement à venir.</target>
+                <note>Empty state message shown when no items exist</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.no_borrow_activity">
+                <source>app.dashboard.no_borrow_activity</source>
+                <target>Aucune activité d&apos;emprunt pour le moment.</target>
+                <note>Empty state message shown when no items exist</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.no_lend_activity">
+                <source>app.dashboard.no_lend_activity</source>
+                <target>Aucune activité de prêt pour le moment.</target>
+                <note>Empty state message shown when no items exist</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.no_management_activity">
+                <source>app.dashboard.no_management_activity</source>
+                <target>Aucune activité de gestion pour le moment.</target>
+                <note>Empty state message shown when no items exist</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_lent">
+                <source>app.dashboard.badge_lent</source>
+                <target>Prêté</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_retired">
+                <source>app.dashboard.badge_retired</source>
+                <target>Retiré</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_playing">
+                <source>app.dashboard.badge_playing</source>
+                <target>Joueur</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_spectating">
+                <source>app.dashboard.badge_spectating</source>
+                <target>Spectateur</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_invited">
+                <source>app.dashboard.badge_invited</source>
+                <target>Invité</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_interested">
+                <source>app.dashboard.badge_interested</source>
+                <target>Intéressé</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_organizer">
+                <source>app.dashboard.badge_organizer</source>
+                <target>Organisateur</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.badge_staff">
+                <source>app.dashboard.badge_staff</source>
+                <target>Staff</target>
+                <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+
+            <!-- Deck catalog, detail, and forms -->
+            <trans-unit id="app.deck.catalog_title">
+                <source>app.deck.catalog_title</source>
+                <target>Catalogue de Decks</target>
+                <note>Page heading for deck catalog</note>
+            </trans-unit>
+            <trans-unit id="app.deck.new_title">
+                <source>app.deck.new_title</source>
+                <target>Nouveau Deck</target>
+                <note>Page heading or button for creating a new deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.new_deck">
+                <source>app.deck.new_deck</source>
+                <target>+ Nouveau Deck</target>
+                <note>Page heading or button for creating a new deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.edit_title">
+                <source>app.deck.edit_title</source>
+                <target>Modifier %name%</target>
+                <note>Page heading for deck edit. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.import_title">
+                <source>app.deck.import_title</source>
+                <target>Importer une liste — %name%</target>
+                <note>Page heading for deck list import. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.import_version">
+                <source>app.deck.import_version</source>
+                <target>Collez votre liste au format PTCG ci-dessous. Cela créera la &lt;strong&gt;version %version%&lt;/strong&gt;.</target>
+                <note>Import page description. %version% = version number. Contains HTML &lt;strong&gt; tag</note>
+            </trans-unit>
+            <trans-unit id="app.deck.import_button">
+                <source>app.deck.import_button</source>
+                <target>Importer</target>
+                <note>Deck list import UI</note>
+            </trans-unit>
+            <trans-unit id="app.deck.create_button">
+                <source>app.deck.create_button</source>
+                <target>Créer le Deck</target>
+                <note>Submit button on new deck form</note>
+            </trans-unit>
+            <trans-unit id="app.deck.save_button">
+                <source>app.deck.save_button</source>
+                <target>Enregistrer</target>
+                <note>Submit button on edit deck form</note>
+            </trans-unit>
+            <trans-unit id="app.deck.import_list">
+                <source>app.deck.import_list</source>
+                <target>Importer une liste</target>
+                <note>Deck list import UI</note>
+            </trans-unit>
+            <trans-unit id="app.deck.deck_list_label">
+                <source>app.deck.deck_list_label</source>
+                <target>Liste de deck</target>
+                <note>Deck list textarea form field</note>
+            </trans-unit>
+            <trans-unit id="app.deck.deck_list_optional">
+                <source>app.deck.deck_list_optional</source>
+                <target>(optionnel, format PTCG)</target>
+                <note>Deck list textarea form field</note>
+            </trans-unit>
+            <trans-unit id="app.deck.deck_list_help">
+                <source>app.deck.deck_list_help</source>
+                <target>Collez une liste pour l&apos;importer immédiatement. Laissez vide pour en ajouter une plus tard.</target>
+                <note>Deck list textarea form field</note>
+            </trans-unit>
+            <trans-unit id="app.deck.no_list">
+                <source>app.deck.no_list</source>
+                <target>Aucune liste de deck importée pour le moment.</target>
+                <note>Empty state when no deck list has been imported</note>
+            </trans-unit>
+            <trans-unit id="app.deck.import_cta">
+                <source>app.deck.import_cta</source>
+                <target>Importer une liste de deck</target>
+                <note>Call-to-action button to import a deck list</note>
+            </trans-unit>
+            <trans-unit id="app.deck.owner">
+                <source>app.deck.owner</source>
+                <target>Propriétaire :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.format">
+                <source>app.deck.format</source>
+                <target>Format :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version">
+                <source>app.deck.version</source>
+                <target>Version :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.archetype_label">
+                <source>app.deck.archetype_label</source>
+                <target>Archétype :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.archetype_optional">
+                <source>app.deck.archetype_optional</source>
+                <target>Archétype (optionnel)</target>
+                <note>Form field label for optional archetype selection</note>
+            </trans-unit>
+            <trans-unit id="app.deck.languages_label">
+                <source>app.deck.languages_label</source>
+                <target>Langues :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.notes_label">
+                <source>app.deck.notes_label</source>
+                <target>Notes :</target>
+                <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.badge_lent">
+                <source>app.deck.badge_lent</source>
+                <target>Prêté</target>
+                <note>Status badge on deck card</note>
+            </trans-unit>
+            <trans-unit id="app.deck.badge_retired">
+                <source>app.deck.badge_retired</source>
+                <target>Retiré</target>
+                <note>Status badge on deck card</note>
+            </trans-unit>
+            <trans-unit id="app.deck.has_active_registrations">
+                <source>app.deck.has_active_registrations</source>
+                <target>Ce deck a des inscriptions actives et ne peut pas être dépublié.</target>
+                <note>Warning shown when deck cannot be unpublished</note>
+            </trans-unit>
+            <trans-unit id="app.deck.search_placeholder">
+                <source>app.deck.search_placeholder</source>
+                <target>Nom ou tag court...</target>
+                <note>Placeholder for catalog search input</note>
+            </trans-unit>
+            <trans-unit id="app.deck.results_count">
+                <source>app.deck.results_count</source>
+                <target>{0}%count% decks trouvés|{1}%count% deck trouvé|]1,Inf[%count% decks trouvés</target>
+                <note>Pluralized result count below catalog filters. %count% = number of decks</note>
+            </trans-unit>
+            <trans-unit id="app.deck.no_results">
+                <source>app.deck.no_results</source>
+                <target>Aucun deck ne correspond à vos critères de recherche.</target>
+                <note>Empty state when catalog search returns nothing</note>
+            </trans-unit>
+            <trans-unit id="app.deck.owner_filter">
+                <source>app.deck.owner_filter</source>
+                <target>Propriétaire</target>
+                <note>Catalog filter label</note>
+            </trans-unit>
+            <trans-unit id="app.deck.archetype_filter">
+                <source>app.deck.archetype_filter</source>
+                <target>Archétype</target>
+                <note>Catalog filter label</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_filter">
+                <source>app.deck.event_filter</source>
+                <target>Événement</target>
+                <note>Catalog filter label</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_activity">
+                <source>app.deck.borrow_activity</source>
+                <target>Activité d&apos;emprunt</target>
+                <note>Deck detail borrow section</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_login_cta">
+                <source>app.deck.borrow_login_cta</source>
+                <target>Vous souhaitez emprunter ce deck pour un événement ?</target>
+                <note>Deck detail borrow section</note>
+            </trans-unit>
+            <trans-unit id="app.deck.login_cta">
+                <source>app.deck.login_cta</source>
+                <target>Se connecter</target>
+                <note>Login button shown to anonymous users on deck detail</note>
+            </trans-unit>
+            <trans-unit id="app.deck.register_cta">
+                <source>app.deck.register_cta</source>
+                <target>Créer un compte</target>
+                <note>Register button shown to anonymous users on deck detail</note>
+            </trans-unit>
+            <trans-unit id="app.deck.section_pokemon">
+                <source>app.deck.section_pokemon</source>
+                <target>Pokémon</target>
+                <note>Card list section heading in deck detail</note>
+            </trans-unit>
+            <trans-unit id="app.deck.section_trainer">
+                <source>app.deck.section_trainer</source>
+                <target>Dresseur</target>
+                <note>Card list section heading in deck detail</note>
+            </trans-unit>
+            <trans-unit id="app.deck.section_energy">
+                <source>app.deck.section_energy</source>
+                <target>Énergie</target>
+                <note>Card list section heading in deck detail</note>
+            </trans-unit>
+            <trans-unit id="app.deck.table_qty">
+                <source>app.deck.table_qty</source>
+                <target>Qté</target>
+                <note>Column header in card list table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.table_card">
+                <source>app.deck.table_card</source>
+                <target>Carte</target>
+                <note>Column header in card list table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.table_set">
+                <source>app.deck.table_set</source>
+                <target>Set</target>
+                <note>Column header in card list table</note>
+            </trans-unit>
+
+            <!-- Event list, detail, and forms -->
+            <trans-unit id="app.event.list_title">
+                <source>app.event.list_title</source>
+                <target>Événements à venir</target>
+                <note>Page heading for event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.new_title">
+                <source>app.event.new_title</source>
+                <target>Nouvel Événement</target>
+                <note>Page heading or button for creating a new event</note>
+            </trans-unit>
+            <trans-unit id="app.event.new_event">
+                <source>app.event.new_event</source>
+                <target>+ Nouvel Événement</target>
+                <note>Page heading or button for creating a new event</note>
+            </trans-unit>
+            <trans-unit id="app.event.edit_title">
+                <source>app.event.edit_title</source>
+                <target>Modifier %name%</target>
+                <note>Page heading for event edit. %name% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.event.create_button">
+                <source>app.event.create_button</source>
+                <target>Créer l&apos;Événement</target>
+                <note>Submit button on new event form</note>
+            </trans-unit>
+            <trans-unit id="app.event.save_button">
+                <source>app.event.save_button</source>
+                <target>Enregistrer</target>
+                <note>Submit button on edit event form</note>
+            </trans-unit>
+            <trans-unit id="app.event.cancel_event">
+                <source>app.event.cancel_event</source>
+                <target>Annuler l&apos;Événement</target>
+                <note>Button to cancel an event</note>
+            </trans-unit>
+            <trans-unit id="app.event.cancel_confirm">
+                <source>app.event.cancel_confirm</source>
+                <target>Êtes-vous sûr de vouloir annuler cet événement ? Cette action est irréversible.</target>
+                <note>JavaScript confirm dialog when cancelling an event</note>
+            </trans-unit>
+            <trans-unit id="app.event.back_to_events">
+                <source>app.event.back_to_events</source>
+                <target>Retour aux événements</target>
+                <note>Navigation link back to event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.back_to_event">
+                <source>app.event.back_to_event</source>
+                <target>Retour à l&apos;événement</target>
+                <note>Navigation link back to event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.badge_cancelled">
+                <source>app.event.badge_cancelled</source>
+                <target>Annulé</target>
+                <note>Status badge shown when event is cancelled</note>
+            </trans-unit>
+            <trans-unit id="app.event.date">
+                <source>app.event.date</source>
+                <target>Date</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.timezone">
+                <source>app.event.timezone</source>
+                <target>Fuseau horaire</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.format">
+                <source>app.event.format</source>
+                <target>Format</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.organizer">
+                <source>app.event.organizer</source>
+                <target>Organisateur</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.location">
+                <source>app.event.location</source>
+                <target>Lieu</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.registration_link">
+                <source>app.event.registration_link</source>
+                <target>Inscription</target>
+                <note>Table header label in event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.structure">
+                <source>app.event.structure</source>
+                <target>Structure</target>
+                <note>Table header label for tournament structure</note>
+            </trans-unit>
+            <trans-unit id="app.event.attendees">
+                <source>app.event.attendees</source>
+                <target>Participants</target>
+                <note>Table header label for min/max attendees</note>
+            </trans-unit>
+            <trans-unit id="app.event.min">
+                <source>app.event.min</source>
+                <target>Min : %count%</target>
+                <note>Min attendees display. %count% = minimum number</note>
+            </trans-unit>
+            <trans-unit id="app.event.max">
+                <source>app.event.max</source>
+                <target>Max : %count%</target>
+                <note>Max attendees display. %count% = maximum number</note>
+            </trans-unit>
+            <trans-unit id="app.event.round_duration">
+                <source>app.event.round_duration</source>
+                <target>Durée des rondes</target>
+                <note>Table header label</note>
+            </trans-unit>
+            <trans-unit id="app.event.round_min">
+                <source>app.event.round_min</source>
+                <target>%duration% min</target>
+                <note>Round duration display. %duration% = minutes</note>
+            </trans-unit>
+            <trans-unit id="app.event.top_cut">
+                <source>app.event.top_cut</source>
+                <target>Top cut : %duration% min</target>
+                <note>Top cut round duration. %duration% = minutes</note>
+            </trans-unit>
+            <trans-unit id="app.event.entry_fee">
+                <source>app.event.entry_fee</source>
+                <target>Frais d&apos;inscription</target>
+                <note>Table header label for entry fee</note>
+            </trans-unit>
+            <trans-unit id="app.event.decklist_mandatory">
+                <source>app.event.decklist_mandatory</source>
+                <target>Liste de deck obligatoire</target>
+                <note>Table header label</note>
+            </trans-unit>
+            <trans-unit id="app.event.no_events">
+                <source>app.event.no_events</source>
+                <target>Aucun événement à venir.</target>
+                <note>Empty state when no upcoming events</note>
+            </trans-unit>
+            <trans-unit id="app.event.organized_by">
+                <source>app.event.organized_by</source>
+                <target>Organisé par %name%</target>
+                <note>Organizer attribution. %name% = organizer screen name</note>
+            </trans-unit>
+            <trans-unit id="app.event.philosophy_notice.title">
+                <source>app.event.philosophy_notice.title</source>
+                <target>Outil communautaire — pas un service officiel</target>
+                <note>Legal notice shown on event create/edit forms</note>
+            </trans-unit>
+            <trans-unit id="app.event.philosophy_notice.body">
+                <source>app.event.philosophy_notice.body</source>
+                <target>Expanded Decks est un projet communautaire indépendant conçu pour promouvoir le format Étendu et faciliter sa découverte en permettant aux nouveaux joueurs d&apos;emprunter des decks lors d&apos;événements. Cet outil ne remplace ni ne concurrence les services officiels du Pokemon Organized Play. En créant ou modifiant un événement ici, vous confirmez que vous respecterez l&apos;ensemble des règles et politiques officielles des tournois Pokemon. L&apos;identifiant de tournoi est utilisé uniquement à des fins de référencement — cette plateforme n&apos;a aucune affiliation avec The Pokemon Company.
+</target>
+                <note>Legal notice shown on event create/edit forms</note>
+            </trans-unit>
+            <trans-unit id="app.event.philosophy_notice.notice_body">
+                <source>app.event.philosophy_notice.notice_body</source>
+                <target>Les événements créés ici sont destinés à des tournois amicaux et communautaires. Veuillez vous assurer que votre événement respecte les directives du Pokemon Organized Play et favorise une atmosphère accueillante pour tous les joueurs.</target>
+                <note>Legal notice shown on event create/edit forms</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff.title">
+                <source>app.event.staff.title</source>
+                <target>Équipe de staff</target>
+                <note>Staff management section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff.no_staff">
+                <source>app.event.staff.no_staff</source>
+                <target>Aucun staff assigné pour le moment.</target>
+                <note>Staff management section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff.add">
+                <source>app.event.staff.add</source>
+                <target>Ajouter un staff</target>
+                <note>Staff management section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff.remove">
+                <source>app.event.staff.remove</source>
+                <target>Retirer</target>
+                <note>Staff management section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff.placeholder">
+                <source>app.event.staff.placeholder</source>
+                <target>Pseudo, email ou ID Pokemon</target>
+                <note>Staff management section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.title">
+                <source>app.event.participation.title</source>
+                <target>Participation</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.players">
+                <source>app.event.participation.players</source>
+                <target>{0}%count% joueurs|{1}%count% joueur|]1,Inf[%count% joueurs</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.spectators">
+                <source>app.event.participation.spectators</source>
+                <target>{0}%count% spectateurs|{1}%count% spectateur|]1,Inf[%count% spectateurs</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.registered_playing">
+                <source>app.event.participation.registered_playing</source>
+                <target>Inscrit (Joueur)</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.registered_spectating">
+                <source>app.event.participation.registered_spectating</source>
+                <target>Inscrit (Spectateur)</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.switch_to_spectator">
+                <source>app.event.participation.switch_to_spectator</source>
+                <target>Passer en Spectateur</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.switch_to_player">
+                <source>app.event.participation.switch_to_player</source>
+                <target>Passer en Joueur</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.withdraw">
+                <source>app.event.participation.withdraw</source>
+                <target>Se retirer</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.register_player">
+                <source>app.event.participation.register_player</source>
+                <target>S&apos;inscrire en Joueur</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.register_spectator">
+                <source>app.event.participation.register_spectator</source>
+                <target>S&apos;inscrire en Spectateur</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.register_to_browse">
+                <source>app.event.participation.register_to_browse</source>
+                <target>Inscrivez-vous en tant que participant pour parcourir et emprunter des decks.</target>
+                <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.your_decks">
+                <source>app.event.your_decks</source>
+                <target>Vos Decks</target>
+                <note>Section heading for owner deck registration</note>
+            </trans-unit>
+            <trans-unit id="app.event.your_decks_help">
+                <source>app.event.your_decks_help</source>
+                <target>Enregistrez vos decks pour cet événement et choisissez si le staff peut les gérer en votre nom.</target>
+                <note>Help text for deck registration section</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_status_played">
+                <source>app.event.deck_status_played</source>
+                <target>Joué</target>
+                <note>Status badge for deck registration state</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_status_delegated">
+                <source>app.event.deck_status_delegated</source>
+                <target>Délégué au staff</target>
+                <note>Status badge for deck registration state</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_status_registered">
+                <source>app.event.deck_status_registered</source>
+                <target>Inscrit</target>
+                <note>Status badge for deck registration state</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_status_not_registered">
+                <source>app.event.deck_status_not_registered</source>
+                <target>Non inscrit</target>
+                <note>Status badge for deck registration state</note>
+            </trans-unit>
+            <trans-unit id="app.event.unregister">
+                <source>app.event.unregister</source>
+                <target>Désinscrire</target>
+                <note>Button to unregister a deck from event</note>
+            </trans-unit>
+            <trans-unit id="app.event.register_deck">
+                <source>app.event.register_deck</source>
+                <target>Inscrire</target>
+                <note>Button to register a deck for event</note>
+            </trans-unit>
+            <trans-unit id="app.event.revoke">
+                <source>app.event.revoke</source>
+                <target>Révoquer</target>
+                <note>Button to revoke staff delegation</note>
+            </trans-unit>
+            <trans-unit id="app.event.delegate">
+                <source>app.event.delegate</source>
+                <target>Déléguer</target>
+                <note>Button to delegate deck to staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_selection">
+                <source>app.event.deck_selection</source>
+                <target>Sélection de deck</target>
+                <note>Section heading for played deck selection</note>
+            </trans-unit>
+            <trans-unit id="app.event.no_deck_selected">
+                <source>app.event.no_deck_selected</source>
+                <target>Aucun deck sélectionné</target>
+                <note>Radio option label for no deck</note>
+            </trans-unit>
+            <trans-unit id="app.event.own_deck">
+                <source>app.event.own_deck</source>
+                <target>Deck personnel</target>
+                <note>Badge indicating an owned deck</note>
+            </trans-unit>
+            <trans-unit id="app.event.save_selection">
+                <source>app.event.save_selection</source>
+                <target>Enregistrer la sélection</target>
+                <note>Button to save deck selection</note>
+            </trans-unit>
+            <trans-unit id="app.event.browse_available">
+                <source>app.event.browse_available</source>
+                <target>Parcourir les decks disponibles</target>
+                <note>Link to browse available decks</note>
+            </trans-unit>
+            <trans-unit id="app.event.available_decks_title">
+                <source>app.event.available_decks_title</source>
+                <target>Decks Disponibles</target>
+                <note>Available decks page for borrowing</note>
+            </trans-unit>
+            <trans-unit id="app.event.available_decks_for">
+                <source>app.event.available_decks_for</source>
+                <target>Decks disponibles à l&apos;emprunt pour &lt;strong&gt;%name%&lt;/strong&gt;</target>
+                <note>Available decks page for borrowing</note>
+            </trans-unit>
+            <trans-unit id="app.event.no_decks_available">
+                <source>app.event.no_decks_available</source>
+                <target>Aucun deck n&apos;est actuellement disponible à l&apos;emprunt pour cet événement.</target>
+                <note>Empty state on available decks page</note>
+            </trans-unit>
+            <trans-unit id="app.event.request_to_borrow">
+                <source>app.event.request_to_borrow</source>
+                <target>Demander à emprunter</target>
+                <note>Button to submit a borrow request from available decks page</note>
+            </trans-unit>
+            <trans-unit id="app.event.staff_custody">
+                <source>app.event.staff_custody</source>
+                <target>Prise en charge staff</target>
+                <note>Section heading for staff custody tracking</note>
+            </trans-unit>
+            <trans-unit id="app.event.hand_off">
+                <source>app.event.hand_off</source>
+                <target>Remettre</target>
+                <note>Button to hand off a deck in staff custody</note>
+            </trans-unit>
+            <trans-unit id="app.event.mark_returned">
+                <source>app.event.mark_returned</source>
+                <target>Marquer retourné</target>
+                <note>Button to mark a deck as returned in staff custody</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_borrowing">
+                <source>app.event.deck_borrowing</source>
+                <target>Emprunt de deck</target>
+                <note>Section heading for deck borrowing on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.no_borrow_activity">
+                <source>app.event.no_borrow_activity</source>
+                <target>Aucune activité d&apos;emprunt pour le moment.</target>
+                <note>Empty state in borrowing section</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.title">
+                <source>app.event.walk_up.title</source>
+                <target>Prêt direct — %name%</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.description">
+                <source>app.event.walk_up.description</source>
+                <target>Prêter un deck directement à un joueur sans demande d&apos;emprunt préalable.</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.lend_button">
+                <source>app.event.walk_up.lend_button</source>
+                <target>Prêter le Deck</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.walk_up_lend">
+                <source>app.event.walk_up.walk_up_lend</source>
+                <target>Prêt direct</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.deck_label">
+                <source>app.event.walk_up.deck_label</source>
+                <target>Deck</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.borrower_label">
+                <source>app.event.walk_up.borrower_label</source>
+                <target>Emprunteur</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.deck_placeholder">
+                <source>app.event.walk_up.deck_placeholder</source>
+                <target>Rechercher par nom ou tag du deck...</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.walk_up.borrower_placeholder">
+                <source>app.event.walk_up.borrower_placeholder</source>
+                <target>Rechercher par pseudo, email ou ID Pokemon...</target>
+                <note>Walk-up lending page for staff</note>
+            </trans-unit>
+
+            <!-- Borrow workflow and lists -->
+            <trans-unit id="app.borrow.title">
+                <source>app.borrow.title</source>
+                <target>Emprunt : %name%</target>
+                <note>Page heading for borrow detail. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.select_event">
+                <source>app.borrow.select_event</source>
+                <target>Sélectionner un événement...</target>
+                <note>Default option in event dropdown on borrow request form</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.event_label">
+                <source>app.borrow.event_label</source>
+                <target>Événement</target>
+                <note>Form field label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.notes_label">
+                <source>app.borrow.notes_label</source>
+                <target>Notes (optionnel)</target>
+                <note>Borrow notes form field</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.notes_placeholder">
+                <source>app.borrow.notes_placeholder</source>
+                <target>ex. Je le rendrai juste après mon match</target>
+                <note>Borrow notes form field</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.request_button">
+                <source>app.borrow.request_button</source>
+                <target>Demander</target>
+                <note>Submit button for borrow request</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.back_to_event">
+                <source>app.borrow.back_to_event</source>
+                <target>Retour à l&apos;événement</target>
+                <note>Navigation link</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.timeline">
+                <source>app.borrow.timeline</source>
+                <target>Chronologie</target>
+                <note>Section heading for borrow timeline</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.requested">
+                <source>app.borrow.requested</source>
+                <target>Demandé :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.approved">
+                <source>app.borrow.approved</source>
+                <target>Approuvé :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.handed_off">
+                <source>app.borrow.handed_off</source>
+                <target>Remis :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.returned">
+                <source>app.borrow.returned</source>
+                <target>Retourné :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.returned_to_owner">
+                <source>app.borrow.returned_to_owner</source>
+                <target>Retourné au propriétaire :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.cancelled">
+                <source>app.borrow.cancelled</source>
+                <target>Annulé :</target>
+                <note>Timeline label. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.by">
+                <source>app.borrow.by</source>
+                <target>par %name%</target>
+                <note>Actor attribution in timeline. %name% = user screen name</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.to">
+                <source>app.borrow.to</source>
+                <target>à %name%</target>
+                <note>Recipient attribution in timeline. %name% = user screen name</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.actions">
+                <source>app.borrow.actions</source>
+                <target>Actions</target>
+                <note>Section heading for borrow action buttons</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.approve_button">
+                <source>app.borrow.approve_button</source>
+                <target>Approuver</target>
+                <note>Button to approve a borrow request</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.deny_button">
+                <source>app.borrow.deny_button</source>
+                <target>Refuser</target>
+                <note>Button to deny a borrow request</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.deny_confirm">
+                <source>app.borrow.deny_confirm</source>
+                <target>Refuser cette demande d&apos;emprunt ?</target>
+                <note>JavaScript confirm dialog for deny action</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.hand_off_button">
+                <source>app.borrow.hand_off_button</source>
+                <target>Confirmer la remise</target>
+                <note>Button to confirm physical hand-off of deck</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.return_button">
+                <source>app.borrow.return_button</source>
+                <target>Confirmer le retour</target>
+                <note>Button to confirm physical return of deck</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.return_to_owner_button">
+                <source>app.borrow.return_to_owner_button</source>
+                <target>Retourner au propriétaire</target>
+                <note>Button for staff to return deck to owner</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.cancel_button">
+                <source>app.borrow.cancel_button</source>
+                <target>Annuler</target>
+                <note>Button to cancel a borrow</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.cancel_confirm">
+                <source>app.borrow.cancel_confirm</source>
+                <target>Annuler cet emprunt ?</target>
+                <note>JavaScript confirm dialog for cancel action</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.list_all">
+                <source>app.borrow.list_all</source>
+                <target>Tous</target>
+                <note>Filter button to show all borrows</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_borrows">
+                <source>app.borrow.no_borrows</source>
+                <target>Aucune activité d&apos;emprunt</target>
+                <note>Empty state on borrow list page</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_borrows_status">
+                <source>app.borrow.no_borrows_status</source>
+                <target>Aucune activité d&apos;emprunt avec le statut « %status% ».</target>
+                <note>Empty state with status filter. %status% = filtered status</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_lends">
+                <source>app.borrow.no_lends</source>
+                <target>Aucune activité de prêt</target>
+                <note>Empty state on lend list page</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_lends_status">
+                <source>app.borrow.no_lends_status</source>
+                <target>Aucune activité de prêt avec le statut « %status% ».</target>
+                <note>Empty state with status filter. %status% = filtered status</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_active_borrows">
+                <source>app.borrow.no_active_borrows</source>
+                <target>Aucun emprunt actif</target>
+                <note>Empty state on inbox page</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_active_borrows_status">
+                <source>app.borrow.no_active_borrows_status</source>
+                <target>Aucun emprunt actif avec le statut « %status% ».</target>
+                <note>Empty state with status filter. %status% = filtered status</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.inbox_requested">
+                <source>app.borrow.inbox_requested</source>
+                <target>Demandé</target>
+                <note>Column header in owner borrow inbox table</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.pending">
+                <source>app.borrow.status.pending</source>
+                <target>En attente</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.approved">
+                <source>app.borrow.status.approved</source>
+                <target>Approuvé</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.lent">
+                <source>app.borrow.status.lent</source>
+                <target>Prêté</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.returned">
+                <source>app.borrow.status.returned</source>
+                <target>Retourné</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.returned_to_owner">
+                <source>app.borrow.status.returned_to_owner</source>
+                <target>Retourné au propriétaire</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.cancelled">
+                <source>app.borrow.status.cancelled</source>
+                <target>Annulé</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.overdue">
+                <source>app.borrow.status.overdue</source>
+                <target>En retard</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.status.denied">
+                <source>app.borrow.status.denied</source>
+                <target>Refusé</target>
+                <note>Borrow workflow status badge label</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.deck">
+                <source>app.borrow.table.deck</source>
+                <target>Deck</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.event">
+                <source>app.borrow.table.event</source>
+                <target>Événement</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.borrower">
+                <source>app.borrow.table.borrower</source>
+                <target>Emprunteur</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.owner">
+                <source>app.borrow.table.owner</source>
+                <target>Propriétaire</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.status">
+                <source>app.borrow.table.status</source>
+                <target>Statut</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.date">
+                <source>app.borrow.table.date</source>
+                <target>Date</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.play">
+                <source>app.borrow.table.play</source>
+                <target>Jouer</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.available">
+                <source>app.borrow.table.available</source>
+                <target>Disponible</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.table.delegate_to_staff">
+                <source>app.borrow.table.delegate_to_staff</source>
+                <target>Déléguer au staff</target>
+                <note>Column header in borrow/lend tables</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.delegated_badge">
+                <source>app.borrow.delegated_badge</source>
+                <target>Délégué au staff de l&apos;événement</target>
+                <note>Badge shown when borrow is delegated to event staff</note>
+            </trans-unit>
+
+            <!-- Authentication pages -->
+            <trans-unit id="app.auth.login.title">
+                <source>app.auth.login.title</source>
+                <target>Connexion</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.email">
+                <source>app.auth.login.email</source>
+                <target>Email</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.password">
+                <source>app.auth.login.password</source>
+                <target>Mot de passe</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.remember_me">
+                <source>app.auth.login.remember_me</source>
+                <target>Se souvenir de moi</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.submit">
+                <source>app.auth.login.submit</source>
+                <target>Se connecter</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.forgot_password">
+                <source>app.auth.login.forgot_password</source>
+                <target>Mot de passe oublié ?</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.no_verification">
+                <source>app.auth.login.no_verification</source>
+                <target>Vous n&apos;avez pas reçu d&apos;email de vérification ?</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.no_account">
+                <source>app.auth.login.no_account</source>
+                <target>Vous n&apos;avez pas de compte ?</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.login.register_link">
+                <source>app.auth.login.register_link</source>
+                <target>S&apos;inscrire</target>
+                <note>Login page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.register.title">
+                <source>app.auth.register.title</source>
+                <target>Inscription</target>
+                <note>Registration page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.register.submit">
+                <source>app.auth.register.submit</source>
+                <target>S&apos;inscrire</target>
+                <note>Registration page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.register.has_account">
+                <source>app.auth.register.has_account</source>
+                <target>Vous avez déjà un compte ?</target>
+                <note>Registration page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.register.login_link">
+                <source>app.auth.register.login_link</source>
+                <target>Se connecter</target>
+                <note>Registration page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.forgot_password.title">
+                <source>app.auth.forgot_password.title</source>
+                <target>Mot de passe oublié</target>
+                <note>Forgot password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.forgot_password.description">
+                <source>app.auth.forgot_password.description</source>
+                <target>Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</target>
+                <note>Forgot password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.forgot_password.submit">
+                <source>app.auth.forgot_password.submit</source>
+                <target>Envoyer le lien</target>
+                <note>Forgot password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.forgot_password.back_to_login">
+                <source>app.auth.forgot_password.back_to_login</source>
+                <target>Retour à la connexion</target>
+                <note>Forgot password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.reset_password.title">
+                <source>app.auth.reset_password.title</source>
+                <target>Réinitialiser le mot de passe</target>
+                <note>Reset password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.reset_password.submit">
+                <source>app.auth.reset_password.submit</source>
+                <target>Réinitialiser</target>
+                <note>Reset password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.reset_password.back_to_login">
+                <source>app.auth.reset_password.back_to_login</source>
+                <target>Retour à la connexion</target>
+                <note>Reset password page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.verification.title">
+                <source>app.auth.verification.title</source>
+                <target>Renvoyer l&apos;email de vérification</target>
+                <note>Email verification resend page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.verification.description">
+                <source>app.auth.verification.description</source>
+                <target>Entrez votre adresse email et nous vous enverrons un nouveau lien de vérification.</target>
+                <note>Email verification resend page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.verification.submit">
+                <source>app.auth.verification.submit</source>
+                <target>Renvoyer l&apos;email</target>
+                <note>Email verification resend page</note>
+            </trans-unit>
+            <trans-unit id="app.auth.verification.back_to_login">
+                <source>app.auth.verification.back_to_login</source>
+                <target>Retour à la connexion</target>
+                <note>Email verification resend page</note>
+            </trans-unit>
+
+            <!-- Footer -->
+            <trans-unit id="app.footer.copyright">
+                <source>app.footer.copyright</source>
+                <target>Expanded Decks</target>
+                <note>Brand name in footer copyright line</note>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

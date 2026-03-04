@@ -8,14 +8,14 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}New Deck — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.deck.new_title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-header card-header-themed">
-                    <h5 class="mb-0">New Deck</h5>
+                    <h5 class="mb-0">{{ 'app.deck.new_title'|trans }}</h5>
                 </div>
                 <div class="card-body">
                     {{ form_start(form) }}
@@ -24,7 +24,7 @@
 
                         {# Archetype — React island #}
                         <div class="mb-3">
-                            <label class="form-label">Archetype (optional)</label>
+                            <label class="form-label">{{ 'app.deck.archetype_optional'|trans }}</label>
                             <div id="archetype-select-root"
                                  data-search-url="{{ path('app_archetype_search') }}"
                                  data-create-url="{{ path('app_archetype_create') }}"
@@ -34,7 +34,7 @@
 
                         {# Languages — React island #}
                         <div class="mb-3">
-                            <label class="form-label">Languages</label>
+                            <label class="form-label">{{ 'app.deck.languages_label'|trans }}</label>
                             <div id="language-select-root"></div>
                             {{ form_widget(form.languages) }}
                         </div>
@@ -46,13 +46,13 @@
                         {# Deck list — optional inline import (F2.13) #}
                         <div class="mb-3">
                             <label class="form-label" for="{{ form.rawList.vars.id }}">
-                                Deck list <small class="text-muted">(optional, PTCG format)</small>
+                                {{ 'app.deck.deck_list_label'|trans }} <small class="text-muted">{{ 'app.deck.deck_list_optional'|trans }}</small>
                             </label>
                             {{ form_widget(form.rawList, {attr: {class: 'form-control font-monospace'}}) }}
-                            <div class="form-text">Paste a deck list to import it immediately. Leave empty to add one later.</div>
+                            <div class="form-text">{{ 'app.deck.deck_list_help'|trans }}</div>
                         </div>
 
-                        <button type="submit" class="btn btn-gold w-100">Create Deck</button>
+                        <button type="submit" class="btn btn-gold w-100">{{ 'app.deck.create_button'|trans }}</button>
                     {{ form_end(form) }}
                 </div>
             </div>

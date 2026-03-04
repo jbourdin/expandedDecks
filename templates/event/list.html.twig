@@ -8,13 +8,13 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Events — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.event.list_title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Upcoming Events</h1>
+        <h1 class="mb-0">{{ 'app.event.list_title'|trans }}</h1>
         {% if is_granted('ROLE_ORGANIZER') %}
-            <a href="{{ path('app_event_new') }}" class="btn btn-gold">+ New Event</a>
+            <a href="{{ path('app_event_new') }}" class="btn btn-gold">{{ 'app.event.new_event'|trans }}</a>
         {% endif %}
     </div>
 
@@ -33,11 +33,11 @@
                             </p>
                             <p class="mb-0">
                                 <small>
-                                    <strong>Format:</strong> {{ event.format }}
+                                    <strong>{{ 'app.event.format'|trans }}:</strong> {{ event.format }}
                                     {% if event.tournamentStructure %}
                                         &middot; {{ event.tournamentStructure.value|replace({'_': ' '})|title }}
                                     {% endif %}
-                                    &middot; Organized by {{ event.organizer.screenName }}
+                                    &middot; {{ 'app.event.organized_by'|trans({'%name%': event.organizer.screenName}) }}
                                 </small>
                             </p>
                         </div>
@@ -48,7 +48,7 @@
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <p class="text-muted mb-0">No upcoming events.</p>
+                <p class="text-muted mb-0">{{ 'app.event.no_events'|trans }}</p>
             </div>
         </div>
     {% endif %}

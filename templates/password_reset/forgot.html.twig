@@ -8,28 +8,28 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Forgot Password — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.auth.forgot_password.title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card card-auth shadow-sm">
                 <div class="card-body">
-                    <h1 class="card-title h3 mb-4 text-center">Forgot Password</h1>
+                    <h1 class="card-title h3 mb-4 text-center">{{ 'app.auth.forgot_password.title'|trans }}</h1>
 
-                    <p class="text-muted text-center mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                    <p class="text-muted text-center mb-4">{{ 'app.auth.forgot_password.description'|trans }}</p>
 
                     <form method="post">
                         <div class="mb-3">
-                            <label for="inputEmail" class="form-label">Email</label>
+                            <label for="inputEmail" class="form-label">{{ 'app.auth.login.email'|trans }}</label>
                             <input type="email" name="email" id="inputEmail" class="form-control" required autofocus>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Send reset link</button>
+                        <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.forgot_password.submit'|trans }}</button>
                     </form>
 
                     <p class="text-center mt-3 mb-0">
-                        <a href="{{ path('app_login') }}">Back to login</a>
+                        <a href="{{ path('app_login') }}">{{ 'app.auth.forgot_password.back_to_login'|trans }}</a>
                     </p>
                 </div>
             </div>

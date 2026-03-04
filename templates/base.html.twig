@@ -28,29 +28,29 @@
                     <ul class="navbar-nav ms-auto">
                         {% if app.user %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_dashboard') }}">Dashboard</a>
+                                <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">Decks</a>
+                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_list') }}">Events</a>
+                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
                             <li class="nav-item">
                                 <span class="nav-link nav-link-user">{{ app.user.screenName }}</span>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+                                <a class="nav-link" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a>
                             </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">Decks</a>
+                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">Login</a>
+                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">Register</a>
+                                <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.register'|trans }}</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -73,7 +73,7 @@
 
         <footer class="footer-pokemon py-3 mt-auto">
             <div class="container text-center">
-                &copy; {{ "now"|date("Y") }} Expanded Decks
+                &copy; {{ "now"|date("Y") }} {{ 'app.footer.copyright'|trans }}
             </div>
         </footer>
 
