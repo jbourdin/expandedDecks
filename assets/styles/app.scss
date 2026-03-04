@@ -100,6 +100,13 @@ footer {
 .navbar-pokemon .nav-link-user {
     color: $ed-gold !important;
     font-weight: 600;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+.navbar-pokemon .dropdown-menu {
+    border: 1px solid rgba($ed-navy, .15);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .15);
 }
 
 // --- Hero (anonymous homepage) ---
