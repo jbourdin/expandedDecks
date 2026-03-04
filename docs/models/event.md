@@ -147,19 +147,56 @@ When `delegateToStaff` is true, any new borrow for this deck at this event will 
 | `deck`             | `Deck`             | No       | The deck being registered. |
 | `delegateToStaff`  | `bool`             | No       | Whether staff can handle this deck (approve, hand off, return). Default: `false`. |
 | `registeredAt`     | `DateTimeImmutable` | No      | When the owner registered this deck for the event. |
+| `staffReceivedAt`  | `DateTimeImmutable` | Yes     | When the owner confirmed handing the physical deck to staff. Null until owner completes the handover. |
+| `staffReceivedBy`  | `User`             | Yes      | The owner who confirmed the handover. |
+| `staffReturnedAt`  | `DateTimeImmutable` | Yes     | When staff confirmed returning the physical deck to the owner. Null until staff completes the return. |
+| `staffReturnedBy`  | `User`             | Yes      | The staff member who confirmed the return. |
 
 ### Constraints
 
 - Unique constraint on (`event`, `deck`) — a deck can only be registered once per event
 - Only the deck owner can create or toggle the registration
 - Cannot be created/toggled for cancelled or finished events
+- **Delegation cannot be revoked** while the deck is physically with staff (`staffReceivedAt` set and `staffReturnedAt` null). Staff must return the deck first.
+
+### Staff Custody Handover (F4.14)
+
+> **@see** docs/features.md F4.14 — Staff custody handover tracking
+
+When `delegateToStaff` is true, the registration tracks two physical custody transitions independent of borrow activity:
+
+1. **Owner → Staff** (`confirmOwnerHandover` via `StaffCustodyService`):
+   - Sets `staffReceivedAt` + `staffReceivedBy` (the owner)
+   - Precondition: `delegateToStaff` must be true, `staffReceivedAt` must be null (idempotent guard)
+   - Permission: only the deck owner can confirm
+
+2. **Staff → Owner** (`confirmStaffReturn` via `StaffCustodyService`):
+   - Sets `staffReturnedAt` + `staffReturnedBy` (the staff member)
+   - Precondition: `staffReceivedAt` must be set (deck must have been received first), `staffReturnedAt` must be null
+   - **Guard:** cannot return while a borrow is in `lent` or `overdue` status — staff must collect the deck from the borrower first
+   - Auto-closes remaining active borrows: `returned` → `returned_to_owner`, `pending`/`approved` → `cancelled`
+   - Permission: only event organizer or staff can confirm
+
+3. **Owner reclaim** (`ownerReclaimDeck` via `StaffCustodyService`):
+   - Sets `staffReturnedAt` + `staffReturnedBy` (the owner)
+   - Precondition: `staffReceivedAt` must be set, `staffReturnedAt` must be null
+   - Closes **all** active borrows: `lent`/`overdue` → `returned` → `returned_to_owner`, `returned` → `returned_to_owner`, `pending`/`approved` → `cancelled`
+   - Sets deck status to `Available`
+   - Notifies borrowers with lent/overdue borrows
+   - Permission: only the deck owner
+
+These transitions enforce downstream guards on `BorrowService`:
+- **Hand-off guard:** staff cannot hand off a delegated deck to a borrower (`handOff()`) unless `staffReceivedAt` is set. The owner is always allowed (they have the deck in hand).
+- **Walk-up lend guard:** staff cannot initiate a walk-up lend (`createWalkUpBorrow()`) for a delegated deck they haven't physically received.
 
 ### Relations
 
-| Relation    | Type      | Target  | Description |
-|-------------|-----------|---------|-------------|
-| `event`     | ManyToOne | `Event` | The event |
-| `deck`      | ManyToOne | `Deck`  | The deck |
+| Relation         | Type      | Target  | Description |
+|------------------|-----------|---------|-------------|
+| `event`          | ManyToOne | `Event` | The event |
+| `deck`           | ManyToOne | `Deck`  | The deck |
+| `staffReceivedBy`| ManyToOne | `User`  | The owner who confirmed the handover |
+| `staffReturnedBy`| ManyToOne | `User`  | The staff member who confirmed the return |
 
 ---
 
