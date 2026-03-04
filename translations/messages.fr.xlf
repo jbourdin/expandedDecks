@@ -1397,20 +1397,15 @@
                 <target>Votre sélection de deck a été effacée.</target>
                 <note>Info flash when deck selection is auto-cleared (mode switch or withdrawal)</note>
             </trans-unit>
-            <trans-unit id="app.flash.event.registered_as">
-                <source>app.flash.event.registered_as</source>
-                <target>Vous êtes maintenant inscrit en tant que %role%.</target>
-                <note>Success flash after registering. %role% = translated role name</note>
+            <trans-unit id="app.flash.event.registered_as_player">
+                <source>app.flash.event.registered_as_player</source>
+                <target>Vous êtes maintenant inscrit en tant que joueur.</target>
+                <note>Success flash after registering as player</note>
             </trans-unit>
-            <trans-unit id="app.flash.event.role_player">
-                <source>app.flash.event.role_player</source>
-                <target>joueur</target>
-                <note>Participation role label for player</note>
-            </trans-unit>
-            <trans-unit id="app.flash.event.role_spectator">
-                <source>app.flash.event.role_spectator</source>
-                <target>spectateur</target>
-                <note>Participation role label for spectator</note>
+            <trans-unit id="app.flash.event.registered_as_spectator">
+                <source>app.flash.event.registered_as_spectator</source>
+                <target>Vous êtes maintenant inscrit en tant que spectateur.</target>
+                <note>Success flash after registering as spectator</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_withdraw_cancelled">
                 <source>app.flash.event.cannot_withdraw_cancelled</source>
@@ -1497,20 +1492,15 @@
                 <target>« %name% » doit être inscrit avant d&apos;activer la délégation.</target>
                 <note>Warning when deck is not registered. %name% = deck name</note>
             </trans-unit>
-            <trans-unit id="app.flash.event.delegation_changed">
-                <source>app.flash.event.delegation_changed</source>
-                <target>Délégation au staff %status% pour « %name% ».</target>
-                <note>Success flash after toggling delegation. %status% = enabled/disabled, %name% = deck name</note>
-            </trans-unit>
             <trans-unit id="app.flash.event.delegation_enabled">
                 <source>app.flash.event.delegation_enabled</source>
-                <target>activée</target>
-                <note>Delegation status label when enabled</note>
+                <target>Délégation au staff activée pour « %name% ».</target>
+                <note>Success flash after enabling staff delegation. %name% = deck name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.delegation_disabled">
                 <source>app.flash.event.delegation_disabled</source>
-                <target>désactivée</target>
-                <note>Delegation status label when disabled</note>
+                <target>Délégation au staff désactivée pour « %name% ».</target>
+                <note>Success flash after disabling staff delegation. %name% = deck name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.walkup_not_available">
                 <source>app.flash.event.walkup_not_available</source>
