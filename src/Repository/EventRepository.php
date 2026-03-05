@@ -16,6 +16,7 @@ namespace App\Repository;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
+use App\Enum\EventVisibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -62,6 +63,71 @@ class EventRepository extends ServiceEntityRepository
             ->andWhere('e.cancelledAt IS NULL')
             ->andWhere('e.finishedAt IS NULL')
             ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Upcoming events visible to the given user (public + their own engagements/organized).
+     * For anonymous users, pass null to get public events only.
+     *
+     * @see docs/features.md F3.11 — Event visibility
+     *
+     * @return list<Event>
+     */
+    public function findVisibleUpcoming(?User $user, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->setMaxResults($limit);
+
+        if (null !== $user) {
+            $qb->leftJoin('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+                ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+                ->andWhere('e.visibility = :public OR e.organizer = :user OR eg.id IS NOT NULL OR s.id IS NOT NULL')
+                ->setParameter('user', $user)
+                ->setParameter('public', EventVisibility::Public);
+        } else {
+            $qb->andWhere('e.visibility = :public')
+                ->setParameter('public', EventVisibility::Public);
+        }
+
+        /** @var list<Event> $events */
+        $events = $qb->getQuery()->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Public upcoming events for the discovery page.
+     *
+     * @see docs/features.md F3.11 — Event visibility
+     * @see docs/features.md F3.15 — Event discovery
+     *
+     * @return list<Event>
+     */
+    public function findPublicUpcoming(int $limit = 50): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('e.visibility = :visibility')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->setParameter('visibility', EventVisibility::Public)
             ->orderBy('e.date', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Event;
+use App\Enum\EventVisibility;
 use App\Enum\TournamentStructure;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -127,6 +128,15 @@ class EventFormType extends AbstractType
                 'label' => 'app.form.label.currency',
                 'required' => false,
                 'placeholder' => 'app.form.placeholder.select',
+            ])
+            ->add('visibility', EnumType::class, [
+                'class' => EventVisibility::class,
+                'label' => 'app.form.label.visibility',
+                'choice_label' => static fn (EventVisibility $v): string => match ($v) {
+                    EventVisibility::Public => 'app.event.visibility.public',
+                    EventVisibility::Draft => 'app.event.visibility.draft',
+                    EventVisibility::Private => 'app.event.visibility.private',
+                },
             ])
             ->add('isDecklistMandatory', CheckboxType::class, [
                 'label' => 'app.form.label.decklist_mandatory',

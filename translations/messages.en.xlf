@@ -18,6 +18,11 @@
                 <target>Events</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.discover">
+                <source>app.nav.discover</source>
+                <target>Discover</target>
+                <note>Main navigation bar link for event discovery</note>
+            </trans-unit>
             <trans-unit id="app.nav.login">
                 <source>app.nav.login</source>
                 <target>Login</target>
@@ -488,6 +493,16 @@
                 <target>Upcoming Events</target>
                 <note>Page heading for event list</note>
             </trans-unit>
+            <trans-unit id="app.event.discover_title">
+                <source>app.event.discover_title</source>
+                <target>Discover Events</target>
+                <note>Page heading for event discovery</note>
+            </trans-unit>
+            <trans-unit id="app.event.discover_no_events">
+                <source>app.event.discover_no_events</source>
+                <target>No public events to discover right now.</target>
+                <note>Empty state on discovery page</note>
+            </trans-unit>
             <trans-unit id="app.event.new_title">
                 <source>app.event.new_title</source>
                 <target>New Event</target>
@@ -642,6 +657,21 @@
                 <source>app.event.no_events</source>
                 <target>No upcoming events.</target>
                 <note>Empty state when no upcoming events</note>
+            </trans-unit>
+            <trans-unit id="app.event.visibility.public">
+                <source>app.event.visibility.public</source>
+                <target>Public</target>
+                <note>Visibility option: event visible to everyone</note>
+            </trans-unit>
+            <trans-unit id="app.event.visibility.draft">
+                <source>app.event.visibility.draft</source>
+                <target>Draft</target>
+                <note>Visibility option: event not yet ready, only visible to staff and invited users</note>
+            </trans-unit>
+            <trans-unit id="app.event.visibility.private">
+                <source>app.event.visibility.private</source>
+                <target>Private</target>
+                <note>Visibility option: event only visible to staff and invited users</note>
             </trans-unit>
             <trans-unit id="app.event.organized_by">
                 <source>app.event.organized_by</source>
@@ -1845,6 +1875,11 @@
                 <source>app.form.label.invitation_only</source>
                 <target>Invitation only</target>
                 <note>Form label for invitation-only checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.visibility">
+                <source>app.form.label.visibility</source>
+                <target>Visibility</target>
+                <note>Form label for event visibility selector</note>
             </trans-unit>
             <trans-unit id="app.form.label.email">
                 <source>app.form.label.email</source>

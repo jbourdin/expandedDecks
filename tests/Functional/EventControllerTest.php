@@ -2233,6 +2233,86 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-success', 'registered as a player');
     }
 
+    // ---------------------------------------------------------------
+    // F3.15 — Event discovery
+    // ---------------------------------------------------------------
+
+    public function testDiscoverPageShowsPublicEvents(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/events/discover');
+        self::assertResponseIsSuccessful();
+
+        // The main fixture event is public — it should appear
+        self::assertSelectorExists('.card-title');
+    }
+
+    public function testDiscoverPageExcludesDraftEvents(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/events/discover');
+        self::assertResponseIsSuccessful();
+
+        // Draft events should NOT appear in discovery
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Draft Event', $html);
+    }
+
+    public function testDiscoverPageAccessibleAnonymously(): void
+    {
+        $this->client->request('GET', '/events/discover');
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testEventListHidesDraftEventsFromNonEngagedUser(): void
+    {
+        // Lender has no engagement on draft event
+        $this->loginAs('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/event');
+        self::assertResponseIsSuccessful();
+
+        // Draft event should NOT appear in the list
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Draft Event', $html);
+    }
+
+    public function testEventListShowsDraftEventForInvitedUser(): void
+    {
+        // Admin is invited to the draft event
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/event');
+        self::assertResponseIsSuccessful();
+
+        // Should see the draft event because they have an engagement
+        $html = $crawler->html();
+        self::assertStringContainsString('Draft Event', $html);
+    }
+
+    public function testDraftEventAccessDeniedForNonEngagedUser(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getDraftEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testDraftEventAccessibleForInvitedUser(): void
+    {
+        // Admin is invited to the draft event
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getDraftEvent();
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+    }
+
     /**
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
@@ -2297,6 +2377,16 @@ class EventControllerTest extends AbstractFunctionalTest
         /** @var EventRepository $repo */
         $repo = static::getContainer()->get(EventRepository::class);
         $event = $repo->findOneBy(['name' => 'Invitation-Only Expanded Meetup']);
+        self::assertNotNull($event);
+
+        return $event;
+    }
+
+    private function getDraftEvent(): Event
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy(['name' => 'Draft Event — Not Yet Published']);
         self::assertNotNull($event);
 
         return $event;

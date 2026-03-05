@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\EngagementState;
+use App\Enum\EventVisibility;
 use App\Enum\TournamentStructure;
 use App\Repository\EventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @see docs/features.md F3.1 — Create a new event
  * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F3.11 — Event visibility
  * @see docs/features.md F3.20 — Mark event as finished
  */
 #[ORM\Entity(repositoryClass: EventRepository::class)]
@@ -106,6 +108,9 @@ class Event
     #[ORM\Column(length: 3, nullable: true)]
     #[Assert\Length(exactly: 3)]
     private ?string $entryFeeCurrency = null;
+
+    #[ORM\Column(length: 20, enumType: EventVisibility::class)]
+    private EventVisibility $visibility = EventVisibility::Public;
 
     #[ORM\Column]
     private bool $isDecklistMandatory = false;
@@ -358,6 +363,21 @@ class Event
     public function setEntryFeeCurrency(?string $entryFeeCurrency): static
     {
         $this->entryFeeCurrency = $entryFeeCurrency;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F3.11 — Event visibility
+     */
+    public function getVisibility(): EventVisibility
+    {
+        return $this->visibility;
+    }
+
+    public function setVisibility(EventVisibility $visibility): static
+    {
+        $this->visibility = $visibility;
 
         return $this;
     }
