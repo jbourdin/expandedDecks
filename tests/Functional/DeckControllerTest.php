@@ -23,6 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * @see docs/features.md F2.3 — Detail view
  * @see docs/features.md F2.6 — Archetype management
+ * @see docs/features.md F2.14 — Deck event status overview
  * @see docs/features.md F4.5 — Borrow history
  */
 class DeckControllerTest extends AbstractFunctionalTest
@@ -193,6 +194,53 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertSelectorNotExists('#borrow_event');
         $loginLink = $crawler->filter('a[href^="/login"]');
         self::assertGreaterThan(0, $loginLink->count(), 'Login CTA should be present for anonymous users.');
+    }
+
+    // ---------------------------------------------------------------
+    // Deck event status overview (F2.14)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F2.14 — Deck event status overview
+     */
+    public function testOwnerSeesEventStatusOverview(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $shortTag = $this->getDeckShortTag('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$shortTag);
+
+        self::assertResponseIsSuccessful();
+        $overviewHeaders = $crawler->filter('.card-header:contains("Event Status Overview")');
+        self::assertGreaterThan(0, $overviewHeaders->count(), 'Event status overview card should be present for owner.');
+    }
+
+    /**
+     * @see docs/features.md F2.14 — Deck event status overview
+     */
+    public function testNonOwnerDoesNotSeeEventStatusOverview(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $shortTag = $this->getDeckShortTag('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$shortTag);
+
+        self::assertResponseIsSuccessful();
+        $overviewHeaders = $crawler->filter('.card-header:contains("Event Status Overview")');
+        self::assertSame(0, $overviewHeaders->count(), 'Event status overview card should not be present for non-owner.');
+    }
+
+    /**
+     * @see docs/features.md F2.14 — Deck event status overview
+     */
+    public function testAnonymousDoesNotSeeEventStatusOverview(): void
+    {
+        $shortTag = $this->getDeckShortTag('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$shortTag);
+
+        self::assertResponseIsSuccessful();
+        $overviewHeaders = $crawler->filter('.card-header:contains("Event Status Overview")');
+        self::assertSame(0, $overviewHeaders->count(), 'Event status overview card should not be present for anonymous user.');
     }
 
     // ---------------------------------------------------------------
