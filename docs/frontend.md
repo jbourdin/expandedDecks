@@ -4,6 +4,12 @@
 
 ← Back to [Main Documentation](docs.md) | [Features](features.md)
 
+> **Note:** The AppShell, homepage dashboard, and navbar described below are the
+> **planned** Mantine-based frontend. The current implementation uses **Twig +
+> Bootstrap 5** for layout and navigation, with Mantine used only for React
+> island components (autocompletes, selects). This document serves as the target
+> architecture for the frontend migration.
+
 ---
 
 ## UI Library — Mantine 7
