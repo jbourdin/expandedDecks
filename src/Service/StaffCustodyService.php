@@ -216,6 +216,10 @@ class StaffCustodyService
 
     private function createNotification(User $recipient, NotificationType $type, string $title, string $message, Borrow $borrow): void
     {
+        if (!$recipient->isNotificationEnabled($type, 'inApp')) {
+            return;
+        }
+
         $notification = new Notification();
         $notification->setRecipient($recipient);
         $notification->setType($type);

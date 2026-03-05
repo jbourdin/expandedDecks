@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\NotificationType;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -108,6 +109,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private bool $isAnonymized = false;
+
+    /** @var array<string, array<string, bool>>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $notificationPreferences = null;
 
     /** @var Collection<int, Deck> */
     #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'owner')]
@@ -432,6 +437,65 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getNotifications(): Collection
     {
         return $this->notifications;
+    }
+
+    /**
+     * Returns whether a notification channel is enabled for the given type.
+     * When no preferences are stored (null), all channels default to enabled.
+     *
+     * @see docs/features.md F8.3 — Notification preferences
+     */
+    public function isNotificationEnabled(NotificationType $type, string $channel): bool
+    {
+        if (null === $this->notificationPreferences) {
+            return true;
+        }
+
+        return $this->notificationPreferences[$type->value][$channel] ?? true;
+    }
+
+    /**
+     * @see docs/features.md F8.3 — Notification preferences
+     */
+    public function setNotificationPreference(NotificationType $type, string $channel, bool $enabled): void
+    {
+        if (null === $this->notificationPreferences) {
+            $this->notificationPreferences = [];
+        }
+
+        $this->notificationPreferences[$type->value][$channel] = $enabled;
+    }
+
+    /**
+     * Returns the full notification preferences map with defaults filled in.
+     *
+     * @see docs/features.md F8.3 — Notification preferences
+     *
+     * @return array<string, array{email: bool, inApp: bool}>
+     */
+    public function getNotificationPreferences(): array
+    {
+        $defaults = [];
+        foreach (NotificationType::cases() as $type) {
+            $defaults[$type->value] = [
+                'email' => $this->notificationPreferences[$type->value]['email'] ?? true,
+                'inApp' => $this->notificationPreferences[$type->value]['inApp'] ?? true,
+            ];
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * @param array<string, array<string, bool>>|null $notificationPreferences
+     *
+     * @see docs/features.md F8.3 — Notification preferences
+     */
+    public function setNotificationPreferences(?array $notificationPreferences): static
+    {
+        $this->notificationPreferences = $notificationPreferences;
+
+        return $this;
     }
 
     #[ORM\PrePersist]

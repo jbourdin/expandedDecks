@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\NotificationType;
 use App\Form\ProfileFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,6 +57,60 @@ class ProfileController extends AbstractAppController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F8.3 — Notification preferences
+     */
+    #[Route('/notifications', name: 'app_profile_notifications', methods: ['GET', 'POST'])]
+    public function notifications(Request $request, EntityManagerInterface $em): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($request->isMethod('POST')) {
+            $token = $request->request->getString('_token');
+            if (!$this->isCsrfTokenValid('notification_preferences', $token)) {
+                $this->addFlash('danger', 'app.flash.invalid_csrf');
+
+                return $this->redirectToRoute('app_profile_notifications');
+            }
+
+            /** @var array<string, array<string, string>> $submitted */
+            $submitted = $request->request->all('preferences');
+
+            foreach (NotificationType::cases() as $type) {
+                $typePrefs = $submitted[$type->value] ?? [];
+                $user->setNotificationPreference($type, 'email', isset($typePrefs['email']));
+                $user->setNotificationPreference($type, 'inApp', isset($typePrefs['inApp']));
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'app.flash.notification_preferences.saved');
+
+            return $this->redirectToRoute('app_profile_notifications');
+        }
+
+        return $this->render('profile/notifications.html.twig', [
+            'preferences' => $user->getNotificationPreferences(),
+            'borrowTypes' => [
+                NotificationType::BorrowRequested,
+                NotificationType::BorrowApproved,
+                NotificationType::BorrowDenied,
+                NotificationType::BorrowHandedOff,
+                NotificationType::BorrowReturned,
+                NotificationType::BorrowOverdue,
+                NotificationType::BorrowCancelled,
+            ],
+            'eventTypes' => [
+                NotificationType::StaffAssigned,
+                NotificationType::EventUpdated,
+                NotificationType::EventCancelled,
+                NotificationType::EventInvited,
+                NotificationType::EventReminder,
+            ],
         ]);
     }
 }

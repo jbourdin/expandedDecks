@@ -2181,6 +2181,232 @@
                 <target>L'emprunt du deck « %deck% » pour l'événement %event% a été annulé par %actor%.</target>
                 <note>Borrow cancellation email body</note>
             </trans-unit>
+            <trans-unit id="app.email.event.view_event">
+                <source>app.email.event.view_event</source>
+                <target>Voir l'événement</target>
+                <note>CTA button text in event notification emails</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.staff_assigned_subject">
+                <source>app.email.event.staff_assigned_subject</source>
+                <target>Vous avez été assigné comme staff pour « %event% »</target>
+                <note>Email subject when assigned as event staff</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.staff_assigned_heading">
+                <source>app.email.event.staff_assigned_heading</source>
+                <target>Assignation au staff</target>
+                <note>Email heading for staff assignment</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.staff_assigned_body">
+                <source>app.email.event.staff_assigned_body</source>
+                <target>Vous avez été assigné comme membre du staff pour l'événement « %event% ».</target>
+                <note>Email body for staff assignment</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.updated_subject">
+                <source>app.email.event.updated_subject</source>
+                <target>L'événement « %event% » a été mis à jour</target>
+                <note>Email subject when event details changed</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.updated_heading">
+                <source>app.email.event.updated_heading</source>
+                <target>Événement mis à jour</target>
+                <note>Email heading for event update</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.updated_body">
+                <source>app.email.event.updated_body</source>
+                <target>L'événement « %event% » a été mis à jour. Consultez la page de l'événement pour les derniers détails.</target>
+                <note>Email body for event update</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.cancelled_subject">
+                <source>app.email.event.cancelled_subject</source>
+                <target>L'événement « %event% » a été annulé</target>
+                <note>Email subject when event is cancelled</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.cancelled_heading">
+                <source>app.email.event.cancelled_heading</source>
+                <target>Événement annulé</target>
+                <note>Email heading for event cancellation</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.cancelled_body">
+                <source>app.email.event.cancelled_body</source>
+                <target>L'événement « %event% » a été annulé. Les emprunts en attente liés à cet événement seront automatiquement annulés.</target>
+                <note>Email body for event cancellation</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.invitation_subject">
+                <source>app.email.event.invitation_subject</source>
+                <target>Vous avez été invité à « %event% »</target>
+                <note>Email subject for event invitation</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.invitation_heading">
+                <source>app.email.event.invitation_heading</source>
+                <target>Invitation à un événement</target>
+                <note>Email heading for event invitation</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.invitation_body">
+                <source>app.email.event.invitation_body</source>
+                <target>%organizer% vous a invité à l'événement « %event% ».</target>
+                <note>Email body for event invitation</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.staff_assigned_title">
+                <source>app.notification.event.staff_assigned_title</source>
+                <target>Assignation au staff</target>
+                <note>In-app notification title for staff assignment</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.staff_assigned_message">
+                <source>app.notification.event.staff_assigned_message</source>
+                <target>Vous avez été assigné comme staff pour « %event% ».</target>
+                <note>In-app notification message for staff assignment</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.updated_title">
+                <source>app.notification.event.updated_title</source>
+                <target>Événement mis à jour</target>
+                <note>In-app notification title for event update</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.updated_message">
+                <source>app.notification.event.updated_message</source>
+                <target>L'événement « %event% » a été mis à jour.</target>
+                <note>In-app notification message for event update</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.cancelled_title">
+                <source>app.notification.event.cancelled_title</source>
+                <target>Événement annulé</target>
+                <note>In-app notification title for event cancellation</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.cancelled_message">
+                <source>app.notification.event.cancelled_message</source>
+                <target>L'événement « %event% » a été annulé.</target>
+                <note>In-app notification message for event cancellation</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.invited_title">
+                <source>app.notification.event.invited_title</source>
+                <target>Invitation à un événement</target>
+                <note>In-app notification title for event invitation</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.invited_message">
+                <source>app.notification.event.invited_message</source>
+                <target>Vous avez été invité à « %event% ».</target>
+                <note>In-app notification message for event invitation</note>
+            </trans-unit>
+
+            <!-- Navigation: Notifications -->
+            <trans-unit id="app.nav.notifications">
+                <source>app.nav.notifications</source>
+                <target>Notifications</target>
+                <note>User dropdown menu link</note>
+            </trans-unit>
+
+            <!-- Notification Preferences page -->
+            <trans-unit id="app.notification_preferences.title">
+                <source>app.notification_preferences.title</source>
+                <target>Préférences de notification</target>
+                <note>Page title for notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.description">
+                <source>app.notification_preferences.description</source>
+                <target>Choisissez les notifications que vous souhaitez recevoir par e-mail et/ou dans l'application.</target>
+                <note>Description text on notification preferences page</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.borrow">
+                <source>app.notification_preferences.group.borrow</source>
+                <target>Notifications d'emprunt</target>
+                <note>Group heading for borrow notification types</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.event">
+                <source>app.notification_preferences.group.event</source>
+                <target>Notifications d'événement</target>
+                <note>Group heading for event notification types</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.type">
+                <source>app.notification_preferences.column.type</source>
+                <target>Type de notification</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.email">
+                <source>app.notification_preferences.column.email</source>
+                <target>E-mail</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.in_app">
+                <source>app.notification_preferences.column.in_app</source>
+                <target>In-App</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.save_button">
+                <source>app.notification_preferences.save_button</source>
+                <target>Enregistrer les préférences</target>
+                <note>Submit button on notification preferences form</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_requested">
+                <source>app.notification_preferences.type.borrow_requested</source>
+                <target>Emprunt demandé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_approved">
+                <source>app.notification_preferences.type.borrow_approved</source>
+                <target>Emprunt approuvé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_denied">
+                <source>app.notification_preferences.type.borrow_denied</source>
+                <target>Emprunt refusé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_handed_off">
+                <source>app.notification_preferences.type.borrow_handed_off</source>
+                <target>Deck remis</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_returned">
+                <source>app.notification_preferences.type.borrow_returned</source>
+                <target>Deck retourné</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_overdue">
+                <source>app.notification_preferences.type.borrow_overdue</source>
+                <target>Emprunt en retard</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_cancelled">
+                <source>app.notification_preferences.type.borrow_cancelled</source>
+                <target>Emprunt annulé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.staff_assigned">
+                <source>app.notification_preferences.type.staff_assigned</source>
+                <target>Staff assigné</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_updated">
+                <source>app.notification_preferences.type.event_updated</source>
+                <target>Événement mis à jour</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_cancelled">
+                <source>app.notification_preferences.type.event_cancelled</source>
+                <target>Événement annulé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_invited">
+                <source>app.notification_preferences.type.event_invited</source>
+                <target>Invitation à un événement</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_reminder">
+                <source>app.notification_preferences.type.event_reminder</source>
+                <target>Rappel d'événement</target>
+                <note>Notification type label</note>
+            </trans-unit>
+
+            <!-- Flash messages: Notification Preferences -->
+            <trans-unit id="app.flash.notification_preferences.saved">
+                <source>app.flash.notification_preferences.saved</source>
+                <target>Vos préférences de notification ont été enregistrées.</target>
+                <note>Flash message after saving notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.flash.invalid_csrf">
+                <source>app.flash.invalid_csrf</source>
+                <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
+                <note>Flash message for invalid CSRF token</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>
