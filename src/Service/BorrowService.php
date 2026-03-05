@@ -383,6 +383,43 @@ class BorrowService
     }
 
     /**
+     * Cancel all pending and approved borrows for a cancelled event.
+     * Lent/overdue borrows are kept active — the deck is physically out.
+     *
+     * @see docs/features.md F3.10 — Cancel an event
+     *
+     * @return int Number of borrows cancelled
+     */
+    public function cancelBorrowsForEvent(Event $event): int
+    {
+        $borrows = $this->borrowRepository->findCancellableBorrowsByEvent($event);
+        $count = 0;
+
+        foreach ($borrows as $borrow) {
+            $transitionName = BorrowStatus::Pending === $borrow->getStatus() ? 'cancel_pending' : 'cancel_approved';
+            $this->borrowStateMachine->apply($borrow, $transitionName);
+
+            $borrow->setCancelledAt(new \DateTimeImmutable());
+
+            $this->createNotification(
+                $borrow->getBorrower(),
+                NotificationType::BorrowCancelled,
+                'Borrow cancelled — event cancelled',
+                \sprintf('The borrow of "%s" was cancelled because the event "%s" was cancelled.', $borrow->getDeck()->getName(), $event->getName()),
+                $borrow,
+            );
+
+            ++$count;
+        }
+
+        if ($count > 0) {
+            $this->em->flush();
+        }
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F4.8 — Staff-delegated lending
      */
     private function assertOwnerOrDelegatedStaff(Borrow $borrow, User $actor): void

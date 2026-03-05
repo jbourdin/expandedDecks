@@ -458,6 +458,32 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find borrows that can be auto-cancelled when an event is cancelled.
+     * Only pending and approved borrows are cancellable; lent/overdue borrows
+     * remain active because the deck is physically with the borrower.
+     *
+     * @see docs/features.md F3.10 — Cancel an event
+     *
+     * @return list<Borrow>
+     */
+    public function findCancellableBorrowsByEvent(Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'u')
+            ->where('b.event = :event')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('event', $event)
+            ->setParameter('statuses', [BorrowStatus::Pending->value, BorrowStatus::Approved->value])
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * @see docs/features.md F4.5 — Borrow history
      */
     public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder
