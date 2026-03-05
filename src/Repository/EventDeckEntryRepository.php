@@ -70,4 +70,45 @@ class EventDeckEntryRepository extends ServiceEntityRepository
 
         return $entry;
     }
+
+    /**
+     * @see docs/features.md F3.17 — Tournament Results
+     *
+     * @return list<EventDeckEntry>
+     */
+    public function findByEventOrderedByPlacement(Event $event): array
+    {
+        /** @var list<EventDeckEntry> $entries */
+        $entries = $this->createQueryBuilder('e')
+            ->join('e.deckVersion', 'dv')
+            ->join('dv.deck', 'd')
+            ->leftJoin('d.archetype', 'a')
+            ->join('e.player', 'p')
+            ->addSelect('dv', 'd', 'a', 'p')
+            ->where('e.event = :event')
+            ->setParameter('event', $event)
+            ->orderBy('CASE WHEN e.finalPlacement IS NULL THEN 1 ELSE 0 END', 'ASC')
+            ->addOrderBy('e.finalPlacement', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $entries;
+    }
+
+    /**
+     * @see docs/features.md F3.17 — Tournament Results
+     */
+    public function hasResults(Event $event): bool
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.event = :event')
+            ->andWhere('e.finalPlacement IS NOT NULL')
+            ->setParameter('event', $event)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
 }

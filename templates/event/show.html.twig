@@ -304,7 +304,7 @@
                             {% set isDelegated = regInfo is not null and regInfo.delegated %}
                             {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
                             <tr>
-                                <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
+                                <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                 <td>
                                     {% if isPlayed %}
                                         <span class="badge bg-primary">{{ 'app.event.deck_status_played'|trans }}</span>
@@ -394,7 +394,7 @@
                                     <tr>
                                         <td>
                                             <a href="{{ path('app_deck_show', {short_tag: reg.deck.shortTag}) }}">
-                                                <span class="badge bg-dark me-1">{{ reg.deck.shortTag }}</span>{{ reg.deck.name }}
+                                                <span class="badge bg-dark badge-short-id me-1">{{ reg.deck.shortTag }}</span>{{ reg.deck.name }}
                                             </a>
                                         </td>
                                         <td>{{ reg.deck.owner.screenName }}</td>
@@ -451,7 +451,7 @@
                                     <tr>
                                         <td>
                                             <a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}">
-                                                <span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}
+                                                <span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}
                                             </a>
                                         </td>
                                         <td>{{ borrow.deck.owner.screenName }}</td>
@@ -550,7 +550,7 @@
                                                 {{ selectedDeckId == deck.id ? 'checked' }}
                                                 {{ (not canChangeDeck or isUnavailable) ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
                                         <td>
                                             {% if isWithStaff %}
                                                 <span class="badge bg-info">With staff</span>
@@ -575,7 +575,7 @@
                                                 {{ selectedDeckId == borrow.deck.id ? 'checked' }}
                                                 {{ (not canChangeDeck or not isBorrowPlayable) ? 'disabled' }}>
                                         </td>
-                                        <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
+                                        <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                         <td>{{ borrowBadge(borrow) }}</td>
                                         <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
                                     </tr>
@@ -628,7 +628,7 @@
                         <tbody>
                             {% for borrow in otherBorrows %}
                                 <tr>
-                                    <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
+                                    <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td>{{ borrow.borrower.screenName }}</td>
                                     <td>{{ borrowBadge(borrow) }}</td>
                                     <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
@@ -645,6 +645,20 @@
 
     <div class="d-flex gap-2">
         <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.back_to_events'|trans }}</a>
+        {% if event.finishedAt and not event.cancelledAt %}
+            {% if hasResults %}
+                <a href="{{ path('app_event_results', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.event.results.view_results'|trans }}</a>
+            {% endif %}
+            {% if isOrganizer or isStaff %}
+                <a href="{{ path('app_event_results_edit', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">
+                    {% if hasResults %}
+                        {{ 'app.event.results.edit_results'|trans }}
+                    {% else %}
+                        {{ 'app.event.results.enter_results'|trans }}
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endif %}
         {% if isOrganizer and not event.cancelledAt %}
             {% if not event.finishedAt %}
                 <form method="post" action="{{ path('app_event_finish', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.finish_confirm'|trans }}')">

@@ -2452,6 +2452,85 @@
                 <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
                 <note>Flash message for invalid CSRF token</note>
             </trans-unit>
+
+            <!-- Tournament Results (F3.17) -->
+            <trans-unit id="app.event.results.title">
+                <source>app.event.results.title</source>
+                <target>Résultats du tournoi</target>
+                <note>Results page title</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.placement">
+                <source>app.event.results.placement</source>
+                <target>#</target>
+                <note>Results table header: placement</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.player">
+                <source>app.event.results.player</source>
+                <target>Joueur</target>
+                <note>Results table header: player</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.match_record">
+                <source>app.event.results.match_record</source>
+                <target>Bilan</target>
+                <note>Results table header: match record</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.archetype">
+                <source>app.event.results.archetype</source>
+                <target>Archétype</target>
+                <note>Results table header: archetype</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.deck">
+                <source>app.event.results.deck</source>
+                <target>Deck</target>
+                <note>Results table header: deck</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.no_results">
+                <source>app.event.results.no_results</source>
+                <target>Aucun résultat n'a encore été saisi.</target>
+                <note>Results page: no results message</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.edit_title">
+                <source>app.event.results.edit_title</source>
+                <target>Modifier les résultats</target>
+                <note>Edit results page title</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.save_button">
+                <source>app.event.results.save_button</source>
+                <target>Enregistrer les résultats</target>
+                <note>Edit results: save button</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.view_results">
+                <source>app.event.results.view_results</source>
+                <target>Voir les résultats</target>
+                <note>Button: view tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.edit_results">
+                <source>app.event.results.edit_results</source>
+                <target>Modifier les résultats</target>
+                <note>Button: edit tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.enter_results">
+                <source>app.event.results.enter_results</source>
+                <target>Saisir les résultats</target>
+                <note>Button: enter tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.match_record_placeholder">
+                <source>app.event.results.match_record_placeholder</source>
+                <target>3-1-0</target>
+                <note>Edit results: match record placeholder</note>
+            </trans-unit>
+
+            <!-- Flash messages: Tournament Results -->
+            <trans-unit id="app.flash.results.saved">
+                <source>app.flash.results.saved</source>
+                <target>Résultats du tournoi enregistrés.</target>
+                <note>Flash message after saving results</note>
+            </trans-unit>
+            <trans-unit id="app.flash.results.not_finished">
+                <source>app.flash.results.not_finished</source>
+                <target>Les résultats ne sont disponibles que pour les événements terminés.</target>
+                <note>Flash message when event is not finished</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

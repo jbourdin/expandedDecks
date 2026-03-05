@@ -1,0 +1,63 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.event.results.edit_title'|trans }} — {{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.event.results.edit_title'|trans }} — {{ event.name }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{{ path('app_event_results_edit', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('results-edit-' ~ event.id) }}">
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-themed mb-3">
+                        <thead>
+                            <tr>
+                                <th>{{ 'app.event.results.player'|trans }}</th>
+                                <th style="width: 120px;">{{ 'app.event.results.placement'|trans }}</th>
+                                <th style="width: 150px;">{{ 'app.event.results.match_record'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in entries %}
+                                <tr>
+                                    <td>{{ entry.player.screenName }}</td>
+                                    <td>
+                                        <input type="number"
+                                               name="results[{{ entry.id }}][placement]"
+                                               value="{{ entry.finalPlacement }}"
+                                               min="1"
+                                               class="form-control form-control-sm {% if errors[entry.id ~ ''] is defined %}is-invalid{% endif %}">
+                                        {% if errors[entry.id ~ ''] is defined %}
+                                            <div class="invalid-feedback">{{ errors[entry.id ~ ''] }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                               name="results[{{ entry.id }}][match_record]"
+                                               value="{{ entry.matchRecord }}"
+                                               placeholder="{{ 'app.event.results.match_record_placeholder'|trans }}"
+                                               class="form-control form-control-sm {% if errors[entry.id ~ ''] is defined %}is-invalid{% endif %}">
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ 'app.event.results.save_button'|trans }}</button>
+                <a href="{{ path('app_event_results', {id: event.id}) }}" class="btn btn-outline-secondary ms-2">{{ 'app.common.cancel'|trans }}</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
