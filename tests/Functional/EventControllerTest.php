@@ -2132,6 +2132,77 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
     }
 
+    // ---------------------------------------------------------------
+    // Invitation-only events
+    // ---------------------------------------------------------------
+
+    public function testInvitationOnlyBlocksNonInvitedPlayer(): void
+    {
+        // Lender is not engaged in the invitational event
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        // Load the page to init session, then POST participate as player
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Player" button should NOT be visible
+        self::assertSelectorNotExists('button:contains("Register as Player")');
+
+        // Direct POST should be blocked by the guard — extract CSRF from spectator form
+        $spectatorForm = $crawler->selectButton('Register as Spectator')->form();
+        $token = $spectatorForm->get('_token')->getValue();
+        $this->client->request('POST', \sprintf('/event/%d/participate', $event->getId()), [
+            '_token' => $token,
+            'mode' => 'playing',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-warning', 'invitation only');
+    }
+
+    public function testInvitationOnlyAllowsInvitedPlayer(): void
+    {
+        // Admin is invited in the fixture
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Player" button should be visible for invited users
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a player');
+    }
+
+    public function testInvitationOnlyAllowsSpectator(): void
+    {
+        // Lender is not invited but should be able to spectate
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Spectator" should be visible
+        $form = $crawler->selectButton('Register as Spectator')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a spectator');
+    }
+
     /**
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
@@ -2186,6 +2257,16 @@ class EventControllerTest extends AbstractFunctionalTest
         /** @var EventRepository $repo */
         $repo = static::getContainer()->get(EventRepository::class);
         $event = $repo->findOneBy(['name' => 'Lyon Expanded Cup 2026']);
+        self::assertNotNull($event);
+
+        return $event;
+    }
+
+    private function getInvitationalEvent(): Event
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy(['name' => 'Invitation-Only Expanded Meetup']);
         self::assertNotNull($event);
 
         return $event;

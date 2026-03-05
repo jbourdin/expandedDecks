@@ -431,6 +431,16 @@ class EventController extends AbstractAppController
 
         $engagement = $event->getEngagementFor($user);
 
+        // Invitation-only guard: only invited users (or organizer/staff) can register as player
+        if ($event->isInvitationOnly()
+            && ParticipationMode::Playing === $mode
+            && !$event->isOrganizerOrStaff($user)
+            && (null === $engagement || EngagementState::Invited !== $engagement->getState())) {
+            $this->addFlash('warning', 'app.flash.event.invitation_only_player');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
         // Clear deck entry when switching from Playing to Spectating
         if (null !== $engagement
             && ParticipationMode::Spectating === $mode

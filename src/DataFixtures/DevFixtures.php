@@ -324,6 +324,7 @@ class DevFixtures extends Fixture
         $event->setRegistrationLink('https://pokemon-paris.example.com/meetup');
         $event->setTournamentStructure(TournamentStructure::Swiss);
         $event->setFormat('Expanded');
+        $event->setIsInvitationOnly(true);
 
         $manager->persist($event);
 

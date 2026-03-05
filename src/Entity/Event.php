@@ -111,6 +111,9 @@ class Event
     private bool $isDecklistMandatory = false;
 
     #[ORM\Column]
+    private bool $isInvitationOnly = false;
+
+    #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
@@ -367,6 +370,18 @@ class Event
     public function setIsDecklistMandatory(bool $isDecklistMandatory): static
     {
         $this->isDecklistMandatory = $isDecklistMandatory;
+
+        return $this;
+    }
+
+    public function isInvitationOnly(): bool
+    {
+        return $this->isInvitationOnly;
+    }
+
+    public function setIsInvitationOnly(bool $isInvitationOnly): static
+    {
+        $this->isInvitationOnly = $isInvitationOnly;
 
         return $this;
     }

@@ -131,6 +131,10 @@ class EventFormType extends AbstractType
             ->add('isDecklistMandatory', CheckboxType::class, [
                 'label' => 'app.form.label.decklist_mandatory',
                 'required' => false,
+            ])
+            ->add('isInvitationOnly', CheckboxType::class, [
+                'label' => 'app.form.label.invitation_only',
+                'required' => false,
             ]);
     }
 

@@ -543,6 +543,11 @@
                 <target>Finished</target>
                 <note>Status badge shown when event is finished</note>
             </trans-unit>
+            <trans-unit id="app.event.badge_invitation_only">
+                <source>app.event.badge_invitation_only</source>
+                <target>Invitation Only</target>
+                <note>Badge shown when event is invitation-only</note>
+            </trans-unit>
             <trans-unit id="app.event.finish_event">
                 <source>app.event.finish_event</source>
                 <target>Mark as Finished</target>
@@ -1522,6 +1527,11 @@
                 <target>Cannot invite participants to a cancelled or finished event.</target>
                 <note>Warning flash when trying to invite to ended event</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.invitation_only_player">
+                <source>app.flash.event.invitation_only_player</source>
+                <target>This event is invitation only. Only invited trainers can register as players.</target>
+                <note>Warning flash when non-invited user tries to register as player on invitation-only event</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.cannot_assign_staff_cancelled">
                 <source>app.flash.event.cannot_assign_staff_cancelled</source>
                 <target>Cannot assign staff to a cancelled event.</target>
@@ -1830,6 +1840,11 @@
                 <source>app.form.label.decklist_mandatory</source>
                 <target>Decklist mandatory</target>
                 <note>Form label for decklist mandatory checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.invitation_only">
+                <source>app.form.label.invitation_only</source>
+                <target>Invitation only</target>
+                <note>Form label for invitation-only checkbox</note>
             </trans-unit>
             <trans-unit id="app.form.label.email">
                 <source>app.form.label.email</source>
