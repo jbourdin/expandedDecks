@@ -42,7 +42,7 @@ class DevFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $admin = $this->createAdmin($manager);
-        $this->createOrganizer($manager);
+        $organizer = $this->createOrganizer($manager);
         $borrower = $this->createBorrower($manager);
         $staff1 = $this->createStaff1($manager);
         $staff2 = $this->createStaff2($manager);
@@ -50,6 +50,7 @@ class DevFixtures extends Fixture
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower, $staff1);
         $futureEvent = $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
+        $this->createInvitationalEvent($manager, $organizer, $admin, $staff2);
 
         // Create archetypes
         $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
@@ -305,6 +306,49 @@ class DevFixtures extends Fixture
         $staff2Assignment->setUser($staff2);
         $staff2Assignment->setAssignedBy($organizer);
         $manager->persist($staff2Assignment);
+
+        return $event;
+    }
+
+    /**
+     * @see docs/features.md F3.13 — Player engagement states
+     */
+    private function createInvitationalEvent(ObjectManager $manager, User $organizer, User $admin, User $staff2): Event
+    {
+        $event = new Event();
+        $event->setName('Invitation-Only Expanded Meetup');
+        $event->setDate(new \DateTimeImmutable('+3 weeks', new \DateTimeZone('Europe/Paris')));
+        $event->setTimezone('Europe/Paris');
+        $event->setLocation('Private Game Room, Paris');
+        $event->setOrganizer($organizer);
+        $event->setRegistrationLink('https://pokemon-paris.example.com/meetup');
+        $event->setTournamentStructure(TournamentStructure::Swiss);
+        $event->setFormat('Expanded');
+
+        $manager->persist($event);
+
+        // Organizer registers as player
+        $organizerEngagement = new EventEngagement();
+        $organizerEngagement->setEvent($event);
+        $organizerEngagement->setUser($organizer);
+        $organizerEngagement->setState(EngagementState::RegisteredPlaying);
+        $organizerEngagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($organizerEngagement);
+
+        // Admin is invited
+        $adminEngagement = new EventEngagement();
+        $adminEngagement->setEvent($event);
+        $adminEngagement->setUser($admin);
+        $adminEngagement->setState(EngagementState::Invited);
+        $adminEngagement->setInvitedBy($organizer);
+        $manager->persist($adminEngagement);
+
+        // Staff2 assigned as staff
+        $staffAssignment = new EventStaff();
+        $staffAssignment->setEvent($event);
+        $staffAssignment->setUser($staff2);
+        $staffAssignment->setAssignedBy($organizer);
+        $manager->persist($staffAssignment);
 
         return $event;
     }
