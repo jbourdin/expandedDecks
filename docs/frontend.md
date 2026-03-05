@@ -4,11 +4,11 @@
 
 ← Back to [Main Documentation](docs.md) | [Features](features.md)
 
-> **Note:** The AppShell, homepage dashboard, and navbar described below are the
-> **planned** Mantine-based frontend. The current implementation uses **Twig +
-> Bootstrap 5** for layout and navigation, with Mantine used only for React
-> island components (autocompletes, selects). This document serves as the target
-> architecture for the frontend migration.
+> **Note:** The AppShell, homepage dashboard, and navbar described below are
+> **aspirational designs**, not the current implementation. The app uses **Twig +
+> Bootstrap 5** for layout and navigation. Mantine is used only for React island
+> components where it adds value (autocompletes, selects). There is no plan for a
+> full frontend migration — Mantine is adopted incrementally, where relevant.
 
 ---
 
