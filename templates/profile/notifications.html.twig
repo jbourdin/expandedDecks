@@ -1,0 +1,103 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.notification_preferences.title'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">{{ 'app.notification_preferences.title'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">{{ 'app.notification_preferences.description'|trans }}</p>
+
+                    <form method="post" action="{{ path('app_profile_notifications') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('notification_preferences') }}">
+
+                        <h6 class="fw-bold mb-3">{{ 'app.notification_preferences.group.borrow'|trans }}</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>{{ 'app.notification_preferences.column.type'|trans }}</th>
+                                        <th class="text-center" style="width: 100px; cursor: pointer;" data-toggle-col="email">{{ 'app.notification_preferences.column.email'|trans }}</th>
+                                        <th class="text-center" style="width: 100px; cursor: pointer;" data-toggle-col="inApp">{{ 'app.notification_preferences.column.in_app'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for type in borrowTypes %}
+                                        <tr>
+                                            <td>{{ ('app.notification_preferences.type.' ~ type.value)|trans }}</td>
+                                            <td class="text-center">
+                                                <input type="checkbox" class="form-check-input" name="preferences[{{ type.value }}][email]" value="1"
+                                                    {{ preferences[type.value].email ? 'checked' : '' }}>
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="checkbox" class="form-check-input" name="preferences[{{ type.value }}][inApp]" value="1"
+                                                    {{ preferences[type.value].inApp ? 'checked' : '' }}>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h6 class="fw-bold mb-3">{{ 'app.notification_preferences.group.event'|trans }}</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>{{ 'app.notification_preferences.column.type'|trans }}</th>
+                                        <th class="text-center" style="width: 100px; cursor: pointer;" data-toggle-col="email">{{ 'app.notification_preferences.column.email'|trans }}</th>
+                                        <th class="text-center" style="width: 100px; cursor: pointer;" data-toggle-col="inApp">{{ 'app.notification_preferences.column.in_app'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for type in eventTypes %}
+                                        <tr>
+                                            <td>{{ ('app.notification_preferences.type.' ~ type.value)|trans }}</td>
+                                            <td class="text-center">
+                                                <input type="checkbox" class="form-check-input" name="preferences[{{ type.value }}][email]" value="1"
+                                                    {{ preferences[type.value].email ? 'checked' : '' }}>
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="checkbox" class="form-check-input" name="preferences[{{ type.value }}][inApp]" value="1"
+                                                    {{ preferences[type.value].inApp ? 'checked' : '' }}>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold w-100">{{ 'app.notification_preferences.save_button'|trans }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.querySelectorAll('th[data-toggle-col]').forEach(function (th) {
+            th.addEventListener('click', function () {
+                var channel = th.dataset.toggleCol;
+                var table = th.closest('table');
+                var boxes = table.querySelectorAll('input[name$="[' + channel + ']"]');
+                var allChecked = Array.prototype.every.call(boxes, function (cb) { return cb.checked; });
+                boxes.forEach(function (cb) { cb.checked = !allChecked; });
+            });
+        });
+    </script>
+{% endblock %}

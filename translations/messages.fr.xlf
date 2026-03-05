@@ -2286,6 +2286,127 @@
                 <target>Vous avez été invité à « %event% ».</target>
                 <note>In-app notification message for event invitation</note>
             </trans-unit>
+
+            <!-- Navigation: Notifications -->
+            <trans-unit id="app.nav.notifications">
+                <source>app.nav.notifications</source>
+                <target>Notifications</target>
+                <note>User dropdown menu link</note>
+            </trans-unit>
+
+            <!-- Notification Preferences page -->
+            <trans-unit id="app.notification_preferences.title">
+                <source>app.notification_preferences.title</source>
+                <target>Préférences de notification</target>
+                <note>Page title for notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.description">
+                <source>app.notification_preferences.description</source>
+                <target>Choisissez les notifications que vous souhaitez recevoir par e-mail et/ou dans l'application.</target>
+                <note>Description text on notification preferences page</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.borrow">
+                <source>app.notification_preferences.group.borrow</source>
+                <target>Notifications d'emprunt</target>
+                <note>Group heading for borrow notification types</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.event">
+                <source>app.notification_preferences.group.event</source>
+                <target>Notifications d'événement</target>
+                <note>Group heading for event notification types</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.type">
+                <source>app.notification_preferences.column.type</source>
+                <target>Type de notification</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.email">
+                <source>app.notification_preferences.column.email</source>
+                <target>E-mail</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.column.in_app">
+                <source>app.notification_preferences.column.in_app</source>
+                <target>In-App</target>
+                <note>Table column header</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.save_button">
+                <source>app.notification_preferences.save_button</source>
+                <target>Enregistrer les préférences</target>
+                <note>Submit button on notification preferences form</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_requested">
+                <source>app.notification_preferences.type.borrow_requested</source>
+                <target>Emprunt demandé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_approved">
+                <source>app.notification_preferences.type.borrow_approved</source>
+                <target>Emprunt approuvé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_denied">
+                <source>app.notification_preferences.type.borrow_denied</source>
+                <target>Emprunt refusé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_handed_off">
+                <source>app.notification_preferences.type.borrow_handed_off</source>
+                <target>Deck remis</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_returned">
+                <source>app.notification_preferences.type.borrow_returned</source>
+                <target>Deck retourné</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_overdue">
+                <source>app.notification_preferences.type.borrow_overdue</source>
+                <target>Emprunt en retard</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.borrow_cancelled">
+                <source>app.notification_preferences.type.borrow_cancelled</source>
+                <target>Emprunt annulé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.staff_assigned">
+                <source>app.notification_preferences.type.staff_assigned</source>
+                <target>Staff assigné</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_updated">
+                <source>app.notification_preferences.type.event_updated</source>
+                <target>Événement mis à jour</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_cancelled">
+                <source>app.notification_preferences.type.event_cancelled</source>
+                <target>Événement annulé</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_invited">
+                <source>app.notification_preferences.type.event_invited</source>
+                <target>Invitation à un événement</target>
+                <note>Notification type label</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.event_reminder">
+                <source>app.notification_preferences.type.event_reminder</source>
+                <target>Rappel d'événement</target>
+                <note>Notification type label</note>
+            </trans-unit>
+
+            <!-- Flash messages: Notification Preferences -->
+            <trans-unit id="app.flash.notification_preferences.saved">
+                <source>app.flash.notification_preferences.saved</source>
+                <target>Vos préférences de notification ont été enregistrées.</target>
+                <note>Flash message after saving notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.flash.invalid_csrf">
+                <source>app.flash.invalid_csrf</source>
+                <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
+                <note>Flash message for invalid CSRF token</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

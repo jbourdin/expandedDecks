@@ -38,12 +38,14 @@ class EventNotificationService
 
     public function notifyStaffAssigned(Event $event, User $staffUser): void
     {
-        $this->sendEmail(
-            $staffUser,
-            $this->trans('app.email.event.staff_assigned_subject', ['%event%' => $event->getName()], $staffUser),
-            'email/event/staff_assigned.html.twig',
-            $event,
-        );
+        if ($staffUser->isNotificationEnabled(NotificationType::StaffAssigned, 'email')) {
+            $this->sendEmail(
+                $staffUser,
+                $this->trans('app.email.event.staff_assigned_subject', ['%event%' => $event->getName()], $staffUser),
+                'email/event/staff_assigned.html.twig',
+                $event,
+            );
+        }
 
         $this->createNotification(
             $staffUser,
@@ -59,12 +61,14 @@ class EventNotificationService
         foreach ($event->getEngagements() as $engagement) {
             $user = $engagement->getUser();
 
-            $this->sendEmail(
-                $user,
-                $this->trans('app.email.event.updated_subject', ['%event%' => $event->getName()], $user),
-                'email/event/event_updated.html.twig',
-                $event,
-            );
+            if ($user->isNotificationEnabled(NotificationType::EventUpdated, 'email')) {
+                $this->sendEmail(
+                    $user,
+                    $this->trans('app.email.event.updated_subject', ['%event%' => $event->getName()], $user),
+                    'email/event/event_updated.html.twig',
+                    $event,
+                );
+            }
 
             $this->createNotification(
                 $user,
@@ -81,12 +85,14 @@ class EventNotificationService
         foreach ($event->getEngagements() as $engagement) {
             $user = $engagement->getUser();
 
-            $this->sendEmail(
-                $user,
-                $this->trans('app.email.event.cancelled_subject', ['%event%' => $event->getName()], $user),
-                'email/event/event_cancelled.html.twig',
-                $event,
-            );
+            if ($user->isNotificationEnabled(NotificationType::EventCancelled, 'email')) {
+                $this->sendEmail(
+                    $user,
+                    $this->trans('app.email.event.cancelled_subject', ['%event%' => $event->getName()], $user),
+                    'email/event/event_cancelled.html.twig',
+                    $event,
+                );
+            }
 
             $this->createNotification(
                 $user,
@@ -100,12 +106,14 @@ class EventNotificationService
 
     public function notifyUserInvited(Event $event, User $invitedUser): void
     {
-        $this->sendEmail(
-            $invitedUser,
-            $this->trans('app.email.event.invitation_subject', ['%event%' => $event->getName()], $invitedUser),
-            'email/event/invitation.html.twig',
-            $event,
-        );
+        if ($invitedUser->isNotificationEnabled(NotificationType::EventInvited, 'email')) {
+            $this->sendEmail(
+                $invitedUser,
+                $this->trans('app.email.event.invitation_subject', ['%event%' => $event->getName()], $invitedUser),
+                'email/event/invitation.html.twig',
+                $event,
+            );
+        }
 
         $this->createNotification(
             $invitedUser,
@@ -150,6 +158,10 @@ class EventNotificationService
 
     private function createNotification(User $recipient, NotificationType $type, string $title, string $message, Event $event): void
     {
+        if (!$recipient->isNotificationEnabled($type, 'inApp')) {
+            return;
+        }
+
         $notification = new Notification();
         $notification->setRecipient($recipient);
         $notification->setType($type);

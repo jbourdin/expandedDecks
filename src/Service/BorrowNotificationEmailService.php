@@ -15,6 +15,7 @@ namespace App\Service;
 
 use App\Entity\Borrow;
 use App\Entity\User;
+use App\Enum\NotificationType;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -35,6 +36,11 @@ class BorrowNotificationEmailService
     public function sendBorrowRequested(Borrow $borrow): void
     {
         $recipient = $borrow->getDeck()->getOwner();
+
+        if (!$recipient->isNotificationEnabled(NotificationType::BorrowRequested, 'email')) {
+            return;
+        }
+
         $deckName = $borrow->getDeck()->getName();
 
         $this->sendEmail(
@@ -48,6 +54,11 @@ class BorrowNotificationEmailService
     public function sendBorrowApproved(Borrow $borrow): void
     {
         $recipient = $borrow->getBorrower();
+
+        if (!$recipient->isNotificationEnabled(NotificationType::BorrowApproved, 'email')) {
+            return;
+        }
+
         $deckName = $borrow->getDeck()->getName();
 
         $this->sendEmail(
@@ -61,6 +72,11 @@ class BorrowNotificationEmailService
     public function sendBorrowDenied(Borrow $borrow): void
     {
         $recipient = $borrow->getBorrower();
+
+        if (!$recipient->isNotificationEnabled(NotificationType::BorrowDenied, 'email')) {
+            return;
+        }
+
         $deckName = $borrow->getDeck()->getName();
 
         $this->sendEmail(
@@ -77,20 +93,24 @@ class BorrowNotificationEmailService
 
         // Notify both owner and borrower
         $owner = $borrow->getDeck()->getOwner();
-        $this->sendEmail(
-            $owner,
-            $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $owner),
-            'email/borrow/overdue.html.twig',
-            $borrow,
-        );
+        if ($owner->isNotificationEnabled(NotificationType::BorrowOverdue, 'email')) {
+            $this->sendEmail(
+                $owner,
+                $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $owner),
+                'email/borrow/overdue.html.twig',
+                $borrow,
+            );
+        }
 
         $borrower = $borrow->getBorrower();
-        $this->sendEmail(
-            $borrower,
-            $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $borrower),
-            'email/borrow/overdue.html.twig',
-            $borrow,
-        );
+        if ($borrower->isNotificationEnabled(NotificationType::BorrowOverdue, 'email')) {
+            $this->sendEmail(
+                $borrower,
+                $this->trans('app.email.borrow.overdue_subject', ['%deck%' => $deckName], $borrower),
+                'email/borrow/overdue.html.twig',
+                $borrow,
+            );
+        }
     }
 
     public function sendBorrowCancelled(Borrow $borrow, User $actor): void
@@ -98,6 +118,10 @@ class BorrowNotificationEmailService
         $recipient = $actor->getId() === $borrow->getBorrower()->getId()
             ? $borrow->getDeck()->getOwner()
             : $borrow->getBorrower();
+
+        if (!$recipient->isNotificationEnabled(NotificationType::BorrowCancelled, 'email')) {
+            return;
+        }
 
         $deckName = $borrow->getDeck()->getName();
 
