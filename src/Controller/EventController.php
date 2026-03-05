@@ -51,6 +51,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F3.13 — Player engagement states
  * @see docs/features.md F4.8 — Staff-delegated lending
  * @see docs/features.md F3.21 — Clear deck selection on withdrawal
  * @see docs/features.md F4.9 — Staff deck custody tracking
@@ -454,6 +455,103 @@ class EventController extends AbstractAppController
 
         $flashKey = ParticipationMode::Playing === $mode ? 'app.flash.event.registered_as_player' : 'app.flash.event.registered_as_spectator';
         $this->addFlash('success', $flashKey);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.13 — Player engagement states
+     */
+    #[Route('/{id}/interested', name: 'app_event_interested', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function interested(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('interested-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'app.flash.event.cannot_register_cancelled');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $engagement = $event->getEngagementFor($user);
+
+        if (null !== $engagement) {
+            $this->addFlash('info', 'app.flash.event.already_engaged');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $engagement = new EventEngagement();
+        $engagement->setEvent($event);
+        $engagement->setUser($user);
+        $engagement->setState(EngagementState::Interested);
+        $em->persist($engagement);
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.event.marked_interested');
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F3.13 — Player engagement states
+     */
+    #[Route('/{id}/invite', name: 'app_event_invite', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function invite(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
+        if (!$event->isOrganizerOrStaff($currentUser)) {
+            throw $this->createAccessDeniedException('Only organizers or staff can invite participants.');
+        }
+
+        if (!$this->isCsrfTokenValid('invite-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'app.flash.event.cannot_invite_ended');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $userQuery = $request->getPayload()->getString('user_query');
+        $targetUser = $userRepository->findByMultiField($userQuery);
+
+        if (null === $targetUser) {
+            $this->addFlash('warning', 'app.flash.event.user_not_found', ['%name%' => $userQuery]);
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $existingEngagement = $event->getEngagementFor($targetUser);
+
+        if (null !== $existingEngagement) {
+            $this->addFlash('info', 'app.flash.event.user_already_engaged', ['%name%' => $targetUser->getScreenName()]);
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $engagement = new EventEngagement();
+        $engagement->setEvent($event);
+        $engagement->setUser($targetUser);
+        $engagement->setState(EngagementState::Invited);
+        $engagement->setInvitedBy($currentUser);
+        $em->persist($engagement);
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.event.user_invited', ['%name%' => $targetUser->getScreenName()]);
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
