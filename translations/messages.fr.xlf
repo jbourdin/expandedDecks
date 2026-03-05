@@ -839,6 +839,11 @@
                 <target>Prise en charge staff</target>
                 <note>Section heading for staff custody tracking</note>
             </trans-unit>
+            <trans-unit id="app.event.custody.cancelled">
+                <source>app.event.custody.cancelled</source>
+                <target>Annulé</target>
+                <note>Badge shown when event is cancelled and deck was never handed over</note>
+            </trans-unit>
             <trans-unit id="app.event.hand_off">
                 <source>app.event.hand_off</source>
                 <target>Remettre</target>
