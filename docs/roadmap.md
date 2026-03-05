@@ -154,7 +154,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.7  | Register played deck for event   | Medium   | Done        | F3.4, F2.2       |
 | F3.17 | Tournament results               | Medium   | Not started | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Partial     | F3.1, F4.1       |
-| F3.20 | Mark event as finished           | Medium   | Partial     | F3.1, F4.6       |
+| F3.20 | Mark event as finished           | Medium   | Done        | F3.1, F4.6       |
 | F3.15 | Event discovery                  | Medium   | Not started | F3.11, F3.13     |
 | F8.2  | Event notifications              | Medium   | Partial     | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |

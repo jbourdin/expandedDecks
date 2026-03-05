@@ -538,6 +538,21 @@
                 <target>Cancelled</target>
                 <note>Status badge shown when event is cancelled</note>
             </trans-unit>
+            <trans-unit id="app.event.badge_finished">
+                <source>app.event.badge_finished</source>
+                <target>Finished</target>
+                <note>Status badge shown when event is finished</note>
+            </trans-unit>
+            <trans-unit id="app.event.finish_event">
+                <source>app.event.finish_event</source>
+                <target>Mark as Finished</target>
+                <note>Button to mark an event as finished</note>
+            </trans-unit>
+            <trans-unit id="app.event.finish_confirm">
+                <source>app.event.finish_confirm</source>
+                <target>Are you sure you want to mark this event as finished?</target>
+                <note>JavaScript confirm dialog when finishing an event</note>
+            </trans-unit>
             <trans-unit id="app.event.date">
                 <source>app.event.date</source>
                 <target>Date</target>
@@ -1516,6 +1531,21 @@
                 <source>app.flash.event.walkup_success</source>
                 <target>&quot;%deck%&quot; lent to %borrower%.</target>
                 <note>Success flash after walk-up lend. %deck% = deck name, %borrower% = borrower screen name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.finished">
+                <source>app.flash.event.finished</source>
+                <target>Event &quot;%name%&quot; has been marked as finished.</target>
+                <note>Success flash after marking event as finished. %name% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.already_finished">
+                <source>app.flash.event.already_finished</source>
+                <target>This event has already been marked as finished.</target>
+                <note>Warning flash when trying to finish an already-finished event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_finish_cancelled">
+                <source>app.flash.event.cannot_finish_cancelled</source>
+                <target>Cannot mark a cancelled event as finished.</target>
+                <note>Warning flash when trying to finish a cancelled event</note>
             </trans-unit>
             <trans-unit id="app.flash.deck.created_with_list">
                 <source>app.flash.deck.created_with_list</source>

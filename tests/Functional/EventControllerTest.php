@@ -33,6 +33,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * @see docs/features.md F3.7 — Register played deck for event
  * @see docs/features.md F3.9 — Edit an event
  * @see docs/features.md F3.10 — Cancel an event
+ * @see docs/features.md F3.20 — Mark event as finished
  * @see docs/features.md F4.8 — Staff-delegated lending
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
  */
@@ -517,6 +518,139 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
 
         self::assertSelectorNotExists('button.btn-outline-danger');
+    }
+
+    // ---------------------------------------------------------------
+    // F3.20 — Mark event as finished
+    // ---------------------------------------------------------------
+
+    public function testFinishEventSucceeds(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        self::assertNull($event->getFinishedAt());
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Mark as Finished');
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', \sprintf('Event "%s" has been marked as finished.', $event->getName()));
+        self::assertSelectorTextContains('.badge.bg-secondary', 'Finished');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getFinishedAt());
+    }
+
+    public function testFinishEventDeniedForNonOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', \sprintf('/event/%d/finish', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testFinishEventInvalidCsrfRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('POST', \sprintf('/event/%d/finish', $event->getId()), [
+            '_token' => 'invalid-token',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'Invalid security token.');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNull($updated->getFinishedAt());
+    }
+
+    public function testFinishAlreadyFinishedEventShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Finish once via the UI to get a valid CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $finishForm = $crawler->selectButton('Mark as Finished')->form();
+        $csrfToken = $finishForm->get('_token')->getValue();
+        self::assertNotEmpty($csrfToken);
+        $this->client->submitForm('Mark as Finished');
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'has been marked as finished');
+
+        // Try to finish again with the same CSRF token
+        $this->client->request('POST', \sprintf('/event/%d/finish', $event->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'already been marked as finished');
+    }
+
+    public function testFinishCancelledEventShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Load the page to get a valid CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $finishForm = $crawler->selectButton('Mark as Finished')->form();
+        $csrfToken = $finishForm->get('_token')->getValue();
+
+        // Cancel via the UI so the session stays valid
+        $this->client->submitForm('Cancel Event');
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        // Now try to finish the already-cancelled event
+        $this->client->request('POST', \sprintf('/event/%d/finish', $event->getId()), [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'Cannot mark a cancelled event as finished');
+    }
+
+    public function testFinishButtonHiddenAfterFinishing(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $event->setFinishedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorNotExists('button.btn-outline-success');
     }
 
     // ---------------------------------------------------------------
