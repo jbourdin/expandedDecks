@@ -49,3 +49,4 @@ framework:
             Symfony\Component\Notifier\Message\SmsMessage: notification
             App\Message\EnrichDeckVersionMessage: deck_enrichment
             App\Message\DeclineCompetingBorrowsMessage: borrow_lifecycle
+            App\Message\CancelEventBorrowsMessage: borrow_lifecycle

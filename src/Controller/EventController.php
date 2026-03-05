@@ -26,6 +26,7 @@ use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
+use App\Message\CancelEventBorrowsMessage;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
@@ -38,6 +39,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -330,7 +332,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function cancel(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function cancel(Event $event, Request $request, EntityManagerInterface $em, MessageBusInterface $messageBus): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -348,6 +350,8 @@ class EventController extends AbstractAppController
 
         $event->setCancelledAt(new \DateTimeImmutable());
         $em->flush();
+
+        $messageBus->dispatch(new CancelEventBorrowsMessage((int) $event->getId()));
 
         $this->addFlash('success', 'app.flash.event.cancelled', ['%name%' => $event->getName()]);
 
