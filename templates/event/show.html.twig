@@ -18,6 +18,8 @@
             <div class="d-flex align-items-center gap-2">
                 {% if event.cancelledAt %}
                     <span class="badge bg-danger">{{ 'app.event.badge_cancelled'|trans }}</span>
+                {% elseif event.finishedAt %}
+                    <span class="badge bg-secondary">{{ 'app.event.badge_finished'|trans }}</span>
                 {% endif %}
                 {% if event.eventId %}
                     <span class="badge bg-secondary">ID: {{ event.eventId }}</span>
@@ -561,10 +563,16 @@
     <div class="d-flex gap-2">
         <a href="{{ path('app_event_list') }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.back_to_events'|trans }}</a>
         {% if isOrganizer and not event.cancelledAt %}
-            <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.cancel_confirm'|trans }}')">
-                <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
-                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.cancel_event'|trans }}</button>
-            </form>
+            {% if not event.finishedAt %}
+                <form method="post" action="{{ path('app_event_finish', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.finish_confirm'|trans }}')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('finish-event-' ~ event.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.finish_event'|trans }}</button>
+                </form>
+                <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.cancel_confirm'|trans }}')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.cancel_event'|trans }}</button>
+                </form>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}

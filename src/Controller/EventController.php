@@ -355,6 +355,41 @@ class EventController extends AbstractAppController
     }
 
     /**
+     * @see docs/features.md F3.20 — Mark event as finished
+     */
+    #[Route('/{id}/finish', name: 'app_event_finish', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function finish(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('finish-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'app.flash.event.cannot_finish_cancelled');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'app.flash.event.already_finished');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->setFinishedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.event.finished', ['%name%' => $event->getName()]);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
      * @see docs/features.md F3.4 — Register participation to an event
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
