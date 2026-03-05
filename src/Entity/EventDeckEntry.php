@@ -15,6 +15,7 @@ namespace App\Entity;
 
 use App\Repository\EventDeckEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @see docs/features.md F3.7 — Register deck for tournament
@@ -40,6 +41,15 @@ class EventDeckEntry
     #[ORM\ManyToOne(targetEntity: DeckVersion::class)]
     #[ORM\JoinColumn(nullable: false)]
     private DeckVersion $deckVersion;
+
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[Assert\Positive]
+    private ?int $finalPlacement = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
+    #[Assert\Regex(pattern: '/^\d{1,2}-\d{1,2}-\d{1,2}$/', message: 'Match record must be in W-L-T format (e.g. 3-1-0).')]
+    private ?string $matchRecord = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -86,6 +96,30 @@ class EventDeckEntry
     public function setDeckVersion(DeckVersion $deckVersion): static
     {
         $this->deckVersion = $deckVersion;
+
+        return $this;
+    }
+
+    public function getFinalPlacement(): ?int
+    {
+        return $this->finalPlacement;
+    }
+
+    public function setFinalPlacement(?int $finalPlacement): static
+    {
+        $this->finalPlacement = $finalPlacement;
+
+        return $this;
+    }
+
+    public function getMatchRecord(): ?string
+    {
+        return $this->matchRecord;
+    }
+
+    public function setMatchRecord(?string $matchRecord): static
+    {
+        $this->matchRecord = $matchRecord;
 
         return $this;
     }
