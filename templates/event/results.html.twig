@@ -39,7 +39,7 @@
                                     <td>{{ entry.finalPlacement ?? '—' }}</td>
                                     <td>
                                         {% if isAuthenticated %}
-                                            {{ entry.player.screenName }}
+                                            {{ entry.player.screenName }} <span class="text-muted">({{ entry.player.firstName }} {{ entry.player.lastName }})</span>
                                         {% else %}
                                             {{ entry.player.publicDisplayName }}
                                         {% endif %}
