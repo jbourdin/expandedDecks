@@ -259,7 +259,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/standards/release_process.md](docs/standards/release_process.md) — Release checklist
 
 **Frontend**
-- [docs/frontend.md](docs/frontend.md) — Frontend architecture (current: Twig+Bootstrap; planned: Mantine)
+- [docs/frontend.md](docs/frontend.md) — Frontend architecture (Twig+Bootstrap layout, Mantine for React islands)
 
 **Technical Deep-Dives**
 - [docs/technicalities/scanner.md](docs/technicalities/scanner.md) — USB HID scanner detection
