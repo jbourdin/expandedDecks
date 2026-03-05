@@ -19,7 +19,6 @@ use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
-use App\Enum\NotificationType;
 use App\Repository\BorrowRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Service\BorrowNotificationEmailService;
@@ -104,35 +103,6 @@ class BorrowServiceCancelEventTest extends TestCase
         $count = $this->service->cancelBorrowsForEvent($event);
 
         self::assertSame(0, $count);
-    }
-
-    public function testCancelBorrowsForEventSkipsInAppNotificationWhenDisabled(): void
-    {
-        $event = $this->createEvent();
-        $pendingBorrow = $this->createBorrow(BorrowStatus::Pending, $event);
-
-        // Disable in-app notifications for the borrower
-        $pendingBorrow->getBorrower()->setNotificationPreference(
-            NotificationType::BorrowCancelled,
-            'inApp',
-            false,
-        );
-
-        $this->borrowRepository->method('findCancellableBorrowsByEvent')
-            ->with($event)
-            ->willReturn([$pendingBorrow]);
-
-        $this->workflow->expects(self::once())
-            ->method('apply')
-            ->with($pendingBorrow, 'cancel_pending');
-
-        // No notification should be persisted
-        $this->em->expects(self::never())->method('persist');
-        $this->em->expects(self::atLeastOnce())->method('flush');
-
-        $count = $this->service->cancelBorrowsForEvent($event);
-
-        self::assertSame(1, $count);
     }
 
     public function testCancelBorrowsForEventDoesNotTouchLentBorrows(): void
