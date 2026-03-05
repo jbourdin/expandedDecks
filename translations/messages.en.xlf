@@ -543,6 +543,11 @@
                 <target>Finished</target>
                 <note>Status badge shown when event is finished</note>
             </trans-unit>
+            <trans-unit id="app.event.badge_invitation_only">
+                <source>app.event.badge_invitation_only</source>
+                <target>Invitation Only</target>
+                <note>Badge shown when event is invitation-only</note>
+            </trans-unit>
             <trans-unit id="app.event.finish_event">
                 <source>app.event.finish_event</source>
                 <target>Mark as Finished</target>
@@ -738,6 +743,61 @@
                 <source>app.event.participation.register_to_browse</source>
                 <target>Register as a participant to browse and borrow decks.</target>
                 <note>Participation section on event detail</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.interested_count">
+                <source>app.event.participation.interested_count</source>
+                <target>%count% interested</target>
+                <note>Participation count for interested users</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.invited_count">
+                <source>app.event.participation.invited_count</source>
+                <target>%count% invited</target>
+                <note>Participation count for invited users</note>
+            </trans-unit>
+            <trans-unit id="app.event.engagement.interested">
+                <source>app.event.engagement.interested</source>
+                <target>Interested</target>
+                <note>Badge label for interested engagement state</note>
+            </trans-unit>
+            <trans-unit id="app.event.engagement.invited">
+                <source>app.event.engagement.invited</source>
+                <target>Invited</target>
+                <note>Badge label for invited engagement state</note>
+            </trans-unit>
+            <trans-unit id="app.event.engagement.registered_playing">
+                <source>app.event.engagement.registered_playing</source>
+                <target>Player</target>
+                <note>Badge label for registered playing engagement state</note>
+            </trans-unit>
+            <trans-unit id="app.event.engagement.registered_spectating">
+                <source>app.event.engagement.registered_spectating</source>
+                <target>Spectator</target>
+                <note>Badge label for registered spectating engagement state</note>
+            </trans-unit>
+            <trans-unit id="app.event.interested_button">
+                <source>app.event.interested_button</source>
+                <target>I'm interested</target>
+                <note>Button to mark interest in an event</note>
+            </trans-unit>
+            <trans-unit id="app.event.participants_list">
+                <source>app.event.participants_list</source>
+                <target>Participants</target>
+                <note>Section heading for participants list</note>
+            </trans-unit>
+            <trans-unit id="app.event.invite_participant">
+                <source>app.event.invite_participant</source>
+                <target>Invite a participant</target>
+                <note>Section heading for invite form</note>
+            </trans-unit>
+            <trans-unit id="app.event.invite_placeholder">
+                <source>app.event.invite_placeholder</source>
+                <target>Screen name, email, or player ID…</target>
+                <note>Placeholder for invite user search field</note>
+            </trans-unit>
+            <trans-unit id="app.event.invite_button">
+                <source>app.event.invite_button</source>
+                <target>Invite</target>
+                <note>Button to invite a user to the event</note>
             </trans-unit>
             <trans-unit id="app.event.your_decks">
                 <source>app.event.your_decks</source>
@@ -1442,6 +1502,36 @@
                 <target>You have withdrawn from this event.</target>
                 <note>Success flash after withdrawing from event</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.marked_interested">
+                <source>app.flash.event.marked_interested</source>
+                <target>You marked yourself as interested in this event.</target>
+                <note>Success flash after marking interest</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.already_engaged">
+                <source>app.flash.event.already_engaged</source>
+                <target>You are already engaged with this event.</target>
+                <note>Info flash when user is already engaged</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.user_invited">
+                <source>app.flash.event.user_invited</source>
+                <target>%name% has been invited to this event.</target>
+                <note>Success flash after inviting a user</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.user_already_engaged">
+                <source>app.flash.event.user_already_engaged</source>
+                <target>%name% is already engaged with this event.</target>
+                <note>Info flash when inviting already engaged user</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_invite_ended">
+                <source>app.flash.event.cannot_invite_ended</source>
+                <target>Cannot invite participants to a cancelled or finished event.</target>
+                <note>Warning flash when trying to invite to ended event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.invitation_only_player">
+                <source>app.flash.event.invitation_only_player</source>
+                <target>This event is invitation only. Only invited trainers can register as players.</target>
+                <note>Warning flash when non-invited user tries to register as player on invitation-only event</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.cannot_assign_staff_cancelled">
                 <source>app.flash.event.cannot_assign_staff_cancelled</source>
                 <target>Cannot assign staff to a cancelled event.</target>
@@ -1750,6 +1840,11 @@
                 <source>app.form.label.decklist_mandatory</source>
                 <target>Decklist mandatory</target>
                 <note>Form label for decklist mandatory checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.invitation_only">
+                <source>app.form.label.invitation_only</source>
+                <target>Invitation only</target>
+                <note>Form label for invitation-only checkbox</note>
             </trans-unit>
             <trans-unit id="app.form.label.email">
                 <source>app.form.label.email</source>

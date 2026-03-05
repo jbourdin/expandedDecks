@@ -21,6 +21,9 @@
                 {% elseif event.finishedAt %}
                     <span class="badge bg-secondary">{{ 'app.event.badge_finished'|trans }}</span>
                 {% endif %}
+                {% if event.invitationOnly %}
+                    <span class="badge bg-warning text-dark">{{ 'app.event.badge_invitation_only'|trans }}</span>
+                {% endif %}
                 {% if event.eventId %}
                     <span class="badge bg-secondary">ID: {{ event.eventId }}</span>
                 {% endif %}
@@ -152,6 +155,10 @@
     {% endif %}
 
     {% if not event.cancelledAt %}
+        {# For invitation-only events, only invited users or organizer/staff can register as player #}
+        {% set canRegisterAsPlayer = not event.invitationOnly
+            or isStaff
+            or (userEngagement and userEngagement.invitedBy is not null) %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.participation.title'|trans }}</h6>
@@ -159,10 +166,14 @@
             <div class="card-body">
                 {% set playerCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredPlaying')) %}
                 {% set spectatorCount = event.countByState(constant('App\\Enum\\EngagementState::RegisteredSpectating')) %}
+                {% set interestedCount = event.countByState(constant('App\\Enum\\EngagementState::Interested')) %}
+                {% set invitedCount = event.countByState(constant('App\\Enum\\EngagementState::Invited')) %}
 
                 <p class="mb-3">
                     <strong>{{ 'app.event.participation.players'|trans({'%count%': playerCount}) }}</strong>,
                     <strong>{{ 'app.event.participation.spectators'|trans({'%count%': spectatorCount}) }}</strong>
+                    {% if interestedCount > 0 %}, {{ 'app.event.participation.interested_count'|trans({'%count%': interestedCount}) }}{% endif %}
+                    {% if invitedCount > 0 %}, {{ 'app.event.participation.invited_count'|trans({'%count%': invitedCount}) }}{% endif %}
                 </p>
 
                 {% if userEngagement %}
@@ -175,26 +186,94 @@
                         </form>
                     {% elseif userEngagement.state.value == 'registered_spectating' %}
                         <span class="badge bg-info me-2">{{ 'app.event.participation.registered_spectating'|trans }}</span>
-                        <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
-                            <input type="hidden" name="mode" value="playing">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.participation.switch_to_player'|trans }}</button>
-                        </form>
+                        {% if canRegisterAsPlayer %}
+                            <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                                <input type="hidden" name="mode" value="playing">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.participation.switch_to_player'|trans }}</button>
+                            </form>
+                        {% endif %}
+                    {% elseif userEngagement.state.value == 'interested' or userEngagement.state.value == 'invited' %}
+                        {% if userEngagement.state.value == 'interested' %}
+                            <span class="badge bg-secondary me-2">{{ 'app.event.engagement.interested'|trans }}</span>
+                        {% else %}
+                            <span class="badge bg-primary me-2">{{ 'app.event.engagement.invited'|trans }}</span>
+                        {% endif %}
+                        {% if not event.finishedAt %}
+                            {% if canRegisterAsPlayer %}
+                                <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                                    <input type="hidden" name="mode" value="playing">
+                                    <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
+                                </form>
+                            {% endif %}
+                            <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                                <input type="hidden" name="mode" value="spectating">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                     <form method="post" action="{{ path('app_event_withdraw', {id: event.id}) }}" class="d-inline ms-1">
                         <input type="hidden" name="_token" value="{{ csrf_token('withdraw-event-' ~ event.id) }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.participation.withdraw'|trans }}</button>
                     </form>
                 {% else %}
-                    <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
-                        <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
-                        <input type="hidden" name="mode" value="playing">
-                        <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
-                    </form>
-                    <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
-                        <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
-                        <input type="hidden" name="mode" value="spectating">
-                        <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
+                    {% if not event.finishedAt %}
+                        {% if canRegisterAsPlayer %}
+                            <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
+                                <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                                <input type="hidden" name="mode" value="playing">
+                                <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
+                            </form>
+                        {% endif %}
+                        <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
+                            <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                            <input type="hidden" name="mode" value="spectating">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
+                        </form>
+                        <form method="post" action="{{ path('app_event_interested', {id: event.id}) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('interested-event-' ~ event.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.interested_button'|trans }}</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                {# Participants list with engagement badges #}
+                {% if event.engagements is not empty %}
+                    <hr>
+                    <h6 class="text-muted mb-2">{{ 'app.event.participants_list'|trans }}</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for engagement in event.engagements %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                {{ engagement.user.screenName }}
+                                {% if engagement.state.value == 'registered_playing' %}
+                                    <span class="badge bg-success">{{ 'app.event.engagement.registered_playing'|trans }}</span>
+                                {% elseif engagement.state.value == 'registered_spectating' %}
+                                    <span class="badge bg-info">{{ 'app.event.engagement.registered_spectating'|trans }}</span>
+                                {% elseif engagement.state.value == 'interested' %}
+                                    <span class="badge bg-secondary">{{ 'app.event.engagement.interested'|trans }}</span>
+                                {% elseif engagement.state.value == 'invited' %}
+                                    <span class="badge bg-primary">{{ 'app.event.engagement.invited'|trans }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {# Invite participant form (organizer/staff only) #}
+                {% if isStaff and not event.finishedAt %}
+                    <hr>
+                    <h6 class="text-muted mb-2">{{ 'app.event.invite_participant'|trans }}</h6>
+                    <form method="post" action="{{ path('app_event_invite', {id: event.id}) }}" class="d-flex gap-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('invite-event-' ~ event.id) }}">
+                        <div class="flex-grow-1"
+                             data-staff-autocomplete
+                             data-search-url="{{ path('app_user_search') }}"
+                             data-hidden-input="user_query"
+                             data-placeholder="{{ 'app.event.invite_placeholder'|trans }}">
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary text-nowrap">{{ 'app.event.invite_button'|trans }}</button>
                     </form>
                 {% endif %}
             </div>

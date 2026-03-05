@@ -654,6 +654,170 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F3.13 — Player engagement states
+    // ---------------------------------------------------------------
+
+    public function testMarkInterestedCreatesEngagement(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton("I'm interested")->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'interested');
+
+        /** @var EventEngagementRepository $repo */
+        $repo = static::getContainer()->get(EventEngagementRepository::class);
+        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getLenderUserId()]);
+        self::assertNotNull($engagement);
+        self::assertSame('interested', $engagement->getState()->value);
+    }
+
+    public function testMarkInterestedTwiceShowsInfo(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // First time: mark interested via form
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton("I'm interested")->form();
+        $csrfToken = $form->get('_token')->getValue();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Second time: POST directly with same token (button won't be shown since already engaged)
+        $this->client->request('POST', \sprintf('/event/%d/interested', $event->getId()), [
+            '_token' => $csrfToken,
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-info', 'already engaged');
+    }
+
+    public function testInterestedCanUpgradeToPlayer(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Mark interested first
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton("I'm interested")->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Now upgrade to player
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a player');
+
+        /** @var EventEngagementRepository $repo */
+        $repo = static::getContainer()->get(EventEngagementRepository::class);
+        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getLenderUserId()]);
+        self::assertNotNull($engagement);
+        self::assertSame('registered_playing', $engagement->getState()->value);
+    }
+
+    public function testInviteUserCreatesEngagement(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Load event page to establish session and get invite CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $inviteForm = $crawler->filter('form[action*="invite"]');
+        self::assertGreaterThan(0, $inviteForm->count(), 'Invite form should exist for organizer.');
+        $csrfToken = $inviteForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/invite', $event->getId()), [
+            '_token' => $csrfToken,
+            'user_query' => 'lender@example.com',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'has been invited');
+
+        /** @var EventEngagementRepository $repo */
+        $repo = static::getContainer()->get(EventEngagementRepository::class);
+        $engagement = $repo->findOneBy(['event' => $event->getId(), 'user' => $this->getLenderUserId()]);
+        self::assertNotNull($engagement);
+        self::assertSame('invited', $engagement->getState()->value);
+        self::assertNotNull($engagement->getInvitedBy());
+    }
+
+    public function testInviteAlreadyEngagedUserShowsInfo(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Load event page for CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $crawler->filter('form[action*="invite"] input[name="_token"]')->attr('value');
+
+        // Invite once
+        $this->client->request('POST', \sprintf('/event/%d/invite', $event->getId()), [
+            '_token' => $csrfToken,
+            'user_query' => 'lender@example.com',
+        ]);
+        $this->client->followRedirect();
+
+        // Invite again
+        $this->client->request('POST', \sprintf('/event/%d/invite', $event->getId()), [
+            '_token' => $csrfToken,
+            'user_query' => 'lender@example.com',
+        ]);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-info', 'already engaged');
+    }
+
+    public function testInviteDeniedForNonStaff(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Load any page to establish a session
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+
+        $this->client->request('POST', \sprintf('/event/%d/invite', $event->getId()), [
+            '_token' => 'any-token',
+            'user_query' => 'lender@example.com',
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testParticipantsListShowsBadges(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // The event should have at least one participant from fixtures
+        self::assertSelectorExists('.list-group-item');
+    }
+
+    // ---------------------------------------------------------------
     // F3.4 — Register participation to an event
     // ---------------------------------------------------------------
 
@@ -1968,6 +2132,107 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertSelectorNotExists('.alert-info:contains("deck selection has been cleared")');
     }
 
+    // ---------------------------------------------------------------
+    // Invitation-only events
+    // ---------------------------------------------------------------
+
+    public function testInvitationOnlyBlocksNonInvitedPlayer(): void
+    {
+        // Lender is not engaged in the invitational event
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        // Load the page to init session, then POST participate as player
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Player" button should NOT be visible
+        self::assertSelectorNotExists('button:contains("Register as Player")');
+
+        // Direct POST should be blocked by the guard — extract CSRF from spectator form
+        $spectatorForm = $crawler->selectButton('Register as Spectator')->form();
+        $token = $spectatorForm->get('_token')->getValue();
+        $this->client->request('POST', \sprintf('/event/%d/participate', $event->getId()), [
+            '_token' => $token,
+            'mode' => 'playing',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-warning', 'invitation only');
+    }
+
+    public function testInvitationOnlyAllowsInvitedPlayer(): void
+    {
+        // Admin is invited in the fixture
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Player" button should be visible for invited users
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a player');
+    }
+
+    public function testInvitationOnlyAllowsSpectator(): void
+    {
+        // Lender is not invited but should be able to spectate
+        $this->loginAs('lender@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        self::assertResponseIsSuccessful();
+
+        // "Register as Spectator" should be visible
+        $form = $crawler->selectButton('Register as Spectator')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a spectator');
+    }
+
+    public function testInvitedPlayerCanSwitchToSpectatorAndBack(): void
+    {
+        // Admin is invited in the fixture
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        // Register as player
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Switch back to player — should work because invitedBy is preserved
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Switch to Player')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a player');
+    }
+
     /**
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
@@ -2027,6 +2292,16 @@ class EventControllerTest extends AbstractFunctionalTest
         return $event;
     }
 
+    private function getInvitationalEvent(): Event
+    {
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $event = $repo->findOneBy(['name' => 'Invitation-Only Expanded Meetup']);
+        self::assertNotNull($event);
+
+        return $event;
+    }
+
     private function getAdminDeck(string $name): Deck
     {
         /** @var DeckRepository $repo */
@@ -2066,6 +2341,14 @@ class EventControllerTest extends AbstractFunctionalTest
         $form = $crawler->selectButton('Register as Player')->form();
         $this->client->submit($form);
         $this->client->followRedirect();
+    }
+
+    private function getCsrfToken(string $tokenId): string
+    {
+        /** @var \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $tokenManager */
+        $tokenManager = static::getContainer()->get('security.csrf.token_manager');
+
+        return $tokenManager->getToken($tokenId)->getValue();
     }
 
     private function extractSelectDeckCsrfToken(\Symfony\Component\DomCrawler\Crawler $crawler): string
