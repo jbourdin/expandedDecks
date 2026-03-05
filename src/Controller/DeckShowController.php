@@ -16,8 +16,11 @@ namespace App\Controller;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\User;
+use App\Enum\DeckEventStatus;
 use App\Enum\DeckStatus;
 use App\Repository\BorrowRepository;
+use App\Repository\EventDeckEntryRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +29,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @see docs/features.md F2.3 — Detail view
+ * @see docs/features.md F2.14 — Deck event status overview
  * @see docs/features.md F4.5 — Borrow history
  */
 class DeckShowController extends AbstractController
@@ -35,6 +39,8 @@ class DeckShowController extends AbstractController
         #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
         BorrowRepository $borrowRepository,
         EventRepository $eventRepository,
+        EventDeckEntryRepository $eventDeckEntryRepository,
+        EventDeckRegistrationRepository $eventDeckRegistrationRepository,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -98,6 +104,7 @@ class DeckShowController extends AbstractController
         // Anonymous users get empty borrow data
         $deckBorrows = [];
         $eligibleEvents = [];
+        $eventStatusOverview = [];
 
         if (null !== $user) {
             $deckBorrows = $borrowRepository->findByDeckForUser($deck, $user);
@@ -114,6 +121,28 @@ class DeckShowController extends AbstractController
                     }
                 }
             }
+
+            if ($isOwner) {
+                $upcomingEvents = $eventRepository->findUpcomingByEngagement($user);
+                foreach ($upcomingEvents as $event) {
+                    if (null !== $eventDeckEntryRepository->findOneByEventAndDeck($event, $deck)) {
+                        $status = DeckEventStatus::Played;
+                    } elseif (null !== $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event)) {
+                        $status = DeckEventStatus::ActivelyBorrowed;
+                    } elseif (null !== ($registration = $eventDeckRegistrationRepository->findOneByEventAndDeck($event, $deck))) {
+                        $status = $registration->isDelegateToStaff()
+                            ? DeckEventStatus::DelegatedToStaff
+                            : DeckEventStatus::Registered;
+                    } else {
+                        $status = DeckEventStatus::NotRegistered;
+                    }
+
+                    $eventStatusOverview[] = [
+                        'event' => $event,
+                        'status' => $status,
+                    ];
+                }
+            }
         }
 
         return $this->render('deck/show.html.twig', [
@@ -122,6 +151,7 @@ class DeckShowController extends AbstractController
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
             'eligibleEvents' => $eligibleEvents,
+            'eventStatusOverview' => $eventStatusOverview,
         ]);
     }
 }

@@ -486,6 +486,51 @@
                 <target>Set</target>
                 <note>Column header in card list table</note>
             </trans-unit>
+            <trans-unit id="app.deck.event_status_overview">
+                <source>app.deck.event_status_overview</source>
+                <target>Event Status Overview</target>
+                <note>Section heading for deck event status overview card</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.event">
+                <source>app.deck.event_status.event</source>
+                <target>Event</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.date">
+                <source>app.deck.event_status.date</source>
+                <target>Date</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.status">
+                <source>app.deck.event_status.status</source>
+                <target>Status</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.played">
+                <source>app.deck.event_status.played</source>
+                <target>Played</target>
+                <note>Badge label for deck played at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.actively_borrowed">
+                <source>app.deck.event_status.actively_borrowed</source>
+                <target>Actively Borrowed</target>
+                <note>Badge label for deck with active borrow at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.delegated_to_staff">
+                <source>app.deck.event_status.delegated_to_staff</source>
+                <target>Delegated to Staff</target>
+                <note>Badge label for deck delegated to event staff</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.registered">
+                <source>app.deck.event_status.registered</source>
+                <target>Registered</target>
+                <note>Badge label for deck registered at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.not_registered">
+                <source>app.deck.event_status.not_registered</source>
+                <target>Not Registered</target>
+                <note>Badge label for deck not registered at event</note>
+            </trans-unit>
 
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">

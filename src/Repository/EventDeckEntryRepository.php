@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\EventDeckEntry;
 use App\Entity\User;
@@ -43,6 +44,26 @@ class EventDeckEntryRepository extends ServiceEntityRepository
             ->andWhere('e.player = :player')
             ->setParameter('event', $event)
             ->setParameter('player', $player)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $entry;
+    }
+
+    /**
+     * @see docs/features.md F2.14 — Deck event status overview
+     */
+    public function findOneByEventAndDeck(Event $event, Deck $deck): ?EventDeckEntry
+    {
+        /** @var EventDeckEntry|null $entry */
+        $entry = $this->createQueryBuilder('e')
+            ->join('e.deckVersion', 'dv')
+            ->join('dv.deck', 'd')
+            ->where('e.event = :event')
+            ->andWhere('d = :deck')
+            ->setParameter('event', $event)
+            ->setParameter('deck', $deck)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

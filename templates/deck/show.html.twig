@@ -172,6 +172,49 @@
         </div>
     {% endif %}
 
+    {# Event status overview — owner only #}
+    {% if isOwner and eventStatusOverview is not empty %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">{{ 'app.deck.event_status_overview'|trans }}</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-themed table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'app.deck.event_status.event'|trans }}</th>
+                                <th>{{ 'app.deck.event_status.date'|trans }}</th>
+                                <th>{{ 'app.deck.event_status.status'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in eventStatusOverview %}
+                                <tr>
+                                    <td><a href="{{ path('app_event_show', {id: entry.event.id}) }}">{{ entry.event.name }}</a></td>
+                                    <td>{{ entry.event.date|user_date(entry.event.timezone) }}</td>
+                                    <td>
+                                        {% if entry.status.value == 'played' %}
+                                            <span class="badge bg-success">{{ 'app.deck.event_status.played'|trans }}</span>
+                                        {% elseif entry.status.value == 'actively_borrowed' %}
+                                            <span class="badge bg-primary">{{ 'app.deck.event_status.actively_borrowed'|trans }}</span>
+                                        {% elseif entry.status.value == 'delegated_to_staff' %}
+                                            <span class="badge bg-info">{{ 'app.deck.event_status.delegated_to_staff'|trans }}</span>
+                                        {% elseif entry.status.value == 'registered' %}
+                                            <span class="badge bg-warning">{{ 'app.deck.event_status.registered'|trans }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ 'app.deck.event_status.not_registered'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {# Card list — 2 columns on md+, energy under the shortest column #}
     {% if deck.currentVersion and groupedCards|length > 0 %}
         {% set pokemonCards = groupedCards.pokemon|default([]) %}
