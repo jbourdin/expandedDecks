@@ -115,6 +115,40 @@ class BorrowEmailPreferenceTest extends TestCase
         $this->service->sendBorrowOverdue($borrow);
     }
 
+    public function testSendBorrowOverdueSkipsForBorrowerWhenDisabled(): void
+    {
+        $borrow = $this->createBorrow();
+        $borrow->getBorrower()->setNotificationPreference(
+            NotificationType::BorrowOverdue,
+            'email',
+            false,
+        );
+
+        // Only owner should receive the email (1 send, not 2)
+        $this->mailer->expects(self::once())->method('send');
+
+        $this->service->sendBorrowOverdue($borrow);
+    }
+
+    public function testSendBorrowOverdueSkipsBothWhenDisabled(): void
+    {
+        $borrow = $this->createBorrow();
+        $borrow->getDeck()->getOwner()->setNotificationPreference(
+            NotificationType::BorrowOverdue,
+            'email',
+            false,
+        );
+        $borrow->getBorrower()->setNotificationPreference(
+            NotificationType::BorrowOverdue,
+            'email',
+            false,
+        );
+
+        $this->mailer->expects(self::never())->method('send');
+
+        $this->service->sendBorrowOverdue($borrow);
+    }
+
     public function testSendBorrowCancelledSkipsWhenEmailDisabled(): void
     {
         $borrow = $this->createBorrow();

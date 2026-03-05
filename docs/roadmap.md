@@ -159,7 +159,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F8.2  | Event notifications              | Medium   | Done        | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 7/10 done · 1 partial · 2 not started**
+**Progress: 7/10 done · 0 partial · 3 not started**
 
 **Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), deck event status overview, tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
