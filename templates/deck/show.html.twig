@@ -54,7 +54,7 @@
     {# Deck info — compact header #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><span class="badge bg-dark me-2">{{ deck.shortTag }}</span>{{ deck.name }}</h5>
+            <h5 class="mb-0"><span class="badge bg-dark badge-short-id me-2">{{ deck.shortTag }}</span>{{ deck.name }}</h5>
             <div class="d-flex align-items-center gap-2">
                 {% if deck.status.value == 'lent' %}
                     <span class="badge badge-lent">{{ 'app.deck.badge_lent'|trans }}</span>

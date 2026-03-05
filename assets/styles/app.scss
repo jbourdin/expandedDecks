@@ -195,6 +195,13 @@ footer {
 .badge-reserved  { background-color: $ed-blue; color: #fff; }
 .badge-retired   { background-color: #999; color: #fff; }
 
+// --- Short ID badges (fixed-width monospace for consistent sizing) ---
+
+.badge-short-id {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    letter-spacing: .04em;
+}
+
 // --- Auth cards (login / register) ---
 
 .card-auth {

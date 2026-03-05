@@ -152,14 +152,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F3.13 | Player engagement states         | Medium   | Done        | F3.4             |
 | F2.14 | Deck event status overview       | Medium   | Done        | F2.3, F3.13      |
 | F3.7  | Register played deck for event   | Medium   | Done        | F3.4, F2.2       |
-| F3.17 | Tournament results               | Medium   | Not started | F3.7             |
+| F3.17 | Tournament results               | Medium   | Done        | F3.7             |
 | F3.10 | Cancel an event                  | Medium   | Done        | F3.1, F4.1       |
 | F3.20 | Mark event as finished           | Medium   | Done        | F3.1, F4.6       |
 | F3.15 | Event discovery                  | Medium   | Done        | F3.11, F3.13     |
 | F8.2  | Event notifications              | Medium   | Done        | F3.1, F3.13      |
 | F3.18 | Sync from Pokemon event page     | Medium   | Not started | F3.1, F3.9       |
 
-**Progress: 8/10 done · 0 partial · 2 not started**
+**Progress: 9/10 done · 0 partial · 1 not started**
 
 **Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), deck event status overview, tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
 
@@ -324,12 +324,12 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
 | 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
 | 6     | Localization                      | 5    | 0       | 0           | 5     |
-| 7     | Engagement, Results & Discovery   | 8    | 0       | 2           | 10    |
+| 7     | Engagement, Results & Discovery   | 9    | 0       | 1           | 10    |
 | 8     | Admin, Homepage & Polish          | 0    | 3       | 4           | 7     |
 | 9     | Content, Archetypes & Low Priority | 1   | 2       | 22          | 25    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **51** | **5**  | **40**      | **96** |
+|       | **Total**                         | **52** | **5**  | **39**      | **96** |
 
 All 96 features from [features.md](features.md) are represented exactly once.

@@ -51,6 +51,7 @@ security:
         - { path: ^/api/deck-owner/search$, roles: PUBLIC_ACCESS }
         - { path: ^/event$, roles: PUBLIC_ACCESS }
         - { path: ^/events/discover$, roles: PUBLIC_ACCESS }
+        - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
         - { path: ^/event, roles: ROLE_USER }
