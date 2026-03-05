@@ -36,6 +36,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_event_discover') }}">{{ 'app.nav.discover'|trans }}</a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle nav-link-user d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ gravatar(app.user.email, 64) }}" alt="" width="32" height="32" class="rounded-circle me-1">
@@ -54,6 +57,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_event_discover') }}">{{ 'app.nav.discover'|trans }}</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.login'|trans }}</a>

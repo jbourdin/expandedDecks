@@ -24,6 +24,7 @@ use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
+use App\Enum\EventVisibility;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Message\CancelEventBorrowsMessage;
@@ -99,6 +100,7 @@ class EventController extends AbstractAppController
     /**
      * @see docs/features.md F3.3 — Event detail view
      * @see docs/features.md F3.7 — Register played deck for event
+     * @see docs/features.md F3.11 — Event visibility
      */
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(
@@ -110,6 +112,16 @@ class EventController extends AbstractAppController
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
+
+        // Draft/Private events: only visible to organizer, staff, invited users, and admins
+        if (EventVisibility::Public !== $event->getVisibility()
+            && !$event->isOrganizerOrStaff($user)
+            && !$this->isGranted('ROLE_ADMIN')) {
+            $engagement = $event->getEngagementFor($user);
+            if (null === $engagement || null === $engagement->getInvitedBy()) {
+                throw $this->createAccessDeniedException();
+            }
+        }
 
         $userEngagement = $event->getEngagementFor($user);
         $isParticipant = null !== $userEngagement;

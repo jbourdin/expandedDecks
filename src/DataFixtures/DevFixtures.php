@@ -26,6 +26,7 @@ use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
+use App\Enum\EventVisibility;
 use App\Enum\ParticipationMode;
 use App\Enum\TournamentStructure;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -51,6 +52,7 @@ class DevFixtures extends Fixture
         $todayEvent = $this->createEventToday($manager, $admin, $borrower, $staff1);
         $futureEvent = $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
         $this->createInvitationalEvent($manager, $organizer, $admin, $staff2);
+        $this->createDraftEvent($manager, $organizer, $admin);
 
         // Create archetypes
         $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
@@ -350,6 +352,34 @@ class DevFixtures extends Fixture
         $staffAssignment->setUser($staff2);
         $staffAssignment->setAssignedBy($organizer);
         $manager->persist($staffAssignment);
+
+        return $event;
+    }
+
+    /**
+     * @see docs/features.md F3.11 — Event visibility
+     */
+    private function createDraftEvent(ObjectManager $manager, User $organizer, User $admin): Event
+    {
+        $event = new Event();
+        $event->setName('Draft Event — Not Yet Published');
+        $event->setDate(new \DateTimeImmutable('+5 weeks', new \DateTimeZone('Europe/Paris')));
+        $event->setTimezone('Europe/Paris');
+        $event->setLocation('TBD');
+        $event->setOrganizer($organizer);
+        $event->setRegistrationLink('https://pokemon-paris.example.com/draft');
+        $event->setFormat('Expanded');
+        $event->setVisibility(EventVisibility::Draft);
+
+        $manager->persist($event);
+
+        // Admin is invited so they can see it
+        $adminEngagement = new EventEngagement();
+        $adminEngagement->setEvent($event);
+        $adminEngagement->setUser($admin);
+        $adminEngagement->setState(EngagementState::Invited);
+        $adminEngagement->setInvitedBy($organizer);
+        $manager->persist($adminEngagement);
 
         return $event;
     }
