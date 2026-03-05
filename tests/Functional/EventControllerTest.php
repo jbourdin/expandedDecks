@@ -2203,6 +2203,36 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-success', 'registered as a spectator');
     }
 
+    public function testInvitedPlayerCanSwitchToSpectatorAndBack(): void
+    {
+        // Admin is invited in the fixture
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getInvitationalEvent();
+
+        // Register as player
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Register as Player')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Switch to spectator
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Switch to Spectator')->form();
+        $this->client->submit($form);
+        $this->client->followRedirect();
+
+        // Switch back to player — should work because invitedBy is preserved
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $form = $crawler->selectButton('Switch to Player')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'registered as a player');
+    }
+
     /**
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */

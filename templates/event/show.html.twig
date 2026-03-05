@@ -158,7 +158,7 @@
         {# For invitation-only events, only invited users or organizer/staff can register as player #}
         {% set canRegisterAsPlayer = not event.invitationOnly
             or isStaff
-            or (userEngagement and userEngagement.state.value == 'invited') %}
+            or (userEngagement and userEngagement.invitedBy is not null) %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.participation.title'|trans }}</h6>
@@ -186,7 +186,7 @@
                         </form>
                     {% elseif userEngagement.state.value == 'registered_spectating' %}
                         <span class="badge bg-info me-2">{{ 'app.event.participation.registered_spectating'|trans }}</span>
-                        {% if not event.invitationOnly or isStaff %}
+                        {% if canRegisterAsPlayer %}
                             <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
                                 <input type="hidden" name="mode" value="playing">

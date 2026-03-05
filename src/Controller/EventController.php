@@ -435,7 +435,7 @@ class EventController extends AbstractAppController
         if ($event->isInvitationOnly()
             && ParticipationMode::Playing === $mode
             && !$event->isOrganizerOrStaff($user)
-            && (null === $engagement || EngagementState::Invited !== $engagement->getState())) {
+            && (null === $engagement || null === $engagement->getInvitedBy())) {
             $this->addFlash('warning', 'app.flash.event.invitation_only_player');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
