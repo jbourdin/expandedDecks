@@ -35,6 +35,7 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventStaffRepository;
 use App\Repository\UserRepository;
 use App\Service\BorrowService;
+use App\Service\EventNotificationService;
 use App\Service\StaffCustodyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -310,7 +311,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function edit(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function edit(Event $event, Request $request, EntityManagerInterface $em, EventNotificationService $notificationService): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -329,6 +330,8 @@ class EventController extends AbstractAppController
             $event->setFormat('Expanded');
             $em->flush();
 
+            $notificationService->notifyEventUpdated($event);
+
             $this->addFlash('success', 'app.flash.event.updated', ['%name%' => $event->getName()]);
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -345,7 +348,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function cancel(Event $event, Request $request, EntityManagerInterface $em, MessageBusInterface $messageBus): Response
+    public function cancel(Event $event, Request $request, EntityManagerInterface $em, MessageBusInterface $messageBus, EventNotificationService $notificationService): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -365,6 +368,7 @@ class EventController extends AbstractAppController
         $em->flush();
 
         $messageBus->dispatch(new CancelEventBorrowsMessage((int) $event->getId()));
+        $notificationService->notifyEventCancelled($event);
 
         $this->addFlash('success', 'app.flash.event.cancelled', ['%name%' => $event->getName()]);
 
@@ -527,7 +531,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/invite', name: 'app_event_invite', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function invite(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    public function invite(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository, EventNotificationService $notificationService): Response
     {
         /** @var User $currentUser */
         $currentUser = $this->getUser();
@@ -572,6 +576,8 @@ class EventController extends AbstractAppController
         $engagement->setInvitedBy($currentUser);
         $em->persist($engagement);
         $em->flush();
+
+        $notificationService->notifyUserInvited($event, $targetUser);
 
         $this->addFlash('success', 'app.flash.event.user_invited', ['%name%' => $targetUser->getScreenName()]);
 
@@ -624,7 +630,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/assign-staff', name: 'app_event_assign_staff', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function assignStaff(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    public function assignStaff(Event $event, Request $request, EntityManagerInterface $em, UserRepository $userRepository, EventNotificationService $notificationService): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -673,6 +679,8 @@ class EventController extends AbstractAppController
 
         $em->persist($staff);
         $em->flush();
+
+        $notificationService->notifyStaffAssigned($event, $targetUser);
 
         $this->addFlash('success', 'app.flash.event.staff_added', ['%name%' => $screenName]);
 

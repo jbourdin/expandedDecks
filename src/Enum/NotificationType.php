@@ -28,5 +28,6 @@ enum NotificationType: string
     case StaffAssigned = 'staff_assigned';
     case EventUpdated = 'event_updated';
     case EventCancelled = 'event_cancelled';
+    case EventInvited = 'event_invited';
     case EventReminder = 'event_reminder';
 }
