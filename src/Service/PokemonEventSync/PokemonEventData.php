@@ -28,7 +28,6 @@ readonly class PokemonEventData
         public ?string $entryFeeCurrency = null,
         public ?string $tournamentStructure = null,
         public ?string $organizer = null,
-        public ?string $registrationLink = null,
     ) {
     }
 
@@ -45,7 +44,6 @@ readonly class PokemonEventData
             'entryFeeCurrency' => $this->entryFeeCurrency,
             'tournamentStructure' => $this->tournamentStructure,
             'organizer' => $this->organizer,
-            'registrationLink' => $this->registrationLink,
         ];
     }
 }

@@ -87,7 +87,7 @@ class PokemonEventSyncService
         $structure = $this->parseStructureFromHtml($html, $jsonLd);
         $organizer = $this->parseOrganizerFromHtml($html);
 
-        return $this->buildEventData($jsonLd, $structure, $organizer, $url);
+        return $this->buildEventData($jsonLd, $structure, $organizer);
     }
 
     /**
@@ -143,7 +143,7 @@ class PokemonEventSyncService
     /**
      * @param array<string, mixed> $jsonLd
      */
-    private function parseStructureFromHtml(string $html, array $jsonLd): ?string
+    private function parseStructureFromHtml(string $html, array $jsonLd): string
     {
         $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? $jsonLd['name'] : '';
         $searchText = $name.' '.$html;
@@ -187,7 +187,6 @@ class PokemonEventSyncService
         array $jsonLd,
         ?string $structure,
         ?string $organizer,
-        string $eventUrl,
     ): PokemonEventData {
         $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? self::decodeUnicode($jsonLd['name']) : null;
         $startDate = $this->extractStartDate($jsonLd);
@@ -202,7 +201,6 @@ class PokemonEventSyncService
             entryFeeCurrency: $feeCurrency,
             tournamentStructure: $structure,
             organizer: null !== $organizer ? self::decodeUnicode($organizer) : null,
-            registrationLink: $eventUrl,
         );
     }
 

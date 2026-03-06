@@ -31,7 +31,6 @@ const FIELD_MAP: Record<string, string> = {
     entryFeeAmount: 'event_form_entryFeeAmount',
     entryFeeCurrency: 'event_form_entryFeeCurrency',
     tournamentStructure: 'event_form_tournamentStructure',
-    registrationLink: 'event_form_registrationLink',
 };
 
 /** Fields that are always overwritten silently (no confirm dialog). */

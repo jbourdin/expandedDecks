@@ -79,13 +79,13 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertSame('swiss_top_cut', $data->tournamentStructure);
     }
 
-    public function testMapsLeagueChallengeToSwissTopCut(): void
+    public function testMapsLeagueChallengeToSwiss(): void
     {
         $jsonLd = str_replace('Weekly Pokemon League', 'League Challenge — Winter', self::SAMPLE_JSON_LD);
         $service = $this->createService($this->buildHtml($jsonLd));
         $data = $service->fetchEventData('test-123');
 
-        self::assertSame('swiss_top_cut', $data->tournamentStructure);
+        self::assertSame('swiss', $data->tournamentStructure);
     }
 
     public function testMapsLeagueToSwiss(): void
@@ -225,7 +225,7 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertNull($data->name);
         self::assertNull($data->startDate);
         self::assertNull($data->location);
-        self::assertNull($data->tournamentStructure);
+        self::assertSame('swiss', $data->tournamentStructure);
     }
 
     public function testHandlesZeroPriceFee(): void
@@ -248,17 +248,6 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertSame('USD', $data->entryFeeCurrency);
     }
 
-    public function testSetsRegistrationLinkToEventUrl(): void
-    {
-        $service = $this->createService($this->buildHtml(self::SAMPLE_JSON_LD));
-        $data = $service->fetchEventData('test-123');
-
-        self::assertSame(
-            'https://www.pokemon.com/us/play-pokemon/pokemon-events/test-123/',
-            $data->registrationLink,
-        );
-    }
-
     public function testToArrayReturnsAllFields(): void
     {
         $service = $this->createService($this->buildHtml(self::SAMPLE_JSON_LD, 'TCG: Expanded', 'Jane'));
@@ -273,7 +262,6 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertArrayHasKey('entryFeeCurrency', $array);
         self::assertArrayHasKey('tournamentStructure', $array);
         self::assertArrayHasKey('organizer', $array);
-        self::assertArrayHasKey('registrationLink', $array);
     }
 
     private function buildHtml(string $jsonLd, string $formatLabel = '', string $organizer = ''): string
