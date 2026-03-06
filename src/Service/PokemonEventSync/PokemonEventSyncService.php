@@ -38,18 +38,6 @@ class PokemonEventSyncService
         'TCG: Standard' => 'Standard',
     ];
 
-    /**
-     * Maps event type keywords to TournamentStructure enum values.
-     *
-     * @var array<string, string>
-     */
-    private const array STRUCTURE_MAP = [
-        'League Cup' => 'swiss_top_cut',
-        'League Challenge' => 'swiss_top_cut',
-        'League' => 'swiss',
-        'Prerelease' => 'swiss',
-    ];
-
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly CacheInterface $cache,
@@ -95,10 +83,9 @@ class PokemonEventSyncService
 
         $jsonLd = $this->extractJsonLd($html, $tournamentId);
         $format = $this->parseFormatFromHtml($html);
-        $structure = $this->parseStructureFromHtml($html, $jsonLd);
         $organizer = $this->parseOrganizerFromHtml($html);
 
-        return $this->buildEventData($jsonLd, $format, $structure, $organizer, $url);
+        return $this->buildEventData($jsonLd, $format, $organizer, $url);
     }
 
     /**
@@ -162,23 +149,6 @@ class PokemonEventSyncService
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $jsonLd
-     */
-    private function parseStructureFromHtml(string $html, array $jsonLd): ?string
-    {
-        $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? $jsonLd['name'] : '';
-        $searchText = $name.' '.$html;
-
-        foreach (self::STRUCTURE_MAP as $keyword => $structure) {
-            if (str_contains($searchText, $keyword)) {
-                return $structure;
-            }
-        }
-
-        return null;
-    }
-
     private function parseOrganizerFromHtml(string $html): ?string
     {
         $doc = new \DOMDocument();
@@ -208,11 +178,10 @@ class PokemonEventSyncService
     private function buildEventData(
         array $jsonLd,
         ?string $format,
-        ?string $structure,
         ?string $organizer,
         string $eventUrl,
     ): PokemonEventData {
-        $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? $jsonLd['name'] : null;
+        $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? self::decodeUnicode($jsonLd['name']) : null;
         $startDate = $this->extractStartDate($jsonLd);
         $location = $this->extractLocation($jsonLd);
         [$feeAmount, $feeCurrency] = $this->extractEntryFee($jsonLd);
@@ -224,8 +193,7 @@ class PokemonEventSyncService
             entryFeeAmount: $feeAmount,
             entryFeeCurrency: $feeCurrency,
             format: $format,
-            tournamentStructure: $structure,
-            organizer: $organizer,
+            organizer: null !== $organizer ? self::decodeUnicode($organizer) : null,
             registrationLink: $eventUrl,
         );
     }
@@ -282,7 +250,9 @@ class PokemonEventSyncService
             }
         }
 
-        return [] !== $parts ? implode(' — ', $parts) : null;
+        $result = [] !== $parts ? implode(' — ', $parts) : null;
+
+        return null !== $result ? self::decodeUnicode($result) : null;
     }
 
     /**
@@ -315,5 +285,16 @@ class PokemonEventSyncService
         $amountCents = (int) round($priceFloat * 100);
 
         return [0 === $amountCents ? null : $amountCents, $currency];
+    }
+
+    /**
+     * Decodes unicode escape sequences (\uXXXX) that may remain in JSON-LD strings.
+     */
+    private static function decodeUnicode(string $value): string
+    {
+        /** @var string $decoded */
+        $decoded = json_decode('"'.str_replace('"', '\\"', $value).'"') ?? $value;
+
+        return $decoded;
     }
 }

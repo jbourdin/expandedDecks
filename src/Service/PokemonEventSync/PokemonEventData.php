@@ -27,7 +27,6 @@ readonly class PokemonEventData
         public ?int $entryFeeAmount = null,
         public ?string $entryFeeCurrency = null,
         public ?string $format = null,
-        public ?string $tournamentStructure = null,
         public ?string $organizer = null,
         public ?string $registrationLink = null,
     ) {
@@ -45,7 +44,6 @@ readonly class PokemonEventData
             'entryFeeAmount' => $this->entryFeeAmount,
             'entryFeeCurrency' => $this->entryFeeCurrency,
             'format' => $this->format,
-            'tournamentStructure' => $this->tournamentStructure,
             'organizer' => $this->organizer,
             'registrationLink' => $this->registrationLink,
         ];

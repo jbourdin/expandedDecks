@@ -31,9 +31,11 @@ const FIELD_MAP: Record<string, string> = {
     entryFeeAmount: 'event_form_entryFeeAmount',
     entryFeeCurrency: 'event_form_entryFeeCurrency',
     format: 'event_form_format',
-    tournamentStructure: 'event_form_tournamentStructure',
     registrationLink: 'event_form_registrationLink',
 };
+
+/** Fields that are always overwritten silently (no confirm dialog). */
+const SILENT_OVERWRITE_FIELDS = new Set(['startDate']);
 
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('event-sync-btn') as HTMLButtonElement | null;
@@ -102,7 +104,7 @@ function prefillForm(data: Record<string, string | number | null>, btn: HTMLButt
 
         const currentValue = input.value.trim();
 
-        if (currentValue && currentValue !== stringValue) {
+        if (currentValue && currentValue !== stringValue && !SILENT_OVERWRITE_FIELDS.has(key)) {
             const confirmMsg = btn.dataset.confirmOverwrite ?? 'This field already has a value. Overwrite?';
             const label = input.labels?.[0]?.textContent?.trim() ?? key;
             if (!confirm(`${label}: ${confirmMsg}`)) {

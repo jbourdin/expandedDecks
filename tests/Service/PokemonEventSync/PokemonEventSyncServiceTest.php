@@ -86,40 +86,23 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertSame('Standard', $data->format);
     }
 
-    public function testMapsLeagueCupToSwissTopCut(): void
+    public function testDecodesUnicodeEscapesInName(): void
     {
-        $jsonLd = str_replace('Weekly Pokemon League', 'League Cup — Spring', self::SAMPLE_JSON_LD);
+        $jsonLd = str_replace('Weekly Pokemon League', 'T2J \\u002D Coupe de Ligue Q1 2026', self::SAMPLE_JSON_LD);
         $service = $this->createService($this->buildHtml($jsonLd));
         $data = $service->fetchEventData('test-123');
 
-        self::assertSame('swiss_top_cut', $data->tournamentStructure);
+        self::assertSame('T2J - Coupe de Ligue Q1 2026', $data->name);
     }
 
-    public function testMapsLeagueChallengeToSwissTopCut(): void
+    public function testDecodesUnicodeEscapesInLocation(): void
     {
-        $jsonLd = str_replace('Weekly Pokemon League', 'League Challenge — Winter', self::SAMPLE_JSON_LD);
+        $jsonLd = str_replace('Cool Game Store', 'TROLL2JEUX', self::SAMPLE_JSON_LD);
+        $jsonLd = str_replace('123 Main St', '15 PL. D\\u0027ALIGRE', $jsonLd);
         $service = $this->createService($this->buildHtml($jsonLd));
         $data = $service->fetchEventData('test-123');
 
-        self::assertSame('swiss_top_cut', $data->tournamentStructure);
-    }
-
-    public function testMapsLeagueToSwiss(): void
-    {
-        $service = $this->createService($this->buildHtml(self::SAMPLE_JSON_LD));
-        $data = $service->fetchEventData('test-123');
-
-        // "Weekly Pokemon League" contains "League" keyword
-        self::assertSame('swiss', $data->tournamentStructure);
-    }
-
-    public function testMapsPrereleaseToSwiss(): void
-    {
-        $jsonLd = str_replace('Weekly Pokemon League', 'Prerelease Event', self::SAMPLE_JSON_LD);
-        $service = $this->createService($this->buildHtml($jsonLd));
-        $data = $service->fetchEventData('test-123');
-
-        self::assertSame('swiss', $data->tournamentStructure);
+        self::assertStringContainsString("D'ALIGRE", (string) $data->location);
     }
 
     public function testParsesOrganizer(): void
@@ -269,7 +252,6 @@ class PokemonEventSyncServiceTest extends TestCase
         self::assertArrayHasKey('entryFeeAmount', $array);
         self::assertArrayHasKey('entryFeeCurrency', $array);
         self::assertArrayHasKey('format', $array);
-        self::assertArrayHasKey('tournamentStructure', $array);
         self::assertArrayHasKey('organizer', $array);
         self::assertArrayHasKey('registrationLink', $array);
     }
