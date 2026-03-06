@@ -35,7 +35,7 @@ class PokemonEventSyncService
      */
     private const array STRUCTURE_MAP = [
         'League Cup' => 'swiss_top_cut',
-        'League Challenge' => 'swiss_top_cut',
+        'League Challenge' => 'swiss',
         'League' => 'swiss',
         'Prerelease' => 'swiss',
     ];
@@ -154,7 +154,7 @@ class PokemonEventSyncService
             }
         }
 
-        return null;
+        return 'swiss';
     }
 
     private function parseOrganizerFromHtml(string $html): ?string
