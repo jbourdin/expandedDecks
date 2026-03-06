@@ -30,7 +30,7 @@ const FIELD_MAP: Record<string, string> = {
     location: 'event_form_location',
     entryFeeAmount: 'event_form_entryFeeAmount',
     entryFeeCurrency: 'event_form_entryFeeCurrency',
-    format: 'event_form_format',
+    tournamentStructure: 'event_form_tournamentStructure',
     registrationLink: 'event_form_registrationLink',
 };
 

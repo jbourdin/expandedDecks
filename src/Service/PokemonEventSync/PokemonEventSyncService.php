@@ -29,13 +29,15 @@ class PokemonEventSyncService
     private const string BASE_URL = 'https://www.pokemon.com/us/play-pokemon/pokemon-events';
 
     /**
-     * Maps Pokemon.com format labels to app format values.
+     * Maps event type keywords to TournamentStructure enum values.
      *
      * @var array<string, string>
      */
-    private const array FORMAT_MAP = [
-        'TCG: Expanded' => 'Expanded',
-        'TCG: Standard' => 'Standard',
+    private const array STRUCTURE_MAP = [
+        'League Cup' => 'swiss_top_cut',
+        'League Challenge' => 'swiss_top_cut',
+        'League' => 'swiss',
+        'Prerelease' => 'swiss',
     ];
 
     public function __construct(
@@ -82,10 +84,10 @@ class PokemonEventSyncService
         $html = $this->fetchHtml($url, $tournamentId);
 
         $jsonLd = $this->extractJsonLd($html, $tournamentId);
-        $format = $this->parseFormatFromHtml($html);
+        $structure = $this->parseStructureFromHtml($html, $jsonLd);
         $organizer = $this->parseOrganizerFromHtml($html);
 
-        return $this->buildEventData($jsonLd, $format, $organizer, $url);
+        return $this->buildEventData($jsonLd, $structure, $organizer, $url);
     }
 
     /**
@@ -138,11 +140,17 @@ class PokemonEventSyncService
         return $data;
     }
 
-    private function parseFormatFromHtml(string $html): ?string
+    /**
+     * @param array<string, mixed> $jsonLd
+     */
+    private function parseStructureFromHtml(string $html, array $jsonLd): ?string
     {
-        foreach (self::FORMAT_MAP as $label => $format) {
-            if (str_contains($html, $label)) {
-                return $format;
+        $name = isset($jsonLd['name']) && \is_string($jsonLd['name']) ? $jsonLd['name'] : '';
+        $searchText = $name.' '.$html;
+
+        foreach (self::STRUCTURE_MAP as $keyword => $structure) {
+            if (str_contains($searchText, $keyword)) {
+                return $structure;
             }
         }
 
@@ -177,7 +185,7 @@ class PokemonEventSyncService
      */
     private function buildEventData(
         array $jsonLd,
-        ?string $format,
+        ?string $structure,
         ?string $organizer,
         string $eventUrl,
     ): PokemonEventData {
@@ -192,7 +200,7 @@ class PokemonEventSyncService
             location: $location,
             entryFeeAmount: $feeAmount,
             entryFeeCurrency: $feeCurrency,
-            format: $format,
+            tournamentStructure: $structure,
             organizer: null !== $organizer ? self::decodeUnicode($organizer) : null,
             registrationLink: $eventUrl,
         );
