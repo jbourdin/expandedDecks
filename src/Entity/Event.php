@@ -76,11 +76,10 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private User $organizer;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Url(requireTld: true)]
     #[Assert\Length(max: 255)]
-    private string $registrationLink = '';
+    private ?string $registrationLink = null;
 
     #[ORM\Column(length: 30, nullable: true, enumType: TournamentStructure::class)]
     private ?TournamentStructure $tournamentStructure = null;
@@ -271,12 +270,12 @@ class Event
         return $this;
     }
 
-    public function getRegistrationLink(): string
+    public function getRegistrationLink(): ?string
     {
         return $this->registrationLink;
     }
 
-    public function setRegistrationLink(string $registrationLink): static
+    public function setRegistrationLink(?string $registrationLink): static
     {
         $this->registrationLink = $registrationLink;
 
