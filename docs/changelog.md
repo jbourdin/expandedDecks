@@ -18,6 +18,26 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [0.5.0] — 2026-03-08
+
+Phase 7 completion — Engagement, Results & Discovery: deck event status overview, tournament results with monospace short-ID badges, and Pokemon event page sync.
+
+### Deck Library
+
+- **F2.14** — Deck event status overview *(completed)*: deck detail page now shows a summary of the deck's participation across events — engagement state, borrow status, and tournament placement at a glance.
+
+### Event Management
+
+- **F3.17** — Tournament results *(completed)*: dedicated results page with placement and match records. Player short-IDs displayed as monospace badges. First/last name shown alongside screen name.
+- **F3.18** — Sync from Pokemon event page *(completed)*: import event metadata (name, date, location, structure) from a Pokemon event page URL. Maps tournament structures (League Challenge → swiss), handles unicode decoding, and includes functional test coverage.
+
+### Cross-Cutting
+
+- 460 tests, PHPStan level 10
+- Phase 7 fully complete (10/10 features done)
+
+---
+
 ## [0.4.0] — 2026-03-05
 
 Phase 7 progress — Engagement, Results & Discovery: event lifecycle completion, visibility controls, engagement states, event discovery, event notifications with per-type user preferences.
