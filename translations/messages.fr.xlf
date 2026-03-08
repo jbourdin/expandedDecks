@@ -2520,6 +2520,43 @@
                 <note>Edit results: match record placeholder</note>
             </trans-unit>
 
+            <!-- Event Sync -->
+            <trans-unit id="app.event.sync.button">
+                <source>app.event.sync.button</source>
+                <target>Synchroniser</target>
+                <note>Button label for syncing event data from Pokemon event page</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.tooltip">
+                <source>app.event.sync.tooltip</source>
+                <target>Récupérer les détails depuis la page officielle de l'événement Pokemon</target>
+                <note>Tooltip for the sync button</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.error_empty">
+                <source>app.event.sync.error_empty</source>
+                <target>Veuillez d'abord saisir un identifiant de tournoi.</target>
+                <note>Error when tournament ID field is empty</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.confirm_overwrite">
+                <source>app.event.sync.confirm_overwrite</source>
+                <target>Ce champ contient déjà une valeur. Remplacer ?</target>
+                <note>Confirmation prompt when synced value differs from existing</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.success">
+                <source>app.event.sync.success</source>
+                <target>Synchronisé ! Champs pré-remplis :</target>
+                <note>Success message after sync</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.no_changes">
+                <source>app.event.sync.no_changes</source>
+                <target>Tous les champs sont déjà remplis. Aucune modification.</target>
+                <note>Message when sync finds no new data to fill</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.error_network">
+                <source>app.event.sync.error_network</source>
+                <target>Erreur réseau. Impossible de contacter le serveur.</target>
+                <note>Error when API call fails</note>
+            </trans-unit>
+
             <!-- Flash messages: Tournament Results -->
             <trans-unit id="app.flash.results.saved">
                 <source>app.flash.results.saved</source>

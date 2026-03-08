@@ -60,10 +60,12 @@
                                     <td>{{ event.location }}</td>
                                 </tr>
                             {% endif %}
+                            {% if event.registrationLink %}
                             <tr>
                                 <th>{{ 'app.event.registration_link'|trans }}</th>
                                 <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>
                             </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>

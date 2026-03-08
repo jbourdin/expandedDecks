@@ -26,8 +26,24 @@
                     {{ form_start(form) }}
                         {{ form_row(form.name) }}
 
-                        <div class="row">
-                            <div class="col-md-6">{{ form_row(form.eventId) }}</div>
+                        <div class="row" id="event-sync-row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-end gap-2">
+                                    <div class="flex-grow-1">{{ form_row(form.eventId) }}</div>
+                                    <div class="mb-3">
+                                        <button type="button" id="event-sync-btn" class="btn btn-outline-primary"
+                                            data-sync-url="{{ path('app_event_sync') }}"
+                                            data-error-empty="{{ 'app.event.sync.error_empty'|trans }}"
+                                            data-confirm-overwrite="{{ 'app.event.sync.confirm_overwrite'|trans }}"
+                                            data-success-msg="{{ 'app.event.sync.success'|trans }}"
+                                            data-no-changes-msg="{{ 'app.event.sync.no_changes'|trans }}"
+                                            data-error-network="{{ 'app.event.sync.error_network'|trans }}"
+                                            title="{{ 'app.event.sync.tooltip'|trans }}">
+                                            <i class="bi bi-arrow-repeat"></i> {{ 'app.event.sync.button'|trans }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6">{{ form_row(form.format) }}</div>
                         </div>
 
@@ -66,4 +82,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('event_sync') }}
 {% endblock %}
