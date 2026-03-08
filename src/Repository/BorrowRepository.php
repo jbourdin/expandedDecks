@@ -65,6 +65,59 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Borrows at events where the user is organizer or staff, with optional status filter.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function createManagedQueryBuilder(User $user, ?BorrowStatus $status = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->addSelect('d', 'e', 'u')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('user', $user)
+            ->orderBy('b.requestedAt', 'DESC');
+
+        if (null !== $status) {
+            $qb->andWhere('b.status = :status')
+                ->setParameter('status', $status->value);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Active borrows at events managed by the user (organizer or staff),
+     * grouped by event.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Borrow>
+     */
+    public function findActiveManagedBorrows(User $user, ?BorrowStatus $status = null): array
+    {
+        $qb = $this->createManagedQueryBuilder($user, $status);
+
+        if (null === $status) {
+            $qb->andWhere('b.status IN (:activeStatuses)')
+                ->setParameter('activeStatuses', self::activeStatusValues());
+        }
+
+        /** @var list<Borrow> $borrows */
+        $borrows = $qb
+            ->resetDQLPart('orderBy')
+            ->orderBy('e.date', 'ASC')
+            ->addOrderBy('b.requestedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * Count active borrows at events where the user is organizer or staff.
      *
      * @see docs/features.md F7.1 — Dashboard

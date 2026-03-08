@@ -16,6 +16,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\EventRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -29,12 +30,21 @@ class EventListController extends AbstractController
 {
     /**
      * @see docs/features.md F3.11 — Event visibility
+     * @see docs/features.md F7.1 — Dashboard (scope=staffing)
      */
     #[Route('/event', name: 'app_event_list', methods: ['GET'], priority: 10)]
-    public function list(EventRepository $eventRepository): Response
+    public function list(Request $request, EventRepository $eventRepository): Response
     {
         /** @var User|null $user */
         $user = $this->getUser();
+        $scope = $request->query->getString('scope');
+
+        if ('staffing' === $scope && null !== $user) {
+            return $this->render('event/list.html.twig', [
+                'events' => $eventRepository->findUpcomingByOrganizerOrStaff($user),
+                'scope' => 'staffing',
+            ]);
+        }
 
         return $this->render('event/list.html.twig', [
             'events' => $eventRepository->findVisibleUpcoming($user),

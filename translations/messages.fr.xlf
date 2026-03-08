@@ -1226,6 +1226,11 @@
                 <target>Aucune activité de prêt avec le statut « %status% ».</target>
                 <note>Empty state with status filter. %status% = filtered status</note>
             </trans-unit>
+            <trans-unit id="app.borrow.no_managed_borrows">
+                <source>app.borrow.no_managed_borrows</source>
+                <target>Aucun emprunt sur vos événements</target>
+                <note>Empty state on managed borrow list page</note>
+            </trans-unit>
             <trans-unit id="app.borrow.no_active_borrows">
                 <source>app.borrow.no_active_borrows</source>
                 <target>Aucun emprunt actif</target>

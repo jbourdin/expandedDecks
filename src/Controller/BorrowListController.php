@@ -65,6 +65,7 @@ class BorrowListController extends AbstractController
 
     /**
      * @see docs/features.md F4.10 — Owner borrow inbox
+     * @see docs/features.md F7.1 — Dashboard (scope=managed)
      */
     #[Route('/lends', name: 'app_lend_list', methods: ['GET'])]
     public function lends(Request $request, BorrowRepository $borrowRepository): Response
@@ -72,6 +73,12 @@ class BorrowListController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $status = $this->resolveStatusFilter($request);
+        $scope = $request->query->getString('scope');
+
+        if ('managed' === $scope) {
+            return $this->renderManaged($request, $borrowRepository, $user, $status);
+        }
+
         $inboxMode = null === $status || !$status->isTerminal();
 
         if ($inboxMode) {
@@ -79,6 +86,59 @@ class BorrowListController extends AbstractController
         }
 
         return $this->renderHistory($request, $borrowRepository, $user, $status);
+    }
+
+    /**
+     * Managed mode: borrows at events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    private function renderManaged(Request $request, BorrowRepository $borrowRepository, User $user, ?BorrowStatus $status): Response
+    {
+        $inboxMode = null === $status || !$status->isTerminal();
+
+        if ($inboxMode) {
+            $borrows = $borrowRepository->findActiveManagedBorrows($user, $status);
+            $eventGroups = $this->groupByEvent($borrows);
+
+            return $this->render('borrow/list.html.twig', [
+                'currentStatus' => $status,
+                'statuses' => BorrowStatus::cases(),
+                'pageTitle' => 'Managed Borrows',
+                'mode' => 'managed',
+                'inboxMode' => true,
+                'eventGroups' => $eventGroups,
+                'totalItems' => 0,
+                'currentPage' => 1,
+                'totalPages' => 1,
+                'borrows' => [],
+                'scope' => 'managed',
+            ]);
+        }
+
+        $page = max(1, $request->query->getInt('page', 1));
+
+        $qb = $borrowRepository->createManagedQueryBuilder($user, $status);
+        $qb->setFirstResult(($page - 1) * self::PER_PAGE)
+            ->setMaxResults(self::PER_PAGE);
+
+        $paginator = new Paginator($qb, fetchJoinCollection: true);
+        $totalItems = \count($paginator);
+        $totalPages = max(1, (int) ceil($totalItems / self::PER_PAGE));
+
+        return $this->render('borrow/list.html.twig', [
+            'borrows' => $paginator,
+            'currentStatus' => $status,
+            'statuses' => BorrowStatus::cases(),
+            'pageTitle' => 'Managed Borrows',
+            'mode' => 'managed',
+            'inboxMode' => false,
+            'eventGroups' => [],
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'scope' => 'managed',
+        ]);
     }
 
     /**

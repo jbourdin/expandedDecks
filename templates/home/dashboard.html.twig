@@ -56,15 +56,15 @@
         <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.my_events_title'|trans }}</h5>
         <div class="row mb-4">
             <div class="col-6 col-md-3 mb-3 mb-md-0">
-                <a href="{{ path('app_deck_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
+                <div class="card text-center shadow-sm h-100">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-primary">{{ myStats.registeredDecks }}</div>
                         <small class="text-muted">{{ 'app.dashboard.stats.registered_decks'|trans }}</small>
                     </div>
-                </a>
+                </div>
             </div>
             <div class="col-6 col-md-3 mb-3 mb-md-0">
-                <a href="{{ path('app_lend_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
+                <a href="{{ path('app_lend_list', {scope: 'managed'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-success">{{ myStats.activeBorrows }}</div>
                         <small class="text-muted">{{ 'app.dashboard.stats.active_borrows'|trans }}</small>
@@ -72,7 +72,7 @@
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="{{ path('app_event_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
+                <a href="{{ path('app_event_list', {scope: 'staffing'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-info">{{ myStats.upcomingEvents }}</div>
                         <small class="text-muted">{{ 'app.dashboard.stats.upcoming_events'|trans }}</small>
@@ -80,7 +80,7 @@
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="{{ path('app_lend_list', {status: 'overdue'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
+                <a href="{{ path('app_lend_list', {scope: 'managed', status: 'overdue'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold {{ myStats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ myStats.overdueReturns }}</div>
                         <small class="text-muted">{{ 'app.dashboard.stats.overdue_returns'|trans }}</small>
