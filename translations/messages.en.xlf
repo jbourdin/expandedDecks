@@ -2568,6 +2568,53 @@
                 <target>Results can only be viewed for finished events.</target>
                 <note>Flash message when event is not finished</note>
             </trans-unit>
+
+            <!-- Notification Center (F8.4) -->
+            <trans-unit id="app.notification.center.title">
+                <source>app.notification.center.title</source>
+                <target>Notifications</target>
+                <note>Notification center page title</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.mark_read">
+                <source>app.notification.center.mark_read</source>
+                <target>Mark as read</target>
+                <note>Button to mark a single notification as read</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.mark_all_read">
+                <source>app.notification.center.mark_all_read</source>
+                <target>Mark all as read</target>
+                <note>Button to mark all notifications as read</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.view_all">
+                <source>app.notification.center.view_all</source>
+                <target>View all notifications</target>
+                <note>Link to full notification list page</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.empty">
+                <source>app.notification.center.empty</source>
+                <target>No notifications yet</target>
+                <note>Empty state message</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.preferences">
+                <source>app.notification.center.preferences</source>
+                <target>Preferences</target>
+                <note>Link to notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete">
+                <source>app.notification.center.delete</source>
+                <target>Delete</target>
+                <note>Button to delete a single notification</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete_read">
+                <source>app.notification.center.delete_read</source>
+                <target>Delete read</target>
+                <note>Button to delete all read notifications</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete_read_confirm">
+                <source>app.notification.center.delete_read_confirm</source>
+                <target>Delete all read notifications? This cannot be undone.</target>
+                <note>Confirmation prompt for bulk delete</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

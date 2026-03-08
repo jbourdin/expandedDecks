@@ -24,6 +24,7 @@ Encore
     .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.tsx')
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
     .addEntry('event_sync', './assets/event-sync.ts')
+    .addEntry('notification_bell', './assets/notification-bell.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
