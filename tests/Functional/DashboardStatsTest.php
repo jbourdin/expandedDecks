@@ -37,14 +37,17 @@ class DashboardStatsTest extends AbstractFunctionalTest
         self::assertSelectorExists('.card .fs-2.fw-bold.text-info');
     }
 
-    public function testRegularUserDoesNotSeeStats(): void
+    public function testRegularUserDoesNotSeeGlobalStats(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Lender has no organizer role and is not staff at any event
+        $this->loginAs('lender@example.com');
 
-        $this->client->request('GET', '/dashboard');
+        $crawler = $this->client->request('GET', '/dashboard');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('.card .fs-2.fw-bold.text-primary');
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Global overview', $html);
+        self::assertStringNotContainsString('Total decks', $html);
     }
 
     public function testStatsShowNumericValues(): void
@@ -89,13 +92,25 @@ class DashboardStatsTest extends AbstractFunctionalTest
 
     public function testRegularUserDoesNotSeePersonalStats(): void
     {
+        // Lender has no organizer role and is not staff at any event
+        $this->loginAs('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/dashboard');
+
+        self::assertResponseIsSuccessful();
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Registered decks', $html);
+    }
+
+    public function testStaffUserSeesPersonalStats(): void
+    {
+        // Borrower is staff at the today event in fixtures
         $this->loginAs('borrower@example.com');
 
         $crawler = $this->client->request('GET', '/dashboard');
 
         self::assertResponseIsSuccessful();
         $html = $crawler->html();
-        self::assertStringNotContainsString('My events', $html);
-        self::assertStringNotContainsString('Registered decks', $html);
+        self::assertStringContainsString('Registered decks', $html);
     }
 }
