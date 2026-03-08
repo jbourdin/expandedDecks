@@ -37,14 +37,17 @@ class DashboardStatsTest extends AbstractFunctionalTest
         self::assertSelectorExists('.card .fs-2.fw-bold.text-info');
     }
 
-    public function testRegularUserDoesNotSeeStats(): void
+    public function testRegularUserDoesNotSeeGlobalStats(): void
     {
-        $this->loginAs('borrower@example.com');
+        // Lender has no organizer role and is not staff at any event
+        $this->loginAs('lender@example.com');
 
-        $this->client->request('GET', '/dashboard');
+        $crawler = $this->client->request('GET', '/dashboard');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('.card .fs-2.fw-bold.text-primary');
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Global overview', $html);
+        self::assertStringNotContainsString('Total decks', $html);
     }
 
     public function testStatsShowNumericValues(): void
@@ -54,24 +57,60 @@ class DashboardStatsTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/dashboard');
 
         $statCards = $crawler->filter('.card .fs-2.fw-bold');
-        self::assertGreaterThanOrEqual(4, $statCards->count());
+        // 4 global + 4 personal = 8
+        self::assertGreaterThanOrEqual(8, $statCards->count());
 
-        // Each stat should contain a numeric value
-        for ($i = 0; $i < 4; ++$i) {
+        for ($i = 0; $i < 8; ++$i) {
             self::assertMatchesRegularExpression('/^\d+$/', trim($statCards->eq($i)->text()));
         }
     }
 
-    public function testStatsLabelsAreTranslated(): void
+    public function testGlobalStatsLabelsAreTranslated(): void
     {
         $this->loginAs('admin@example.com');
 
         $crawler = $this->client->request('GET', '/dashboard');
 
         $html = $crawler->html();
+        self::assertStringContainsString('Global overview', $html);
         self::assertStringContainsString('Total decks', $html);
         self::assertStringContainsString('Active borrows', $html);
         self::assertStringContainsString('Upcoming events', $html);
         self::assertStringContainsString('Overdue returns', $html);
+    }
+
+    public function testPersonalStatsLabelsAreTranslated(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/dashboard');
+
+        $html = $crawler->html();
+        self::assertStringContainsString('My events', $html);
+        self::assertStringContainsString('Registered decks', $html);
+    }
+
+    public function testRegularUserDoesNotSeePersonalStats(): void
+    {
+        // Lender has no organizer role and is not staff at any event
+        $this->loginAs('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/dashboard');
+
+        self::assertResponseIsSuccessful();
+        $html = $crawler->html();
+        self::assertStringNotContainsString('Registered decks', $html);
+    }
+
+    public function testStaffUserSeesPersonalStats(): void
+    {
+        // Borrower is staff at the today event in fixtures
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', '/dashboard');
+
+        self::assertResponseIsSuccessful();
+        $html = $crawler->html();
+        self::assertStringContainsString('Registered decks', $html);
     }
 }

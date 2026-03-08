@@ -157,6 +157,56 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count upcoming events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countUpcomingByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * Upcoming events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingByOrganizerOrStaff(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
      * Events where the user is organizer or staff, with start date >= 7 days ago.
      *
      * @see docs/features.md F7.1 — Dashboard

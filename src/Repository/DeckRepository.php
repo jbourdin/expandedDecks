@@ -15,6 +15,7 @@ namespace App\Repository;
 
 use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\EventDeckRegistration;
 use App\Entity\User;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -41,6 +42,31 @@ class DeckRepository extends ServiceEntityRepository
             ->select('COUNT(d.id)')
             ->where('d.status != :retired')
             ->setParameter('retired', DeckStatus::Retired)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * Count distinct decks registered at upcoming events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countRegisteredByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT r.deck)')
+            ->from(EventDeckRegistration::class, 'r')
+            ->join('r.event', 'e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
             ->getQuery()
             ->getSingleScalarResult();
 

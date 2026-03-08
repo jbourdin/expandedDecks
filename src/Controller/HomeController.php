@@ -72,6 +72,16 @@ class HomeController extends AbstractController
             ];
         }
 
+        $myUpcomingEvents = $eventRepository->countUpcomingByOrganizerOrStaff($user);
+        if ($myUpcomingEvents > 0 || $this->isGranted('ROLE_ORGANIZER')) {
+            $params['myStats'] = [
+                'registeredDecks' => $deckRepository->countRegisteredByOrganizerOrStaff($user),
+                'activeBorrows' => $borrowRepository->countActiveByOrganizerOrStaff($user),
+                'upcomingEvents' => $myUpcomingEvents,
+                'overdueReturns' => $borrowRepository->countOverdueByOrganizerOrStaff($user),
+            ];
+        }
+
         return $this->render('home/dashboard.html.twig', $params);
     }
 }
