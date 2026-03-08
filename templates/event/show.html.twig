@@ -121,7 +121,7 @@
     </div>
 
     {% if isOrganizer and not event.cancelledAt %}
-        <div class="card shadow-sm mb-3">
+        <div id="staff" class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.staff.title'|trans }}</h6>
             </div>
@@ -161,7 +161,7 @@
         {% set canRegisterAsPlayer = not event.invitationOnly
             or isStaff
             or (userEngagement and userEngagement.invitedBy is not null) %}
-        <div class="card shadow-sm mb-3">
+        <div id="participation" class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.participation.title'|trans }}</h6>
             </div>
@@ -597,7 +597,7 @@
             </div>
         {% endif %}
 
-        <div class="card shadow-sm mb-3">
+        <div id="borrowing" class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.deck_borrowing'|trans }}</h6>
             </div>

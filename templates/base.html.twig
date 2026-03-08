@@ -39,6 +39,18 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_event_discover') }}">{{ 'app.nav.discover'|trans }}</a>
                             </li>
+                            <li class="nav-item d-flex align-items-center me-2">
+                                <div id="notification-bell-root"
+                                     data-api-url="{{ path('app_notification_api_list') }}"
+                                     data-list-url="{{ path('app_notification_list') }}"
+                                     data-mark-read-url-template="{{ path('app_notification_api_mark_read', {id: 0})|replace({'0': '__ID__'}) }}"
+                                     data-mark-all-read-url="{{ path('app_notification_api_mark_all_read') }}"
+                                     data-label-mark-read="{{ 'app.notification.center.mark_read'|trans }}"
+                                     data-label-mark-all-read="{{ 'app.notification.center.mark_all_read'|trans }}"
+                                     data-label-view-all="{{ 'app.notification.center.view_all'|trans }}"
+                                     data-label-empty="{{ 'app.notification.center.empty'|trans }}">
+                                </div>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle nav-link-user d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="{{ gravatar(app.user.email, 64) }}" alt="" width="32" height="32" class="rounded-circle me-1">
@@ -95,6 +107,10 @@
 
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
+            {% if app.user %}
+                {{ encore_entry_script_tags('notification_bell') }}
+                {{ encore_entry_link_tags('notification_bell') }}
+            {% endif %}
         {% endblock %}
     </body>
 </html>

@@ -63,6 +63,18 @@ Users can configure per-type preferences for email and in-app channels via `/pro
 
 All notification services check `User::isNotificationEnabled()` before sending. Default (null): all channels enabled.
 
+### Notification Center (F8.4)
+
+The in-app notification center provides:
+
+- **Notification bell** in the navbar (Mantine React component) showing unread count badge, with a popover dropdown listing recent notifications
+- **Full notification list** page at `/notifications` with pagination and mark-as-read actions (individual + bulk)
+- **API endpoints** for the bell component:
+  - `GET /api/notifications` — recent notifications + unread count
+  - `POST /api/notifications/{id}/read` — mark single as read
+  - `POST /api/notifications/read-all` — mark all as read
+- Bell polls every 60 seconds for new notifications
+
 ### Indexing
 
 - Index on (`recipient`, `isRead`, `createdAt` DESC) for the in-app notification center query (unread first, then recent)
