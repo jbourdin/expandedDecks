@@ -15,6 +15,7 @@
     <h1 class="mb-4">{{ 'app.dashboard.welcome'|trans({'%name%': user.screenName}) }}</h1>
 
     {% if stats is defined %}
+        <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.global_title'|trans }}</h5>
         <div class="row mb-4">
             <div class="col-6 col-md-3 mb-3 mb-md-0">
                 <div class="card text-center shadow-sm h-100">
@@ -44,6 +45,44 @@
                 <div class="card text-center shadow-sm h-100">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold {{ stats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ stats.overdueReturns }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.overdue_returns'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if myStats is defined %}
+        <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.my_events_title'|trans }}</h5>
+        <div class="row mb-4">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-primary">{{ myStats.registeredDecks }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.registered_decks'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-success">{{ myStats.activeBorrows }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.active_borrows'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-info">{{ myStats.upcomingEvents }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.upcoming_events'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold {{ myStats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ myStats.overdueReturns }}</div>
                         <small class="text-muted">{{ 'app.dashboard.stats.overdue_returns'|trans }}</small>
                     </div>
                 </div>

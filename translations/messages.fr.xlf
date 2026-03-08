@@ -279,10 +279,25 @@
                 <target>Staff</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
+            <trans-unit id="app.dashboard.stats.global_title">
+                <source>app.dashboard.stats.global_title</source>
+                <target>Vue d'ensemble</target>
+                <note>Section title for global admin stats</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.my_events_title">
+                <source>app.dashboard.stats.my_events_title</source>
+                <target>Mes événements</target>
+                <note>Section title for personal event stats</note>
+            </trans-unit>
             <trans-unit id="app.dashboard.stats.total_decks">
                 <source>app.dashboard.stats.total_decks</source>
                 <target>Decks au total</target>
                 <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.registered_decks">
+                <source>app.dashboard.stats.registered_decks</source>
+                <target>Decks inscrits</target>
+                <note>Personal stat: decks registered at user's events</note>
             </trans-unit>
             <trans-unit id="app.dashboard.stats.active_borrows">
                 <source>app.dashboard.stats.active_borrows</source>

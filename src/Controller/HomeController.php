@@ -70,6 +70,12 @@ class HomeController extends AbstractController
                 'upcomingEvents' => $eventRepository->countUpcoming(),
                 'overdueReturns' => $borrowRepository->countOverdue(),
             ];
+            $params['myStats'] = [
+                'registeredDecks' => $deckRepository->countRegisteredByOrganizerOrStaff($user),
+                'activeBorrows' => $borrowRepository->countActiveByOrganizerOrStaff($user),
+                'upcomingEvents' => $eventRepository->countUpcomingByOrganizerOrStaff($user),
+                'overdueReturns' => $borrowRepository->countOverdueByOrganizerOrStaff($user),
+            ];
         }
 
         return $this->render('home/dashboard.html.twig', $params);

@@ -65,6 +65,50 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count active borrows at events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countActiveByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.event', 'e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('b.status IN (:statuses)')
+            ->andWhere('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('statuses', self::activeStatusValues())
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * Count overdue borrows at events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countOverdueByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.event', 'e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('b.status = :status')
+            ->andWhere('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('status', BorrowStatus::Overdue->value)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F4.1 — Request to borrow a deck
      *
      * @return list<Borrow>

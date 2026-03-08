@@ -157,6 +157,29 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count upcoming events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countUpcomingByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * Events where the user is organizer or staff, with start date >= 7 days ago.
      *
      * @see docs/features.md F7.1 — Dashboard
