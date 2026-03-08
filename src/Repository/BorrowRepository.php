@@ -33,6 +33,38 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countActive(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status IN (:statuses)')
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countOverdue(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status = :status')
+            ->setParameter('status', BorrowStatus::Overdue->value)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F4.1 — Request to borrow a deck
      *
      * @return list<Borrow>

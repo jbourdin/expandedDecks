@@ -14,6 +14,43 @@
 {% block body %}
     <h1 class="mb-4">{{ 'app.dashboard.welcome'|trans({'%name%': user.screenName}) }}</h1>
 
+    {% if stats is defined %}
+        <div class="row mb-4">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-primary">{{ stats.totalDecks }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.total_decks'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-success">{{ stats.activeBorrows }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.active_borrows'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold text-info">{{ stats.upcomingEvents }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.upcoming_events'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold {{ stats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ stats.overdueReturns }}</div>
+                        <small class="text-muted">{{ 'app.dashboard.stats.overdue_returns'|trans }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="card h-100">

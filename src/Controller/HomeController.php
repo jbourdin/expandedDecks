@@ -41,7 +41,7 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @see docs/features.md F1.2 — Log in / Log out
+     * @see docs/features.md F7.1 — Dashboard
      */
     #[Route('/dashboard', name: 'app_dashboard')]
     #[IsGranted('ROLE_USER')]
@@ -53,7 +53,7 @@ class HomeController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        return $this->render('home/dashboard.html.twig', [
+        $params = [
             'user' => $user,
             'ownedDecks' => $user->getOwnedDecks(),
             'myEvents' => $eventRepository->findUpcomingByEngagement($user),
@@ -61,6 +61,17 @@ class HomeController extends AbstractController
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
             'recentLends' => $borrowRepository->findRecentByDeckOwner($user),
             'recentManagedBorrows' => $borrowRepository->findRecentByEventOrganizerOrStaff($user),
-        ]);
+        ];
+
+        if ($this->isGranted('ROLE_ORGANIZER')) {
+            $params['stats'] = [
+                'totalDecks' => $deckRepository->countAll(),
+                'activeBorrows' => $borrowRepository->countActive(),
+                'upcomingEvents' => $eventRepository->countUpcoming(),
+                'overdueReturns' => $borrowRepository->countOverdue(),
+            ];
+        }
+
+        return $this->render('home/dashboard.html.twig', $params);
     }
 }

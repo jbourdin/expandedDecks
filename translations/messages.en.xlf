@@ -279,6 +279,26 @@
                 <target>Staff</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
+            <trans-unit id="app.dashboard.stats.total_decks">
+                <source>app.dashboard.stats.total_decks</source>
+                <target>Total decks</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.active_borrows">
+                <source>app.dashboard.stats.active_borrows</source>
+                <target>Active borrows</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.upcoming_events">
+                <source>app.dashboard.stats.upcoming_events</source>
+                <target>Upcoming events</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.overdue_returns">
+                <source>app.dashboard.stats.overdue_returns</source>
+                <target>Overdue returns</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
 
             <!-- Deck catalog, detail, and forms -->
             <trans-unit id="app.deck.catalog_title">
