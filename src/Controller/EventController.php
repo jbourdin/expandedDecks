@@ -184,6 +184,7 @@ class EventController extends AbstractAppController
             'deckRegistrationMap' => $deckRegistrationMap,
             'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
             'delegatedRegistrations' => $delegatedRegistrations,
+            'hasResults' => null !== $event->getFinishedAt() ? $entryRepository->hasResults($event) : false,
         ]);
     }
 

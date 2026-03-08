@@ -90,6 +90,7 @@ class EventFormType extends AbstractType
             ])
             ->add('registrationLink', UrlType::class, [
                 'label' => 'app.form.label.registration_link',
+                'required' => false,
                 'attr' => ['placeholder' => 'https://...'],
             ])
             ->add('tournamentStructure', EnumType::class, [

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\EventDeckEntry;
 use App\Entity\User;
@@ -48,5 +49,66 @@ class EventDeckEntryRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
 
         return $entry;
+    }
+
+    /**
+     * @see docs/features.md F2.14 — Deck event status overview
+     */
+    public function findOneByEventAndDeck(Event $event, Deck $deck): ?EventDeckEntry
+    {
+        /** @var EventDeckEntry|null $entry */
+        $entry = $this->createQueryBuilder('e')
+            ->join('e.deckVersion', 'dv')
+            ->join('dv.deck', 'd')
+            ->where('e.event = :event')
+            ->andWhere('d = :deck')
+            ->setParameter('event', $event)
+            ->setParameter('deck', $deck)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $entry;
+    }
+
+    /**
+     * @see docs/features.md F3.17 — Tournament Results
+     *
+     * @return list<EventDeckEntry>
+     */
+    public function findByEventOrderedByPlacement(Event $event): array
+    {
+        /** @var list<EventDeckEntry> $entries */
+        $entries = $this->createQueryBuilder('e')
+            ->join('e.deckVersion', 'dv')
+            ->join('dv.deck', 'd')
+            ->leftJoin('d.archetype', 'a')
+            ->join('e.player', 'p')
+            ->addSelect('dv', 'd', 'a', 'p')
+            ->where('e.event = :event')
+            ->setParameter('event', $event)
+            ->orderBy('CASE WHEN e.finalPlacement IS NULL THEN 1 ELSE 0 END', 'ASC')
+            ->addOrderBy('e.finalPlacement', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $entries;
+    }
+
+    /**
+     * @see docs/features.md F3.17 — Tournament Results
+     */
+    public function hasResults(Event $event): bool
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.event = :event')
+            ->andWhere('e.finalPlacement IS NOT NULL')
+            ->setParameter('event', $event)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
     }
 }

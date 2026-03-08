@@ -19,6 +19,7 @@ use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\Event;
+use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
@@ -86,6 +87,7 @@ class DevFixtures extends Fixture
 
         $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox, $lenderDeck, $staff1);
         $this->createDeckRegistrations($manager, $todayEvent, $ironThorns, $ancientBox, $lenderDeck);
+        $this->createFinishedEvent($manager, $admin, $borrower, $staff1, $ironThorns, $ancientBox, $lenderDeck);
 
         $manager->flush();
     }
@@ -382,6 +384,85 @@ class DevFixtures extends Fixture
         $manager->persist($adminEngagement);
 
         return $event;
+    }
+
+    /**
+     * @see docs/features.md F3.17 — Tournament Results
+     */
+    private function createFinishedEvent(ObjectManager $manager, User $admin, User $borrower, User $staff1, Deck $ironThorns, Deck $ancientBox, Deck $regidrago): void
+    {
+        $event = new Event();
+        $event->setName('Past Expanded Weekly #40');
+        $event->setDate(new \DateTimeImmutable('-2 weeks', new \DateTimeZone('Europe/Paris')));
+        $event->setTimezone('Europe/Paris');
+        $event->setLocation('12 Rue de la République, 69001 Lyon, France');
+        $event->setOrganizer($admin);
+        $event->setRegistrationLink('https://pokemon-lyon.example.com/events/40');
+        $event->setTournamentStructure(TournamentStructure::Swiss);
+        $event->setFormat('Expanded');
+        $event->setFinishedAt(new \DateTimeImmutable('-2 weeks +6 hours', new \DateTimeZone('Europe/Paris')));
+
+        $manager->persist($event);
+
+        // Engagements
+        $adminEngagement = new EventEngagement();
+        $adminEngagement->setEvent($event);
+        $adminEngagement->setUser($admin);
+        $adminEngagement->setState(EngagementState::RegisteredPlaying);
+        $adminEngagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($adminEngagement);
+
+        $borrowerEngagement = new EventEngagement();
+        $borrowerEngagement->setEvent($event);
+        $borrowerEngagement->setUser($borrower);
+        $borrowerEngagement->setState(EngagementState::RegisteredPlaying);
+        $borrowerEngagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($borrowerEngagement);
+
+        $staff1Engagement = new EventEngagement();
+        $staff1Engagement->setEvent($event);
+        $staff1Engagement->setUser($staff1);
+        $staff1Engagement->setState(EngagementState::RegisteredPlaying);
+        $staff1Engagement->setParticipationMode(ParticipationMode::Playing);
+        $manager->persist($staff1Engagement);
+
+        $staffAssignment = new EventStaff();
+        $staffAssignment->setEvent($event);
+        $staffAssignment->setUser($staff1);
+        $staffAssignment->setAssignedBy($admin);
+        $manager->persist($staffAssignment);
+
+        // Deck entries with results
+        $ironThornsVersion = $ironThorns->getCurrentVersion();
+        \assert(null !== $ironThornsVersion);
+        $ancientBoxVersion = $ancientBox->getCurrentVersion();
+        \assert(null !== $ancientBoxVersion);
+        $regidragoVersion = $regidrago->getCurrentVersion();
+        \assert(null !== $regidragoVersion);
+
+        $entry1 = new EventDeckEntry();
+        $entry1->setEvent($event);
+        $entry1->setPlayer($admin);
+        $entry1->setDeckVersion($ironThornsVersion);
+        $entry1->setFinalPlacement(1);
+        $entry1->setMatchRecord('3-0-0');
+        $manager->persist($entry1);
+
+        $entry2 = new EventDeckEntry();
+        $entry2->setEvent($event);
+        $entry2->setPlayer($borrower);
+        $entry2->setDeckVersion($ancientBoxVersion);
+        $entry2->setFinalPlacement(2);
+        $entry2->setMatchRecord('2-1-0');
+        $manager->persist($entry2);
+
+        $entry3 = new EventDeckEntry();
+        $entry3->setEvent($event);
+        $entry3->setPlayer($staff1);
+        $entry3->setDeckVersion($regidragoVersion);
+        $entry3->setFinalPlacement(3);
+        $entry3->setMatchRecord('1-2-0');
+        $manager->persist($entry3);
     }
 
     private function createArchetype(ObjectManager $manager, string $name): Archetype

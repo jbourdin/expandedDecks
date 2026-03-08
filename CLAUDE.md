@@ -19,6 +19,8 @@
 
 ## Naming Conventions
 
+> Full details: [docs/standards/naming.md](docs/standards/naming.md)
+
 | Element           | Convention        | Example                          |
 |-------------------|-------------------|----------------------------------|
 | Classes           | PascalCase        | `DeckLibrary`                    |
@@ -33,6 +35,8 @@
 | Enums             | PascalCase        | `BorrowStatus`                   |
 
 ## File Headers (Copyright & License)
+
+> Full details: [docs/standards/file_headers.md](docs/standards/file_headers.md)
 
 Every source file **MUST** include a copyright and license header as the first comment block.
 
@@ -80,6 +84,8 @@ PHP-CS-Fixer enforces this header automatically via the `header_comment` rule.
 
 ## Coding Standards
 
+> Full details: [docs/standards/coding.md](docs/standards/coding.md)
+
 - **PSR-12** baseline with **@Symfony** PHP-CS-Fixer ruleset
 - `declare(strict_types=1);` required in **all** PHP files
 - `void` return type mandatory on methods without return
@@ -109,6 +115,8 @@ function useScannerDetection(onScan) {
 ```
 
 ## Version Control
+
+> Full details: [docs/standards/version_control.md](docs/standards/version_control.md)
 
 ### Gitflow Workflow
 
@@ -168,6 +176,18 @@ make phpstan    # Static analysis
 make test       # Run test suite
 ```
 
+### Release Process
+
+> Full details: [docs/standards/release_process.md](docs/standards/release_process.md)
+
+1. Create `release/x.y.z` branch from `develop`
+2. Update `docs/changelog.md` — add `## [x.y.z] — YYYY-MM-DD` section
+3. Commit, push, open PR to `main` (title: `:rocket: Release: x.y.z`)
+4. Wait for CI to pass, merge (merge commit, **not** squash)
+5. Create GitHub release: `gh release create vx.y.z --target main --title "vx.y.z" --notes-file <changelog-section>`
+6. Back-merge `main` into `develop`
+7. Delete the release branch
+
 ## Key Commands
 
 | Command             | Description                       |
@@ -190,15 +210,61 @@ make test       # Run test suite
 - API client service: `App\Service\PrintNode\ApiClient`
 - Zebra printer runs a local PrintNode client; the app sends print jobs via the PrintNode REST API
 
+## Async Messaging
+
+Symfony Messenger with domain-separated transports (see `config/packages/messenger.yaml`):
+
+| Transport            | Queue               | Messages                                             |
+|----------------------|---------------------|------------------------------------------------------|
+| `transactional_email`| `transactionalEmail`| `SendEmailMessage` (Symfony Mailer)                  |
+| `deck_enrichment`    | `deck_enrichment`   | `EnrichDeckVersionMessage` (TCGdex card enrichment)  |
+| `notification`       | `notification`      | `ChatMessage`, `SmsMessage` (Symfony Notifier)       |
+| `borrow_lifecycle`   | `borrow_lifecycle`  | `DeclineCompetingBorrowsMessage`, `CancelEventBorrowsMessage` |
+
+Pattern: services dispatch messages → handlers process them asynchronously. Each transport has independent retry (3 retries, ×2 multiplier). Failed messages route to the `failed` transport.
+
+## Translations
+
+- **Format:** XLIFF (`.xlf`) in `translations/`
+- **Key pattern:** `app.<domain>.<context>.<key>` (e.g. `app.borrow.status.pending`)
+- **Supported locales:** `en` (default), `fr`
+- Emails render in the recipient's `preferredLocale`
+- React translations live in `assets/translations/` as JSON, loaded via `react-i18next`
+
 ## Documentation
 
-For detailed documentation beyond this file, see:
+Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation index.
 
-- **[README.md](README.md)** — Project overview and feature summary
-- **[docs/docs.md](docs/docs.md)** — Full technical documentation (entry point)
-- **[docs/features.md](docs/features.md)** — Full feature list with priorities
-- **[docs/technicalities/](docs/technicalities/)** — Technical deep-dives (scanner detection, etc.)
-- **[docs/changelog.md](docs/changelog.md)** — Release history with implemented features per version
+### Documentation Map
+
+**Features & Planning**
+- [docs/features.md](docs/features.md) — Full feature catalogue with IDs and priorities
+- [docs/roadmap.md](docs/roadmap.md) — Implementation roadmap across 12 phases
+- [docs/changelog.md](docs/changelog.md) — Release history with implemented features per version
+
+**Data Models**
+- [docs/models/user.md](docs/models/user.md) — User entity, roles, auth flows, GDPR
+- [docs/models/deck.md](docs/models/deck.md) — Deck, DeckVersion, DeckCard, Archetype
+- [docs/models/event.md](docs/models/event.md) — Event, EventStaff, EventEngagement
+- [docs/models/borrow.md](docs/models/borrow.md) — Borrow entity and state machine
+- [docs/models/notification.md](docs/models/notification.md) — Notification entity and types
+- [docs/models/cms.md](docs/models/cms.md) — CMS pages and menu categories
+
+**Standards** (detailed versions of rules in this file)
+- [docs/standards/coding.md](docs/standards/coding.md) — Coding standards
+- [docs/standards/naming.md](docs/standards/naming.md) — Naming conventions
+- [docs/standards/version_control.md](docs/standards/version_control.md) — Version control & branching
+- [docs/standards/documentation.md](docs/standards/documentation.md) — Documentation standards
+- [docs/standards/file_headers.md](docs/standards/file_headers.md) — Copyright & license headers
+- [docs/standards/release_process.md](docs/standards/release_process.md) — Release checklist
+
+**Frontend**
+- [docs/frontend.md](docs/frontend.md) — Frontend architecture (Twig+Bootstrap layout, Mantine for React islands)
+
+**Technical Deep-Dives**
+- [docs/technicalities/scanner.md](docs/technicalities/scanner.md) — USB HID scanner detection
+- [docs/technicalities/camera_scanner.md](docs/technicalities/camera_scanner.md) — Camera QR scanner
+- [docs/technicalities/pdf_label.md](docs/technicalities/pdf_label.md) — PDF label card generation
 
 ### Documentation Rules
 
@@ -207,3 +273,9 @@ For detailed documentation beyond this file, see:
 - File naming: `snake_case.md` exclusively
 - Max depth: 3 levels from `docs/` root
 - Complex features: entrypoint `.md` + subdirectory `/`
+
+### Roadmap & Changelog Maintenance
+
+- `docs/roadmap.md` **MUST** be updated in the same PR when a feature's state changes (Not started → Partial → Done)
+- Update the per-phase progress line and Summary table counts accordingly
+- `docs/changelog.md` entry is required for every tagged release

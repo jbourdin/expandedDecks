@@ -23,6 +23,7 @@ Encore
     .addEntry('staff_autocomplete', './assets/staff-autocomplete.tsx')
     .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.tsx')
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
+    .addEntry('event_sync', './assets/event-sync.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()

@@ -1,0 +1,72 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.event.results.title'|trans }} — {{ event.name }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ 'app.event.results.title'|trans }} — {{ event.name }}</h5>
+            {% if isOrganizerOrStaff %}
+                <a href="{{ path('app_event_results_edit', {id: event.id}) }}" class="btn btn-sm btn-outline-light">{{ 'app.event.results.edit_results'|trans }}</a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if entries is empty or entries|filter(e => e.finalPlacement is not null)|length == 0 %}
+                <p class="text-muted mb-0">{{ 'app.event.results.no_results'|trans }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-themed mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'app.event.results.placement'|trans }}</th>
+                                <th>{{ 'app.event.results.player'|trans }}</th>
+                                <th>{{ 'app.event.results.match_record'|trans }}</th>
+                                <th>{{ 'app.event.results.archetype'|trans }}</th>
+                                <th>{{ 'app.event.results.deck'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in entries %}
+                                <tr>
+                                    <td>{{ entry.finalPlacement ?? '—' }}</td>
+                                    <td>
+                                        {% if isAuthenticated %}
+                                            {{ entry.player.screenName }} <span class="text-muted">({{ entry.player.firstName }} {{ entry.player.lastName }})</span>
+                                        {% else %}
+                                            {{ entry.player.publicDisplayName }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.matchRecord ?? '—' }}</td>
+                                    <td>
+                                        {% if entry.deckVersion.deck.archetype %}
+                                            {{ entry.deckVersion.deck.archetype.name }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('app_deck_show', {short_tag: entry.deckVersion.deck.shortTag}) }}">
+                                            <span class="badge bg-dark badge-short-id me-1">{{ entry.deckVersion.deck.shortTag }}</span>{{ entry.deckVersion.deck.name }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.back_to_event'|trans }}</a>
+    </div>
+{% endblock %}

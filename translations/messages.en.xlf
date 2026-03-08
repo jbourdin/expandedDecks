@@ -486,6 +486,51 @@
                 <target>Set</target>
                 <note>Column header in card list table</note>
             </trans-unit>
+            <trans-unit id="app.deck.event_status_overview">
+                <source>app.deck.event_status_overview</source>
+                <target>Event Status Overview</target>
+                <note>Section heading for deck event status overview card</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.event">
+                <source>app.deck.event_status.event</source>
+                <target>Event</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.date">
+                <source>app.deck.event_status.date</source>
+                <target>Date</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.status">
+                <source>app.deck.event_status.status</source>
+                <target>Status</target>
+                <note>Column header in event status overview table</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.played">
+                <source>app.deck.event_status.played</source>
+                <target>Played</target>
+                <note>Badge label for deck played at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.actively_borrowed">
+                <source>app.deck.event_status.actively_borrowed</source>
+                <target>Actively Borrowed</target>
+                <note>Badge label for deck with active borrow at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.delegated_to_staff">
+                <source>app.deck.event_status.delegated_to_staff</source>
+                <target>Delegated to Staff</target>
+                <note>Badge label for deck delegated to event staff</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.registered">
+                <source>app.deck.event_status.registered</source>
+                <target>Registered</target>
+                <note>Badge label for deck registered at event</note>
+            </trans-unit>
+            <trans-unit id="app.deck.event_status.not_registered">
+                <source>app.deck.event_status.not_registered</source>
+                <target>Not Registered</target>
+                <note>Badge label for deck not registered at event</note>
+            </trans-unit>
 
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">
@@ -2406,6 +2451,122 @@
                 <source>app.flash.invalid_csrf</source>
                 <target>Invalid security token. Please try again.</target>
                 <note>Flash message for invalid CSRF token</note>
+            </trans-unit>
+
+            <!-- Tournament Results (F3.17) -->
+            <trans-unit id="app.event.results.title">
+                <source>app.event.results.title</source>
+                <target>Tournament Results</target>
+                <note>Results page title</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.placement">
+                <source>app.event.results.placement</source>
+                <target>#</target>
+                <note>Results table header: placement</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.player">
+                <source>app.event.results.player</source>
+                <target>Player</target>
+                <note>Results table header: player</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.match_record">
+                <source>app.event.results.match_record</source>
+                <target>Record</target>
+                <note>Results table header: match record</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.archetype">
+                <source>app.event.results.archetype</source>
+                <target>Archetype</target>
+                <note>Results table header: archetype</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.deck">
+                <source>app.event.results.deck</source>
+                <target>Deck</target>
+                <note>Results table header: deck</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.no_results">
+                <source>app.event.results.no_results</source>
+                <target>No results have been entered yet.</target>
+                <note>Results page: no results message</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.edit_title">
+                <source>app.event.results.edit_title</source>
+                <target>Edit Tournament Results</target>
+                <note>Edit results page title</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.save_button">
+                <source>app.event.results.save_button</source>
+                <target>Save Results</target>
+                <note>Edit results: save button</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.view_results">
+                <source>app.event.results.view_results</source>
+                <target>View Results</target>
+                <note>Button: view tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.edit_results">
+                <source>app.event.results.edit_results</source>
+                <target>Edit Results</target>
+                <note>Button: edit tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.enter_results">
+                <source>app.event.results.enter_results</source>
+                <target>Enter Results</target>
+                <note>Button: enter tournament results</note>
+            </trans-unit>
+            <trans-unit id="app.event.results.match_record_placeholder">
+                <source>app.event.results.match_record_placeholder</source>
+                <target>3-1-0</target>
+                <note>Edit results: match record placeholder</note>
+            </trans-unit>
+
+            <!-- Event Sync -->
+            <trans-unit id="app.event.sync.button">
+                <source>app.event.sync.button</source>
+                <target>Sync</target>
+                <note>Button label for syncing event data from Pokemon event page</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.tooltip">
+                <source>app.event.sync.tooltip</source>
+                <target>Fetch event details from the official Pokemon event page</target>
+                <note>Tooltip for the sync button</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.error_empty">
+                <source>app.event.sync.error_empty</source>
+                <target>Please enter a Tournament ID first.</target>
+                <note>Error when tournament ID field is empty</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.confirm_overwrite">
+                <source>app.event.sync.confirm_overwrite</source>
+                <target>This field already has a value. Overwrite?</target>
+                <note>Confirmation prompt when synced value differs from existing</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.success">
+                <source>app.event.sync.success</source>
+                <target>Synced! Prefilled fields:</target>
+                <note>Success message after sync</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.no_changes">
+                <source>app.event.sync.no_changes</source>
+                <target>All fields already filled. No changes made.</target>
+                <note>Message when sync finds no new data to fill</note>
+            </trans-unit>
+            <trans-unit id="app.event.sync.error_network">
+                <source>app.event.sync.error_network</source>
+                <target>Network error. Could not reach the server.</target>
+                <note>Error when API call fails</note>
+            </trans-unit>
+
+            <!-- Flash messages: Tournament Results -->
+            <trans-unit id="app.flash.results.saved">
+                <source>app.flash.results.saved</source>
+                <target>Tournament results saved successfully.</target>
+                <note>Flash message after saving results</note>
+            </trans-unit>
+            <trans-unit id="app.flash.results.not_finished">
+                <source>app.flash.results.not_finished</source>
+                <target>Results can only be viewed for finished events.</target>
+                <note>Flash message when event is not finished</note>
             </trans-unit>
         </body>
     </file>

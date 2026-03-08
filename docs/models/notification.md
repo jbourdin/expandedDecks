@@ -36,6 +36,7 @@ Stores in-app notifications for users. Each notification is addressed to a singl
 | `staff_assigned`     | F3.5            | You were assigned as staff for an event. |
 | `event_updated`      | F3.9            | An event you're participating in was updated. |
 | `event_cancelled`    | F3.10           | An event was cancelled. |
+| `event_invited`      | F3.13           | You were invited to an event. |
 | `event_reminder`     | F8.2            | Reminder: an event with active borrows is tomorrow. |
 
 ### Constraints
@@ -55,6 +56,12 @@ Stores in-app notifications for users. Each notification is addressed to a singl
 | `recipient` | ManyToOne | `User`        | The user this notification is addressed to |
 
 The `User` entity has a corresponding `notifications` OneToMany back-relation (see [User model](user.md)).
+
+### Notification Preferences (F8.3)
+
+Users can configure per-type preferences for email and in-app channels via `/profile/notifications`. Preferences are stored as a JSON column on the `User` entity (`notificationPreferences`). See [User model](user.md) for field details.
+
+All notification services check `User::isNotificationEnabled()` before sending. Default (null): all channels enabled.
 
 ### Indexing
 
