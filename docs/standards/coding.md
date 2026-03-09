@@ -49,8 +49,13 @@ use const App\BORROW_STATUS_PENDING;
 - **Thin controllers**: business logic belongs in services, not controllers
 - **Doctrine entities** use PHP 8 attributes (not annotations)
 - **Service configuration**: autowiring + param binding in `services.yaml`
+- **Prefer PHP attributes over YAML configuration** when possible (e.g. `#[AsEventListener]`, `#[AutoconfigureTag]`, `#[AsCommand]`, `#[Route]`)
 - **Environment variables** for all external configuration (no hardcoded values)
 - **Visibility required** on all class constants, methods, and properties
+
+### Type Checking
+
+- Prefer `$variable instanceof Class` over `null !== $variable` when checking types
 
 ### Testing
 
@@ -66,6 +71,10 @@ use const App\BORROW_STATUS_PENDING;
 - **TypeScript** for all frontend code (strict mode enabled in `tsconfig.json`)
 - **ESLint** for linting — flat config format (`eslint.config.mjs`)
 - **React** as the UI framework, via Webpack Encore
+- Use `const` and `let`, never `var`
+- Use arrow functions `() => {}` for anonymous functions
+- Use template literals `` `Hello ${name}` `` instead of string concatenation
+- Never use jQuery or other DOM manipulation libraries, unless interacting with a third-party library that requires it. Use vanilla JS or React instead
 
 ### React
 
@@ -78,6 +87,15 @@ use const App\BORROW_STATUS_PENDING;
 - **Webpack Encore** for asset compilation
 - Entry point: `assets/app.tsx`
 - Run: `make assets` (build), `make assets.watch` (dev watch mode)
+
+## Localization
+
+All text displayed to end users **MUST** use translation keys defined in the XLIFF translation files (`translations/messages.en.xlf` and `translations/messages.fr.xlf`). This includes flash messages, validation errors, form labels, email subjects/bodies, and UI labels.
+
+- PHP services that produce user-facing messages must inject `TranslatorInterface` and call `$this->translator->trans()`
+- Twig templates use `{{ 'app.key'|trans }}` or `{% trans %}` blocks
+- React components use `react-i18next` with JSON translation files in `assets/translations/`
+- CLI command output (developer-facing) is exempt
 
 ## Feature Traceability
 
