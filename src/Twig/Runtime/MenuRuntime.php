@@ -15,6 +15,8 @@ namespace App\Twig\Runtime;
 
 use App\Entity\MenuCategory;
 use App\Repository\MenuCategoryRepository;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
@@ -26,6 +28,7 @@ class MenuRuntime implements RuntimeExtensionInterface
 {
     public function __construct(
         private readonly MenuCategoryRepository $menuCategoryRepository,
+        private readonly CacheInterface $menuCategoriesCache,
     ) {
     }
 
@@ -34,6 +37,18 @@ class MenuRuntime implements RuntimeExtensionInterface
      */
     public function getCategories(): array
     {
-        return $this->menuCategoryRepository->findWithPublishedPages();
+        /** @var list<MenuCategory> $categories */
+        $categories = $this->menuCategoriesCache->get('menu_categories', function (ItemInterface $item): array {
+            $item->expiresAfter(3600);
+
+            return $this->menuCategoryRepository->findWithPublishedPages();
+        });
+
+        return $categories;
+    }
+
+    public function invalidateCache(): void
+    {
+        $this->menuCategoriesCache->delete('menu_categories');
     }
 }
