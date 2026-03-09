@@ -263,16 +263,19 @@
         </div>
     {% endif %}
 
-    {# Card image modal for mobile tap-to-show (M4) #}
+    {# Card image modal for mobile tap-to-show with swipe navigation (M4) #}
     <div class="modal fade" id="cardImageModal" tabindex="-1" aria-labelledby="cardImageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
                 <div class="modal-header py-2">
                     <h6 class="modal-title" id="cardImageModalLabel"></h6>
+                    <span class="text-muted small ms-auto me-2" id="cardImageModalCounter"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center p-2">
+                <div class="modal-body text-center p-2 position-relative">
+                    <button type="button" id="cardImageModalPrev" class="btn btn-sm btn-outline-secondary position-absolute start-0 top-50 translate-middle-y ms-1" aria-label="Previous">&lsaquo;</button>
                     <img id="cardImageModalImg" src="" alt="" class="img-fluid rounded">
+                    <button type="button" id="cardImageModalNext" class="btn btn-sm btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-1" aria-label="Next">&rsaquo;</button>
                 </div>
             </div>
         </div>
