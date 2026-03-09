@@ -137,11 +137,13 @@ class BannedCardsSyncCommand extends Command
         $ulHtml = $ulMatch[1];
 
         // Extract card names from <li> elements — name is typically in an <a> tag
+        $seen = [];
         $names = [];
         if (preg_match_all('/<li[^>]*>(.*?)<\/li>/si', $ulHtml, $liMatches)) {
             foreach ($liMatches[1] as $liContent) {
                 $name = $this->extractCardName($liContent);
-                if (null !== $name) {
+                if (null !== $name && !isset($seen[$name])) {
+                    $seen[$name] = true;
                     $names[] = $name;
                 }
             }

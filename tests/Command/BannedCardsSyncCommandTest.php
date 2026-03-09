@@ -113,6 +113,29 @@ class BannedCardsSyncCommandTest extends TestCase
         self::assertStringContainsString('1 removed', $tester->getDisplay());
     }
 
+    public function testSyncDeduplicatesCardNames(): void
+    {
+        // Unown appears twice on the real page (two different printings)
+        $html = $this->buildHtml('<ul><li><a href="#">Unown</a> (90/214)</li><li><a href="#">Unown</a> (91/214)</li></ul>');
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createMock(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneByName')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('persist');
+        $em->expects(self::once())->method('flush');
+
+        $command = new BannedCardsSyncCommand($httpClient, $bannedCardRepo, $em);
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        self::assertSame(0, $tester->getStatusCode());
+        self::assertStringContainsString('1 added', $tester->getDisplay());
+    }
+
     public function testSyncFailsWhenNoExpandedSection(): void
     {
         $html = '<html><body><h2>Standard</h2><ul><li>Card</li></ul></body></html>';
