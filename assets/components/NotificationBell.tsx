@@ -159,7 +159,13 @@ export default function NotificationBell({
                     <ActionIcon
                         variant="subtle"
                         size="lg"
-                        onClick={() => setOpened((o) => !o)}
+                        onClick={() => {
+                            if (window.innerWidth < 768) {
+                                window.location.href = listUrl;
+                            } else {
+                                setOpened((o) => !o);
+                            }
+                        }}
                         aria-label="Notifications"
                         style={{ color: 'rgba(255, 255, 255, 0.85)' }}
                     >

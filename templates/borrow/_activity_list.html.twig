@@ -71,16 +71,18 @@
                     {% endif %}
                     {{ borrowBadge(borrow) }}
                 </div>
-                <div class="text-muted small mb-2">
-                    {% if 'event' in columns and 'deck' in columns %}
-                        <a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a> &middot;
-                    {% endif %}
-                    {% if 'borrower' in columns %}
-                        {{ borrow.borrower.screenName }} &middot;
-                    {% endif %}
-                    {{ borrow.requestedAt|user_date }}
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">
+                        {% if 'event' in columns and 'deck' in columns %}
+                            <a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a> &middot;
+                        {% endif %}
+                        {% if 'borrower' in columns %}
+                            {{ borrow.borrower.screenName }} &middot;
+                        {% endif %}
+                        {{ borrow.requestedAt|user_date }}
+                    </span>
+                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary ms-2 flex-shrink-0">{{ 'app.common.view'|trans }}</a>
                 </div>
-                <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
             </div>
         {% endfor %}
     </div>

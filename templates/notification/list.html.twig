@@ -11,25 +11,25 @@
 {% block title %}{{ 'app.notification.center.title'|trans }} — Expanded Decks{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h1 class="mb-0">{{ 'app.notification.center.title'|trans }}</h1>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             {% if notifications|length > 0 %}
                 <form method="post" action="{{ path('app_notification_mark_all_read') }}" class="d-inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('notification_read_all') }}">
                     <button type="submit" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-check2-all me-1"></i>{{ 'app.notification.center.mark_all_read'|trans }}
+                        <i class="bi bi-check2-all me-1"></i><span class="d-none d-sm-inline">{{ 'app.notification.center.mark_all_read'|trans }}</span>
                     </button>
                 </form>
                 <form method="post" action="{{ path('app_notification_delete_read') }}" class="d-inline" onsubmit="return confirm('{{ 'app.notification.center.delete_read_confirm'|trans }}')">
                     <input type="hidden" name="_token" value="{{ csrf_token('notification_delete_read') }}">
                     <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash me-1"></i>{{ 'app.notification.center.delete_read'|trans }}
+                        <i class="bi bi-trash me-1"></i><span class="d-none d-sm-inline">{{ 'app.notification.center.delete_read'|trans }}</span>
                     </button>
                 </form>
             {% endif %}
             <a href="{{ path('app_profile_notifications') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-gear me-1"></i>{{ 'app.notification.center.preferences'|trans }}
+                <i class="bi bi-gear me-1"></i><span class="d-none d-sm-inline">{{ 'app.notification.center.preferences'|trans }}</span>
             </a>
         </div>
     </div>

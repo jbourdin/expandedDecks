@@ -115,6 +115,22 @@
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}
             {% endif %}
+            <script>
+                {# Preserve scroll position across form-driven page reloads #}
+                (function() {
+                    var key = 'ed_scroll_' + location.pathname;
+                    var saved = sessionStorage.getItem(key);
+                    if (saved) {
+                        sessionStorage.removeItem(key);
+                        window.scrollTo(0, parseInt(saved, 10));
+                    }
+                    document.querySelectorAll('form[method="post"]').forEach(function(form) {
+                        form.addEventListener('submit', function() {
+                            sessionStorage.setItem(key, String(window.scrollY));
+                        });
+                    });
+                })();
+            </script>
         {% endblock %}
     </body>
 </html>

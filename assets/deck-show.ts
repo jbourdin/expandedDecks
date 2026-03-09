@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+import { Modal } from 'bootstrap';
+
 /**
  * Card image hover: toggles `show-below` class so the preview stays
  * within the viewport (above by default, below when near the top).
@@ -42,11 +44,11 @@ document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
 
         event.preventDefault();
 
-        const modal = document.getElementById('cardImageModal');
+        const modalElement = document.getElementById('cardImageModal');
         const modalImg = document.getElementById('cardImageModalImg') as HTMLImageElement | null;
         const modalLabel = document.getElementById('cardImageModalLabel');
 
-        if (!modal || !modalImg) return;
+        if (!modalElement || !modalImg) return;
 
         modalImg.src = img.src;
         modalImg.alt = img.alt;
@@ -54,8 +56,7 @@ document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
             modalLabel.textContent = img.alt;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Bootstrap is loaded globally
-        const bsModal = new (window as any).bootstrap.Modal(modal);
+        const bsModal = Modal.getOrCreateInstance(modalElement);
         bsModal.show();
     });
 });

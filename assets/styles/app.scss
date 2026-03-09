@@ -244,12 +244,23 @@ footer {
 }
 
 // --- Mobile touch target ---
-// Ensure action buttons meet 44px minimum on small screens.
+// Ensure action buttons within card bodies and table cells meet 44px
+// minimum on small screens. Scoped to avoid enlarging header/toolbar buttons.
 @include media-breakpoint-down(md) {
-    .btn-sm {
+    .card-body .btn-sm,
+    td .btn-sm,
+    .borrow-mobile-card .btn-sm {
         min-height: 44px;
         padding-top: .5rem;
         padding-bottom: .5rem;
+    }
+}
+
+// --- Mobile navbar ---
+// Left-align nav items when collapsed on mobile instead of centered.
+@include media-breakpoint-down(lg) {
+    .navbar-collapse .navbar-nav {
+        align-items: flex-start !important;
     }
 }
 
