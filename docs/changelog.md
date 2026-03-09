@@ -14,7 +14,38 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
-*Nothing yet.*
+---
+
+## [0.7.0] — 2026-03-09
+
+Phase 8 completion — Admin, Homepage & Polish: banned card list, mobile UX responsiveness pass with swipeable card gallery, localized validation messages, coding standards documentation.
+
+### Card Data & Validation
+
+- **F6.5** — Banned card list management *(completed)*: CLI command `app:banned-cards:sync` fetches the official Pokemon TCG banned card list from pokemon.com and syncs it to the database (add/remove/unchanged). `DeckListValidator` now checks imported deck lists against the banned card list. Sync runs automatically at the end of `make fixtures`. Cards identified by setCode + cardNumber for deduplication.
+
+### Mobile UX
+
+- **F10.1** — Mobile UX review *(completed)*: comprehensive mobile responsiveness pass. Borrow tables (inbox, dashboard, deck show) use card-based layout on mobile (`< md`) instead of horizontal-scroll tables. Deck catalog filters collapse behind a toggle on mobile. Card hover images replaced with tap-to-show swipeable modal on touch devices (prev/next buttons, touch swipe, keyboard arrows, quantity in title). Background scroll blocked while modal is open on iOS. Action buttons meet 44px touch target. Event info tables converted to definition lists. Notification bell redirects to notification list on mobile. Navbar items right-aligned on mobile. Dashboard stat cards stack vertically on smallest screens.
+
+### Deck Library
+
+- Swipeable card image gallery: mobile modal navigates through all deck card images in list order with touch swipe, prev/next buttons, and keyboard arrow support. Modal title shows "qty x card name".
+
+### Internationalization
+
+- Deck list parser and validator error messages are now localized via translation keys instead of hardcoded English strings.
+
+### Documentation
+
+- Expanded Make commands reference in CLAUDE.md with all targets, descriptions, and usage guidance.
+- Added JavaScript/TypeScript coding conventions, naming rules, and additional PHP rules to coding standards.
+- Mobile UX audit document (`docs/technicalities/mobile_audit.md`).
+
+### Cross-Cutting
+
+- 509 tests, 2154 assertions, PHPStan level 10
+- Phase 8 fully complete (6/6 features done)
 
 ---
 

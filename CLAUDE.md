@@ -95,6 +95,10 @@ PHP-CS-Fixer enforces this header automatically via the `header_comment` rule.
 - Constructor injection, autowiring, thin controllers
 - Doctrine entities use PHP 8 attributes (not annotations)
 - Symfony best practices: service autowiring, param binding, env vars for config
+- Prefer PHP attributes over YAML configuration when possible (e.g. `#[AsEventListener]`, `#[AutoconfigureTag]`, `#[AsCommand]`)
+- Prefer `$variable instanceof Class` over `null !== $variable` when checking types
+- **No hardcoded user-facing strings**: all text displayed to end users (flash messages, validation errors, form labels, email subjects/bodies, UI labels) **MUST** use translation keys and be defined in the XLIFF translation files (`translations/messages.en.xlf` and `translations/messages.fr.xlf`). Services that produce user-facing messages must inject `TranslatorInterface` and call `$this->translator->trans()`. CLI command output (developer-facing) is exempt.
+- **No abbreviations or acronyms in identifiers**: whatever the language, never name a variable, method, class, or constant with an acronym or abbreviation that is not widely known (e.g. `VAT` is fine) or already used in the project. Use full, descriptive names. Examples: `$column` not `$col`; `values.find((value) => value === 'foo')` not `values.find((v) => v === 'foo')`.
 - **Feature traceability**: methods implementing a documented feature rule **MUST** reference the feature ID in their PHPDoc (`@see`) or JSDoc. This links code back to the feature specification.
 
 PHP example:
@@ -113,6 +117,13 @@ JS example:
  */
 function useScannerDetection(onScan) {
 ```
+
+### JavaScript / TypeScript
+
+- Use `const` and `let`, never `var`
+- Use arrow functions `() => {}` for anonymous functions
+- Use template literals `` `Hello ${name}` `` instead of string concatenation
+- Never use jQuery or other DOM manipulation libraries, unless interacting with a third-party library that requires it. Use vanilla JS or React instead
 
 ## Version Control
 
@@ -188,18 +199,63 @@ make test       # Run test suite
 6. Back-merge `main` into `develop`
 7. Delete the release branch
 
-## Key Commands
+## Make Commands
 
-| Command             | Description                       |
-|---------------------|-----------------------------------|
-| `make install`      | Full project installation          |
-| `make start`        | Start dev server + Docker services |
-| `make stop`         | Stop all services                  |
-| `make test`         | Run all tests                      |
-| `make phpstan`      | Static analysis                    |
-| `make cs-fix`       | Fix code style                     |
-| `make migrations`   | Execute Doctrine migrations        |
-| `make fixtures`     | Load fixture data                  |
+> **CRITICAL: Always use `make` targets instead of running underlying commands directly.** The Makefile wraps `symfony`, `npx`, and other tools with the correct flags and environment. Running raw commands (e.g. `npx encore dev`) may produce builds or results that the dev server does not pick up.
+
+### Project
+
+| Command             | Description                                      | When to use                              |
+|---------------------|--------------------------------------------------|------------------------------------------|
+| `make install`      | `symfony composer install` + `npm install`       | After cloning or pulling new deps        |
+| `make start`        | Docker up + Symfony proxy + dev server           | Start the full dev environment           |
+| `make stop`         | Stop dev server + Docker                         | Shut down the dev environment            |
+
+### Database
+
+| Command             | Description                                      | When to use                              |
+|---------------------|--------------------------------------------------|------------------------------------------|
+| `make migrations`   | Run Doctrine migrations                          | After adding/pulling new migrations      |
+| `make fixtures`     | Drop + recreate DB, load fixtures, sync, enrich  | Reset the database to a clean state      |
+
+### Assets (Frontend)
+
+| Command             | Description                                      | When to use                              |
+|---------------------|--------------------------------------------------|------------------------------------------|
+| `make assets`       | `npx encore production` — production build       | **After any change to `assets/`** files (`.ts`, `.tsx`, `.scss`). This is the standard build command. |
+| `make assets.watch` | `npx encore dev --watch` — dev build + HMR       | During active frontend development for auto-rebuild on save |
+
+> **Never run `npx encore dev` or `npx encore production` directly.** Always use `make assets` or `make assets.watch`.
+
+### Quality (Pre-Commit)
+
+| Command                | Description                                      | When to use                              |
+|------------------------|--------------------------------------------------|------------------------------------------|
+| `make cs-fix`          | PHP-CS-Fixer — auto-fix code style               | Before every commit (PHP changes)        |
+| `make phpstan`         | PHPStan Level 10 static analysis                 | Before every commit (PHP changes)        |
+| `make test`            | Full PHPUnit test suite                          | Before every commit                      |
+| `make test.unit`       | Unit tests only                                  | Quick check during development           |
+| `make test.functional` | Functional tests only                            | Quick check during development           |
+| `make test.front`      | Vitest frontend tests                            | Before every commit (frontend changes)   |
+| `make coverage`        | PHPUnit with pcov coverage report                | When coverage data is needed             |
+| `make cs-check`        | PHP-CS-Fixer dry-run (no changes)                | CI / review only                         |
+| `make eslint`          | ESLint on `assets/`                              | Before every commit (frontend changes)   |
+
+### Messenger Workers
+
+| Command                | Description                                      | When to use                              |
+|------------------------|--------------------------------------------------|------------------------------------------|
+| `make worker.all`      | Consume all transports                           | Run all async processing                 |
+| `make worker.email`    | Consume `transactional_email` transport          | Process outgoing emails                  |
+| `make worker.enrichment`| Consume `deck_enrichment` transport             | Process TCGdex card enrichment           |
+| `make worker.notification`| Consume `notification` transport              | Process push notifications               |
+| `make worker.borrow`   | Consume `borrow_lifecycle` transport             | Process borrow state transitions         |
+
+### Other
+
+| Command             | Description                                      | When to use                              |
+|---------------------|--------------------------------------------------|------------------------------------------|
+| `make mailpit`      | Open Mailpit web UI in browser                   | Inspect emails sent in dev               |
 
 ## External APIs
 

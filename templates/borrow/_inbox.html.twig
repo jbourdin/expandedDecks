@@ -8,6 +8,66 @@
  #}
 {% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
+{# Reusable macro for the action buttons (used in both table and card layouts) #}
+{% macro borrowActions(borrow, isBorrower, scope, custodyMap) %}
+    {% if borrow.status.value == 'pending' %}
+        {% if not isBorrower %}
+            <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
+                <input type="hidden" name="redirect_to" value="lends">
+                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+            </form>
+            <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
+                <input type="hidden" name="redirect_to" value="lends">
+                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+            </form>
+        {% endif %}
+        {% if isBorrower %}
+            <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
+                <input type="hidden" name="redirect_to" value="lends">
+                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+            </form>
+        {% endif %}
+    {% elseif borrow.status.value == 'approved' %}
+        {% if not isBorrower %}
+            {% set hasCustody = not borrow.delegatedToStaff or (custodyMap is defined and custodyMap[borrow.id] is defined and custodyMap[borrow.id]) %}
+            {% if hasCustody %}
+                <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
+                    <input type="hidden" name="redirect_to" value="lends">
+                    {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                    <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.hand_off'|trans }}</button>
+                </form>
+            {% else %}
+                <span class="badge bg-warning text-dark">{{ 'app.borrow.awaiting_custody'|trans }}</span>
+            {% endif %}
+        {% endif %}
+        {% if isBorrower %}
+            <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
+                <input type="hidden" name="redirect_to" value="lends">
+                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+            </form>
+        {% endif %}
+    {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
+        {% if not isBorrower %}
+            <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
+                <input type="hidden" name="redirect_to" value="lends">
+                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
+                <button type="submit" class="btn btn-sm btn-warning">{{ 'app.event.mark_returned'|trans }}</button>
+            </form>
+        {% endif %}
+    {% endif %}
+    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
+{% endmacro %}
+
 {% for group in eventGroups %}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
@@ -15,7 +75,8 @@
             <small class="text-white-50">{{ group.event.date|user_date(group.event.timezone) }} {{ group.event.date|tz_abbr(group.event.timezone) }}</small>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
+            {# Desktop table layout (md+) #}
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-striped table-themed mb-0">
                     <thead>
                         <tr>
@@ -39,67 +100,33 @@
                                 <td>{{ borrow.requestedAt|user_date }}</td>
                                 <td class="text-end">
                                     {% set isBorrower = borrow.borrower.id == app.user.id %}
-                                    {% if borrow.status.value == 'pending' %}
-                                        {% if not isBorrower %}
-                                            <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
-                                                <input type="hidden" name="redirect_to" value="lends">
-                                                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
-                                            </form>
-                                            <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
-                                                <input type="hidden" name="redirect_to" value="lends">
-                                                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
-                                            </form>
-                                        {% endif %}
-                                        {% if isBorrower %}
-                                            <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
-                                                <input type="hidden" name="redirect_to" value="lends">
-                                                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
-                                            </form>
-                                        {% endif %}
-                                    {% elseif borrow.status.value == 'approved' %}
-                                        {% if not isBorrower %}
-                                            {% set hasCustody = not borrow.delegatedToStaff or (custodyMap is defined and custodyMap[borrow.id] is defined and custodyMap[borrow.id]) %}
-                                            {% if hasCustody %}
-                                                <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
-                                                    <input type="hidden" name="redirect_to" value="lends">
-                                                    {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                    <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.hand_off'|trans }}</button>
-                                                </form>
-                                            {% else %}
-                                                <span class="badge bg-warning text-dark">{{ 'app.borrow.awaiting_custody'|trans }}</span>
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if isBorrower %}
-                                            <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
-                                                <input type="hidden" name="redirect_to" value="lends">
-                                                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
-                                            </form>
-                                        {% endif %}
-                                    {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
-                                        {% if not isBorrower %}
-                                            <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
-                                                <input type="hidden" name="redirect_to" value="lends">
-                                                {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                                                <button type="submit" class="btn btn-sm btn-warning">{{ 'app.event.mark_returned'|trans }}</button>
-                                            </form>
-                                        {% endif %}
-                                    {% endif %}
-                                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
+                                    {{ _self.borrowActions(borrow, isBorrower, scope|default(null), custodyMap|default({})) }}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            {# Mobile card layout (<md) #}
+            <div class="d-md-none">
+                {% for borrow in group.borrows %}
+                    {% set isBorrower = borrow.borrower.id == app.user.id %}
+                    <div class="p-3 {{ not loop.last ? 'border-bottom' : '' }}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}">
+                                <span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}
+                            </a>
+                            {{ borrowBadge(borrow) }}
+                        </div>
+                        <div class="text-muted small mb-2">
+                            {{ borrow.borrower.screenName }} &middot; {{ borrow.requestedAt|user_date }}
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {{ _self.borrowActions(borrow, isBorrower, scope|default(null), custodyMap|default({})) }}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>

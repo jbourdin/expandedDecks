@@ -7,7 +7,6 @@
  # file that was distributed with this source code.
  #}
 {% extends 'base.html.twig' %}
-{% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
 {% block title %}{{ 'app.dashboard.title'|trans }}{% endblock %}
 
@@ -17,7 +16,7 @@
     {% if stats is defined %}
         <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.global_title'|trans }}</h5>
         <div class="row mb-4">
-            <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
                 <a href="{{ path('app_deck_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-primary">{{ stats.totalDecks }}</div>
@@ -25,7 +24,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
                 <a href="{{ path('app_lend_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-success">{{ stats.activeBorrows }}</div>
@@ -33,7 +32,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-sm-0">
                 <a href="{{ path('app_event_list') }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-info">{{ stats.upcomingEvents }}</div>
@@ -41,7 +40,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-3">
                 <a href="{{ path('app_lend_list', {status: 'overdue'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold {{ stats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ stats.overdueReturns }}</div>
@@ -55,7 +54,7 @@
     {% if myStats is defined %}
         <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.my_events_title'|trans }}</h5>
         <div class="row mb-4">
-            <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
                 <div class="card text-center shadow-sm h-100">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-primary">{{ myStats.registeredDecks }}</div>
@@ -63,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
                 <a href="{{ path('app_lend_list', {scope: 'managed'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-success">{{ myStats.activeBorrows }}</div>
@@ -71,7 +70,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-3 mb-sm-0">
                 <a href="{{ path('app_event_list', {scope: 'staffing'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold text-info">{{ myStats.upcomingEvents }}</div>
@@ -79,7 +78,7 @@
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-3">
                 <a href="{{ path('app_lend_list', {scope: 'managed', status: 'overdue'}) }}" class="card text-center shadow-sm h-100 text-decoration-none">
                     <div class="card-body py-3">
                         <div class="fs-2 fw-bold {{ myStats.overdueReturns > 0 ? 'text-danger' : 'text-secondary' }}">{{ myStats.overdueReturns }}</div>
@@ -201,34 +200,11 @@
             <a href="{{ path('app_borrow_list') }}" class="btn btn-sm btn-outline-light">{{ 'app.common.see_all'|trans }}</a>
         </div>
         <div class="card-body">
-            {% if recentBorrows|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-themed mb-0">
-                        <thead>
-                            <tr>
-                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                <th>{{ 'app.borrow.table.event'|trans }}</th>
-                                <th>{{ 'app.borrow.table.status'|trans }}</th>
-                                <th>{{ 'app.borrow.table.date'|trans }}</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for borrow in recentBorrows %}
-                                <tr>
-                                    <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
-                                    <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
-                                    <td>{{ borrowBadge(borrow) }}</td>
-                                    <td>{{ borrow.requestedAt|user_date }}</td>
-                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">{{ 'app.dashboard.no_borrow_activity'|trans }}</p>
-            {% endif %}
+            {% include 'borrow/_activity_list.html.twig' with {
+                borrows: recentBorrows,
+                columns: ['deck', 'event', 'status', 'date'],
+                emptyMessage: 'app.dashboard.no_borrow_activity'|trans
+            } only %}
         </div>
     </div>
 
@@ -238,36 +214,11 @@
             <a href="{{ path('app_lend_list') }}" class="btn btn-sm btn-outline-light">{{ 'app.common.see_all'|trans }}</a>
         </div>
         <div class="card-body">
-            {% if recentLends|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-themed mb-0">
-                        <thead>
-                            <tr>
-                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                <th>{{ 'app.borrow.table.event'|trans }}</th>
-                                <th>{{ 'app.borrow.table.borrower'|trans }}</th>
-                                <th>{{ 'app.borrow.table.status'|trans }}</th>
-                                <th>{{ 'app.borrow.table.date'|trans }}</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for borrow in recentLends %}
-                                <tr>
-                                    <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
-                                    <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
-                                    <td>{{ borrow.borrower.screenName }}</td>
-                                    <td>{{ borrowBadge(borrow) }}</td>
-                                    <td>{{ borrow.requestedAt|user_date }}</td>
-                                    <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">{{ 'app.dashboard.no_lend_activity'|trans }}</p>
-            {% endif %}
+            {% include 'borrow/_activity_list.html.twig' with {
+                borrows: recentLends,
+                columns: ['deck', 'event', 'borrower', 'status', 'date'],
+                emptyMessage: 'app.dashboard.no_lend_activity'|trans
+            } only %}
         </div>
     </div>
 
@@ -277,36 +228,11 @@
                 <h5 class="mb-0">{{ 'app.dashboard.event_management_activity'|trans }}</h5>
             </div>
             <div class="card-body">
-                {% if recentManagedBorrows|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-themed mb-0">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.borrower'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.event'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.status'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.date'|trans }}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for borrow in recentManagedBorrows %}
-                                    <tr>
-                                        <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
-                                        <td>{{ borrow.borrower.screenName }}</td>
-                                        <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
-                                        <td>{{ borrowBadge(borrow) }}</td>
-                                        <td>{{ borrow.requestedAt|user_date }}</td>
-                                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="text-muted mb-0">{{ 'app.dashboard.no_management_activity'|trans }}</p>
-                {% endif %}
+                {% include 'borrow/_activity_list.html.twig' with {
+                    borrows: recentManagedBorrows,
+                    columns: ['deck', 'borrower', 'event', 'status', 'date'],
+                    emptyMessage: 'app.dashboard.no_management_activity'|trans
+                } only %}
             </div>
         </div>
     {% endif %}

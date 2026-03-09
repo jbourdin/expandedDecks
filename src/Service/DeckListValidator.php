@@ -13,10 +13,14 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\BannedCardRepository;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 /**
  * Validates a parsed deck list against Expanded format rules.
  *
  * @see docs/features.md F6.3 — Validate deck list (card count, duplicates)
+ * @see docs/features.md F6.5 — Banned card list management
  */
 class DeckListValidator
 {
@@ -36,6 +40,12 @@ class DeckListValidator
         'Fairy Energy',
     ];
 
+    public function __construct(
+        private readonly BannedCardRepository $bannedCardRepo,
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
     public function validate(DeckListParseResult $parseResult): DeckValidationResult
     {
         $errors = [];
@@ -43,11 +53,10 @@ class DeckListValidator
 
         $totalCards = $parseResult->totalCards();
         if (self::REQUIRED_CARD_COUNT !== $totalCards) {
-            $errors[] = \sprintf(
-                'A deck must contain exactly %d cards, but this list has %d.',
-                self::REQUIRED_CARD_COUNT,
-                $totalCards,
-            );
+            $errors[] = $this->translator->trans('app.deck.validation.card_count', [
+                '%required%' => self::REQUIRED_CARD_COUNT,
+                '%actual%' => $totalCards,
+            ]);
         }
 
         // Group quantities by card identity (setCode|cardNumber)
@@ -70,12 +79,33 @@ class DeckListValidator
 
         foreach ($cardCounts as $data) {
             if ($data['quantity'] > self::MAX_COPIES) {
-                $errors[] = \sprintf(
-                    'Card "%s" appears %d times, but the maximum is %d copies.',
-                    $data['name'],
-                    $data['quantity'],
-                    self::MAX_COPIES,
-                );
+                $errors[] = $this->translator->trans('app.deck.validation.max_copies', [
+                    '%name%' => $data['name'],
+                    '%count%' => $data['quantity'],
+                    '%max%' => self::MAX_COPIES,
+                ]);
+            }
+        }
+
+        // Check for banned cards (matched by setCode + cardNumber)
+        $bannedKeys = $this->bannedCardRepo->findBannedCardKeys();
+        $checkedKeys = [];
+
+        foreach ($parseResult->cards as $card) {
+            $key = $card->setCode.'|'.$card->cardNumber;
+
+            if (isset($checkedKeys[$key])) {
+                continue;
+            }
+
+            $checkedKeys[$key] = true;
+
+            if (isset($bannedKeys[$key])) {
+                $errors[] = $this->translator->trans('app.deck.validation.banned_card', [
+                    '%name%' => $card->cardName,
+                    '%set%' => $card->setCode,
+                    '%number%' => $card->cardNumber,
+                ]);
             }
         }
 

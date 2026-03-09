@@ -62,6 +62,7 @@ fixtures: ## Load fixture data and dispatch enrichment
 	symfony console doctrine:database:create
 	symfony console doctrine:migrations:migrate --no-interaction
 	symfony console doctrine:fixtures:load --no-interaction --append
+	symfony console app:banned-cards:sync
 	symfony console app:enrich:retry
 
 ## —— Assets ——————————————————————————————————————————————————————————

@@ -1,0 +1,91 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Renders a borrow activity list with desktop table / mobile card layout.
+ #
+ # Parameters:
+ #   borrows  — array of Borrow entities
+ #   columns  — array of column keys to show: 'deck', 'event', 'borrower', 'status', 'date'
+ #}
+{% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
+
+{% if borrows|length > 0 %}
+    {# Desktop table (md+) #}
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-striped table-themed mb-0">
+            <thead>
+                <tr>
+                    {% for col in columns %}
+                        {% if col == 'deck' %}<th>{{ 'app.borrow.table.deck'|trans }}</th>{% endif %}
+                        {% if col == 'event' %}<th>{{ 'app.borrow.table.event'|trans }}</th>{% endif %}
+                        {% if col == 'borrower' %}<th>{{ 'app.borrow.table.borrower'|trans }}</th>{% endif %}
+                        {% if col == 'status' %}<th>{{ 'app.borrow.table.status'|trans }}</th>{% endif %}
+                        {% if col == 'date' %}<th>{{ 'app.borrow.table.date'|trans }}</th>{% endif %}
+                    {% endfor %}
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for borrow in borrows %}
+                    <tr>
+                        {% for col in columns %}
+                            {% if col == 'deck' %}
+                                <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
+                            {% endif %}
+                            {% if col == 'event' %}
+                                <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
+                            {% endif %}
+                            {% if col == 'borrower' %}
+                                <td>{{ borrow.borrower.screenName }}</td>
+                            {% endif %}
+                            {% if col == 'status' %}
+                                <td>{{ borrowBadge(borrow) }}</td>
+                            {% endif %}
+                            {% if col == 'date' %}
+                                <td>{{ borrow.requestedAt|user_date }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td><a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Mobile cards (<md) #}
+    <div class="d-md-none">
+        {% for borrow in borrows %}
+            <div class="p-3 {{ not loop.last ? 'border-bottom' : '' }}">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    {% if 'deck' in columns %}
+                        <a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}">
+                            <span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}
+                        </a>
+                    {% elseif 'event' in columns %}
+                        <a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a>
+                    {% endif %}
+                    {{ borrowBadge(borrow) }}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">
+                        {% if 'event' in columns and 'deck' in columns %}
+                            <a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a> &middot;
+                        {% endif %}
+                        {% if 'borrower' in columns %}
+                            {{ borrow.borrower.screenName }} &middot;
+                        {% endif %}
+                        {{ borrow.requestedAt|user_date }}
+                    </span>
+                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary ms-2 flex-shrink-0">{{ 'app.common.view'|trans }}</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted mb-0">{{ emptyMessage|default('app.dashboard.no_borrow_activity'|trans) }}</p>
+{% endif %}

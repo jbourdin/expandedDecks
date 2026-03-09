@@ -194,7 +194,7 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
 
         $handoverForm = $crawler->filter(\sprintf('form[action$="/custody/%d/owner-handover"]', $reg->getId()));
-        self::assertCount(1, $handoverForm, 'Owner should see the Hand to staff button for delegated decks.');
+        self::assertGreaterThanOrEqual(1, $handoverForm->count(), 'Owner should see the Hand to staff button for delegated decks.');
     }
 
     public function testStaffSeesReturnButton(): void
@@ -216,7 +216,7 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
 
         $returnForm = $crawler->filter(\sprintf('form[action$="/custody/%d/staff-return"]', $reg->getId()));
-        self::assertCount(1, $returnForm, 'Staff should see the return button after owner handover.');
+        self::assertGreaterThanOrEqual(1, $returnForm->count(), 'Staff should see the return button after owner handover.');
     }
 
     // ---------------------------------------------------------------
@@ -529,7 +529,7 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
 
         $reclaimForm = $crawler->filter(\sprintf('form[action$="/custody/%d/owner-reclaim"]', $reg->getId()));
-        self::assertCount(1, $reclaimForm, 'Owner should see the Mark returned to me button when deck is with staff.');
+        self::assertGreaterThanOrEqual(1, $reclaimForm->count(), 'Owner should see the Mark returned to me button when deck is with staff.');
     }
 
     public function testStaffReturnButtonDisabledWhenLent(): void
@@ -549,7 +549,7 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
 
         $staffReturnForms = $crawler->filter(\sprintf('form[action$="/custody/%d/staff-return"]', $reg->getId()));
-        self::assertCount(1, $staffReturnForms, 'Staff return form should still be present.');
+        self::assertGreaterThanOrEqual(1, $staffReturnForms->count(), 'Staff return form should still be present.');
 
         $button = $staffReturnForms->first()->filter('button[type="submit"]');
         self::assertNotNull($button->attr('disabled'), 'Staff return button should be disabled when deck is lent.');
@@ -633,8 +633,8 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
     private function extractOwnerHandoverToken(Crawler $crawler, ?int $registrationId): string
     {
         $form = $crawler->filter(\sprintf('form[action$="/custody/%d/owner-handover"]', $registrationId));
-        self::assertCount(1, $form, 'Owner handover form not found on page.');
-        $token = $form->filter('input[name="_token"]')->attr('value');
+        self::assertGreaterThanOrEqual(1, $form->count(), 'Owner handover form not found on page.');
+        $token = $form->first()->filter('input[name="_token"]')->attr('value');
         self::assertNotEmpty($token);
 
         return $token;
@@ -643,8 +643,8 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
     private function extractStaffReturnToken(Crawler $crawler, ?int $registrationId): string
     {
         $form = $crawler->filter(\sprintf('form[action$="/custody/%d/staff-return"]', $registrationId));
-        self::assertCount(1, $form, 'Staff return form not found on page.');
-        $token = $form->filter('input[name="_token"]')->attr('value');
+        self::assertGreaterThanOrEqual(1, $form->count(), 'Staff return form not found on page.');
+        $token = $form->first()->filter('input[name="_token"]')->attr('value');
         self::assertNotEmpty($token);
 
         return $token;
@@ -653,8 +653,8 @@ class StaffCustodyHandoverTest extends AbstractFunctionalTest
     private function extractOwnerReclaimToken(Crawler $crawler, ?int $registrationId): string
     {
         $form = $crawler->filter(\sprintf('form[action$="/custody/%d/owner-reclaim"]', $registrationId));
-        self::assertCount(1, $form, 'Owner reclaim form not found on page.');
-        $token = $form->filter('input[name="_token"]')->attr('value');
+        self::assertGreaterThanOrEqual(1, $form->count(), 'Owner reclaim form not found on page.');
+        $token = $form->first()->filter('input[name="_token"]')->attr('value');
         self::assertNotEmpty($token);
 
         return $token;
