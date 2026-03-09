@@ -426,7 +426,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->isAnonymized = true;
         $this->deletedAt ??= new \DateTimeImmutable();
-        $this->email = 'anonymized-'.$this->id.'@example.com';
+        $this->email = password_hash($this->email, \PASSWORD_BCRYPT);
         $this->screenName = 'anonymous-'.$this->id;
         $this->firstName = 'Anonymous';
         $this->lastName = 'User';

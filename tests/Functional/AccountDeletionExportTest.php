@@ -146,7 +146,7 @@ class AccountDeletionExportTest extends AbstractFunctionalTest
         self::assertNotNull($deletedUser->getDeletedAt());
         self::assertTrue($deletedUser->isAnonymized());
         self::assertNull($deletedUser->getDeletionToken());
-        self::assertStringStartsWith('anonymized-', $deletedUser->getEmail());
+        self::assertTrue(password_verify('organizer@example.com', $deletedUser->getEmail()));
     }
 
     public function testConfirmDeletionWithInvalidToken(): void
