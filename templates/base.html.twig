@@ -60,6 +60,10 @@
                                     <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_profile_edit') }}">{{ 'app.nav.profile'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_profile_notifications') }}">{{ 'app.nav.notifications'|trans }}</a></li>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_user_list') }}">{{ 'app.nav.admin_users'|trans }}</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>
                                 </ul>
