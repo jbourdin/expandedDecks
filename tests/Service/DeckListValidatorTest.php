@@ -30,14 +30,14 @@ class DeckListValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $bannedCardRepo = $this->createMock(BannedCardRepository::class);
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
         $bannedCardRepo->method('findBannedCardKeys')->willReturn([
             'AOR|74' => true,   // Forest of Giant Plants
             'PHF|99' => true,   // Lysandre's Trump Card
             'PHF|118' => true,  // Lysandre's Trump Card (full art)
         ]);
 
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $params = []): string => $id.' '.implode(' ', array_map('strval', array_values($params))),
         );

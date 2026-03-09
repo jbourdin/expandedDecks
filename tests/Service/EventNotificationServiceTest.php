@@ -34,16 +34,17 @@ class EventNotificationServiceTest extends TestCase
     private EventNotificationService $service;
     private EntityManagerInterface&MockObject $em;
     private MailerInterface&MockObject $mailer;
-    private TranslatorInterface&MockObject $translator;
+    private UrlGeneratorInterface $urlGenerator;
+    private TranslatorInterface $translator;
 
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->mailer = $this->createMock(MailerInterface::class);
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->translator = $this->createMock(TranslatorInterface::class);
+        $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $this->translator = $this->createStub(TranslatorInterface::class);
 
-        $urlGenerator->method('generate')
+        $this->urlGenerator->method('generate')
             ->willReturn('https://example.com/event/1');
 
         $this->translator->method('trans')
@@ -52,7 +53,7 @@ class EventNotificationServiceTest extends TestCase
         $this->service = new EventNotificationService(
             $this->em,
             $this->mailer,
-            $urlGenerator,
+            $this->urlGenerator,
             $this->translator,
         );
     }
@@ -135,6 +136,7 @@ class EventNotificationServiceTest extends TestCase
         $event = $this->createEvent();
         $user = $this->createUser(2, 'user@example.com');
 
+        $this->mailer->expects(self::once())->method('send');
         $this->em->expects(self::once())
             ->method('persist')
             ->with(self::callback(static function (Notification $notification): bool {
@@ -148,12 +150,17 @@ class EventNotificationServiceTest extends TestCase
 
     public function testTranslationUsesRecipientLocale(): void
     {
+        // Silence unused class-level mocks from setUp
+        $this->mailer->expects(self::never())->method('send');
+        $this->em->expects(self::never())->method('persist');
+
         $event = $this->createEvent();
         $user = $this->createUser(2, 'french@example.com');
         $user->setPreferredLocale('fr');
 
         $locales = [];
-        $this->translator->expects(self::atLeastOnce())
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->expects(self::atLeastOnce())
             ->method('trans')
             ->willReturnCallback(static function (string $key, array $params, ?string $domain, ?string $locale) use (&$locales): string {
                 $locales[] = $locale;
@@ -161,7 +168,17 @@ class EventNotificationServiceTest extends TestCase
                 return $key;
             });
 
-        $this->service->notifyStaffAssigned($event, $user);
+        $mailer = $this->createStub(MailerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
+
+        $service = new EventNotificationService(
+            $em,
+            $mailer,
+            $this->urlGenerator,
+            $translator,
+        );
+
+        $service->notifyStaffAssigned($event, $user);
 
         foreach ($locales as $locale) {
             self::assertSame('fr', $locale);

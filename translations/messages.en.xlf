@@ -120,6 +120,10 @@
                 <target>+ New</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.create">
+                <source>app.common.create</source>
+                <target>Create</target>
+            </trans-unit>
             <trans-unit id="app.common.yes">
                 <source>app.common.yes</source>
                 <target>Yes</target>
@@ -2991,6 +2995,302 @@
                 <source>app.admin.user.activity.staff</source>
                 <target>Staff assignments</target>
                 <note>Activity stat label</note>
+            </trans-unit>
+
+            <!-- Navigation: CMS -->
+            <trans-unit id="app.nav.cms_pages">
+                <source>app.nav.cms_pages</source>
+                <target>Content pages</target>
+            </trans-unit>
+            <trans-unit id="app.nav.cms_categories">
+                <source>app.nav.cms_categories</source>
+                <target>Menu categories</target>
+            </trans-unit>
+
+            <!-- CMS: Admin -->
+            <trans-unit id="app.cms.admin.pages_title">
+                <source>app.cms.admin.pages_title</source>
+                <target>Content pages</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.new_page">
+                <source>app.cms.admin.new_page</source>
+                <target>New page</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.edit_page">
+                <source>app.cms.admin.edit_page</source>
+                <target>Edit page</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.view_page">
+                <source>app.cms.admin.view_page</source>
+                <target>View page</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.page_settings">
+                <source>app.cms.admin.page_settings</source>
+                <target>Page settings</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.translation">
+                <source>app.cms.admin.translation</source>
+                <target>Translation</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.save_translation">
+                <source>app.cms.admin.save_translation</source>
+                <target>Save %locale%</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.missing_translations">
+                <source>app.cms.admin.missing_translations</source>
+                <target>Missing translation: %locales%</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.danger_zone">
+                <source>app.cms.admin.danger_zone</source>
+                <target>Danger zone</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_page">
+                <source>app.cms.admin.delete_page</source>
+                <target>Delete page</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_confirm">
+                <source>app.cms.admin.delete_confirm</source>
+                <target>Are you sure you want to delete this page?</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.search_placeholder">
+                <source>app.cms.admin.search_placeholder</source>
+                <target>Search by slug or title…</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.no_pages">
+                <source>app.cms.admin.no_pages</source>
+                <target>No pages found.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.categories_title">
+                <source>app.cms.admin.categories_title</source>
+                <target>Menu categories</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.new_category">
+                <source>app.cms.admin.new_category</source>
+                <target>New category</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.edit_category">
+                <source>app.cms.admin.edit_category</source>
+                <target>Edit category</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.category_settings">
+                <source>app.cms.admin.category_settings</source>
+                <target>Category settings</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_category">
+                <source>app.cms.admin.delete_category</source>
+                <target>Delete category</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_category_confirm">
+                <source>app.cms.admin.delete_category_confirm</source>
+                <target>Are you sure you want to delete this category?</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.no_categories">
+                <source>app.cms.admin.no_categories</source>
+                <target>No categories found.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.slug">
+                <source>app.cms.admin.table.slug</source>
+                <target>Slug</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.title">
+                <source>app.cms.admin.table.title</source>
+                <target>Title</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.category">
+                <source>app.cms.admin.table.category</source>
+                <target>Category</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.status">
+                <source>app.cms.admin.table.status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.created">
+                <source>app.cms.admin.table.created</source>
+                <target>Created</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.position">
+                <source>app.cms.admin.table.position</source>
+                <target>Position</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.name">
+                <source>app.cms.admin.table.name</source>
+                <target>Name</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.pages_count">
+                <source>app.cms.admin.table.pages_count</source>
+                <target>Pages</target>
+            </trans-unit>
+
+            <!-- CMS: Form labels -->
+            <trans-unit id="app.cms.form.slug">
+                <source>app.cms.form.slug</source>
+                <target>Slug</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.slug_placeholder">
+                <source>app.cms.form.slug_placeholder</source>
+                <target>my-page-slug</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.menu_category">
+                <source>app.cms.form.menu_category</source>
+                <target>Menu category</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.no_category">
+                <source>app.cms.form.no_category</source>
+                <target>— No category —</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.published">
+                <source>app.cms.form.published</source>
+                <target>Published</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.no_index">
+                <source>app.cms.form.no_index</source>
+                <target>No index (hide from search engines)</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.canonical_url">
+                <source>app.cms.form.canonical_url</source>
+                <target>Canonical URL</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.title">
+                <source>app.cms.form.title</source>
+                <target>Title</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.localized_slug">
+                <source>app.cms.form.localized_slug</source>
+                <target>Localized slug</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.localized_slug_placeholder">
+                <source>app.cms.form.localized_slug_placeholder</source>
+                <target>Optional — overrides canonical slug for this locale</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.content">
+                <source>app.cms.form.content</source>
+                <target>Content (Markdown)</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.content_placeholder">
+                <source>app.cms.form.content_placeholder</source>
+                <target>Write your content in Markdown…</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.meta_title">
+                <source>app.cms.form.meta_title</source>
+                <target>Meta title (SEO)</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.meta_description">
+                <source>app.cms.form.meta_description</source>
+                <target>Meta description (SEO)</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.og_image">
+                <source>app.cms.form.og_image</source>
+                <target>Open Graph image URL</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.category_name">
+                <source>app.cms.form.category_name</source>
+                <target>Category name</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.position">
+                <source>app.cms.form.position</source>
+                <target>Position</target>
+            </trans-unit>
+
+            <!-- CMS: Status badges -->
+            <trans-unit id="app.cms.status.published">
+                <source>app.cms.status.published</source>
+                <target>Published</target>
+            </trans-unit>
+            <trans-unit id="app.cms.status.draft">
+                <source>app.cms.status.draft</source>
+                <target>Draft</target>
+            </trans-unit>
+            <trans-unit id="app.cms.status.translated">
+                <source>app.cms.status.translated</source>
+                <target>Translated</target>
+            </trans-unit>
+            <trans-unit id="app.cms.status.missing">
+                <source>app.cms.status.missing</source>
+                <target>Missing</target>
+            </trans-unit>
+
+            <!-- CMS: Flash messages -->
+            <trans-unit id="app.cms.page_created">
+                <source>app.cms.page_created</source>
+                <target>Page created successfully.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.page_updated">
+                <source>app.cms.page_updated</source>
+                <target>Page updated successfully.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.page_deleted">
+                <source>app.cms.page_deleted</source>
+                <target>Page deleted.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.category_created">
+                <source>app.cms.category_created</source>
+                <target>Category created successfully.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.category_updated">
+                <source>app.cms.category_updated</source>
+                <target>Category updated successfully.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.category_deleted">
+                <source>app.cms.category_deleted</source>
+                <target>Category deleted.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.translation_saved">
+                <source>app.cms.translation_saved</source>
+                <target>%locale% translation saved.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.translation_invalid">
+                <source>app.cms.translation_invalid</source>
+                <target>Translation form contains errors.</target>
+            </trans-unit>
+
+            <!-- CMS: Public page -->
+            <trans-unit id="app.cms.draft_notice">
+                <source>app.cms.draft_notice</source>
+                <target>This page is not published yet. Only editors can see it.</target>
+            </trans-unit>
+
+            <!-- CMS: Validation -->
+            <trans-unit id="app.cms.slug_unique">
+                <source>app.cms.slug_unique</source>
+                <target>This slug is already in use.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.slug_format">
+                <source>app.cms.slug_format</source>
+                <target>Slug must only contain lowercase letters, numbers, and hyphens.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.translation_locale_unique">
+                <source>app.cms.translation_locale_unique</source>
+                <target>A translation already exists for this locale.</target>
+            </trans-unit>
+
+            <!-- Homepage: News -->
+            <trans-unit id="app.home.latest_news">
+                <source>app.home.latest_news</source>
+                <target>Latest news</target>
+            </trans-unit>
+
+            <!-- CMS: Category page -->
+            <trans-unit id="app.cms.category_empty">
+                <source>app.cms.category_empty</source>
+                <target>No pages in this category yet.</target>
+            </trans-unit>
+
+            <!-- Event list: scope filters -->
+            <trans-unit id="app.event.filter_scope">
+                <source>app.event.filter_scope</source>
+                <target>Filter events</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_all">
+                <source>app.event.scope_all</source>
+                <target>All</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_public">
+                <source>app.event.scope_public</source>
+                <target>Public</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_staffing">
+                <source>app.event.scope_staffing</source>
+                <target>My events</target>
             </trans-unit>
         </body>
     </file>

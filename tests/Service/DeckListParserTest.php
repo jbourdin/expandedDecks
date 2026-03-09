@@ -26,7 +26,7 @@ class DeckListParserTest extends TestCase
 
     protected function setUp(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $params = []): string => $id.' '.implode(' ', array_map('strval', array_values($params))),
         );

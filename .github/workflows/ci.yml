@@ -118,7 +118,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: PHPUnit with coverage
-        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
+        run: php -d pcov.enabled=1 -d memory_limit=512M bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text
         env:
           DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 

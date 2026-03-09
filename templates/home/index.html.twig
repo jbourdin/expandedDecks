@@ -22,7 +22,36 @@
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% if welcomeHtml is defined and welcomeHtml is not null %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body cms-content">
+                {{ welcomeHtml|raw }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if newsPages is defined and newsPages is not empty %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ 'app.home.latest_news'|trans }}</h5>
+                {% if newsTotalCount > 5 and newsCategory is not null %}
+                    <a href="{{ path('app_page_category', {id: newsCategory.id}) }}" class="btn btn-sm btn-outline-light">{{ 'app.common.see_all'|trans }}</a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% for newsPage in newsPages %}
+                    <div class="p-3 {{ not loop.last ? 'border-bottom' : '' }}">
+                        <h6 class="mb-1">
+                            <a href="{{ path('app_page_show', {slug: newsPage.slug}) }}">{{ newsPage.getTitle(locale) }}</a>
+                        </h6>
+                        <small class="text-muted">{{ newsPage.createdAt|date('Y-m-d') }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
         <div class="col">
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body d-flex flex-column justify-content-center py-5">
