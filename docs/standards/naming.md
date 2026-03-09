@@ -25,6 +25,18 @@
 | Doc files         | snake_case        | `file_headers.md`                |
 | Git branches      | kebab-case        | `feature/deck-borrow-workflow`   |
 
+## No Abbreviations
+
+Whatever the language, never name a variable, method, class, or constant with an acronym or abbreviation that is not widely known (e.g. `VAT` is fine) or already used in the project. Use full, descriptive names.
+
+| Do | Don't |
+|----|-------|
+| `$column` | `$col` |
+| `$repository` | `$repo` |
+| `$transaction` | `$tx` |
+| `values.find((value) => value === 'foo')` | `values.find((v) => v === 'foo')` |
+| `notifications.map((notification) => ...)` | `notifications.map((n) => ...)` |
+
 ## PHP Namespace Structure
 
 ```

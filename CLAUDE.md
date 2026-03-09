@@ -95,7 +95,10 @@ PHP-CS-Fixer enforces this header automatically via the `header_comment` rule.
 - Constructor injection, autowiring, thin controllers
 - Doctrine entities use PHP 8 attributes (not annotations)
 - Symfony best practices: service autowiring, param binding, env vars for config
+- Prefer PHP attributes over YAML configuration when possible (e.g. `#[AsEventListener]`, `#[AutoconfigureTag]`, `#[AsCommand]`)
+- Prefer `$variable instanceof Class` over `null !== $variable` when checking types
 - **No hardcoded user-facing strings**: all text displayed to end users (flash messages, validation errors, form labels, email subjects/bodies, UI labels) **MUST** use translation keys and be defined in the XLIFF translation files (`translations/messages.en.xlf` and `translations/messages.fr.xlf`). Services that produce user-facing messages must inject `TranslatorInterface` and call `$this->translator->trans()`. CLI command output (developer-facing) is exempt.
+- **No abbreviations or acronyms in identifiers**: whatever the language, never name a variable, method, class, or constant with an acronym or abbreviation that is not widely known (e.g. `VAT` is fine) or already used in the project. Use full, descriptive names. Examples: `$column` not `$col`; `values.find((value) => value === 'foo')` not `values.find((v) => v === 'foo')`.
 - **Feature traceability**: methods implementing a documented feature rule **MUST** reference the feature ID in their PHPDoc (`@see`) or JSDoc. This links code back to the feature specification.
 
 PHP example:
@@ -114,6 +117,13 @@ JS example:
  */
 function useScannerDetection(onScan) {
 ```
+
+### JavaScript / TypeScript
+
+- Use `const` and `let`, never `var`
+- Use arrow functions `() => {}` for anonymous functions
+- Use template literals `` `Hello ${name}` `` instead of string concatenation
+- Never use jQuery or other DOM manipulation libraries, unless interacting with a third-party library that requires it. Use vanilla JS or React instead
 
 ## Version Control
 
