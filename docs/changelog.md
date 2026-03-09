@@ -14,7 +14,9 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
-*Nothing yet.*
+### Card Data & Validation
+
+- **F6.5** — Banned card list management *(completed)*: CLI command `app:banned-cards:sync` fetches the official Pokemon TCG banned card list from pokemon.com and syncs it to the database (add/remove/unchanged). `DeckListValidator` now checks imported deck lists against the banned card list. Sync runs automatically at the end of `make fixtures`.
 
 ---
 
