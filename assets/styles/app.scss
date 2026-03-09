@@ -256,14 +256,6 @@ footer {
     }
 }
 
-// --- Mobile navbar ---
-// Left-align nav items when collapsed on mobile instead of centered.
-@include media-breakpoint-down(lg) {
-    .navbar-collapse .navbar-nav {
-        align-items: flex-start !important;
-    }
-}
-
 // --- Footer ---
 
 .footer-pokemon {
