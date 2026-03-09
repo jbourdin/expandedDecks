@@ -172,14 +172,14 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | ID    | Feature                          | Priority | State       | Depends on           |
 |-------|----------------------------------|----------|-------------|----------------------|
 | F7.1  | Dashboard                        | Medium   | Done        | F1.4                 |
-| F7.2  | User management                  | Medium   | Not started | F1.4                 |
+| F7.2  | User management                  | Medium   | Done        | F1.4                 |
 | F6.5  | Banned card list management      | Medium   | Not started | F6.3                 |
 | F8.4  | In-app notification center       | Medium   | Done        | F8.1                 |
 | F10.1 | Mobile UX review                 | Medium   | Not started | F6.4, F2.3           |
 | F10.2 | Anonymous homepage               | Medium   | Partial     | F3.2, F2.4           |
 | F1.8  | Account deletion & data export   | Medium   | Partial     | F1.1                 |
 
-**Progress: 2/7 done · 2 partial · 3 not started**
+**Progress: 3/7 done · 2 partial · 2 not started**
 
 **Deliverable:** Admin dashboard and user management, banned card list, notification center, mobile responsiveness pass, public homepage, and GDPR account deletion/export.
 
@@ -326,7 +326,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
 | 6     | Localization                      | 5    | 0       | 0           | 5     |
 | 7     | Engagement, Results & Discovery   | 10   | 0       | 0           | 10    |
-| 8     | Admin, Homepage & Polish          | 2    | 2       | 3           | 7     |
+| 8     | Admin, Homepage & Polish          | 3    | 2       | 2           | 7     |
 | 9     | Content, Archetypes & Low Priority | 1   | 2       | 23          | 26    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |

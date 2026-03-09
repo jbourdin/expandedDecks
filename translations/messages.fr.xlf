@@ -80,6 +80,11 @@
                 <target>Rechercher</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.invalid_csrf">
+                <source>app.common.invalid_csrf</source>
+                <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
+                <note>Shown when a CSRF token is invalid</note>
+            </trans-unit>
             <trans-unit id="app.common.approve">
                 <source>app.common.approve</source>
                 <target>Approuver</target>
@@ -2654,6 +2659,204 @@
                 <source>app.notification.center.delete_read_confirm</source>
                 <target>Supprimer toutes les notifications lues ? Cette action est irréversible.</target>
                 <note>Confirmation prompt for bulk delete</note>
+            </trans-unit>
+            <!-- Admin: Navigation -->
+            <trans-unit id="app.nav.admin_users">
+                <source>app.nav.admin_users</source>
+                <target>Gérer les utilisateurs</target>
+                <note>Admin dropdown link to user management</note>
+            </trans-unit>
+
+            <!-- Admin: User management -->
+            <trans-unit id="app.admin.user.list_title">
+                <source>app.admin.user.list_title</source>
+                <target>Gestion des utilisateurs</target>
+                <note>Admin user list page title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.search">
+                <source>app.admin.user.search</source>
+                <target>Rechercher</target>
+                <note>Admin user search label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.search_placeholder">
+                <source>app.admin.user.search_placeholder</source>
+                <target>Nom, e-mail ou ID joueur…</target>
+                <note>Admin user search placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.no_results">
+                <source>app.admin.user.no_results</source>
+                <target>Aucun utilisateur trouvé.</target>
+                <note>Admin user list empty state</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.screen_name">
+                <source>app.admin.user.table.screen_name</source>
+                <target>Pseudo</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.email">
+                <source>app.admin.user.table.email</source>
+                <target>E-mail</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.roles">
+                <source>app.admin.user.table.roles</source>
+                <target>Rôles</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.status">
+                <source>app.admin.user.table.status</source>
+                <target>Statut</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.created">
+                <source>app.admin.user.table.created</source>
+                <target>Créé le</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.active">
+                <source>app.admin.user.status.active</source>
+                <target>Actif</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.disabled">
+                <source>app.admin.user.status.disabled</source>
+                <target>Désactivé</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.unverified">
+                <source>app.admin.user.status.unverified</source>
+                <target>Non vérifié</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.anonymized">
+                <source>app.admin.user.status.anonymized</source>
+                <target>Anonymisé</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.back_to_list">
+                <source>app.admin.user.back_to_list</source>
+                <target>Retour à la liste</target>
+                <note>Back link on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.email">
+                <source>app.admin.user.detail.email</source>
+                <target>E-mail</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.name">
+                <source>app.admin.user.detail.name</source>
+                <target>Nom complet</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.player_id">
+                <source>app.admin.user.detail.player_id</source>
+                <target>ID joueur</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.created">
+                <source>app.admin.user.detail.created</source>
+                <target>Créé le</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.last_login">
+                <source>app.admin.user.detail.last_login</source>
+                <target>Dernière connexion</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.locale">
+                <source>app.admin.user.detail.locale</source>
+                <target>Langue / Fuseau horaire</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.roles_title">
+                <source>app.admin.user.roles_title</source>
+                <target>Rôles</target>
+                <note>Roles section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.save_roles">
+                <source>app.admin.user.save_roles</source>
+                <target>Enregistrer les rôles</target>
+                <note>Button to save role assignment</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.roles_updated">
+                <source>app.admin.user.roles_updated</source>
+                <target>Rôles mis à jour avec succès.</target>
+                <note>Flash message after roles update</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.actions_title">
+                <source>app.admin.user.actions_title</source>
+                <target>Actions</target>
+                <note>Actions section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.disable">
+                <source>app.admin.user.action.disable</source>
+                <target>Désactiver le compte</target>
+                <note>Button to disable a user account</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.enable">
+                <source>app.admin.user.action.enable</source>
+                <target>Activer le compte</target>
+                <note>Button to re-enable a disabled user account</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.anonymize">
+                <source>app.admin.user.action.anonymize</source>
+                <target>Anonymiser le compte</target>
+                <note>Button to anonymize a user account (GDPR)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.confirm_disable">
+                <source>app.admin.user.confirm_disable</source>
+                <target>Désactiver ce compte ? L'utilisateur ne pourra plus se connecter.</target>
+                <note>Confirmation prompt for disabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.confirm_anonymize">
+                <source>app.admin.user.confirm_anonymize</source>
+                <target>Anonymiser cet utilisateur ? Toutes les données personnelles seront définitivement supprimées. Cette action est irréversible.</target>
+                <note>Confirmation prompt for anonymizing a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.disabled">
+                <source>app.admin.user.disabled</source>
+                <target>Compte désactivé.</target>
+                <note>Flash message after disabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.enabled">
+                <source>app.admin.user.enabled</source>
+                <target>Compte activé.</target>
+                <note>Flash message after enabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.anonymized">
+                <source>app.admin.user.anonymized</source>
+                <target>Compte anonymisé.</target>
+                <note>Flash message after anonymizing a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.already_anonymized">
+                <source>app.admin.user.already_anonymized</source>
+                <target>Ce compte est déjà anonymisé.</target>
+                <note>Warning when trying to anonymize an already anonymized user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity_title">
+                <source>app.admin.user.activity_title</source>
+                <target>Activité</target>
+                <note>Activity section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.decks">
+                <source>app.admin.user.activity.decks</source>
+                <target>Decks possédés</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.borrows">
+                <source>app.admin.user.activity.borrows</source>
+                <target>Demandes d'emprunt</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.engagements">
+                <source>app.admin.user.activity.engagements</source>
+                <target>Participations</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.staff">
+                <source>app.admin.user.activity.staff</source>
+                <target>Affectations staff</target>
+                <note>Activity stat label</note>
             </trans-unit>
         </body>
     </file>
