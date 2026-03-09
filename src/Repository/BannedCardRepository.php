@@ -30,28 +30,28 @@ class BannedCardRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns the set of all banned card names for fast lookup.
+     * Returns the set of all banned card identifiers for fast lookup.
      *
-     * @return array<string, true>
+     * @return array<string, true> keys are "setCode|cardNumber"
      */
-    public function findBannedCardNames(): array
+    public function findBannedCardKeys(): array
     {
-        /** @var list<array{cardName: string}> $rows */
+        /** @var list<array{setCode: string, cardNumber: string}> $rows */
         $rows = $this->createQueryBuilder('b')
-            ->select('b.cardName')
+            ->select('b.setCode, b.cardNumber')
             ->getQuery()
             ->getArrayResult();
 
         $map = [];
         foreach ($rows as $row) {
-            $map[$row['cardName']] = true;
+            $map[$row['setCode'].'|'.$row['cardNumber']] = true;
         }
 
         return $map;
     }
 
-    public function findOneByName(string $cardName): ?BannedCard
+    public function findOneBySetCodeAndNumber(string $setCode, string $cardNumber): ?BannedCard
     {
-        return $this->findOneBy(['cardName' => $cardName]);
+        return $this->findOneBy(['setCode' => $setCode, 'cardNumber' => $cardNumber]);
     }
 }

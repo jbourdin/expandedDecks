@@ -30,9 +30,10 @@ class DeckListValidatorTest extends TestCase
     protected function setUp(): void
     {
         $bannedCardRepo = $this->createMock(BannedCardRepository::class);
-        $bannedCardRepo->method('findBannedCardNames')->willReturn([
-            'Forest of Giant Plants' => true,
-            'Lysandre\'s Trump Card' => true,
+        $bannedCardRepo->method('findBannedCardKeys')->willReturn([
+            'AOR|74' => true,   // Forest of Giant Plants
+            'PHF|99' => true,   // Lysandre's Trump Card
+            'PHF|118' => true,  // Lysandre's Trump Card (full art)
         ]);
 
         $this->validator = new DeckListValidator($bannedCardRepo);
@@ -153,7 +154,7 @@ class DeckListValidatorTest extends TestCase
     {
         $cards = [];
 
-        // Include a banned card
+        // Include a banned card (Forest of Giant Plants, AOR 74)
         $cards[] = new ParsedCard(4, 'Forest of Giant Plants', 'AOR', '74', 'trainer');
 
         // Fill with valid cards to reach 60
@@ -177,15 +178,18 @@ class DeckListValidatorTest extends TestCase
         self::assertTrue($bannedError, 'Expected an error for banned card "Forest of Giant Plants".');
     }
 
-    public function testNonBannedCardDoesNotProduceBanError(): void
+    public function testSameNameDifferentSetNotBanned(): void
     {
         $cards = [];
 
-        for ($i = 1; $i <= 15; ++$i) {
+        // A card with the same name but different set/number should not be banned
+        $cards[] = new ParsedCard(4, 'Forest of Giant Plants', 'XY', '99', 'trainer');
+
+        for ($i = 1; $i <= 14; ++$i) {
             $cards[] = new ParsedCard(4, 'Pokemon '.$i, 'BRS', (string) $i, 'pokemon');
         }
 
-        $parseResult = new DeckListParseResult($cards, [], ['pokemon' => 60]);
+        $parseResult = new DeckListParseResult($cards, [], ['trainer' => 4, 'pokemon' => 56]);
 
         $result = $this->validator->validate($parseResult);
 

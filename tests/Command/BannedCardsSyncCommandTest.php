@@ -29,23 +29,29 @@ class BannedCardsSyncCommandTest extends TestCase
 {
     private function buildHtml(string $expandedSection): string
     {
-        return '<html><body><h2>Standard</h2><ul><li><a>SomeCard</a></li></ul>'
+        return '<html><body><h2>Standard</h2><ul><li><a>SomeCard</a> (Scarlet &amp; Violet, 1/100)</li></ul>'
             .'<h2>Expanded</h2>'.$expandedSection
             .'</body></html>';
     }
 
     public function testSyncAddsNewBannedCards(): void
     {
-        $html = $this->buildHtml('<ul><li><a href="#">Archeops</a> (<em>BW</em>)</li><li><a href="#">Ghetsis</a> (<em>PLF</em>)</li></ul>');
+        $html = $this->buildHtml(
+            '<ul>'
+            .'<li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101; <em>Black &amp; White—Dark Explorers</em>, 110/108)</li>'
+            .'<li><a href="#">Ghetsis</a> (<em>Black &amp; White—Plasma Freeze</em>, 101/116 and 115/116)</li>'
+            .'</ul>',
+        );
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createMock(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneByName')->willReturn(null);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
         $bannedCardRepo->method('findAll')->willReturn([]);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::exactly(2))->method('persist');
+        // Archeops: NVI 67 + DEX 110, Ghetsis: PLF 101 + PLF 115 = 4 entries
+        $em->expects(self::exactly(4))->method('persist');
         $em->expects(self::once())->method('flush');
 
         $command = new BannedCardsSyncCommand($httpClient, $bannedCardRepo, $em);
@@ -53,22 +59,25 @@ class BannedCardsSyncCommandTest extends TestCase
         $tester->execute([]);
 
         self::assertSame(0, $tester->getStatusCode());
-        self::assertStringContainsString('2 added', $tester->getDisplay());
-        self::assertStringContainsString('0 removed', $tester->getDisplay());
+        self::assertStringContainsString('4 added', $tester->getDisplay());
     }
 
     public function testSyncSkipsExistingCards(): void
     {
-        $html = $this->buildHtml('<ul><li><a href="#">Archeops</a></li></ul>');
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
+        );
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $existing = new BannedCard();
         $existing->setCardName('Archeops');
+        $existing->setSetCode('NVI');
+        $existing->setCardNumber('67');
 
         $bannedCardRepo = $this->createMock(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneByName')
-            ->with('Archeops')
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')
+            ->with('NVI', '67')
             ->willReturn($existing);
         $bannedCardRepo->method('findAll')->willReturn([$existing]);
 
@@ -86,19 +95,25 @@ class BannedCardsSyncCommandTest extends TestCase
 
     public function testSyncRemovesUnbannedCards(): void
     {
-        $html = $this->buildHtml('<ul><li><a href="#">Archeops</a></li></ul>');
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
+        );
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $archeops = new BannedCard();
         $archeops->setCardName('Archeops');
+        $archeops->setSetCode('NVI');
+        $archeops->setCardNumber('67');
 
         $oldCard = new BannedCard();
         $oldCard->setCardName('OldBannedCard');
+        $oldCard->setSetCode('XY');
+        $oldCard->setCardNumber('999');
 
         $bannedCardRepo = $this->createMock(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneByName')
-            ->willReturnCallback(static fn (string $name): ?BannedCard => 'Archeops' === $name ? $archeops : null);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $archeops : null);
         $bannedCardRepo->method('findAll')->willReturn([$archeops, $oldCard]);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -113,32 +128,33 @@ class BannedCardsSyncCommandTest extends TestCase
         self::assertStringContainsString('1 removed', $tester->getDisplay());
     }
 
-    public function testSyncDeduplicatesCardNames(): void
+    public function testSyncHandlesMultiplePrintingsOfSameCard(): void
     {
-        // Unown appears twice on the real page (two different printings)
-        $html = $this->buildHtml('<ul><li><a href="#">Unown</a> (90/214)</li><li><a href="#">Unown</a> (91/214)</li></ul>');
+        // Unown has two different card numbers in the same set — both are separate banned cards
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Unown</a> (<em>Sun &amp; Moon—Lost Thunder</em>, 90/214 and 91/214)</li></ul>',
+        );
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createMock(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneByName')->willReturn(null);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
         $bannedCardRepo->method('findAll')->willReturn([]);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('persist');
-        $em->expects(self::once())->method('flush');
+        $em->expects(self::exactly(2))->method('persist');
 
         $command = new BannedCardsSyncCommand($httpClient, $bannedCardRepo, $em);
         $tester = new CommandTester($command);
         $tester->execute([]);
 
         self::assertSame(0, $tester->getStatusCode());
-        self::assertStringContainsString('1 added', $tester->getDisplay());
+        self::assertStringContainsString('2 added', $tester->getDisplay());
     }
 
     public function testSyncFailsWhenNoExpandedSection(): void
     {
-        $html = '<html><body><h2>Standard</h2><ul><li>Card</li></ul></body></html>';
+        $html = '<html><body><h2>Standard</h2><ul><li>Card (Set, 1/100)</li></ul></body></html>';
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 

@@ -15,19 +15,19 @@ namespace App\Entity;
 
 use App\Repository\BannedCardRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * A card banned from the Expanded format.
+ * A specific card printing banned from the Expanded format.
  *
- * Bans apply to ALL printings of a card by name, matching how
- * the official Pokemon TCG tournament rules work.
+ * Each row represents one printing (set code + card number) of a banned card.
+ * A single ban announcement may produce multiple rows when the same card
+ * has alternate-art or promo reprints.
  *
  * @see docs/features.md F6.5 — Banned card list management
  */
 #[ORM\Entity(repositoryClass: BannedCardRepository::class)]
 #[ORM\Table(name: 'banned_card')]
-#[UniqueEntity(fields: ['cardName'], message: 'This card is already banned.')]
+#[ORM\UniqueConstraint(name: 'uniq_banned_card', columns: ['set_code', 'card_number'])]
 class BannedCard
 {
     #[ORM\Id]
@@ -35,8 +35,14 @@ class BannedCard
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(length: 100)]
     private string $cardName = '';
+
+    #[ORM\Column(length: 20)]
+    private string $setCode = '';
+
+    #[ORM\Column(length: 20)]
+    private string $cardNumber = '';
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $effectiveDate = null;
@@ -65,6 +71,30 @@ class BannedCard
     public function setCardName(string $cardName): static
     {
         $this->cardName = $cardName;
+
+        return $this;
+    }
+
+    public function getSetCode(): string
+    {
+        return $this->setCode;
+    }
+
+    public function setSetCode(string $setCode): static
+    {
+        $this->setCode = $setCode;
+
+        return $this;
+    }
+
+    public function getCardNumber(): string
+    {
+        return $this->cardNumber;
+    }
+
+    public function setCardNumber(string $cardNumber): static
+    {
+        $this->cardNumber = $cardNumber;
 
         return $this;
     }

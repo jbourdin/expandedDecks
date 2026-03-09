@@ -87,21 +87,25 @@ class DeckListValidator
             }
         }
 
-        // Check for banned cards
-        $bannedNames = $this->bannedCardRepo->findBannedCardNames();
-        $checkedNames = [];
+        // Check for banned cards (matched by setCode + cardNumber)
+        $bannedKeys = $this->bannedCardRepo->findBannedCardKeys();
+        $checkedKeys = [];
 
         foreach ($parseResult->cards as $card) {
-            if (isset($checkedNames[$card->cardName])) {
+            $key = $card->setCode.'|'.$card->cardNumber;
+
+            if (isset($checkedKeys[$key])) {
                 continue;
             }
 
-            $checkedNames[$card->cardName] = true;
+            $checkedKeys[$key] = true;
 
-            if (isset($bannedNames[$card->cardName])) {
+            if (isset($bannedKeys[$key])) {
                 $errors[] = \sprintf(
-                    'Card "%s" is banned in the Expanded format.',
+                    'Card "%s" (%s %s) is banned in the Expanded format.',
                     $card->cardName,
+                    $card->setCode,
+                    $card->cardNumber,
                 );
             }
         }
