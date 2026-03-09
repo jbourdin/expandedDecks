@@ -25,7 +25,8 @@ const isTouchDevice = (): boolean => window.matchMedia('(max-width: 767.98px)').
 
 interface CardEntry {
     src: string;
-    alt: string;
+    name: string;
+    quantity: number;
 }
 
 const cards: CardEntry[] = [];
@@ -36,7 +37,8 @@ document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
     if (!img) return;
 
     const index = cards.length;
-    cards.push({ src: img.src, alt: img.alt });
+    const quantity = parseInt(el.dataset.quantity || '1', 10);
+    cards.push({ src: img.src, name: img.alt, quantity });
 
     el.addEventListener('mouseenter', () => {
         if (isTouchDevice()) return;
@@ -67,17 +69,14 @@ document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
 function showCard(index: number): void {
     const modalImg = document.getElementById('cardImageModalImg') as HTMLImageElement | null;
     const modalLabel = document.getElementById('cardImageModalLabel');
-    const counter = document.getElementById('cardImageModalCounter');
 
     if (!modalImg || index < 0 || index >= cards.length) return;
 
-    modalImg.src = cards[index].src;
-    modalImg.alt = cards[index].alt;
+    const card = cards[index];
+    modalImg.src = card.src;
+    modalImg.alt = card.name;
     if (modalLabel) {
-        modalLabel.textContent = cards[index].alt;
-    }
-    if (counter) {
-        counter.textContent = `${index + 1} / ${cards.length}`;
+        modalLabel.textContent = `${card.quantity} x ${card.name}`;
     }
 }
 

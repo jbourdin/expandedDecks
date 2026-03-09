@@ -30,7 +30,7 @@
                             <td>{{ card.quantity }}</td>
                             <td>
                                 {% if card.imageUrl %}
-                                    <span class="card-hover">
+                                    <span class="card-hover" data-quantity="{{ card.quantity }}">
                                         {{ card.cardName }}
                                         <img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}">
                                     </span>
@@ -269,7 +269,6 @@
             <div class="modal-content">
                 <div class="modal-header py-2">
                     <h6 class="modal-title" id="cardImageModalLabel"></h6>
-                    <span class="text-muted small ms-auto me-2" id="cardImageModalCounter"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center p-2 position-relative">
