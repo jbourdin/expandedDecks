@@ -29,7 +29,7 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        if ($user->isAnonymized()) {
+        if ($user->isAnonymized() || null !== $user->getDeletedAt()) {
             throw new CustomUserMessageAccountStatusException('This account has been deactivated.');
         }
 

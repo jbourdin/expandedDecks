@@ -130,18 +130,7 @@ class AdminUserController extends AbstractAppController
             return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()]);
         }
 
-        $user->setIsAnonymized(true);
-        $user->setDeletedAt($user->getDeletedAt() ?? new \DateTimeImmutable());
-        $user->setEmail('anonymized-'.$user->getId().'@example.com');
-        $user->setScreenName('anonymous-'.$user->getId());
-        $user->setFirstName('Anonymous');
-        $user->setLastName('User');
-        $user->setPlayerId(null);
-        $user->setPassword('');
-        $user->setRoles([]);
-        $user->setVerificationToken(null);
-        $user->setResetToken(null);
-        $user->setNotificationPreferences(null);
+        $user->anonymize();
 
         $this->em->flush();
 

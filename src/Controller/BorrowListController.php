@@ -16,6 +16,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Repository\BorrowRepository;
+use App\Repository\EventDeckRegistrationRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,7 @@ class BorrowListController extends AbstractController
      * @see docs/features.md F7.1 — Dashboard (scope=managed)
      */
     #[Route('/lends', name: 'app_lend_list', methods: ['GET'])]
-    public function lends(Request $request, BorrowRepository $borrowRepository): Response
+    public function lends(Request $request, BorrowRepository $borrowRepository, EventDeckRegistrationRepository $registrationRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -76,7 +77,7 @@ class BorrowListController extends AbstractController
         $scope = $request->query->getString('scope');
 
         if ('managed' === $scope) {
-            return $this->renderManaged($request, $borrowRepository, $user, $status);
+            return $this->renderManaged($request, $borrowRepository, $registrationRepository, $user, $status);
         }
 
         $inboxMode = null === $status || !$status->isTerminal();
@@ -93,13 +94,14 @@ class BorrowListController extends AbstractController
      *
      * @see docs/features.md F7.1 — Dashboard
      */
-    private function renderManaged(Request $request, BorrowRepository $borrowRepository, User $user, ?BorrowStatus $status): Response
+    private function renderManaged(Request $request, BorrowRepository $borrowRepository, EventDeckRegistrationRepository $registrationRepository, User $user, ?BorrowStatus $status): Response
     {
         $inboxMode = null === $status || !$status->isTerminal();
 
         if ($inboxMode) {
             $borrows = $borrowRepository->findActiveManagedBorrows($user, $status);
             $eventGroups = $this->groupByEvent($borrows);
+            $custodyMap = $this->buildCustodyMap($borrows, $registrationRepository);
 
             return $this->render('borrow/list.html.twig', [
                 'currentStatus' => $status,
@@ -108,6 +110,7 @@ class BorrowListController extends AbstractController
                 'mode' => 'managed',
                 'inboxMode' => true,
                 'eventGroups' => $eventGroups,
+                'custodyMap' => $custodyMap,
                 'totalItems' => 0,
                 'currentPage' => 1,
                 'totalPages' => 1,
@@ -227,6 +230,34 @@ class BorrowListController extends AbstractController
         }
 
         return array_values($groups);
+    }
+
+    /**
+     * Build a map of borrow ID → whether staff has physical custody of the deck.
+     * Only relevant for delegated borrows; non-delegated borrows are not included.
+     *
+     * @param list<\App\Entity\Borrow> $borrows
+     *
+     * @return array<int, bool>
+     */
+    private function buildCustodyMap(array $borrows, EventDeckRegistrationRepository $registrationRepository): array
+    {
+        $map = [];
+
+        foreach ($borrows as $borrow) {
+            if (!$borrow->isDelegatedToStaff()) {
+                continue;
+            }
+
+            $registration = $registrationRepository->findOneByEventAndDeck(
+                $borrow->getEvent(),
+                $borrow->getDeck(),
+            );
+
+            $map[(int) $borrow->getId()] = null !== $registration && $registration->hasStaffReceived();
+        }
+
+        return $map;
     }
 
     private function resolveStatusFilter(Request $request): ?BorrowStatus

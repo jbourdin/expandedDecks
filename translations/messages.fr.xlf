@@ -1206,6 +1206,11 @@
                 <target>Annuler cet emprunt ?</target>
                 <note>JavaScript confirm dialog for cancel action</note>
             </trans-unit>
+            <trans-unit id="app.borrow.awaiting_custody">
+                <source>app.borrow.awaiting_custody</source>
+                <target>En attente de remise</target>
+                <note>Badge shown when staff hasn't received the deck yet</note>
+            </trans-unit>
             <trans-unit id="app.borrow.list_all">
                 <source>app.borrow.list_all</source>
                 <target>Tous</target>
@@ -2659,6 +2664,98 @@
                 <source>app.notification.center.delete_read_confirm</source>
                 <target>Supprimer toutes les notifications lues ? Cette action est irréversible.</target>
                 <note>Confirmation prompt for bulk delete</note>
+            </trans-unit>
+            <!-- Profile: Data & Deletion (GDPR) -->
+            <trans-unit id="app.profile.data_title">
+                <source>app.profile.data_title</source>
+                <target>Vos données</target>
+                <note>Profile section title for data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.data_description">
+                <source>app.profile.data_description</source>
+                <target>Téléchargez une copie de toutes vos données personnelles (profil, decks, emprunts, événements) au format JSON.</target>
+                <note>Profile data export description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.export_button">
+                <source>app.profile.export_button</source>
+                <target>Exporter mes données</target>
+                <note>Button to download personal data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.danger_zone">
+                <source>app.profile.danger_zone</source>
+                <target>Zone de danger</target>
+                <note>Profile section title for account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_description">
+                <source>app.profile.delete_description</source>
+                <target>Demandez la suppression définitive de votre compte. Un e-mail de confirmation sera envoyé. Une fois confirmé, toutes vos données personnelles seront anonymisées et vous ne pourrez plus vous connecter.</target>
+                <note>Profile account deletion description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_button">
+                <source>app.profile.delete_button</source>
+                <target>Supprimer mon compte</target>
+                <note>Button to request account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.confirm_delete">
+                <source>app.profile.confirm_delete</source>
+                <target>Êtes-vous sûr ? Un e-mail de confirmation sera envoyé pour finaliser la suppression.</target>
+                <note>Confirmation prompt for account deletion request</note>
+            </trans-unit>
+            <trans-unit id="app.profile.unsettled_borrows">
+                <source>app.profile.unsettled_borrows</source>
+                <target>Vous ne pouvez pas supprimer votre compte tant que vous avez des emprunts actifs (en attente, approuvés, prêtés ou en retard). Veuillez d'abord régler tous vos emprunts.</target>
+                <note>Error when user tries to delete account with unsettled borrows</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_requested">
+                <source>app.profile.deletion_requested</source>
+                <target>Un e-mail de confirmation a été envoyé. Vérifiez votre boîte de réception pour finaliser la suppression du compte.</target>
+                <note>Flash message after requesting account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_invalid_link">
+                <source>app.profile.deletion_invalid_link</source>
+                <target>Ce lien de suppression est invalide.</target>
+                <note>Flash message for invalid deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_link_expired">
+                <source>app.profile.deletion_link_expired</source>
+                <target>Ce lien de suppression a expiré. Veuillez en demander un nouveau depuis votre profil.</target>
+                <note>Flash message for expired deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_confirmed">
+                <source>app.profile.deletion_confirmed</source>
+                <target>Votre compte a été définitivement supprimé et toutes les données personnelles ont été anonymisées.</target>
+                <note>Flash message after successful account deletion</note>
+            </trans-unit>
+            <!-- Email: Account Deletion -->
+            <trans-unit id="app.email.deletion_subject">
+                <source>app.email.deletion_subject</source>
+                <target>Confirmez la suppression de votre compte — Expanded Decks</target>
+                <note>Subject line for account deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_heading">
+                <source>app.email.deletion_heading</source>
+                <target>Demande de suppression de compte</target>
+                <note>Heading in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_body">
+                <source>app.email.deletion_body</source>
+                <target>Vous avez demandé la suppression de votre compte Expanded Decks. Cliquez sur le bouton ci-dessous pour confirmer. Cette action est irréversible — toutes vos données personnelles seront définitivement anonymisées.</target>
+                <note>Body text in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_button">
+                <source>app.email.deletion_button</source>
+                <target>Confirmer la suppression</target>
+                <note>CTA button in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_expires">
+                <source>app.email.deletion_expires</source>
+                <target>Ce lien expire dans %hours% heures.</target>
+                <note>Expiry notice in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_ignore">
+                <source>app.email.deletion_ignore</source>
+                <target>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail. Votre compte restera actif.</target>
+                <note>Ignore notice in deletion confirmation email</note>
             </trans-unit>
             <!-- Admin: Navigation -->
             <trans-unit id="app.nav.admin_users">
