@@ -1792,6 +1792,33 @@
                 <target>Deck list imported (version %version%, %cards% cards). Card enrichment is processing in the background.</target>
                 <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
             </trans-unit>
+            <!-- Deck list parsing errors -->
+            <trans-unit id="app.deck.parse.no_section_header">
+                <source>app.deck.parse.no_section_header</source>
+                <target>Line %line%: card line found before any section header: "%content%"</target>
+                <note>Parse error when a card line appears before a section (Pokémon/Trainer/Energy) header. %line% = line number, %content% = raw line</note>
+            </trans-unit>
+            <trans-unit id="app.deck.parse.unrecognized_format">
+                <source>app.deck.parse.unrecognized_format</source>
+                <target>Line %line%: unrecognized format: "%content%"</target>
+                <note>Parse error for a line that matches neither a section header nor a card line. %line% = line number, %content% = raw line</note>
+            </trans-unit>
+            <!-- Deck list validation errors -->
+            <trans-unit id="app.deck.validation.card_count">
+                <source>app.deck.validation.card_count</source>
+                <target>A deck must contain exactly %required% cards, but this list has %actual%.</target>
+                <note>Validation error for wrong card count. %required% = expected count (60), %actual% = actual count</note>
+            </trans-unit>
+            <trans-unit id="app.deck.validation.max_copies">
+                <source>app.deck.validation.max_copies</source>
+                <target>Card "%name%" appears %count% times, but the maximum is %max% copies.</target>
+                <note>Validation error for exceeding copy limit. %name% = card name, %count% = actual copies, %max% = maximum allowed</note>
+            </trans-unit>
+            <trans-unit id="app.deck.validation.banned_card">
+                <source>app.deck.validation.banned_card</source>
+                <target>Card "%name%" (%set% %number%) is banned in the Expanded format.</target>
+                <note>Validation error for banned card. %name% = card name, %set% = set code, %number% = card number</note>
+            </trans-unit>
             <trans-unit id="app.flash.auth.account_created">
                 <source>app.flash.auth.account_created</source>
                 <target>Your account has been created. Please check your email to verify your address.</target>

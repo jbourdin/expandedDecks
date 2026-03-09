@@ -15,6 +15,7 @@ namespace App\Tests\Service;
 
 use App\Service\DeckListParser;
 use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F6.1 — Parse PTCG text format
@@ -25,7 +26,12 @@ class DeckListParserTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->parser = new DeckListParser();
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $params = []): string => $id.' '.implode(' ', array_map('strval', array_values($params))),
+        );
+
+        $this->parser = new DeckListParser($translator);
     }
 
     public function testParseFullDeckList(): void
@@ -152,7 +158,7 @@ class DeckListParserTest extends TestCase
         self::assertFalse($result->isValid());
         self::assertCount(1, $result->cards);
         self::assertCount(2, $result->errors);
-        self::assertStringContainsString('unrecognized format', $result->errors[0]);
+        self::assertStringContainsString('app.deck.parse.unrecognized_format', $result->errors[0]);
         self::assertStringContainsString('this is not a valid card line', $result->errors[0]);
     }
 
@@ -213,6 +219,6 @@ class DeckListParserTest extends TestCase
         self::assertFalse($result->isValid());
         self::assertCount(1, $result->cards);
         self::assertCount(1, $result->errors);
-        self::assertStringContainsString('before any section header', $result->errors[0]);
+        self::assertStringContainsString('app.deck.parse.no_section_header', $result->errors[0]);
     }
 }
