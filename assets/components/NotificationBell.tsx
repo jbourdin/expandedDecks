@@ -82,6 +82,16 @@ export default function NotificationBell({
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [opened, setOpened] = useState(false);
+    const [popoverWidth, setPopoverWidth] = useState(360);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            setPopoverWidth(Math.min(360, window.innerWidth - 32));
+        };
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
 
     const fetchNotifications = useCallback(async () => {
         try {
@@ -133,7 +143,7 @@ export default function NotificationBell({
         <Popover
             opened={opened}
             onChange={setOpened}
-            width={360}
+            width={popoverWidth}
             position="bottom-end"
             shadow="lg"
             withArrow
@@ -149,7 +159,13 @@ export default function NotificationBell({
                     <ActionIcon
                         variant="subtle"
                         size="lg"
-                        onClick={() => setOpened((o) => !o)}
+                        onClick={() => {
+                            if (window.innerWidth < 768) {
+                                window.location.href = listUrl;
+                            } else {
+                                setOpened((o) => !o);
+                            }
+                        }}
                         aria-label="Notifications"
                         style={{ color: 'rgba(255, 255, 255, 0.85)' }}
                     >

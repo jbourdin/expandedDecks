@@ -35,81 +35,57 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <table class="table table-sm table-themed mb-0">
-                        <tbody>
-                            <tr>
-                                <th>{{ 'app.event.date'|trans }}</th>
-                                <td>
-                                    {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
-                                    {% if event.endDate %}
-                                        — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>{{ 'app.event.format'|trans }}</th>
-                                <td>{{ event.format }}</td>
-                            </tr>
-                            <tr>
-                                <th>{{ 'app.event.organizer'|trans }}</th>
-                                <td>{{ event.organizer.screenName }}</td>
-                            </tr>
-                            {% if event.location %}
-                                <tr>
-                                    <th>{{ 'app.event.location'|trans }}</th>
-                                    <td>{{ event.location }}</td>
-                                </tr>
+                    <dl class="row mb-md-0">
+                        <dt class="col-sm-4">{{ 'app.event.date'|trans }}</dt>
+                        <dd class="col-sm-8">
+                            {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                            {% if event.endDate %}
+                                — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
                             {% endif %}
-                            {% if event.registrationLink %}
-                            <tr>
-                                <th>{{ 'app.event.registration_link'|trans }}</th>
-                                <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
+                        </dd>
+                        <dt class="col-sm-4">{{ 'app.event.format'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.format }}</dd>
+                        <dt class="col-sm-4">{{ 'app.event.organizer'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.organizer.screenName }}</dd>
+                        {% if event.location %}
+                            <dt class="col-sm-4">{{ 'app.event.location'|trans }}</dt>
+                            <dd class="col-sm-8">{{ event.location }}</dd>
+                        {% endif %}
+                        {% if event.registrationLink %}
+                            <dt class="col-sm-4">{{ 'app.event.registration_link'|trans }}</dt>
+                            <dd class="col-sm-8"><a href="{{ event.registrationLink }}" target="_blank" rel="noopener" class="text-break">{{ event.registrationLink }}</a></dd>
+                        {% endif %}
+                    </dl>
                 </div>
                 <div class="col-md-6">
-                    <table class="table table-sm table-themed mb-0">
-                        <tbody>
-                            {% if event.tournamentStructure %}
-                                <tr>
-                                    <th>{{ 'app.event.structure'|trans }}</th>
-                                    <td>{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if event.minAttendees or event.maxAttendees %}
-                                <tr>
-                                    <th>{{ 'app.event.attendees'|trans }}</th>
-                                    <td>
-                                        {% if event.minAttendees %}{{ 'app.event.min'|trans({'%count%': event.minAttendees}) }}{% endif %}
-                                        {% if event.minAttendees and event.maxAttendees %} / {% endif %}
-                                        {% if event.maxAttendees %}{{ 'app.event.max'|trans({'%count%': event.maxAttendees}) }}{% endif %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if event.roundDuration or event.topCutRoundDuration %}
-                                <tr>
-                                    <th>{{ 'app.event.round_duration'|trans }}</th>
-                                    <td>
-                                        {% if event.roundDuration %}{{ 'app.event.round_min'|trans({'%duration%': event.roundDuration}) }}{% endif %}
-                                        {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
-                                        {% if event.topCutRoundDuration %}{{ 'app.event.top_cut'|trans({'%duration%': event.topCutRoundDuration}) }}{% endif %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if event.entryFeeAmount is not null %}
-                                <tr>
-                                    <th>{{ 'app.event.entry_fee'|trans }}</th>
-                                    <td>{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</td>
-                                </tr>
-                            {% endif %}
-                            <tr>
-                                <th>{{ 'app.event.decklist_mandatory'|trans }}</th>
-                                <td>{{ event.decklistMandatory ? 'app.common.yes'|trans : 'app.common.no'|trans }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <dl class="row mb-0">
+                        {% if event.tournamentStructure %}
+                            <dt class="col-sm-4">{{ 'app.event.structure'|trans }}</dt>
+                            <dd class="col-sm-8">{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</dd>
+                        {% endif %}
+                        {% if event.minAttendees or event.maxAttendees %}
+                            <dt class="col-sm-4">{{ 'app.event.attendees'|trans }}</dt>
+                            <dd class="col-sm-8">
+                                {% if event.minAttendees %}{{ 'app.event.min'|trans({'%count%': event.minAttendees}) }}{% endif %}
+                                {% if event.minAttendees and event.maxAttendees %} / {% endif %}
+                                {% if event.maxAttendees %}{{ 'app.event.max'|trans({'%count%': event.maxAttendees}) }}{% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if event.roundDuration or event.topCutRoundDuration %}
+                            <dt class="col-sm-4">{{ 'app.event.round_duration'|trans }}</dt>
+                            <dd class="col-sm-8">
+                                {% if event.roundDuration %}{{ 'app.event.round_min'|trans({'%duration%': event.roundDuration}) }}{% endif %}
+                                {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
+                                {% if event.topCutRoundDuration %}{{ 'app.event.top_cut'|trans({'%duration%': event.topCutRoundDuration}) }}{% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if event.entryFeeAmount is not null %}
+                            <dt class="col-sm-4">{{ 'app.event.entry_fee'|trans }}</dt>
+                            <dd class="col-sm-8">{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</dd>
+                        {% endif %}
+                        <dt class="col-sm-4">{{ 'app.event.decklist_mandatory'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.decklistMandatory ? 'app.common.yes'|trans : 'app.common.no'|trans }}</dd>
+                    </dl>
                 </div>
             </div>
 
@@ -289,84 +265,156 @@
             </div>
             <div class="card-body">
                 <p class="text-muted mb-2">{{ 'app.event.your_decks_help'|trans }}</p>
-                <table class="table table-sm table-themed mb-0">
-                    <thead>
-                        <tr>
-                            <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                            <th>{{ 'app.borrow.table.status'|trans }}</th>
-                            <th>{{ 'app.borrow.table.available'|trans }}</th>
-                            <th>{{ 'app.borrow.table.delegate_to_staff'|trans }}</th>
-                            <th>Custody</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for deck in ownedDecksWithVersion %}
-                            {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
-                            {% set isRegistered = regInfo is not null and regInfo.registered %}
-                            {% set isDelegated = regInfo is not null and regInfo.delegated %}
-                            {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
+
+                {# Desktop table (md+) #}
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-sm table-themed mb-0">
+                        <thead>
                             <tr>
-                                <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
-                                <td>
-                                    {% if isPlayed %}
-                                        <span class="badge bg-primary">{{ 'app.event.deck_status_played'|trans }}</span>
-                                    {% elseif isDelegated %}
-                                        <span class="badge bg-info">{{ 'app.event.deck_status_delegated'|trans }}</span>
-                                    {% elseif isRegistered %}
-                                        <span class="badge bg-success">{{ 'app.event.deck_status_registered'|trans }}</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">{{ 'app.event.deck_status_not_registered'|trans }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <form method="post" action="{{ path('app_event_toggle_registration', {id: event.id}) }}" class="d-inline">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
-                                        <input type="hidden" name="deck_id" value="{{ deck.id }}">
-                                        {% if isRegistered %}
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.unregister'|trans }}</button>
-                                        {% else %}
-                                            <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.register_deck'|trans }}</button>
-                                        {% endif %}
-                                    </form>
-                                </td>
-                                <td>
-                                    <form method="post" action="{{ path('app_event_toggle_delegation', {id: event.id}) }}" class="d-inline">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-delegation-' ~ event.id) }}">
-                                        <input type="hidden" name="deck_id" value="{{ deck.id }}">
-                                        {% if isDelegated %}
-                                            {% set deckWithStaff = regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
-                                            <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}
-                                                {% if deckWithStaff %}title="Cannot revoke — deck is currently with staff"{% endif %}>{{ 'app.event.revoke'|trans }}</button>
-                                        {% else %}
-                                            <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
-                                        {% endif %}
-                                    </form>
-                                </td>
-                                <td>
-                                    {% if not isDelegated %}
-                                        <span class="text-muted">&mdash;</span>
-                                    {% elseif regInfo.staffReturnedAt %}
-                                        <span class="badge bg-success">Returned to you</span>
-                                    {% elseif regInfo.staffReceivedAt %}
-                                        <span class="badge bg-info">With staff</span>
-                                        <form method="post" action="{{ path('app_event_custody_owner_reclaim', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-reclaim-' ~ regInfo.registrationId) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned to me</button>
-                                        </form>
-                                    {% elseif event.cancelledAt %}
-                                        <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
-                                    {% else %}
-                                        <span class="badge bg-warning text-dark">Not handed over</span>
-                                        <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-handover-' ~ regInfo.registrationId) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">Hand to staff</button>
-                                        </form>
-                                    {% endif %}
-                                </td>
+                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                <th>{{ 'app.borrow.table.available'|trans }}</th>
+                                <th>{{ 'app.borrow.table.delegate_to_staff'|trans }}</th>
+                                <th>Custody</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for deck in ownedDecksWithVersion %}
+                                {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
+                                {% set isRegistered = regInfo is not null and regInfo.registered %}
+                                {% set isDelegated = regInfo is not null and regInfo.delegated %}
+                                {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
+                                <tr>
+                                    <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}</a></td>
+                                    <td>
+                                        {% if isPlayed %}
+                                            <span class="badge bg-primary">{{ 'app.event.deck_status_played'|trans }}</span>
+                                        {% elseif isDelegated %}
+                                            <span class="badge bg-info">{{ 'app.event.deck_status_delegated'|trans }}</span>
+                                        {% elseif isRegistered %}
+                                            <span class="badge bg-success">{{ 'app.event.deck_status_registered'|trans }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ 'app.event.deck_status_not_registered'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ path('app_event_toggle_registration', {id: event.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
+                                            <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                            {% if isRegistered %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.unregister'|trans }}</button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.register_deck'|trans }}</button>
+                                            {% endif %}
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ path('app_event_toggle_delegation', {id: event.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-delegation-' ~ event.id) }}">
+                                            <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                            {% if isDelegated %}
+                                                {% set deckWithStaff = regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
+                                                <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}
+                                                    {% if deckWithStaff %}title="Cannot revoke — deck is currently with staff"{% endif %}>{{ 'app.event.revoke'|trans }}</button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
+                                            {% endif %}
+                                        </form>
+                                    </td>
+                                    <td>
+                                        {% if not isDelegated %}
+                                            <span class="text-muted">&mdash;</span>
+                                        {% elseif regInfo.staffReturnedAt %}
+                                            <span class="badge bg-success">Returned to you</span>
+                                        {% elseif regInfo.staffReceivedAt %}
+                                            <span class="badge bg-info">With staff</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_reclaim', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-reclaim-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned to me</button>
+                                            </form>
+                                        {% elseif event.cancelledAt %}
+                                            <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Not handed over</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-handover-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Hand to staff</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# Mobile card layout (<md) #}
+                <div class="d-md-none">
+                    {% for deck in ownedDecksWithVersion %}
+                        {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
+                        {% set isRegistered = regInfo is not null and regInfo.registered %}
+                        {% set isDelegated = regInfo is not null and regInfo.delegated %}
+                        {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
+                        <div class="borrow-mobile-card px-3 py-2 {{ not loop.last ? 'border-bottom' : '' }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">
+                                    <span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}
+                                </a>
+                                {% if isPlayed %}
+                                    <span class="badge bg-primary">{{ 'app.event.deck_status_played'|trans }}</span>
+                                {% elseif isDelegated %}
+                                    <span class="badge bg-info">{{ 'app.event.deck_status_delegated'|trans }}</span>
+                                {% elseif isRegistered %}
+                                    <span class="badge bg-success">{{ 'app.event.deck_status_registered'|trans }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ 'app.event.deck_status_not_registered'|trans }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                                <form method="post" action="{{ path('app_event_toggle_registration', {id: event.id}) }}" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
+                                    <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                    {% if isRegistered %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.unregister'|trans }}</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.register_deck'|trans }}</button>
+                                    {% endif %}
+                                </form>
+                                <form method="post" action="{{ path('app_event_toggle_delegation', {id: event.id}) }}" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle-delegation-' ~ event.id) }}">
+                                    <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                    {% if isDelegated %}
+                                        {% set deckWithStaff = regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}>{{ 'app.event.revoke'|trans }}</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
+                                    {% endif %}
+                                </form>
+                                {% if isDelegated %}
+                                    <span class="ms-auto">
+                                        {% if regInfo.staffReturnedAt %}
+                                            <span class="badge bg-success">Returned to you</span>
+                                        {% elseif regInfo.staffReceivedAt %}
+                                            <span class="badge bg-info me-1">With staff</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_reclaim', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-reclaim-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned</button>
+                                            </form>
+                                        {% elseif event.cancelledAt %}
+                                            <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark me-1">Not handed over</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-handover-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Hand to staff</button>
+                                            </form>
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     {% endif %}
@@ -381,7 +429,8 @@
                     <div class="px-3 pt-3 pb-1">
                         <h6 class="text-muted mb-2">Physical Deck Handover</h6>
                     </div>
-                    <div class="table-responsive">
+                    {# Desktop table (md+) #}
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
@@ -431,13 +480,48 @@
                             </tbody>
                         </table>
                     </div>
+                    {# Mobile cards (<md) #}
+                    <div class="d-md-none px-3 pb-3">
+                        {% for reg in delegatedRegistrations %}
+                            <div class="borrow-mobile-card py-3 {{ not loop.last ? 'border-bottom' : '' }}">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <a href="{{ path('app_deck_show', {short_tag: reg.deck.shortTag}) }}">
+                                        <span class="badge bg-dark badge-short-id me-1">{{ reg.deck.shortTag }}</span>{{ reg.deck.name }}
+                                    </a>
+                                    {% if reg.staffReturnedAt %}
+                                        <span class="badge bg-success">Returned</span>
+                                    {% elseif reg.staffReceivedAt %}
+                                        <span class="badge bg-info">With staff</span>
+                                    {% elseif event.cancelledAt %}
+                                        <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Awaiting</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted small mb-2">{{ reg.deck.owner.screenName }}</div>
+                                {% if reg.staffReceivedAt and not reg.staffReturnedAt %}
+                                    {% set hasLentBorrow = false %}
+                                    {% for borrow in delegatedBorrows %}
+                                        {% if borrow.deck.id == reg.deck.id and borrow.status.value in ['lent', 'overdue'] %}
+                                            {% set hasLentBorrow = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <form method="post" action="{{ path('app_event_custody_staff_return', {id: event.id, registrationId: reg.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('custody-staff-return-' ~ reg.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" {{ hasLentBorrow ? 'disabled' }}>Mark returned to owner</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
 
                 {% if delegatedBorrows is not empty and not event.cancelledAt and not event.finishedAt %}
                     <div class="px-3 pt-3 pb-1">
                         <h6 class="text-muted mb-2">Borrower Activity</h6>
                     </div>
-                    <div class="table-responsive">
+                    {# Desktop table (md+) #}
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
@@ -504,6 +588,55 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                    </div>
+                    {# Mobile cards (<md) #}
+                    <div class="d-md-none px-3 pb-3">
+                        {% for borrow in delegatedBorrows %}
+                            <div class="borrow-mobile-card py-3 {{ not loop.last ? 'border-bottom' : '' }}">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}">
+                                        <span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}
+                                    </a>
+                                    {{ borrowBadge(borrow) }}
+                                </div>
+                                <div class="text-muted small mb-2">
+                                    {{ borrow.deck.owner.screenName }} &rarr; {{ borrow.borrower.screenName }}
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if borrow.status.value == 'pending' %}
+                                        <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
+                                            <input type="hidden" name="redirect_to" value="event">
+                                            <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+                                        </form>
+                                        <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
+                                            <input type="hidden" name="redirect_to" value="event">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+                                        </form>
+                                    {% elseif borrow.status.value == 'approved' %}
+                                        {% set awaitingCustody = false %}
+                                        {% for reg in delegatedRegistrations %}
+                                            {% if reg.deck.id == borrow.deck.id and not reg.staffReceivedAt %}
+                                                {% set awaitingCustody = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('hand-off-borrow-' ~ borrow.id) }}">
+                                            <input type="hidden" name="redirect_to" value="event">
+                                            <button type="submit" class="btn btn-sm btn-primary" {{ awaitingCustody ? 'disabled' }}>{{ 'app.event.hand_off'|trans }}</button>
+                                        </form>
+                                    {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
+                                        <form method="post" action="{{ path('app_borrow_return', {id: borrow.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('return-borrow-' ~ borrow.id) }}">
+                                            <input type="hidden" name="redirect_to" value="event">
+                                            <button type="submit" class="btn btn-sm btn-warning">{{ 'app.event.mark_returned'|trans }}</button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 {% endif %}
             </div>
