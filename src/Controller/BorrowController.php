@@ -258,7 +258,9 @@ class BorrowController extends AbstractAppController
         $redirectTo = $request->getPayload()->getString('redirect_to');
 
         if ('lends' === $redirectTo) {
-            return $this->redirectToRoute('app_lend_list');
+            $scope = $request->getPayload()->getString('redirect_scope');
+
+            return $this->redirectToRoute('app_lend_list', '' !== $scope ? ['scope' => $scope] : []);
         }
 
         if ('event' === $redirectTo) {
