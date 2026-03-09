@@ -90,14 +90,29 @@ function navigate(direction: number): void {
 document.getElementById('cardImageModalPrev')?.addEventListener('click', () => navigate(-1));
 document.getElementById('cardImageModalNext')?.addEventListener('click', () => navigate(1));
 
-// Touch swipe support
+// Touch swipe support + block background scroll on iOS
+const modalElement = document.getElementById('cardImageModal');
 const modalBody = document.querySelector('#cardImageModal .modal-body');
-if (modalBody) {
+if (modalBody && modalElement) {
     let touchStartX = 0;
+    let touchStartY = 0;
 
     modalBody.addEventListener('touchstart', (event) => {
-        touchStartX = (event as TouchEvent).touches[0].clientX;
+        const touch = (event as TouchEvent).touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
     }, { passive: true });
+
+    modalBody.addEventListener('touchmove', (event) => {
+        const touch = (event as TouchEvent).touches[0];
+        const deltaX = Math.abs(touch.clientX - touchStartX);
+        const deltaY = Math.abs(touch.clientY - touchStartY);
+
+        // Block vertical scroll; allow horizontal swipe
+        if (deltaY > deltaX) {
+            event.preventDefault();
+        }
+    }, { passive: false });
 
     modalBody.addEventListener('touchend', (event) => {
         const touchEndX = (event as TouchEvent).changedTouches[0].clientX;
@@ -107,6 +122,13 @@ if (modalBody) {
             navigate(deltaX < 0 ? 1 : -1);
         }
     }, { passive: true });
+
+    // Block background scroll on the modal backdrop (iOS)
+    modalElement.addEventListener('touchmove', (event) => {
+        if (event.target === modalElement || (event.target as Element).classList.contains('modal-dialog')) {
+            event.preventDefault();
+        }
+    }, { passive: false });
 }
 
 // Keyboard navigation when modal is open
