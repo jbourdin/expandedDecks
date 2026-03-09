@@ -35,81 +35,57 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <table class="table table-sm table-themed mb-0">
-                        <tbody>
-                            <tr>
-                                <th>{{ 'app.event.date'|trans }}</th>
-                                <td>
-                                    {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
-                                    {% if event.endDate %}
-                                        — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>{{ 'app.event.format'|trans }}</th>
-                                <td>{{ event.format }}</td>
-                            </tr>
-                            <tr>
-                                <th>{{ 'app.event.organizer'|trans }}</th>
-                                <td>{{ event.organizer.screenName }}</td>
-                            </tr>
-                            {% if event.location %}
-                                <tr>
-                                    <th>{{ 'app.event.location'|trans }}</th>
-                                    <td>{{ event.location }}</td>
-                                </tr>
+                    <dl class="row mb-md-0">
+                        <dt class="col-sm-4">{{ 'app.event.date'|trans }}</dt>
+                        <dd class="col-sm-8">
+                            {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                            {% if event.endDate %}
+                                — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
                             {% endif %}
-                            {% if event.registrationLink %}
-                            <tr>
-                                <th>{{ 'app.event.registration_link'|trans }}</th>
-                                <td><a href="{{ event.registrationLink }}" target="_blank" rel="noopener">{{ event.registrationLink }}</a></td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
+                        </dd>
+                        <dt class="col-sm-4">{{ 'app.event.format'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.format }}</dd>
+                        <dt class="col-sm-4">{{ 'app.event.organizer'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.organizer.screenName }}</dd>
+                        {% if event.location %}
+                            <dt class="col-sm-4">{{ 'app.event.location'|trans }}</dt>
+                            <dd class="col-sm-8">{{ event.location }}</dd>
+                        {% endif %}
+                        {% if event.registrationLink %}
+                            <dt class="col-sm-4">{{ 'app.event.registration_link'|trans }}</dt>
+                            <dd class="col-sm-8"><a href="{{ event.registrationLink }}" target="_blank" rel="noopener" class="text-break">{{ event.registrationLink }}</a></dd>
+                        {% endif %}
+                    </dl>
                 </div>
                 <div class="col-md-6">
-                    <table class="table table-sm table-themed mb-0">
-                        <tbody>
-                            {% if event.tournamentStructure %}
-                                <tr>
-                                    <th>{{ 'app.event.structure'|trans }}</th>
-                                    <td>{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</td>
-                                </tr>
-                            {% endif %}
-                            {% if event.minAttendees or event.maxAttendees %}
-                                <tr>
-                                    <th>{{ 'app.event.attendees'|trans }}</th>
-                                    <td>
-                                        {% if event.minAttendees %}{{ 'app.event.min'|trans({'%count%': event.minAttendees}) }}{% endif %}
-                                        {% if event.minAttendees and event.maxAttendees %} / {% endif %}
-                                        {% if event.maxAttendees %}{{ 'app.event.max'|trans({'%count%': event.maxAttendees}) }}{% endif %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if event.roundDuration or event.topCutRoundDuration %}
-                                <tr>
-                                    <th>{{ 'app.event.round_duration'|trans }}</th>
-                                    <td>
-                                        {% if event.roundDuration %}{{ 'app.event.round_min'|trans({'%duration%': event.roundDuration}) }}{% endif %}
-                                        {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
-                                        {% if event.topCutRoundDuration %}{{ 'app.event.top_cut'|trans({'%duration%': event.topCutRoundDuration}) }}{% endif %}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                            {% if event.entryFeeAmount is not null %}
-                                <tr>
-                                    <th>{{ 'app.event.entry_fee'|trans }}</th>
-                                    <td>{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</td>
-                                </tr>
-                            {% endif %}
-                            <tr>
-                                <th>{{ 'app.event.decklist_mandatory'|trans }}</th>
-                                <td>{{ event.decklistMandatory ? 'app.common.yes'|trans : 'app.common.no'|trans }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <dl class="row mb-0">
+                        {% if event.tournamentStructure %}
+                            <dt class="col-sm-4">{{ 'app.event.structure'|trans }}</dt>
+                            <dd class="col-sm-8">{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</dd>
+                        {% endif %}
+                        {% if event.minAttendees or event.maxAttendees %}
+                            <dt class="col-sm-4">{{ 'app.event.attendees'|trans }}</dt>
+                            <dd class="col-sm-8">
+                                {% if event.minAttendees %}{{ 'app.event.min'|trans({'%count%': event.minAttendees}) }}{% endif %}
+                                {% if event.minAttendees and event.maxAttendees %} / {% endif %}
+                                {% if event.maxAttendees %}{{ 'app.event.max'|trans({'%count%': event.maxAttendees}) }}{% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if event.roundDuration or event.topCutRoundDuration %}
+                            <dt class="col-sm-4">{{ 'app.event.round_duration'|trans }}</dt>
+                            <dd class="col-sm-8">
+                                {% if event.roundDuration %}{{ 'app.event.round_min'|trans({'%duration%': event.roundDuration}) }}{% endif %}
+                                {% if event.roundDuration and event.topCutRoundDuration %} / {% endif %}
+                                {% if event.topCutRoundDuration %}{{ 'app.event.top_cut'|trans({'%duration%': event.topCutRoundDuration}) }}{% endif %}
+                            </dd>
+                        {% endif %}
+                        {% if event.entryFeeAmount is not null %}
+                            <dt class="col-sm-4">{{ 'app.event.entry_fee'|trans }}</dt>
+                            <dd class="col-sm-8">{{ (event.entryFeeAmount / 100)|number_format(2) }}{% if event.entryFeeCurrency %} {{ event.entryFeeCurrency }}{% endif %}</dd>
+                        {% endif %}
+                        <dt class="col-sm-4">{{ 'app.event.decklist_mandatory'|trans }}</dt>
+                        <dd class="col-sm-8">{{ event.decklistMandatory ? 'app.common.yes'|trans : 'app.common.no'|trans }}</dd>
+                    </dl>
                 </div>
             </div>
 

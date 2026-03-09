@@ -11,10 +11,18 @@
  * Card image hover: toggles `show-below` class so the preview stays
  * within the viewport (above by default, below when near the top).
  *
+ * On touch devices (< md), hover is disabled via CSS. Instead, tapping
+ * a card name opens a centered Bootstrap modal with the card image.
+ *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  */
+
+const isTouchDevice = (): boolean => window.matchMedia('(max-width: 767.98px)').matches;
+
 document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
     el.addEventListener('mouseenter', () => {
+        if (isTouchDevice()) return;
+
         const img = el.querySelector('.card-hover-img');
         if (!img) return;
 
@@ -24,5 +32,30 @@ document.querySelectorAll<HTMLElement>('.card-hover').forEach((el) => {
         } else {
             img.classList.remove('show-below');
         }
+    });
+
+    el.addEventListener('click', (event) => {
+        if (!isTouchDevice()) return;
+
+        const img = el.querySelector<HTMLImageElement>('.card-hover-img');
+        if (!img) return;
+
+        event.preventDefault();
+
+        const modal = document.getElementById('cardImageModal');
+        const modalImg = document.getElementById('cardImageModalImg') as HTMLImageElement | null;
+        const modalLabel = document.getElementById('cardImageModalLabel');
+
+        if (!modal || !modalImg) return;
+
+        modalImg.src = img.src;
+        modalImg.alt = img.alt;
+        if (modalLabel) {
+            modalLabel.textContent = img.alt;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Bootstrap is loaded globally
+        const bsModal = new (window as any).bootstrap.Modal(modal);
+        bsModal.show();
     });
 });

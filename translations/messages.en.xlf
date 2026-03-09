@@ -451,6 +451,16 @@
                 <target>Name or short tag...</target>
                 <note>Placeholder for catalog search input</note>
             </trans-unit>
+            <trans-unit id="app.deck.more_filters">
+                <source>app.deck.more_filters</source>
+                <target>More filters</target>
+                <note>Toggle button to show/hide extra catalog filters on mobile</note>
+            </trans-unit>
+            <trans-unit id="app.common.active">
+                <source>app.common.active</source>
+                <target>active</target>
+                <note>Badge label indicating active filters</note>
+            </trans-unit>
             <trans-unit id="app.deck.results_count">
                 <source>app.deck.results_count</source>
                 <target>{0}%count% decks found|{1}%count% deck found|]1,Inf[%count% decks found</target>

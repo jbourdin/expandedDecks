@@ -236,6 +236,23 @@ footer {
     }
 }
 
+// Hide hover behaviour on touch devices — tap opens a modal instead
+@include media-breakpoint-down(md) {
+    .card-hover:hover .card-hover-img {
+        display: none;
+    }
+}
+
+// --- Mobile touch target ---
+// Ensure action buttons meet 44px minimum on small screens.
+@include media-breakpoint-down(md) {
+    .btn-sm {
+        min-height: 44px;
+        padding-top: .5rem;
+        padding-bottom: .5rem;
+    }
+}
+
 // --- Footer ---
 
 .footer-pokemon {

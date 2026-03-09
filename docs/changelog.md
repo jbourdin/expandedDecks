@@ -18,6 +18,10 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 - **F6.5** — Banned card list management *(completed)*: CLI command `app:banned-cards:sync` fetches the official Pokemon TCG banned card list from pokemon.com and syncs it to the database (add/remove/unchanged). `DeckListValidator` now checks imported deck lists against the banned card list. Sync runs automatically at the end of `make fixtures`.
 
+### Mobile UX
+
+- **F10.1** — Mobile UX review *(completed)*: comprehensive mobile responsiveness pass. Borrow tables (inbox, dashboard, deck show) use card-based layout on mobile (`< md`) instead of horizontal-scroll tables. Deck catalog filters collapse behind a toggle on mobile. Card hover images replaced with tap-to-show modal on touch devices. Action buttons meet 44px touch target. Event info tables converted to definition lists. Notification bell popover adapts to viewport width. Dashboard stat cards stack vertically on smallest screens.
+
 ---
 
 ## [0.6.0] — 2026-03-09
