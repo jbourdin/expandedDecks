@@ -63,7 +63,7 @@ class BorrowServiceCancelEventTest extends TestCase
         $pendingBorrow = $this->createBorrow(BorrowStatus::Pending, $event);
         $approvedBorrow = $this->createBorrow(BorrowStatus::Approved, $event);
 
-        $this->borrowRepository->method('findCancellableBorrowsByEvent')
+        $this->borrowRepository->expects(self::once())->method('findCancellableBorrowsByEvent')
             ->with($event)
             ->willReturn([$pendingBorrow, $approvedBorrow]);
 
@@ -94,7 +94,7 @@ class BorrowServiceCancelEventTest extends TestCase
     {
         $event = $this->createEvent();
 
-        $this->borrowRepository->method('findCancellableBorrowsByEvent')
+        $this->borrowRepository->expects(self::once())->method('findCancellableBorrowsByEvent')
             ->with($event)
             ->willReturn([]);
 
@@ -118,7 +118,7 @@ class BorrowServiceCancelEventTest extends TestCase
             false,
         );
 
-        $this->borrowRepository->method('findCancellableBorrowsByEvent')
+        $this->borrowRepository->expects(self::once())->method('findCancellableBorrowsByEvent')
             ->with($event)
             ->willReturn([$pendingBorrow]);
 
@@ -142,7 +142,7 @@ class BorrowServiceCancelEventTest extends TestCase
         // Only pending/approved come back from the repository query
         $pendingBorrow = $this->createBorrow(BorrowStatus::Pending, $event);
 
-        $this->borrowRepository->method('findCancellableBorrowsByEvent')
+        $this->borrowRepository->expects(self::once())->method('findCancellableBorrowsByEvent')
             ->with($event)
             ->willReturn([$pendingBorrow]);
 
