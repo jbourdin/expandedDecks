@@ -1206,6 +1206,11 @@
                 <target>Cancel this borrow?</target>
                 <note>JavaScript confirm dialog for cancel action</note>
             </trans-unit>
+            <trans-unit id="app.borrow.awaiting_custody">
+                <source>app.borrow.awaiting_custody</source>
+                <target>Awaiting custody</target>
+                <note>Badge shown when staff hasn't received the deck yet</note>
+            </trans-unit>
             <trans-unit id="app.borrow.list_all">
                 <source>app.borrow.list_all</source>
                 <target>All</target>
