@@ -355,8 +355,8 @@
                         {% set isRegistered = regInfo is not null and regInfo.registered %}
                         {% set isDelegated = regInfo is not null and regInfo.delegated %}
                         {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
-                        <div class="borrow-mobile-card p-3 {{ not loop.last ? 'border-bottom' : '' }}">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="borrow-mobile-card px-3 py-2 {{ not loop.last ? 'border-bottom' : '' }}">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">
                                     <span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck.name }}
                                 </a>
@@ -370,7 +370,7 @@
                                     <span class="badge bg-secondary">{{ 'app.event.deck_status_not_registered'|trans }}</span>
                                 {% endif %}
                             </div>
-                            <div class="d-flex flex-wrap gap-2 mb-2">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
                                 <form method="post" action="{{ path('app_event_toggle_registration', {id: event.id}) }}" class="d-inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('toggle-registration-' ~ event.id) }}">
                                     <input type="hidden" name="deck_id" value="{{ deck.id }}">
@@ -390,28 +390,28 @@
                                         <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
                                     {% endif %}
                                 </form>
+                                {% if isDelegated %}
+                                    <span class="ms-auto">
+                                        {% if regInfo.staffReturnedAt %}
+                                            <span class="badge bg-success">Returned to you</span>
+                                        {% elseif regInfo.staffReceivedAt %}
+                                            <span class="badge bg-info me-1">With staff</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_reclaim', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-reclaim-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned</button>
+                                            </form>
+                                        {% elseif event.cancelledAt %}
+                                            <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark me-1">Not handed over</span>
+                                            <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-handover-' ~ regInfo.registrationId) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Hand to staff</button>
+                                            </form>
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
                             </div>
-                            {% if isDelegated %}
-                                <div class="small">
-                                    {% if regInfo.staffReturnedAt %}
-                                        <span class="badge bg-success">Returned to you</span>
-                                    {% elseif regInfo.staffReceivedAt %}
-                                        <span class="badge bg-info">With staff</span>
-                                        <form method="post" action="{{ path('app_event_custody_owner_reclaim', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-reclaim-' ~ regInfo.registrationId) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned to me</button>
-                                        </form>
-                                    {% elseif event.cancelledAt %}
-                                        <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
-                                    {% else %}
-                                        <span class="badge bg-warning text-dark">Not handed over</span>
-                                        <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('custody-owner-handover-' ~ regInfo.registrationId) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">Hand to staff</button>
-                                        </form>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
