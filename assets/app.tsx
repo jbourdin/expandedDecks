@@ -8,7 +8,8 @@
  */
 
 import './styles/app.scss';
-import { Alert, Collapse, Dropdown, Tooltip } from 'bootstrap';
+import 'bootstrap';
+import { Tooltip } from 'bootstrap';
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new Tooltip(el));
