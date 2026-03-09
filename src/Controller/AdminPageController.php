@@ -63,6 +63,7 @@ class AdminPageController extends AbstractAppController
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'search' => $search,
+            'supportedLocales' => self::SUPPORTED_LOCALES,
         ]);
     }
 

@@ -3036,6 +3036,10 @@
                 <source>app.cms.admin.save_translation</source>
                 <target>Enregistrer %locale%</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.missing_translations">
+                <source>app.cms.admin.missing_translations</source>
+                <target>Traduction manquante : %locales%</target>
+            </trans-unit>
             <trans-unit id="app.cms.admin.danger_zone">
                 <source>app.cms.admin.danger_zone</source>
                 <target>Zone de danger</target>

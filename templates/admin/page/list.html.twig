@@ -44,7 +44,19 @@
                             {% for page in contentPages %}
                                 <tr>
                                     <td><code>{{ page.slug }}</code></td>
-                                    <td>{{ page.getTitle(app.request.locale) }}</td>
+                                    <td>
+                                        {{ page.getTitle(app.request.locale) }}
+                                        {% set missingLocales = [] %}
+                                        {% for locale in supportedLocales %}
+                                            {% set t = page.getTranslation(locale) %}
+                                            {% if not t or t.locale != locale %}
+                                                {% set missingLocales = missingLocales|merge([locale|upper]) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if missingLocales is not empty %}
+                                            <i class="bi bi-translate text-warning ms-1" data-bs-toggle="tooltip" title="{{ 'app.cms.admin.missing_translations'|trans({'%locales%': missingLocales|join(', ')}) }}"></i>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if page.menuCategory %}
                                             <span class="badge bg-secondary">{{ page.menuCategory.getName(app.request.locale) }}</span>
