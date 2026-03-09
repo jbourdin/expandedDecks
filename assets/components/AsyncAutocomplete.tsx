@@ -81,6 +81,7 @@ export default function AsyncAutocomplete({
     }, [searchUrl, queryParam, mapResult]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch triggered by debounced input
         fetchOptions(debouncedSearch);
     }, [debouncedSearch, fetchOptions]);
 
