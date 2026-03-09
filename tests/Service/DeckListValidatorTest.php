@@ -18,6 +18,7 @@ use App\Service\DeckListParseResult;
 use App\Service\DeckListValidator;
 use App\Service\ParsedCard;
 use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F6.3 — Validate deck list (card count, duplicates)
@@ -36,7 +37,12 @@ class DeckListValidatorTest extends TestCase
             'PHF|118' => true,  // Lysandre's Trump Card (full art)
         ]);
 
-        $this->validator = new DeckListValidator($bannedCardRepo);
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $params = []): string => $id.' '.implode(' ', array_map('strval', array_values($params))),
+        );
+
+        $this->validator = new DeckListValidator($bannedCardRepo, $translator);
     }
 
     public function testValid60CardDeckPasses(): void
@@ -68,8 +74,7 @@ class DeckListValidatorTest extends TestCase
 
         self::assertFalse($result->isValid());
         self::assertCount(1, $result->errors);
-        self::assertStringContainsString('exactly 60 cards', $result->errors[0]);
-        self::assertStringContainsString('4', $result->errors[0]);
+        self::assertStringContainsString('app.deck.validation.card_count', $result->errors[0]);
     }
 
     public function testMoreThan4CopiesOfNonEnergyCardProducesError(): void
@@ -171,7 +176,7 @@ class DeckListValidatorTest extends TestCase
         $bannedError = false;
 
         foreach ($result->errors as $error) {
-            if (str_contains($error, 'Forest of Giant Plants') && str_contains($error, 'banned')) {
+            if (str_contains($error, 'Forest of Giant Plants') && str_contains($error, 'banned_card')) {
                 $bannedError = true;
             }
         }

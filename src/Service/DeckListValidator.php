@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Repository\BannedCardRepository;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Validates a parsed deck list against Expanded format rules.
@@ -41,6 +42,7 @@ class DeckListValidator
 
     public function __construct(
         private readonly BannedCardRepository $bannedCardRepo,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -51,11 +53,10 @@ class DeckListValidator
 
         $totalCards = $parseResult->totalCards();
         if (self::REQUIRED_CARD_COUNT !== $totalCards) {
-            $errors[] = \sprintf(
-                'A deck must contain exactly %d cards, but this list has %d.',
-                self::REQUIRED_CARD_COUNT,
-                $totalCards,
-            );
+            $errors[] = $this->translator->trans('app.deck.validation.card_count', [
+                '%required%' => self::REQUIRED_CARD_COUNT,
+                '%actual%' => $totalCards,
+            ]);
         }
 
         // Group quantities by card identity (setCode|cardNumber)
@@ -78,12 +79,11 @@ class DeckListValidator
 
         foreach ($cardCounts as $data) {
             if ($data['quantity'] > self::MAX_COPIES) {
-                $errors[] = \sprintf(
-                    'Card "%s" appears %d times, but the maximum is %d copies.',
-                    $data['name'],
-                    $data['quantity'],
-                    self::MAX_COPIES,
-                );
+                $errors[] = $this->translator->trans('app.deck.validation.max_copies', [
+                    '%name%' => $data['name'],
+                    '%count%' => $data['quantity'],
+                    '%max%' => self::MAX_COPIES,
+                ]);
             }
         }
 
@@ -101,12 +101,11 @@ class DeckListValidator
             $checkedKeys[$key] = true;
 
             if (isset($bannedKeys[$key])) {
-                $errors[] = \sprintf(
-                    'Card "%s" (%s %s) is banned in the Expanded format.',
-                    $card->cardName,
-                    $card->setCode,
-                    $card->cardNumber,
-                );
+                $errors[] = $this->translator->trans('app.deck.validation.banned_card', [
+                    '%name%' => $card->cardName,
+                    '%set%' => $card->setCode,
+                    '%number%' => $card->cardNumber,
+                ]);
             }
         }
 

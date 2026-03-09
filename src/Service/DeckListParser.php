@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 /**
  * Parses a PTCG-format deck list (copy-pasted from PTCGO/PTCGL).
  *
@@ -40,6 +42,11 @@ class DeckListParser
         'trainer' => 'trainer',
         'energy' => 'energy',
     ];
+
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
 
     public function parse(string $rawText): DeckListParseResult
     {
@@ -73,7 +80,10 @@ class DeckListParser
 
             if (preg_match(self::CARD_LINE_PATTERN, $line, $matches)) {
                 if (null === $currentSection) {
-                    $errors[] = \sprintf('Line %d: card line found before any section header: "%s"', $lineNumber + 1, $line);
+                    $errors[] = $this->translator->trans('app.deck.parse.no_section_header', [
+                        '%line%' => $lineNumber + 1,
+                        '%content%' => $line,
+                    ]);
 
                     continue;
                 }
@@ -89,7 +99,10 @@ class DeckListParser
                 continue;
             }
 
-            $errors[] = \sprintf('Line %d: unrecognized format: "%s"', $lineNumber + 1, $line);
+            $errors[] = $this->translator->trans('app.deck.parse.unrecognized_format', [
+                '%line%' => $lineNumber + 1,
+                '%content%' => $line,
+            ]);
         }
 
         return new DeckListParseResult($cards, $errors, $sectionTotals);

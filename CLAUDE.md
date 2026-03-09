@@ -95,6 +95,7 @@ PHP-CS-Fixer enforces this header automatically via the `header_comment` rule.
 - Constructor injection, autowiring, thin controllers
 - Doctrine entities use PHP 8 attributes (not annotations)
 - Symfony best practices: service autowiring, param binding, env vars for config
+- **No hardcoded user-facing strings**: all text displayed to end users (flash messages, validation errors, form labels, email subjects/bodies, UI labels) **MUST** use translation keys and be defined in the XLIFF translation files (`translations/messages.en.xlf` and `translations/messages.fr.xlf`). Services that produce user-facing messages must inject `TranslatorInterface` and call `$this->translator->trans()`. CLI command output (developer-facing) is exempt.
 - **Feature traceability**: methods implementing a documented feature rule **MUST** reference the feature ID in their PHPDoc (`@see`) or JSDoc. This links code back to the feature specification.
 
 PHP example:
