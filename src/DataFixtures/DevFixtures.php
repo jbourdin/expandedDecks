@@ -1274,6 +1274,164 @@ MD);
         $news2->addTranslation($news2En);
         $manager->persist($news2En);
 
+        $news3 = new Page();
+        $news3->setSlug('march-league-challenge');
+        $news3->setMenuCategory($newsCategory);
+        $news3->setIsPublished(true);
+        $manager->persist($news3);
+
+        $news3En = new PageTranslation();
+        $news3En->setPage($news3);
+        $news3En->setLocale('en');
+        $news3En->setTitle('March League Challenge recap');
+        $news3En->setContent(<<<'MD'
+Our March League Challenge was a blast! 16 players battled it out in Swiss rounds.
+
+## Top 4
+
+1. **Lugia VSTAR / Archeops** — piloted by Alex
+2. **Mew VMAX / Genesect V** — piloted by Jordan
+3. **Gardevoir ex** — piloted by Sam
+4. **Lost Zone Box** — piloted by Casey
+
+Congratulations to all participants! See you at the next event.
+MD);
+        $news3->addTranslation($news3En);
+        $manager->persist($news3En);
+
+        $news3Fr = new PageTranslation();
+        $news3Fr->setPage($news3);
+        $news3Fr->setLocale('fr');
+        $news3Fr->setTitle('Résumé du League Challenge de mars');
+        $news3Fr->setSlug('league-challenge-mars');
+        $news3Fr->setContent(<<<'MD'
+Notre League Challenge de mars était génial ! 16 joueurs se sont affrontés en rondes suisses.
+
+## Top 4
+
+1. **Lugia VSTAR / Archeops** — piloté par Alex
+2. **Mew VMAX / Genesect V** — piloté par Jordan
+3. **Gardevoir ex** — piloté par Sam
+4. **Lost Zone Box** — piloté par Casey
+
+Félicitations à tous les participants ! À bientôt au prochain événement.
+MD);
+        $news3->addTranslation($news3Fr);
+        $manager->persist($news3Fr);
+
+        $news4 = new Page();
+        $news4->setSlug('new-decks-february');
+        $news4->setMenuCategory($newsCategory);
+        $news4->setIsPublished(true);
+        $manager->persist($news4);
+
+        $news4En = new PageTranslation();
+        $news4En->setPage($news4);
+        $news4En->setLocale('en');
+        $news4En->setTitle('5 new decks added to the library');
+        $news4En->setContent(<<<'MD'
+We're excited to announce that five new decks have been added to our shared library:
+
+- **Charizard ex / Pidgeot ex** — aggressive fire build
+- **Iron Hands ex** — Future Box variant
+- **Roaring Moon ex** — Ancient turbo
+- **Snorlax Stall** — the classic wall
+- **Raging Bolt ex / Ogerpon ex** — energy acceleration combo
+
+All are available for borrowing at upcoming events. Check the [deck catalog](/decks) for details!
+MD);
+        $news4->addTranslation($news4En);
+        $manager->persist($news4En);
+
+        $news5 = new Page();
+        $news5->setSlug('label-printing-live');
+        $news5->setMenuCategory($newsCategory);
+        $news5->setIsPublished(true);
+        $manager->persist($news5);
+
+        $news5En = new PageTranslation();
+        $news5En->setPage($news5);
+        $news5En->setLocale('en');
+        $news5En->setTitle('Zebra label printing is now live');
+        $news5En->setContent(<<<'MD'
+Deck owners can now print Zebra labels directly from the deck page! Each label includes:
+
+- Deck name and short tag
+- QR code for quick scanning at events
+- Owner name and deck archetype
+
+Just click **Print Label** on any deck you own. You'll need a Zebra printer connected via PrintNode.
+MD);
+        $news5->addTranslation($news5En);
+        $manager->persist($news5En);
+
+        $news6 = new Page();
+        $news6->setSlug('community-guidelines');
+        $news6->setMenuCategory($newsCategory);
+        $news6->setIsPublished(true);
+        $manager->persist($news6);
+
+        $news6En = new PageTranslation();
+        $news6En->setPage($news6);
+        $news6En->setLocale('en');
+        $news6En->setTitle('Community guidelines update');
+        $news6En->setContent(<<<'MD'
+We've updated our community guidelines to better reflect how the platform works. Key points:
+
+- Be respectful to deck owners and fellow borrowers
+- Report any issues with borrowed decks promptly
+- Organizers should verify deck returns before closing events
+- Repeated no-shows may result in borrowing restrictions
+
+Read the full [borrowing rules](/pages/borrowing-rules) for details.
+MD);
+        $news6->addTranslation($news6En);
+        $manager->persist($news6En);
+
+        $news7 = new Page();
+        $news7->setSlug('spring-tournament-series');
+        $news7->setMenuCategory($newsCategory);
+        $news7->setIsPublished(true);
+        $manager->persist($news7);
+
+        $news7En = new PageTranslation();
+        $news7En->setPage($news7);
+        $news7En->setLocale('en');
+        $news7En->setTitle('Spring Tournament Series announced');
+        $news7En->setContent(<<<'MD'
+We're kicking off a Spring Tournament Series with three events over April and May!
+
+## Schedule
+
+- **April 5** — League Challenge at the usual venue
+- **April 19** — Special side event with promo prizes
+- **May 10** — Season finale with top cut
+
+Registration opens one week before each event. Deck borrowing will be available for all three.
+MD);
+        $news7->addTranslation($news7En);
+        $manager->persist($news7En);
+
+        $news8 = new Page();
+        $news8->setSlug('deck-enrichment-update');
+        $news8->setMenuCategory($newsCategory);
+        $news8->setIsPublished(true);
+        $manager->persist($news8);
+
+        $news8En = new PageTranslation();
+        $news8En->setPage($news8);
+        $news8En->setLocale('en');
+        $news8En->setTitle('Card images now auto-loaded from TCGdex');
+        $news8En->setContent(<<<'MD'
+Great news for deck browsing! Card images are now automatically fetched from TCGdex when a deck list is imported.
+
+This means every card in a deck shows its actual artwork — making it much easier to browse and identify cards at a glance.
+
+The enrichment happens in the background, so it may take a few seconds after importing a new deck list.
+MD);
+        $news8->addTranslation($news8En);
+        $manager->persist($news8En);
+
         // --- Rules page (in Rules & Info category) ---
 
         $rulesPage = new Page();

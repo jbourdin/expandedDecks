@@ -92,6 +92,23 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count published pages in a given menu category.
+     */
+    public function countPublishedByCategory(MenuCategory $category): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.menuCategory = :category')
+            ->andWhere('p.isPublished = true')
+            ->setParameter('category', $category)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * Build a query builder for the admin page list with optional search.
      */
     public function createAdminListQueryBuilder(?string $search = null): QueryBuilder

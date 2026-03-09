@@ -50,6 +50,7 @@ class MenuCategoryRepository extends ServiceEntityRepository
 
     /**
      * Find categories that have at least one published page, ordered by position.
+     * Eagerly loads published pages and their translations for menu rendering.
      *
      * @return list<MenuCategory>
      */
@@ -60,10 +61,12 @@ class MenuCategoryRepository extends ServiceEntityRepository
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->innerJoin('c.pages', 'p')
+            ->addSelect('p')
+            ->leftJoin('p.translations', 'pt')
+            ->addSelect('pt')
             ->where('p.isPublished = true')
             ->orderBy('c.position', 'ASC')
             ->addOrderBy('c.id', 'ASC')
-            ->groupBy('c.id')
             ->getQuery()
             ->getResult();
 

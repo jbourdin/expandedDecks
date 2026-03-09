@@ -58,6 +58,8 @@ class HomeController extends AbstractController
 
         // Latest news: look for pages in "news" category
         $newsPages = [];
+        $newsCategory = null;
+        $newsTotalCount = 0;
         $newsCategories = $menuCategoryRepository->findBy(['id' => array_map(
             static fn ($category) => $category->getId(),
             array_filter(
@@ -67,7 +69,9 @@ class HomeController extends AbstractController
         )]);
 
         if (\count($newsCategories) > 0) {
-            $newsPages = $pageRepository->findPublishedByCategory($newsCategories[0], 3);
+            $newsCategory = $newsCategories[0];
+            $newsPages = $pageRepository->findPublishedByCategory($newsCategory, 5);
+            $newsTotalCount = $pageRepository->countPublishedByCategory($newsCategory);
         }
 
         return $this->render('home/index.html.twig', [
@@ -75,6 +79,8 @@ class HomeController extends AbstractController
             'upcomingEventCount' => $eventRepository->countUpcoming(),
             'welcomeHtml' => $welcomeHtml,
             'newsPages' => $newsPages,
+            'newsCategory' => $newsCategory,
+            'newsTotalCount' => $newsTotalCount,
             'locale' => $locale,
         ]);
     }
@@ -88,11 +94,31 @@ class HomeController extends AbstractController
         DeckRepository $deckRepository,
         EventRepository $eventRepository,
         BorrowRepository $borrowRepository,
+        PageRepository $pageRepository,
+        MenuCategoryRepository $menuCategoryRepository,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
+        // Latest news
+        $newsPages = [];
+        $newsCategory = null;
+        $newsTotalCount = 0;
+        $newsCategories = array_filter(
+            $menuCategoryRepository->findAllOrdered(),
+            static fn ($category) => 'news' === strtolower($category->getName('en')),
+        );
+
+        if (\count($newsCategories) > 0) {
+            $newsCategory = reset($newsCategories);
+            $newsPages = $pageRepository->findPublishedByCategory($newsCategory, 5);
+            $newsTotalCount = $pageRepository->countPublishedByCategory($newsCategory);
+        }
+
         $params = [
+            'newsPages' => $newsPages,
+            'newsCategory' => $newsCategory,
+            'newsTotalCount' => $newsTotalCount,
             'user' => $user,
             'ownedDecks' => $user->getOwnedDecks(),
             'myEvents' => $eventRepository->findUpcomingByEngagement($user),

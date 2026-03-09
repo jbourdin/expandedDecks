@@ -120,6 +120,10 @@
                 <target>+ Nouveau</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.create">
+                <source>app.common.create</source>
+                <target>Créer</target>
+            </trans-unit>
             <trans-unit id="app.common.yes">
                 <source>app.common.yes</source>
                 <target>Oui</target>
@@ -3028,6 +3032,10 @@
                 <source>app.cms.admin.translation</source>
                 <target>Traduction</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.save_translation">
+                <source>app.cms.admin.save_translation</source>
+                <target>Enregistrer %locale%</target>
+            </trans-unit>
             <trans-unit id="app.cms.admin.danger_zone">
                 <source>app.cms.admin.danger_zone</source>
                 <target>Zone de danger</target>
@@ -3255,6 +3263,30 @@
             <trans-unit id="app.home.latest_news">
                 <source>app.home.latest_news</source>
                 <target>Dernières nouvelles</target>
+            </trans-unit>
+
+            <!-- CMS: Category page -->
+            <trans-unit id="app.cms.category_empty">
+                <source>app.cms.category_empty</source>
+                <target>Aucune page dans cette catégorie pour le moment.</target>
+            </trans-unit>
+
+            <!-- Event list: scope filters -->
+            <trans-unit id="app.event.filter_scope">
+                <source>app.event.filter_scope</source>
+                <target>Filtrer les événements</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_all">
+                <source>app.event.scope_all</source>
+                <target>Tous</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_public">
+                <source>app.event.scope_public</source>
+                <target>Publics</target>
+            </trans-unit>
+            <trans-unit id="app.event.scope_staffing">
+                <source>app.event.scope_staffing</source>
+                <target>Mes événements</target>
             </trans-unit>
         </body>
     </file>

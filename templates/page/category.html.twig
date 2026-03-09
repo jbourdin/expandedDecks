@@ -1,0 +1,48 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ category.getName(app.request.locale) }} — {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">{{ category.getName(app.request.locale) }}</h1>
+
+    {% if categoryPages|length > 0 %}
+        <div class="list-group mb-4">
+            {% for page in categoryPages %}
+                <a href="{{ path('app_page_show', {slug: page.slug}) }}" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ page.getTitle(locale) }}</h6>
+                        <small class="text-muted">{{ page.createdAt|date('Y-m-d') }}</small>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+
+        {% if totalPages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_page_category', {id: category.id, page: currentPage - 1}) }}">{{ 'app.common.previous'|trans }}</a>
+                    </li>
+                    {% for p in 1..totalPages %}
+                        <li class="page-item {% if p == currentPage %}active{% endif %}">
+                            <a class="page-link" href="{{ path('app_page_category', {id: category.id, page: p}) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ path('app_page_category', {id: category.id, page: currentPage + 1}) }}">{{ 'app.common.next'|trans }}</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <p class="text-muted">{{ 'app.cms.category_empty'|trans }}</p>
+    {% endif %}
+{% endblock %}

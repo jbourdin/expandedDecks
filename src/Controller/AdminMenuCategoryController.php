@@ -143,7 +143,9 @@ class AdminMenuCategoryController extends AbstractAppController
             $this->addFlash('danger', 'app.cms.translation_invalid');
         }
 
-        return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
+        return $this->redirect(
+            $this->generateUrl('app_admin_menu_category_edit', ['id' => $category->getId()]).'#pane-'.$locale
+        );
     }
 
     #[Route('/{id}/delete', name: 'app_admin_menu_category_delete', methods: ['POST'], requirements: ['id' => '\d+'])]

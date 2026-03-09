@@ -58,7 +58,7 @@ class AdminPageController extends AbstractAppController
         $totalPages = max(1, (int) ceil($totalItems / self::PER_PAGE));
 
         return $this->render('admin/page/list.html.twig', [
-            'pages' => $paginator,
+            'contentPages' => $paginator,
             'totalItems' => $totalItems,
             'currentPage' => $page,
             'totalPages' => $totalPages,
@@ -147,7 +147,9 @@ class AdminPageController extends AbstractAppController
             $this->addFlash('danger', 'app.cms.translation_invalid');
         }
 
-        return $this->redirectToRoute('app_admin_page_edit', ['id' => $page->getId()]);
+        return $this->redirect(
+            $this->generateUrl('app_admin_page_edit', ['id' => $page->getId()]).'#pane-'.$locale
+        );
     }
 
     #[Route('/{id}/delete', name: 'app_admin_page_delete', methods: ['POST'], requirements: ['id' => '\d+'])]

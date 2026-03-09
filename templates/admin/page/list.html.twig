@@ -41,7 +41,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for page in pages %}
+                            {% for page in contentPages %}
                                 <tr>
                                     <td><code>{{ page.slug }}</code></td>
                                     <td>{{ page.getTitle(app.request.locale) }}</td>

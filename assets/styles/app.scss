@@ -161,6 +161,23 @@ footer {
     border-bottom: 2px solid $ed-gold;
 
     h5 { color: #fff; margin-bottom: 0; }
+
+    .nav-tabs {
+        border-bottom: none;
+
+        .nav-link {
+            color: rgba(#fff, .7);
+            border-color: transparent;
+
+            &:hover { color: #fff; border-color: transparent; }
+
+            &.active {
+                color: $ed-navy;
+                background-color: #fff;
+                border-color: #fff #fff transparent;
+            }
+        }
+    }
 }
 
 // --- Tables ---

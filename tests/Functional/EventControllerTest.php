@@ -2234,36 +2234,42 @@ class EventControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
-    // F3.15 — Event discovery
+    // F3.15 — Event discovery (merged into event list with scope=public)
     // ---------------------------------------------------------------
 
-    public function testDiscoverPageShowsPublicEvents(): void
+    public function testPublicScopeShowsPublicEvents(): void
     {
         $this->loginAs('lender@example.com');
 
-        $crawler = $this->client->request('GET', '/events/discover');
+        $crawler = $this->client->request('GET', '/event?scope=public');
         self::assertResponseIsSuccessful();
 
         // The main fixture event is public — it should appear
         self::assertSelectorExists('.card-title');
     }
 
-    public function testDiscoverPageExcludesDraftEvents(): void
+    public function testPublicScopeExcludesDraftEvents(): void
     {
         $this->loginAs('lender@example.com');
 
-        $crawler = $this->client->request('GET', '/events/discover');
+        $crawler = $this->client->request('GET', '/event?scope=public');
         self::assertResponseIsSuccessful();
 
-        // Draft events should NOT appear in discovery
+        // Draft events should NOT appear in public scope
         $html = $crawler->html();
         self::assertStringNotContainsString('Draft Event', $html);
     }
 
-    public function testDiscoverPageAccessibleAnonymously(): void
+    public function testPublicScopeAccessibleAnonymously(): void
+    {
+        $this->client->request('GET', '/event?scope=public');
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testDiscoverRouteRedirectsToPublicScope(): void
     {
         $this->client->request('GET', '/events/discover');
-        self::assertResponseIsSuccessful();
+        self::assertResponseRedirects('/event?scope=public', 301);
     }
 
     public function testEventListHidesDraftEventsFromNonEngagedUser(): void
