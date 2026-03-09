@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\BannedCardRepository;
+
 /**
  * Validates a parsed deck list against Expanded format rules.
  *
  * @see docs/features.md F6.3 — Validate deck list (card count, duplicates)
+ * @see docs/features.md F6.5 — Banned card list management
  */
 class DeckListValidator
 {
@@ -35,6 +38,11 @@ class DeckListValidator
         'Metal Energy',
         'Fairy Energy',
     ];
+
+    public function __construct(
+        private readonly BannedCardRepository $bannedCardRepo,
+    ) {
+    }
 
     public function validate(DeckListParseResult $parseResult): DeckValidationResult
     {
@@ -75,6 +83,25 @@ class DeckListValidator
                     $data['name'],
                     $data['quantity'],
                     self::MAX_COPIES,
+                );
+            }
+        }
+
+        // Check for banned cards
+        $bannedNames = $this->bannedCardRepo->findBannedCardNames();
+        $checkedNames = [];
+
+        foreach ($parseResult->cards as $card) {
+            if (isset($checkedNames[$card->cardName])) {
+                continue;
+            }
+
+            $checkedNames[$card->cardName] = true;
+
+            if (isset($bannedNames[$card->cardName])) {
+                $errors[] = \sprintf(
+                    'Card "%s" is banned in the Expanded format.',
+                    $card->cardName,
                 );
             }
         }
