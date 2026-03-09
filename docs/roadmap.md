@@ -176,10 +176,9 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F6.5  | Banned card list management      | Medium   | Not started | F6.3                 |
 | F8.4  | In-app notification center       | Medium   | Done        | F8.1                 |
 | F10.1 | Mobile UX review                 | Medium   | Not started | F6.4, F2.3           |
-| F10.2 | Anonymous homepage               | Medium   | Partial     | F3.2, F2.4           |
 | F1.8  | Account deletion & data export   | Medium   | Partial     | F1.1                 |
 
-**Progress: 3/7 done · 2 partial · 2 not started**
+**Progress: 3/6 done · 1 partial · 2 not started**
 
 **Deliverable:** Admin dashboard and user management, banned card list, notification center, mobile responsiveness pass, public homepage, and GDPR account deletion/export.
 
@@ -205,6 +204,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F11.1 | Content pages                  | Low      | Not started | F1.4, F9.1       |
 | F11.2 | Menu categories                | Low      | Not started | F11.1            |
 | F11.3 | Page rendering & locale fallback | Low    | Not started | F11.1, F9.1      |
+| F10.2 | Anonymous homepage               | Medium | Partial     | F11.1, F11.2, F3.2, F2.4 |
 
 ### Event Extras
 
@@ -245,9 +245,9 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F7.4  | Dashboard action reminders              | Medium   | Not started | F7.1             |
 | F7.5  | Registered decks aggregate view         | Low      | Not started | F7.1             |
 
-**Progress: 1/26 done · 2 partial · 23 not started**
+**Progress: 1/27 done · 3 partial · 23 not started**
 
-**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, friend delegation for borrow completion, notification preferences, and audit log.
+**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Anonymous homepage with CMS-driven welcome block and news. Event series, iCal feeds, deck version history, card mosaic view, overdue tracking, friend delegation for borrow completion, notification preferences, and audit log.
 
 ---
 
@@ -326,8 +326,8 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
 | 6     | Localization                      | 5    | 0       | 0           | 5     |
 | 7     | Engagement, Results & Discovery   | 10   | 0       | 0           | 10    |
-| 8     | Admin, Homepage & Polish          | 3    | 2       | 2           | 7     |
-| 9     | Content, Archetypes & Low Priority | 1   | 2       | 23          | 26    |
+| 8     | Admin, Homepage & Polish          | 3    | 1       | 2           | 6     |
+| 9     | Content, Archetypes & Low Priority | 1   | 3       | 23          | 27    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
