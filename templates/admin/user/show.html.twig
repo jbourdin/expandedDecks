@@ -1,0 +1,142 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.screenName }} — {{ 'app.admin.user.list_title'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="mb-4">
+        <a href="{{ path('app_admin_user_list') }}" class="text-decoration-none">&larr; {{ 'app.admin.user.back_to_list'|trans }}</a>
+    </div>
+
+    {# User info card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ user.screenName }}</h5>
+            <div class="d-flex align-items-center gap-2">
+                {% if user.anonymized %}
+                    <span class="badge bg-dark">{{ 'app.admin.user.status.anonymized'|trans }}</span>
+                {% elseif user.deletedAt is not null %}
+                    <span class="badge bg-danger">{{ 'app.admin.user.status.disabled'|trans }}</span>
+                {% elseif not user.verified %}
+                    <span class="badge bg-warning text-dark">{{ 'app.admin.user.status.unverified'|trans }}</span>
+                {% else %}
+                    <span class="badge bg-success">{{ 'app.admin.user.status.active'|trans }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl>
+                        <dt>{{ 'app.admin.user.detail.email'|trans }}</dt>
+                        <dd>{{ user.email }}</dd>
+                        <dt>{{ 'app.admin.user.detail.name'|trans }}</dt>
+                        <dd>{{ user.firstName }} {{ user.lastName }}</dd>
+                        <dt>{{ 'app.admin.user.detail.player_id'|trans }}</dt>
+                        <dd>{{ user.playerId ?? '—' }}</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl>
+                        <dt>{{ 'app.admin.user.detail.created'|trans }}</dt>
+                        <dd>{{ user.createdAt|date('Y-m-d H:i') }}</dd>
+                        <dt>{{ 'app.admin.user.detail.last_login'|trans }}</dt>
+                        <dd>{{ user.lastLoginAt ? user.lastLoginAt|date('Y-m-d H:i') : '—' }}</dd>
+                        <dt>{{ 'app.admin.user.detail.locale'|trans }}</dt>
+                        <dd>{{ user.preferredLocale }} / {{ user.timezone }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Roles card #}
+    {% if not user.anonymized %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">{{ 'app.admin.user.roles_title'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_admin_user_roles', {id: user.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('user-roles-' ~ user.id) }}">
+                    {% for role in availableRoles %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="roles[]"
+                                   value="{{ role }}" id="role_{{ role }}"
+                                   {% if role in user.roles %}checked{% endif %}>
+                            <label class="form-check-label" for="role_{{ role }}">
+                                {{ role }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-gold mt-2">{{ 'app.admin.user.save_roles'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Actions card #}
+    {% if not user.anonymized %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">{{ 'app.admin.user.actions_title'|trans }}</h5>
+            </div>
+            <div class="card-body d-flex gap-2 flex-wrap">
+                <form method="post" action="{{ path('app_admin_user_disable', {id: user.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('user-disable-' ~ user.id) }}">
+                    {% if user.deletedAt is not null %}
+                        <button type="submit" class="btn btn-success">
+                            {{ 'app.admin.user.action.enable'|trans }}
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-warning"
+                                onclick="return confirm('{{ 'app.admin.user.confirm_disable'|trans|e('js') }}')">
+                            {{ 'app.admin.user.action.disable'|trans }}
+                        </button>
+                    {% endif %}
+                </form>
+                <form method="post" action="{{ path('app_admin_user_anonymize', {id: user.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('user-anonymize-' ~ user.id) }}">
+                    <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('{{ 'app.admin.user.confirm_anonymize'|trans|e('js') }}')">
+                        {{ 'app.admin.user.action.anonymize'|trans }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Related data summary #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.user.activity_title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="fs-4 fw-bold text-primary">{{ user.ownedDecks|length }}</div>
+                    <div class="text-muted">{{ 'app.admin.user.activity.decks'|trans }}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="fs-4 fw-bold text-success">{{ user.borrowRequests|length }}</div>
+                    <div class="text-muted">{{ 'app.admin.user.activity.borrows'|trans }}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="fs-4 fw-bold text-info">{{ user.eventEngagements|length }}</div>
+                    <div class="text-muted">{{ 'app.admin.user.activity.engagements'|trans }}</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="fs-4 fw-bold text-warning">{{ user.staffAssignments|length }}</div>
+                    <div class="text-muted">{{ 'app.admin.user.activity.staff'|trans }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

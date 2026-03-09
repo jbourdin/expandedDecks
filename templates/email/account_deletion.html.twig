@@ -1,0 +1,38 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #2c3e50;">{{ 'app.email.deletion_heading'|trans({}, 'messages', locale) }}</h1>
+
+    <p>{{ 'app.email.greeting'|trans({'%name%': user.screenName}, 'messages', locale) }}</p>
+
+    <p>{{ 'app.email.deletion_body'|trans({}, 'messages', locale) }}</p>
+
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="{{ confirmUrl }}"
+           style="background-color: #dc3545; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            {{ 'app.email.deletion_button'|trans({}, 'messages', locale) }}
+        </a>
+    </p>
+
+    <p>{{ 'app.email.link_fallback'|trans({}, 'messages', locale) }}</p>
+    <p style="word-break: break-all; color: #666;">{{ confirmUrl }}</p>
+
+    <p><strong>{{ 'app.email.deletion_expires'|trans({'%hours%': expiresInHours}, 'messages', locale) }}</strong></p>
+
+    <p>{{ 'app.email.deletion_ignore'|trans({}, 'messages', locale) }}</p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    <p style="color: #999; font-size: 12px;">{{ 'app.email.footer'|trans({}, 'messages', locale) }}</p>
+</body>
+</html>

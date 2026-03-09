@@ -30,4 +30,18 @@ enum NotificationType: string
     case EventCancelled = 'event_cancelled';
     case EventInvited = 'event_invited';
     case EventReminder = 'event_reminder';
+
+    public function isBorrowType(): bool
+    {
+        return match ($this) {
+            self::BorrowRequested,
+            self::BorrowApproved,
+            self::BorrowDenied,
+            self::BorrowHandedOff,
+            self::BorrowReturned,
+            self::BorrowOverdue,
+            self::BorrowCancelled => true,
+            default => false,
+        };
+    }
 }

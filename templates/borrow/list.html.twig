@@ -17,13 +17,15 @@
         <a href="{{ path('app_dashboard') }}" class="btn btn-sm btn-outline-secondary">{{ 'app.nav.dashboard'|trans }}</a>
     </div>
 
+    {% set listRoute = mode == 'borrows' ? 'app_borrow_list' : 'app_lend_list' %}
+    {% set scopeParams = scope is defined and scope == 'managed' ? {scope: 'managed'} : {} %}
     <div class="mb-3 d-flex flex-wrap gap-1">
-        <a href="{{ path(mode == 'lends' ? 'app_lend_list' : 'app_borrow_list') }}"
+        <a href="{{ path(listRoute, scopeParams) }}"
            class="btn btn-sm {{ currentStatus is null ? 'btn-primary' : 'btn-outline-secondary' }}">
             {{ 'app.borrow.list_all'|trans }}
         </a>
         {% for status in statuses %}
-            <a href="{{ path(mode == 'lends' ? 'app_lend_list' : 'app_borrow_list', {status: status.value}) }}"
+            <a href="{{ path(listRoute, scopeParams|merge({status: status.value})) }}"
                class="btn btn-sm {{ currentStatus is not null and currentStatus.value == status.value ? 'btn-primary' : 'btn-outline-secondary' }}">
                 {{ status.value|replace({'_': ' '})|title }}
             </a>
@@ -42,8 +44,7 @@
             </div>
         {% endif %}
     {% elseif totalItems > 0 %}
-        {% set routeName = mode == 'lends' ? 'app_lend_list' : 'app_borrow_list' %}
-        {% set params = currentStatus is not null ? {status: currentStatus.value} : {} %}
+        {% set params = scopeParams|merge(currentStatus is not null ? {status: currentStatus.value} : {}) %}
 
         <p class="text-muted mb-3">
             {% set firstItem = ((currentPage - 1) * 20) + 1 %}
@@ -59,7 +60,7 @@
                             <tr>
                                 <th>{{ 'app.borrow.table.deck'|trans }}</th>
                                 <th>{{ 'app.borrow.table.event'|trans }}</th>
-                                {% if mode == 'lends' %}
+                                {% if mode != 'borrows' %}
                                     <th>{{ 'app.borrow.table.borrower'|trans }}</th>
                                 {% else %}
                                     <th>{{ 'app.borrow.table.owner'|trans }}</th>
@@ -74,7 +75,7 @@
                                 <tr>
                                     <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ borrow.deck.shortTag }}</span>{{ borrow.deck.name }}</a></td>
                                     <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
-                                    {% if mode == 'lends' %}
+                                    {% if mode != 'borrows' %}
                                         <td>{{ borrow.borrower.screenName }}</td>
                                     {% else %}
                                         <td>{{ borrow.deck.owner.screenName }}</td>
@@ -94,15 +95,15 @@
             <nav class="mt-3">
                 <ul class="pagination justify-content-center">
                     <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path(routeName, params|merge({page: currentPage - 1})) }}">{{ 'app.common.previous'|trans }}</a>
+                        <a class="page-link" href="{{ path(listRoute, params|merge({page: currentPage - 1})) }}">{{ 'app.common.previous'|trans }}</a>
                     </li>
                     {% for p in 1..totalPages %}
                         <li class="page-item {% if p == currentPage %}active{% endif %}">
-                            <a class="page-link" href="{{ path(routeName, params|merge({page: p})) }}">{{ p }}</a>
+                            <a class="page-link" href="{{ path(listRoute, params|merge({page: p})) }}">{{ p }}</a>
                         </li>
                     {% endfor %}
                     <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path(routeName, params|merge({page: currentPage + 1})) }}">{{ 'app.common.next'|trans }}</a>
+                        <a class="page-link" href="{{ path(listRoute, params|merge({page: currentPage + 1})) }}">{{ 'app.common.next'|trans }}</a>
                     </li>
                 </ul>
             </nav>
@@ -110,7 +111,9 @@
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                {% if mode == 'lends' %}
+                {% if mode == 'managed' %}
+                    <p class="text-muted mb-0">{{ 'app.borrow.no_managed_borrows'|trans }}</p>
+                {% elseif mode == 'lends' %}
                     <p class="text-muted mb-0">{{ 'app.borrow.no_lends'|trans }}</p>
                 {% else %}
                     <p class="text-muted mb-0">{{ 'app.borrow.no_borrows'|trans }}</p>

@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <div class="card shadow-sm mb-3">
+    <div id="timeline" class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">
             <h6 class="mb-0">{{ 'app.borrow.timeline'|trans }}</h6>
         </div>
@@ -103,7 +103,7 @@
     </div>
 
     {% if canApprove or canDeny or canHandOff or canReturn or canCancel or canReturnToOwner %}
-        <div class="card shadow-sm mb-3">
+        <div id="actions" class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.borrow.actions'|trans }}</h6>
             </div>

@@ -43,6 +43,7 @@ security:
         - { path: ^/verify, roles: PUBLIC_ACCESS }
         - { path: ^/forgot-password$, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password/, roles: PUBLIC_ACCESS }
+        - { path: ^/confirm-deletion/, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/deck$, roles: PUBLIC_ACCESS }
         - { path: '^/deck/[A-HJ-NP-Z0-9]{6}$', roles: PUBLIC_ACCESS }
@@ -52,6 +53,7 @@ security:
         - { path: ^/event$, roles: PUBLIC_ACCESS }
         - { path: ^/events/discover$, roles: PUBLIC_ACCESS }
         - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
         - { path: ^/event, roles: ROLE_USER }

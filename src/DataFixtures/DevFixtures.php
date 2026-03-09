@@ -23,11 +23,13 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\Notification;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
 use App\Enum\EngagementState;
 use App\Enum\EventVisibility;
+use App\Enum\NotificationType;
 use App\Enum\ParticipationMode;
 use App\Enum\TournamentStructure;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -85,9 +87,13 @@ class DevFixtures extends Fixture
 
         $manager->flush();
 
-        $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox, $lenderDeck, $staff1);
+        $pendingBorrow = $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox, $lenderDeck, $staff1);
         $this->createDeckRegistrations($manager, $todayEvent, $ironThorns, $ancientBox, $lenderDeck);
         $this->createFinishedEvent($manager, $admin, $borrower, $staff1, $ironThorns, $ancientBox, $lenderDeck);
+
+        $manager->flush();
+
+        $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
 
         $manager->flush();
     }
@@ -991,7 +997,10 @@ class DevFixtures extends Fixture
      * @see docs/features.md F4.9 — Staff deck custody tracking
      * @see docs/features.md F4.10 — Owner borrow inbox
      */
-    private function createBorrowFixtures(ObjectManager $manager, Event $todayEvent, Event $futureEvent, User $borrower, User $lender, User $admin, Deck $ironThorns, Deck $ancientBox, Deck $lenderDeck, User $staff1): void
+    /**
+     * @return Borrow the pending borrow on today's event (for notification fixtures)
+     */
+    private function createBorrowFixtures(ObjectManager $manager, Event $todayEvent, Event $futureEvent, User $borrower, User $lender, User $admin, Deck $ironThorns, Deck $ancientBox, Deck $lenderDeck, User $staff1): Borrow
     {
         $ironThornsVersion = $ironThorns->getCurrentVersion();
         \assert(null !== $ironThornsVersion);
@@ -1045,5 +1054,39 @@ class DevFixtures extends Fixture
         $manager->persist($delegatedBorrow);
 
         // Deck stays Available — approval no longer sets Reserved (per-event concern)
+
+        return $pendingBorrow;
+    }
+
+    private function createAdminNotifications(ObjectManager $manager, User $admin, User $borrower, Event $event, Borrow $pendingBorrow): void
+    {
+        $n1 = new Notification();
+        $n1->setRecipient($admin);
+        $n1->setType(NotificationType::BorrowRequested);
+        $n1->setTitle('New borrow request from '.$borrower->getScreenName());
+        $n1->setMessage($borrower->getScreenName().' wants to borrow Iron Thorns for '.$event->getName().'.');
+        $n1->setContext([
+            'borrowId' => $pendingBorrow->getId(),
+            'deckId' => $pendingBorrow->getDeck()->getId(),
+            'eventId' => $event->getId(),
+        ]);
+        $manager->persist($n1);
+
+        $n2 = new Notification();
+        $n2->setRecipient($admin);
+        $n2->setType(NotificationType::StaffAssigned);
+        $n2->setTitle('You were assigned as staff');
+        $n2->setMessage('You have been assigned as staff for '.$event->getName().'.');
+        $n2->setContext(['eventId' => $event->getId()]);
+        $manager->persist($n2);
+
+        $n3 = new Notification();
+        $n3->setRecipient($admin);
+        $n3->setType(NotificationType::EventInvited);
+        $n3->setTitle('You are invited to an event');
+        $n3->setMessage('You have been invited to '.$event->getName().'. Check it out!');
+        $n3->setContext(['eventId' => $event->getId()]);
+        $n3->setIsRead(true);
+        $manager->persist($n3);
     }
 }

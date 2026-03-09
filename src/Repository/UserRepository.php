@@ -16,6 +16,7 @@ namespace App\Repository;
 use App\Entity\Event;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -141,6 +142,24 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->getResult();
 
         return $results;
+    }
+
+    /**
+     * Query builder for the admin user list (paginated, searchable).
+     *
+     * @see docs/features.md F7.2 — User management
+     */
+    public function createAdminListQueryBuilder(string $search = ''): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.createdAt', 'DESC');
+
+        if ('' !== $search) {
+            $qb->andWhere('u.screenName LIKE :search OR u.email LIKE :search OR u.playerId LIKE :search OR u.firstName LIKE :search OR u.lastName LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        return $qb;
     }
 
     /**

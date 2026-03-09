@@ -33,6 +33,135 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countActive(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status IN (:statuses)')
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countOverdue(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.status = :status')
+            ->setParameter('status', BorrowStatus::Overdue->value)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * Borrows at events where the user is organizer or staff, with optional status filter.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function createManagedQueryBuilder(User $user, ?BorrowStatus $status = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->addSelect('d', 'e', 'u')
+            ->where('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('user', $user)
+            ->orderBy('b.requestedAt', 'DESC');
+
+        if (null !== $status) {
+            $qb->andWhere('b.status = :status')
+                ->setParameter('status', $status->value);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Active borrows at events managed by the user (organizer or staff),
+     * grouped by event.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Borrow>
+     */
+    public function findActiveManagedBorrows(User $user, ?BorrowStatus $status = null): array
+    {
+        $qb = $this->createManagedQueryBuilder($user, $status);
+
+        if (null === $status) {
+            $qb->andWhere('b.status IN (:activeStatuses)')
+                ->setParameter('activeStatuses', self::activeStatusValues());
+        }
+
+        /** @var list<Borrow> $borrows */
+        $borrows = $qb
+            ->resetDQLPart('orderBy')
+            ->orderBy('e.date', 'ASC')
+            ->addOrderBy('b.requestedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Count active borrows at events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countActiveByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.event', 'e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('b.status IN (:statuses)')
+            ->andWhere('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('statuses', self::activeStatusValues())
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * Count overdue borrows at events where the user is organizer or staff.
+     *
+     * @see docs/features.md F7.1 — Dashboard
+     */
+    public function countOverdueByOrganizerOrStaff(User $user): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.event', 'e')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('b.status = :status')
+            ->andWhere('e.organizer = :user OR s.id IS NOT NULL')
+            ->setParameter('status', BorrowStatus::Overdue->value)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F4.1 — Request to borrow a deck
      *
      * @return list<Borrow>
@@ -503,6 +632,44 @@ class BorrowRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    /**
+     * @see docs/features.md F4.10 — Owner borrow inbox
+     */
+    /**
+     * Check if a user has any unsettled borrows (as borrower or as deck owner).
+     *
+     * @see docs/features.md F1.8 — Account deletion & data export (GDPR)
+     */
+    public function hasUnsettledBorrows(User $user): bool
+    {
+        /** @var int $asBorrower */
+        $asBorrower = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.borrower = :user')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($asBorrower > 0) {
+            return true;
+        }
+
+        /** @var int $asOwner */
+        $asOwner = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.deck', 'd')
+            ->where('d.owner = :user')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $asOwner > 0;
     }
 
     /**

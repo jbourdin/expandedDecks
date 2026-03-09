@@ -18,6 +18,37 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [0.6.0] — 2026-03-09
+
+Phase 8 progress — Admin, Homepage & Polish: admin user management, GDPR account deletion & data export, in-app notification center, dashboard enhancements. Major framework upgrade: Symfony 7.2 → 8.0, React 18 → 19.
+
+### Admin & User Management
+
+- **F7.2** — User management *(completed)*: admin user list with search and pagination, user detail page with role assignment (ROLE_ADMIN, ROLE_ORGANIZER, ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR), disable/enable toggle, and account anonymization.
+- **F1.8** — Account deletion & data export *(completed)*: users can export their data as JSON (profile, decks with raw lists, borrows, engagements, staff assignments) and request account deletion with email confirmation (24h token). Deletion is blocked if the user has unsettled borrows. Confirmation anonymizes the account (email stored as bcrypt hash for traceability), disables login, and logs the user out. Centralized `User::anonymize()` method shared by admin and self-service flows.
+
+### Notifications
+
+- **F8.4** — In-app notification center *(completed)*: React-based notification bell with unread count badge, polling, mark-as-read, and mark-all-read. Dropdown menu with notification list and timestamps.
+
+### Dashboard
+
+- **F7.1** — Dashboard enhancements: admin overview stats banner (total users, decks, events, active borrows), personal event stats for organizers and staff, stat card links to scoped list pages.
+
+### Borrow Workflow
+
+- Managed borrows inbox (`/lends?scope=managed`): cancel button now shown when the logged-in user is the borrower. Hand-off button hidden when deck is delegated to staff but staff hasn't physically received it (shows "Awaiting custody" badge). Scope preserved on redirect after actions.
+
+### Infrastructure
+
+- **Symfony 7.2 → 8.0**: full major upgrade via 7.4 bridge. Fixes: `UserCheckerInterface::checkPostAuth()` signature, route config `.xml` → `.php`, auto-generated `reference.php` excluded from CS-Fixer.
+- **React 18 → 19**: updated `act()` wrapping in async tests, `eslint-plugin-react-hooks` 5 → 7 with new `set-state-in-effect` rule.
+- **Dependency updates**: Mantine 8.3.16, webpack-cli 6, globals 17, regenerator-runtime 0.14, phpstan-symfony 2.0.15.
+- Constraint widened to `^8.0` for automatic minor Symfony upgrades.
+- 507 tests, 2123 assertions, PHPStan level 10
+
+---
+
 ## [0.5.0] — 2026-03-08
 
 Phase 7 completion — Engagement, Results & Discovery: deck event status overview, tournament results with monospace short-ID badges, and Pokemon event page sync.

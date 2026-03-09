@@ -80,6 +80,11 @@
                 <target>Search</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.invalid_csrf">
+                <source>app.common.invalid_csrf</source>
+                <target>Invalid security token. Please try again.</target>
+                <note>Shown when a CSRF token is invalid</note>
+            </trans-unit>
             <trans-unit id="app.common.approve">
                 <source>app.common.approve</source>
                 <target>Approve</target>
@@ -278,6 +283,41 @@
                 <source>app.dashboard.badge_staff</source>
                 <target>Staff</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.global_title">
+                <source>app.dashboard.stats.global_title</source>
+                <target>Global overview</target>
+                <note>Section title for global admin stats</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.my_events_title">
+                <source>app.dashboard.stats.my_events_title</source>
+                <target>My events</target>
+                <note>Section title for personal event stats</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.total_decks">
+                <source>app.dashboard.stats.total_decks</source>
+                <target>Total decks</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.registered_decks">
+                <source>app.dashboard.stats.registered_decks</source>
+                <target>Registered decks</target>
+                <note>Personal stat: decks registered at user's events</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.active_borrows">
+                <source>app.dashboard.stats.active_borrows</source>
+                <target>Active borrows</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.upcoming_events">
+                <source>app.dashboard.stats.upcoming_events</source>
+                <target>Upcoming events</target>
+                <note>Admin overview stat label</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.stats.overdue_returns">
+                <source>app.dashboard.stats.overdue_returns</source>
+                <target>Overdue returns</target>
+                <note>Admin overview stat label</note>
             </trans-unit>
 
             <!-- Deck catalog, detail, and forms -->
@@ -1166,6 +1206,11 @@
                 <target>Cancel this borrow?</target>
                 <note>JavaScript confirm dialog for cancel action</note>
             </trans-unit>
+            <trans-unit id="app.borrow.awaiting_custody">
+                <source>app.borrow.awaiting_custody</source>
+                <target>Awaiting custody</target>
+                <note>Badge shown when staff hasn't received the deck yet</note>
+            </trans-unit>
             <trans-unit id="app.borrow.list_all">
                 <source>app.borrow.list_all</source>
                 <target>All</target>
@@ -1190,6 +1235,11 @@
                 <source>app.borrow.no_lends_status</source>
                 <target>No lend activity with status &quot;%status%&quot;.</target>
                 <note>Empty state with status filter. %status% = filtered status</note>
+            </trans-unit>
+            <trans-unit id="app.borrow.no_managed_borrows">
+                <source>app.borrow.no_managed_borrows</source>
+                <target>No borrows at your events</target>
+                <note>Empty state on managed borrow list page</note>
             </trans-unit>
             <trans-unit id="app.borrow.no_active_borrows">
                 <source>app.borrow.no_active_borrows</source>
@@ -2567,6 +2617,343 @@
                 <source>app.flash.results.not_finished</source>
                 <target>Results can only be viewed for finished events.</target>
                 <note>Flash message when event is not finished</note>
+            </trans-unit>
+
+            <!-- Notification Center (F8.4) -->
+            <trans-unit id="app.notification.center.title">
+                <source>app.notification.center.title</source>
+                <target>Notifications</target>
+                <note>Notification center page title</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.mark_read">
+                <source>app.notification.center.mark_read</source>
+                <target>Mark as read</target>
+                <note>Button to mark a single notification as read</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.mark_all_read">
+                <source>app.notification.center.mark_all_read</source>
+                <target>Mark all as read</target>
+                <note>Button to mark all notifications as read</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.view_all">
+                <source>app.notification.center.view_all</source>
+                <target>View all notifications</target>
+                <note>Link to full notification list page</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.empty">
+                <source>app.notification.center.empty</source>
+                <target>No notifications yet</target>
+                <note>Empty state message</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.preferences">
+                <source>app.notification.center.preferences</source>
+                <target>Preferences</target>
+                <note>Link to notification preferences</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete">
+                <source>app.notification.center.delete</source>
+                <target>Delete</target>
+                <note>Button to delete a single notification</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete_read">
+                <source>app.notification.center.delete_read</source>
+                <target>Delete read</target>
+                <note>Button to delete all read notifications</note>
+            </trans-unit>
+            <trans-unit id="app.notification.center.delete_read_confirm">
+                <source>app.notification.center.delete_read_confirm</source>
+                <target>Delete all read notifications? This cannot be undone.</target>
+                <note>Confirmation prompt for bulk delete</note>
+            </trans-unit>
+            <!-- Profile: Data & Deletion (GDPR) -->
+            <trans-unit id="app.profile.data_title">
+                <source>app.profile.data_title</source>
+                <target>Your data</target>
+                <note>Profile section title for data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.data_description">
+                <source>app.profile.data_description</source>
+                <target>Download a copy of all your personal data (profile, decks, borrows, events) as a JSON file.</target>
+                <note>Profile data export description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.export_button">
+                <source>app.profile.export_button</source>
+                <target>Export my data</target>
+                <note>Button to download personal data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.danger_zone">
+                <source>app.profile.danger_zone</source>
+                <target>Danger zone</target>
+                <note>Profile section title for account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_description">
+                <source>app.profile.delete_description</source>
+                <target>Request permanent deletion of your account. A confirmation email will be sent. Once confirmed, all your personal data will be anonymized and you will no longer be able to log in.</target>
+                <note>Profile account deletion description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_button">
+                <source>app.profile.delete_button</source>
+                <target>Delete my account</target>
+                <note>Button to request account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.confirm_delete">
+                <source>app.profile.confirm_delete</source>
+                <target>Are you sure? A confirmation email will be sent to finalize the deletion.</target>
+                <note>Confirmation prompt for account deletion request</note>
+            </trans-unit>
+            <trans-unit id="app.profile.unsettled_borrows">
+                <source>app.profile.unsettled_borrows</source>
+                <target>You cannot delete your account while you have active borrows (pending, approved, lent, or overdue). Please settle all borrows first.</target>
+                <note>Error when user tries to delete account with unsettled borrows</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_requested">
+                <source>app.profile.deletion_requested</source>
+                <target>A confirmation email has been sent. Please check your inbox to finalize account deletion.</target>
+                <note>Flash message after requesting account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_invalid_link">
+                <source>app.profile.deletion_invalid_link</source>
+                <target>This deletion link is invalid.</target>
+                <note>Flash message for invalid deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_link_expired">
+                <source>app.profile.deletion_link_expired</source>
+                <target>This deletion link has expired. Please request a new one from your profile.</target>
+                <note>Flash message for expired deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_confirmed">
+                <source>app.profile.deletion_confirmed</source>
+                <target>Your account has been permanently deleted and all personal data has been anonymized.</target>
+                <note>Flash message after successful account deletion</note>
+            </trans-unit>
+            <!-- Email: Account Deletion -->
+            <trans-unit id="app.email.deletion_subject">
+                <source>app.email.deletion_subject</source>
+                <target>Confirm your account deletion — Expanded Decks</target>
+                <note>Subject line for account deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_heading">
+                <source>app.email.deletion_heading</source>
+                <target>Account deletion request</target>
+                <note>Heading in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_body">
+                <source>app.email.deletion_body</source>
+                <target>You have requested to delete your Expanded Decks account. Click the button below to confirm. This action is irreversible — all your personal data will be permanently anonymized.</target>
+                <note>Body text in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_button">
+                <source>app.email.deletion_button</source>
+                <target>Confirm deletion</target>
+                <note>CTA button in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_expires">
+                <source>app.email.deletion_expires</source>
+                <target>This link expires in %hours% hours.</target>
+                <note>Expiry notice in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_ignore">
+                <source>app.email.deletion_ignore</source>
+                <target>If you did not request this, simply ignore this email. Your account will remain active.</target>
+                <note>Ignore notice in deletion confirmation email</note>
+            </trans-unit>
+            <!-- Admin: Navigation -->
+            <trans-unit id="app.nav.admin_users">
+                <source>app.nav.admin_users</source>
+                <target>Manage users</target>
+                <note>Admin dropdown link to user management</note>
+            </trans-unit>
+
+            <!-- Admin: User management -->
+            <trans-unit id="app.admin.user.list_title">
+                <source>app.admin.user.list_title</source>
+                <target>User management</target>
+                <note>Admin user list page title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.search">
+                <source>app.admin.user.search</source>
+                <target>Search</target>
+                <note>Admin user search label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.search_placeholder">
+                <source>app.admin.user.search_placeholder</source>
+                <target>Name, email, or player ID…</target>
+                <note>Admin user search placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.no_results">
+                <source>app.admin.user.no_results</source>
+                <target>No users found.</target>
+                <note>Admin user list empty state</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.screen_name">
+                <source>app.admin.user.table.screen_name</source>
+                <target>Screen name</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.email">
+                <source>app.admin.user.table.email</source>
+                <target>Email</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.roles">
+                <source>app.admin.user.table.roles</source>
+                <target>Roles</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.status">
+                <source>app.admin.user.table.status</source>
+                <target>Status</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.table.created">
+                <source>app.admin.user.table.created</source>
+                <target>Created</target>
+                <note>Admin user table column header</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.active">
+                <source>app.admin.user.status.active</source>
+                <target>Active</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.disabled">
+                <source>app.admin.user.status.disabled</source>
+                <target>Disabled</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.unverified">
+                <source>app.admin.user.status.unverified</source>
+                <target>Unverified</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.status.anonymized">
+                <source>app.admin.user.status.anonymized</source>
+                <target>Anonymized</target>
+                <note>User status badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.back_to_list">
+                <source>app.admin.user.back_to_list</source>
+                <target>Back to user list</target>
+                <note>Back link on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.email">
+                <source>app.admin.user.detail.email</source>
+                <target>Email</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.name">
+                <source>app.admin.user.detail.name</source>
+                <target>Full name</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.player_id">
+                <source>app.admin.user.detail.player_id</source>
+                <target>Player ID</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.created">
+                <source>app.admin.user.detail.created</source>
+                <target>Created at</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.last_login">
+                <source>app.admin.user.detail.last_login</source>
+                <target>Last login</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.detail.locale">
+                <source>app.admin.user.detail.locale</source>
+                <target>Locale / Timezone</target>
+                <note>User detail label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.roles_title">
+                <source>app.admin.user.roles_title</source>
+                <target>Roles</target>
+                <note>Roles section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.save_roles">
+                <source>app.admin.user.save_roles</source>
+                <target>Save roles</target>
+                <note>Button to save role assignment</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.roles_updated">
+                <source>app.admin.user.roles_updated</source>
+                <target>Roles updated successfully.</target>
+                <note>Flash message after roles update</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.actions_title">
+                <source>app.admin.user.actions_title</source>
+                <target>Actions</target>
+                <note>Actions section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.disable">
+                <source>app.admin.user.action.disable</source>
+                <target>Disable account</target>
+                <note>Button to disable a user account</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.enable">
+                <source>app.admin.user.action.enable</source>
+                <target>Enable account</target>
+                <note>Button to re-enable a disabled user account</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.action.anonymize">
+                <source>app.admin.user.action.anonymize</source>
+                <target>Anonymize account</target>
+                <note>Button to anonymize a user account (GDPR)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.confirm_disable">
+                <source>app.admin.user.confirm_disable</source>
+                <target>Disable this user account? They will no longer be able to log in.</target>
+                <note>Confirmation prompt for disabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.confirm_anonymize">
+                <source>app.admin.user.confirm_anonymize</source>
+                <target>Anonymize this user? All personal data will be permanently erased. This cannot be undone.</target>
+                <note>Confirmation prompt for anonymizing a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.disabled">
+                <source>app.admin.user.disabled</source>
+                <target>Account disabled.</target>
+                <note>Flash message after disabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.enabled">
+                <source>app.admin.user.enabled</source>
+                <target>Account enabled.</target>
+                <note>Flash message after enabling a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.anonymized">
+                <source>app.admin.user.anonymized</source>
+                <target>Account anonymized.</target>
+                <note>Flash message after anonymizing a user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.already_anonymized">
+                <source>app.admin.user.already_anonymized</source>
+                <target>This account is already anonymized.</target>
+                <note>Warning when trying to anonymize an already anonymized user</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity_title">
+                <source>app.admin.user.activity_title</source>
+                <target>Activity</target>
+                <note>Activity section title on user detail page</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.decks">
+                <source>app.admin.user.activity.decks</source>
+                <target>Owned decks</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.borrows">
+                <source>app.admin.user.activity.borrows</source>
+                <target>Borrow requests</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.engagements">
+                <source>app.admin.user.activity.engagements</source>
+                <target>Event engagements</target>
+                <note>Activity stat label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.activity.staff">
+                <source>app.admin.user.activity.staff</source>
+                <target>Staff assignments</target>
+                <note>Activity stat label</note>
             </trans-unit>
         </body>
     </file>
