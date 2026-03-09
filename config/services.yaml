@@ -6,6 +6,7 @@
 parameters:
     app.verification_token_ttl: 86400
     app.reset_token_ttl: 3600
+    app.deletion_token_ttl: 86400
     app.mail_sender: 'noreply@expanded-decks.wip'
 
 services:

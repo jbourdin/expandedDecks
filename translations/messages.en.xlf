@@ -2660,6 +2660,98 @@
                 <target>Delete all read notifications? This cannot be undone.</target>
                 <note>Confirmation prompt for bulk delete</note>
             </trans-unit>
+            <!-- Profile: Data & Deletion (GDPR) -->
+            <trans-unit id="app.profile.data_title">
+                <source>app.profile.data_title</source>
+                <target>Your data</target>
+                <note>Profile section title for data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.data_description">
+                <source>app.profile.data_description</source>
+                <target>Download a copy of all your personal data (profile, decks, borrows, events) as a JSON file.</target>
+                <note>Profile data export description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.export_button">
+                <source>app.profile.export_button</source>
+                <target>Export my data</target>
+                <note>Button to download personal data export</note>
+            </trans-unit>
+            <trans-unit id="app.profile.danger_zone">
+                <source>app.profile.danger_zone</source>
+                <target>Danger zone</target>
+                <note>Profile section title for account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_description">
+                <source>app.profile.delete_description</source>
+                <target>Request permanent deletion of your account. A confirmation email will be sent. Once confirmed, all your personal data will be anonymized and you will no longer be able to log in.</target>
+                <note>Profile account deletion description</note>
+            </trans-unit>
+            <trans-unit id="app.profile.delete_button">
+                <source>app.profile.delete_button</source>
+                <target>Delete my account</target>
+                <note>Button to request account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.confirm_delete">
+                <source>app.profile.confirm_delete</source>
+                <target>Are you sure? A confirmation email will be sent to finalize the deletion.</target>
+                <note>Confirmation prompt for account deletion request</note>
+            </trans-unit>
+            <trans-unit id="app.profile.unsettled_borrows">
+                <source>app.profile.unsettled_borrows</source>
+                <target>You cannot delete your account while you have active borrows (pending, approved, lent, or overdue). Please settle all borrows first.</target>
+                <note>Error when user tries to delete account with unsettled borrows</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_requested">
+                <source>app.profile.deletion_requested</source>
+                <target>A confirmation email has been sent. Please check your inbox to finalize account deletion.</target>
+                <note>Flash message after requesting account deletion</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_invalid_link">
+                <source>app.profile.deletion_invalid_link</source>
+                <target>This deletion link is invalid.</target>
+                <note>Flash message for invalid deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_link_expired">
+                <source>app.profile.deletion_link_expired</source>
+                <target>This deletion link has expired. Please request a new one from your profile.</target>
+                <note>Flash message for expired deletion token</note>
+            </trans-unit>
+            <trans-unit id="app.profile.deletion_confirmed">
+                <source>app.profile.deletion_confirmed</source>
+                <target>Your account has been permanently deleted and all personal data has been anonymized.</target>
+                <note>Flash message after successful account deletion</note>
+            </trans-unit>
+            <!-- Email: Account Deletion -->
+            <trans-unit id="app.email.deletion_subject">
+                <source>app.email.deletion_subject</source>
+                <target>Confirm your account deletion — Expanded Decks</target>
+                <note>Subject line for account deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_heading">
+                <source>app.email.deletion_heading</source>
+                <target>Account deletion request</target>
+                <note>Heading in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_body">
+                <source>app.email.deletion_body</source>
+                <target>You have requested to delete your Expanded Decks account. Click the button below to confirm. This action is irreversible — all your personal data will be permanently anonymized.</target>
+                <note>Body text in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_button">
+                <source>app.email.deletion_button</source>
+                <target>Confirm deletion</target>
+                <note>CTA button in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_expires">
+                <source>app.email.deletion_expires</source>
+                <target>This link expires in %hours% hours.</target>
+                <note>Expiry notice in deletion confirmation email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deletion_ignore">
+                <source>app.email.deletion_ignore</source>
+                <target>If you did not request this, simply ignore this email. Your account will remain active.</target>
+                <note>Ignore notice in deletion confirmation email</note>
+            </trans-unit>
             <!-- Admin: Navigation -->
             <trans-unit id="app.nav.admin_users">
                 <source>app.nav.admin_users</source>

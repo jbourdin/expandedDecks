@@ -176,9 +176,9 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F6.5  | Banned card list management      | Medium   | Not started | F6.3                 |
 | F8.4  | In-app notification center       | Medium   | Done        | F8.1                 |
 | F10.1 | Mobile UX review                 | Medium   | Not started | F6.4, F2.3           |
-| F1.8  | Account deletion & data export   | Medium   | Partial     | F1.1                 |
+| F1.8  | Account deletion & data export   | Medium   | Done        | F1.1                 |
 
-**Progress: 3/6 done · 1 partial · 2 not started**
+**Progress: 4/6 done · 0 partial · 2 not started**
 
 **Deliverable:** Admin dashboard and user management, banned card list, notification center, mobile responsiveness pass, public homepage, and GDPR account deletion/export.
 
@@ -326,11 +326,11 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
 | 6     | Localization                      | 5    | 0       | 0           | 5     |
 | 7     | Engagement, Results & Discovery   | 10   | 0       | 0           | 10    |
-| 8     | Admin, Homepage & Polish          | 3    | 1       | 2           | 6     |
+| 8     | Admin, Homepage & Polish          | 4    | 0       | 2           | 6     |
 | 9     | Content, Archetypes & Low Priority | 1   | 3       | 23          | 27    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **55** | **4**  | **38**      | **97** |
+|       | **Total**                         | **56** | **3**  | **38**      | **97** |
 
 All 96 features from [features.md](features.md) are represented exactly once.

@@ -38,6 +38,34 @@
                     {{ form_end(form) }}
                 </div>
             </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">{{ 'app.profile.data_title'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">{{ 'app.profile.data_description'|trans }}</p>
+                    <a href="{{ path('app_profile_export') }}" class="btn btn-outline-secondary w-100">
+                        {{ 'app.profile.export_button'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">{{ 'app.profile.danger_zone'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">{{ 'app.profile.delete_description'|trans }}</p>
+                    <form method="post" action="{{ path('app_profile_request_deletion') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('profile-delete') }}">
+                        <button type="submit" class="btn btn-danger w-100"
+                                onclick="return confirm('{{ 'app.profile.confirm_delete'|trans|e('js') }}')">
+                            {{ 'app.profile.delete_button'|trans }}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -104,6 +104,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 50)]
     private string $timezone = 'UTC';
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $deletionToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletionTokenExpiresAt = null;
+
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $deletedAt = null;
 
@@ -385,6 +391,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->deletedAt = $deletedAt;
 
         return $this;
+    }
+
+    public function getDeletionToken(): ?string
+    {
+        return $this->deletionToken;
+    }
+
+    public function setDeletionToken(?string $deletionToken): static
+    {
+        $this->deletionToken = $deletionToken;
+
+        return $this;
+    }
+
+    public function getDeletionTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->deletionTokenExpiresAt;
+    }
+
+    public function setDeletionTokenExpiresAt(?\DateTimeImmutable $deletionTokenExpiresAt): static
+    {
+        $this->deletionTokenExpiresAt = $deletionTokenExpiresAt;
+
+        return $this;
+    }
+
+    /**
+     * Anonymize the account: replace all PII with placeholders.
+     *
+     * @see docs/features.md F1.8 — Account deletion & data export (GDPR)
+     */
+    public function anonymize(): void
+    {
+        $this->isAnonymized = true;
+        $this->deletedAt ??= new \DateTimeImmutable();
+        $this->email = 'anonymized-'.$this->id.'@example.com';
+        $this->screenName = 'anonymous-'.$this->id;
+        $this->firstName = 'Anonymous';
+        $this->lastName = 'User';
+        $this->playerId = null;
+        $this->password = '';
+        $this->roles = [];
+        $this->verificationToken = null;
+        $this->resetToken = null;
+        $this->resetTokenExpiresAt = null;
+        $this->deletionToken = null;
+        $this->deletionTokenExpiresAt = null;
+        $this->notificationPreferences = null;
     }
 
     public function isAnonymized(): bool

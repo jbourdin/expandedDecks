@@ -637,6 +637,44 @@ class BorrowRepository extends ServiceEntityRepository
     /**
      * @see docs/features.md F4.10 — Owner borrow inbox
      */
+    /**
+     * Check if a user has any unsettled borrows (as borrower or as deck owner).
+     *
+     * @see docs/features.md F1.8 — Account deletion & data export (GDPR)
+     */
+    public function hasUnsettledBorrows(User $user): bool
+    {
+        /** @var int $asBorrower */
+        $asBorrower = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.borrower = :user')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($asBorrower > 0) {
+            return true;
+        }
+
+        /** @var int $asOwner */
+        $asOwner = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->join('b.deck', 'd')
+            ->where('d.owner = :user')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $asOwner > 0;
+    }
+
+    /**
+     * @see docs/features.md F4.10 — Owner borrow inbox
+     */
     public function createDeckOwnerQueryBuilder(User $owner, ?BorrowStatus $status = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('b')
