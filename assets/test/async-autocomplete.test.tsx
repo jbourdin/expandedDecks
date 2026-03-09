@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import React from 'react';
+import React, { act } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MantineProvider } from '@mantine/core';
@@ -91,7 +91,7 @@ describe('AsyncAutocomplete', () => {
         // Should not have fetched yet (debounce is 300ms)
         expect(globalThis.fetch).not.toHaveBeenCalled();
 
-        await vi.advanceTimersByTimeAsync(350);
+        await act(() => vi.advanceTimersByTimeAsync(350));
 
         expect(globalThis.fetch).toHaveBeenCalledTimes(1);
         expect(globalThis.fetch).toHaveBeenCalledWith(
@@ -200,7 +200,7 @@ describe('AsyncAutocomplete', () => {
 
         const input = screen.getByPlaceholderText('Search users...');
         await userEvent.type(input, 'Ad');
-        await vi.advanceTimersByTimeAsync(350);
+        await act(() => vi.advanceTimersByTimeAsync(350));
 
         expect(globalThis.fetch).toHaveBeenCalledWith(
             '/api/search?event_id=5&q=Ad',

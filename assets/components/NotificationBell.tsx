@@ -96,6 +96,7 @@ export default function NotificationBell({
     }, [apiUrl]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- polling fetch with interval
         fetchNotifications();
         const interval = setInterval(fetchNotifications, pollIntervalMs);
         return () => clearInterval(interval);
