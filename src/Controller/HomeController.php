@@ -17,7 +17,11 @@ use App\Entity\User;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
+use App\Repository\MenuCategoryRepository;
+use App\Repository\PageRepository;
+use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -28,15 +32,50 @@ class HomeController extends AbstractController
      * @see docs/features.md F10.2 — Anonymous homepage
      */
     #[Route('/', name: 'app_home')]
-    public function index(DeckRepository $deckRepository, EventRepository $eventRepository): Response
-    {
+    public function index(
+        Request $request,
+        DeckRepository $deckRepository,
+        EventRepository $eventRepository,
+        PageRepository $pageRepository,
+        MenuCategoryRepository $menuCategoryRepository,
+        MarkdownRenderer $markdownRenderer,
+    ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
+        }
+
+        $locale = $request->getLocale();
+
+        // Welcome block: look for a published page with slug "welcome"
+        $welcomePage = $pageRepository->findBySlug('welcome');
+        $welcomeHtml = null;
+        if (null !== $welcomePage && $welcomePage->isPublished()) {
+            $translation = $welcomePage->getTranslation($locale);
+            if (null !== $translation) {
+                $welcomeHtml = $markdownRenderer->render($translation->getContent());
+            }
+        }
+
+        // Latest news: look for pages in "news" category
+        $newsPages = [];
+        $newsCategories = $menuCategoryRepository->findBy(['id' => array_map(
+            static fn ($category) => $category->getId(),
+            array_filter(
+                $menuCategoryRepository->findAllOrdered(),
+                static fn ($category) => 'news' === strtolower($category->getName('en')),
+            ),
+        )]);
+
+        if (\count($newsCategories) > 0) {
+            $newsPages = $pageRepository->findPublishedByCategory($newsCategories[0], 3);
         }
 
         return $this->render('home/index.html.twig', [
             'publicDeckCount' => $deckRepository->countPublicDecks(),
             'upcomingEventCount' => $eventRepository->countUpcoming(),
+            'welcomeHtml' => $welcomeHtml,
+            'newsPages' => $newsPages,
+            'locale' => $locale,
         ]);
     }
 

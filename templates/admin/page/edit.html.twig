@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.cms.admin.edit_page'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.cms.admin.edit_page'|trans }}: {{ page.slug }}</h1>
+        <div class="d-flex gap-2">
+            {% if page.published %}
+                <a href="{{ path('app_page_show', {slug: page.slug}) }}" class="btn btn-outline-primary" target="_blank">{{ 'app.cms.admin.view_page'|trans }}</a>
+            {% endif %}
+            <a href="{{ path('app_admin_page_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        </div>
+    </div>
+
+    {# Page settings #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.cms.admin.page_settings'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {# Translations #}
+    {% for locale in supportedLocales %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ 'app.cms.admin.translation'|trans }} — {{ locale|upper }}</h5>
+                {% set translation = page.getTranslation(locale) %}
+                {% if translation and translation.locale == locale %}
+                    <span class="badge bg-success">{{ 'app.cms.status.translated'|trans }}</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">{{ 'app.cms.status.missing'|trans }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {{ form_start(translationForms[locale]) }}
+                    {{ form_widget(translationForms[locale]) }}
+                    <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
+                {{ form_end(translationForms[locale]) }}
+            </div>
+        </div>
+    {% endfor %}
+
+    {# Delete #}
+    <div class="card shadow-sm border-danger">
+        <div class="card-body">
+            <h5 class="text-danger">{{ 'app.cms.admin.danger_zone'|trans }}</h5>
+            <form method="post" action="{{ path('app_admin_page_delete', {id: page.id}) }}" onsubmit="return confirm('{{ 'app.cms.admin.delete_confirm'|trans }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('page-delete-' ~ page.id) }}">
+                <button type="submit" class="btn btn-outline-danger">{{ 'app.cms.admin.delete_page'|trans }}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -13,6 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Expanded Decks{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🃏</text></svg>">
+        {% block meta %}{% endblock %}
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
@@ -63,6 +64,13 @@
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_user_list') }}">{{ 'app.nav.admin_users'|trans }}</a></li>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_CMS_EDITOR') %}
+                                        {% if not is_granted('ROLE_ADMIN') %}
+                                            <li><hr class="dropdown-divider"></li>
+                                        {% endif %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_page_list') }}">{{ 'app.nav.cms_pages'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_menu_category_list') }}">{{ 'app.nav.cms_categories'|trans }}</a></li>
                                     {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>

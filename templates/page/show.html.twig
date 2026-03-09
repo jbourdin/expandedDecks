@@ -1,0 +1,45 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ translation.metaTitle ?? translation.title }} — Expanded Decks{% endblock %}
+
+{% block meta %}
+    {% if translation.metaDescription %}
+        <meta name="description" content="{{ translation.metaDescription }}">
+    {% endif %}
+    {% if page.noIndex %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+    {% if page.canonicalUrl %}
+        <link rel="canonical" href="{{ page.canonicalUrl }}">
+    {% endif %}
+    {% if translation.ogImage %}
+        <meta property="og:image" content="{{ translation.ogImage }}">
+    {% endif %}
+    <meta property="og:title" content="{{ translation.metaTitle ?? translation.title }}">
+    {% if translation.metaDescription %}
+        <meta property="og:description" content="{{ translation.metaDescription }}">
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if not page.published %}
+        <div class="alert alert-warning">{{ 'app.cms.draft_notice'|trans }}</div>
+    {% endif %}
+
+    <article class="card shadow-sm">
+        <div class="card-header card-header-themed">
+            <h1 class="mb-0 h4">{{ translation.title }}</h1>
+        </div>
+        <div class="card-body cms-content">
+            {{ htmlContent|raw }}
+        </div>
+    </article>
+{% endblock %}
