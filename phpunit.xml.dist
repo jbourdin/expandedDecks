@@ -23,6 +23,7 @@
             <directory>tests/Service</directory>
             <directory>tests/Entity</directory>
             <directory>tests/EventListener</directory>
+            <directory>tests/MessageHandler</directory>
             <directory>tests/Twig</directory>
         </testsuite>
         <testsuite name="functional">
