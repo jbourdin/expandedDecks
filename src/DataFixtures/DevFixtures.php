@@ -23,7 +23,11 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\MenuCategory;
+use App\Entity\MenuCategoryTranslation;
 use App\Entity\Notification;
+use App\Entity\Page;
+use App\Entity\PageTranslation;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
@@ -94,6 +98,7 @@ class DevFixtures extends Fixture
         $manager->flush();
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
+        $this->createCmsFixtures($manager);
 
         $manager->flush();
     }
@@ -1088,5 +1093,415 @@ class DevFixtures extends Fixture
         $n3->setContext(['eventId' => $event->getId()]);
         $n3->setIsRead(true);
         $manager->persist($n3);
+    }
+
+    private function createCmsFixtures(ObjectManager $manager): void
+    {
+        // --- Menu categories ---
+
+        $newsCategory = new MenuCategory();
+        $newsCategory->setPosition(1);
+        $manager->persist($newsCategory);
+
+        $newsEn = new MenuCategoryTranslation();
+        $newsEn->setMenuCategory($newsCategory);
+        $newsEn->setLocale('en');
+        $newsEn->setName('News');
+        $newsCategory->addTranslation($newsEn);
+        $manager->persist($newsEn);
+
+        $newsFr = new MenuCategoryTranslation();
+        $newsFr->setMenuCategory($newsCategory);
+        $newsFr->setLocale('fr');
+        $newsFr->setName('Actualités');
+        $newsCategory->addTranslation($newsFr);
+        $manager->persist($newsFr);
+
+        $rulesCategory = new MenuCategory();
+        $rulesCategory->setPosition(2);
+        $manager->persist($rulesCategory);
+
+        $rulesEn = new MenuCategoryTranslation();
+        $rulesEn->setMenuCategory($rulesCategory);
+        $rulesEn->setLocale('en');
+        $rulesEn->setName('Rules & Info');
+        $rulesCategory->addTranslation($rulesEn);
+        $manager->persist($rulesEn);
+
+        $rulesFr = new MenuCategoryTranslation();
+        $rulesFr->setMenuCategory($rulesCategory);
+        $rulesFr->setLocale('fr');
+        $rulesFr->setName('Règles & Infos');
+        $rulesCategory->addTranslation($rulesFr);
+        $manager->persist($rulesFr);
+
+        // --- Welcome page (shown on homepage) ---
+
+        $welcomePage = new Page();
+        $welcomePage->setSlug('welcome');
+        $welcomePage->setIsPublished(true);
+        $manager->persist($welcomePage);
+
+        $welcomeEn = new PageTranslation();
+        $welcomeEn->setPage($welcomePage);
+        $welcomeEn->setLocale('en');
+        $welcomeEn->setTitle('Welcome to Expanded Decks');
+        $welcomeEn->setContent(<<<'MD'
+## Your shared deck library
+
+Expanded Decks makes it easy to **manage a shared library of physical Pokemon TCG decks** for your local community. Register your decks, lend them for events, and keep track of who has what.
+
+### How it works
+
+1. **Register your decks** — import your deck list in PTCG text format, validated against TCGdex
+2. **Share for events** — other players can request to borrow a deck for upcoming events
+3. **Track everything** — see who borrowed what, when, and get notified at every step
+
+Jump in and explore the library!
+MD);
+        $welcomeEn->setMetaTitle('Expanded Decks — Shared Pokemon TCG Deck Library');
+        $welcomeEn->setMetaDescription('Manage a shared library of physical Pokemon TCG decks for your local community. Lend decks for events and track borrowing.');
+        $welcomePage->addTranslation($welcomeEn);
+        $manager->persist($welcomeEn);
+
+        $welcomeFr = new PageTranslation();
+        $welcomeFr->setPage($welcomePage);
+        $welcomeFr->setLocale('fr');
+        $welcomeFr->setTitle('Bienvenue sur Expanded Decks');
+        $welcomeFr->setSlug('bienvenue');
+        $welcomeFr->setContent(<<<'MD'
+## Votre bibliothèque de decks partagée
+
+Expanded Decks facilite la **gestion d'une bibliothèque partagée de decks physiques Pokemon TCG** pour votre communauté locale. Enregistrez vos decks, prêtez-les pour des événements et suivez qui a quoi.
+
+### Comment ça marche
+
+1. **Enregistrez vos decks** — importez votre liste au format texte PTCG, validée via TCGdex
+2. **Partagez pour les événements** — d'autres joueurs peuvent demander à emprunter un deck
+3. **Suivez tout** — voyez qui a emprunté quoi, quand, et recevez des notifications à chaque étape
+
+Plongez et explorez la bibliothèque !
+MD);
+        $welcomeFr->setMetaTitle('Expanded Decks — Bibliothèque de decks Pokemon TCG partagée');
+        $welcomeFr->setMetaDescription('Gérez une bibliothèque partagée de decks physiques Pokemon TCG pour votre communauté. Prêtez des decks pour des événements.');
+        $welcomePage->addTranslation($welcomeFr);
+        $manager->persist($welcomeFr);
+
+        // --- News articles ---
+
+        $news1 = new Page();
+        $news1->setSlug('season-2026-kickoff');
+        $news1->setMenuCategory($newsCategory);
+        $news1->setIsPublished(true);
+        $manager->persist($news1);
+
+        $news1En = new PageTranslation();
+        $news1En->setPage($news1);
+        $news1En->setLocale('en');
+        $news1En->setTitle('Season 2026 is here!');
+        $news1En->setContent(<<<'MD'
+The new Pokemon TCG season is upon us! Here's what's new for the Expanded format community:
+
+## New rotation policy
+
+The Expanded format continues to include all cards from **Black & White** onward. No rotation this year — your favorite decks are safe.
+
+## Upcoming events
+
+We have several League Challenges and local tournaments lined up. Check the [events page](/events) to see what's coming up near you.
+
+## New deck additions
+
+Our library has grown to over **20 decks** available for borrowing. If you have decks you'd like to share, register them and help the community!
+MD);
+        $news1->addTranslation($news1En);
+        $manager->persist($news1En);
+
+        $news1Fr = new PageTranslation();
+        $news1Fr->setPage($news1);
+        $news1Fr->setLocale('fr');
+        $news1Fr->setTitle('La saison 2026 est lancée !');
+        $news1Fr->setSlug('lancement-saison-2026');
+        $news1Fr->setContent(<<<'MD'
+La nouvelle saison Pokemon TCG est là ! Voici les nouveautés pour la communauté Expanded :
+
+## Nouvelle politique de rotation
+
+Le format Expanded continue d'inclure toutes les cartes depuis **Noir & Blanc**. Pas de rotation cette année — vos decks préférés sont en sécurité.
+
+## Événements à venir
+
+Plusieurs League Challenges et tournois locaux sont prévus. Consultez la [page événements](/events) pour voir ce qui se passe près de chez vous.
+
+## Nouveaux decks ajoutés
+
+Notre bibliothèque compte désormais plus de **20 decks** disponibles à l'emprunt. Si vous avez des decks à partager, enregistrez-les et aidez la communauté !
+MD);
+        $news1->addTranslation($news1Fr);
+        $manager->persist($news1Fr);
+
+        $news2 = new Page();
+        $news2->setSlug('borrowing-guide');
+        $news2->setMenuCategory($newsCategory);
+        $news2->setIsPublished(true);
+        $manager->persist($news2);
+
+        $news2En = new PageTranslation();
+        $news2En->setPage($news2);
+        $news2En->setLocale('en');
+        $news2En->setTitle('How to borrow a deck for your next event');
+        $news2En->setContent(<<<'MD'
+New to Expanded Decks? Here's a quick guide on how to borrow a deck for your next event.
+
+## Step 1: Find a deck
+
+Browse the [deck catalog](/decks) and find a deck that suits your playstyle. Each deck page shows the full card list and availability status.
+
+## Step 2: Request to borrow
+
+On the deck page, select the event you want to borrow for and click **Request**. The deck owner will be notified.
+
+## Step 3: Pick up at the event
+
+Once approved, meet the deck owner (or their designated staff) at the event to collect the deck. The handoff is tracked in the system.
+
+## Step 4: Return after the event
+
+After playing, return the deck to the owner or staff. Everyone gets notified when the deck is back.
+
+That's it! Happy playing.
+MD);
+        $news2->addTranslation($news2En);
+        $manager->persist($news2En);
+
+        $news3 = new Page();
+        $news3->setSlug('march-league-challenge');
+        $news3->setMenuCategory($newsCategory);
+        $news3->setIsPublished(true);
+        $manager->persist($news3);
+
+        $news3En = new PageTranslation();
+        $news3En->setPage($news3);
+        $news3En->setLocale('en');
+        $news3En->setTitle('March League Challenge recap');
+        $news3En->setContent(<<<'MD'
+Our March League Challenge was a blast! 16 players battled it out in Swiss rounds.
+
+## Top 4
+
+1. **Lugia VSTAR / Archeops** — piloted by Alex
+2. **Mew VMAX / Genesect V** — piloted by Jordan
+3. **Gardevoir ex** — piloted by Sam
+4. **Lost Zone Box** — piloted by Casey
+
+Congratulations to all participants! See you at the next event.
+MD);
+        $news3->addTranslation($news3En);
+        $manager->persist($news3En);
+
+        $news3Fr = new PageTranslation();
+        $news3Fr->setPage($news3);
+        $news3Fr->setLocale('fr');
+        $news3Fr->setTitle('Résumé du League Challenge de mars');
+        $news3Fr->setSlug('league-challenge-mars');
+        $news3Fr->setContent(<<<'MD'
+Notre League Challenge de mars était génial ! 16 joueurs se sont affrontés en rondes suisses.
+
+## Top 4
+
+1. **Lugia VSTAR / Archeops** — piloté par Alex
+2. **Mew VMAX / Genesect V** — piloté par Jordan
+3. **Gardevoir ex** — piloté par Sam
+4. **Lost Zone Box** — piloté par Casey
+
+Félicitations à tous les participants ! À bientôt au prochain événement.
+MD);
+        $news3->addTranslation($news3Fr);
+        $manager->persist($news3Fr);
+
+        $news4 = new Page();
+        $news4->setSlug('new-decks-february');
+        $news4->setMenuCategory($newsCategory);
+        $news4->setIsPublished(true);
+        $manager->persist($news4);
+
+        $news4En = new PageTranslation();
+        $news4En->setPage($news4);
+        $news4En->setLocale('en');
+        $news4En->setTitle('5 new decks added to the library');
+        $news4En->setContent(<<<'MD'
+We're excited to announce that five new decks have been added to our shared library:
+
+- **Charizard ex / Pidgeot ex** — aggressive fire build
+- **Iron Hands ex** — Future Box variant
+- **Roaring Moon ex** — Ancient turbo
+- **Snorlax Stall** — the classic wall
+- **Raging Bolt ex / Ogerpon ex** — energy acceleration combo
+
+All are available for borrowing at upcoming events. Check the [deck catalog](/decks) for details!
+MD);
+        $news4->addTranslation($news4En);
+        $manager->persist($news4En);
+
+        $news5 = new Page();
+        $news5->setSlug('label-printing-live');
+        $news5->setMenuCategory($newsCategory);
+        $news5->setIsPublished(true);
+        $manager->persist($news5);
+
+        $news5En = new PageTranslation();
+        $news5En->setPage($news5);
+        $news5En->setLocale('en');
+        $news5En->setTitle('Zebra label printing is now live');
+        $news5En->setContent(<<<'MD'
+Deck owners can now print Zebra labels directly from the deck page! Each label includes:
+
+- Deck name and short tag
+- QR code for quick scanning at events
+- Owner name and deck archetype
+
+Just click **Print Label** on any deck you own. You'll need a Zebra printer connected via PrintNode.
+MD);
+        $news5->addTranslation($news5En);
+        $manager->persist($news5En);
+
+        $news6 = new Page();
+        $news6->setSlug('community-guidelines');
+        $news6->setMenuCategory($newsCategory);
+        $news6->setIsPublished(true);
+        $manager->persist($news6);
+
+        $news6En = new PageTranslation();
+        $news6En->setPage($news6);
+        $news6En->setLocale('en');
+        $news6En->setTitle('Community guidelines update');
+        $news6En->setContent(<<<'MD'
+We've updated our community guidelines to better reflect how the platform works. Key points:
+
+- Be respectful to deck owners and fellow borrowers
+- Report any issues with borrowed decks promptly
+- Organizers should verify deck returns before closing events
+- Repeated no-shows may result in borrowing restrictions
+
+Read the full [borrowing rules](/pages/borrowing-rules) for details.
+MD);
+        $news6->addTranslation($news6En);
+        $manager->persist($news6En);
+
+        $news7 = new Page();
+        $news7->setSlug('spring-tournament-series');
+        $news7->setMenuCategory($newsCategory);
+        $news7->setIsPublished(true);
+        $manager->persist($news7);
+
+        $news7En = new PageTranslation();
+        $news7En->setPage($news7);
+        $news7En->setLocale('en');
+        $news7En->setTitle('Spring Tournament Series announced');
+        $news7En->setContent(<<<'MD'
+We're kicking off a Spring Tournament Series with three events over April and May!
+
+## Schedule
+
+- **April 5** — League Challenge at the usual venue
+- **April 19** — Special side event with promo prizes
+- **May 10** — Season finale with top cut
+
+Registration opens one week before each event. Deck borrowing will be available for all three.
+MD);
+        $news7->addTranslation($news7En);
+        $manager->persist($news7En);
+
+        $news8 = new Page();
+        $news8->setSlug('deck-enrichment-update');
+        $news8->setMenuCategory($newsCategory);
+        $news8->setIsPublished(true);
+        $manager->persist($news8);
+
+        $news8En = new PageTranslation();
+        $news8En->setPage($news8);
+        $news8En->setLocale('en');
+        $news8En->setTitle('Card images now auto-loaded from TCGdex');
+        $news8En->setContent(<<<'MD'
+Great news for deck browsing! Card images are now automatically fetched from TCGdex when a deck list is imported.
+
+This means every card in a deck shows its actual artwork — making it much easier to browse and identify cards at a glance.
+
+The enrichment happens in the background, so it may take a few seconds after importing a new deck list.
+MD);
+        $news8->addTranslation($news8En);
+        $manager->persist($news8En);
+
+        // --- Rules page (in Rules & Info category) ---
+
+        $rulesPage = new Page();
+        $rulesPage->setSlug('borrowing-rules');
+        $rulesPage->setMenuCategory($rulesCategory);
+        $rulesPage->setIsPublished(true);
+        $manager->persist($rulesPage);
+
+        $rulesPageEn = new PageTranslation();
+        $rulesPageEn->setPage($rulesPage);
+        $rulesPageEn->setLocale('en');
+        $rulesPageEn->setTitle('Borrowing Rules');
+        $rulesPageEn->setContent(<<<'MD'
+Please follow these rules when borrowing decks from the shared library:
+
+1. **Return on time** — Decks must be returned before the end of the event or as agreed with the owner
+2. **Handle with care** — These are real cards that belong to someone. Keep them sleeved and protected
+3. **No modifications** — Do not add, remove, or swap cards without the owner's permission
+4. **Report damage** — If any card is damaged during your use, inform the owner immediately
+5. **One deck per event** — You may borrow one deck per event unless the owner agrees otherwise
+
+Repeated violations may result in borrowing restrictions. Thank you for respecting the community!
+MD);
+        $rulesPage->addTranslation($rulesPageEn);
+        $manager->persist($rulesPageEn);
+
+        $rulesPageFr = new PageTranslation();
+        $rulesPageFr->setPage($rulesPage);
+        $rulesPageFr->setLocale('fr');
+        $rulesPageFr->setTitle('Règles d\'emprunt');
+        $rulesPageFr->setSlug('regles-emprunt');
+        $rulesPageFr->setContent(<<<'MD'
+Veuillez respecter ces règles lors de l'emprunt de decks de la bibliothèque partagée :
+
+1. **Rendez à l'heure** — Les decks doivent être rendus avant la fin de l'événement ou selon l'accord avec le propriétaire
+2. **Manipulez avec soin** — Ce sont de vraies cartes qui appartiennent à quelqu'un. Gardez-les protégées
+3. **Pas de modifications** — N'ajoutez, ne retirez ou n'échangez pas de cartes sans l'accord du propriétaire
+4. **Signalez les dégâts** — Si une carte est endommagée, informez immédiatement le propriétaire
+5. **Un deck par événement** — Vous pouvez emprunter un deck par événement sauf accord du propriétaire
+
+Les violations répétées peuvent entraîner des restrictions d'emprunt. Merci de respecter la communauté !
+MD);
+        $rulesPage->addTranslation($rulesPageFr);
+        $manager->persist($rulesPageFr);
+
+        // --- Draft page (unpublished, for testing editor preview) ---
+
+        $draftPage = new Page();
+        $draftPage->setSlug('upcoming-features');
+        $draftPage->setIsPublished(false);
+        $draftPage->setNoIndex(true);
+        $manager->persist($draftPage);
+
+        $draftEn = new PageTranslation();
+        $draftEn->setPage($draftPage);
+        $draftEn->setLocale('en');
+        $draftEn->setTitle('Upcoming Features (Draft)');
+        $draftEn->setContent(<<<'MD'
+> **This page is a draft and not visible to regular users.**
+
+## Planned features
+
+- Zebra label printing for deck boxes
+- QR code scanning for deck identification
+- iCal calendar feeds for events
+- Visual deck list with card mosaic
+
+Stay tuned!
+MD);
+        $draftPage->addTranslation($draftEn);
+        $manager->persist($draftEn);
     }
 }

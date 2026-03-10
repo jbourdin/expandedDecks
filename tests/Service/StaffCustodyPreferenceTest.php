@@ -25,6 +25,7 @@ use App\Repository\BorrowRepository;
 use App\Service\StaffCustodyService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Workflow\Marking;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -36,14 +37,14 @@ class StaffCustodyPreferenceTest extends TestCase
 {
     private StaffCustodyService $service;
     private EntityManagerInterface&MockObject $em;
-    private BorrowRepository&MockObject $borrowRepository;
-    private WorkflowInterface&MockObject $workflow;
+    private BorrowRepository&Stub $borrowRepository;
+    private WorkflowInterface&Stub $workflow;
 
     protected function setUp(): void
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->borrowRepository = $this->createMock(BorrowRepository::class);
-        $this->workflow = $this->createMock(WorkflowInterface::class);
+        $this->borrowRepository = $this->createStub(BorrowRepository::class);
+        $this->workflow = $this->createStub(WorkflowInterface::class);
 
         $this->service = new StaffCustodyService(
             $this->em,

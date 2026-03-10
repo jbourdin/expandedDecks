@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.cms.admin.new_page'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.cms.admin.new_page'|trans }}</h1>
+        <a href="{{ path('app_admin_page_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.create'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

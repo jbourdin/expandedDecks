@@ -45,8 +45,8 @@ class BorrowServiceCancelEventTest extends TestCase
         $this->workflow = $this->createMock(WorkflowInterface::class);
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->borrowRepository = $this->createMock(BorrowRepository::class);
-        $emailService = $this->createMock(BorrowNotificationEmailService::class);
-        $registrationRepository = $this->createMock(EventDeckRegistrationRepository::class);
+        $emailService = $this->createStub(BorrowNotificationEmailService::class);
+        $registrationRepository = $this->createStub(EventDeckRegistrationRepository::class);
 
         $this->service = new BorrowService(
             $this->workflow,

@@ -28,8 +28,11 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class EventListController extends AbstractController
 {
+    private const VALID_SCOPES = ['all', 'public', 'staffing'];
+
     /**
      * @see docs/features.md F3.11 — Event visibility
+     * @see docs/features.md F3.15 — Event discovery
      * @see docs/features.md F7.1 — Dashboard (scope=staffing)
      */
     #[Route('/event', name: 'app_event_list', methods: ['GET'], priority: 10)]
@@ -37,28 +40,35 @@ class EventListController extends AbstractController
     {
         /** @var User|null $user */
         $user = $this->getUser();
-        $scope = $request->query->getString('scope');
+        $scope = $request->query->getString('scope', 'all');
 
-        if ('staffing' === $scope && null !== $user) {
-            return $this->render('event/list.html.twig', [
-                'events' => $eventRepository->findUpcomingByOrganizerOrStaff($user),
-                'scope' => 'staffing',
-            ]);
+        if (!\in_array($scope, self::VALID_SCOPES, true)) {
+            $scope = 'all';
         }
 
+        // Anonymous users can only see public events
+        if (null === $user) {
+            $scope = 'public';
+        }
+
+        $events = match ($scope) {
+            'public' => $eventRepository->findPublicUpcoming(),
+            'staffing' => $eventRepository->findUpcomingByOrganizerOrStaff($user ?? throw new \LogicException()),
+            default => $eventRepository->findVisibleUpcoming($user),
+        };
+
         return $this->render('event/list.html.twig', [
-            'events' => $eventRepository->findVisibleUpcoming($user),
+            'events' => $events,
+            'scope' => $scope,
         ]);
     }
 
     /**
-     * @see docs/features.md F3.15 — Event discovery
+     * Legacy discover route — redirects to event list with public scope.
      */
     #[Route('/events/discover', name: 'app_event_discover', methods: ['GET'])]
-    public function discover(EventRepository $eventRepository): Response
+    public function discover(): Response
     {
-        return $this->render('event/discover.html.twig', [
-            'events' => $eventRepository->findPublicUpcoming(),
-        ]);
+        return $this->redirectToRoute('app_event_list', ['scope' => 'public'], Response::HTTP_MOVED_PERMANENTLY);
     }
 }

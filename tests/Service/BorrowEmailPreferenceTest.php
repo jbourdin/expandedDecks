@@ -37,9 +37,9 @@ class BorrowEmailPreferenceTest extends TestCase
     protected function setUp(): void
     {
         $this->mailer = $this->createMock(MailerInterface::class);
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn('https://example.com/borrow/1');
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
 
         $this->service = new BorrowNotificationEmailService(

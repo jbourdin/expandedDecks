@@ -13,6 +13,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Expanded Decks{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🃏</text></svg>">
+        {% block meta %}{% endblock %}
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
@@ -36,9 +37,27 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_discover') }}">{{ 'app.nav.discover'|trans }}</a>
-                            </li>
+                            {% for category in menu_categories() %}
+                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => b.createdAt <=> a.createdAt) %}
+                                {% if pages|length == 1 %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ path('app_page_show', {slug: pages|first.slug}) }}">{{ category.getName(app.request.locale) }}</a>
+                                    </li>
+                                {% elseif pages|length > 1 %}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ category.getName(app.request.locale) }}</a>
+                                        <ul class="dropdown-menu">
+                                            {% for page in pages|slice(0, 5) %}
+                                                <li><a class="dropdown-item" href="{{ path('app_page_show', {slug: page.slug}) }}">{{ page.getTitle(app.request.locale) }}</a></li>
+                                            {% endfor %}
+                                            {% if pages|length > 5 %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="{{ path('app_page_category', {id: category.id}) }}">{{ 'app.common.see_all'|trans }}</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
                             <li class="nav-item d-flex align-items-center me-2">
                                 <div id="notification-bell-root"
                                      data-api-url="{{ path('app_notification_api_list') }}"
@@ -64,6 +83,13 @@
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_user_list') }}">{{ 'app.nav.admin_users'|trans }}</a></li>
                                     {% endif %}
+                                    {% if is_granted('ROLE_CMS_EDITOR') %}
+                                        {% if not is_granted('ROLE_ADMIN') %}
+                                            <li><hr class="dropdown-divider"></li>
+                                        {% endif %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_page_list') }}">{{ 'app.nav.cms_pages'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_menu_category_list') }}">{{ 'app.nav.cms_categories'|trans }}</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>
                                 </ul>
@@ -75,9 +101,27 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_discover') }}">{{ 'app.nav.discover'|trans }}</a>
-                            </li>
+                            {% for category in menu_categories() %}
+                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => b.createdAt <=> a.createdAt) %}
+                                {% if pages|length == 1 %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ path('app_page_show', {slug: pages|first.slug}) }}">{{ category.getName(app.request.locale) }}</a>
+                                    </li>
+                                {% elseif pages|length > 1 %}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ category.getName(app.request.locale) }}</a>
+                                        <ul class="dropdown-menu">
+                                            {% for page in pages|slice(0, 5) %}
+                                                <li><a class="dropdown-item" href="{{ path('app_page_show', {slug: page.slug}) }}">{{ page.getTitle(app.request.locale) }}</a></li>
+                                            {% endfor %}
+                                            {% if pages|length > 5 %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="{{ path('app_page_category', {id: category.id}) }}">{{ 'app.common.see_all'|trans }}</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
