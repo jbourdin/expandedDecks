@@ -13,17 +13,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Borrow;
 use App\Entity\User;
+use App\Enum\BorrowStatus;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Coverage for BorrowRepository query methods: hasUnsettledBorrows, findByDeckForUser.
+ * Coverage for BorrowRepository query methods.
  *
  * @see docs/features.md F1.8 — Account deletion & data export (GDPR)
  * @see docs/features.md F4.5 — Borrow history
+ * @see docs/features.md F4.2 — Approve / deny a borrow request
+ * @see docs/features.md F4.14 — Staff custody handover tracking
  */
 class BorrowRepositoryCoverageTest extends AbstractFunctionalTest
 {
@@ -191,5 +195,197 @@ class BorrowRepositoryCoverageTest extends AbstractFunctionalTest
                 );
             }
         }
+    }
+
+    // ---------------------------------------------------------------
+    // findActiveBorrowsForDeckAtEvent
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    public function testFindActiveBorrowsForDeckAtEventReturnsActiveBorrows(): void
+    {
+        $repository = $this->getBorrowRepository();
+        $deckRepository = $this->getDeckRepository();
+        $eventRepository = $this->getEventRepository();
+
+        $ironThorns = $deckRepository->findOneBy(['name' => 'Iron Thorns']);
+        self::assertNotNull($ironThorns);
+
+        $todayEvent = $eventRepository->findOneBy(['name' => 'Expanded Weekly #42']);
+        self::assertNotNull($todayEvent);
+
+        // Iron Thorns has a pending borrow at todayEvent (pending is active)
+        $borrows = $repository->findActiveBorrowsForDeckAtEvent($ironThorns, $todayEvent);
+
+        self::assertNotEmpty($borrows, 'Should find active borrows for Iron Thorns at today event.');
+        foreach ($borrows as $borrow) {
+            self::assertContains(
+                $borrow->getStatus()->value,
+                BorrowRepository::activeStatusValues(),
+                'All returned borrows should have active statuses.',
+            );
+        }
+    }
+
+    /**
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    public function testFindActiveBorrowsForDeckAtEventReturnsEmptyWhenNoneExist(): void
+    {
+        $repository = $this->getBorrowRepository();
+        $deckRepository = $this->getDeckRepository();
+        $eventRepository = $this->getEventRepository();
+
+        // Ancient Box has an approved borrow at todayEvent but not at futureEvent
+        $ancientBox = $deckRepository->findOneBy(['name' => 'Ancient Box']);
+        self::assertNotNull($ancientBox);
+
+        $futureEvent = $eventRepository->findOneBy(['name' => 'Lyon Expanded Cup 2026']);
+        self::assertNotNull($futureEvent);
+
+        $borrows = $repository->findActiveBorrowsForDeckAtEvent($ancientBox, $futureEvent);
+
+        self::assertEmpty($borrows, 'Should return empty when no active borrows exist for the deck at this event.');
+    }
+
+    /**
+     * @see docs/features.md F4.14 — Staff custody handover tracking
+     */
+    public function testFindActiveBorrowsForDeckAtEventReturnsMultipleBorrows(): void
+    {
+        $repository = $this->getBorrowRepository();
+        $deckRepository = $this->getDeckRepository();
+        $eventRepository = $this->getEventRepository();
+        $entityManager = $this->getEntityManager();
+
+        $ironThorns = $deckRepository->findOneBy(['name' => 'Iron Thorns']);
+        self::assertNotNull($ironThorns);
+        $ironThornsVersion = $ironThorns->getCurrentVersion();
+        self::assertNotNull($ironThornsVersion);
+
+        $todayEvent = $eventRepository->findOneBy(['name' => 'Expanded Weekly #42']);
+        self::assertNotNull($todayEvent);
+
+        // Add a second active borrow for Iron Thorns at todayEvent
+        $lender = $this->getUserByEmail('lender@example.com');
+        $extraBorrow = new Borrow();
+        $extraBorrow->setDeck($ironThorns);
+        $extraBorrow->setDeckVersion($ironThornsVersion);
+        $extraBorrow->setBorrower($lender);
+        $extraBorrow->setEvent($todayEvent);
+        $entityManager->persist($extraBorrow);
+        $entityManager->flush();
+
+        $borrows = $repository->findActiveBorrowsForDeckAtEvent($ironThorns, $todayEvent);
+
+        self::assertGreaterThanOrEqual(2, \count($borrows), 'Should return multiple active borrows when they exist.');
+    }
+
+    // ---------------------------------------------------------------
+    // findPendingRequestsForOwner
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F4.2 — Approve / deny a borrow request
+     */
+    public function testFindPendingRequestsForOwnerReturnsPendingBorrowsOnOwnedDecks(): void
+    {
+        $repository = $this->getBorrowRepository();
+        // Admin owns Iron Thorns and Ancient Box.
+        // Iron Thorns has pending borrows (one at todayEvent from borrower, one at futureEvent from lender).
+        $admin = $this->getUserByEmail('admin@example.com');
+
+        $borrows = $repository->findPendingRequestsForOwner($admin);
+
+        self::assertNotEmpty($borrows, 'Should find pending borrow requests for decks owned by admin.');
+        foreach ($borrows as $borrow) {
+            self::assertSame(
+                BorrowStatus::Pending,
+                $borrow->getStatus(),
+                'All returned borrows should have pending status.',
+            );
+            self::assertSame(
+                $admin->getId(),
+                $borrow->getDeck()->getOwner()->getId(),
+                'All returned borrows should be for decks owned by the given owner.',
+            );
+        }
+    }
+
+    /**
+     * @see docs/features.md F4.2 — Approve / deny a borrow request
+     */
+    public function testFindPendingRequestsForOwnerReturnsEmptyWhenNoPendingRequests(): void
+    {
+        $repository = $this->getBorrowRepository();
+        // Staff2 owns no decks, so should have no pending requests
+        $staff2 = $this->getUserByEmail('staff2@example.com');
+
+        $borrows = $repository->findPendingRequestsForOwner($staff2);
+
+        self::assertEmpty($borrows, 'Should return empty when user owns no decks with pending borrows.');
+    }
+
+    /**
+     * @see docs/features.md F4.2 — Approve / deny a borrow request
+     */
+    public function testFindPendingRequestsForOwnerOrdersByRequestedAtAscending(): void
+    {
+        $repository = $this->getBorrowRepository();
+        $admin = $this->getUserByEmail('admin@example.com');
+
+        $borrows = $repository->findPendingRequestsForOwner($admin);
+
+        if (\count($borrows) >= 2) {
+            for ($index = 1; $index < \count($borrows); ++$index) {
+                self::assertLessThanOrEqual(
+                    $borrows[$index]->getRequestedAt(),
+                    $borrows[$index - 1]->getRequestedAt(),
+                    'Pending requests should be ordered by requestedAt ascending (oldest first).',
+                );
+            }
+        }
+    }
+
+    /**
+     * @see docs/features.md F4.2 — Approve / deny a borrow request
+     */
+    public function testFindPendingRequestsForOwnerExcludesNonPendingBorrows(): void
+    {
+        $repository = $this->getBorrowRepository();
+        // Admin owns Ancient Box which has an approved borrow at todayEvent.
+        // That approved borrow should NOT appear in pending requests.
+        $admin = $this->getUserByEmail('admin@example.com');
+
+        $borrows = $repository->findPendingRequestsForOwner($admin);
+
+        foreach ($borrows as $borrow) {
+            self::assertSame(
+                BorrowStatus::Pending,
+                $borrow->getStatus(),
+                'Only pending borrows should be returned, not approved or other statuses.',
+            );
+        }
+    }
+
+    /**
+     * @see docs/features.md F4.2 — Approve / deny a borrow request
+     */
+    public function testFindPendingRequestsForOwnerEagerLoadsDeckEventAndBorrower(): void
+    {
+        $repository = $this->getBorrowRepository();
+        $admin = $this->getUserByEmail('admin@example.com');
+
+        $borrows = $repository->findPendingRequestsForOwner($admin);
+
+        self::assertNotEmpty($borrows);
+        $borrow = $borrows[0];
+
+        // Verify eager-loaded associations are accessible (no lazy-loading proxy issues)
+        self::assertNotNull($borrow->getDeck()->getName());
+        self::assertNotNull($borrow->getEvent()->getName());
+        self::assertNotNull($borrow->getBorrower()->getScreenName());
     }
 }

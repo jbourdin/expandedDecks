@@ -21,6 +21,25 @@ namespace App\Tests\Functional;
 class SecurityControllerCoverageTest extends AbstractFunctionalTest
 {
     /**
+     * The logout() method is dead code — the firewall intercepts the request
+     * before the controller is invoked. Calling it directly should throw
+     * a LogicException.
+     *
+     * Covers SecurityController::logout() line 60.
+     *
+     * @see docs/features.md F1.2 — Log in / Log out
+     */
+    public function testLogoutThrowsLogicException(): void
+    {
+        $controller = new \App\Controller\SecurityController();
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('intercepted by the logout key');
+
+        $controller->logout();
+    }
+
+    /**
      * Login page with a safe target path saves it in session and renders
      * the login form.
      */

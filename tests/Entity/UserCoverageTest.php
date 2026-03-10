@@ -46,4 +46,16 @@ class UserCoverageTest extends TestCase
         self::assertInstanceOf(\DateTimeImmutable::class, $user->getCreatedAt());
         self::assertGreaterThanOrEqual($initialCreatedAt, $user->getCreatedAt());
     }
+
+    public function testEraseCredentialsDoesNotAlterUserState(): void
+    {
+        $user = new User();
+        $user->setEmail('test@example.com');
+        $user->setPassword('hashed-password');
+
+        $user->eraseCredentials();
+
+        self::assertSame('test@example.com', $user->getEmail());
+        self::assertSame('hashed-password', $user->getPassword());
+    }
 }

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Deck;
+use App\Repository\ArchetypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -88,6 +89,82 @@ class DeckControllerCoverageTest extends AbstractFunctionalTest
 
         // Should redirect on success
         self::assertResponseRedirects();
+    }
+
+    /**
+     * Editing a deck with a non-empty archetype and languages value
+     * exercises the "set archetype" and "set languages" branches.
+     *
+     * Covers DeckController::handleArchetypeAndLanguages() lines 286-287, 297-298.
+     *
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testEditDeckWithArchetypeAndLanguages(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $deck = $this->getDeck('Ancient Box');
+
+        /** @var ArchetypeRepository $archetypeRepository */
+        $archetypeRepository = static::getContainer()->get(ArchetypeRepository::class);
+        $archetype = $archetypeRepository->findOneBy(['name' => 'Iron Thorns ex']);
+        self::assertNotNull($archetype);
+
+        $crawler = $this->client->request('GET', \sprintf('/deck/%d/edit', $deck->getId()));
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['deck_form[name]'] = 'Ancient Box Updated';
+        $form['deck_form[archetype]'] = (string) $archetype->getId();
+        $form['deck_form[languages]'] = '["en","fr"]';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $freshDeck = $entityManager->getRepository(Deck::class)->findOneBy(['name' => 'Ancient Box Updated']);
+        self::assertNotNull($freshDeck);
+        self::assertNotNull($freshDeck->getArchetype());
+        self::assertSame('Iron Thorns ex', $freshDeck->getArchetype()->getName());
+        self::assertSame(['en', 'fr'], $freshDeck->getLanguages());
+    }
+
+    /**
+     * Creating a new deck with an archetype and languages set exercises the
+     * handleArchetypeAndLanguages branches via the "new" action.
+     *
+     * Covers DeckController::new() + handleArchetypeAndLanguages() lines 286-287, 297-298.
+     *
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testNewDeckWithArchetypeAndLanguages(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var ArchetypeRepository $archetypeRepository */
+        $archetypeRepository = static::getContainer()->get(ArchetypeRepository::class);
+        $archetype = $archetypeRepository->findOneBy(['name' => 'Ancient Box']);
+        self::assertNotNull($archetype);
+
+        $crawler = $this->client->request('GET', '/deck/new');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Create Deck')->form();
+        $form['deck_form[name]'] = 'Test Deck With Archetype';
+        $form['deck_form[archetype]'] = (string) $archetype->getId();
+        $form['deck_form[languages]'] = '["en"]';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $freshDeck = $entityManager->getRepository(Deck::class)->findOneBy(['name' => 'Test Deck With Archetype']);
+        self::assertNotNull($freshDeck);
+        self::assertNotNull($freshDeck->getArchetype());
+        self::assertSame('Ancient Box', $freshDeck->getArchetype()->getName());
+        self::assertSame(['en'], $freshDeck->getLanguages());
     }
 
     private function getDeck(string $name): Deck

@@ -165,6 +165,25 @@ class LocaleListenerTest extends TestCase
         self::assertSame('en', $request->getLocale());
     }
 
+    public function testEmptyAcceptLanguageHeaderFallsToDefaultLocale(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->headers->remove('Accept-Language');
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+        self::assertSame('en', $request->getSession()->get('_locale'));
+    }
+
     public function testNonStringSessionLocaleIsIgnored(): void
     {
         $security = $this->createStub(Security::class);

@@ -19,9 +19,10 @@ use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Coverage for DeckRepository::searchAvailableForEvent.
+ * Coverage for DeckRepository: searchAvailableForEvent, findAvailableDecks.
  *
  * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+ * @see docs/features.md F2.1 — Register a new deck (owner)
  */
 class DeckRepositoryCoverageTest extends AbstractFunctionalTest
 {
@@ -146,5 +147,86 @@ class DeckRepositoryCoverageTest extends AbstractFunctionalTest
         $decks = $deckRepository->searchAvailableForEvent('NoVersionTestDeck', $event);
 
         self::assertEmpty($decks, 'Decks without a current version should be excluded.');
+    }
+
+    // ---------------------------------------------------------------
+    // findAvailableDecks
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testFindAvailableDecksReturnsOnlyAvailableDecks(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+
+        $decks = $deckRepository->findAvailableDecks();
+
+        self::assertNotEmpty($decks, 'Should return at least some available decks from fixtures.');
+        foreach ($decks as $deck) {
+            self::assertSame(
+                \App\Enum\DeckStatus::Available,
+                $deck->getStatus(),
+                'All returned decks should have Available status.',
+            );
+        }
+    }
+
+    /**
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testFindAvailableDecksExcludesRetiredDecks(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $entityManager = $this->getEntityManager();
+
+        // Retire a deck and verify it disappears
+        $ironThorns = $deckRepository->findOneBy(['name' => 'Iron Thorns']);
+        self::assertNotNull($ironThorns);
+        $ironThorns->setStatus(\App\Enum\DeckStatus::Retired);
+        $entityManager->flush();
+
+        $decks = $deckRepository->findAvailableDecks();
+
+        $deckNames = array_map(static fn ($deck): string => $deck->getName(), $decks);
+        self::assertNotContains('Iron Thorns', $deckNames, 'Retired decks should be excluded.');
+    }
+
+    /**
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testFindAvailableDecksOrdersByNameAscending(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+
+        $decks = $deckRepository->findAvailableDecks();
+
+        if (\count($decks) >= 2) {
+            for ($index = 1; $index < \count($decks); ++$index) {
+                self::assertGreaterThanOrEqual(
+                    0,
+                    strcmp($decks[$index]->getName(), $decks[$index - 1]->getName()),
+                    'Decks should be ordered by name ascending.',
+                );
+            }
+        }
+    }
+
+    /**
+     * @see docs/features.md F2.1 — Register a new deck (owner)
+     */
+    public function testFindAvailableDecksEagerLoadsOwnerAndCurrentVersion(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+
+        $decks = $deckRepository->findAvailableDecks();
+
+        self::assertNotEmpty($decks);
+        $deck = $decks[0];
+
+        // Verify eager-loaded associations are accessible
+        self::assertNotNull($deck->getOwner()->getScreenName());
+        // currentVersion can be null for some decks, but the join is a leftJoin
+        // so this just verifies the query does not error
     }
 }

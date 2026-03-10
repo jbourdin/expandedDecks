@@ -1576,6 +1576,154 @@ class EventControllerCoverageTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
+    // F3.13 — Invite — access denied for organizer not staff
+    // ---------------------------------------------------------------
+
+    /**
+     * An organizer who is not the event organizer or staff should get a 403
+     * from the isOrganizerOrStaff guard inside the invite action.
+     *
+     * Covers EventController::invite() line 541.
+     *
+     * @see docs/features.md F3.13 — Player engagement states
+     */
+    public function testInviteAccessDeniedForOrganizerNotStaffOfEvent(): void
+    {
+        // "Past Expanded Weekly #40" is organized by admin; organizer@example.com
+        // is NOT the organizer and NOT staff for this event, but has ROLE_ORGANIZER.
+        $this->loginAs('organizer@example.com');
+
+        $event = $this->getFinishedEvent(); // organizer: admin, not cancelled
+
+        $this->client->request('POST', \sprintf('/event/%d/invite', $event->getId()), [
+            '_token' => 'any-token',
+            'user_query' => 'lender@example.com',
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    // ---------------------------------------------------------------
+    // F4.8 — Toggle registration — other user's deck
+    // ---------------------------------------------------------------
+
+    /**
+     * Trying to toggle registration for a deck owned by another user should
+     * be denied with a flash message.
+     *
+     * Covers EventController::toggleDeckRegistration() lines 765, 767.
+     *
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    public function testToggleRegistrationOtherOwnerDeckDenied(): void
+    {
+        // Borrower tries to register admin's deck
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // Borrower owns Lugia Archeops, so a registration form exists; extract CSRF token
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $registrationForm = $crawler->filter(\sprintf('form[action="/event/%d/toggle-registration"]', $event->getId()))->first();
+        $csrfToken = $registrationForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/toggle-registration', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'You can only manage registration for your own decks.');
+    }
+
+    // ---------------------------------------------------------------
+    // F4.12 — Walk-up — DomainException
+    // ---------------------------------------------------------------
+
+    /**
+     * Walk-up lending with a retired deck should catch the DomainException
+     * and display a danger flash.
+     *
+     * Covers EventController::walkUpSubmit() lines 1052-1053, 1055.
+     *
+     * @see docs/features.md F4.12 — Walk-up lending (direct lend)
+     */
+    public function testWalkUpSubmitDomainExceptionShowsDanger(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // Retire the deck so createWalkUpBorrow throws a DomainException
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $deck->setStatus(\App\Enum\DeckStatus::Retired);
+        $entityManager->flush();
+
+        $borrower = $this->getUser('borrower@example.com');
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+        $csrfToken = $crawler->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', \sprintf('/event/%d/walk-up', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+            'borrower_id' => (string) $borrower->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d/walk-up', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'retired');
+    }
+
+    // ---------------------------------------------------------------
+    // F3.7 — Select deck with pending borrow (non-approved/non-lent)
+    // ---------------------------------------------------------------
+
+    /**
+     * A borrower tries to select a deck they have a Pending borrow for.
+     * The resolvePlayableDeckVersion method should return null because
+     * Pending is neither Approved nor Lent.
+     *
+     * Covers EventController::resolvePlayableDeckVersion() line 1094.
+     *
+     * @see docs/features.md F3.7 — Register played deck for event
+     */
+    public function testSelectDeckWithPendingBorrowDenied(): void
+    {
+        // Borrower has a Pending borrow for Iron Thorns at "Expanded Weekly #42"
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $deck = $this->getAdminDeck('Iron Thorns');
+
+        // Verify the pending borrow exists
+        /** @var BorrowRepository $borrowRepository */
+        $borrowRepository = static::getContainer()->get(BorrowRepository::class);
+        $borrow = $borrowRepository->findActiveBorrowForDeckAtEvent($deck, $event);
+        self::assertNotNull($borrow);
+        self::assertSame(BorrowStatus::Pending, $borrow->getStatus());
+
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $csrfToken = $this->extractSelectDeckCsrfToken($crawler);
+
+        $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
+            '_token' => $csrfToken,
+            'deck_id' => (string) $deck->getId(),
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'This deck is not available for selection.');
+    }
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 

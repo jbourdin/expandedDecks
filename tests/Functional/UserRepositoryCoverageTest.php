@@ -18,10 +18,12 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Coverage for UserRepository: findByMultiField, searchDeckOwners.
+ * Coverage for UserRepository: findByMultiField, searchDeckOwners, findOneByVerificationToken, findOneByResetToken.
  *
  * @see docs/features.md F3.5 — Assign event staff team
  * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+ * @see docs/features.md F1.2 — Email verification
+ * @see docs/features.md F1.7 — Password reset
  */
 class UserRepositoryCoverageTest extends AbstractFunctionalTest
 {
@@ -156,5 +158,72 @@ class UserRepositoryCoverageTest extends AbstractFunctionalTest
 
         $screenNames = array_map(static fn (User $user): string => $user->getScreenName(), $results);
         self::assertNotContains('Lender', $screenNames, 'Anonymized users should not appear in deck owner search.');
+    }
+
+    // ---------------------------------------------------------------
+    // findOneByVerificationToken
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F1.2 — Email verification
+     */
+    public function testFindOneByVerificationTokenReturnsUserWithMatchingToken(): void
+    {
+        $repository = $this->getUserRepository();
+
+        // Unverified user has verificationToken = 'test-verification-token' in fixtures
+        $user = $repository->findOneByVerificationToken('test-verification-token');
+
+        self::assertNotNull($user, 'Should find the user with the given verification token.');
+        self::assertSame('unverified@example.com', $user->getEmail());
+    }
+
+    /**
+     * @see docs/features.md F1.2 — Email verification
+     */
+    public function testFindOneByVerificationTokenReturnsNullForNonExistentToken(): void
+    {
+        $repository = $this->getUserRepository();
+
+        $user = $repository->findOneByVerificationToken('non-existent-token-xyz');
+
+        self::assertNull($user, 'Should return null when no user matches the verification token.');
+    }
+
+    // ---------------------------------------------------------------
+    // findOneByResetToken
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F1.7 — Password reset
+     */
+    public function testFindOneByResetTokenReturnsUserWithMatchingToken(): void
+    {
+        $repository = $this->getUserRepository();
+        $entityManager = $this->getEntityManager();
+
+        // Set up a reset token on an existing user
+        $admin = $entityManager->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']);
+        self::assertNotNull($admin);
+        $admin->setResetToken('test-reset-token-abc');
+        $admin->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
+        $entityManager->flush();
+
+        $user = $repository->findOneByResetToken('test-reset-token-abc');
+
+        self::assertNotNull($user, 'Should find the user with the given reset token.');
+        self::assertSame('admin@example.com', $user->getEmail());
+    }
+
+    /**
+     * @see docs/features.md F1.7 — Password reset
+     */
+    public function testFindOneByResetTokenReturnsNullForNonExistentToken(): void
+    {
+        $repository = $this->getUserRepository();
+
+        $user = $repository->findOneByResetToken('non-existent-reset-token-xyz');
+
+        self::assertNull($user, 'Should return null when no user matches the reset token.');
     }
 }

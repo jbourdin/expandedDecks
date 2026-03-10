@@ -185,6 +185,65 @@ class NotificationControllerCoverageTest extends AbstractFunctionalTest
         self::assertResponseRedirects('/event/1');
     }
 
+    /**
+     * A notification with null context should resolve to a null URL,
+     * causing the /go action to redirect to the notification list.
+     *
+     * @see docs/features.md F8.4 — In-app notification center
+     */
+    public function testGoNotificationWithNullContextRedirectsToList(): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $user = $this->getUser('admin@example.com');
+
+        $notification = new Notification();
+        $notification->setRecipient($user);
+        $notification->setType(NotificationType::EventReminder);
+        $notification->setTitle('Reminder');
+        $notification->setMessage('Event starting soon.');
+        // context is explicitly null — no eventId or borrowId
+        $entityManager->persist($notification);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/notifications/'.$notification->getId().'/go');
+
+        self::assertResponseRedirects('/notifications');
+    }
+
+    /**
+     * A notification with non-null context that has no eventId or borrowId
+     * should fall through all resolveNotificationUrl branches and return null.
+     *
+     * Covers NotificationController::resolveNotificationUrl() line 272.
+     *
+     * @see docs/features.md F8.4 — In-app notification center
+     */
+    public function testGoNotificationWithContextButNoEventOrBorrowIdRedirectsToList(): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $user = $this->getUser('admin@example.com');
+
+        $notification = new Notification();
+        $notification->setRecipient($user);
+        $notification->setType(NotificationType::EventReminder);
+        $notification->setTitle('Reminder');
+        $notification->setMessage('Event starting soon.');
+        // Non-null context without eventId or borrowId — falls through all checks
+        $notification->setContext(['someKey' => 'someValue']);
+        $entityManager->persist($notification);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/notifications/'.$notification->getId().'/go');
+
+        self::assertResponseRedirects('/notifications');
+    }
+
     private function getUser(string $email): User
     {
         /** @var UserRepository $repository */
