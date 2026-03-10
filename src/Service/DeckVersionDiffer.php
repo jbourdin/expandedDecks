@@ -25,10 +25,10 @@ final class DeckVersionDiffer
      * Compare two deck versions and return categorized card changes.
      *
      * @return array{
-     *     added: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string}>,
-     *     removed: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string}>,
-     *     changed: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, cardType: string}>,
-     *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string}>
+     *     added: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>,
+     *     removed: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>,
+     *     changed: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, cardType: string, imageUrl: string|null}>,
+     *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>
      * }
      */
     public function diff(DeckVersion $oldVersion, DeckVersion $newVersion): array
@@ -49,6 +49,7 @@ final class DeckVersionDiffer
                     'cardNumber' => $card->getCardNumber(),
                     'quantity' => $card->getQuantity(),
                     'cardType' => $card->getCardType(),
+                    'imageUrl' => $card->getImageUrl(),
                 ];
             } elseif ($oldCards[$key]->getQuantity() !== $card->getQuantity()) {
                 $changed[] = [
@@ -58,6 +59,7 @@ final class DeckVersionDiffer
                     'oldQuantity' => $oldCards[$key]->getQuantity(),
                     'newQuantity' => $card->getQuantity(),
                     'cardType' => $card->getCardType(),
+                    'imageUrl' => $card->getImageUrl(),
                 ];
             } else {
                 $unchanged[] = [
@@ -66,6 +68,7 @@ final class DeckVersionDiffer
                     'cardNumber' => $card->getCardNumber(),
                     'quantity' => $card->getQuantity(),
                     'cardType' => $card->getCardType(),
+                    'imageUrl' => $card->getImageUrl(),
                 ];
             }
         }
@@ -78,6 +81,7 @@ final class DeckVersionDiffer
                     'cardNumber' => $card->getCardNumber(),
                     'quantity' => $card->getQuantity(),
                     'cardType' => $card->getCardType(),
+                    'imageUrl' => $card->getImageUrl(),
                 ];
             }
         }

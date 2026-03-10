@@ -28,6 +28,7 @@ interface CardDiff {
     oldQuantity?: number;
     newQuantity?: number;
     cardType: string;
+    imageUrl?: string | null;
 }
 
 interface DiffResult {
@@ -57,6 +58,26 @@ interface DeckVersionCompareProps {
     versions: VersionInfo[];
     labels: Labels;
 }
+
+/**
+ * Renders a card name with an image hover preview (desktop) using the
+ * existing `.card-hover` / `.card-hover-img` CSS from app.scss.
+ *
+ * An optional `detail` string (e.g. quantity change "3 → 4") is shown
+ * beneath the card name on hover.
+ */
+const CardName: React.FC<{ card: CardDiff; detail?: string }> = ({ card, detail }) => {
+    if (!card.imageUrl) {
+        return <>{card.cardName}</>;
+    }
+
+    return (
+        <span className="card-hover" data-quantity={detail ?? card.quantity ?? ''}>
+            {card.cardName}
+            <img className="card-hover-img" src={card.imageUrl} alt={card.cardName} />
+        </span>
+    );
+};
 
 const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versions, labels }) => {
     const [fromVersion, setFromVersion] = useState<number>(versions.length > 1 ? versions[1].versionNumber : versions[0].versionNumber);
@@ -140,7 +161,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
                     <Table.Tbody>
                         {diff.added.map((card) => (
                             <Table.Tr key={`added-${card.setCode}-${card.cardNumber}`} bg="green.0">
-                                <Table.Td>{card.cardName}</Table.Td>
+                                <Table.Td><CardName card={card} /></Table.Td>
                                 <Table.Td><code>{card.setCode}</code></Table.Td>
                                 <Table.Td>{card.cardNumber}</Table.Td>
                                 <Table.Td>+{card.quantity}</Table.Td>
@@ -149,7 +170,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
                         ))}
                         {diff.removed.map((card) => (
                             <Table.Tr key={`removed-${card.setCode}-${card.cardNumber}`} bg="red.0">
-                                <Table.Td>{card.cardName}</Table.Td>
+                                <Table.Td><CardName card={card} /></Table.Td>
                                 <Table.Td><code>{card.setCode}</code></Table.Td>
                                 <Table.Td>{card.cardNumber}</Table.Td>
                                 <Table.Td>-{card.quantity}</Table.Td>
@@ -158,7 +179,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
                         ))}
                         {diff.changed.map((card) => (
                             <Table.Tr key={`changed-${card.setCode}-${card.cardNumber}`} bg="yellow.0">
-                                <Table.Td>{card.cardName}</Table.Td>
+                                <Table.Td><CardName card={card} detail={`${card.oldQuantity} → ${card.newQuantity}`} /></Table.Td>
                                 <Table.Td><code>{card.setCode}</code></Table.Td>
                                 <Table.Td>{card.cardNumber}</Table.Td>
                                 <Table.Td>{card.oldQuantity} → {card.newQuantity}</Table.Td>
@@ -196,7 +217,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
                             <Table.Tbody>
                                 {diff.unchanged.map((card) => (
                                     <Table.Tr key={`unchanged-${card.setCode}-${card.cardNumber}`}>
-                                        <Table.Td>{card.cardName}</Table.Td>
+                                        <Table.Td><CardName card={card} /></Table.Td>
                                         <Table.Td><code>{card.setCode}</code></Table.Td>
                                         <Table.Td>{card.cardNumber}</Table.Td>
                                         <Table.Td>{card.quantity}</Table.Td>

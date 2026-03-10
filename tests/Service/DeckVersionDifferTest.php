@@ -46,6 +46,7 @@ class DeckVersionDifferTest extends TestCase
         self::assertCount(0, $result['changed']);
         self::assertCount(1, $result['unchanged']);
         self::assertSame('Pikachu', $result['unchanged'][0]['cardName']);
+        self::assertArrayHasKey('imageUrl', $result['unchanged'][0]);
     }
 
     public function testDiffWithAddedCards(): void
