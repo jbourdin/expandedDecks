@@ -26,6 +26,7 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * @see docs/features.md F4.14 — Staff custody handover tracking
  */
+#[\PHPUnit\Framework\Attributes\Group('memory-intensive')]
 class StaffCustodyHandoverTest extends AbstractFunctionalTest
 {
     // ---------------------------------------------------------------

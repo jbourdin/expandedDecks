@@ -137,6 +137,71 @@ class LocaleListenerTest extends TestCase
         self::assertSame('en', $request->getLocale());
     }
 
+    public function testCanBeInstantiated(): void
+    {
+        $security = $this->createStub(Security::class);
+        $localeSwitcher = $this->createStub(LocaleSwitcher::class);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+
+        self::assertInstanceOf(LocaleListener::class, $listener);
+    }
+
+    public function testRequestWithoutSessionReturnsEarly(): void
+    {
+        $security = $this->createStub(Security::class);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::never())->method('setLocale');
+
+        $request = Request::create('/');
+        // Do not set a session on the request — hasSession() returns false
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        // No locale change expected, request keeps its default locale
+        self::assertSame('en', $request->getLocale());
+    }
+
+    public function testEmptyAcceptLanguageHeaderFallsToDefaultLocale(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->headers->remove('Accept-Language');
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+        self::assertSame('en', $request->getSession()->get('_locale'));
+    }
+
+    public function testNonStringSessionLocaleIsIgnored(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->getSession()->set('_locale', 123);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
     private function createRequestWithSession(): Request
     {
         $request = Request::create('/');
