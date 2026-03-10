@@ -1816,11 +1816,6 @@
                 <target>Deck « %name% » mis à jour.</target>
                 <note>Success flash after editing a deck. %name% = deck name</note>
             </trans-unit>
-            <trans-unit id="app.flash.deck.cannot_unpublish">
-                <source>app.flash.deck.cannot_unpublish</source>
-                <target>Impossible de dépublier ce deck — il a des inscriptions actives à des événements.</target>
-                <note>Warning when deck cannot be unpublished</note>
-            </trans-unit>
             <trans-unit id="app.flash.deck.imported">
                 <source>app.flash.deck.imported</source>
                 <target>Liste de deck importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
