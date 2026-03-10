@@ -16,6 +16,26 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [0.8.0] — 2026-03-10
+
+Quality & i18n release — comprehensive test coverage, lint tooling, translation of all remaining controller/form strings, and dead code removal.
+
+### Internationalization
+
+- **F9.3** — Application translation *(completed)*: translate all remaining controller flash messages and form labels to use translation keys. Introduce `AbstractAppController` base class with `addTranslatedFlash()` helper to enforce translated flash messages project-wide.
+
+### Quality & Testing
+
+- **Test coverage**: 83.6% → 92.24% line coverage. Added 50+ test files covering entities, repositories, controllers, services, event listeners, message handlers, Twig runtimes, and security components. All repositories, services, and listeners at 100% line coverage.
+- **Dead code removal**: removed unreachable unpublish guard in `DeckController` (form-disabled field already prevents the branch). Cleaned up orphaned translation keys.
+
+### Tooling
+
+- **Lint tooling**: added `make lint-all` target orchestrating all linters and fixers in dependency order: `lint-yaml` → `lint-i18n` → `cs-fix` → `eslint-fix` → `stylelint-fix` → `lint-container` → `phpstan`.
+- New Make targets: `lint-yaml`, `lint-i18n` (XLIFF syntax + translation content), `lint-container`, `stylelint`, `stylelint-fix`, `eslint-fix`.
+- Installed `stylelint` + `stylelint-config-standard-scss` for SCSS linting.
+- Updated CLAUDE.md pre-commit checklist with all new lint targets.
+
 ## [0.7.0] — 2026-03-09
 
 Phase 8 completion — Admin, Homepage & Polish: banned card list, mobile UX responsiveness pass with swipeable card gallery, localized validation messages, coding standards documentation.
