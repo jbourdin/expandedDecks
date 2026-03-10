@@ -24,6 +24,21 @@ stop: ## Stop dev server and Docker services
 	symfony server:stop
 	docker compose down
 
+.PHONY: ngrok.start
+ngrok.start: ## Start ngrok tunnel (daemon) and print the public URL
+	@ngrok http https://127.0.0.1:8742 --log=stdout > /dev/null & echo $$! > var/ngrok.pid
+	@sleep 2
+	@curl -s http://127.0.0.1:4040/api/tunnels | php -r 'echo json_decode(file_get_contents("php://stdin"))->tunnels[0]->public_url . "\n";'
+
+.PHONY: ngrok.stop
+ngrok.stop: ## Stop ngrok tunnel and agent for this app
+	@if [ -f var/ngrok.pid ]; then \
+		kill $$(cat var/ngrok.pid) 2>/dev/null && echo "ngrok stopped" || echo "ngrok was not running"; \
+		rm -f var/ngrok.pid; \
+	else \
+		echo "No ngrok PID file found"; \
+	fi
+
 .PHONY: mailpit
 mailpit: ## Open Mailpit web UI
 	open http://localhost:8035
