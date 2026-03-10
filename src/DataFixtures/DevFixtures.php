@@ -73,6 +73,7 @@ class DevFixtures extends Fixture
         $ironThorns->setPublic(true);
         $this->createIronThornsDeckVersion($manager, $ironThorns);
         $this->createIronThornsDeckVersionTwo($manager, $ironThorns);
+        $this->createIronThornsDeckVersionThree($manager, $ironThorns);
 
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
         $ancientBox->setArchetype($archetypeAncientBox);
@@ -84,6 +85,7 @@ class DevFixtures extends Fixture
         $lenderDeck->setLanguages(['en']);
         $lenderDeck->setPublic(true);
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
+        $this->createRegidragoDeckVersionTwo($manager, $lenderDeck);
 
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
         $borrowerDeck->setArchetype($archetypeLugia);
@@ -652,6 +654,112 @@ class DevFixtures extends Fixture
             }
             if ('Enhanced Hammer' === $cardData['name']) {
                 $quantity = 3;
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createIronThornsDeckVersionThree(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(3);
+
+        // V3 changes vs V2: removed Stealthy Hood, removed Capture Energy,
+        // added 2 Lightning Energy, changed Chaotic Swell 3->2, changed VS Seeker 3->4
+        $cardsVersion3 = $this->getIronThornsDeckCards();
+
+        // Remove Megaton Blower (same as v2), Stealthy Hood, Capture Energy
+        $cardsVersion3 = array_filter(
+            $cardsVersion3,
+            static fn (array $card): bool => !\in_array($card['name'], ['Megaton Blower', 'Stealthy Hood', 'Capture Energy'], true),
+        );
+        $cardsVersion3 = array_values($cardsVersion3);
+
+        // Add Crushing Hammer (same as v2)
+        $cardsVersion3[] = ['name' => 'Crushing Hammer', 'set' => 'SSH', 'number' => '159', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'];
+        // Add Lightning Energy
+        $cardsVersion3[] = ['name' => 'Lightning Energy', 'set' => 'SVE', 'number' => '4', 'quantity' => 2, 'type' => 'energy', 'subtype' => null];
+
+        foreach ($cardsVersion3 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            $quantity = $cardData['quantity'];
+            if ('Plumeria' === $cardData['name']) {
+                $quantity = 3; // same as v2
+            }
+            if ('Enhanced Hammer' === $cardData['name']) {
+                $quantity = 3; // same as v2
+            }
+            if ('Chaotic Swell' === $cardData['name']) {
+                $quantity = 2; // was 3 in v1/v2
+            }
+            if ('VS Seeker' === $cardData['name']) {
+                $quantity = 4; // was 3 in v1/v2
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createRegidragoDeckVersionTwo(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(2);
+
+        // V2 changes vs V1: removed Wobbuffet, removed Leafy Camo Poncho,
+        // added Giratina VSTAR, added Float Stone,
+        // changed Guzma 2->1, changed Professor's Research 3->4
+        $cardsVersion2 = $this->getRegidragoDeckCards();
+
+        $cardsVersion2 = array_filter(
+            $cardsVersion2,
+            static fn (array $card): bool => !\in_array($card['name'], ['Wobbuffet', 'Leafy Camo Poncho'], true),
+        );
+        $cardsVersion2 = array_values($cardsVersion2);
+
+        $cardsVersion2[] = ['name' => 'Giratina VSTAR', 'set' => 'LOR', 'number' => '131', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null];
+        $cardsVersion2[] = ['name' => 'Float Stone', 'set' => 'PLF', 'number' => '99', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'];
+
+        foreach ($cardsVersion2 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            $quantity = $cardData['quantity'];
+            if ('Guzma' === $cardData['name']) {
+                $quantity = 1; // was 2
+            }
+            if ("Professor's Research" === $cardData['name']) {
+                $quantity = 4; // was 3
             }
 
             $card->setQuantity($quantity);
