@@ -1756,6 +1756,26 @@
                 <target>Staff delegation disabled for &quot;%name%&quot;.</target>
                 <note>Success flash after disabling staff delegation. %name% = deck name</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.cannot_revoke_delegation_in_custody">
+                <source>app.flash.event.cannot_revoke_delegation_in_custody</source>
+                <target>Cannot revoke delegation for &quot;%name%&quot; — the deck is currently with staff. Staff must return it first.</target>
+                <note>Error when trying to revoke delegation while deck is in staff custody. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_handed_over">
+                <source>app.flash.event.custody_handed_over</source>
+                <target>&quot;%name%&quot; handed over to staff.</target>
+                <note>Success flash after owner hands deck to staff. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_returned_to_owner">
+                <source>app.flash.event.custody_returned_to_owner</source>
+                <target>&quot;%name%&quot; returned to owner.</target>
+                <note>Success flash after staff returns deck to owner. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.custody_reclaimed">
+                <source>app.flash.event.custody_reclaimed</source>
+                <target>&quot;%name%&quot; returned to you. All active borrows have been closed.</target>
+                <note>Success flash after owner reclaims deck. %name% = deck name</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.walkup_not_available">
                 <source>app.flash.event.walkup_not_available</source>
                 <target>Walk-up lending is not available for cancelled or finished events.</target>
@@ -1795,11 +1815,6 @@
                 <source>app.flash.deck.updated</source>
                 <target>Deck &quot;%name%&quot; updated.</target>
                 <note>Success flash after editing a deck. %name% = deck name</note>
-            </trans-unit>
-            <trans-unit id="app.flash.deck.cannot_unpublish">
-                <source>app.flash.deck.cannot_unpublish</source>
-                <target>Cannot unpublish this deck — it has active event registrations.</target>
-                <note>Warning when deck cannot be unpublished</note>
             </trans-unit>
             <trans-unit id="app.flash.deck.imported">
                 <source>app.flash.deck.imported</source>

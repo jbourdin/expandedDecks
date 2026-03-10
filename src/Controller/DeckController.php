@@ -127,13 +127,6 @@ class DeckController extends AbstractAppController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($wasPublic && !$deck->isPublic() && $hasActiveRegistrations) {
-                $deck->setPublic(true);
-                $this->addFlash('warning', 'app.flash.deck.cannot_unpublish');
-
-                return $this->redirectToRoute('app_deck_edit', ['id' => $deck->getId()]);
-            }
-
             $this->handleArchetypeAndLanguages($form, $deck, $em);
             $em->flush();
 

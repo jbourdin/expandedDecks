@@ -182,9 +182,14 @@ Title format: `<emoji> <type>: <short description>` (under 70 chars, imperative 
 Run **before every commit/push**:
 
 ```bash
-make cs-fix     # Fix code style (PHP-CS-Fixer)
-make phpstan    # Static analysis
-make test       # Run test suite
+make cs-fix        # Fix code style (PHP-CS-Fixer)
+make eslint-fix    # Fix ESLint issues (TS/JS)
+make stylelint-fix # Fix SCSS/CSS style issues
+make phpstan       # Static analysis
+make lint-i18n     # Validate translation files (syntax + content)
+make lint-yaml     # Validate YAML configuration files
+make lint-container # Validate Symfony DI container
+make test          # Run test suite
 ```
 
 ### Release Process
@@ -239,7 +244,13 @@ make test       # Run test suite
 | `make test.front`      | Vitest frontend tests                            | Before every commit (frontend changes)   |
 | `make coverage`        | PHPUnit with pcov coverage report                | When coverage data is needed             |
 | `make cs-check`        | PHP-CS-Fixer dry-run (no changes)                | CI / review only                         |
-| `make eslint`          | ESLint on `assets/`                              | Before every commit (frontend changes)   |
+| `make eslint`          | ESLint on `assets/` (check only)                 | CI / review only                         |
+| `make eslint-fix`      | ESLint on `assets/` with auto-fix                | Before every commit (frontend changes)   |
+| `make stylelint`       | Lint SCSS and CSS files                          | Before every commit (frontend changes)   |
+| `make stylelint-fix`   | Auto-fix SCSS/CSS style issues                   | Before every commit (frontend changes)   |
+| `make lint-i18n`       | Validate translation files (syntax + content)    | Before every commit (translation changes)|
+| `make lint-yaml`       | Validate YAML configuration files                | Before every commit (config changes)     |
+| `make lint-container`  | Validate Symfony DI container                    | Before every commit                      |
 
 ### Messenger Workers
 
