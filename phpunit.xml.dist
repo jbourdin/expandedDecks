@@ -13,7 +13,7 @@
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
-        <ini name="memory_limit" value="256M" />
+        <ini name="memory_limit" value="512M" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
@@ -24,6 +24,7 @@
             <directory>tests/Entity</directory>
             <directory>tests/EventListener</directory>
             <directory>tests/MessageHandler</directory>
+            <directory>tests/Security</directory>
             <directory>tests/Twig</directory>
         </testsuite>
         <testsuite name="functional">
