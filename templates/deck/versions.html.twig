@@ -99,6 +99,13 @@
     {% endif %}
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {% if versions|length > 1 %}
+        {{ encore_entry_link_tags('deck_version_compare') }}
+    {% endif %}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {% if versions|length > 1 %}
