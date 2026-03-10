@@ -852,7 +852,7 @@ class EventController extends AbstractAppController
 
         // Cannot revoke delegation while the deck is physically with staff (F4.14)
         if ($registration->isDelegateToStaff() && $registration->hasStaffReceived() && !$registration->hasStaffReturned()) {
-            $this->addFlash('danger', \sprintf('Cannot revoke delegation for "%s" — the deck is currently with staff. Staff must return it first.', $deck->getName()));
+            $this->addFlash('danger', 'app.flash.event.cannot_revoke_delegation_in_custody', ['%name%' => $deck->getName()]);
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -880,7 +880,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-owner-handover-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', 'app.flash.invalid_token');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -896,7 +896,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->confirmOwnerHandover($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" handed over to staff.', $registration->getDeck()->getName()));
+            $this->addFlash('success', 'app.flash.event.custody_handed_over', ['%name%' => $registration->getDeck()->getName()]);
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
@@ -920,7 +920,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-staff-return-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', 'app.flash.invalid_token');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -936,7 +936,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->confirmStaffReturn($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" returned to owner.', $registration->getDeck()->getName()));
+            $this->addFlash('success', 'app.flash.event.custody_returned_to_owner', ['%name%' => $registration->getDeck()->getName()]);
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
@@ -960,7 +960,7 @@ class EventController extends AbstractAppController
         StaffCustodyService $custodyService,
     ): Response {
         if (!$this->isCsrfTokenValid('custody-owner-reclaim-'.$registrationId, $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'Invalid security token.');
+            $this->addFlash('danger', 'app.flash.invalid_token');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
@@ -976,7 +976,7 @@ class EventController extends AbstractAppController
 
         try {
             $custodyService->ownerReclaimDeck($registration, $user);
-            $this->addFlash('success', \sprintf('"%s" returned to you. All active borrows have been closed.', $registration->getDeck()->getName()));
+            $this->addFlash('success', 'app.flash.event.custody_reclaimed', ['%name%' => $registration->getDeck()->getName()]);
         } catch (\DomainException $e) {
             $this->addFlash('danger', $e->getMessage());
         } catch (AccessDeniedHttpException $e) {
