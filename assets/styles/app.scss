@@ -12,49 +12,46 @@
 // --- Pokemon-inspired palette ---
 // Derived from Pokemon brand colors (blue, gold, red) and
 // the clean white aesthetic of support.pokemon.com.
-//
+
 // Deep blue (navbar, headings — Pokemon blue family)
-$ed-navy:        #213568;
+$ed-navy: #213568;
+
 // Vivid link blue (inspired by support.pokemon.com #0039EF)
-$ed-blue:        #0046d5;
+$ed-blue: #0046d5;
+
 // Golden yellow (Pokemon brand yellow — accents, highlights)
-$ed-gold:        #ffd12a;
+$ed-gold: #ffd12a;
+
 // Pokemon red (danger, alerts — from brand red, softened)
-$ed-red:         #cc2936;
+$ed-red: #cc2936;
+
 // Clean white background (matching support site's white-first approach)
-$ed-bg:          #f5f5f7;
+$ed-bg: #f5f5f7;
 
 // --- Bootstrap variable overrides (before import) ---
-$primary:        $ed-blue;
-$secondary:      #5a6577;
-$success:        #1eb848;
-$info:           #4a90d9;
-$warning:        $ed-gold;
-$danger:         $ed-red;
-$light:          #f0f2f5;
-$dark:           $ed-navy;
-
-$body-bg:        $ed-bg;
-$body-color:     #333;
-
-$link-color:           $ed-blue;
-$link-hover-color:     color.adjust($ed-blue, $lightness: -12%);
-
-$navbar-dark-color:              rgba(#fff, .85);
-$navbar-dark-hover-color:        $ed-gold;
-$navbar-dark-active-color:       $ed-gold;
-$navbar-dark-brand-color:        #fff;
-$navbar-dark-brand-hover-color:  $ed-gold;
-
-$card-bg:             #fff;
-$card-border-color:   #ddd;
-$card-cap-bg:         #f7f7f7;
-
-$table-striped-bg:    rgba(0, 0, 0, .02);
-
-$btn-border-radius:   .375rem;
-
-$font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$primary: $ed-blue;
+$secondary: #5a6577;
+$success: #1eb848;
+$info: #4a90d9;
+$warning: $ed-gold;
+$danger: $ed-red;
+$light: #f0f2f5;
+$dark: $ed-navy;
+$body-bg: $ed-bg;
+$body-color: #333;
+$link-color: $ed-blue;
+$link-hover-color: color.adjust($ed-blue, $lightness: -12%);
+$navbar-dark-color: rgba(#fff, .85);
+$navbar-dark-hover-color: $ed-gold;
+$navbar-dark-active-color: $ed-gold;
+$navbar-dark-brand-color: #fff;
+$navbar-dark-brand-hover-color: $ed-gold;
+$card-bg: #fff;
+$card-border-color: #ddd;
+$card-cap-bg: #f7f7f7;
+$table-striped-bg: rgb(0 0 0 / 2%);
+$btn-border-radius: .375rem;
+$font-family-sans-serif: system-ui, -apple-system, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
 
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
@@ -68,6 +65,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+
     // Quincunx (staggered) Fairy energy texture on the body background.
     // Two offset layers of the same tile create the honeycomb-like pattern.
     // Cards and panels sit on top with solid white, making them pop.
@@ -106,7 +104,7 @@ footer {
 
 .navbar-pokemon .dropdown-menu {
     border: 1px solid rgba($ed-navy, .15);
-    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .15);
+    box-shadow: 0 .25rem .75rem rgb(0 0 0 / 15%);
 }
 
 // --- Hero (anonymous homepage) ---
@@ -160,7 +158,10 @@ footer {
     color: #fff;
     border-bottom: 2px solid $ed-gold;
 
-    h5 { color: #fff; margin-bottom: 0; }
+    h5 {
+        color: #fff;
+        margin-bottom: 0;
+    }
 
     .nav-tabs {
         border-bottom: none;
@@ -169,7 +170,10 @@ footer {
             color: rgba(#fff, .7);
             border-color: transparent;
 
-            &:hover { color: #fff; border-color: transparent; }
+            &:hover {
+                color: #fff;
+                border-color: transparent;
+            }
 
             &.active {
                 color: $ed-navy;
@@ -201,16 +205,31 @@ footer {
     transition: box-shadow .15s ease-in-out;
 
     &:hover {
-        box-shadow: 0 .2rem .5rem rgba(0, 0, 0, .08);
+        box-shadow: 0 .2rem .5rem rgb(0 0 0 / 8%);
     }
 }
 
 // --- Status badges ---
 
-.badge-available { background-color: $success; color: #fff; }
-.badge-lent      { background-color: $ed-gold; color: $ed-navy; }
-.badge-reserved  { background-color: $ed-blue; color: #fff; }
-.badge-retired   { background-color: #999; color: #fff; }
+.badge-available {
+    background-color: $success;
+    color: #fff;
+}
+
+.badge-lent {
+    background-color: $ed-gold;
+    color: $ed-navy;
+}
+
+.badge-reserved {
+    background-color: $ed-blue;
+    color: #fff;
+}
+
+.badge-retired {
+    background-color: #999;
+    color: #fff;
+}
 
 // --- Short ID badges (fixed-width monospace for consistent sizing) ---
 
@@ -244,7 +263,7 @@ footer {
     left: 0;
     width: 250px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     pointer-events: none;
 
     &.show-below {

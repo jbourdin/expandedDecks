@@ -92,6 +92,9 @@ assets.watch: ## Build frontend assets and watch for changes
 
 ## —— Quality —————————————————————————————————————————————————————————
 
+.PHONY: lint-all
+lint-all: lint-yaml lint-i18n cs-fix eslint-fix stylelint-fix lint-container phpstan ## Run all linters and fixers
+
 .PHONY: test
 test: ## Run test suite
 	symfony php bin/phpunit
@@ -124,6 +127,31 @@ cs-fix test.phpcs.fix: ## Fix code style with PHP-CS-Fixer
 cs-check test.phpcs: ## Check code style (dry-run)
 	symfony php vendor/bin/php-cs-fixer fix --dry-run --diff
 
+.PHONY: lint-i18n
+lint-i18n: ## Validate translation files (syntax + content)
+	symfony console lint:xliff translations/
+	symfony console lint:translations
+
+.PHONY: lint-container
+lint-container: ## Validate the Symfony dependency injection container
+	symfony console lint:container
+
+.PHONY: lint-yaml
+lint-yaml: ## Validate YAML configuration files
+	symfony console lint:yaml config/
+
 .PHONY: eslint
 eslint: ## Run ESLint on frontend assets
 	npx eslint assets/
+
+.PHONY: eslint-fix
+eslint-fix: ## Fix ESLint issues on frontend assets
+	npx eslint assets/ --fix
+
+.PHONY: stylelint
+stylelint: ## Lint SCSS and CSS files
+	npx stylelint "assets/**/*.scss"
+
+.PHONY: stylelint-fix
+stylelint-fix: ## Fix SCSS and CSS style issues
+	npx stylelint "assets/**/*.scss" --fix
