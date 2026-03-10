@@ -72,6 +72,7 @@ class DevFixtures extends Fixture
         $ironThorns->setLanguages(['en']);
         $ironThorns->setPublic(true);
         $this->createIronThornsDeckVersion($manager, $ironThorns);
+        $this->createIronThornsDeckVersionTwo($manager, $ironThorns);
 
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
         $ancientBox->setArchetype($archetypeAncientBox);
@@ -616,6 +617,53 @@ class DevFixtures extends Fixture
 
             Total Cards: 60
             PTCG;
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createIronThornsDeckVersionTwo(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(2);
+
+        // V2 changes vs V1: removed Megaton Blower SSP 182, added Crushing Hammer,
+        // changed Plumeria quantity 4->3, changed Enhanced Hammer quantity 2->3
+        $cardsVersion2 = $this->getIronThornsDeckCards();
+
+        // Remove Megaton Blower
+        $cardsVersion2 = array_filter($cardsVersion2, static fn (array $card): bool => 'Megaton Blower' !== $card['name']);
+        $cardsVersion2 = array_values($cardsVersion2);
+
+        // Add Crushing Hammer
+        $cardsVersion2[] = ['name' => 'Crushing Hammer', 'set' => 'SSH', 'number' => '159', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'];
+
+        foreach ($cardsVersion2 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            // Apply quantity changes
+            $quantity = $cardData['quantity'];
+            if ('Plumeria' === $cardData['name']) {
+                $quantity = 3;
+            }
+            if ('Enhanced Hammer' === $cardData['name']) {
+                $quantity = 3;
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
     }
 
     private function createAncientBoxDeckVersion(ObjectManager $manager, Deck $deck): void

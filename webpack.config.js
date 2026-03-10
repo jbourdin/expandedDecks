@@ -25,6 +25,7 @@ Encore
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
     .addEntry('event_sync', './assets/event-sync.ts')
     .addEntry('notification_bell', './assets/notification-bell.tsx')
+    .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()

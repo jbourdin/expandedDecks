@@ -81,6 +81,9 @@
                 {% endif %}
 
                 <span class="ms-auto d-flex gap-2">
+                    {% if versionCount > 1 %}
+                        <a href="{{ path('app_deck_versions', {short_tag: deck.shortTag}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.deck.version_history'|trans }}</a>
+                    {% endif %}
                     {% if isOwner %}
                         <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.common.edit'|trans }}</a>
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">{{ 'app.deck.import_list'|trans }}</a>

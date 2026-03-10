@@ -586,6 +586,93 @@
                 <note>Badge label for deck not registered at event</note>
             </trans-unit>
 
+            <!-- Deck version history (F2.9) -->
+            <trans-unit id="app.deck.version_history">
+                <source>app.deck.version_history</source>
+                <target>Historique des versions</target>
+                <note>Link button on deck detail page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history_title">
+                <source>app.deck.version_history_title</source>
+                <target>Historique des versions — %name%</target>
+                <note>Page title for deck version history. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.version_number">
+                <source>app.deck.version_history.version_number</source>
+                <target>Version</target>
+                <note>Table header for version number</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.created_at">
+                <source>app.deck.version_history.created_at</source>
+                <target>Créée le</target>
+                <note>Table header for version creation date</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.card_count">
+                <source>app.deck.version_history.card_count</source>
+                <target>Cartes</target>
+                <note>Table header for card count</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.current">
+                <source>app.deck.version_history.current</source>
+                <target>Actuelle</target>
+                <note>Badge label for the current version</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.no_versions">
+                <source>app.deck.version_history.no_versions</source>
+                <target>Ce deck n'a pas encore d'historique de versions.</target>
+                <note>Empty state when deck has no versions</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.compare_title">
+                <source>app.deck.version_history.compare_title</source>
+                <target>Comparer les versions</target>
+                <note>Section title for version comparison tool</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.from_version">
+                <source>app.deck.version_compare.from_version</source>
+                <target>Depuis la version</target>
+                <note>Label for the "from" version selector</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.to_version">
+                <source>app.deck.version_compare.to_version</source>
+                <target>Vers la version</target>
+                <note>Label for the "to" version selector</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.added">
+                <source>app.deck.version_compare.added</source>
+                <target>Ajoutée</target>
+                <note>Badge for cards added in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.removed">
+                <source>app.deck.version_compare.removed</source>
+                <target>Supprimée</target>
+                <note>Badge for cards removed in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.changed">
+                <source>app.deck.version_compare.changed</source>
+                <target>Modifiée</target>
+                <note>Badge for cards with changed quantity in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.unchanged">
+                <source>app.deck.version_compare.unchanged</source>
+                <target>Inchangée</target>
+                <note>Badge for unchanged cards in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.show_unchanged">
+                <source>app.deck.version_compare.show_unchanged</source>
+                <target>Afficher les cartes inchangées</target>
+                <note>Toggle button to reveal unchanged cards</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.no_changes">
+                <source>app.deck.version_compare.no_changes</source>
+                <target>Ces versions sont identiques.</target>
+                <note>Message when two compared versions have no differences</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.change">
+                <source>app.deck.version_compare.change</source>
+                <target>Changement</target>
+                <note>Table header for change type column in version comparison</note>
+            </trans-unit>
+
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">
                 <source>app.event.list_title</source>
