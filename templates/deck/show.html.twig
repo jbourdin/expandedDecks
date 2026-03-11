@@ -71,7 +71,7 @@
                     <span><strong>{{ 'app.deck.version'|trans }}</strong> v{{ deck.currentVersion.versionNumber }}</span>
                 {% endif %}
                 {% if deck.archetype %}
-                    <span><strong>{{ 'app.deck.archetype_label'|trans }}</strong> {{ deck.archetype.name }}</span>
+                    <span><strong>{{ 'app.deck.archetype_label'|trans }}</strong> {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.name }}</a>{% else %}{{ deck.archetype.name }}{% endif %}</span>
                 {% endif %}
                 {% if deck.languages is not empty %}
                     <span><strong>{{ 'app.deck.languages_label'|trans }}</strong> {{ deck.languages|join(', ') }}</span>

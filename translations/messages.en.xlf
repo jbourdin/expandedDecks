@@ -3066,6 +3066,23 @@
                 <note>Admin archetype table column header</note>
             </trans-unit>
 
+            <!-- Archetype detail page (F2.10) -->
+            <trans-unit id="app.archetype.draft_notice">
+                <source>app.archetype.draft_notice</source>
+                <target>This archetype is not published yet. Only administrators can see this page.</target>
+                <note>Draft notice for unpublished archetype detail page</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.browse_decks">
+                <source>app.archetype.browse_decks</source>
+                <target>Browse decks</target>
+                <note>CTA button to browse decks with this archetype</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.available_deck_count">
+                <source>app.archetype.available_deck_count</source>
+                <target>%count% deck(s) available with this archetype</target>
+                <note>Available deck count on archetype detail page</note>
+            </trans-unit>
+
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">
                 <source>app.admin.user.list_title</source>

@@ -8,7 +8,7 @@
  */
 
 /**
- * @see docs/features.md F6.2 — TCGdex card data enrichment
+ * @see docs/features.md F2.10 — Archetype detail page
  */
 
 import { initCardHover } from './shared/card-hover';

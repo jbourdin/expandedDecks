@@ -253,6 +253,20 @@ footer {
     &:hover .card-hover-img {
         display: block;
     }
+
+    // Inline card references in rich text content
+    .cms-content & {
+        text-decoration: underline dotted;
+        text-underline-offset: 3px;
+
+        &::before {
+            content: "\f397"; // bi-file-fill
+            font-family: "bootstrap-icons", sans-serif;
+            margin-right: 3px;
+            font-size: .8em;
+            opacity: .6;
+        }
+    }
 }
 
 .card-hover-img {

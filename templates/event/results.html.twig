@@ -47,7 +47,7 @@
                                     <td>{{ entry.matchRecord ?? '—' }}</td>
                                     <td>
                                         {% if entry.deckVersion.deck.archetype %}
-                                            {{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}
+                                            {% if entry.deckVersion.deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: entry.deckVersion.deck.archetype.slug}) }}">{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}</a>{% else %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}{% endif %}
                                         {% else %}
                                             —
                                         {% endif %}
