@@ -38,5 +38,6 @@ yarn-error.log
 .DS_Store
 
 # Project
-.claude/
+.claude/*
+!.claude/settings.json
 docker/data/

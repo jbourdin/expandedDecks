@@ -44,7 +44,7 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck?q=&archetype=&event=&owner=');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '2 decks found');
+        self::assertSelectorTextContains('body', '3 decks found');
     }
 
     public function testArchetypeSearchIsPubliclyAccessible(): void
@@ -64,7 +64,19 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '2 decks found');
+        self::assertSelectorTextContains('body', '3 decks found');
+    }
+
+    /**
+     * @see docs/features.md F2.12 — Archetype sprite pictograms
+     */
+    public function testDeckCardsDisplayArchetypeSprites(): void
+    {
+        $this->client->request('GET', '/deck');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.card-title .archetype-sprites');
+        self::assertSelectorExists('.card-title img.archetype-sprite');
     }
 
     public function testNonPublicDecksNotListed(): void
@@ -148,7 +160,7 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '1 deck found');
+        self::assertSelectorTextContains('body', '2 decks found');
     }
 
     public function testOwnerFilter(): void

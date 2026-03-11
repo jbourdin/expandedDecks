@@ -294,10 +294,28 @@ footer {
 
 // --- Archetype sprites ---
 
+// Wrapper: inline container for 1–3 sprite images
+.archetype-sprites {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+
+    // In table rows, reserve space for up to 3 sprites so names align
+    .table & {
+        min-width: 120px; // 3 sprites × (~38px avg width + 2px margin)
+    }
+}
+
+// Fixed height keeps sprites visually consistent regardless of native
+// dimensions (23×22 Joltik to 73×62 large Pokémon). Width scales
+// proportionally to preserve aspect ratio.
 .archetype-sprite {
     display: inline-block;
     vertical-align: middle;
+    height: 40px;
+    width: auto;
     margin-right: 2px;
+    image-rendering: pixelated;
 }
 
 // --- Footer ---

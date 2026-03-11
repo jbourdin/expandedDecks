@@ -66,6 +66,7 @@ class DevFixtures extends Fixture
         $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
         $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], 'A **Regidrago VSTAR** deck that copies powerful Dragon-type attacks from the discard pile.', true);
         $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
+        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.', true);
 
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
@@ -91,6 +92,12 @@ class DevFixtures extends Fixture
         $borrowerDeck->setArchetype($archetypeLugia);
         $borrowerDeck->setLanguages(['en']);
         $this->createLugiaArcheopsDeckVersion($manager, $borrowerDeck);
+
+        $charizardFlareon = $this->createDeck($manager, $organizer, 'Charizard Flareon');
+        $charizardFlareon->setArchetype($archetypeCharizardEevee);
+        $charizardFlareon->setLanguages(['en', 'fr']);
+        $charizardFlareon->setPublic(true);
+        $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
         $manager->flush();
 
@@ -1665,5 +1672,94 @@ Stay tuned!
 MD);
         $draftPage->addTranslation($draftEn);
         $manager->persist($draftEn);
+    }
+
+    private function createCharizardFlareonDeckVersion(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setRawList($this->getCharizardFlareonRawDeckList());
+
+        foreach ($this->getCharizardFlareonDeckCards() as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+            $card->setQuantity($cardData['quantity']);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
+     */
+    private function getCharizardFlareonDeckCards(): array
+    {
+        return [
+            // Pokemon (12)
+            ['name' => 'Charizard ex', 'set' => 'OBF', 'number' => '125', 'quantity' => 3, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Charmeleon', 'set' => 'OBF', 'number' => '26', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Charmander', 'set' => 'OBF', 'number' => '25', 'quantity' => 4, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Flareon', 'set' => 'VIV', 'number' => '26', 'quantity' => 2, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Eevee', 'set' => 'VIV', 'number' => '130', 'quantity' => 2, 'type' => 'pokemon', 'subtype' => null],
+
+            // Trainer — Supporter (12)
+            ['name' => 'Professor\'s Research', 'set' => 'SVI', 'number' => '189', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Boss\'s Orders', 'set' => 'PAL', 'number' => '172', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Arven', 'set' => 'SVI', 'number' => '166', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Cynthia\'s Ambition', 'set' => 'BRS', 'number' => '138', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'supporter'],
+
+            // Trainer — Item (24)
+            ['name' => 'Rare Candy', 'set' => 'SVI', 'number' => '191', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Ultra Ball', 'set' => 'SVI', 'number' => '196', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Battle VIP Pass', 'set' => 'FST', 'number' => '225', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Nest Ball', 'set' => 'SVI', 'number' => '181', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Super Rod', 'set' => 'PAL', 'number' => '188', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Pal Pad', 'set' => 'SVI', 'number' => '182', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+
+            // Trainer — Stadium (3)
+            ['name' => 'Magma Basin', 'set' => 'BRS', 'number' => '144', 'quantity' => 3, 'type' => 'trainer', 'subtype' => 'stadium'],
+
+            // Energy (8)
+            ['name' => 'Fire Energy', 'set' => 'SVE', 'number' => '2', 'quantity' => 8, 'type' => 'energy', 'subtype' => null],
+        ];
+    }
+
+    private function getCharizardFlareonRawDeckList(): string
+    {
+        return <<<'DECK'
+Pokémon: 12
+3 Charizard ex OBF 125
+1 Charmeleon OBF 26
+4 Charmander OBF 25
+2 Flareon VIV 26
+2 Eevee VIV 130
+
+Trainer: 39
+4 Professor's Research SVI 189
+3 Boss's Orders PAL 172
+2 Arven SVI 166
+3 Cynthia's Ambition BRS 138
+4 Rare Candy SVI 191
+4 Ultra Ball SVI 196
+4 Battle VIP Pass FST 225
+3 Nest Ball SVI 181
+2 Super Rod PAL 188
+2 Pal Pad SVI 182
+3 Magma Basin BRS 144
+
+Energy: 8
+8 Fire Energy SVE 2
+
+Total Cards: 59
+DECK;
     }
 }
