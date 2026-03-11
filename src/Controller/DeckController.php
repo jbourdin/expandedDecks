@@ -24,6 +24,7 @@ use App\Form\DeckImportFormType;
 use App\Message\EnrichDeckVersionMessage;
 use App\Repository\DeckVersionRepository;
 use App\Repository\EventDeckRegistrationRepository;
+use App\Service\BorrowService;
 use App\Service\DeckListParser;
 use App\Service\DeckListValidator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -213,7 +214,7 @@ class DeckController extends AbstractAppController
      * @see docs/features.md F2.7 — Retire / reactivate a deck
      */
     #[Route('/{id}/toggle-retired', name: 'app_deck_toggle_retired', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function toggleRetired(Deck $deck, Request $request, EntityManagerInterface $em): Response
+    public function toggleRetired(Deck $deck, Request $request, EntityManagerInterface $em, BorrowService $borrowService): Response
     {
         $this->denyAccessUnlessOwner($deck);
 
@@ -227,6 +228,9 @@ class DeckController extends AbstractAppController
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
+        /** @var User $user */
+        $user = $this->getUser();
+
         if (DeckStatus::Retired === $deck->getStatus()) {
             $deck->setStatus(DeckStatus::Available);
             $em->flush();
@@ -234,7 +238,14 @@ class DeckController extends AbstractAppController
         } else {
             $deck->setStatus(DeckStatus::Retired);
             $em->flush();
-            $this->addFlash('success', 'app.flash.deck.retired', ['%name%' => $deck->getName()]);
+
+            $cancelledCount = $borrowService->cancelPendingBorrowsForRetiredDeck($deck, $user);
+
+            if ($cancelledCount > 0) {
+                $this->addFlash('info', 'app.flash.deck.retired_with_cancellations', ['%name%' => $deck->getName(), '%count%' => $cancelledCount]);
+            } else {
+                $this->addFlash('success', 'app.flash.deck.retired', ['%name%' => $deck->getName()]);
+            }
         }
 
         return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);

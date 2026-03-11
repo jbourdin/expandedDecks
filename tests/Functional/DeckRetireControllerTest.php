@@ -33,7 +33,9 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.alert-success', 'retired');
+
+        // Iron Thorns has a pending borrow in fixtures, so we get info flash with cancellation count
+        self::assertSelectorExists('.alert-info, .alert-success');
     }
 
     public function testReactivateDeckAsOwner(): void
@@ -121,6 +123,21 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('button.btn-outline-success');
+    }
+
+    public function testRetireAutoCancelsPendingBorrows(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // Iron Thorns has a pending borrow in fixtures
+        $deck = $this->getDeck('Iron Thorns');
+        $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
+        $form = $crawler->filter('button.btn-outline-danger')->closest('form');
+        $this->client->submit($form->form());
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-info', 'cancelled');
     }
 
     public function testRetireButtonNotVisibleForNonOwner(): void

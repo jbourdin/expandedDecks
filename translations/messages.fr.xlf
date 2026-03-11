@@ -390,6 +390,11 @@
                 <target>Êtes-vous sûr de vouloir retirer ce deck ? Il ne sera plus disponible pour l'emprunt.</target>
                 <note>Confirmation dialog when retiring a deck</note>
             </trans-unit>
+            <trans-unit id="app.deck.confirm_retire_with_borrows">
+                <source>app.deck.confirm_retire_with_borrows</source>
+                <target>Ce deck a %count% emprunt(s) actif(s). Les demandes en attente seront automatiquement annulées. Les emprunts en cours se poursuivront. Retirer ce deck ?</target>
+                <note>Confirmation dialog when retiring a deck with active borrows. %count% = number of active borrows</note>
+            </trans-unit>
             <trans-unit id="app.deck.deck_list_label">
                 <source>app.deck.deck_list_label</source>
                 <target>Liste de deck</target>
@@ -1954,6 +1959,11 @@
                 <source>app.flash.deck.reactivated</source>
                 <target>Le deck « %name% » a été réactivé.</target>
                 <note>Success flash after reactivating a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.retired_with_cancellations">
+                <source>app.flash.deck.retired_with_cancellations</source>
+                <target>Le deck « %name% » a été retiré. %count% demande(s) d'emprunt en attente ont été automatiquement annulée(s).</target>
+                <note>Success flash after retiring a deck that had pending borrows. %name% = deck name, %count% = cancelled count</note>
             </trans-unit>
             <trans-unit id="app.flash.deck.cannot_retire_lent">
                 <source>app.flash.deck.cannot_retire_lent</source>

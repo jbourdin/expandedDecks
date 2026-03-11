@@ -153,12 +153,15 @@ class DeckShowController extends AbstractController
             }
         }
 
+        $activeBorrowCount = $isOwner ? $borrowRepository->countActiveBorrowsForDeck($deck) : 0;
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
             'totalBorrowCount' => $totalBorrowCount,
+            'activeBorrowCount' => $activeBorrowCount,
             'eligibleEvents' => $eligibleEvents,
             'eventStatusOverview' => $eventStatusOverview,
             'versionCount' => $deck->getVersions()->count(),
