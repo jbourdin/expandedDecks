@@ -40,12 +40,8 @@
 
                 <div class="mb-3">
                     <label class="form-label">{{ 'app.archetype.playstyle_tags_label'|trans }}</label>
-                    {% set tagChoices = [] %}
-                    {% for tag in playstyleTagChoices %}
-                        {% set tagChoices = tagChoices|merge([{value: tag.value, label: tag.translationKey|trans}]) %}
-                    {% endfor %}
                     <div id="playstyle-tag-select-root"
-                         data-tags="{{ tagChoices|json_encode }}"
+                         data-existing-tags="{{ existingTags|json_encode }}"
                          data-values="[]"
                          data-placeholder="{{ 'app.archetype.playstyle_tags_placeholder'|trans }}"></div>
                     {{ form_widget(form.playstyleTags, {id: 'playstyle-tags-hidden'}) }}

@@ -3070,36 +3070,6 @@
                 <target>Select playstyle tags...</target>
                 <note>Admin archetype playstyle tags placeholder</note>
             </trans-unit>
-            <trans-unit id="app.archetype.playstyle.aggressive">
-                <source>app.archetype.playstyle.aggressive</source>
-                <target>Aggressive</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.playstyle.control">
-                <source>app.archetype.playstyle.control</source>
-                <target>Control</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.playstyle.combo">
-                <source>app.archetype.playstyle.combo</source>
-                <target>Combo</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.playstyle.lock">
-                <source>app.archetype.playstyle.lock</source>
-                <target>Lock</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.playstyle.spread">
-                <source>app.archetype.playstyle.spread</source>
-                <target>Spread</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.playstyle.toolbox">
-                <source>app.archetype.playstyle.toolbox</source>
-                <target>Toolbox</target>
-                <note>Playstyle tag label</note>
-            </trans-unit>
             <trans-unit id="app.archetype.no_archetypes">
                 <source>app.archetype.no_archetypes</source>
                 <target>No archetypes yet.</target>

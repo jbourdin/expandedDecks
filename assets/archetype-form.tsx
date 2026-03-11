@@ -21,13 +21,13 @@ import '@mantine/core/styles.css';
 
 const playstyleRoot = document.getElementById('playstyle-tag-select-root');
 if (playstyleRoot) {
-    let tags: { value: string; label: string }[] = [];
+    let existingTags: string[] = [];
     let initialValues: string[] = [];
 
     try {
-        const rawTags = playstyleRoot.dataset.tags;
+        const rawTags = playstyleRoot.dataset.existingTags;
         if (rawTags) {
-            tags = JSON.parse(rawTags);
+            existingTags = JSON.parse(rawTags);
         }
     } catch {
         // Invalid JSON — use empty array
@@ -47,7 +47,7 @@ if (playstyleRoot) {
     createRoot(playstyleRoot).render(
         <MantineProvider>
             <PlaystyleTagSelect
-                tags={tags}
+                existingTags={existingTags}
                 initialValues={initialValues}
                 hiddenInputName="archetype_form[playstyleTags]"
                 placeholder={placeholder}

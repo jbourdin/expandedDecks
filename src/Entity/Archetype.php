@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Enum\PlaystyleTag;
 use App\Repository\ArchetypeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -139,29 +138,23 @@ class Archetype
     }
 
     /**
-     * @return list<PlaystyleTag>
+     * @return list<string>
      *
      * @see docs/features.md F2.15 — Archetype playstyle tags
      */
     public function getPlaystyleTags(): array
     {
-        return array_map(
-            static fn (string $value): PlaystyleTag => PlaystyleTag::from($value),
-            $this->playstyleTags,
-        );
+        return $this->playstyleTags;
     }
 
     /**
-     * @param list<PlaystyleTag> $playstyleTags
+     * @param list<string> $playstyleTags
      *
      * @see docs/features.md F2.15 — Archetype playstyle tags
      */
     public function setPlaystyleTags(array $playstyleTags): static
     {
-        $this->playstyleTags = array_map(
-            static fn (PlaystyleTag $tag): string => $tag->value,
-            $playstyleTags,
-        );
+        $this->playstyleTags = $playstyleTags;
 
         return $this;
     }

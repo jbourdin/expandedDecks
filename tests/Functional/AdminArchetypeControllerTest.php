@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Archetype;
-use App\Enum\PlaystyleTag;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -76,7 +75,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/admin/archetypes');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.badge.bg-danger');
+        self::assertSelectorExists('.badge.bg-secondary');
     }
 
     public function testEditPageAccessibleByAdmin(): void
@@ -194,9 +193,9 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $archetype = $this->getArchetype('Regidrago');
 
         $tags = $archetype->getPlaystyleTags();
-        self::assertContains(PlaystyleTag::Combo, $tags);
-        self::assertContains(PlaystyleTag::Lock, $tags);
-        self::assertContains(PlaystyleTag::Toolbox, $tags);
+        self::assertContains('Combo', $tags);
+        self::assertContains('Lock', $tags);
+        self::assertContains('Toolbox', $tags);
     }
 
     /**
@@ -207,9 +206,8 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.badge.bg-warning');
-        self::assertSelectorExists('.badge.bg-dark');
-        self::assertSelectorExists('.badge.bg-success');
+        self::assertSelectorExists('.badge.bg-secondary');
+        self::assertSelectorTextContains('.badge.bg-secondary', 'Combo');
     }
 
     /**
@@ -229,8 +227,8 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects();
 
         $refreshed = $this->getArchetype('Lugia Archeops');
-        self::assertContains(PlaystyleTag::Aggressive, $refreshed->getPlaystyleTags());
-        self::assertContains(PlaystyleTag::Control, $refreshed->getPlaystyleTags());
+        self::assertContains('Aggressive', $refreshed->getPlaystyleTags());
+        self::assertContains('Control', $refreshed->getPlaystyleTags());
     }
 
     private function getArchetype(string $name): Archetype

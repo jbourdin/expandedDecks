@@ -40,7 +40,7 @@
                                 <td>{{ archetype.pokemonSlugs|join(', ') }}</td>
                                 <td>
                                     {% for tag in archetype.playstyleTags %}
-                                        <span class="badge bg-{{ tag.badgeColor }}">{{ tag.translationKey|trans }}</span>
+                                        <span class="badge bg-secondary">{{ tag }}</span>
                                     {% endfor %}
                                 </td>
                                 <td>
