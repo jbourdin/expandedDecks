@@ -199,6 +199,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F2.15 | Archetype playstyle tags       | Low      | Not started | F2.10            |
 | F2.16 | Archetype catalog              | Medium   | Not started | F2.10, F2.15     |
 | F2.17 | Deck catalog archetype filter UX | Medium | Not started | F2.4             |
+| F2.18 | Admin archetype create/edit form | Medium | Not started | F2.6             |
 | F13.3 | Bookmark an archetype          | Low      | Not started | F2.16            |
 
 ### CMS Content Pages
@@ -256,7 +257,7 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | F13.1 | Bookmark a deck                         | Low      | Not started | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | Not started | F3.2             |
 
-**Progress: 12/33 done · 0 partial · 21 not started**
+**Progress: 12/34 done · 0 partial · 22 not started**
 
 **Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Anonymous homepage with CMS-driven welcome block and news. Event tags for grouping and filtering, iCal feeds, deck version history, card mosaic view, overdue tracking, friend delegation for borrow completion, notification preferences, bookmarks for quick access to decks and events, and audit log.
 
@@ -338,10 +339,10 @@ Each feature carries a **State** that must be kept up to date as work progresses
 | 6     | Localization                      | 5    | 0       | 0           | 5     |
 | 7     | Engagement, Results & Discovery   | 10   | 0       | 0           | 10    |
 | 8     | Admin, Homepage & Polish          | 6    | 0       | 0           | 6     |
-| 9     | Content, Archetypes & Low Priority | 12  | 0       | 21          | 33    |
+| 9     | Content, Archetypes & Low Priority | 12  | 0       | 22          | 34    |
 | 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
 | 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
 | 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **69** | **0**  | **34**      | **103** |
+|       | **Total**                         | **69** | **0**  | **35**      | **104** |
 
-All 103 features from [features.md](features.md) are represented exactly once.
+All 104 features from [features.md](features.md) are represented exactly once.
