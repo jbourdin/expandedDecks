@@ -586,6 +586,28 @@
                 <note>Badge label for deck not registered at event</note>
             </trans-unit>
 
+            <!-- Deck activity pagination (F5.12) -->
+            <trans-unit id="app.deck.see_more_activity">
+                <source>app.deck.see_more_activity</source>
+                <target>Voir toute l'activité (%count%)</target>
+                <note>Link to full borrow history. %count% = total borrow count</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_history">
+                <source>app.deck.borrow_history</source>
+                <target>Historique des emprunts</target>
+                <note>Breadcrumb label for deck borrow history page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_history_title">
+                <source>app.deck.borrow_history_title</source>
+                <target>Historique des emprunts — %name%</target>
+                <note>Page title for deck borrow history. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.no_borrow_history">
+                <source>app.deck.no_borrow_history</source>
+                <target>Aucune activité d'emprunt pour ce deck.</target>
+                <note>Empty state on borrow history page</note>
+            </trans-unit>
+
             <!-- Deck version history (F2.9) -->
             <trans-unit id="app.deck.version_history">
                 <source>app.deck.version_history</source>

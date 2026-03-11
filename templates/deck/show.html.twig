@@ -141,6 +141,14 @@
                             borrows: deckBorrows,
                             columns: ['event', 'borrower', 'status', 'date']
                         } only %}
+
+                        {% if totalBorrowCount > deckBorrows|length %}
+                            <div class="text-center mt-2">
+                                <a href="{{ path('app_deck_borrow_history', {short_tag: deck.shortTag}) }}" class="btn btn-sm btn-outline-secondary">
+                                    {{ 'app.deck.see_more_activity'|trans({'%count%': totalBorrowCount}) }}
+                                </a>
+                            </div>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
