@@ -96,6 +96,37 @@ Sprites appear **between the short tag badge and the deck name** in all deck dis
 
 ---
 
+## Archetype Detail Page (F2.10)
+
+The archetype detail page renders Markdown descriptions with custom tag expansion via `ArchetypeDescriptionRenderer`.
+
+### Custom Markdown Tags
+
+| Tag | Syntax | Renders as |
+|-----|--------|------------|
+| Archetype link | `[[archetype:slug]]` | Linked archetype name with sprites (plain text if unpublished) |
+| Deck link | `[[deck:SHORTTAG]]` | Badge link to deck show page |
+| Card reference | `[[card:SET-NUMBER]]` | Card name with hover/tap image preview |
+
+Card data is resolved from local `DeckCard` table first (enriched cards), then falls back to TCGdex API. Individual card lookups are cached 24h; the full rendered output is cached 1h keyed by content hash.
+
+### Card Hover in Rich Text
+
+Card references in `.cms-content` have visual affordance:
+- **Icon:** `bi-file-fill` Bootstrap Icon (80% size, 60% opacity) before the card name
+- **Underline:** Dotted underline with 3px offset
+- **Hover:** Card image preview (desktop) or modal (mobile), using the shared `card-hover.ts` module
+
+### JavaScript
+
+Card hover/modal behavior is extracted into `assets/shared/card-hover.ts` and shared between:
+- `assets/deck-show.ts` — deck detail card list
+- `assets/archetype-show.ts` — archetype description card references
+
+Both are registered as separate Webpack Encore entries.
+
+---
+
 ## Application Shell — `AppShell`
 
 The application uses Mantine's `AppShell` component with a collapsible sidebar navbar and a top header bar.
