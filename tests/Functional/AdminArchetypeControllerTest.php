@@ -223,13 +223,14 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
 
         $form = $crawler->selectButton('Save')->form();
-        $form['archetype_form[playstyleTags][0]']->tick();
+        $form['archetype_form[playstyleTags]'] = '["aggressive","control"]';
         $this->client->submit($form);
 
         self::assertResponseRedirects();
 
         $refreshed = $this->getArchetype('Lugia Archeops');
         self::assertContains(PlaystyleTag::Aggressive, $refreshed->getPlaystyleTags());
+        self::assertContains(PlaystyleTag::Control, $refreshed->getPlaystyleTags());
     }
 
     private function getArchetype(string $name): Archetype

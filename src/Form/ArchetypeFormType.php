@@ -14,10 +14,8 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Archetype;
-use App\Enum\PlaystyleTag;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -51,14 +49,8 @@ class ArchetypeFormType extends AbstractType
             ->add('pokemonSlugs', HiddenType::class, [
                 'mapped' => false,
             ])
-            ->add('playstyleTags', ChoiceType::class, [
-                'label' => 'app.archetype.playstyle_tags_label',
-                'choices' => PlaystyleTag::cases(),
-                'choice_value' => static fn (PlaystyleTag $tag): string => $tag->value,
-                'choice_label' => static fn (PlaystyleTag $tag): string => $tag->translationKey(),
-                'multiple' => true,
-                'expanded' => true,
-                'required' => false,
+            ->add('playstyleTags', HiddenType::class, [
+                'mapped' => false,
             ])
             ->add('isPublished', CheckboxType::class, [
                 'label' => 'app.archetype.is_published_label',

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Archetype;
+use App\Enum\PlaystyleTag;
 use App\Form\ArchetypeFormType;
 use App\Repository\ArchetypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,6 +62,7 @@ class AdminArchetypeController extends AbstractAppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handlePokemonSlugs($form, $archetype);
+            $this->handlePlaystyleTags($form, $archetype);
             $this->em->persist($archetype);
             $this->em->flush();
 
@@ -71,6 +73,7 @@ class AdminArchetypeController extends AbstractAppController
 
         return $this->render('admin/archetype/new.html.twig', [
             'form' => $form,
+            'playstyleTagChoices' => PlaystyleTag::cases(),
         ]);
     }
 
@@ -82,6 +85,7 @@ class AdminArchetypeController extends AbstractAppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handlePokemonSlugs($form, $archetype);
+            $this->handlePlaystyleTags($form, $archetype);
             $this->em->flush();
 
             $this->addFlash('success', 'app.archetype.updated', ['%name%' => $archetype->getName()]);
@@ -92,6 +96,7 @@ class AdminArchetypeController extends AbstractAppController
         return $this->render('admin/archetype/edit.html.twig', [
             'archetype' => $archetype,
             'form' => $form,
+            'playstyleTagChoices' => PlaystyleTag::cases(),
         ]);
     }
 
@@ -109,6 +114,28 @@ class AdminArchetypeController extends AbstractAppController
             $archetype->setPokemonSlugs($slugs);
         } else {
             $archetype->setPokemonSlugs([]);
+        }
+    }
+
+    /**
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     *
+     * @param FormInterface<Archetype> $form
+     */
+    private function handlePlaystyleTags(FormInterface $form, Archetype $archetype): void
+    {
+        /** @var string|null $tagsJson */
+        $tagsJson = $form->get('playstyleTags')->getData();
+
+        if (null !== $tagsJson && '' !== $tagsJson) {
+            /** @var list<string> $values */
+            $values = json_decode($tagsJson, true);
+            $tags = array_filter(
+                array_map(static fn (string $value): ?PlaystyleTag => PlaystyleTag::tryFrom($value), $values),
+            );
+            $archetype->setPlaystyleTags(array_values($tags));
+        } else {
+            $archetype->setPlaystyleTags([]);
         }
     }
 }

@@ -3065,6 +3065,11 @@
                 <target>Playstyle</target>
                 <note>Admin archetype table column header</note>
             </trans-unit>
+            <trans-unit id="app.archetype.playstyle_tags_placeholder">
+                <source>app.archetype.playstyle_tags_placeholder</source>
+                <target>Select playstyle tags...</target>
+                <note>Admin archetype playstyle tags placeholder</note>
+            </trans-unit>
             <trans-unit id="app.archetype.playstyle.aggressive">
                 <source>app.archetype.playstyle.aggressive</source>
                 <target>Aggressive</target>

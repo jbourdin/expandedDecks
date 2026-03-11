@@ -38,7 +38,23 @@
                     {{ form_widget(form.pokemonSlugs, {id: 'pokemon-slugs-hidden'}) }}
                 </div>
 
-                {{ form_row(form.playstyleTags) }}
+                <div class="mb-3">
+                    <label class="form-label">{{ 'app.archetype.playstyle_tags_label'|trans }}</label>
+                    {% set tagChoices = [] %}
+                    {% for tag in playstyleTagChoices %}
+                        {% set tagChoices = tagChoices|merge([{value: tag.value, label: tag.translationKey|trans}]) %}
+                    {% endfor %}
+                    {% set currentValues = [] %}
+                    {% for tag in archetype.playstyleTags %}
+                        {% set currentValues = currentValues|merge([tag.value]) %}
+                    {% endfor %}
+                    <div id="playstyle-tag-select-root"
+                         data-tags="{{ tagChoices|json_encode }}"
+                         data-values="{{ currentValues|json_encode }}"
+                         data-placeholder="{{ 'app.archetype.playstyle_tags_placeholder'|trans }}"></div>
+                    {{ form_widget(form.playstyleTags, {id: 'playstyle-tags-hidden'}) }}
+                </div>
+
                 {{ form_row(form.isPublished) }}
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
             {{ form_end(form) }}
@@ -48,6 +64,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+    {{ encore_entry_script_tags('archetype_form') }}
     <script>
         (function() {
             const input = document.getElementById('pokemon-slugs-input');
