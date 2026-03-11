@@ -132,6 +132,7 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 | `name`             | `string(100)`      | No       | Display name (e.g. `"Iron Thorns ex"`). Required, unique. |
 | `slug`             | `string(100)`      | No       | URL-friendly identifier, auto-generated from name via `AsciiSlugger` (e.g. `"iron-thorns-ex"`). Unique. |
 | `pokemonSlugs`     | `json`             | No       | Array of Pokémon slug strings for sprite display (e.g. `["roaring-moon", "flutter-mane"]`). Default: `[]`. Slugs must match filenames in the PokéSprite asset set. See F2.12. |
+| `playstyleTags`    | `json`             | No       | Array of `PlaystyleTag` enum values (e.g. `["aggressive", "combo"]`). Default: `[]`. Predefined tags: `aggressive`, `control`, `combo`, `lock`, `spread`, `toolbox`. Each tag has a badge color and translation key. See F2.15. |
 | `description`      | `text`             | Yes      | Markdown content for the archetype detail page (F2.10). Rendered via `ArchetypeDescriptionRenderer` which processes Markdown and expands custom tags: `[[archetype:slug]]` (archetype link with sprites), `[[deck:SHORTTAG]]` (deck badge link), `[[card:SET-NUMBER]]` (card name with hover image). |
 | `metaDescription`  | `string(255)`      | Yes      | SEO meta description for the archetype detail page. Max 255 characters. |
 | `isPublished`      | `bool`             | No       | Controls visibility of the archetype detail page (F2.10). Default: `false`. |

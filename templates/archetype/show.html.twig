@@ -29,6 +29,9 @@
                 <h1 class="mb-0 h4">
                     {{ archetype_sprites(archetype) }}
                     {{ archetype.name }}
+                    {% for tag in archetype.playstyleTags %}
+                        <span class="badge bg-{{ tag.badgeColor }} ms-1 fs-6 align-middle">{{ tag.translationKey|trans }}</span>
+                    {% endfor %}
                 </h1>
             </div>
             {% if htmlContent %}

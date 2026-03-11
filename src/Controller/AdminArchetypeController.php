@@ -17,6 +17,7 @@ use App\Entity\Archetype;
 use App\Form\ArchetypeFormType;
 use App\Repository\ArchetypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,6 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F2.6 — Archetype management
+ * @see docs/features.md F2.18 — Admin archetype create/edit form
  */
 #[Route('/admin/archetypes')]
 #[IsGranted('ROLE_ADMIN')]
@@ -44,6 +46,31 @@ class AdminArchetypeController extends AbstractAppController
 
         return $this->render('admin/archetype/list.html.twig', [
             'archetypes' => $archetypes,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     */
+    #[Route('/new', name: 'app_admin_archetype_new', methods: ['GET', 'POST'])]
+    public function new(Request $request): Response
+    {
+        $archetype = new Archetype();
+        $form = $this->createForm(ArchetypeFormType::class, $archetype);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->handlePokemonSlugs($form, $archetype);
+            $this->em->persist($archetype);
+            $this->em->flush();
+
+            $this->addFlash('success', 'app.archetype.created', ['%name%' => $archetype->getName()]);
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        return $this->render('admin/archetype/new.html.twig', [
+            'form' => $form,
         ]);
     }
 
@@ -69,9 +96,9 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     /**
-     * @param \Symfony\Component\Form\FormInterface<Archetype> $form
+     * @param FormInterface<Archetype> $form
      */
-    private function handlePokemonSlugs(\Symfony\Component\Form\FormInterface $form, Archetype $archetype): void
+    private function handlePokemonSlugs(FormInterface $form, Archetype $archetype): void
     {
         /** @var string|null $slugsJson */
         $slugsJson = $form->get('pokemonSlugs')->getData();

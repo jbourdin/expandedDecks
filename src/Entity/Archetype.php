@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\PlaystyleTag;
 use App\Repository\ArchetypeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,6 +49,14 @@ class Archetype
      */
     #[ORM\Column(type: Types::JSON)]
     private array $pokemonSlugs = [];
+
+    /**
+     * @var list<string>
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $playstyleTags = [];
 
     /**
      * @see docs/features.md F2.10 — Archetype detail page
@@ -125,6 +134,34 @@ class Archetype
     public function setPokemonSlugs(array $pokemonSlugs): static
     {
         $this->pokemonSlugs = $pokemonSlugs;
+
+        return $this;
+    }
+
+    /**
+     * @return list<PlaystyleTag>
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function getPlaystyleTags(): array
+    {
+        return array_map(
+            static fn (string $value): PlaystyleTag => PlaystyleTag::from($value),
+            $this->playstyleTags,
+        );
+    }
+
+    /**
+     * @param list<PlaystyleTag> $playstyleTags
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function setPlaystyleTags(array $playstyleTags): static
+    {
+        $this->playstyleTags = array_map(
+            static fn (PlaystyleTag $tag): string => $tag->value,
+            $playstyleTags,
+        );
 
         return $this;
     }

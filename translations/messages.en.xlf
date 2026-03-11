@@ -3040,6 +3040,61 @@
                 <target>Archetype "%name%" updated.</target>
                 <note>Flash after updating archetype. %name% = archetype name</note>
             </trans-unit>
+            <trans-unit id="app.archetype.created">
+                <source>app.archetype.created</source>
+                <target>Archetype "%name%" created.</target>
+                <note>Flash after creating archetype. %name% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.new_title">
+                <source>app.archetype.new_title</source>
+                <target>New archetype</target>
+                <note>Admin archetype creation page title</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.create_button">
+                <source>app.archetype.create_button</source>
+                <target>New archetype</target>
+                <note>Create button on admin archetype list</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle_tags_label">
+                <source>app.archetype.playstyle_tags_label</source>
+                <target>Playstyle tags</target>
+                <note>Admin archetype playstyle tags field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.playstyle">
+                <source>app.archetype.table.playstyle</source>
+                <target>Playstyle</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.aggressive">
+                <source>app.archetype.playstyle.aggressive</source>
+                <target>Aggressive</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.control">
+                <source>app.archetype.playstyle.control</source>
+                <target>Control</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.combo">
+                <source>app.archetype.playstyle.combo</source>
+                <target>Combo</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.lock">
+                <source>app.archetype.playstyle.lock</source>
+                <target>Lock</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.spread">
+                <source>app.archetype.playstyle.spread</source>
+                <target>Spread</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.playstyle.toolbox">
+                <source>app.archetype.playstyle.toolbox</source>
+                <target>Toolbox</target>
+                <note>Playstyle tag label</note>
+            </trans-unit>
             <trans-unit id="app.archetype.no_archetypes">
                 <source>app.archetype.no_archetypes</source>
                 <target>No archetypes yet.</target>

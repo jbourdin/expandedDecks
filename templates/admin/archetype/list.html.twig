@@ -13,6 +13,9 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.archetype.admin_list_title'|trans }}</h1>
+        <a href="{{ path('app_admin_archetype_new') }}" class="btn btn-gold">
+            <i class="bi bi-plus-lg me-1"></i>{{ 'app.archetype.create_button'|trans }}
+        </a>
     </div>
 
     {% if archetypes is not empty %}
@@ -24,6 +27,7 @@
                             <th>{{ 'app.archetype.table.name'|trans }}</th>
                             <th style="width: 120px">{{ 'app.archetype.table.slug'|trans }}</th>
                             <th style="width: 120px">{{ 'app.archetype.table.pokemon'|trans }}</th>
+                            <th>{{ 'app.archetype.table.playstyle'|trans }}</th>
                             <th style="width: 100px">{{ 'app.archetype.table.published'|trans }}</th>
                             <th style="width: 80px"></th>
                         </tr>
@@ -34,6 +38,11 @@
                                 <td>{{ archetype_sprites(archetype) }} <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.name }}</a></td>
                                 <td><code>{{ archetype.slug }}</code></td>
                                 <td>{{ archetype.pokemonSlugs|join(', ') }}</td>
+                                <td>
+                                    {% for tag in archetype.playstyleTags %}
+                                        <span class="badge bg-{{ tag.badgeColor }}">{{ tag.translationKey|trans }}</span>
+                                    {% endfor %}
+                                </td>
                                 <td>
                                     {% if archetype.published %}
                                         <span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>
