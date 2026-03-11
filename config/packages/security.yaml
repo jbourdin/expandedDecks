@@ -47,6 +47,8 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/deck$, roles: PUBLIC_ACCESS }
         - { path: '^/deck/[A-HJ-NP-Z0-9]{6}$', roles: PUBLIC_ACCESS }
+        - { path: '^/deck/[A-HJ-NP-Z0-9]{6}/versions$', roles: PUBLIC_ACCESS }
+        - { path: '^/api/deck/[A-HJ-NP-Z0-9]{6}/versions/compare$', roles: PUBLIC_ACCESS }
         - { path: ^/api/event/search$, roles: PUBLIC_ACCESS }
         - { path: ^/api/archetype/search$, roles: PUBLIC_ACCESS }
         - { path: ^/api/deck-owner/search$, roles: PUBLIC_ACCESS }

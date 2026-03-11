@@ -1,0 +1,114 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.deck.version_history_title'|trans({'%name%': deck.name}) }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'app.deck.version_history'|trans }}</li>
+        </ol>
+    </nav>
+
+    {# Version list table #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.deck.version_history_title'|trans({'%name%': deck.name}) }}</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if versions is empty %}
+                <div class="text-center py-4 text-muted">
+                    {{ 'app.deck.version_history.no_versions'|trans }}
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-themed table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'app.deck.version_history.version_number'|trans }}</th>
+                                <th>{{ 'app.deck.version_history.created_at'|trans }}</th>
+                                <th>{{ 'app.deck.version_history.card_count'|trans }}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for version in versions %}
+                                <tr>
+                                    <td>v{{ version.versionNumber }}</td>
+                                    <td>{{ version.createdAt|user_date }}</td>
+                                    <td>{{ version.cards|length }}</td>
+                                    <td>
+                                        {% if deck.currentVersion and version.versionNumber == deck.currentVersion.versionNumber %}
+                                            <span class="badge bg-success">{{ 'app.deck.version_history.current'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Version comparison — React island #}
+    {% if versions|length > 1 %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">{{ 'app.deck.version_history.compare_title'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                {% set versionData = [] %}
+                {% for version in versions %}
+                    {% set versionData = versionData|merge([{
+                        versionNumber: version.versionNumber,
+                        createdAt: version.createdAt|user_date,
+                        cardCount: version.cards|length,
+                    }]) %}
+                {% endfor %}
+
+                <div
+                    data-version-compare
+                    data-short-tag="{{ deck.shortTag }}"
+                    data-versions="{{ versionData|json_encode }}"
+                    data-label-from="{{ 'app.deck.version_compare.from_version'|trans }}"
+                    data-label-to="{{ 'app.deck.version_compare.to_version'|trans }}"
+                    data-label-added="{{ 'app.deck.version_compare.added'|trans }}"
+                    data-label-removed="{{ 'app.deck.version_compare.removed'|trans }}"
+                    data-label-changed="{{ 'app.deck.version_compare.changed'|trans }}"
+                    data-label-unchanged="{{ 'app.deck.version_compare.unchanged'|trans }}"
+                    data-label-show-unchanged="{{ 'app.deck.version_compare.show_unchanged'|trans }}"
+                    data-label-no-changes="{{ 'app.deck.version_compare.no_changes'|trans }}"
+                    data-label-card="{{ 'app.deck.table_card'|trans }}"
+                    data-label-set="{{ 'app.deck.table_set'|trans }}"
+                    data-label-qty="{{ 'app.deck.table_qty'|trans }}"
+                    data-label-change="{{ 'app.deck.version_compare.change'|trans }}"
+                ></div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if versions|length > 1 %}
+        {{ encore_entry_link_tags('deck_version_compare') }}
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if versions|length > 1 %}
+        {{ encore_entry_script_tags('deck_version_compare') }}
+    {% endif %}
+{% endblock %}

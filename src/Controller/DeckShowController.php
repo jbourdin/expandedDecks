@@ -152,6 +152,7 @@ class DeckShowController extends AbstractController
             'deckBorrows' => $deckBorrows,
             'eligibleEvents' => $eligibleEvents,
             'eventStatusOverview' => $eventStatusOverview,
+            'versionCount' => $deck->getVersions()->count(),
         ]);
     }
 }

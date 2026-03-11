@@ -44,6 +44,26 @@ class DeckVersionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F2.9 — Deck version history
+     *
+     * @return list<DeckVersion>
+     */
+    public function findByDeckOrderedByVersion(Deck $deck): array
+    {
+        /** @var list<DeckVersion> $results */
+        $results = $this->createQueryBuilder('dv')
+            ->leftJoin('dv.cards', 'c')
+            ->addSelect('c')
+            ->where('dv.deck = :deck')
+            ->setParameter('deck', $deck)
+            ->orderBy('dv.versionNumber', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.2 — Import deck list (PTCG text format)
      */
     public function findMaxVersionNumber(Deck $deck): int
