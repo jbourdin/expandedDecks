@@ -87,6 +87,20 @@
                     {% if isOwner %}
                         <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.common.edit'|trans }}</a>
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">{{ 'app.deck.import_list'|trans }}</a>
+                        {% if deck.status.value != 'lent' %}
+                            <form method="post" action="{{ path('app_deck_toggle_retired', {id: deck.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('deck-toggle-retired-' ~ deck.id) }}">
+                                {% if deck.status.value == 'retired' %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.deck.reactivate'|trans }}</button>
+                                {% else %}
+                                    {% if activeBorrowCount > 0 %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('{{ 'app.deck.confirm_retire_with_borrows'|trans({'%count%': activeBorrowCount})|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('{{ 'app.deck.confirm_retire'|trans|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
+                                    {% endif %}
+                                {% endif %}
+                            </form>
+                        {% endif %}
                     {% endif %}
                 </span>
             </div>

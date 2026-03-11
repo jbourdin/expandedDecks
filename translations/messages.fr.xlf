@@ -375,6 +375,26 @@
                 <target>Importer une liste</target>
                 <note>Deck list import UI</note>
             </trans-unit>
+            <trans-unit id="app.deck.retire">
+                <source>app.deck.retire</source>
+                <target>Retirer</target>
+                <note>Button to retire a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reactivate">
+                <source>app.deck.reactivate</source>
+                <target>Réactiver</target>
+                <note>Button to reactivate a retired deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.confirm_retire">
+                <source>app.deck.confirm_retire</source>
+                <target>Êtes-vous sûr de vouloir retirer ce deck ? Il ne sera plus disponible pour l'emprunt.</target>
+                <note>Confirmation dialog when retiring a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.confirm_retire_with_borrows">
+                <source>app.deck.confirm_retire_with_borrows</source>
+                <target>Ce deck a %count% emprunt(s) actif(s). Les demandes en attente seront automatiquement annulées. Les emprunts en cours se poursuivront. Retirer ce deck ?</target>
+                <note>Confirmation dialog when retiring a deck with active borrows. %count% = number of active borrows</note>
+            </trans-unit>
             <trans-unit id="app.deck.deck_list_label">
                 <source>app.deck.deck_list_label</source>
                 <target>Liste de deck</target>
@@ -1929,6 +1949,26 @@
                 <source>app.flash.deck.imported</source>
                 <target>Liste de deck importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
                 <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.retired">
+                <source>app.flash.deck.retired</source>
+                <target>Le deck « %name% » a été retiré.</target>
+                <note>Success flash after retiring a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.reactivated">
+                <source>app.flash.deck.reactivated</source>
+                <target>Le deck « %name% » a été réactivé.</target>
+                <note>Success flash after reactivating a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.retired_with_cancellations">
+                <source>app.flash.deck.retired_with_cancellations</source>
+                <target>Le deck « %name% » a été retiré. %count% demande(s) d'emprunt en attente ont été automatiquement annulée(s).</target>
+                <note>Success flash after retiring a deck that had pending borrows. %name% = deck name, %count% = cancelled count</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.cannot_retire_lent">
+                <source>app.flash.deck.cannot_retire_lent</source>
+                <target>Ce deck est actuellement prêté et ne peut pas être retiré.</target>
+                <note>Error flash when trying to retire a deck that is currently lent</note>
             </trans-unit>
             <!-- Deck list parsing errors -->
             <trans-unit id="app.deck.parse.no_section_header">

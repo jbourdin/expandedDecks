@@ -337,6 +337,50 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all pending borrows for a deck (across all events).
+     *
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     *
+     * @return list<Borrow>
+     */
+    public function findPendingBorrowsForDeck(Deck $deck): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->addSelect('e', 'u')
+            ->where('b.deck = :deck')
+            ->andWhere('b.status = :status')
+            ->setParameter('deck', $deck)
+            ->setParameter('status', BorrowStatus::Pending->value)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Count non-terminal borrows for a deck (pending, approved, lent, overdue).
+     *
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     */
+    public function countActiveBorrowsForDeck(Deck $deck): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.deck = :deck')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @return list<string>
      */
     public static function activeStatusValues(): array
