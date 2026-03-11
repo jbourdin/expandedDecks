@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Archetype;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\EventDeckRegistration;
@@ -89,6 +90,51 @@ class DeckRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
 
         return $count;
+    }
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    public function countPublicByArchetype(Archetype $archetype): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.public = :public')
+            ->andWhere('d.status != :retired')
+            ->andWhere('d.archetype = :archetype')
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('archetype', $archetype)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     *
+     * @return list<Deck>
+     */
+    public function findLatestPublicByArchetype(Archetype $archetype, int $limit = 5): array
+    {
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->join('d.owner', 'o')
+            ->addSelect('o')
+            ->where('d.public = :public')
+            ->andWhere('d.status != :retired')
+            ->andWhere('d.archetype = :archetype')
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('archetype', $archetype)
+            ->orderBy('d.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
     }
 
     /**

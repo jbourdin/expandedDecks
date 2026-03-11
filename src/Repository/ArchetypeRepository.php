@@ -45,4 +45,15 @@ class ArchetypeRepository extends ServiceEntityRepository
 
         return $archetypes;
     }
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    public function findPublishedBySlug(string $slug): ?Archetype
+    {
+        /** @var Archetype|null $archetype */
+        $archetype = $this->findOneBy(['slug' => $slug, 'isPublished' => true]);
+
+        return $archetype;
+    }
 }

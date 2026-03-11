@@ -26,4 +26,41 @@ class DeckCardRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, DeckCard::class);
     }
+
+    /**
+     * Find an enriched card by set code and card number (for custom tag rendering).
+     *
+     * Returns the first matching card that has an image URL, or any match otherwise.
+     *
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    public function findOneBySetCodeAndCardNumber(string $setCode, string $cardNumber): ?DeckCard
+    {
+        /** @var DeckCard|null $card */
+        $card = $this->createQueryBuilder('c')
+            ->where('c.setCode = :setCode')
+            ->andWhere('c.cardNumber = :cardNumber')
+            ->andWhere('c.imageUrl IS NOT NULL')
+            ->setParameter('setCode', $setCode)
+            ->setParameter('cardNumber', $cardNumber)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (null !== $card) {
+            return $card;
+        }
+
+        /** @var DeckCard|null $fallback */
+        $fallback = $this->createQueryBuilder('c')
+            ->where('c.setCode = :setCode')
+            ->andWhere('c.cardNumber = :cardNumber')
+            ->setParameter('setCode', $setCode)
+            ->setParameter('cardNumber', $cardNumber)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $fallback;
+    }
 }

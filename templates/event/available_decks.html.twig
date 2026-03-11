@@ -33,7 +33,7 @@
                             <p class="card-text text-muted mb-2">
                                 {{ 'app.deck.owner'|trans }} {{ deck.owner.screenName }}
                                 {% if deck.archetype %}
-                                    <br>{{ 'app.deck.archetype_label'|trans }} {{ deck.archetype.name }}
+                                    <br>{{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.name }}</a>{% else %}{{ deck.archetype.name }}{% endif %}
                                 {% endif %}
                             </p>
                             <form method="post" action="{{ path('app_borrow_request') }}">

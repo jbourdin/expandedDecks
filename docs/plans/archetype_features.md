@@ -39,39 +39,48 @@ Complete the archetype feature family: entity enrichment, sprite pictograms, det
 - Unit tests (extension + runtime) and functional tests (admin list, catalog, deck show)
 - Roadmap: F2.12 Done
 
-## Step 3: F2.10 — Archetype detail page
+## Step 3: F2.10 — Archetype detail page ✅
 
-- New controller: `ArchetypeDetailController` at `/archetype/{slug}`
-  - Public route, but 404 if `isPublished === false` (unless admin)
-  - Renders description via existing `MarkdownRenderer` service (league/commonmark)
-  - Queries available deck count and recent tournament results
+- Controller: `ArchetypeDetailController` at `/archetypes/{slug}`
+  - Public route, 404 if `isPublished === false` (unless admin sees draft notice)
+  - Description rendered via `ArchetypeDescriptionRenderer` service:
+    - Markdown → HTML via `MarkdownRenderer` (league/commonmark)
+    - Custom tag expansion: `[[archetype:slug]]`, `[[deck:SHORTTAG]]`, `[[card:SET-NUMBER]]`
+    - Card data resolved from local DB (`DeckCardRepository`) then TCGdex API fallback
+    - Individual card lookups cached 24h, full rendered output cached 1h (keyed by content hash)
   - SEO meta from `metaDescription`
-- New template: `templates/archetype/show.html.twig`
-  - Hero: archetype name + sprites
-  - Description card (Markdown → HTML)
-  - "Browse decks" CTA linking to filtered catalog
-  - Available deck count
-  - Recent tournament results table
-- Repository methods:
-  - `ArchetypeRepository::findPublishedBySlug()`
-  - `DeckRepository::countAvailableByArchetype()`
-  - `EventDeckEntryRepository::findRecentByArchetype()`
+- Template: `templates/archetype/show.html.twig`
+  - Header: archetype name + sprites
+  - Description card (rendered HTML with card hovers)
+  - "Browse decks" CTA with available deck count
+  - Card image modal for mobile (shared with deck show)
+- Frontend: extracted shared `assets/shared/card-hover.ts` module, new `archetype_show` Webpack entry
+- CSS: `.cms-content .card-hover` styled with `bi-file-fill` icon + dotted underline for card references
+- Repository methods: `ArchetypeRepository::findPublishedBySlug()`, `DeckRepository::countPublicByArchetype()`, `DeckCardRepository::findOneBySetCodeAndCardNumber()`
 - Translations (en + fr) for page labels
-- Functional tests
-- Update roadmap: F2.10 Not started → Done
+- Fixtures: Regidrago description with all 3 tag types, Kyurem + Salamence ex archetypes
+- Tests: 12 functional + 11 unit tests
+- Roadmap: F2.10 Done
 
-## Step 4: F2.11 — Backlinking
+## Step 4: F2.11 — Backlinking ✅
 
-- Create Twig macro: `templates/archetype/_name.html.twig`
-  - If `isPublished`: hyperlink to detail page + sprites
-  - If not published: plain text + sprites
-- Update templates to use macro:
-  - `templates/deck/show.html.twig` (deck detail)
-  - `templates/deck/list.html.twig` (deck catalog)
-  - `templates/event/results.html.twig` (tournament results)
-  - `templates/event/available_decks.html.twig` (event available decks)
-- Functional tests verifying link presence for published / absence for unpublished
-- Update roadmap: F2.11 Not started → Done
+- Archetype names link to detail page inline in templates (no macro — simple `{% if archetype.published %}` conditional)
+- Updated templates:
+  - `templates/deck/show.html.twig` (deck detail archetype label)
+  - `templates/deck/list.html.twig` (deck catalog archetype label)
+  - `templates/event/results.html.twig` (tournament results archetype column)
+  - `templates/event/available_decks.html.twig` (available decks archetype label)
+  - `templates/admin/archetype/list.html.twig` (admin list — always links)
+- Unpublished archetypes render as plain text (except admin list)
+- Roadmap: F2.11 Done
+
+## Step 5: F2.15 — Archetype playstyle tags (planned)
+
+- Add `tags` field to `Archetype` entity (JSON array, e.g. `["control", "combo", "lock"]`)
+- Predefined tag vocabulary: aggressive, control, combo, lock, spread, toolbox
+- Display as colored badges on archetype detail page and optionally in catalog cards
+- Enable filtering deck catalog (F2.4) by playstyle tag
+- Admin UI to manage tags per archetype
 
 ## Key decisions
 
@@ -82,8 +91,13 @@ Complete the archetype feature family: entity enrichment, sprite pictograms, det
 | Sprite sizing | Fixed 40px CSS height | Consistent visual weight despite varying native dimensions (23–73px) |
 | Sprite rendering | `image-rendering: pixelated` | Preserves pixel art crispness when scaled |
 | Sprite placement | Between short tag and deck name | Visually identifies archetype at a glance without cluttering metadata |
-| Markdown rendering | Reuse `MarkdownRenderer` | Already exists with league/commonmark |
+| Markdown rendering | `ArchetypeDescriptionRenderer` wrapping `MarkdownRenderer` | Separates custom tag logic from generic Markdown |
+| Custom tags | Post-process HTML with regex after Markdown | `[[...]]` syntax survives Markdown as plain text, safe to expand after |
+| Card resolution | Local DB → TCGdex API fallback, per-card 24h cache | Avoids runtime API dependency; most cards enriched via deck imports |
+| Rendering cache | Full output cached 1h by content hash | Eliminates repeated Markdown + DB + API work per page view |
+| Card hover JS | Shared `card-hover.ts` module | Reused by deck show and archetype show, single source of truth |
+| Card reference CSS | `bi-file-fill` icon + dotted underline in `.cms-content` | Visual affordance for hoverable card names, scoped to rich text only |
 | Sprite Twig helper | Extension + Runtime | Used in 5+ templates, cleaner than macro imports |
-| Backlinking | Twig macro | Single source of truth for archetype name rendering |
+| Backlinking | Inline conditional in templates | Simple `{% if archetype.published %}` — no macro needed for 5 occurrences |
 | New archetypes | Default unpublished | Admin must publish to enable detail page |
 | Admin UI | `ROLE_ADMIN` gated | Future `ROLE_ARCHETYPE_EDITOR` role deferred |

@@ -105,7 +105,7 @@
                             </p>
                             {% if deck.archetype %}
                                 <p class="card-text mb-0">
-                                    {{ 'app.deck.archetype_label'|trans }} <a href="{{ path('app_deck_list', filters|merge({archetype: deck.archetype.slug})) }}">{{ deck.archetype.name }}</a>
+                                    {{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.name }}</a>{% else %}{{ deck.archetype.name }}{% endif %}
                                 </p>
                             {% endif %}
                         </div>
