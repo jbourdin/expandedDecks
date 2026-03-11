@@ -192,6 +192,10 @@ make lint-container # Validate Symfony DI container
 make test          # Run test suite
 ```
 
+### Manual Testing Before Merge
+
+> **CRITICAL: NEVER merge a PR without asking the user to manually test the changes first.** After CI passes, always ask the user to verify the feature visually in the dev environment before merging. Wait for explicit confirmation before proceeding with the merge.
+
 ### Release Process
 
 > Full details: [docs/standards/release_process.md](docs/standards/release_process.md)
