@@ -82,12 +82,24 @@ fixtures: ## Load fixture data and dispatch enrichment
 
 ## —— Assets ——————————————————————————————————————————————————————————
 
+POKESPRITE_DIR := assets/vendor/sprites/pokemon
+POKESPRITE_REPO := https://github.com/martimlobao/pokesprite/archive/refs/heads/master.tar.gz
+
+$(POKESPRITE_DIR):
+	@echo "Downloading PokéSprite assets..."
+	@mkdir -p $(POKESPRITE_DIR)
+	@curl -sL $(POKESPRITE_REPO) | tar xz --strip-components=3 -C $(POKESPRITE_DIR) "pokesprite-master/pokemon/regular"
+	@echo "Downloaded $$(ls $(POKESPRITE_DIR) | wc -l | tr -d ' ') sprites."
+
+.PHONY: sprites
+sprites: $(POKESPRITE_DIR) ## Download PokéSprite assets (cached)
+
 .PHONY: assets
-assets: ## Build frontend assets (production)
+assets: sprites ## Build frontend assets (production)
 	npx encore production
 
 .PHONY: assets.watch
-assets.watch: ## Build frontend assets and watch for changes
+assets.watch: sprites ## Build frontend assets and watch for changes
 	npx encore dev --watch
 
 ## —— Quality —————————————————————————————————————————————————————————

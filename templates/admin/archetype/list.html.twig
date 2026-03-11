@@ -31,7 +31,7 @@
                     <tbody>
                         {% for archetype in archetypes %}
                             <tr>
-                                <td>{{ archetype.name }}</td>
+                                <td>{{ archetype_sprites(archetype) }} {{ archetype.name }}</td>
                                 <td><code>{{ archetype.slug }}</code></td>
                                 <td>{{ archetype.pokemonSlugs|join(', ') }}</td>
                                 <td>

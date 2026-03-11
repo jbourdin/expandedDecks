@@ -63,7 +63,7 @@ class DevFixtures extends Fixture
 
         // Create archetypes
         $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true);
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['koraidon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
         $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], 'A **Regidrago VSTAR** deck that copies powerful Dragon-type attacks from the discard pile.', true);
         $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
 
