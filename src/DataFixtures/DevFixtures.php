@@ -62,10 +62,10 @@ class DevFixtures extends Fixture
         $this->createDraftEvent($manager, $organizer, $admin);
 
         // Create archetypes
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box');
-        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago');
-        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops');
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], 'A **Regidrago VSTAR** deck that copies powerful Dragon-type attacks from the discard pile.', true);
+        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
 
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
@@ -479,10 +479,16 @@ class DevFixtures extends Fixture
         $manager->persist($entry3);
     }
 
-    private function createArchetype(ObjectManager $manager, string $name): Archetype
+    /**
+     * @param list<string> $pokemonSlugs
+     */
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], ?string $description = null, bool $isPublished = false): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
+        $archetype->setPokemonSlugs($pokemonSlugs);
+        $archetype->setDescription($description);
+        $archetype->setIsPublished($isPublished);
 
         $manager->persist($archetype);
 

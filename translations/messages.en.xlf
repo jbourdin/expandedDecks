@@ -2968,6 +2968,103 @@
                 <target>Manage users</target>
                 <note>Admin dropdown link to user management</note>
             </trans-unit>
+            <trans-unit id="app.nav.admin_archetypes">
+                <source>app.nav.admin_archetypes</source>
+                <target>Manage archetypes</target>
+                <note>Admin dropdown link to archetype management</note>
+            </trans-unit>
+
+            <!-- Admin: Archetype management -->
+            <trans-unit id="app.archetype.admin_list_title">
+                <source>app.archetype.admin_list_title</source>
+                <target>Archetype management</target>
+                <note>Admin archetype list page title</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.edit_title">
+                <source>app.archetype.edit_title</source>
+                <target>Edit archetype: %name%</target>
+                <note>Admin archetype edit page title. %name% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.settings">
+                <source>app.archetype.settings</source>
+                <target>Settings</target>
+                <note>Admin archetype edit card header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.name_label">
+                <source>app.archetype.name_label</source>
+                <target>Name</target>
+                <note>Admin archetype name field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_label">
+                <source>app.archetype.description_label</source>
+                <target>Description</target>
+                <note>Admin archetype description field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_placeholder">
+                <source>app.archetype.description_placeholder</source>
+                <target>Markdown description for the archetype detail page...</target>
+                <note>Admin archetype description placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_help">
+                <source>app.archetype.description_help</source>
+                <target>Supports Markdown formatting. This content will appear on the archetype detail page.</target>
+                <note>Admin archetype description help text</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.meta_description_label">
+                <source>app.archetype.meta_description_label</source>
+                <target>Meta description (SEO)</target>
+                <note>Admin archetype meta description field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_label">
+                <source>app.archetype.pokemon_slugs_label</source>
+                <target>Pokemon sprites</target>
+                <note>Admin archetype pokemon slugs field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_placeholder">
+                <source>app.archetype.pokemon_slugs_placeholder</source>
+                <target>e.g. iron-thorns, mew, lugia</target>
+                <note>Admin archetype pokemon slugs placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_help">
+                <source>app.archetype.pokemon_slugs_help</source>
+                <target>Comma-separated Pokemon slugs for sprite display (e.g. iron-thorns, mew). Sprites will appear next to the archetype name.</target>
+                <note>Admin archetype pokemon slugs help text</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.is_published_label">
+                <source>app.archetype.is_published_label</source>
+                <target>Published</target>
+                <note>Admin archetype published checkbox label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.updated">
+                <source>app.archetype.updated</source>
+                <target>Archetype "%name%" updated.</target>
+                <note>Flash after updating archetype. %name% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.no_archetypes">
+                <source>app.archetype.no_archetypes</source>
+                <target>No archetypes yet.</target>
+                <note>Empty state on admin archetype list</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.name">
+                <source>app.archetype.table.name</source>
+                <target>Name</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.slug">
+                <source>app.archetype.table.slug</source>
+                <target>Slug</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.pokemon">
+                <source>app.archetype.table.pokemon</source>
+                <target>Pokemon</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.published">
+                <source>app.archetype.table.published</source>
+                <target>Published</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
 
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">
