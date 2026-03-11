@@ -397,7 +397,7 @@
             </trans-unit>
             <trans-unit id="app.deck.deck_list_label">
                 <source>app.deck.deck_list_label</source>
-                <target>Liste de deck</target>
+                <target>Decklist</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
             <trans-unit id="app.deck.deck_list_optional">
@@ -412,12 +412,12 @@
             </trans-unit>
             <trans-unit id="app.deck.no_list">
                 <source>app.deck.no_list</source>
-                <target>Aucune liste de deck importée pour le moment.</target>
+                <target>Aucune decklist importée pour le moment.</target>
                 <note>Empty state when no deck list has been imported</note>
             </trans-unit>
             <trans-unit id="app.deck.import_cta">
                 <source>app.deck.import_cta</source>
-                <target>Importer une liste de deck</target>
+                <target>Importer une decklist</target>
                 <note>Call-to-action button to import a deck list</note>
             </trans-unit>
             <trans-unit id="app.deck.owner">
@@ -878,7 +878,7 @@
             </trans-unit>
             <trans-unit id="app.event.decklist_mandatory">
                 <source>app.event.decklist_mandatory</source>
-                <target>Liste de deck obligatoire</target>
+                <target>Decklist obligatoire</target>
                 <note>Table header label</note>
             </trans-unit>
             <trans-unit id="app.event.no_events">
@@ -1932,7 +1932,7 @@
             </trans-unit>
             <trans-unit id="app.flash.deck.created_with_list">
                 <source>app.flash.deck.created_with_list</source>
-                <target>Deck « %name% » créé avec la liste de deck importée.</target>
+                <target>Deck « %name% » créé avec la decklist importée.</target>
                 <note>Success flash after creating deck with inline list. %name% = deck name</note>
             </trans-unit>
             <trans-unit id="app.flash.deck.created">
@@ -1947,7 +1947,7 @@
             </trans-unit>
             <trans-unit id="app.flash.deck.imported">
                 <source>app.flash.deck.imported</source>
-                <target>Liste de deck importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
+                <target>Decklist importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
                 <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
             </trans-unit>
             <trans-unit id="app.flash.deck.retired">
@@ -2078,12 +2078,12 @@
             </trans-unit>
             <trans-unit id="app.form.label.deck_list_optional">
                 <source>app.form.label.deck_list_optional</source>
-                <target>Liste de deck (optionnel, format PTCG)</target>
+                <target>Decklist (optionnel, format PTCG)</target>
                 <note>Form label for inline deck list on creation</note>
             </trans-unit>
             <trans-unit id="app.form.label.deck_list">
                 <source>app.form.label.deck_list</source>
-                <target>Liste de deck (format PTCG)</target>
+                <target>Decklist (format PTCG)</target>
                 <note>Form label for deck list import</note>
             </trans-unit>
             <trans-unit id="app.form.label.event_name">
@@ -2168,7 +2168,7 @@
             </trans-unit>
             <trans-unit id="app.form.label.decklist_mandatory">
                 <source>app.form.label.decklist_mandatory</source>
-                <target>Liste de deck obligatoire</target>
+                <target>Decklist obligatoire</target>
                 <note>Form label for decklist mandatory checkbox</note>
             </trans-unit>
             <trans-unit id="app.form.label.invitation_only">
