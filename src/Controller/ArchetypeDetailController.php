@@ -49,12 +49,14 @@ class ArchetypeDetailController extends AbstractController
             ? $descriptionRenderer->render($archetype->getDescription())
             : null;
 
-        $availableDeckCount = $deckRepository->countPublicByArchetype($archetype);
+        $latestDecks = $deckRepository->findLatestPublicByArchetype($archetype);
+        $totalDeckCount = $deckRepository->countPublicByArchetype($archetype);
 
         return $this->render('archetype/show.html.twig', [
             'archetype' => $archetype,
             'htmlContent' => $htmlContent,
-            'availableDeckCount' => $availableDeckCount,
+            'latestDecks' => $latestDecks,
+            'totalDeckCount' => $totalDeckCount,
         ]);
     }
 }

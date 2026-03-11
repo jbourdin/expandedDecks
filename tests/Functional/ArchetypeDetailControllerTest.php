@@ -67,12 +67,13 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         self::assertStringContainsString('card-hover', $content);
     }
 
-    public function testDisplaysBrowseDecksCta(): void
+    public function testDisplaysLatestDecks(): void
     {
         $this->client->request('GET', '/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a.btn-gold[href*="archetype=regidrago"]');
+        self::assertSelectorExists('.list-group-item');
+        self::assertSelectorExists('.badge-short-id');
     }
 
     public function testUnpublishedArchetypeReturns404ForAnonymous(): void

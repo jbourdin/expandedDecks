@@ -3072,15 +3072,15 @@
                 <target>This archetype is not published yet. Only administrators can see this page.</target>
                 <note>Draft notice for unpublished archetype detail page</note>
             </trans-unit>
-            <trans-unit id="app.archetype.browse_decks">
-                <source>app.archetype.browse_decks</source>
-                <target>Browse decks</target>
-                <note>CTA button to browse decks with this archetype</note>
+            <trans-unit id="app.archetype.decks_title">
+                <source>app.archetype.decks_title</source>
+                <target>Decks</target>
+                <note>Section title for latest decks on archetype detail page</note>
             </trans-unit>
-            <trans-unit id="app.archetype.available_deck_count">
-                <source>app.archetype.available_deck_count</source>
-                <target>%count% deck(s) available with this archetype</target>
-                <note>Available deck count on archetype detail page</note>
+            <trans-unit id="app.archetype.browse_all_decks">
+                <source>app.archetype.browse_all_decks</source>
+                <target>Browse all %count% decks</target>
+                <note>CTA to see all decks with this archetype in catalog</note>
             </trans-unit>
 
             <!-- Admin: User management -->

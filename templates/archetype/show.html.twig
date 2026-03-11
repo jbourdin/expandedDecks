@@ -38,16 +38,30 @@
             {% endif %}
         </div>
 
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <p class="mb-2">
-                    {{ 'app.archetype.available_deck_count'|trans({'%count%': availableDeckCount}) }}
-                </p>
-                <a href="{{ path('app_deck_list', {archetype: archetype.slug}) }}" class="btn btn-gold">
-                    {{ 'app.archetype.browse_decks'|trans }}
-                </a>
+        {% if latestDecks is not empty %}
+            <div class="card shadow-sm">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">{{ 'app.archetype.decks_title'|trans }}</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for deck in latestDecks %}
+                        <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <span class="badge bg-dark badge-short-id me-2">{{ deck.shortTag }}</span>
+                            {{ archetype_sprites(archetype) }}
+                            <span class="ms-1">{{ deck.name }}</span>
+                            <span class="text-muted ms-auto small">{{ deck.owner.screenName }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if totalDeckCount > latestDecks|length %}
+                    <div class="card-body text-center">
+                        <a href="{{ path('app_deck_list', {archetype: archetype.slug}) }}" class="btn btn-gold btn-sm">
+                            {{ 'app.archetype.browse_all_decks'|trans({'%count%': totalDeckCount}) }}
+                        </a>
+                    </div>
+                {% endif %}
             </div>
-        </div>
+        {% endif %}
     </article>
 
     {# Card image modal for mobile tap-to-show with swipe navigation #}
