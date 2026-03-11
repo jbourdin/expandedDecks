@@ -107,6 +107,13 @@ MARKDOWN, true);
         $charizardFlareon->setPublic(true);
         $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
+        // Update Regidrago description with a deck link now that decks exist
+        $archetypeRegidrago->setDescription(\sprintf(
+            "%s\n\nCheck out a sample Regidrago build: [[deck:%s]].",
+            (string) $archetypeRegidrago->getDescription(),
+            $lenderDeck->getShortTag(),
+        ));
+
         $manager->flush();
 
         $pendingBorrow = $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox, $lenderDeck, $staff1);
