@@ -62,19 +62,19 @@ class DevFixtures extends Fixture
         $this->createDraftEvent($manager, $organizer, $admin);
 
         // Create archetypes
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true);
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true, ['Aggressive', 'Spread']);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true, ['Toolbox', 'Aggressive']);
         $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], <<<'MARKDOWN'
 **Regidrago VSTAR** is generally considered to be the best deck in the format. It has all the options ever, and more. It can lock the opponent in multiple ways (Item lock, Ability lock, Special Energy lock...), decimate Basic boards with [[archetype:kyurem]], oneshot anything with [[archetype:salamence-ex]], and even take an extra turn with [[card:UPR-100]].
 
 Although Regidrago has been a top tier deck for a long time, it has gained many options in the last year, such as [[card:SCR-133]] to deal with its main weakness (its lack of Energy acceleration), [[card:SFA-46]] for the mirror match and many other relevant decks, and [[card:PRE-4]] to buy time when going second.
 
 It's gotten to the point where many lists are trying unconventional techs to try to get an edge in the mirror match.
-MARKDOWN, true);
-        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.', true);
-        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.', true);
+MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
+        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.', true, ['Spread']);
+        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.', true, ['Aggressive']);
         $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
-        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.', true);
+        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.', true, ['Aggressive', 'Combo']);
 
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
@@ -503,14 +503,16 @@ MARKDOWN, true);
 
     /**
      * @param list<string> $pokemonSlugs
+     * @param list<string> $playstyleTags
      */
-    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], ?string $description = null, bool $isPublished = false): Archetype
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], ?string $description = null, bool $isPublished = false, array $playstyleTags = []): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
         $archetype->setPokemonSlugs($pokemonSlugs);
         $archetype->setDescription($description);
         $archetype->setIsPublished($isPublished);
+        $archetype->setPlaystyleTags($playstyleTags);
 
         $manager->persist($archetype);
 

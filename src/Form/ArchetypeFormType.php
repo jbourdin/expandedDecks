@@ -24,6 +24,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @see docs/features.md F2.6 — Archetype management
+ * @see docs/features.md F2.15 — Archetype playstyle tags
+ * @see docs/features.md F2.18 — Admin archetype create/edit form
  *
  * @extends AbstractType<Archetype>
  */
@@ -45,6 +47,9 @@ class ArchetypeFormType extends AbstractType
                 'required' => false,
             ])
             ->add('pokemonSlugs', HiddenType::class, [
+                'mapped' => false,
+            ])
+            ->add('playstyleTags', HiddenType::class, [
                 'mapped' => false,
             ])
             ->add('isPublished', CheckboxType::class, [

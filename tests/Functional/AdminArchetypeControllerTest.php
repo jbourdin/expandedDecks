@@ -18,6 +18,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @see docs/features.md F2.6 — Archetype management
+ * @see docs/features.md F2.15 — Archetype playstyle tags
+ * @see docs/features.md F2.18 — Admin archetype create/edit form
  */
 class AdminArchetypeControllerTest extends AbstractFunctionalTest
 {
@@ -50,6 +52,30 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.archetype-sprites .archetype-sprite');
         self::assertSelectorExists('img[src$="iron-thorns.png"]');
+    }
+
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     */
+    public function testListHasCreateButton(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/archetypes');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/admin/archetypes/new"]');
+    }
+
+    /**
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function testListDisplaysPlaystyleTags(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/archetypes');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.badge.bg-secondary');
     }
 
     public function testEditPageAccessibleByAdmin(): void
@@ -112,6 +138,97 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         self::assertFalse($archetype->isPublished());
         self::assertNull($archetype->getDescription());
+    }
+
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     */
+    public function testNewPageAccessibleByAdmin(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/archetypes/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'New archetype');
+    }
+
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     */
+    public function testNewPageRequiresAdmin(): void
+    {
+        $this->loginAs('borrower@example.com');
+        $this->client->request('GET', '/admin/archetypes/new');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     */
+    public function testCreateArchetype(): void
+    {
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/admin/archetypes/new');
+
+        $form = $crawler->selectButton('Create')->form();
+        $form['archetype_form[name]'] = 'Gardevoir ex';
+        $form['archetype_form[isPublished]']->tick();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        $archetype = $this->getArchetype('Gardevoir ex');
+        self::assertSame('gardevoir-ex', $archetype->getSlug());
+        self::assertTrue($archetype->isPublished());
+    }
+
+    /**
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function testPlaystyleTagsInFixtures(): void
+    {
+        $archetype = $this->getArchetype('Regidrago');
+
+        $tags = $archetype->getPlaystyleTags();
+        self::assertContains('Combo', $tags);
+        self::assertContains('Lock', $tags);
+        self::assertContains('Toolbox', $tags);
+    }
+
+    /**
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function testPlaystyleTagsDisplayedOnDetailPage(): void
+    {
+        $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.badge.bg-secondary');
+        self::assertSelectorTextContains('.badge.bg-secondary', 'Combo');
+    }
+
+    /**
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function testEditPlaystyleTags(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Lugia Archeops');
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_form[playstyleTags]'] = '["aggressive","control"]';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        $refreshed = $this->getArchetype('Lugia Archeops');
+        self::assertContains('Aggressive', $refreshed->getPlaystyleTags());
+        self::assertContains('Control', $refreshed->getPlaystyleTags());
     }
 
     private function getArchetype(string $name): Archetype

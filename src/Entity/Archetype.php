@@ -50,6 +50,14 @@ class Archetype
     private array $pokemonSlugs = [];
 
     /**
+     * @var list<string>
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $playstyleTags = [];
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -125,6 +133,28 @@ class Archetype
     public function setPokemonSlugs(array $pokemonSlugs): static
     {
         $this->pokemonSlugs = $pokemonSlugs;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function getPlaystyleTags(): array
+    {
+        return $this->playstyleTags;
+    }
+
+    /**
+     * @param list<string> $playstyleTags
+     *
+     * @see docs/features.md F2.15 — Archetype playstyle tags
+     */
+    public function setPlaystyleTags(array $playstyleTags): static
+    {
+        $this->playstyleTags = $playstyleTags;
 
         return $this;
     }

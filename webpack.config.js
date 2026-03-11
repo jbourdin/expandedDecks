@@ -29,6 +29,7 @@ Encore
     .addEntry('event_sync', './assets/event-sync.ts')
     .addEntry('notification_bell', './assets/notification-bell.tsx')
     .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
+    .addEntry('archetype_form', './assets/archetype-form.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
