@@ -485,13 +485,30 @@ class BorrowRepository extends ServiceEntityRepository
      * Borrows for a deck visible to the given user (owner, borrower, or event organizer).
      *
      * @see docs/features.md F4.5 — Borrow history
+     * @see docs/features.md F5.12 — Deck show activity pagination
      *
      * @return list<Borrow>
      */
-    public function findByDeckForUser(Deck $deck, User $user): array
+    public function findByDeckForUser(Deck $deck, User $user, ?int $limit = null): array
     {
+        $qb = $this->createDeckForUserQueryBuilder($deck, $user);
+
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
+
         /** @var list<Borrow> $borrows */
-        $borrows = $this->createQueryBuilder('b')
+        $borrows = $qb->getQuery()->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * @see docs/features.md F5.12 — Deck show activity pagination
+     */
+    public function createDeckForUserQueryBuilder(Deck $deck, User $user): QueryBuilder
+    {
+        return $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
             ->join('b.event', 'e')
             ->join('b.borrower', 'u')
@@ -500,11 +517,7 @@ class BorrowRepository extends ServiceEntityRepository
             ->andWhere('d.owner = :user OR b.borrower = :user OR e.organizer = :user')
             ->setParameter('deck', $deck)
             ->setParameter('user', $user)
-            ->orderBy('b.requestedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        return $borrows;
+            ->orderBy('b.requestedAt', 'DESC');
     }
 
     /**
