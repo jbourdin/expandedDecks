@@ -46,14 +46,25 @@ class ArchetypeDescriptionRenderer
 
     /**
      * Render a Markdown description with custom tag expansion.
+     *
+     * The full rendered output is cached for 1 hour, keyed by content hash.
+     * Cache invalidates automatically when the description text changes.
      */
     public function render(string $description): string
     {
-        $html = $this->markdownRenderer->render($description);
+        $cacheKey = 'archetype_desc.rendered.'.md5($description);
 
-        $html = $this->expandArchetypeTags($html);
-        $html = $this->expandDeckTags($html);
-        $html = $this->expandCardTags($html);
+        /** @var string $html */
+        $html = $this->cache->get($cacheKey, function (ItemInterface $item) use ($description): string {
+            $item->expiresAfter(3600);
+
+            $rendered = $this->markdownRenderer->render($description);
+            $rendered = $this->expandArchetypeTags($rendered);
+            $rendered = $this->expandDeckTags($rendered);
+            $rendered = $this->expandCardTags($rendered);
+
+            return $rendered;
+        });
 
         return $html;
     }
