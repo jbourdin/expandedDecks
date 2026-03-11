@@ -24,20 +24,20 @@ Complete the archetype feature family: entity enrichment, sprite pictograms, det
 - Translations (en + fr) for admin UI labels
 - Update roadmap: F2.6 Partial → Done
 
-## Step 2: F2.12 — Sprite pictograms
+## Step 2: F2.12 — Sprite pictograms ✅
 
-- Download PokéSprite Gen 9 fork box sprites (68x56 PNG) into `assets/sprites/pokemon/`
-  - Source: [martimlobao/pokesprite](https://github.com/martimlobao/pokesprite) `pokemon-gen8/regular/`
-  - Commit PNGs to repo (~3MB) — no CDN dependency
-- Add `copy-webpack-plugin` (npm devDependency) to copy sprites to `public/build/sprites/` at build time
-- Update `webpack.config.js` with CopyWebpackPlugin
-- Create Twig extension + runtime (follows `GravatarExtension` pattern):
+- Download PokéSprite Gen 9 fork box sprites (1478 PNGs, varying sizes 23×22 to 73×62) via `make sprites`
+  - Source: [martimlobao/pokesprite](https://github.com/martimlobao/pokesprite) `pokemon/regular/`
+  - Downloaded at build time via tarball, cached in gitignored `assets/vendor/sprites/pokemon/`
+- `copy-webpack-plugin` copies sprites to `public/build/sprites/pokemon/` at build time
+- Twig extension + lazy runtime:
   - `src/Twig/Extension/ArchetypeSpriteExtension.php` — registers `archetype_sprites` function
-  - `src/Twig/Runtime/ArchetypeSpriteRuntime.php` — renders `<img>` tags from `pokemonSlugs`
-  - Half-size display: 34x28 px inline images
-- Add `assets/styles/_archetype-sprites.scss` for `.archetype-sprite` styling
-- Unit test for sprite rendering
-- Update roadmap: F2.12 Not started → Done
+  - `src/Twig/Runtime/ArchetypeSpriteRuntime.php` — renders `<img>` tags with slug-to-name conversion for `alt`/`title`
+- CSS: fixed 40px height, `image-rendering: pixelated`, `.archetype-sprites` wrapper with table `min-width`
+- Sprites displayed between short tag badge and deck name across all deck views:
+  - Catalog, deck detail, dashboard, event pages, borrow views, tournament results
+- Unit tests (extension + runtime) and functional tests (admin list, catalog, deck show)
+- Roadmap: F2.12 Done
 
 ## Step 3: F2.10 — Archetype detail page
 
@@ -77,8 +77,11 @@ Complete the archetype feature family: entity enrichment, sprite pictograms, det
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Sprite assets | Committed to repo | No CDN dependency, ~3MB, cache-busted via Encore |
-| Sprite build | `copy-webpack-plugin` | Aligns with Encore pipeline, `make assets` rule |
+| Sprite assets | Downloaded at build time (gitignored) | No git bloat (~3MB), no CDN dependency, cache-busted via Encore |
+| Sprite build | `make sprites` + `copy-webpack-plugin` | Tarball download on demand, Webpack copies to public build |
+| Sprite sizing | Fixed 40px CSS height | Consistent visual weight despite varying native dimensions (23–73px) |
+| Sprite rendering | `image-rendering: pixelated` | Preserves pixel art crispness when scaled |
+| Sprite placement | Between short tag and deck name | Visually identifies archetype at a glance without cluttering metadata |
 | Markdown rendering | Reuse `MarkdownRenderer` | Already exists with league/commonmark |
 | Sprite Twig helper | Extension + Runtime | Used in 5+ templates, cleaner than macro imports |
 | Backlinking | Twig macro | Single source of truth for archetype name rendering |

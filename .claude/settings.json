@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(ls *)",
+      "Bash(ls)",
+      "Bash(pwd)",
+      "Bash(symfony console *)",
+      "Bash(symfony composer *)",
+      "Bash(symfony php *)",
+      "Bash(symfony server:*)",
+      "Bash(npm install *)",
+      "Bash(npm outdated *)",
+      "Bash(npm info *)",
+      "Bash(npx encore *)",
+      "Bash(npx vitest *)",
+      "Bash(npx eslint *)",
+      "Bash(docker compose *)"
+    ],
+    "deny": [
+      "Bash(gh pr merge *)"
+    ]
+  }
+}

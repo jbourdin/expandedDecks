@@ -39,6 +39,19 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('table', 'Iron Thorns ex');
     }
 
+    /**
+     * @see docs/features.md F2.12 — Archetype sprite pictograms
+     */
+    public function testListDisplaysSpritesForArchetypes(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/archetypes');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.archetype-sprites .archetype-sprite');
+        self::assertSelectorExists('img[src$="iron-thorns.png"]');
+    }
+
     public function testEditPageAccessibleByAdmin(): void
     {
         $this->loginAs('admin@example.com');

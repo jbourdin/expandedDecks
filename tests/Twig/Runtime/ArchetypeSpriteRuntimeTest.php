@@ -44,11 +44,11 @@ class ArchetypeSpriteRuntimeTest extends TestCase
 
         $html = $this->runtime->renderSprites($archetype);
 
+        self::assertStringContainsString('<span class="archetype-sprites">', $html);
         self::assertStringContainsString('src="/build/sprites/pokemon/iron-thorns.png"', $html);
-        self::assertStringContainsString('alt="iron-thorns"', $html);
+        self::assertStringContainsString('alt="Iron Thorns"', $html);
+        self::assertStringContainsString('title="Iron Thorns"', $html);
         self::assertStringContainsString('class="archetype-sprite"', $html);
-        self::assertStringContainsString('width="34"', $html);
-        self::assertStringContainsString('height="28"', $html);
     }
 
     public function testRenderSpritesWithMultipleSlugs(): void
@@ -61,6 +61,39 @@ class ArchetypeSpriteRuntimeTest extends TestCase
         self::assertStringContainsString('lugia.png', $html);
         self::assertStringContainsString('archeops.png', $html);
         self::assertSame(2, substr_count($html, '<img '));
+    }
+
+    public function testRenderSpritesConvertsSlugToReadableName(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['flutter-mane']);
+
+        $html = $this->runtime->renderSprites($archetype);
+
+        self::assertStringContainsString('alt="Flutter Mane"', $html);
+        self::assertStringContainsString('title="Flutter Mane"', $html);
+    }
+
+    public function testRenderSpritesWithSingleWordSlug(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['lugia']);
+
+        $html = $this->runtime->renderSprites($archetype);
+
+        self::assertStringContainsString('alt="Lugia"', $html);
+        self::assertStringContainsString('title="Lugia"', $html);
+    }
+
+    public function testRenderSpritesMultipleSlugsHaveCorrectTitles(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['roaring-moon', 'flutter-mane']);
+
+        $html = $this->runtime->renderSprites($archetype);
+
+        self::assertStringContainsString('title="Roaring Moon"', $html);
+        self::assertStringContainsString('title="Flutter Mane"', $html);
     }
 
     public function testRenderSpritesEscapesSpecialCharacters(): void

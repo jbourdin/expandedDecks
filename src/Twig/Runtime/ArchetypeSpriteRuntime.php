@@ -34,16 +34,18 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
             return '';
         }
 
-        $html = '';
+        $images = '';
         foreach ($slugs as $slug) {
             $escapedSlug = htmlspecialchars($slug, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
-            $html .= \sprintf(
-                '<img src="/build/sprites/pokemon/%s.png" alt="%s" width="34" height="28" class="archetype-sprite" loading="lazy">',
+            $name = htmlspecialchars(ucwords(str_replace('-', ' ', $slug)), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+            $images .= \sprintf(
+                '<img src="/build/sprites/pokemon/%s.png" alt="%s" title="%s" class="archetype-sprite" loading="lazy">',
                 $escapedSlug,
-                $escapedSlug,
+                $name,
+                $name,
             );
         }
 
-        return $html;
+        return \sprintf('<span class="archetype-sprites">%s</span>', $images);
     }
 }

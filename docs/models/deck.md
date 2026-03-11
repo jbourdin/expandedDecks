@@ -122,28 +122,43 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 
 > **@see** docs/features.md F2.6 — Deck archetype management
 
-A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Mew VMAX"). Currently a minimal entity with name and slug; additional fields (pokemonSlugs, translations, isPublished) will be added in later phases.
+A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iron Thorns ex"). Archetypes are created on-the-fly when owners assign them to decks, then enriched by admins with descriptions, Pokémon sprite slugs, and publication status.
 
 ### Fields
 
-| Field          | Type               | Nullable | Description |
-|----------------|--------------------|----------|-------------|
-| `id`           | `int` (auto)       | No       | Primary key |
-| `name`         | `string(100)`      | No       | Display name (e.g. `"Iron Thorns ex"`). Required, unique. |
-| `slug`         | `string(100)`      | No       | URL-friendly identifier, auto-generated from name (e.g. `"iron-thorns-ex"`). Unique. |
-| `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
-| `updatedAt`    | `DateTimeImmutable` | Yes     | Last modification timestamp. |
+| Field              | Type               | Nullable | Description |
+|--------------------|--------------------|----------|-------------|
+| `id`               | `int` (auto)       | No       | Primary key |
+| `name`             | `string(100)`      | No       | Display name (e.g. `"Iron Thorns ex"`). Required, unique. |
+| `slug`             | `string(100)`      | No       | URL-friendly identifier, auto-generated from name via `AsciiSlugger` (e.g. `"iron-thorns-ex"`). Unique. |
+| `pokemonSlugs`     | `json`             | No       | Array of Pokémon slug strings for sprite display (e.g. `["roaring-moon", "flutter-mane"]`). Default: `[]`. Slugs must match filenames in the PokéSprite asset set. See F2.12. |
+| `description`      | `text`             | Yes      | Markdown content for the archetype detail page (F2.10). Rendered via `MarkdownRenderer`. |
+| `metaDescription`  | `string(255)`      | Yes      | SEO meta description for the archetype detail page. Max 255 characters. |
+| `isPublished`      | `bool`             | No       | Controls visibility of the archetype detail page (F2.10). Default: `false`. |
+| `createdAt`        | `DateTimeImmutable` | No      | Creation timestamp. |
+| `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
 
 ### Constraints
 
 - `name`: required, unique, 2–100 characters
 - `slug`: required, unique, auto-generated from name via `AsciiSlugger`
+- `metaDescription`: max 255 characters
 
 ### Relations
 
 | Relation       | Type      | Target    | Description |
 |----------------|-----------|-----------|-------------|
 | `decks`        | OneToMany | `Deck`    | Decks using this archetype |
+
+### Sprite Display (F2.12)
+
+Archetype sprites are rendered wherever a deck name appears in the UI (between the short tag badge and the deck name). The `archetype_sprites()` Twig function generates `<img>` tags from `pokemonSlugs`:
+
+- **Source:** [martimlobao/pokesprite](https://github.com/martimlobao/pokesprite) Gen 9 fork — 1478 box sprite PNGs
+- **Build pipeline:** `make sprites` downloads the tarball to `assets/vendor/sprites/pokemon/` (gitignored cache), then `copy-webpack-plugin` copies them to `public/build/sprites/pokemon/` during `make assets`
+- **Rendering:** Fixed 40px height via CSS, `image-rendering: pixelated` for crisp pixel art. Native dimensions vary (23×22 to 73×62); width scales proportionally
+- **Accessibility:** `alt` and `title` attributes use a human-readable name derived from the slug (`iron-thorns` → `Iron Thorns`)
+- **Table alignment:** `.archetype-sprites` wrapper uses `min-width: 120px` in table contexts for consistent name alignment across 1–3 sprites
 
 ---
 

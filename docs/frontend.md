@@ -60,6 +60,42 @@ Import `@mantine/core/styles.css` in the application entrypoint. PostCSS is not 
 
 ---
 
+## Archetype Sprites (F2.12)
+
+Pokémon box sprites provide visual identification for deck archetypes. They are rendered server-side via a Twig extension — no JavaScript required.
+
+### Asset Pipeline
+
+| Step | Command | What happens |
+|------|---------|--------------|
+| Download | `make sprites` | Downloads [PokéSprite Gen 9 fork](https://github.com/martimlobao/pokesprite) tarball → extracts 1478 PNGs to `assets/vendor/sprites/pokemon/` (gitignored) |
+| Build | `make assets` | `copy-webpack-plugin` copies sprites to `public/build/sprites/pokemon/` |
+
+The `sprites` target is a dependency of `assets` and `assets.watch`, so sprites are downloaded automatically on first build.
+
+### Twig Function
+
+```twig
+{{ archetype_sprites(deck.archetype) }}
+```
+
+Renders a `<span class="archetype-sprites">` wrapper containing one `<img class="archetype-sprite">` per slug in `Archetype.pokemonSlugs`. Implemented as a lazy runtime (`ArchetypeSpriteRuntime`) to avoid instantiation overhead on pages that don't use it.
+
+### Styling
+
+| Property | Value | Rationale |
+|----------|-------|-----------|
+| `height` | `40px` | Consistent visual weight despite native sizes varying 23–73px |
+| `width` | `auto` | Preserves aspect ratio |
+| `image-rendering` | `pixelated` | Crisp pixel art when scaled |
+| `.table .archetype-sprites min-width` | `120px` | Aligns deck names in table views regardless of sprite count (1–3) |
+
+### Placement
+
+Sprites appear **between the short tag badge and the deck name** in all deck displays: catalog cards, detail header, dashboard, event tables, borrow views, and tournament results.
+
+---
+
 ## Application Shell — `AppShell`
 
 The application uses Mantine's `AppShell` component with a collapsible sidebar navbar and a top header bar.

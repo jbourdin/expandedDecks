@@ -47,14 +47,14 @@
                                     <td>{{ entry.matchRecord ?? '—' }}</td>
                                     <td>
                                         {% if entry.deckVersion.deck.archetype %}
-                                            {{ entry.deckVersion.deck.archetype.name }}
+                                            {{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}
                                         {% else %}
                                             —
                                         {% endif %}
                                     </td>
                                     <td>
                                         <a href="{{ path('app_deck_show', {short_tag: entry.deckVersion.deck.shortTag}) }}">
-                                            <span class="badge bg-dark badge-short-id me-1">{{ entry.deckVersion.deck.shortTag }}</span>{{ entry.deckVersion.deck.name }}
+                                            <span class="badge bg-dark badge-short-id me-1">{{ entry.deckVersion.deck.shortTag }}</span>{% if entry.deckVersion.deck.archetype %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {% endif %}{{ entry.deckVersion.deck.name }}
                                         </a>
                                     </td>
                                 </tr>
