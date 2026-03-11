@@ -375,6 +375,26 @@
                 <target>Importer une liste</target>
                 <note>Deck list import UI</note>
             </trans-unit>
+            <trans-unit id="app.deck.retire">
+                <source>app.deck.retire</source>
+                <target>Retirer</target>
+                <note>Button to retire a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reactivate">
+                <source>app.deck.reactivate</source>
+                <target>Réactiver</target>
+                <note>Button to reactivate a retired deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.confirm_retire">
+                <source>app.deck.confirm_retire</source>
+                <target>Êtes-vous sûr de vouloir retirer ce deck ? Il ne sera plus disponible pour l'emprunt.</target>
+                <note>Confirmation dialog when retiring a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.confirm_retire_with_borrows">
+                <source>app.deck.confirm_retire_with_borrows</source>
+                <target>Ce deck a %count% emprunt(s) actif(s). Les demandes en attente seront automatiquement annulées. Les emprunts en cours se poursuivront. Retirer ce deck ?</target>
+                <note>Confirmation dialog when retiring a deck with active borrows. %count% = number of active borrows</note>
+            </trans-unit>
             <trans-unit id="app.deck.deck_list_label">
                 <source>app.deck.deck_list_label</source>
                 <target>Liste de deck</target>
@@ -584,6 +604,115 @@
                 <source>app.deck.event_status.not_registered</source>
                 <target>Non inscrit</target>
                 <note>Badge label for deck not registered at event</note>
+            </trans-unit>
+
+            <!-- Deck activity pagination (F5.12) -->
+            <trans-unit id="app.deck.see_more_activity">
+                <source>app.deck.see_more_activity</source>
+                <target>Voir toute l'activité (%count%)</target>
+                <note>Link to full borrow history. %count% = total borrow count</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_history">
+                <source>app.deck.borrow_history</source>
+                <target>Historique des emprunts</target>
+                <note>Breadcrumb label for deck borrow history page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.borrow_history_title">
+                <source>app.deck.borrow_history_title</source>
+                <target>Historique des emprunts — %name%</target>
+                <note>Page title for deck borrow history. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.no_borrow_history">
+                <source>app.deck.no_borrow_history</source>
+                <target>Aucune activité d'emprunt pour ce deck.</target>
+                <note>Empty state on borrow history page</note>
+            </trans-unit>
+
+            <!-- Deck version history (F2.9) -->
+            <trans-unit id="app.deck.version_history">
+                <source>app.deck.version_history</source>
+                <target>Historique des versions</target>
+                <note>Link button on deck detail page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history_title">
+                <source>app.deck.version_history_title</source>
+                <target>Historique des versions — %name%</target>
+                <note>Page title for deck version history. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.version_number">
+                <source>app.deck.version_history.version_number</source>
+                <target>Version</target>
+                <note>Table header for version number</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.created_at">
+                <source>app.deck.version_history.created_at</source>
+                <target>Créée le</target>
+                <note>Table header for version creation date</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.card_count">
+                <source>app.deck.version_history.card_count</source>
+                <target>Cartes</target>
+                <note>Table header for card count</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.current">
+                <source>app.deck.version_history.current</source>
+                <target>Actuelle</target>
+                <note>Badge label for the current version</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.no_versions">
+                <source>app.deck.version_history.no_versions</source>
+                <target>Ce deck n'a pas encore d'historique de versions.</target>
+                <note>Empty state when deck has no versions</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_history.compare_title">
+                <source>app.deck.version_history.compare_title</source>
+                <target>Comparer les versions</target>
+                <note>Section title for version comparison tool</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.from_version">
+                <source>app.deck.version_compare.from_version</source>
+                <target>Depuis la version</target>
+                <note>Label for the "from" version selector</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.to_version">
+                <source>app.deck.version_compare.to_version</source>
+                <target>Vers la version</target>
+                <note>Label for the "to" version selector</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.added">
+                <source>app.deck.version_compare.added</source>
+                <target>Ajoutée</target>
+                <note>Badge for cards added in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.removed">
+                <source>app.deck.version_compare.removed</source>
+                <target>Supprimée</target>
+                <note>Badge for cards removed in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.changed">
+                <source>app.deck.version_compare.changed</source>
+                <target>Modifiée</target>
+                <note>Badge for cards with changed quantity in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.unchanged">
+                <source>app.deck.version_compare.unchanged</source>
+                <target>Inchangée</target>
+                <note>Badge for unchanged cards in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.show_unchanged">
+                <source>app.deck.version_compare.show_unchanged</source>
+                <target>Afficher les cartes inchangées</target>
+                <note>Toggle button to reveal unchanged cards</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.no_changes">
+                <source>app.deck.version_compare.no_changes</source>
+                <target>Ces versions sont identiques.</target>
+                <note>Message when two compared versions have no differences</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.change">
+                <source>app.deck.version_compare.change</source>
+                <target>Changement</target>
+                <note>Table header for change type column in version comparison</note>
             </trans-unit>
 
             <!-- Event list, detail, and forms -->
@@ -1821,6 +1950,26 @@
                 <target>Liste de deck importée (version %version%, %cards% cartes). L&apos;enrichissement des cartes est en cours en arrière-plan.</target>
                 <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
             </trans-unit>
+            <trans-unit id="app.flash.deck.retired">
+                <source>app.flash.deck.retired</source>
+                <target>Le deck « %name% » a été retiré.</target>
+                <note>Success flash after retiring a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.reactivated">
+                <source>app.flash.deck.reactivated</source>
+                <target>Le deck « %name% » a été réactivé.</target>
+                <note>Success flash after reactivating a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.retired_with_cancellations">
+                <source>app.flash.deck.retired_with_cancellations</source>
+                <target>Le deck « %name% » a été retiré. %count% demande(s) d'emprunt en attente ont été automatiquement annulée(s).</target>
+                <note>Success flash after retiring a deck that had pending borrows. %name% = deck name, %count% = cancelled count</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.cannot_retire_lent">
+                <source>app.flash.deck.cannot_retire_lent</source>
+                <target>Ce deck est actuellement prêté et ne peut pas être retiré.</target>
+                <note>Error flash when trying to retire a deck that is currently lent</note>
+            </trans-unit>
             <!-- Deck list parsing errors -->
             <trans-unit id="app.deck.parse.no_section_header">
                 <source>app.deck.parse.no_section_header</source>
@@ -2818,6 +2967,103 @@
                 <source>app.nav.admin_users</source>
                 <target>Gérer les utilisateurs</target>
                 <note>Admin dropdown link to user management</note>
+            </trans-unit>
+            <trans-unit id="app.nav.admin_archetypes">
+                <source>app.nav.admin_archetypes</source>
+                <target>Gérer les archétypes</target>
+                <note>Admin dropdown link to archetype management</note>
+            </trans-unit>
+
+            <!-- Admin: Archetype management -->
+            <trans-unit id="app.archetype.admin_list_title">
+                <source>app.archetype.admin_list_title</source>
+                <target>Gestion des archétypes</target>
+                <note>Admin archetype list page title</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.edit_title">
+                <source>app.archetype.edit_title</source>
+                <target>Modifier l'archétype : %name%</target>
+                <note>Admin archetype edit page title. %name% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.settings">
+                <source>app.archetype.settings</source>
+                <target>Paramètres</target>
+                <note>Admin archetype edit card header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.name_label">
+                <source>app.archetype.name_label</source>
+                <target>Nom</target>
+                <note>Admin archetype name field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_label">
+                <source>app.archetype.description_label</source>
+                <target>Description</target>
+                <note>Admin archetype description field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_placeholder">
+                <source>app.archetype.description_placeholder</source>
+                <target>Description Markdown pour la page de détail de l'archétype...</target>
+                <note>Admin archetype description placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.description_help">
+                <source>app.archetype.description_help</source>
+                <target>Supporte le formatage Markdown. Ce contenu apparaîtra sur la page de détail de l'archétype.</target>
+                <note>Admin archetype description help text</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.meta_description_label">
+                <source>app.archetype.meta_description_label</source>
+                <target>Meta description (SEO)</target>
+                <note>Admin archetype meta description field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_label">
+                <source>app.archetype.pokemon_slugs_label</source>
+                <target>Sprites Pokemon</target>
+                <note>Admin archetype pokemon slugs field label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_placeholder">
+                <source>app.archetype.pokemon_slugs_placeholder</source>
+                <target>ex. iron-thorns, mew, lugia</target>
+                <note>Admin archetype pokemon slugs placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.pokemon_slugs_help">
+                <source>app.archetype.pokemon_slugs_help</source>
+                <target>Slugs Pokemon séparés par des virgules pour l'affichage des sprites (ex. iron-thorns, mew). Les sprites apparaîtront à côté du nom de l'archétype.</target>
+                <note>Admin archetype pokemon slugs help text</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.is_published_label">
+                <source>app.archetype.is_published_label</source>
+                <target>Publié</target>
+                <note>Admin archetype published checkbox label</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.updated">
+                <source>app.archetype.updated</source>
+                <target>Archétype « %name% » mis à jour.</target>
+                <note>Flash after updating archetype. %name% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.no_archetypes">
+                <source>app.archetype.no_archetypes</source>
+                <target>Aucun archétype pour l'instant.</target>
+                <note>Empty state on admin archetype list</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.name">
+                <source>app.archetype.table.name</source>
+                <target>Nom</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.slug">
+                <source>app.archetype.table.slug</source>
+                <target>Slug</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.pokemon">
+                <source>app.archetype.table.pokemon</source>
+                <target>Pokemon</target>
+                <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.published">
+                <source>app.archetype.table.published</source>
+                <target>Publié</target>
+                <note>Admin archetype table column header</note>
             </trans-unit>
 
             <!-- Admin: User management -->

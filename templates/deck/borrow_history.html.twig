@@ -1,0 +1,56 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.deck.borrow_history_title'|trans({'%name%': deck.name}) }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'app.deck.borrow_history'|trans }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.deck.borrow_history_title'|trans({'%name%': deck.name}) }}</h5>
+        </div>
+        <div class="card-body">
+            {% if borrows|length > 0 %}
+                {% include 'borrow/_activity_list.html.twig' with {
+                    borrows: borrows,
+                    columns: ['event', 'borrower', 'status', 'date']
+                } only %}
+            {% else %}
+                <p class="text-muted mb-0">{{ 'app.deck.no_borrow_history'|trans }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if totalPages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ path('app_deck_borrow_history', {short_tag: deck.shortTag, page: currentPage - 1}) }}">{{ 'app.common.previous'|trans }}</a>
+                </li>
+                {% for p in 1..totalPages %}
+                    <li class="page-item {% if p == currentPage %}active{% endif %}">
+                        <a class="page-link" href="{{ path('app_deck_borrow_history', {short_tag: deck.shortTag, page: p}) }}">{{ p }}</a>
+                    </li>
+                {% endfor %}
+                <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ path('app_deck_borrow_history', {short_tag: deck.shortTag, page: currentPage + 1}) }}">{{ 'app.common.next'|trans }}</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}

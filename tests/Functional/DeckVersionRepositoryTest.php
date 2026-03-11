@@ -152,13 +152,13 @@ class DeckVersionRepositoryTest extends AbstractFunctionalTest
         $repository = $this->getRepository();
         $entityManager = $this->getEntityManager();
 
-        // Get a deck with at least one version (Iron Thorns has version 1)
+        // Get a deck with multiple versions (Iron Thorns has versions 1, 2, and 3)
         $deck = $entityManager->getRepository(Deck::class)->findOneBy(['name' => 'Iron Thorns']);
         self::assertNotNull($deck);
 
         $maxVersion = $repository->findMaxVersionNumber($deck);
 
-        self::assertSame(1, $maxVersion, 'Iron Thorns should have max version number 1.');
+        self::assertSame(3, $maxVersion, 'Iron Thorns should have max version number 3.');
     }
 
     public function testFindMaxVersionNumberReturnsZeroForDeckWithNoVersions(): void

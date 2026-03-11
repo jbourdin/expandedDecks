@@ -8,6 +8,8 @@
  */
 
 const Encore = require('@symfony/webpack-encore');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
     Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
@@ -25,6 +27,7 @@ Encore
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
     .addEntry('event_sync', './assets/event-sync.ts')
     .addEntry('notification_bell', './assets/notification-bell.tsx')
+    .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
@@ -41,6 +44,14 @@ Encore
             silenceDeprecations: ['import'],
         };
     })
+
+    .addPlugin(new CopyWebpackPlugin({
+        patterns: [{
+            from: path.resolve(__dirname, 'assets/vendor/sprites/pokemon'),
+            to: 'sprites/pokemon',
+            noErrorOnMissing: true,
+        }],
+    }))
 ;
 
 module.exports = Encore.getWebpackConfig();

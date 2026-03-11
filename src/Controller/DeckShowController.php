@@ -31,9 +31,12 @@ use Symfony\Component\Routing\Attribute\Route;
  * @see docs/features.md F2.3 — Detail view
  * @see docs/features.md F2.14 — Deck event status overview
  * @see docs/features.md F4.5 — Borrow history
+ * @see docs/features.md F5.12 — Deck show activity pagination
  */
 class DeckShowController extends AbstractController
 {
+    private const int ACTIVITY_PREVIEW_LIMIT = 5;
+
     #[Route('/deck/{short_tag}', name: 'app_deck_show', methods: ['GET'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
     public function show(
         #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
@@ -103,11 +106,16 @@ class DeckShowController extends AbstractController
 
         // Anonymous users get empty borrow data
         $deckBorrows = [];
+        $totalBorrowCount = 0;
         $eligibleEvents = [];
         $eventStatusOverview = [];
 
         if (null !== $user) {
-            $deckBorrows = $borrowRepository->findByDeckForUser($deck, $user);
+            $deckBorrows = $borrowRepository->findByDeckForUser($deck, $user, self::ACTIVITY_PREVIEW_LIMIT);
+            $totalBorrowCount = (int) $borrowRepository->createDeckForUserQueryBuilder($deck, $user)
+                ->select('COUNT(b.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
 
             // Only show eligible events if deck is not retired, user is not owner, and deck has a version
             if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && null !== $currentVersion) {
@@ -145,13 +153,18 @@ class DeckShowController extends AbstractController
             }
         }
 
+        $activeBorrowCount = $isOwner ? $borrowRepository->countActiveBorrowsForDeck($deck) : 0;
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
+            'totalBorrowCount' => $totalBorrowCount,
+            'activeBorrowCount' => $activeBorrowCount,
             'eligibleEvents' => $eligibleEvents,
             'eventStatusOverview' => $eventStatusOverview,
+            'versionCount' => $deck->getVersions()->count(),
         ]);
     }
 }

@@ -27,6 +27,7 @@
         "@types/bootstrap": "^5.2.10",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
+        "copy-webpack-plugin": "^14.0.0",
         "core-js": "^3.38.0",
         "eslint": "^9.0.0",
         "eslint-plugin-react": "^7.0.0",

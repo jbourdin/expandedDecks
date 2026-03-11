@@ -420,6 +420,43 @@ class BorrowService
     }
 
     /**
+     * Cancel all pending borrows for a retired deck.
+     * Non-pending borrows (approved, lent, overdue) are left to complete naturally.
+     *
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     *
+     * @return int Number of borrows cancelled
+     */
+    public function cancelPendingBorrowsForRetiredDeck(Deck $deck, User $owner): int
+    {
+        $borrows = $this->borrowRepository->findPendingBorrowsForDeck($deck);
+        $count = 0;
+
+        foreach ($borrows as $borrow) {
+            $this->borrowStateMachine->apply($borrow, 'cancel_pending');
+
+            $borrow->setCancelledAt(new \DateTimeImmutable());
+            $borrow->setCancelledBy($owner);
+
+            $this->createNotification(
+                $borrow->getBorrower(),
+                NotificationType::BorrowCancelled,
+                'Borrow cancelled — deck retired',
+                \sprintf('The borrow of "%s" was cancelled because the deck was retired.', $deck->getName()),
+                $borrow,
+            );
+
+            ++$count;
+        }
+
+        if ($count > 0) {
+            $this->em->flush();
+        }
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F4.8 — Staff-delegated lending
      */
     private function assertOwnerOrDelegatedStaff(Borrow $borrow, User $actor): void

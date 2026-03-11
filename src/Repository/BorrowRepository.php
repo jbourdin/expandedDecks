@@ -337,6 +337,50 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all pending borrows for a deck (across all events).
+     *
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     *
+     * @return list<Borrow>
+     */
+    public function findPendingBorrowsForDeck(Deck $deck): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.event', 'e')
+            ->join('b.borrower', 'u')
+            ->addSelect('e', 'u')
+            ->where('b.deck = :deck')
+            ->andWhere('b.status = :status')
+            ->setParameter('deck', $deck)
+            ->setParameter('status', BorrowStatus::Pending->value)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Count non-terminal borrows for a deck (pending, approved, lent, overdue).
+     *
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     */
+    public function countActiveBorrowsForDeck(Deck $deck): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.deck = :deck')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('deck', $deck)
+            ->setParameter('statuses', self::activeStatusValues())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @return list<string>
      */
     public static function activeStatusValues(): array
@@ -485,13 +529,30 @@ class BorrowRepository extends ServiceEntityRepository
      * Borrows for a deck visible to the given user (owner, borrower, or event organizer).
      *
      * @see docs/features.md F4.5 — Borrow history
+     * @see docs/features.md F5.12 — Deck show activity pagination
      *
      * @return list<Borrow>
      */
-    public function findByDeckForUser(Deck $deck, User $user): array
+    public function findByDeckForUser(Deck $deck, User $user, ?int $limit = null): array
     {
+        $qb = $this->createDeckForUserQueryBuilder($deck, $user);
+
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
+
         /** @var list<Borrow> $borrows */
-        $borrows = $this->createQueryBuilder('b')
+        $borrows = $qb->getQuery()->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * @see docs/features.md F5.12 — Deck show activity pagination
+     */
+    public function createDeckForUserQueryBuilder(Deck $deck, User $user): QueryBuilder
+    {
+        return $this->createQueryBuilder('b')
             ->join('b.deck', 'd')
             ->join('b.event', 'e')
             ->join('b.borrower', 'u')
@@ -500,11 +561,7 @@ class BorrowRepository extends ServiceEntityRepository
             ->andWhere('d.owner = :user OR b.borrower = :user OR e.organizer = :user')
             ->setParameter('deck', $deck)
             ->setParameter('user', $user)
-            ->orderBy('b.requestedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        return $borrows;
+            ->orderBy('b.requestedAt', 'DESC');
     }
 
     /**

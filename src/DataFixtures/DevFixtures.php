@@ -62,16 +62,18 @@ class DevFixtures extends Fixture
         $this->createDraftEvent($manager, $organizer, $admin);
 
         // Create archetypes
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex');
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box');
-        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago');
-        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops');
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true);
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], 'A **Regidrago VSTAR** deck that copies powerful Dragon-type attacks from the discard pile.', true);
+        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
 
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
         $ironThorns->setLanguages(['en']);
         $ironThorns->setPublic(true);
         $this->createIronThornsDeckVersion($manager, $ironThorns);
+        $this->createIronThornsDeckVersionTwo($manager, $ironThorns);
+        $this->createIronThornsDeckVersionThree($manager, $ironThorns);
 
         $ancientBox = $this->createDeck($manager, $admin, 'Ancient Box');
         $ancientBox->setArchetype($archetypeAncientBox);
@@ -83,6 +85,7 @@ class DevFixtures extends Fixture
         $lenderDeck->setLanguages(['en']);
         $lenderDeck->setPublic(true);
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
+        $this->createRegidragoDeckVersionTwo($manager, $lenderDeck);
 
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
         $borrowerDeck->setArchetype($archetypeLugia);
@@ -476,10 +479,16 @@ class DevFixtures extends Fixture
         $manager->persist($entry3);
     }
 
-    private function createArchetype(ObjectManager $manager, string $name): Archetype
+    /**
+     * @param list<string> $pokemonSlugs
+     */
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], ?string $description = null, bool $isPublished = false): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
+        $archetype->setPokemonSlugs($pokemonSlugs);
+        $archetype->setDescription($description);
+        $archetype->setIsPublished($isPublished);
 
         $manager->persist($archetype);
 
@@ -616,6 +625,159 @@ class DevFixtures extends Fixture
 
             Total Cards: 60
             PTCG;
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createIronThornsDeckVersionTwo(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(2);
+
+        // V2 changes vs V1: removed Megaton Blower SSP 182, added Crushing Hammer,
+        // changed Plumeria quantity 4->3, changed Enhanced Hammer quantity 2->3
+        $cardsVersion2 = $this->getIronThornsDeckCards();
+
+        // Remove Megaton Blower
+        $cardsVersion2 = array_filter($cardsVersion2, static fn (array $card): bool => 'Megaton Blower' !== $card['name']);
+        $cardsVersion2 = array_values($cardsVersion2);
+
+        // Add Crushing Hammer
+        $cardsVersion2[] = ['name' => 'Crushing Hammer', 'set' => 'SSH', 'number' => '159', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'];
+
+        foreach ($cardsVersion2 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            // Apply quantity changes
+            $quantity = $cardData['quantity'];
+            if ('Plumeria' === $cardData['name']) {
+                $quantity = 3;
+            }
+            if ('Enhanced Hammer' === $cardData['name']) {
+                $quantity = 3;
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createIronThornsDeckVersionThree(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(3);
+
+        // V3 changes vs V2: removed Stealthy Hood, removed Capture Energy,
+        // added 2 Lightning Energy, changed Chaotic Swell 3->2, changed VS Seeker 3->4
+        $cardsVersion3 = $this->getIronThornsDeckCards();
+
+        // Remove Megaton Blower (same as v2), Stealthy Hood, Capture Energy
+        $cardsVersion3 = array_filter(
+            $cardsVersion3,
+            static fn (array $card): bool => !\in_array($card['name'], ['Megaton Blower', 'Stealthy Hood', 'Capture Energy'], true),
+        );
+        $cardsVersion3 = array_values($cardsVersion3);
+
+        // Add Crushing Hammer (same as v2)
+        $cardsVersion3[] = ['name' => 'Crushing Hammer', 'set' => 'SSH', 'number' => '159', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'];
+        // Add Lightning Energy
+        $cardsVersion3[] = ['name' => 'Lightning Energy', 'set' => 'SVE', 'number' => '4', 'quantity' => 2, 'type' => 'energy', 'subtype' => null];
+
+        foreach ($cardsVersion3 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            $quantity = $cardData['quantity'];
+            if ('Plumeria' === $cardData['name']) {
+                $quantity = 3; // same as v2
+            }
+            if ('Enhanced Hammer' === $cardData['name']) {
+                $quantity = 3; // same as v2
+            }
+            if ('Chaotic Swell' === $cardData['name']) {
+                $quantity = 2; // was 3 in v1/v2
+            }
+            if ('VS Seeker' === $cardData['name']) {
+                $quantity = 4; // was 3 in v1/v2
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    private function createRegidragoDeckVersionTwo(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(2);
+
+        // V2 changes vs V1: removed Wobbuffet, removed Leafy Camo Poncho,
+        // added Giratina VSTAR, added Float Stone,
+        // changed Guzma 2->1, changed Professor's Research 3->4
+        $cardsVersion2 = $this->getRegidragoDeckCards();
+
+        $cardsVersion2 = array_filter(
+            $cardsVersion2,
+            static fn (array $card): bool => !\in_array($card['name'], ['Wobbuffet', 'Leafy Camo Poncho'], true),
+        );
+        $cardsVersion2 = array_values($cardsVersion2);
+
+        $cardsVersion2[] = ['name' => 'Giratina VSTAR', 'set' => 'LOR', 'number' => '131', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null];
+        $cardsVersion2[] = ['name' => 'Float Stone', 'set' => 'PLF', 'number' => '99', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'];
+
+        foreach ($cardsVersion2 as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+
+            $quantity = $cardData['quantity'];
+            if ('Guzma' === $cardData['name']) {
+                $quantity = 1; // was 2
+            }
+            if ("Professor's Research" === $cardData['name']) {
+                $quantity = 4; // was 3
+            }
+
+            $card->setQuantity($quantity);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
     }
 
     private function createAncientBoxDeckVersion(ObjectManager $manager, Deck $deck): void
