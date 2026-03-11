@@ -375,6 +375,21 @@
                 <target>Import List</target>
                 <note>Deck list import UI</note>
             </trans-unit>
+            <trans-unit id="app.deck.retire">
+                <source>app.deck.retire</source>
+                <target>Retire</target>
+                <note>Button to retire a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reactivate">
+                <source>app.deck.reactivate</source>
+                <target>Reactivate</target>
+                <note>Button to reactivate a retired deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.confirm_retire">
+                <source>app.deck.confirm_retire</source>
+                <target>Are you sure you want to retire this deck? It will no longer be available for borrowing.</target>
+                <note>Confirmation dialog when retiring a deck</note>
+            </trans-unit>
             <trans-unit id="app.deck.deck_list_label">
                 <source>app.deck.deck_list_label</source>
                 <target>Deck list</target>
@@ -1929,6 +1944,21 @@
                 <source>app.flash.deck.imported</source>
                 <target>Deck list imported (version %version%, %cards% cards). Card enrichment is processing in the background.</target>
                 <note>Success flash after importing deck list. %version% = version number, %cards% = card count</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.retired">
+                <source>app.flash.deck.retired</source>
+                <target>Deck "%name%" has been retired.</target>
+                <note>Success flash after retiring a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.reactivated">
+                <source>app.flash.deck.reactivated</source>
+                <target>Deck "%name%" has been reactivated.</target>
+                <note>Success flash after reactivating a deck. %name% = deck name</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.cannot_retire_lent">
+                <source>app.flash.deck.cannot_retire_lent</source>
+                <target>This deck is currently lent and cannot be retired.</target>
+                <note>Error flash when trying to retire a deck that is currently lent</note>
             </trans-unit>
             <!-- Deck list parsing errors -->
             <trans-unit id="app.deck.parse.no_section_header">

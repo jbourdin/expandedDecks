@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\User;
+use App\Enum\DeckStatus;
 use App\Form\DeckFormType;
 use App\Form\DeckImportFormType;
 use App\Message\EnrichDeckVersionMessage;
@@ -35,6 +36,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.2 — Import deck list (PTCG text format)
+ * @see docs/features.md F2.7 — Retire / reactivate a deck
  * @see docs/features.md F2.8 — Update list
  * @see docs/features.md F2.13 — Inline deck list import on creation
  */
@@ -205,6 +207,37 @@ class DeckController extends AbstractAppController
             'form' => $form,
             'nextVersion' => $nextVersion,
         ]);
+    }
+
+    /**
+     * @see docs/features.md F2.7 — Retire / reactivate a deck
+     */
+    #[Route('/{id}/toggle-retired', name: 'app_deck_toggle_retired', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function toggleRetired(Deck $deck, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOwner($deck);
+
+        if (!$this->isCsrfTokenValid('deck-toggle-retired-'.$deck->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (DeckStatus::Lent === $deck->getStatus()) {
+            $this->addFlash('danger', 'app.flash.deck.cannot_retire_lent');
+
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+        }
+
+        if (DeckStatus::Retired === $deck->getStatus()) {
+            $deck->setStatus(DeckStatus::Available);
+            $em->flush();
+            $this->addFlash('success', 'app.flash.deck.reactivated', ['%name%' => $deck->getName()]);
+        } else {
+            $deck->setStatus(DeckStatus::Retired);
+            $em->flush();
+            $this->addFlash('success', 'app.flash.deck.retired', ['%name%' => $deck->getName()]);
+        }
+
+        return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
     }
 
     /**
