@@ -1,0 +1,70 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.archetype.edit_title'|trans({'%name%': archetype.name}) }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.archetype.edit_title'|trans({'%name%': archetype.name}) }}</h1>
+        <a href="{{ path('app_admin_archetype_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.archetype.settings'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_row(form.name) }}
+                {{ form_row(form.description) }}
+                <p class="text-muted small">{{ 'app.archetype.description_help'|trans }}</p>
+                {{ form_row(form.metaDescription) }}
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'app.archetype.pokemon_slugs_label'|trans }}</label>
+                    <input type="text"
+                           class="form-control"
+                           id="pokemon-slugs-input"
+                           value="{{ archetype.pokemonSlugs|join(', ') }}"
+                           placeholder="{{ 'app.archetype.pokemon_slugs_placeholder'|trans }}">
+                    <p class="text-muted small mt-1">{{ 'app.archetype.pokemon_slugs_help'|trans }}</p>
+                    {{ form_widget(form.pokemonSlugs, {id: 'pokemon-slugs-hidden'}) }}
+                </div>
+
+                {{ form_row(form.isPublished) }}
+                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function() {
+            const input = document.getElementById('pokemon-slugs-input');
+            const hidden = document.getElementById('pokemon-slugs-hidden');
+
+            function syncSlugs() {
+                const value = input.value.trim();
+                if (value === '') {
+                    hidden.value = '[]';
+                } else {
+                    const slugs = value.split(',').map(function(slug) { return slug.trim(); }).filter(function(slug) { return slug !== ''; });
+                    hidden.value = JSON.stringify(slugs);
+                }
+            }
+
+            syncSlugs();
+            input.addEventListener('input', syncSlugs);
+            input.closest('form').addEventListener('submit', syncSlugs);
+        })();
+    </script>
+{% endblock %}

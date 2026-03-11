@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ArchetypeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -39,6 +40,33 @@ class Archetype
 
     #[ORM\Column(length: 100)]
     private string $slug = '';
+
+    /**
+     * @var list<string>
+     *
+     * @see docs/features.md F2.12 — Archetype sprite pictograms
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $pokemonSlugs = [];
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $metaDescription = null;
+
+    /**
+     * @see docs/features.md F2.10 — Archetype detail page
+     */
+    #[ORM\Column]
+    private bool $isPublished = false;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -81,6 +109,60 @@ class Archetype
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getPokemonSlugs(): array
+    {
+        return $this->pokemonSlugs;
+    }
+
+    /**
+     * @param list<string> $pokemonSlugs
+     */
+    public function setPokemonSlugs(array $pokemonSlugs): static
+    {
+        $this->pokemonSlugs = $pokemonSlugs;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription;
+
+        return $this;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setIsPublished(bool $isPublished): static
+    {
+        $this->isPublished = $isPublished;
+
+        return $this;
     }
 
     #[ORM\PrePersist]
