@@ -505,6 +505,11 @@
                 <target>Archétype</target>
                 <note>Catalog filter label</note>
             </trans-unit>
+            <trans-unit id="app.deck.archetype_filter_placeholder">
+                <source>app.deck.archetype_filter_placeholder</source>
+                <target>Sélectionner un archétype…</target>
+                <note>Catalog archetype filter placeholder</note>
+            </trans-unit>
             <trans-unit id="app.deck.event_filter">
                 <source>app.deck.event_filter</source>
                 <target>Événement</target>

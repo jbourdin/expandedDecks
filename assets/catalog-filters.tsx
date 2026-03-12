@@ -10,6 +10,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
+import ArchetypeFilterSelect from './components/ArchetypeFilterSelect';
 import AsyncAutocomplete from './components/AsyncAutocomplete';
 
 import '@mantine/core/styles.css';
@@ -17,31 +18,29 @@ import '@mantine/core/styles.css';
 /**
  * Mantine autocomplete entry point for all deck catalog filters.
  *
- * Mounts AsyncAutocomplete instances for archetype, event, and owner
- * search fields in the catalog filter bar.
+ * Mounts ArchetypeFilterSelect for the archetype dropdown and
+ * AsyncAutocomplete instances for event and owner search fields
+ * in the catalog filter bar.
  *
  * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+ * @see docs/features.md F2.17 — Deck catalog archetype filter UX
  */
 
 document.querySelectorAll<HTMLElement>('[data-catalog-archetype]').forEach((root) => {
-    const searchUrl = root.dataset.searchUrl ?? '';
+    const catalogUrl = root.dataset.catalogUrl ?? '';
     const hiddenInput = root.dataset.hiddenInput ?? 'archetype';
-    const placeholder = root.dataset.placeholder ?? 'Search archetype...';
+    const placeholder = root.dataset.placeholder ?? 'Select archetype...';
     const initialValue = root.dataset.initialValue ?? '';
-    const initialId = root.dataset.initialId ?? '';
+    const initialLabel = root.dataset.initialLabel ?? '';
 
     createRoot(root).render(
         <MantineProvider>
-            <AsyncAutocomplete
-                searchUrl={searchUrl}
+            <ArchetypeFilterSelect
+                catalogUrl={catalogUrl}
                 hiddenInputName={hiddenInput}
                 placeholder={placeholder}
                 initialValue={initialValue}
-                initialHiddenValue={initialId}
-                mapResult={(item) => ({
-                    value: item.slug as string,
-                    label: item.name as string,
-                })}
+                initialLabel={initialLabel}
             />
         </MantineProvider>,
     );

@@ -59,6 +59,34 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         self::assertArrayHasKey('slug', $data[0]);
     }
 
+    /**
+     * @see docs/features.md F2.17 — Deck catalog archetype filter UX
+     */
+    public function testArchetypeCatalogEndpointReturnsPublishedWithPublicDecks(): void
+    {
+        $this->client->request('GET', '/api/archetype/catalog');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertNotEmpty($data);
+        self::assertArrayHasKey('name', $data[0]);
+        self::assertArrayHasKey('slug', $data[0]);
+        self::assertArrayHasKey('pokemonSlugs', $data[0]);
+        self::assertIsArray($data[0]['pokemonSlugs']);
+    }
+
+    /**
+     * @see docs/features.md F2.17 — Deck catalog archetype filter UX
+     */
+    public function testArchetypeCatalogEndpointIsPubliclyAccessible(): void
+    {
+        // No login — should still work
+        $this->client->request('GET', '/api/archetype/catalog');
+
+        self::assertResponseIsSuccessful();
+    }
+
     public function testOnlyPublicDecksAreListed(): void
     {
         $this->client->request('GET', '/deck');
