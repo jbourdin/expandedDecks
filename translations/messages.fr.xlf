@@ -329,6 +329,43 @@
                 <note>Admin overview stat label</note>
             </trans-unit>
 
+            <!-- Dashboard action reminders (F7.4) -->
+            <trans-unit id="app.dashboard.reminders.title">
+                <source>app.dashboard.reminders.title</source>
+                <target>Actions requises</target>
+                <note>Dashboard reminders widget title</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.borrow_to_return">
+                <source>app.dashboard.reminders.borrow_to_return</source>
+                <target>Rendre %deck% (%event%)</target>
+                <note>Reminder for borrowed deck to return. %deck% = deck name, %event% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.pending_request">
+                <source>app.dashboard.reminders.pending_request</source>
+                <target>%borrower% souhaite emprunter %deck%</target>
+                <note>Reminder for pending borrow request. %deck% = deck name, %borrower% = borrower screen name</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.needs_deck">
+                <source>app.dashboard.reminders.needs_deck</source>
+                <target>Choisir un deck pour %event%</target>
+                <note>Reminder for event without deck selection. %event% = event name</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.review">
+                <source>app.dashboard.reminders.review</source>
+                <target>Examiner</target>
+                <note>Button label for reviewing pending borrow requests</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.select_deck">
+                <source>app.dashboard.reminders.select_deck</source>
+                <target>Choisir un deck</target>
+                <note>Button label for selecting a deck at an event</note>
+            </trans-unit>
+            <trans-unit id="app.dashboard.reminders.no_deck_badge">
+                <source>app.dashboard.reminders.no_deck_badge</source>
+                <target>Pas de deck</target>
+                <note>Badge for event where no deck has been selected</note>
+            </trans-unit>
+
             <!-- Deck catalog, detail, and forms -->
             <trans-unit id="app.deck.catalog_title">
                 <source>app.deck.catalog_title</source>
