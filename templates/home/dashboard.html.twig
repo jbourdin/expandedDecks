@@ -13,6 +13,52 @@
 {% block body %}
     <h1 class="mb-4">{{ 'app.dashboard.welcome'|trans({'%name%': user.screenName}) }}</h1>
 
+    {# Action reminders (F7.4) — only shown when there are items needing attention #}
+    {% if borrowsToReturn|length > 0 or pendingRequests|length > 0 or eventsNeedingDeck|length > 0 %}
+        <div class="card border-warning shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">{{ 'app.dashboard.reminders.title'|trans }}</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for borrow in borrowsToReturn %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge {{ borrow.status.value == 'overdue' ? 'bg-danger' : 'bg-info' }} me-2">{{ ('app.borrow.status.' ~ borrow.status.value)|trans }}</span>
+                                {{ 'app.dashboard.reminders.borrow_to_return'|trans({
+                                    '%deck%': borrow.deck.name,
+                                    '%event%': borrow.event.name
+                                }) }}
+                            </div>
+                            <a href="{{ path('app_event_show', {id: borrow.event.id}) }}#borrowing" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
+                        </li>
+                    {% endfor %}
+                    {% for borrow in pendingRequests %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-warning text-dark me-2">{{ 'app.borrow.status.pending'|trans }}</span>
+                                {{ 'app.dashboard.reminders.pending_request'|trans({
+                                    '%deck%': borrow.deck.name,
+                                    '%borrower%': borrow.borrower.screenName
+                                }) }}
+                            </div>
+                            <a href="{{ path('app_lend_list', {status: 'pending'}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.review'|trans }}</a>
+                        </li>
+                    {% endfor %}
+                    {% for event in eventsNeedingDeck %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-secondary me-2">{{ 'app.dashboard.reminders.no_deck_badge'|trans }}</span>
+                                {{ 'app.dashboard.reminders.needs_deck'|trans({'%event%': event.name}) }}
+                            </div>
+                            <a href="{{ path('app_event_show', {id: event.id}) }}#deck-selection" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.select_deck'|trans }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+
     {% if stats is defined %}
         <h5 class="text-muted mb-2">{{ 'app.dashboard.stats.global_title'|trans }}</h5>
         <div class="row mb-4">

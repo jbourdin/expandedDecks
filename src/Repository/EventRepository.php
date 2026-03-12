@@ -16,6 +16,7 @@ namespace App\Repository;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
+use App\Enum\EngagementState;
 use App\Enum\EventVisibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -272,6 +273,37 @@ class EventRepository extends ServiceEntityRepository
             ->andWhere('e.cancelledAt IS NULL')
             ->andWhere('e.finishedAt IS NULL')
             ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Upcoming events where the user is registered as playing but has not yet
+     * selected a deck (no EventDeckEntry exists for this user at this event).
+     *
+     * @see docs/features.md F7.4 — Dashboard action reminders
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingNeedingDeckSelection(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+            ->where('eg.state = :playing')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('NOT EXISTS (
+                SELECT de.id FROM App\Entity\EventDeckEntry de
+                WHERE de.event = e AND de.player = :user
+            )')
+            ->setParameter('user', $user)
+            ->setParameter('playing', EngagementState::RegisteredPlaying)
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('e.date', 'ASC')
             ->getQuery()

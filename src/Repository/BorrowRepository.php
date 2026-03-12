@@ -526,6 +526,31 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Borrows the user needs to return (status: lent or overdue).
+     *
+     * @see docs/features.md F7.4 — Dashboard action reminders
+     *
+     * @return list<Borrow>
+     */
+    public function findBorrowsToReturn(User $borrower): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('b.event', 'e')
+            ->addSelect('d', 'e')
+            ->where('b.borrower = :borrower')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('borrower', $borrower)
+            ->setParameter('statuses', [BorrowStatus::Lent->value, BorrowStatus::Overdue->value])
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * Borrows for a deck visible to the given user (owner, borrower, or event organizer).
      *
      * @see docs/features.md F4.5 — Borrow history

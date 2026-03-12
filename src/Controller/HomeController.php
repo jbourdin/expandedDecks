@@ -87,6 +87,7 @@ class HomeController extends AbstractController
 
     /**
      * @see docs/features.md F7.1 — Dashboard
+     * @see docs/features.md F7.4 — Dashboard action reminders
      */
     #[Route('/dashboard', name: 'app_dashboard')]
     #[IsGranted('ROLE_USER')]
@@ -115,6 +116,11 @@ class HomeController extends AbstractController
             $newsTotalCount = $pageRepository->countPublishedByCategory($newsCategory);
         }
 
+        // Action reminders (F7.4)
+        $borrowsToReturn = $borrowRepository->findBorrowsToReturn($user);
+        $pendingRequests = $borrowRepository->findPendingRequestsForOwner($user);
+        $eventsNeedingDeck = $eventRepository->findUpcomingNeedingDeckSelection($user);
+
         $params = [
             'newsPages' => $newsPages,
             'newsCategory' => $newsCategory,
@@ -126,6 +132,9 @@ class HomeController extends AbstractController
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
             'recentLends' => $borrowRepository->findRecentByDeckOwner($user),
             'recentManagedBorrows' => $borrowRepository->findRecentByEventOrganizerOrStaff($user),
+            'borrowsToReturn' => $borrowsToReturn,
+            'pendingRequests' => $pendingRequests,
+            'eventsNeedingDeck' => $eventsNeedingDeck,
         ];
 
         if ($this->isGranted('ROLE_ORGANIZER')) {
