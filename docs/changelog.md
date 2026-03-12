@@ -16,6 +16,38 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.1] — 2026-03-12
+
+First beta of the 1.0.0 release — Phase 9 completion. Archetype ecosystem fully built out, dashboard action reminders, deck activity pagination, version history, and retire/reactivate workflow.
+
+### Deck Library
+
+- **F2.6** — Deck archetype management *(completed)*: full admin CRUD for archetypes with name, slug, published flag, description (Markdown), Pokémon slugs for sprites, and playstyle tags. Dedicated `ROLE_ARCHETYPE_EDITOR` role.
+- **F2.7** — Retire / reactivate a deck *(completed)*: deck owners can retire a deck (auto-cancels pending borrows with warning dialog) and reactivate it later.
+- **F2.9** — Deck version history *(completed)*: view all deck versions with side-by-side card comparison, card image hover, and enriched fixtures.
+- **F2.10** — Archetype detail page *(completed)*: public page with Markdown description, custom tags (deck links, card images), cached rendering, and latest decks list.
+- **F2.11** — Archetype backlinking *(completed)*: decks link to their archetype detail page across all views.
+- **F2.12** — Archetype sprite pictograms *(completed)*: Pokémon box sprites displayed next to deck names across the entire UI (catalog, detail, dashboard, events, borrows, results). Build-time sprite download via PokéSprite fork.
+- **F2.15** — Archetype playstyle tags *(completed)*: free-text tags on archetypes (e.g. "Aggro", "Control", "Toolbox") managed via Mantine TagsInput in admin form.
+- **F2.16** — Archetype catalog *(completed)*: public browse page with card grid, multi-select tag filtering (OR logic), sort by name or deck count, sprites, and tag badges.
+- **F2.17** — Deck catalog archetype filter UX *(completed)*: replaced text search with a searchable sprite dropdown (Mantine Combobox) showing all published archetypes with their sprites.
+- **F2.18** — Admin archetype create/edit form *(completed)*: dedicated admin form for creating and editing archetypes with all fields.
+- **F5.12** — Deck show activity pagination *(completed)*: deck detail page shows only the 5 most recent activity entries with a "See more" link.
+
+### Dashboard & UX
+
+- **F7.4** — Dashboard action reminders *(completed)*: warning widget showing borrows to return, pending requests to review, and events needing deck selection. Action links scroll to relevant page sections via anchors.
+
+### Documentation
+
+- Roadmap restructured: completed features removed from phase tables, 28 remaining features organized into 7 logical phases (A–G) with PDF labels before Zebra labels.
+
+### Cross-Cutting
+
+- Phase 9 progress: 17/34 done, 17 remaining
+- All archetype features complete (F2.6, F2.10, F2.11, F2.12, F2.15, F2.16, F2.17, F2.18)
+- 75 total features implemented
+
 ## [0.8.0] — 2026-03-10
 
 Quality & i18n release — comprehensive test coverage, lint tooling, translation of all remaining controller/form strings, and dead code removal.
