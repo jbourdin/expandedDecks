@@ -2,320 +2,154 @@
 
 > **Audience:** Developer, AI Agent · **Scope:** Planning, Reference
 
-← Back to [Main Documentation](docs.md) | [Feature List](features.md) | [README](../README.md)
+← Back to [Main Documentation](docs.md) | [Feature List](features.md) | [Changelog](changelog.md) | [README](../README.md)
 
-This roadmap orders every feature from the [Feature List](features.md) into sequential implementation phases. Features within each phase can be developed in parallel; phases should be completed roughly in order because later phases depend on earlier ones.
+This roadmap lists **remaining features** to be implemented, grouped into logical phases. Completed features are documented in the [Feature List](features.md) and tracked in the [Changelog](changelog.md).
 
 **Ordering criteria:** dependency constraints first, then priority (High → Medium → Low), then logical grouping for coherent deliverables.
 
-### Implementation states
+---
 
-Each feature carries a **State** that must be kept up to date as work progresses:
+## Completed Features
 
-| State           | Meaning |
-|-----------------|---------|
-| **Done**        | Feature is fully implemented and functional |
-| **Partial**     | Scaffolding exists (entity, fields, enum, or basic controller) but the feature is not yet usable end-to-end |
-| **Not started** | No meaningful implementation exists |
+The following features have been fully implemented across phases 1–9. See [features.md](features.md) for full descriptions and [changelog.md](changelog.md) for release history.
 
-> **Maintenance rule:** when a PR changes the implementation state of a feature, update this file in the same PR.
+F1.1, F1.2, F1.3, F1.4, F1.7, F1.8, F1.11,
+F2.1, F2.2, F2.3, F2.4, F2.5, F2.6, F2.7, F2.8, F2.9, F2.10, F2.11, F2.12, F2.13, F2.14, F2.15, F2.16, F2.17, F2.18,
+F3.1, F3.2, F3.3, F3.4, F3.5, F3.7, F3.9, F3.10, F3.11, F3.13, F3.15, F3.17, F3.18, F3.20, F3.21,
+F4.1, F4.2, F4.3, F4.4, F4.5, F4.7, F4.8, F4.9, F4.10, F4.11, F4.12, F4.13, F4.14,
+F5.12,
+F6.1, F6.2, F6.3, F6.4, F6.5,
+F7.1, F7.2, F7.4,
+F8.1, F8.2, F8.3, F8.4,
+F9.1, F9.2, F9.3, F9.4,
+F10.1, F10.2,
+F11.1, F11.2, F11.3
+
+**Total: 75 features done.**
 
 ---
 
-## Phase 1 — Auth & Foundation
+## Phase A — UX Polish & Overdue Tracking
 
-> Accounts, roles, and datetime infrastructure. Everything else depends on authenticated users.
+> Quick wins that improve daily usage: overdue alerts, bookmarks, aggregate views, and visual enhancements.
 
-| ID   | Feature                            | Priority | State       | Depends on |
-|------|------------------------------------|----------|-------------|------------|
-| F1.1 | User registration & authentication | High     | Done        | —          |
-| F1.2 | Email verification                 | High     | Done        | F1.1       |
-| F1.4 | Role-based access control          | High     | Done        | F1.1       |
-| F1.7 | Password reset                     | High     | Done        | F1.1       |
-| F9.4 | UTC datetime storage               | High     | Done        | —          |
+| ID    | Feature                                 | Priority | Depends on       |
+|-------|-----------------------------------------|----------|------------------|
+| F4.6  | Overdue tracking                        | Low      | F4.4             |
+| F7.5  | Registered decks aggregate view         | Low      | F7.1             |
+| F6.6  | Visual deck list (card mosaic)          | Low      | F6.4             |
+| F13.1 | Bookmark a deck                         | Low      | F2.4             |
+| F13.2 | Bookmark an event                       | Low      | F3.2             |
+| F13.3 | Bookmark an archetype                   | Low      | F2.16            |
 
-**Progress: 5/5 done**
+**Progress: 0/6 done**
 
-**Deliverable:** Users can register, verify email, log in, reset passwords. RBAC in place for all future access checks. All datetimes stored in UTC.
-
----
-
-## Phase 2 — Deck Registration & Card Pipeline
-
-> Core deck domain: parsing, validation, registration, and versioning. No UI beyond basic forms.
-
-| ID   | Feature                        | Priority | State | Depends on       |
-|------|--------------------------------|----------|-------|------------------|
-| F6.1 | Parse PTCG text format         | High     | Done  | —                |
-| F6.2 | Card validation via TCGdex     | High     | Done  | F6.1             |
-| F6.3 | Expanded format validation     | High     | Done  | F6.2             |
-| F2.1 | Register a deck                | High     | Done  | F1.1             |
-| F2.2 | Import deck list (copy-paste)  | High     | Done  | F2.1, F6.1–F6.3 |
-| F2.5 | Deck availability status       | High     | Done  | F2.1             |
-| F2.8 | Update deck list (new version) | High     | Done  | F2.2             |
-
-**Progress: 7/7 done**
-
-**Deliverable:** Owners can register decks, import/update deck lists with full card validation, and track availability status.
+**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, and a visual card mosaic alternative for deck lists.
 
 ---
 
-## Phase 3 — Events & Staff
+## Phase B — Event Enrichment
 
-> Event lifecycle: creation, editing, participation, staff, and venues.
+> Event tags, iCal feeds, and tournament verification to improve event discoverability and calendar integration.
 
-| ID   | Feature                            | Priority | State       | Depends on |
-|------|------------------------------------|----------|-------------|------------|
-| F3.1 | Create an event                    | High     | Done        | F1.4       |
-| F3.9 | Edit an event                      | High     | Done        | F3.1       |
-| F3.5 | Assign event staff team            | High     | Done        | F3.1, F1.4 |
-| F3.4 | Register participation to an event | Medium   | Done        | F3.1, F1.1 |
+| ID    | Feature                        | Priority | Depends on       |
+|-------|--------------------------------|----------|------------------|
+| F3.12 | Event tags                     | Low      | F3.1             |
+| F3.14 | iCal agenda feed               | Low      | F3.13            |
+| F3.16 | Public iCal feed               | Low      | F3.11            |
+| F3.6  | Tournament ID verification     | Low      | F3.18            |
 
-**Progress: 4/4 done**
+**Progress: 0/4 done**
 
-**Deliverable:** Organizers can create/edit events and assign staff. Players can register participation (playing or spectating).
-
----
-
-## Phase 4 — Borrow Workflow & Notifications
-
-> The core lending cycle: request → approve → hand-off → return. In this first version the **deck owner confirms movements directly** (on borrow and on handing back) — no label scanning required. Staff delegation, conflict detection, and borrow notifications are included.
-
-| ID    | Feature                         | Priority | State       | Depends on           |
-|-------|---------------------------------|----------|-------------|----------------------|
-| F4.1  | Request to borrow a deck        | High     | Done        | F2.5, F3.4           |
-| F4.2  | Approve / deny borrow request   | High     | Done        | F4.1                 |
-| F4.3  | Confirm deck hand-off (lend)    | High     | Done        | F4.2                 |
-| F4.4  | Confirm deck return             | High     | Done        | F4.3                 |
-| F4.8  | Staff-delegated lending         | High     | Done        | F4.1–F4.4, F3.5      |
-| F4.11 | Borrow conflict detection       | High     | Done        | F4.1                 |
-| F4.12 | Walk-up lending (direct lend)   | High     | Done        | F2.5, F3.5           |
-| F8.1  | Borrow workflow notifications   | High     | Done        | F4.1–F4.4            |
-
-**Progress: 8/8 done**
-
-**Deliverable:** Full borrow lifecycle with owner-confirmed hand-off and return, staff delegation, temporal conflict detection, walk-up lending for on-the-day situations, and email/in-app notifications at each state transition. Label scanning (F5.3) can be wired in later as an alternative confirmation method.
+**Deliverable:** Freeform event tags for grouping and filtering, personal and public iCal feeds for calendar sync, and tournament ID verification against official Pokemon systems.
 
 ---
 
-## Phase 5 — Core Views & Navigation
+## Phase C — PDF Labels & Camera Scanning
 
-> Rich read views, catalogs, and dashboards that surface data from Phases 1–4.
+> Home-printable PDF labels with QR codes, and camera-based scanning. No Zebra hardware required — accessible to all users immediately.
 
-| ID    | Feature                              | Priority | State       | Depends on       |
-|-------|--------------------------------------|----------|-------------|------------------|
-| F2.3  | Deck detail view                     | Medium   | Done        | F2.2             |
-| F2.4  | Deck catalog (browse & search)       | Medium   | Done        | F2.1, F2.5       |
-| F2.13 | Inline deck list import on creation  | Medium   | Done        | F2.1, F2.2       |
-| F6.4  | Display card images                  | Medium   | Done        | F6.2             |
-| F3.2  | Event listing                        | Medium   | Done        | F3.1             |
-| F3.3  | Event detail view                    | Medium   | Done        | F3.1             |
-| F3.21 | Clear deck selection on withdrawal   | Medium   | Done        | F3.4, F3.7       |
-| F4.5  | Borrow history                       | Medium   | Done        | F4.1–F4.4        |
-| F4.7  | Cancel a borrow request              | Medium   | Done        | F4.1, F4.2       |
-| F4.9  | Staff deck custody tracking          | Medium   | Done        | F4.8             |
-| F4.10 | Owner borrow inbox                   | Medium   | Done        | F4.1, F4.2       |
-| F4.13 | Event-scoped autocompletes           | Medium   | Done        | F4.1, F3.4       |
-| F4.14 | Staff custody handover tracking      | Medium   | Done        | F4.8, F4.9       |
+| ID    | Feature                           | Priority | Depends on |
+|-------|-----------------------------------|----------|------------|
+| F5.7  | PDF label card (home printing)    | Medium   | —          |
+| F5.6  | Camera QR scan (mobile fallback)  | Medium   | F5.7       |
 
-**Progress: 13/13 done**
+**Progress: 0/2 done**
 
-**Deliverable:** Browsable deck catalog, deck detail with card image hovers, event listing/detail, borrow history, cancellation, staff custody dashboard, owner's borrow inbox, inline deck list import on creation, event-scoped autocompletes, staff custody handover tracking, and clearing deck selection on withdrawal.
+**Deliverable:** Generate downloadable PDF labels (TCG card-sized, with QR code) for any deck, printable on any home printer. Scan these QR codes via the device camera to identify decks and trigger borrow actions. No special hardware needed.
 
 ---
 
-## Phase 6 — Localization
+## Phase D — Zebra Labels & HID Scanning
 
-> Multi-language and timezone support. Applies retroactively to all existing UI.
+> Professional Zebra label printing via PrintNode and USB barcode/HID scanning for high-throughput events.
 
-| ID   | Feature                    | Priority | State       | Depends on |
-|------|----------------------------|----------|-------------|------------|
-| F9.1 | User language preference   | Medium   | Done        | F1.1       |
-| F9.2 | User timezone              | Medium   | Done        | F1.1, F9.4 |
-| F9.3 | Application translation    | Medium   | Done        | —          |
-| F1.3  | User profile               | Medium   | Done        | F1.1       |
-| F1.11 | Gravatar avatar & navbar user menu | Medium | Done        | F1.1 |
+| ID   | Feature                           | Priority | Depends on |
+|------|-----------------------------------|----------|------------|
+| F5.1 | Generate ZPL label for a deck     | High     | —          |
+| F5.2 | Push label to printer via PrintNode | High   | F5.1       |
+| F5.3 | Scan label to identify deck (HID) | High     | F5.1       |
+| F5.4 | Reprint label                     | Low      | F5.2       |
+| F5.5 | PrintNode printer management      | Medium   | F5.2       |
 
-**Progress: 5/5 done**
+**Progress: 0/5 done**
 
-**Deliverable:** All UI strings translatable (en/fr), user-selectable locale and timezone, a profile page showing owned decks, borrow history, and upcoming events, and a Gravatar-powered navbar avatar with user dropdown menu.
-
----
-
-## Phase 7 — Engagement, Results & Discovery
-
-> Richer event lifecycle: visibility, engagement states, tournament results, event sync, and discovery.
-
-| ID    | Feature                          | Priority | State       | Depends on       |
-|-------|----------------------------------|----------|-------------|------------------|
-| F3.11 | Event visibility                 | Medium   | Done        | F3.1             |
-| F3.13 | Player engagement states         | Medium   | Done        | F3.4             |
-| F2.14 | Deck event status overview       | Medium   | Done        | F2.3, F3.13      |
-| F3.7  | Register played deck for event   | Medium   | Done        | F3.4, F2.2       |
-| F3.17 | Tournament results               | Medium   | Done        | F3.7             |
-| F3.10 | Cancel an event                  | Medium   | Done        | F3.1, F4.1       |
-| F3.20 | Mark event as finished           | Medium   | Done        | F3.1, F4.6       |
-| F3.15 | Event discovery                  | Medium   | Done        | F3.11, F3.13     |
-| F8.2  | Event notifications              | Medium   | Done        | F3.1, F3.13      |
-| F3.18 | Sync from Pokemon event page     | Medium   | Done        | F3.1, F3.9       |
-
-**Progress: 10/10 done · 0 partial · 0 not started**
-
-**Deliverable:** Public/private/invitation-only events, player engagement states (interested → registered), deck event status overview, tournament results with privacy, event cancellation with cascading borrows, event finishment with overdue triggers, event discovery page, event notifications, and Pokemon event page sync.
+**Deliverable:** Generate ZPL labels for Zebra printers, push print jobs via PrintNode cloud API, scan deck labels with USB HID barcode readers for fast identification and borrow actions. Reprint and printer management included.
 
 ---
 
-## Phase 8 — Admin, Homepage & Polish
+## Phase E — Auth Hardening & Delegation
 
-> Administration tools, public-facing homepage, and GDPR compliance.
+> Flexible login, password scoring, friend delegation, and MFA for improved security and usability.
 
-| ID    | Feature                          | Priority | State       | Depends on           |
-|-------|----------------------------------|----------|-------------|----------------------|
-| F7.1  | Dashboard                        | Medium   | Done        | F1.4                 |
-| F7.2  | User management                  | Medium   | Done        | F1.4                 |
-| F6.5  | Banned card list management      | Medium   | Done        | F6.3                 |
-| F8.4  | In-app notification center       | Medium   | Done        | F8.1                 |
-| F10.1 | Mobile UX review                 | Medium   | Done        | F6.4, F2.3           |
-| F1.8  | Account deletion & data export   | Medium   | Done        | F1.1                 |
+| ID    | Feature                                 | Priority | Depends on       |
+|-------|-----------------------------------------|----------|------------------|
+| F1.9  | Login with screen name or email         | Low      | F1.1             |
+| F1.10 | Password strength scoring (zxcvbn)      | Low      | F1.1             |
+| F4.15 | Friend delegation for borrow completion | Low      | F4.2, F4.3, F3.4 |
+| F1.5  | MFA with TOTP (planned)                 | Low      | F1.1             |
 
-**Progress: 6/6 done · 0 partial · 0 not started**
+**Progress: 0/4 done**
 
-**Deliverable:** Admin dashboard and user management, banned card list, notification center, mobile responsiveness pass, public homepage, and GDPR account deletion/export.
+**Deliverable:** Login with screen name or email, zxcvbn password strength scoring, TOTP-based multi-factor authentication, and per-event friend delegation for borrow management.
 
 ---
 
-## Phase 9 — Content, Archetypes & Low Priority
+## Phase F — Play Pokemon QR Integration
 
-> CMS pages, archetype ecosystem, calendar feeds, and remaining low-priority features (excluding labels).
+> Scan Play! Pokemon QR codes for player identification, quick account creation, and league investigation. Depends on scanning infrastructure from Phase C or D.
 
-### Archetypes
+| ID    | Feature                                        | Priority | Depends on       |
+|-------|------------------------------------------------|----------|------------------|
+| F1.12 | Play Pokemon QR scan for player identification | Medium   | F1.1, F5.6/F5.3  |
+| F1.6  | Pokemon SSO (to investigate)                   | Low      | F1.1             |
+| F3.19 | League deduction from Pokemon ID               | Low      | F1.1             |
 
-| ID    | Feature                        | Priority | State       | Depends on       |
-|-------|--------------------------------|----------|-------------|------------------|
-| F2.6  | Deck archetype management      | Low      | Done        | F2.1, F1.4       |
-| F2.10 | Archetype detail page          | Low      | Done        | F2.6             |
-| F2.11 | Archetype backlinking          | Low      | Done        | F2.10            |
-| F2.12 | Archetype sprite pictograms    | Low      | Done        | F2.6             |
-| F2.15 | Archetype playstyle tags       | Low      | Done        | F2.10            |
-| F2.16 | Archetype catalog              | Medium   | Done        | F2.10, F2.15     |
-| F2.17 | Deck catalog archetype filter UX | Medium | Done        | F2.4             |
-| F2.18 | Admin archetype create/edit form | Medium | Done        | F2.6             |
-| F13.3 | Bookmark an archetype          | Low      | Not started | F2.16            |
+**Progress: 0/3 done**
 
-### CMS Content Pages
-
-| ID    | Feature                        | Priority | State       | Depends on       |
-|-------|--------------------------------|----------|-------------|------------------|
-| F11.1 | Content pages                  | Low      | Done        | F1.4, F9.1       |
-| F11.2 | Menu categories                | Low      | Done        | F11.1            |
-| F11.3 | Page rendering & locale fallback | Low    | Done        | F11.1, F9.1      |
-| F10.2 | Anonymous homepage               | Medium | Done        | F11.1, F11.2, F3.2, F2.4 |
-
-### Event Extras
-
-| ID    | Feature                        | Priority | State       | Depends on       |
-|-------|--------------------------------|----------|-------------|------------------|
-| F3.12 | Event tags                     | Low      | Not started | F3.1             |
-| F3.14 | iCal agenda feed               | Low      | Not started | F3.13            |
-| F3.16 | Public iCal feed               | Low      | Not started | F3.11            |
-| F3.6  | Tournament ID verification     | Low      | Not started | F3.18            |
-
-### Auth Hardening
-
-| ID    | Feature                            | Priority | State       | Depends on |
-|-------|------------------------------------|----------|-------------|------------|
-| F1.9  | Login with screen name or email    | Low      | Not started | F1.1       |
-| F1.10 | Password strength scoring (zxcvbn) | Low      | Not started | F1.1       |
-| F1.5  | MFA with TOTP (planned)            | Low      | Not started | F1.1       |
-| F1.6  | Pokemon SSO (to investigate)       | Low      | Not started | F1.1       |
-
-### Remaining Features
-
-| ID    | Feature                                 | Priority | State       | Depends on       |
-|-------|-----------------------------------------|----------|-------------|------------------|
-| F2.7  | Retire / reactivate a deck              | Low      | Done        | F2.5             |
-| F2.9  | Deck version history                    | Medium   | Done        | F2.8             |
-| F4.15 | Friend delegation for borrow completion | Low      | Not started | F4.2, F4.3, F3.4 |
-| F6.6  | Visual deck list (card mosaic)          | Low      | Not started | F6.4             |
-| F4.6  | Overdue tracking                        | Low      | Not started | F4.4             |
-| F7.3  | Audit log                               | Low      | Not started | —                |
-| F8.3  | Notification preferences                | Low      | Done        | F8.1             |
-| F9.5  | Weblate integration                     | Low      | Not started | F9.3             |
-
-### UX Improvements
-
-| ID    | Feature                                 | Priority | State       | Depends on       |
-|-------|-----------------------------------------|----------|-------------|------------------|
-| F5.12 | Deck show activity pagination           | Medium   | Done        | F2.3             |
-| F7.4  | Dashboard action reminders              | Medium   | Done        | F7.1             |
-| F7.5  | Registered decks aggregate view         | Low      | Not started | F7.1             |
-
-### Bookmarks
-
-| ID    | Feature                                 | Priority | State       | Depends on       |
-|-------|-----------------------------------------|----------|-------------|------------------|
-| F13.1 | Bookmark a deck                         | Low      | Not started | F2.4             |
-| F13.2 | Bookmark an event                       | Low      | Not started | F3.2             |
-
-**Progress: 17/34 done · 0 partial · 17 not started**
-
-**Deliverable:** Auth hardening (flexible login, password strength scoring, MFA, Pokemon SSO). Managed archetype catalogue with detail pages, sprite pictograms, and backlinking across the UI. CMS content pages with Markdown, translations, and menu categories. Anonymous homepage with CMS-driven welcome block and news. Event tags for grouping and filtering, iCal feeds, deck version history, card mosaic view, overdue tracking, friend delegation for borrow completion, notification preferences, bookmarks for quick access to decks and events, and audit log.
+**Deliverable:** Scan Play! Pokemon QR codes for instant player identification, quick account creation, and staff assignment. Investigate Pokemon SSO and league deduction from player ID.
 
 ---
 
-## Phase 10 — Labels & Scanning
+## Phase G — Operational Excellence
 
-> Zebra label printing, barcode/QR scanning, and alternative label options. Deferred until hardware (Zebra printer) and label specifications are finalized. Once available, label scanning can be wired into the borrow hand-off (F4.3) and return (F4.4) as an alternative confirmation method alongside the manual owner confirmation shipped in Phase 4.
+> Audit log, translation collaboration, and security/conflict hardening. Best done after all major features are in place.
 
-| ID   | Feature                           | Priority | State       | Depends on |
-|------|-----------------------------------|----------|-------------|------------|
-| F5.1 | Generate ZPL label for a deck     | Low      | Not started | F2.1       |
-| F5.2 | Push label to printer via PrintNode | Low    | Not started | F5.1       |
-| F5.3 | Scan label to identify deck       | Low      | Not started | F5.1       |
-| F5.4 | Reprint label                     | Low      | Not started | F5.2       |
-| F5.5 | PrintNode printer management      | Medium   | Not started | F5.2       |
-| F5.6 | Camera QR scan (mobile fallback)  | Medium   | Not started | F5.3       |
-| F5.7 | PDF label card (home printing)    | Medium   | Not started | F5.1       |
+| ID     | Feature                                  | Priority | Depends on               |
+|--------|------------------------------------------|----------|--------------------------|
+| F7.3   | Audit log                                | Low      | —                        |
+| F9.5   | Weblate integration                      | Low      | F9.3                     |
+| F12.1  | Controller role & context security audit | High     | All controllers          |
+| F12.2  | Optimistic state conflict detection      | Medium   | All state-changing actions |
 
-**Progress: 0/7 done · 7 not started**
+**Progress: 0/4 done**
 
-**Deliverable:** Print Zebra labels for deck boxes, push to printer via PrintNode, scan barcodes/QR codes to identify decks and trigger borrow actions. Camera fallback for mobile, PDF labels for home printing, and printer management UI.
-
----
-
-## Phase 11 — Play Pokemon QR Integration
-
-> Scan Play! Pokemon access QR codes (JWT) for quick account creation, staff assignment, and player identification. Depends on scanner infrastructure from Phase 10.
-
-| ID    | Feature                                        | Priority | State       | Depends on       |
-|-------|------------------------------------------------|----------|-------------|------------------|
-| F1.12 | Play Pokemon QR scan for player identification | Medium   | Not started | F1.1, F5.3/F5.6  |
-| F3.19 | League deduction from Pokemon ID               | Low      | Not started | F1.1             |
-
-**Progress: 0/2 done · 2 not started**
-
-**Deliverable:** Scan a player's Play! Pokemon QR code to decode their JWT identity — enabling admin-initiated quick account creation, instant staff assignment by QR, and on-site player lookup at events. Investigate whether league affiliation can be deduced from a player's Pokemon ID via official APIs.
-
----
-
-## Phase 12 — Quality & Security Consolidation
-
-> Final hardening pass before production: security audit and state conflict protection. Placed last because it audits all controllers and flows built in previous phases.
-
-| ID     | Feature                                  | Priority | State       | Depends on       |
-|--------|------------------------------------------|----------|-------------|------------------|
-| F12.1  | Controller role & context security audit | High     | Not started | All controllers  |
-| F12.2  | Optimistic state conflict detection      | Medium   | Not started | All state-changing actions |
-
-**Progress: 0/2 done · 2 not started**
-
-**Deliverable:** Comprehensive security audit documenting the access matrix for every controller action, with missing guards added. Optimistic conflict detection on all state-changing forms to prevent race conditions at busy events.
+**Deliverable:** Comprehensive audit log, collaborative translation via Weblate, security audit of all controller actions, and optimistic locking to prevent race conditions.
 
 ---
 
 ## Cross-Cutting: Testing Infrastructure
-
-> Test framework setup and continuous quality assurance.
 
 | Item                                  | State       | Notes                                  |
 |---------------------------------------|-------------|----------------------------------------|
@@ -329,20 +163,15 @@ Each feature carries a **State** that must be kept up to date as work progresses
 
 ## Summary
 
-| Phase | Name                              | Done | Partial | Not started | Total |
-|-------|-----------------------------------|------|---------|-------------|-------|
-| 1     | Auth & Foundation                 | 5    | 0       | 0           | 5     |
-| 2     | Deck Registration & Card Pipeline | 7    | 0       | 0           | 7     |
-| 3     | Events & Staff                    | 4    | 0       | 0           | 4     |
-| 4     | Borrow Workflow & Notifications   | 8    | 0       | 0           | 8     |
-| 5     | Core Views & Navigation           | 13   | 0       | 0           | 13    |
-| 6     | Localization                      | 5    | 0       | 0           | 5     |
-| 7     | Engagement, Results & Discovery   | 10   | 0       | 0           | 10    |
-| 8     | Admin, Homepage & Polish          | 6    | 0       | 0           | 6     |
-| 9     | Content, Archetypes & Low Priority | 17  | 0       | 17          | 34    |
-| 10    | Labels & Scanning                 | 0    | 0       | 7           | 7     |
-| 11    | Play Pokemon QR Integration       | 0    | 0       | 2           | 2     |
-| 12    | Quality & Security Consolidation  | 0    | 0       | 2           | 2     |
-|       | **Total**                         | **74** | **0**  | **30**      | **104** |
+| Phase | Name                            | Features |
+|-------|---------------------------------|----------|
+| A     | UX Polish & Overdue Tracking    | 6        |
+| B     | Event Enrichment                | 4        |
+| C     | PDF Labels & Camera Scanning    | 2        |
+| D     | Zebra Labels & HID Scanning     | 5        |
+| E     | Auth Hardening & Delegation     | 4        |
+| F     | Play Pokemon QR Integration     | 3        |
+| G     | Operational Excellence          | 4        |
+|       | **Total remaining**             | **28**   |
 
-All 104 features from [features.md](features.md) are represented exactly once.
+75 features done · 28 remaining.
