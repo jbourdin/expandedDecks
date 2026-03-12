@@ -76,6 +76,86 @@ class ArchetypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all published archetypes with their public deck count.
+     *
+     * Returns an array of [archetype => Archetype, deckCount => int] rows,
+     * optionally filtered by playstyle tags (OR logic) and sorted by the given criteria.
+     *
+     * @see docs/features.md F2.16 — Archetype catalog
+     *
+     * @param list<string> $tags playstyle tags to filter by (OR: matches any)
+     *
+     * @return list<array{archetype: Archetype, deckCount: int}>
+     */
+    public function findPublishedWithDeckCounts(array $tags = [], string $sort = 'name'): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->select('a AS archetype')
+            ->addSelect('(
+                SELECT COUNT(d.id) FROM App\Entity\Deck d
+                WHERE d.archetype = a
+                AND d.public = :public
+                AND d.status != :retired
+            ) AS deckCount')
+            ->where('a.isPublished = :published')
+            ->setParameter('published', true)
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired);
+
+        if ([] !== $tags) {
+            $tagConditions = [];
+            foreach ($tags as $index => $tag) {
+                $paramName = 'tag'.$index;
+                $tagConditions[] = 'a.playstyleTags LIKE :'.$paramName;
+                $qb->setParameter($paramName, '%"'.$tag.'"%');
+            }
+            $qb->andWhere(implode(' OR ', $tagConditions));
+        }
+
+        if ('decks' === $sort) {
+            $qb->orderBy('deckCount', 'DESC')
+                ->addOrderBy('a.name', 'ASC');
+        } else {
+            $qb->orderBy('a.name', 'ASC');
+        }
+
+        /** @var list<array{archetype: Archetype, deckCount: int}> $results */
+        $results = $qb->getQuery()->getResult();
+
+        return $results;
+    }
+
+    /**
+     * Collect all unique playstyle tags from published archetypes.
+     *
+     * @see docs/features.md F2.16 — Archetype catalog
+     *
+     * @return list<string>
+     */
+    public function findAllPublishedPlaystyleTags(): array
+    {
+        /** @var list<array{playstyleTags: list<string>}> $rows */
+        $rows = $this->createQueryBuilder('a')
+            ->select('a.playstyleTags')
+            ->where('a.isPublished = :published')
+            ->setParameter('published', true)
+            ->getQuery()
+            ->getResult();
+
+        $tags = [];
+        foreach ($rows as $row) {
+            foreach ($row['playstyleTags'] as $tag) {
+                $tags[$tag] = true;
+            }
+        }
+
+        $tagList = array_keys($tags);
+        sort($tagList);
+
+        return $tagList;
+    }
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     public function findPublishedBySlug(string $slug): ?Archetype

@@ -512,7 +512,10 @@ MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
         $archetype->setPokemonSlugs($pokemonSlugs);
         $archetype->setDescription($description);
         $archetype->setIsPublished($isPublished);
-        $archetype->setPlaystyleTags($playstyleTags);
+        $archetype->setPlaystyleTags(array_map(
+            static fn (string $tag): string => mb_convert_case(trim($tag), \MB_CASE_TITLE),
+            $playstyleTags,
+        ));
 
         $manager->persist($archetype);
 
