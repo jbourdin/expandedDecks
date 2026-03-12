@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public archetype search endpoint for autocomplete widgets.
+ * Public archetype search endpoints for autocomplete widgets.
  *
  * Separated from ArchetypeController (which requires ROLE_USER) so that
  * the catalog filter can search archetypes without authentication.
@@ -45,6 +45,26 @@ class ArchetypeSearchController extends AbstractController
             'id' => $a->getId(),
             'name' => $a->getName(),
             'slug' => $a->getSlug(),
+        ], $archetypes);
+
+        return $this->json($data);
+    }
+
+    /**
+     * Returns all published archetypes that have at least one public deck,
+     * including pokemon slugs for sprite rendering in the filter dropdown.
+     *
+     * @see docs/features.md F2.17 — Deck catalog archetype filter UX
+     */
+    #[Route('/api/archetype/catalog', name: 'app_archetype_catalog', methods: ['GET'])]
+    public function catalog(ArchetypeRepository $archetypeRepository): JsonResponse
+    {
+        $archetypes = $archetypeRepository->findPublishedWithPublicDecks();
+
+        $data = array_map(static fn (Archetype $archetype): array => [
+            'name' => $archetype->getName(),
+            'slug' => $archetype->getSlug(),
+            'pokemonSlugs' => $archetype->getPokemonSlugs(),
         ], $archetypes);
 
         return $this->json($data);

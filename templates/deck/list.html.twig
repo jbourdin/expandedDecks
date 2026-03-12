@@ -42,12 +42,12 @@
                         <div class="col-md-4">
                             <label class="form-label">{{ 'app.deck.archetype_filter'|trans }}</label>
                             <div data-catalog-archetype
-                                 data-search-url="{{ path('app_archetype_search') }}"
+                                 data-catalog-url="{{ path('app_archetype_catalog') }}"
                                  data-hidden-input="archetype"
-                                 data-placeholder="Search archetype..."
+                                 data-placeholder="{{ 'app.deck.archetype_filter_placeholder'|trans }}"
                                  {% if (filters.archetype ?? '') != '' %}
-                                     data-initial-value="{{ archetypeName }}"
-                                     data-initial-id="{{ filters.archetype }}"
+                                     data-initial-value="{{ filters.archetype }}"
+                                     data-initial-label="{{ archetypeName }}"
                                  {% endif %}
                             ></div>
                         </div>
