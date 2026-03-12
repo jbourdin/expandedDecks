@@ -30,7 +30,7 @@
                                     '%event%': borrow.event.name
                                 }) }}
                             </div>
-                            <a href="{{ path('app_event_show', {id: borrow.event.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
+                            <a href="{{ path('app_event_show', {id: borrow.event.id}) }}#borrowing" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
                         </li>
                     {% endfor %}
                     {% for borrow in pendingRequests %}
@@ -42,7 +42,7 @@
                                     '%borrower%': borrow.borrower.screenName
                                 }) }}
                             </div>
-                            <a href="{{ path('app_lend_list') }}" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.review'|trans }}</a>
+                            <a href="{{ path('app_lend_list', {status: 'pending'}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.review'|trans }}</a>
                         </li>
                     {% endfor %}
                     {% for event in eventsNeedingDeck %}
@@ -51,7 +51,7 @@
                                 <span class="badge bg-secondary me-2">{{ 'app.dashboard.reminders.no_deck_badge'|trans }}</span>
                                 {{ 'app.dashboard.reminders.needs_deck'|trans({'%event%': event.name}) }}
                             </div>
-                            <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.select_deck'|trans }}</a>
+                            <a href="{{ path('app_event_show', {id: event.id}) }}#deck-selection" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.select_deck'|trans }}</a>
                         </li>
                     {% endfor %}
                 </ul>

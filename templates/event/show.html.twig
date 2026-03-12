@@ -647,7 +647,7 @@
         {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
 
         {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
-            <div class="card shadow-sm mb-3">
+            <div class="card shadow-sm mb-3" id="deck-selection">
                 <div class="card-header card-header-themed">
                     <h6 class="mb-0">{{ 'app.event.deck_selection'|trans }}</h6>
                 </div>
