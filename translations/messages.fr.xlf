@@ -8,6 +8,11 @@
                 <target>Tableau de bord</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.archetypes">
+                <source>app.nav.archetypes</source>
+                <target>Archétypes</target>
+                <note>Main navigation bar link</note>
+            </trans-unit>
             <trans-unit id="app.nav.decks">
                 <source>app.nav.decks</source>
                 <target>Decks</target>
@@ -3116,6 +3121,48 @@
                 <source>app.archetype.browse_all_decks</source>
                 <target>Parcourir les %count% decks</target>
                 <note>CTA to see all decks with this archetype in catalog</note>
+            </trans-unit>
+
+            <!-- Archetype catalog (F2.16) -->
+            <trans-unit id="app.archetype.catalog_title">
+                <source>app.archetype.catalog_title</source>
+                <target>Archétypes</target>
+                <note>Public archetype catalog page title</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.filter_by_tag">
+                <source>app.archetype.filter_by_tag</source>
+                <target>Étiquette</target>
+                <note>Label for tag filter on archetype catalog</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.sort_by">
+                <source>app.archetype.sort_by</source>
+                <target>Trier par</target>
+                <note>Label for sort dropdown on archetype catalog</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.sort_name">
+                <source>app.archetype.sort_name</source>
+                <target>Nom</target>
+                <note>Sort option: alphabetical by name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.sort_decks">
+                <source>app.archetype.sort_decks</source>
+                <target>Plus de decks</target>
+                <note>Sort option: by number of available decks descending</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.results_count">
+                <source>app.archetype.results_count</source>
+                <target>%count% archétype trouvé|%count% archétypes trouvés</target>
+                <note>Result count on archetype catalog. %count% = number of archetypes</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.deck_count">
+                <source>app.archetype.deck_count</source>
+                <target>%count% deck|%count% decks</target>
+                <note>Deck count displayed on archetype catalog card. %count% = number of public decks</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.no_results">
+                <source>app.archetype.no_results</source>
+                <target>Aucun archétype ne correspond à votre filtre.</target>
+                <note>Empty state on archetype catalog when filters yield no results</note>
             </trans-unit>
 
             <!-- Admin: User management -->

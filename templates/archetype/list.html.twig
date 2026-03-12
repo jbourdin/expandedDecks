@@ -1,0 +1,89 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.archetype.catalog_title'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">{{ 'app.archetype.catalog_title'|trans }}</h1>
+
+    {# Filter / sort bar #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">{{ 'app.archetype.filter_by_tag'|trans }}</label>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="{{ path('app_archetype_list', {sort: currentSort}) }}" class="btn btn-sm {{ currentTags|length == 0 ? 'btn-gold' : 'btn-outline-secondary' }}">
+                            {{ 'app.common.all'|trans }}
+                        </a>
+                        {% for tag in allTags %}
+                            {% set isActive = tag in currentTags %}
+                            {% if isActive %}
+                                {% set newTags = currentTags|filter(selectedTag => selectedTag != tag) %}
+                            {% else %}
+                                {% set newTags = currentTags|merge([tag]) %}
+                            {% endif %}
+                            <a href="{{ path('app_archetype_list', {'tags': newTags, sort: currentSort}) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
+                                {{ tag }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-3 ms-auto">
+                    <label class="form-label">{{ 'app.archetype.sort_by'|trans }}</label>
+                    <select class="form-select form-select-sm" onchange="window.location.href=this.value">
+                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
+                            {{ 'app.archetype.sort_name'|trans }}
+                        </option>
+                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
+                            {{ 'app.archetype.sort_decks'|trans }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Result count #}
+    <p class="text-muted mb-3">{{ 'app.archetype.results_count'|trans({'%count%': results|length}) }}</p>
+
+    {% if results|length > 0 %}
+        <div class="row">
+            {% for row in results %}
+                {% set archetype = row.archetype %}
+                {% set deckCount = row.deckCount %}
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title mb-2">
+                                    {{ archetype_sprites(archetype) }}
+                                    {{ archetype.name }}
+                                </h5>
+                                {% if archetype.playstyleTags|length > 0 %}
+                                    <div class="mb-2">
+                                        {% for tag in archetype.playstyleTags %}
+                                            <span class="badge bg-secondary">{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <p class="card-text text-muted mb-0">
+                                    {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">{{ 'app.archetype.no_results'|trans }}</div>
+    {% endif %}
+{% endblock %}
