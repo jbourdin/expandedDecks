@@ -25,9 +25,9 @@ F8.1, F8.2, F8.3, F8.4,
 F9.1, F9.2, F9.3, F9.4,
 F10.1, F10.2,
 F11.1, F11.2, F11.3,
-F14.1, F14.2, F14.3
+F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 
-**Total: 78 features done.**
+**Total: 81 features done.**
 
 ---
 
@@ -40,10 +40,13 @@ F14.1, F14.2, F14.3
 | F14.1  | Per-transport Messenger DSN configuration | High     | —          | Done   |
 | F14.2  | Configurable session storage driver       | High     | —          | Done   |
 | F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      | Done   |
+| F14.4  | Health check endpoint                     | High     | —          | Done   |
+| F14.5  | Production Dockerfile                     | High     | —          | Done   |
+| F14.6  | Configurable mail sender and admin email  | High     | —          | Done   |
 
-**Progress: 3/3 done**
+**Progress: 6/6 done**
 
-**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand.
+**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand. Health check endpoints for container orchestration liveness/readiness probes. Multi-stage Dockerfile for production container image. All external service connections (mail sender, admin recipient, mailer DSN, trusted proxies) configurable via environment variables.
 
 ---
 
@@ -182,7 +185,7 @@ F14.1, F14.2, F14.3
 
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
-| 0     | Deployment Readiness            | 3 (Done) | 1.0.0-beta.2 |
+| 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
 | A     | UX Polish & Overdue Tracking    | 6        |              |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
@@ -192,4 +195,4 @@ F14.1, F14.2, F14.3
 | G     | Operational Excellence          | 4        |              |
 |       | **Total remaining**             | **28**   |              |
 
-78 features done · 28 remaining.
+81 features done · 28 remaining.
