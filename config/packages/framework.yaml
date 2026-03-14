@@ -11,6 +11,11 @@ framework:
     #esi: true
     #fragments: true
 
+when@dev:
+    framework:
+        session:
+            handler_id: '%env(DATABASE_URL)%'
+
 when@prod:
     framework:
         session:
