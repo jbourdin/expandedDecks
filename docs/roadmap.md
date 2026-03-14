@@ -30,6 +30,22 @@ F11.1, F11.2, F11.3
 
 ---
 
+## Phase 0 — Deployment Readiness (target: 1.0.0-beta.2)
+
+> Infrastructure features required for the first live server release. Configurable transports, session storage, and workerless async via SQS webhook consumption.
+
+| ID     | Feature                                   | Priority | Depends on |
+|--------|-------------------------------------------|----------|------------|
+| F14.1  | Per-transport Messenger DSN configuration | High     | —          |
+| F14.2  | Configurable session storage driver       | High     | —          |
+| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      |
+
+**Progress: 0/3 done**
+
+**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand.
+
+---
+
 ## Phase A — UX Polish & Overdue Tracking
 
 > Quick wins that improve daily usage: overdue alerts, bookmarks, aggregate views, and visual enhancements.
@@ -163,15 +179,16 @@ F11.1, F11.2, F11.3
 
 ## Summary
 
-| Phase | Name                            | Features |
-|-------|---------------------------------|----------|
-| A     | UX Polish & Overdue Tracking    | 6        |
-| B     | Event Enrichment                | 4        |
-| C     | PDF Labels & Camera Scanning    | 2        |
-| D     | Zebra Labels & HID Scanning     | 5        |
-| E     | Auth Hardening & Delegation     | 4        |
-| F     | Play Pokemon QR Integration     | 3        |
-| G     | Operational Excellence          | 4        |
-|       | **Total remaining**             | **28**   |
+| Phase | Name                            | Features | Target       |
+|-------|---------------------------------|----------|--------------|
+| 0     | Deployment Readiness            | 3        | 1.0.0-beta.2 |
+| A     | UX Polish & Overdue Tracking    | 6        |              |
+| B     | Event Enrichment                | 4        |              |
+| C     | PDF Labels & Camera Scanning    | 2        |              |
+| D     | Zebra Labels & HID Scanning     | 5        |              |
+| E     | Auth Hardening & Delegation     | 4        |              |
+| F     | Play Pokemon QR Integration     | 3        |              |
+| G     | Operational Excellence          | 4        |              |
+|       | **Total remaining**             | **31**   |              |
 
-75 features done · 28 remaining.
+75 features done · 31 remaining.
