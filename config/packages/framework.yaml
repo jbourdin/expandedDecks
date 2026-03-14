@@ -2,9 +2,12 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # Trust X-Forwarded-Host from the CDN proxy so Symfony generates
+    # URLs with the correct domain (not the container's internal hostname).
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
     # Note that the session will be started ONLY if you read or write from it.
     # Both dev and prod use database-backed sessions (via DATABASE_URL).
-    # Override SESSION_HANDLER_DSN in production for Redis: redis://host:port
     session:
         handler_id: '%env(DATABASE_URL)%'
 
