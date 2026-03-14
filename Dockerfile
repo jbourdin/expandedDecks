@@ -15,6 +15,7 @@
 # ---------------------------------------------------------------------------
 FROM php:8.5-cli AS composer
 
+RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
@@ -32,7 +33,7 @@ FROM node:22-slim AS assets
 
 WORKDIR /app
 
-COPY package.json package-lock.json webpack.config.js ./
+COPY package.json package-lock.json webpack.config.js tsconfig.json ./
 RUN npm ci --ignore-scripts
 
 COPY assets/ assets/
@@ -71,17 +72,31 @@ COPY --from=composer /app/vendor vendor/
 COPY --from=assets /app/public/build public/build/
 COPY . .
 
+# Install public assets (favicons, bundles, etc.)
+RUN php bin/console assets:install public --env=prod --no-debug
+
 # Remove dev files not needed in production
-RUN rm -rf tests/ .env.test docker-compose.yml node_modules/ assets/ \
+RUN rm -rf tests/ .env.test .env.dev docker-compose.yml node_modules/ assets/ \
     webpack.config.js package.json package-lock.json .php-cs-fixer.dist.php \
     phpstan.neon phpunit.xml.dist vitest.config.ts .eslintrc.js .stylelintrc.json
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV FRANKENPHP_CONFIG="worker ./public/index.php"
+ENV SERVER_NAME=":8080"
 
-# Warm up Symfony cache
-RUN php bin/console cache:warmup --env=prod --no-debug
+# Ensure FrankenPHP data directories are writable
+RUN mkdir -p /data/caddy /config/caddy && chown -R www-data:www-data /data /config
+
+# Compile .env files for production (avoids parsing .env at runtime)
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+RUN composer dump-env prod && rm /usr/bin/composer
+
+# Warm up Symfony cache with a dummy DATABASE_URL so the container can
+# compile without a real database connection. The actual DATABASE_URL is
+# provided at runtime via environment variables and overrides this.
+RUN DATABASE_URL="mysql://dummy:dummy@localhost/dummy?serverVersion=8.0" \
+    php bin/console cache:warmup --env=prod --no-debug
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
