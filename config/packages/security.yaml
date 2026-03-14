@@ -12,7 +12,8 @@ security:
         ROLE_ARCHETYPE_EDITOR: ROLE_USER
         ROLE_CMS_EDITOR: ROLE_USER
         ROLE_ORGANIZER: ROLE_USER
-        ROLE_ADMIN: [ROLE_ORGANIZER, ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR]
+        ROLE_TECHNICAL_ADMIN: ROLE_USER
+        ROLE_ADMIN: [ROLE_ORGANIZER, ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR, ROLE_TECHNICAL_ADMIN]
 
     firewalls:
         dev:
@@ -57,6 +58,7 @@ security:
         - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/webhook/messenger/, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/technical, roles: ROLE_TECHNICAL_ADMIN }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
