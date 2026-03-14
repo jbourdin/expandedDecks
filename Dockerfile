@@ -15,6 +15,7 @@
 # ---------------------------------------------------------------------------
 FROM php:8.5-cli AS composer
 
+RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
@@ -32,7 +33,7 @@ FROM node:22-slim AS assets
 
 WORKDIR /app
 
-COPY package.json package-lock.json webpack.config.js ./
+COPY package.json package-lock.json webpack.config.js tsconfig.json ./
 RUN npm ci --ignore-scripts
 
 COPY assets/ assets/
@@ -82,6 +83,10 @@ RUN rm -rf tests/ .env.test .env.dev docker-compose.yml node_modules/ assets/ \
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV FRANKENPHP_CONFIG="worker ./public/index.php"
+ENV SERVER_NAME=":8080"
+
+# Ensure FrankenPHP data directories are writable
+RUN mkdir -p /data/caddy /config/caddy && chown -R www-data:www-data /data /config
 
 # Compile .env files for production (avoids parsing .env at runtime)
 COPY --from=composer /usr/bin/composer /usr/bin/composer
