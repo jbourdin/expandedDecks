@@ -359,3 +359,4 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 |----------|-----------------------------------------------------------------------------|
 | `/next`  | Recommend the next feature to implement based on roadmap priorities         |
 | `/pr`    | Commit, push, and create or update the Pull Request for the current branch  |
+| `/ci`    | Watch CI until green then merge, or investigate failures and propose fixes  |
