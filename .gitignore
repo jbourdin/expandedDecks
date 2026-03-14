@@ -40,4 +40,5 @@ yarn-error.log
 # Project
 .claude/*
 !.claude/settings.json
+!.claude/commands/
 docker/data/

@@ -154,6 +154,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`
 
 Scopes: `deck`, `borrow`, `event`, `user`, `label`, `api`, `auth`, `infra`
 
+**NEVER add `Co-Authored-By` trailers or any AI/bot attribution to commit messages.** The human user is the sole author.
+
 Examples:
 ```
 feat(deck): add deck list paste and validation
@@ -350,3 +352,11 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - `docs/roadmap.md` **MUST** be updated in the same PR when a feature's state changes (Not started → Partial → Done)
 - Update the per-phase progress line and Summary table counts accordingly
 - `docs/changelog.md` entry is required for every tagged release
+
+## Slash Commands
+
+| Command  | Description                                                                 |
+|----------|-----------------------------------------------------------------------------|
+| `/next`  | Recommend the next feature to implement based on roadmap priorities         |
+| `/pr`    | Commit, push, and create or update the Pull Request for the current branch  |
+| `/ci`    | Watch CI until green then merge, or investigate failures and propose fixes  |
