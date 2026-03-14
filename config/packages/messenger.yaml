@@ -7,36 +7,42 @@ framework:
             # scaling and monitoring. Each queue isolates failures and allows
             # fine-grained control (concurrency, retries, priority).
             #
+            # Each transport has its own DSN env var so it can be independently
+            # pointed to a different backend (Doctrine, SQS, Redis, RabbitMQ).
+            #
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             transactional_email:
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                dsn: '%env(MESSENGER_TRANSPORT_TRANSACTIONAL_EMAIL_DSN)%'
                 options:
                     queue_name: transactionalEmail
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
             deck_enrichment:
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                dsn: '%env(MESSENGER_TRANSPORT_DECK_ENRICHMENT_DSN)%'
                 options:
                     queue_name: deck_enrichment
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
             notification:
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                dsn: '%env(MESSENGER_TRANSPORT_NOTIFICATION_DSN)%'
                 options:
                     queue_name: notification
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
             borrow_lifecycle:
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                dsn: '%env(MESSENGER_TRANSPORT_BORROW_LIFECYCLE_DSN)%'
                 options:
                     queue_name: borrow_lifecycle
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
-            failed: 'doctrine://default?queue_name=failed'
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_FAILED_DSN)%'
+                options:
+                    queue_name: failed
 
         default_bus: messenger.bus.default
 

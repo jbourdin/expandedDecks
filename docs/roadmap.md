@@ -12,7 +12,7 @@ This roadmap lists **remaining features** to be implemented, grouped into logica
 
 ## Completed Features
 
-The following features have been fully implemented across phases 1–9. See [features.md](features.md) for full descriptions and [changelog.md](changelog.md) for release history.
+The following features have been fully implemented across phases 0–9. See [features.md](features.md) for full descriptions and [changelog.md](changelog.md) for release history.
 
 F1.1, F1.2, F1.3, F1.4, F1.7, F1.8, F1.11,
 F2.1, F2.2, F2.3, F2.4, F2.5, F2.6, F2.7, F2.8, F2.9, F2.10, F2.11, F2.12, F2.13, F2.14, F2.15, F2.16, F2.17, F2.18,
@@ -24,9 +24,10 @@ F7.1, F7.2, F7.4,
 F8.1, F8.2, F8.3, F8.4,
 F9.1, F9.2, F9.3, F9.4,
 F10.1, F10.2,
-F11.1, F11.2, F11.3
+F11.1, F11.2, F11.3,
+F14.1, F14.2, F14.3
 
-**Total: 75 features done.**
+**Total: 78 features done.**
 
 ---
 
@@ -34,13 +35,13 @@ F11.1, F11.2, F11.3
 
 > Infrastructure features required for the first live server release. Configurable transports, session storage, and workerless async via SQS webhook consumption.
 
-| ID     | Feature                                   | Priority | Depends on |
-|--------|-------------------------------------------|----------|------------|
-| F14.1  | Per-transport Messenger DSN configuration | High     | —          |
-| F14.2  | Configurable session storage driver       | High     | —          |
-| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      |
+| ID     | Feature                                   | Priority | Depends on | Status |
+|--------|-------------------------------------------|----------|------------|--------|
+| F14.1  | Per-transport Messenger DSN configuration | High     | —          | Done   |
+| F14.2  | Configurable session storage driver       | High     | —          | Done   |
+| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      | Done   |
 
-**Progress: 0/3 done**
+**Progress: 3/3 done**
 
 **Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand.
 
@@ -181,7 +182,7 @@ F11.1, F11.2, F11.3
 
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
-| 0     | Deployment Readiness            | 3        | 1.0.0-beta.2 |
+| 0     | Deployment Readiness            | 3 (Done) | 1.0.0-beta.2 |
 | A     | UX Polish & Overdue Tracking    | 6        |              |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
@@ -189,6 +190,6 @@ F11.1, F11.2, F11.3
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **31**   |              |
+|       | **Total remaining**             | **28**   |              |
 
-75 features done · 31 remaining.
+78 features done · 28 remaining.
