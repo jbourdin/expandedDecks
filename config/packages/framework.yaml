@@ -3,23 +3,13 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    # To change session storage in production, set SESSION_HANDLER_DSN:
-    #   Redis: redis://localhost:6379  |  PDO: %env(DATABASE_URL)%
+    # Both dev and prod use database-backed sessions (via DATABASE_URL).
+    # Override SESSION_HANDLER_DSN in production for Redis: redis://host:port
     session:
-        handler_id: null
+        handler_id: '%env(DATABASE_URL)%'
 
     #esi: true
     #fragments: true
-
-when@dev:
-    framework:
-        session:
-            handler_id: '%env(DATABASE_URL)%'
-
-when@prod:
-    framework:
-        session:
-            handler_id: '%env(SESSION_HANDLER_DSN)%'
 
 when@test:
     framework:
