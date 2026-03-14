@@ -7,13 +7,16 @@ parameters:
     app.verification_token_ttl: 86400
     app.reset_token_ttl: 3600
     app.deletion_token_ttl: 86400
-    app.mail_sender: 'noreply@expanded-decks.wip'
+    app.mail_sender: '%env(MAIL_SENDER)%'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            string $mailSender: '%app.mail_sender%'
+            string $webhookSecret: '%env(MESSENGER_WEBHOOK_SECRET)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

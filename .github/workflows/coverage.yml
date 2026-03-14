@@ -1,0 +1,75 @@
+name: Coverage
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run coverage on'
+        required: false
+        default: ''
+
+jobs:
+  php-coverage:
+    name: PHP Coverage
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: expanded_decks_test
+          MYSQL_USER: expanded_decks
+          MYSQL_PASSWORD: expanded_decks
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, pdo_mysql, zip, apcu
+          coverage: pcov
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: PHPUnit with coverage
+        run: php -d pcov.enabled=1 -d memory_limit=512M bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text 2>&1 | tee var/coverage/coverage-text.txt
+        env:
+          DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: var/coverage/clover.xml
+          flags: on-demand
+
+      - name: Upload coverage text as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            var/coverage/clover.xml
+            var/coverage/coverage-text.txt
+          retention-days: 7

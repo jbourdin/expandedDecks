@@ -55,6 +55,8 @@ security:
         - { path: ^/event$, roles: PUBLIC_ACCESS }
         - { path: ^/events/discover$, roles: PUBLIC_ACCESS }
         - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
+        - { path: ^/health, roles: PUBLIC_ACCESS }
+        - { path: ^/webhook/messenger/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
