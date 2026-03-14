@@ -9,29 +9,33 @@ Identify the least covered parts of the codebase and write tests to improve cove
 
 ## Instructions
 
-### 1. Get coverage data from Codecov
+### 1. Get coverage data
 
-Fetch the latest Codecov report from the most recent CI run. Check in order:
+Use the on-demand **Coverage** workflow to get a full coverage report for the current branch:
 
-**If on a PR branch:**
-```
-gh api repos/{owner}/{repo}/issues/{pr-number}/comments --jq '.[].body'
-```
-Look for the Codecov comment — it contains patch coverage and files with missing lines.
+```bash
+# Trigger the coverage workflow on the current branch
+gh workflow run coverage.yml --field branch=$(git branch --show-current)
 
-**For overall project coverage**, fetch the latest coverage run artifacts:
-```
-gh run list --workflow=ci.yml --branch=develop --limit=1 --json databaseId
-gh run view <run-id> --log 2>&1 | grep -A50 "coverage-text"
+# Wait for it to complete
+gh run list --workflow=coverage.yml --limit=1 --json databaseId,status --jq '.[0]'
+# Poll with: gh run watch <run-id>
 ```
 
-Alternatively, if these don't yield enough detail, run coverage locally:
+Once complete, download the coverage artifacts:
+```bash
+gh run download <run-id> --name coverage-report --dir var/coverage/
 ```
-make coverage
-```
-This produces `var/coverage/clover.xml` and `--coverage-text` output with per-class percentages.
 
-If local coverage fails (no pcov/database), use the CI logs as the primary data source.
+This gives you:
+- `var/coverage/clover.xml` — machine-readable line-level coverage
+- `var/coverage/coverage-text.txt` — human-readable per-class percentages
+
+Parse `coverage-text.txt` for the per-class breakdown. Use `clover.xml` for line-level detail when needed.
+
+**Fallback** — if the workflow is not available or fails:
+- Check the latest Codecov PR comment: `gh api repos/{owner}/{repo}/issues/{pr-number}/comments --jq '.[].body'`
+- Or run locally: `make coverage` (requires pcov + database)
 
 ### 2. Check test suite configuration
 
