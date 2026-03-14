@@ -3,13 +3,18 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    # Handler DSN supports: filesystem (null), Redis (redis://host:port),
-    # PDO (pdo:// or %env(DATABASE_URL)%).
+    # To change session storage in production, set SESSION_HANDLER_DSN:
+    #   Redis: redis://localhost:6379  |  PDO: %env(DATABASE_URL)%
     session:
-        handler_id: '%env(default::SESSION_HANDLER_DSN)%'
+        handler_id: null
 
     #esi: true
     #fragments: true
+
+when@prod:
+    framework:
+        session:
+            handler_id: '%env(SESSION_HANDLER_DSN)%'
 
 when@test:
     framework:
