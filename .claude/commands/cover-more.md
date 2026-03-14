@@ -5,28 +5,46 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
 
 # Improve Test Coverage
 
-Identify the least covered parts of the codebase and write tests to improve coverage.
+Identify the least covered parts of the codebase and write tests to improve coverage, using Codecov data from CI as the source of truth.
 
 ## Instructions
 
-### 1. Generate coverage data
+### 1. Get coverage data from Codecov
 
-Run `make coverage` to produce `var/coverage/clover.xml` and `--coverage-text` output.
+Fetch the latest Codecov report from the most recent CI run. Check in order:
 
-If `make coverage` fails (e.g., database unavailable), run unit tests only:
+**If on a PR branch:**
 ```
-symfony php -d pcov.enabled=1 bin/phpunit --testsuite unit --coverage-clover var/coverage/clover.xml --coverage-text
+gh api repos/{owner}/{repo}/issues/{pr-number}/comments --jq '.[].body'
+```
+Look for the Codecov comment — it contains patch coverage and files with missing lines.
+
+**For overall project coverage**, fetch the latest coverage run artifacts:
+```
+gh run list --workflow=ci.yml --branch=develop --limit=1 --json databaseId
+gh run view <run-id> --log 2>&1 | grep -A50 "coverage-text"
 ```
 
-Capture the text output — it shows per-class coverage percentages.
+Alternatively, if these don't yield enough detail, run coverage locally:
+```
+make coverage
+```
+This produces `var/coverage/clover.xml` and `--coverage-text` output with per-class percentages.
+
+If local coverage fails (no pcov/database), use the CI logs as the primary data source.
 
 ### 2. Check test suite configuration
 
-Read `phpunit.xml.dist` and verify all test directories under `tests/` are included in a test suite. If any directories are missing (e.g., `tests/Controller/`, `tests/Command/`, `tests/DBAL/`), flag them and add them to the appropriate suite as a first fix.
+Read `phpunit.xml.dist` and compare with actual test directories:
+```
+ls tests/
+```
+
+Verify all directories are included in a `<testsuite>`. If any are missing (e.g., `tests/Controller/`, `tests/Command/`, `tests/DBAL/`), **add them to the appropriate suite as a first fix** — this alone can significantly improve reported coverage.
 
 ### 3. Identify coverage gaps
 
-Parse the coverage text output to find:
+From the Codecov data or local coverage report, find:
 1. **Classes with 0% coverage** — completely untested
 2. **Classes with < 50% coverage** — partially tested
 3. **Classes with 50–80% coverage** — could benefit from additional tests
@@ -68,7 +86,6 @@ After writing tests:
 2. Run `make phpstan` to verify type safety
 3. Run the new tests individually: `symfony php bin/phpunit tests/Path/To/NewTest.php`
 4. Run `make test.unit` to verify nothing is broken
-5. Optionally re-run `make coverage` and compare before/after percentages
 
 ### 7. Report results
 
@@ -86,9 +103,9 @@ Present a summary:
 |-----------|--------|---------------|--------------|
 | tests/Service/FooTest.php | src/Service/Foo.php | 3 | +45 |
 
-### Coverage change
-- Before: X% overall (Y% for targeted files)
-- After: X% overall (Y% for targeted files)
+### Expected coverage impact
+- Files fixed: [list files that should now show coverage in Codecov]
+- Note: Push and wait for CI to see updated Codecov numbers
 
 ### Remaining gaps
 - [list any significant untested code that was intentionally skipped and why]
@@ -102,3 +119,4 @@ Present a summary:
 - Do NOT test trivial code (auto-generated getters/setters, empty constructors).
 - Do NOT add tests for code that is inherently untestable without infrastructure (e.g., Doctrine migrations, Kernel bootstrap).
 - Prefer focused, fast unit tests over slow functional tests when both are viable.
+- The Codecov report from CI is the source of truth — prefer it over local coverage when available.

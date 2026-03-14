@@ -5,84 +5,88 @@ allowed-tools: Bash, Read, Glob, Grep, Agent
 
 # PR Coverage Analysis
 
-Evaluate whether the added or modified lines in the current PR are covered by automated tests.
+Evaluate whether the added or modified lines in the current PR are covered by automated tests, using the Codecov report from CI.
 
 ## Instructions
 
-### 1. Identify changed files
+### 1. Identify the PR
 
 Run in parallel:
 - `git branch --show-current` — get the current branch
-- `gh pr view --json baseRefName` — get the base branch
+- `gh pr view --json number,baseRefName` — get the PR number and base branch
 
-Then run:
+If no PR exists, **stop** and tell the user: "No PR found for this branch. Run `/pr` first."
+
+### 2. Fetch the Codecov report
+
+Run:
+```
+gh api repos/{owner}/{repo}/issues/{pr-number}/comments --jq '.[].body'
+```
+
+Look for the comment from Codecov (starts with `## [Codecov]`). Extract:
+- **Patch coverage percentage** — the overall coverage of changed lines
+- **Files with missing lines** — the table listing files, their patch %, and missing line counts
+- **Overall project coverage change** (if available)
+
+If no Codecov comment exists yet, tell the user: "Codecov report not available yet — CI may still be running. Try again after CI completes."
+
+### 3. Get the changed source files
+
+Run:
 - `git diff <base-branch>...HEAD --name-only` — list all changed files
-- `git diff <base-branch>...HEAD` — get the full diff
+- `git diff <base-branch>...HEAD --stat -- src/` — summary of source changes
 
-### 2. Categorize changed files
+Categorize files into:
+- **PHP source files** (`src/**/*.php`) — should be covered by PHPUnit
+- **Frontend files** (`assets/**/*.ts`, `assets/**/*.tsx`) — should be covered by Vitest
+- **Config/infra/docs** — skip coverage analysis
+- **Test files** (`tests/**`) — these ARE the tests, skip
 
-Split files into:
-- **PHP source files** (`src/**/*.php`) — these should be covered by PHPUnit
-- **Frontend files** (`assets/**/*.ts`, `assets/**/*.tsx`) — these should be covered by Vitest
-- **Config/infra files** (`.env*`, `config/**`, `Dockerfile`, `Makefile`, etc.) — not directly testable but may affect testable behavior
-- **Test files** (`tests/**`) — these ARE the tests, skip coverage analysis
-- **Documentation** (`docs/**`, `*.md`) — skip
+### 4. Cross-reference Codecov with test files
 
-### 3. Analyze PHP coverage
+For each PHP source file listed in the Codecov report as having missing lines:
 
-For each changed PHP source file:
+1. Search for matching test files in `tests/` (e.g., `FooService.php` → `FooServiceTest.php`)
+2. If tests exist but Codecov shows 0% coverage, check `phpunit.xml.dist` — the test directory may not be included in any test suite (this means tests exist but CI never runs them)
+3. If no tests exist at all, flag as uncovered
 
-1. Read the file to understand what was added/modified.
-2. Extract the changed lines from the diff (lines starting with `+`, excluding file headers).
-3. Search for existing tests:
-   - Check `tests/` for test files matching the class name (e.g., `FooService.php` → `FooServiceTest.php`)
-   - Use `Grep` to find references to the class/method in test files
-4. For each changed method or significant code block, determine:
-   - **Covered**: A test file exists that exercises this code path
-   - **Partially covered**: Tests exist for the class but don't cover the new/changed code paths
-   - **Not covered**: No tests found for this code
+### 5. Check test suite configuration
 
-### 4. Analyze frontend coverage
-
-For each changed frontend file:
-
-1. Check for matching test files in `assets/` (e.g., `Foo.tsx` → `Foo.test.tsx`)
-2. Search for imports of the changed module in test files
-3. Classify as covered/partially covered/not covered
-
-### 5. Generate coverage report
-
-Run `make coverage` to generate a clover XML report, then analyze it:
-- Parse `var/coverage/clover.xml` for the changed files
-- Extract line-level coverage data for modified lines
-
-If `make coverage` fails (e.g., no database), fall back to the static analysis from steps 3–4.
+Read `phpunit.xml.dist` and verify all test directories under `tests/` are included in a test suite. Compare with:
+```
+ls tests/
+```
+Flag any directories that exist but are not listed in any `<testsuite>` — these tests are invisible to CI coverage.
 
 ### 6. Present results
 
 Output a structured report:
 
 ```
-## PR Coverage Report
+## PR Coverage Report (from Codecov)
 
-### Summary
-- X/Y changed source files have test coverage
-- N lines added/modified, M lines covered by tests
+### Codecov Summary
+- **Patch coverage:** X% (Y lines missing)
+- **Project coverage:** Z% (delta)
 
 ### Per-file breakdown
 
-| File | Lines changed | Coverage | Test file(s) |
-|------|--------------|----------|-------------|
-| src/Service/Foo.php | +15 | ✅ Covered | tests/Service/FooTest.php |
-| src/Controller/Bar.php | +30 | ⚠️ Partial | tests/Functional/BarTest.php (missing new route) |
-| src/Entity/Baz.php | +5 | ❌ None | — |
+| File | Patch % | Missing lines | Test file(s) | Issue |
+|------|---------|---------------|-------------|-------|
+| src/Service/Foo.php | 100% | 0 | tests/Service/FooTest.php | — |
+| src/Controller/Bar.php | 0% | 33 | tests/Controller/BarTest.php | Suite config: tests/Controller/ not in phpunit.xml.dist |
+| src/Command/Baz.php | 0% | 50 | — | No tests written |
 
-### Uncovered code
+### Issues found
 
-For each uncovered or partially covered file, list:
-- The specific methods/blocks that lack coverage
-- What kind of test would cover them (unit, functional, integration)
-- Priority: High (business logic), Medium (controller/routing), Low (config/glue code)
+1. **Test suite configuration:** [list directories missing from phpunit.xml.dist]
+2. **Uncovered files:** [list files with no tests at all]
+3. **Tests exist but not run in CI:** [list files where tests exist but the directory isn't in a suite]
+
+### Recommendations
+- [specific actionable items, e.g., "Add tests/Controller/ to the unit suite in phpunit.xml.dist"]
+- [e.g., "Write unit tests for CreateAdminCommand using CommandTester"]
 ```
 
 ## Important
@@ -90,4 +94,4 @@ For each uncovered or partially covered file, list:
 - Do NOT write or modify any code. This skill is read-only analysis.
 - Do NOT create test files. Use `/cover-more` for that.
 - Focus on meaningful coverage gaps, not boilerplate (getters/setters, constructors with no logic).
-- If the phpunit.xml.dist test suites don't include certain test directories, flag this as a configuration issue.
+- The Codecov report is the source of truth for line-level coverage — prefer it over local `make coverage` runs.
