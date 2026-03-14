@@ -20,7 +20,12 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
+use Symfony\Component\Messenger\Transport\Sender\SenderInterface;
+use Symfony\Component\Messenger\Transport\Sender\SendersLocator;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface as MessengerSerializerInterface;
 
 /**
@@ -148,6 +153,55 @@ final class MessengerWebhookControllerTest extends TestCase
             ->willReturn($envelope);
 
         ($this->controller)('notification', $request);
+    }
+
+    /**
+     * Proves that the ReceivedStamp prevents SendMessageMiddleware from
+     * re-routing the message to an async transport (which would cause an
+     * infinite loop: SQS → webhook → bus → SQS → …).
+     *
+     * Uses real SendMessageMiddleware with a sender wired for stdClass.
+     * Without ReceivedStamp the sender would be called; with it, the
+     * middleware skips sending entirely.
+     */
+    public function testReceivedStampPreventsAsyncReDispatch(): void
+    {
+        $sender = $this->createMock(SenderInterface::class);
+        $sender->expects(self::never())->method('send');
+
+        $sendersLocator = new SendersLocator(
+            [\stdClass::class => ['async_transport']],
+            $this->createConfiguredMock(\Psr\Container\ContainerInterface::class, [
+                'has' => true,
+                'get' => $sender,
+            ]),
+        );
+
+        $handlerMiddleware = $this->createMock(HandleMessageMiddleware::class);
+        $handlerMiddleware->method('handle')
+            ->willReturnCallback(static function (Envelope $envelope) {
+                return $envelope->with(new HandledStamp('done', 'handler'));
+            });
+
+        $bus = new \Symfony\Component\Messenger\MessageBus([
+            new SendMessageMiddleware($sendersLocator),
+            $handlerMiddleware,
+        ]);
+
+        $controller = new MessengerWebhookController(
+            $bus,
+            $this->serializer,
+            new NullLogger(),
+            self::SECRET,
+        );
+
+        $body = '{"message": "test"}';
+        $request = $this->createSignedRequest($body);
+        $this->serializer->method('decode')->willReturn(new Envelope(new \stdClass()));
+
+        $response = $controller('transactional_email', $request);
+
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function testAcceptsAllAllowedTransports(): void
