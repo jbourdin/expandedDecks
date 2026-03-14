@@ -87,6 +87,15 @@ class BorrowEmailPreferenceTest extends TestCase
         $this->service->sendBorrowApproved($borrow);
     }
 
+    public function testSendBorrowApprovedSendsWhenEmailEnabled(): void
+    {
+        $borrow = $this->createBorrow();
+
+        $this->mailer->expects(self::once())->method('send');
+
+        $this->service->sendBorrowApproved($borrow);
+    }
+
     public function testSendBorrowDeniedSkipsWhenEmailDisabled(): void
     {
         $borrow = $this->createBorrow();
