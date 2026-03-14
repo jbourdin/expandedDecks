@@ -19,9 +19,11 @@ Analyze the project roadmap and feature list to recommend the next feature to im
    - Special dependencies like "All controllers" or "All state-changing actions" should be treated as **not yet met** (these are meta-dependencies that require human judgment)
 
 3. **Rank actionable features** using this sort order:
-   1. **Priority**: High > Medium > Low
-   2. **Phase**: earlier phase first (A before B before C, etc.)
+   1. **Phase**: earlier phase first. Phases may be numbered or lettered — numbered phases (0, 1, 2, …) come before lettered phases (A, B, C, …), and each group is sorted naturally (0 < 1 < 2 < … < A < B < C < …)
+   2. **Priority**: High > Medium > Low
    3. **Feature ID**: lower number first (F1.x before F2.x, then F1.1 before F1.2)
+
+   **Exception — blocked-blocking promotion:** if a feature in a later phase **blocks** a feature in an earlier phase (i.e., the earlier-phase feature depends on it), promote the blocking feature to the rank of the earliest phase it unblocks. This ensures dependency chains are resolved in the order needed by the phase roadmap.
 
 4. **Read `docs/features.md`** and retrieve the full description for:
    - The **top recommendation** (rank #1)
