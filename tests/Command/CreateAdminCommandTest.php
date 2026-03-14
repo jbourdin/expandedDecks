@@ -129,6 +129,32 @@ final class CreateAdminCommandTest extends TestCase
         self::assertStringContainsString('Passwords do not match', $this->tester->getDisplay());
     }
 
+    public function testNotBlankRejectsEmptyString(): void
+    {
+        $method = new \ReflectionMethod(CreateAdminCommand::class, 'notBlank');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('cannot be blank');
+
+        $method->invoke(null, '');
+    }
+
+    public function testNotBlankRejectsNull(): void
+    {
+        $method = new \ReflectionMethod(CreateAdminCommand::class, 'notBlank');
+
+        $this->expectException(\RuntimeException::class);
+
+        $method->invoke(null, null);
+    }
+
+    public function testNotBlankReturnsValidString(): void
+    {
+        $method = new \ReflectionMethod(CreateAdminCommand::class, 'notBlank');
+
+        self::assertSame('hello', $method->invoke(null, 'hello'));
+    }
+
     public function testValidationErrorReturnsFailure(): void
     {
         $violation = new ConstraintViolation(
