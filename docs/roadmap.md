@@ -39,7 +39,7 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 |--------|-------------------------------------------|----------|------------|--------|
 | F14.1  | Per-transport Messenger DSN configuration | High     | —          | Done   |
 | F14.2  | Configurable session storage driver       | High     | —          | Done   |
-| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      | Done   |
+| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      | Removed (replaced by Doctrine transport + cron job) |
 | F14.4  | Health check endpoint                     | High     | —          | Done   |
 | F14.5  | Production Dockerfile                     | High     | —          | Done   |
 | F14.6  | Configurable mail sender and admin email  | High     | —          | Done   |
@@ -47,6 +47,18 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 **Progress: 6/6 done**
 
 **Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand. Health check endpoints for container orchestration liveness/readiness probes. Multi-stage Dockerfile for production container image. All external service connections (mail sender, admin recipient, mailer DSN, trusted proxies) configurable via environment variables.
+
+---
+
+## Fixes
+
+> Bug fixes and refactors needed for production correctness.
+
+| ID     | Feature                                           | Priority | Depends on | Status |
+|--------|---------------------------------------------------|----------|------------|--------|
+| F6.5-fix | Refactor banned cards sync into a service       | High     | F6.5       |        |
+
+**F6.5-fix:** The `BannedCardsSyncCommand` contains all the parsing/sync logic inline. The technical admin controller (`AdminTechnicalController`) currently shells out to `symfony console app:banned-cards:sync` via `Process`, which fails in the serverless container (no `symfony` CLI binary). Extract the sync logic into a `BannedCardsSyncService` callable from both the CLI command and the controller directly.
 
 ---
 
