@@ -85,12 +85,12 @@ RUN rm -rf tests/ .env .env.test .env.dev docker-compose.yml node_modules/ asset
     'DEFAULT_URI=https://localhost' \
     'DATABASE_URL=mysql://localhost/placeholder?serverVersion=8.0' \
     'MAILER_DSN=null://null' \
-    'MESSENGER_WEBHOOK_SECRET=change-me' \
-    'MESSENGER_TRANSPORT_TRANSACTIONAL_EMAIL_DSN=sync://' \
-    'MESSENGER_TRANSPORT_DECK_ENRICHMENT_DSN=sync://' \
-    'MESSENGER_TRANSPORT_NOTIFICATION_DSN=sync://' \
-    'MESSENGER_TRANSPORT_BORROW_LIFECYCLE_DSN=sync://' \
-    'MESSENGER_TRANSPORT_FAILED_DSN=sync://' \
+    'MESSENGER_WEBHOOK_SECRET=' \
+    'MESSENGER_TRANSPORT_TRANSACTIONAL_EMAIL_DSN=doctrine://default' \
+    'MESSENGER_TRANSPORT_DECK_ENRICHMENT_DSN=doctrine://default' \
+    'MESSENGER_TRANSPORT_NOTIFICATION_DSN=doctrine://default' \
+    'MESSENGER_TRANSPORT_BORROW_LIFECYCLE_DSN=doctrine://default' \
+    'MESSENGER_TRANSPORT_FAILED_DSN=doctrine://default' \
     'MAIL_SENDER=noreply@localhost' \
     'ADMIN_EMAIL=admin@localhost' \
     > .env
