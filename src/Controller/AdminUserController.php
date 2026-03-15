@@ -144,6 +144,6 @@ class AdminUserController extends AbstractAppController
      */
     private function getAssignableRoles(): array
     {
-        return ['ROLE_ADMIN', 'ROLE_ORGANIZER', 'ROLE_CMS_EDITOR', 'ROLE_ARCHETYPE_EDITOR'];
+        return ['ROLE_ADMIN', 'ROLE_ORGANIZER', 'ROLE_CMS_EDITOR', 'ROLE_ARCHETYPE_EDITOR', 'ROLE_TECHNICAL_ADMIN'];
     }
 }

@@ -3689,6 +3689,82 @@
                 <source>app.event.scope_staffing</source>
                 <target>Mes événements</target>
             </trans-unit>
+            <trans-unit id="app.nav.admin_technical">
+                <source>app.nav.admin_technical</source>
+                <target>Technique</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.title">
+                <source>app.admin.technical.title</source>
+                <target>Administration technique</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.title">
+                <source>app.admin.technical.enrich.title</source>
+                <target>Enrichissement des decks</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.description">
+                <source>app.admin.technical.enrich.description</source>
+                <target>Renvoyer les messages d'enrichissement pour les versions de deck en attente ou en erreur.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.pending_count">
+                <source>app.admin.technical.enrich.pending_count</source>
+                <target>%count% version(s) de deck en attente d'enrichissement.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.deck">
+                <source>app.admin.technical.enrich.table.deck</source>
+                <target>Deck</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.version">
+                <source>app.admin.technical.enrich.table.version</source>
+                <target>Version</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.status">
+                <source>app.admin.technical.enrich.table.status</source>
+                <target>Statut</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.retry_button">
+                <source>app.admin.technical.enrich.retry_button</source>
+                <target>Relancer tous les enrichissements</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.all_done">
+                <source>app.admin.technical.enrich.all_done</source>
+                <target>Toutes les versions de deck sont enrichies.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.none_pending">
+                <source>app.admin.technical.enrich.none_pending</source>
+                <target>Aucune version de deck n'a besoin d'enrichissement.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.dispatched">
+                <source>app.admin.technical.enrich.dispatched</source>
+                <target>%count% message(s) d'enrichissement envoyé(s).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.title">
+                <source>app.admin.technical.banned_cards.title</source>
+                <target>Synchronisation des cartes bannies</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.description">
+                <source>app.admin.technical.banned_cards.description</source>
+                <target>Récupérer la liste officielle des cartes bannies en Expanded depuis pokemon.com et synchroniser la base de données.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.current_count">
+                <source>app.admin.technical.banned_cards.current_count</source>
+                <target>Actuellement %count% carte(s) bannie(s) en base de données.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.sync_button">
+                <source>app.admin.technical.banned_cards.sync_button</source>
+                <target>Synchroniser les cartes bannies</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.confirm_sync">
+                <source>app.admin.technical.banned_cards.confirm_sync</source>
+                <target>Cela va récupérer et synchroniser la liste des cartes bannies. Continuer ?</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.synced">
+                <source>app.admin.technical.banned_cards.synced</source>
+                <target>Cartes bannies synchronisées avec succès.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.failed">
+                <source>app.admin.technical.banned_cards.failed</source>
+                <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -30,6 +30,7 @@ class BorrowNotificationEmailService
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TranslatorInterface $translator,
+        private readonly string $mailSender,
     ) {
     }
 
@@ -152,7 +153,7 @@ class BorrowNotificationEmailService
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $email = (new TemplatedEmail())
-            ->from('noreply@expanded-decks.com')
+            ->from($this->mailSender)
             ->to($recipient->getEmail())
             ->subject($subject)
             ->htmlTemplate($template)

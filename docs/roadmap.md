@@ -12,7 +12,7 @@ This roadmap lists **remaining features** to be implemented, grouped into logica
 
 ## Completed Features
 
-The following features have been fully implemented across phases 1–9. See [features.md](features.md) for full descriptions and [changelog.md](changelog.md) for release history.
+The following features have been fully implemented across phases 0–9. See [features.md](features.md) for full descriptions and [changelog.md](changelog.md) for release history.
 
 F1.1, F1.2, F1.3, F1.4, F1.7, F1.8, F1.11,
 F2.1, F2.2, F2.3, F2.4, F2.5, F2.6, F2.7, F2.8, F2.9, F2.10, F2.11, F2.12, F2.13, F2.14, F2.15, F2.16, F2.17, F2.18,
@@ -24,9 +24,10 @@ F7.1, F7.2, F7.4,
 F8.1, F8.2, F8.3, F8.4,
 F9.1, F9.2, F9.3, F9.4,
 F10.1, F10.2,
-F11.1, F11.2, F11.3
+F11.1, F11.2, F11.3,
+F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 
-**Total: 75 features done.**
+**Total: 81 features done.**
 
 ---
 
@@ -34,15 +35,42 @@ F11.1, F11.2, F11.3
 
 > Infrastructure features required for the first live server release. Configurable transports, session storage, and workerless async via SQS webhook consumption.
 
-| ID     | Feature                                   | Priority | Depends on |
-|--------|-------------------------------------------|----------|------------|
-| F14.1  | Per-transport Messenger DSN configuration | High     | —          |
-| F14.2  | Configurable session storage driver       | High     | —          |
-| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      |
+| ID     | Feature                                   | Priority | Depends on | Status |
+|--------|-------------------------------------------|----------|------------|--------|
+| F14.1  | Per-transport Messenger DSN configuration | High     | —          | Done   |
+| F14.2  | Configurable session storage driver       | High     | —          | Done   |
+| F14.3  | SQS-compatible webhook message consumer   | High     | F14.1      | Removed (replaced by Doctrine transport + cron job) |
+| F14.4  | Health check endpoint                     | High     | —          | Done   |
+| F14.5  | Production Dockerfile                     | High     | —          | Done   |
+| F14.6  | Configurable mail sender and admin email  | High     | —          | Done   |
 
-**Progress: 0/3 done**
+**Progress: 6/6 done**
 
-**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand.
+**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand. Health check endpoints for container orchestration liveness/readiness probes. Multi-stage Dockerfile for production container image. All external service connections (mail sender, admin recipient, mailer DSN, trusted proxies) configurable via environment variables.
+
+---
+
+## Immediate — Production Observability
+
+> Infrastructure features needed before or shortly after the first production deployment.
+
+| ID     | Feature                                           | Priority | Depends on | Status |
+|--------|---------------------------------------------------|----------|------------|--------|
+| F14.7  | Sentry error tracking                             | High     | —          |        |
+
+**F14.7:** Sentry integration for production error tracking. Inject `SENTRY_DSN` env var to enable. Captures unhandled exceptions, Messenger worker errors, and Monolog error-level logs. Performance tracing configurable via `SENTRY_TRACES_SAMPLE_RATE` (default: 0 — disabled). Disabled in dev/test.
+
+---
+
+## Fixes
+
+> Bug fixes and refactors needed for production correctness.
+
+| ID     | Feature                                           | Priority | Depends on | Status |
+|--------|---------------------------------------------------|----------|------------|--------|
+| F6.5-fix | Refactor banned cards sync into a service       | High     | F6.5       |        |
+
+**F6.5-fix:** The `BannedCardsSyncCommand` contains all the parsing/sync logic inline. The technical admin controller (`AdminTechnicalController`) currently shells out to `symfony console app:banned-cards:sync` via `Process`, which fails in the serverless container (no `symfony` CLI binary). Extract the sync logic into a `BannedCardsSyncService` callable from both the CLI command and the controller directly.
 
 ---
 
@@ -58,10 +86,11 @@ F11.1, F11.2, F11.3
 | F13.1 | Bookmark a deck                         | Low      | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | F3.2             |
 | F13.3 | Bookmark an archetype                   | Low      | F2.16            |
+| F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       |
 
-**Progress: 0/6 done**
+**Progress: 0/7 done**
 
-**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, and a visual card mosaic alternative for deck lists.
+**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, a visual card mosaic alternative for deck lists, and localized archetype names and descriptions.
 
 ---
 
@@ -181,14 +210,14 @@ F11.1, F11.2, F11.3
 
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
-| 0     | Deployment Readiness            | 3        | 1.0.0-beta.2 |
-| A     | UX Polish & Overdue Tracking    | 6        |              |
+| 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
+| A     | UX Polish & Overdue Tracking    | 7        |              |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **31**   |              |
+|       | **Total remaining**             | **30**   |              |
 
-75 features done · 31 remaining.
+81 features done · 30 remaining.

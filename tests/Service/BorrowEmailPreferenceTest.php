@@ -46,6 +46,7 @@ class BorrowEmailPreferenceTest extends TestCase
             $this->mailer,
             $urlGenerator,
             $translator,
+            'noreply@test.com',
         );
     }
 
@@ -82,6 +83,15 @@ class BorrowEmailPreferenceTest extends TestCase
         );
 
         $this->mailer->expects(self::never())->method('send');
+
+        $this->service->sendBorrowApproved($borrow);
+    }
+
+    public function testSendBorrowApprovedSendsWhenEmailEnabled(): void
+    {
+        $borrow = $this->createBorrow();
+
+        $this->mailer->expects(self::once())->method('send');
 
         $this->service->sendBorrowApproved($borrow);
     }

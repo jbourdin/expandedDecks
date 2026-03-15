@@ -55,6 +55,7 @@ class EventNotificationServiceTest extends TestCase
             $this->mailer,
             $this->urlGenerator,
             $this->translator,
+            'noreply@test.com',
         );
     }
 
@@ -176,6 +177,7 @@ class EventNotificationServiceTest extends TestCase
             $mailer,
             $this->urlGenerator,
             $translator,
+            'noreply@test.com',
         );
 
         $service->notifyStaffAssigned($event, $user);

@@ -20,11 +20,14 @@
 
     <testsuites>
         <testsuite name="unit">
-            <directory>tests/Service</directory>
+            <directory>tests/Command</directory>
+            <directory>tests/Controller</directory>
+            <directory>tests/DBAL</directory>
             <directory>tests/Entity</directory>
             <directory>tests/EventListener</directory>
             <directory>tests/MessageHandler</directory>
             <directory>tests/Security</directory>
+            <directory>tests/Service</directory>
             <directory>tests/Twig</directory>
         </testsuite>
         <testsuite name="functional">

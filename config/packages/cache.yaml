@@ -18,3 +18,11 @@ framework:
         pools:
             cache.menu_categories:
                 default_lifetime: 3600
+
+when@prod:
+    framework:
+        cache:
+            # APCu is in-process memory cache — fast, no external dependency,
+            # persists for the lifetime of the FrankenPHP worker process.
+            # Ideal for serverless containers where filesystem is ephemeral.
+            app: cache.adapter.apcu

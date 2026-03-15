@@ -3689,6 +3689,82 @@
                 <source>app.event.scope_staffing</source>
                 <target>My events</target>
             </trans-unit>
+            <trans-unit id="app.nav.admin_technical">
+                <source>app.nav.admin_technical</source>
+                <target>Technical</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.title">
+                <source>app.admin.technical.title</source>
+                <target>Technical Administration</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.title">
+                <source>app.admin.technical.enrich.title</source>
+                <target>Deck Enrichment</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.description">
+                <source>app.admin.technical.enrich.description</source>
+                <target>Redispatch enrichment messages for deck versions that are still pending or failed.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.pending_count">
+                <source>app.admin.technical.enrich.pending_count</source>
+                <target>%count% deck version(s) pending enrichment.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.deck">
+                <source>app.admin.technical.enrich.table.deck</source>
+                <target>Deck</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.version">
+                <source>app.admin.technical.enrich.table.version</source>
+                <target>Version</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.table.status">
+                <source>app.admin.technical.enrich.table.status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.retry_button">
+                <source>app.admin.technical.enrich.retry_button</source>
+                <target>Retry all enrichments</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.all_done">
+                <source>app.admin.technical.enrich.all_done</source>
+                <target>All deck versions are enriched.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.none_pending">
+                <source>app.admin.technical.enrich.none_pending</source>
+                <target>No deck versions need enrichment.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.enrich.dispatched">
+                <source>app.admin.technical.enrich.dispatched</source>
+                <target>%count% enrichment message(s) dispatched.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.title">
+                <source>app.admin.technical.banned_cards.title</source>
+                <target>Banned Cards Sync</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.description">
+                <source>app.admin.technical.banned_cards.description</source>
+                <target>Fetch the official Expanded banned card list from pokemon.com and sync it to the database.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.current_count">
+                <source>app.admin.technical.banned_cards.current_count</source>
+                <target>Currently %count% banned card(s) in database.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.sync_button">
+                <source>app.admin.technical.banned_cards.sync_button</source>
+                <target>Sync banned cards</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.confirm_sync">
+                <source>app.admin.technical.banned_cards.confirm_sync</source>
+                <target>This will fetch and sync the banned card list. Continue?</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.synced">
+                <source>app.admin.technical.banned_cards.synced</source>
+                <target>Banned cards synced successfully.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.failed">
+                <source>app.admin.technical.banned_cards.failed</source>
+                <target>Banned cards sync failed. Check the logs for details.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

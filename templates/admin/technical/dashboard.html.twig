@@ -1,0 +1,85 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.technical.title'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <h2 class="mb-4">{{ 'app.admin.technical.title'|trans }}</h2>
+
+    {# Deck enrichment card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.enrich.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.enrich.description'|trans }}</p>
+
+            {% if pendingEnrichments|length > 0 %}
+                <div class="alert alert-warning">
+                    {{ 'app.admin.technical.enrich.pending_count'|trans({'%count%': pendingEnrichments|length}) }}
+                </div>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ 'app.admin.technical.enrich.table.deck'|trans }}</th>
+                            <th>{{ 'app.admin.technical.enrich.table.version'|trans }}</th>
+                            <th>{{ 'app.admin.technical.enrich.table.status'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for version in pendingEnrichments %}
+                            <tr>
+                                <td>{{ version.deck.name }}</td>
+                                <td>v{{ version.versionNumber }}</td>
+                                <td>
+                                    <span class="badge bg-{{ version.enrichmentStatus == 'failed' ? 'danger' : 'secondary' }}">
+                                        {{ version.enrichmentStatus }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <form method="post" action="{{ path('app_admin_technical_enrich_retry') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-enrich-retry') }}">
+                    <button type="submit" class="btn btn-gold">
+                        {{ 'app.admin.technical.enrich.retry_button'|trans }}
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-success mb-0">
+                    {{ 'app.admin.technical.enrich.all_done'|trans }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Banned cards sync card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.banned_cards.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.banned_cards.description'|trans }}</p>
+
+            <div class="mb-3">
+                {{ 'app.admin.technical.banned_cards.current_count'|trans({'%count%': bannedCardCount}) }}
+            </div>
+
+            <form method="post" action="{{ path('app_admin_technical_banned_cards_sync') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-banned-cards-sync') }}">
+                <button type="submit" class="btn btn-gold"
+                        onclick="return confirm('{{ 'app.admin.technical.banned_cards.confirm_sync'|trans|e('js') }}')">
+                    {{ 'app.admin.technical.banned_cards.sync_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
