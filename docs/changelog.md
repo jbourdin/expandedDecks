@@ -16,6 +16,43 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.2] — 2026-03-16
+
+Second beta — deployment hardening, production observability, and infrastructure improvements. Sentry integration, Doctrine-based async messaging, APCu caching, technical admin dashboard, and container fixes.
+
+### Infrastructure
+
+- **F14.1–F14.6** — Deployment readiness features *(completed)*: per-transport Messenger DSN configuration, configurable session storage (database-backed by default), health check endpoints (liveness + readiness), production multi-stage Dockerfile with FrankenPHP, configurable mail sender and admin email. Interactive `app:create-admin` console command for initial setup.
+- **F14.7** — Sentry error tracking *(new)*: `sentry/sentry-symfony` integration for production error tracking. `SENTRY_DSN` env var controls the connection (empty = disabled). Captures unhandled exceptions, Messenger worker errors, and Monolog error-level logs. Performance tracing configurable via `SENTRY_TRACES_SAMPLE_RATE` (default: 0). Disabled in dev/test.
+- Switched async messaging from SQS webhook to Doctrine transport + cron job — eliminates external queue dependency.
+- APCu cache adapter in production for in-process caching with FrankenPHP workers.
+- Trusted `X-Forwarded-Host` header from CDN proxy.
+- Multiple Dockerfile fixes for serverless container deployment.
+- Database-backed sessions in all environments for horizontal scaling.
+
+### Admin
+
+- Technical admin dashboard with enrichment and banned cards sync actions (accessible to `ROLE_TECHNICAL_ADMIN`).
+
+### Testing & Quality
+
+- Coverage improvements for `BorrowNotificationEmailService` and `CreateAdminCommand`.
+- On-demand coverage workflow, `/cover-pr` and `/cover-more` slash commands via Codecov.
+- Integration test proving webhook cannot re-dispatch async messages.
+
+### Documentation
+
+- F9.6 archetype localization feature and content pages documented.
+- F6.5-fix added to roadmap for banned cards sync refactor.
+- `/ci`, `/pr`, `/next` slash commands added to tooling.
+
+### Cross-Cutting
+
+- 82 features documented (81 done + F14.7 new)
+- PHPStan level 10, full CI pipeline
+
+---
+
 ## [1.0.0-beta.1] — 2026-03-12
 
 First beta of the 1.0.0 release — Phase 9 completion. Archetype ecosystem fully built out, dashboard action reminders, deck activity pagination, version history, and retire/reactivate workflow.
