@@ -3,7 +3,7 @@
 [![CI](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jbourdin/expandedDecks/graph/badge.svg)](https://codecov.io/gh/jbourdin/expandedDecks)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-≥8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![Symfony 7.2](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)](https://symfony.com/)
+[![Symfony 8.0](https://img.shields.io/badge/Symfony-8.0-000000?logo=symfony&logoColor=white)](https://symfony.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 > **Audience:** Developer, Player, Organizer · **Scope:** Overview
@@ -22,7 +22,7 @@ Read the full **[Project Philosophy](docs/philosophy.md)**.
 
 ## Stack
 
-- **Backend:** PHP 8.5, Symfony 7.2, Doctrine ORM
+- **Backend:** PHP 8.5, Symfony 8.0, Doctrine ORM
 - **Frontend:** React.js (via Symfony UX / Webpack Encore)
 - **Database:** MySQL 8
 - **Infrastructure:** Docker, Docker Compose

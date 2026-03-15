@@ -1,4 +1,4 @@
-# Plan: Symfony 7.2 Skeleton with Docker, Makefile & CI
+# Plan: Symfony 8.0 Skeleton with Docker, Makefile & CI
 
 > **Audience:** Developer, AI Agent · **Scope:** Architecture, Planning
 
@@ -48,11 +48,11 @@ Work on a `chore/symfony-skeleton` branch off `develop`. Create the Symfony skel
 
 | File | Description |
 |------|-------------|
-| `package.json` | React 18, TypeScript 5, Encore, ESLint 9, ts-loader, react types |
+| `package.json` | React 19, TypeScript 5, Encore, ESLint 9, ts-loader, react types |
 | `webpack.config.js` | Encore: React preset, TypeScript loader, entry `assets/app.tsx` |
 | `tsconfig.json` | Strict, `jsx: "react-jsx"`, `noEmit: true`, `moduleResolution: "bundler"` |
 | `eslint.config.mjs` | ESLint 9 flat config: typescript-eslint + react + react-hooks, `react-in-jsx-scope: off` |
-| `assets/app.tsx` | Minimal React 18 entry point (`createRoot` into `#app`), copyright header |
+| `assets/app.tsx` | Minimal React 19 entry point (`createRoot` into `#app`), copyright header |
 
 Update `templates/base.html.twig` with `encore_entry_link_tags('app')` / `encore_entry_script_tags('app')` + `<div id="app">`.
 

@@ -6,10 +6,10 @@
 
 ## Frameworks & Tools
 
-- [Symfony 7.2](https://symfony.com/doc/7.2/index.html) — PHP web framework
+- [Symfony 8.0](https://symfony.com/doc/8.0/index.html) — PHP web framework
 - [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html) — Object-Relational Mapper
 - [Webpack Encore](https://symfony.com/doc/current/frontend.html) — Symfony asset management
-- [React 18](https://react.dev/) — Frontend UI library
+- [React 19](https://react.dev/) — Frontend UI library
 - [TypeScript](https://www.typescriptlang.org/) — Typed JavaScript
 - [PHPStan](https://phpstan.org/) — PHP static analysis (level 10)
 - [PHP-CS-Fixer](https://cs.symfony.com/) — PHP code style fixer
