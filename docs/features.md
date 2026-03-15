@@ -173,6 +173,7 @@ Both email (via Symfony Mailer + Messenger async transport) and in-app (stored i
 | F9.3   | Application translation              | Medium   | Symfony Translation component (YAML catalogues) for backend strings and `react-i18next` (JSON catalogues) for frontend strings. Initial languages: `en`, `fr`. Dot-notation keys (e.g. `app.deck.status.available`). All user-facing strings wrapped in translation calls (`trans()` / `t()`). |
 | F9.4   | UTC datetime storage                 | High     | All database datetimes stored in **UTC**. Event dates are displayed in the event's `timezone` field (see [Event model](models/event.md)). When the user's timezone differs from the event's timezone, a user-relative hint is shown — e.g. "10:00 CET (16:00 your time)". Borrow and notification timestamps displayed in the user's timezone (F9.2). |
 | F9.5   | Weblate integration                  | Low      | Cloud-hosted Weblate instance for collaborative editing of translation files (XLIFF catalogues). Translators edit via Weblate web UI; changes sync back to the repository via automated PRs. |
+| F9.6   | Archetype localization               | Medium   | Archetype names and Markdown descriptions are translatable per locale. The `Archetype` entity stores locale-specific content (name, description) so that the archetype catalog, detail pages, and deck labels display in the user's preferred language. Admin form allows editing content for each supported locale. Falls back to the default locale when a translation is missing. |
 
 ## F11 — CMS Content Pages
 
