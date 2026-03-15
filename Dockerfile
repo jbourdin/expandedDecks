@@ -93,6 +93,8 @@ RUN rm -rf tests/ .env .env.test .env.dev docker-compose.yml node_modules/ asset
     'MESSENGER_TRANSPORT_FAILED_DSN=doctrine://default' \
     'MAIL_SENDER=noreply@localhost' \
     'ADMIN_EMAIL=admin@localhost' \
+    'SENTRY_DSN=' \
+    'SENTRY_TRACES_SAMPLE_RATE=0' \
     > .env
 
 ENV APP_ENV=prod

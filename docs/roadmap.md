@@ -50,6 +50,18 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 
 ---
 
+## Immediate — Production Observability
+
+> Infrastructure features needed before or shortly after the first production deployment.
+
+| ID     | Feature                                           | Priority | Depends on | Status |
+|--------|---------------------------------------------------|----------|------------|--------|
+| F14.7  | Sentry error tracking                             | High     | —          |        |
+
+**F14.7:** Sentry integration for production error tracking. Inject `SENTRY_DSN` env var to enable. Captures unhandled exceptions, Messenger worker errors, and Monolog error-level logs. Performance tracing configurable via `SENTRY_TRACES_SAMPLE_RATE` (default: 0 — disabled). Disabled in dev/test.
+
+---
+
 ## Fixes
 
 > Bug fixes and refactors needed for production correctness.
@@ -206,6 +218,6 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **29**   |              |
+|       | **Total remaining**             | **30**   |              |
 
-81 features done · 29 remaining.
+81 features done · 30 remaining.

@@ -1,0 +1,17 @@
+sentry:
+    dsn: '%env(SENTRY_DSN)%'
+    messenger:
+        enabled: true
+        capture_soft_fails: true
+    options:
+        environment: '%kernel.environment%'
+        send_default_pii: false
+        traces_sample_rate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
+
+when@dev:
+    sentry:
+        dsn: '' # Disabled in dev by default — set SENTRY_DSN in .env.local to enable
+
+when@test:
+    sentry:
+        dsn: '' # Always disabled in test
