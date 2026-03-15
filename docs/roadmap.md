@@ -74,10 +74,11 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 | F13.1 | Bookmark a deck                         | Low      | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | F3.2             |
 | F13.3 | Bookmark an archetype                   | Low      | F2.16            |
+| F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       |
 
-**Progress: 0/6 done**
+**Progress: 0/7 done**
 
-**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, and a visual card mosaic alternative for deck lists.
+**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, a visual card mosaic alternative for deck lists, and localized archetype names and descriptions.
 
 ---
 
@@ -198,13 +199,13 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
 | 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
-| A     | UX Polish & Overdue Tracking    | 6        |              |
+| A     | UX Polish & Overdue Tracking    | 7        |              |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **28**   |              |
+|       | **Total remaining**             | **29**   |              |
 
-81 features done · 28 remaining.
+81 features done · 29 remaining.
