@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Controller\MessengerWebhookController;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,14 +35,14 @@ final class MessengerWebhookControllerTest extends TestCase
 {
     private const string SECRET = 'test-webhook-secret';
 
-    private MessageBusInterface&MockObject $messageBus;
-    private MessengerSerializerInterface&MockObject $serializer;
+    private MessageBusInterface&Stub $messageBus;
+    private MessengerSerializerInterface&Stub $serializer;
     private MessengerWebhookController $controller;
 
     protected function setUp(): void
     {
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-        $this->serializer = $this->createMock(MessengerSerializerInterface::class);
+        $this->messageBus = $this->createStub(MessageBusInterface::class);
+        $this->serializer = $this->createStub(MessengerSerializerInterface::class);
         $this->controller = new MessengerWebhookController(
             $this->messageBus,
             $this->serializer,
@@ -139,8 +139,11 @@ final class MessengerWebhookControllerTest extends TestCase
         $request = $this->createSignedRequest($body);
         $envelope = new Envelope(new \stdClass());
 
-        $this->serializer->method('decode')->willReturn($envelope);
-        $this->messageBus->expects(self::once())
+        $serializer = $this->createStub(MessengerSerializerInterface::class);
+        $serializer->method('decode')->willReturn($envelope);
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects(self::once())
             ->method('dispatch')
             ->with(self::callback(static function (Envelope $dispatched): bool {
                 $stamps = $dispatched->all(ReceivedStamp::class);
@@ -152,7 +155,14 @@ final class MessengerWebhookControllerTest extends TestCase
             }))
             ->willReturn($envelope);
 
-        ($this->controller)('notification', $request);
+        $controller = new MessengerWebhookController(
+            $messageBus,
+            $serializer,
+            new NullLogger(),
+            self::SECRET,
+        );
+
+        $controller('notification', $request);
     }
 
     /**
@@ -169,15 +179,16 @@ final class MessengerWebhookControllerTest extends TestCase
         $sender = $this->createMock(SenderInterface::class);
         $sender->expects(self::never())->method('send');
 
+        $containerStub = $this->createStub(\Psr\Container\ContainerInterface::class);
+        $containerStub->method('has')->willReturn(true);
+        $containerStub->method('get')->willReturn($sender);
+
         $sendersLocator = new SendersLocator(
             [\stdClass::class => ['async_transport']],
-            $this->createConfiguredMock(\Psr\Container\ContainerInterface::class, [
-                'has' => true,
-                'get' => $sender,
-            ]),
+            $containerStub,
         );
 
-        $handlerMiddleware = $this->createMock(HandleMessageMiddleware::class);
+        $handlerMiddleware = $this->createStub(HandleMessageMiddleware::class);
         $handlerMiddleware->method('handle')
             ->willReturnCallback(static function (Envelope $envelope) {
                 return $envelope->with(new HandledStamp('done', 'handler'));

@@ -16,7 +16,7 @@ namespace App\Tests\Command;
 use App\Command\CreateAdminCommand;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -30,31 +30,32 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 final class CreateAdminCommandTest extends TestCase
 {
-    private EntityManagerInterface&MockObject $entityManager;
-    private UserPasswordHasherInterface&MockObject $passwordHasher;
-    private ValidatorInterface&MockObject $validator;
-    private CommandTester $tester;
+    private UserPasswordHasherInterface&Stub $passwordHasher;
+    private ValidatorInterface&Stub $validator;
 
     protected function setUp(): void
     {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+        $this->passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
         $this->passwordHasher->method('hashPassword')->willReturn('hashed-password');
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $this->validator = $this->createStub(ValidatorInterface::class);
         $this->validator->method('validate')->willReturn(new ConstraintViolationList());
+    }
 
+    private function createCommandTester(EntityManagerInterface $entityManager): CommandTester
+    {
         $command = new CreateAdminCommand(
-            $this->entityManager,
+            $entityManager,
             $this->passwordHasher,
             $this->validator,
         );
 
-        $this->tester = new CommandTester($command);
+        return new CommandTester($command);
     }
 
     public function testSuccessfulAdminCreation(): void
     {
-        $this->entityManager->expects(self::once())->method('persist')
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')
             ->with(self::callback(static function (User $user): bool {
                 return 'admin@test.com' === $user->getEmail()
                     && 'AdminUser' === $user->getScreenName()
@@ -66,9 +67,10 @@ final class CreateAdminCommandTest extends TestCase
                     && $user->isVerified()
                     && 'hashed-password' === $user->getPassword();
             }));
-        $this->entityManager->expects(self::once())->method('flush');
+        $entityManager->expects(self::once())->method('flush');
 
-        $this->tester->setInputs([
+        $tester = $this->createCommandTester($entityManager);
+        $tester->setInputs([
             'admin@test.com',
             'AdminUser',
             'John',
@@ -79,20 +81,22 @@ final class CreateAdminCommandTest extends TestCase
             'Secret1!',
         ]);
 
-        $exitCode = $this->tester->execute([]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('created successfully', $this->tester->getDisplay());
+        self::assertStringContainsString('created successfully', $tester->getDisplay());
     }
 
     public function testCreationWithPlayerId(): void
     {
-        $this->entityManager->expects(self::once())->method('persist')
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')
             ->with(self::callback(static function (User $user): bool {
                 return 'PLAYER-123' === $user->getPlayerId();
             }));
 
-        $this->tester->setInputs([
+        $tester = $this->createCommandTester($entityManager);
+        $tester->setInputs([
             'player@test.com',
             'PlayerAdmin',
             'Jane',
@@ -103,16 +107,18 @@ final class CreateAdminCommandTest extends TestCase
             'Secret1!',
         ]);
 
-        $exitCode = $this->tester->execute([]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
     }
 
     public function testPasswordMismatchReturnsFailure(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
 
-        $this->tester->setInputs([
+        $tester = $this->createCommandTester($entityManager);
+        $tester->setInputs([
             'admin@test.com',
             'AdminUser',
             'John',
@@ -123,10 +129,10 @@ final class CreateAdminCommandTest extends TestCase
             'password2',
         ]);
 
-        $exitCode = $this->tester->execute([]);
+        $exitCode = $tester->execute([]);
 
         self::assertSame(Command::FAILURE, $exitCode);
-        self::assertStringContainsString('Passwords do not match', $this->tester->getDisplay());
+        self::assertStringContainsString('Passwords do not match', $tester->getDisplay());
     }
 
     public function testNotBlankRejectsEmptyString(): void
@@ -165,17 +171,18 @@ final class CreateAdminCommandTest extends TestCase
             'email',
             'invalid',
         );
-        $this->validator = $this->createMock(ValidatorInterface::class);
-        $this->validator->method('validate')->willReturn(new ConstraintViolationList([$violation]));
+        $validator = $this->createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList([$violation]));
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
 
         $command = new CreateAdminCommand(
-            $this->entityManager,
+            $entityManager,
             $this->passwordHasher,
-            $this->validator,
+            $validator,
         );
         $tester = new CommandTester($command);
-
-        $this->entityManager->expects(self::never())->method('persist');
 
         $tester->setInputs([
             'invalid',

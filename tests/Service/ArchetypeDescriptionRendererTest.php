@@ -22,7 +22,7 @@ use App\Service\MarkdownRenderer;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
 use App\Twig\Runtime\ArchetypeSpriteRuntime;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -33,17 +33,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class ArchetypeDescriptionRendererTest extends TestCase
 {
     private ArchetypeDescriptionRenderer $renderer;
-    private ArchetypeRepository&MockObject $archetypeRepository;
-    private DeckCardRepository&MockObject $deckCardRepository;
-    private TcgdexApiClient&MockObject $tcgdexApiClient;
-    private UrlGeneratorInterface&MockObject $urlGenerator;
+    private ArchetypeRepository&Stub $archetypeRepository;
+    private DeckCardRepository&Stub $deckCardRepository;
+    private TcgdexApiClient&Stub $tcgdexApiClient;
+    private UrlGeneratorInterface&Stub $urlGenerator;
 
     protected function setUp(): void
     {
-        $this->archetypeRepository = $this->createMock(ArchetypeRepository::class);
-        $this->deckCardRepository = $this->createMock(DeckCardRepository::class);
-        $this->tcgdexApiClient = $this->createMock(TcgdexApiClient::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $this->archetypeRepository = $this->createStub(ArchetypeRepository::class);
+        $this->deckCardRepository = $this->createStub(DeckCardRepository::class);
+        $this->tcgdexApiClient = $this->createStub(TcgdexApiClient::class);
+        $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
 
         $this->renderer = new ArchetypeDescriptionRenderer(
             new MarkdownRenderer(),
@@ -72,12 +72,10 @@ class ArchetypeDescriptionRendererTest extends TestCase
         $archetype->setIsPublished(true);
 
         $this->archetypeRepository->method('findOneBy')
-            ->with(['slug' => 'kyurem'])
-            ->willReturn($archetype);
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'kyurem' === ($criteria['slug'] ?? null) ? $archetype : null);
 
         $this->urlGenerator->method('generate')
-            ->with('app_archetype_show', ['slug' => 'kyurem'])
-            ->willReturn('/archetypes/kyurem');
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_archetype_show' === $route && 'kyurem' === ($parameters['slug'] ?? null) ? '/archetypes/kyurem' : '');
 
         $result = $this->renderer->render('Use [[archetype:kyurem]] to sweep.');
 
@@ -95,8 +93,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
         $archetype->setIsPublished(false);
 
         $this->archetypeRepository->method('findOneBy')
-            ->with(['slug' => 'lugia-archeops'])
-            ->willReturn($archetype);
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'lugia-archeops' === ($criteria['slug'] ?? null) ? $archetype : null);
 
         $result = $this->renderer->render('See [[archetype:lugia-archeops]].');
 
@@ -119,8 +116,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
     public function testExpandsDeckTag(): void
     {
         $this->urlGenerator->method('generate')
-            ->with('app_deck_show', ['short_tag' => 'KL1T0T'])
-            ->willReturn('/deck/KL1T0T');
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_deck_show' === $route && 'KL1T0T' === ($parameters['short_tag'] ?? null) ? '/deck/KL1T0T' : '');
 
         $result = $this->renderer->render('Check out [[deck:KL1T0T]].');
 
@@ -132,13 +128,12 @@ class ArchetypeDescriptionRendererTest extends TestCase
 
     public function testExpandsCardTagFromDatabase(): void
     {
-        $deckCard = $this->createMock(DeckCard::class);
+        $deckCard = $this->createStub(DeckCard::class);
         $deckCard->method('getCardName')->willReturn('Dialga GX');
         $deckCard->method('getImageUrl')->willReturn('https://images.tcgdex.net/dialga.png');
 
         $this->deckCardRepository->method('findOneBySetCodeAndCardNumber')
-            ->with('SLG', '88')
-            ->willReturn($deckCard);
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?DeckCard => 'SLG' === $setCode && '88' === $cardNumber ? $deckCard : null);
 
         $result = $this->renderer->render('Use [[card:SLG-88]] for extra turns.');
 
@@ -156,8 +151,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
         $tcgdexCard = new TcgdexCard('slg-88', 'Dialga GX', 'pokemon', null, 'https://tcgdex.net/dialga.png', true);
 
         $this->tcgdexApiClient->method('findCard')
-            ->with('SLG', '88')
-            ->willReturn($tcgdexCard);
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?TcgdexCard => 'SLG' === $setCode && '88' === $cardNumber ? $tcgdexCard : null);
 
         $result = $this->renderer->render('Use [[card:SLG-88]].');
 
@@ -180,7 +174,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
 
     public function testCardWithoutImageRendersNameOnly(): void
     {
-        $deckCard = $this->createMock(DeckCard::class);
+        $deckCard = $this->createStub(DeckCard::class);
         $deckCard->method('getCardName')->willReturn('Crispin');
         $deckCard->method('getImageUrl')->willReturn(null);
 
@@ -209,7 +203,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
                 ['app_deck_show', ['short_tag' => 'ABC123'], 1, '/deck/ABC123'],
             ]);
 
-        $deckCard = $this->createMock(DeckCard::class);
+        $deckCard = $this->createStub(DeckCard::class);
         $deckCard->method('getCardName')->willReturn('Dialga GX');
         $deckCard->method('getImageUrl')->willReturn('https://img.test/card.png');
 
@@ -225,13 +219,12 @@ class ArchetypeDescriptionRendererTest extends TestCase
 
     public function testPromoSetCodeWithHyphen(): void
     {
-        $deckCard = $this->createMock(DeckCard::class);
+        $deckCard = $this->createStub(DeckCard::class);
         $deckCard->method('getCardName')->willReturn('Professor Research');
         $deckCard->method('getImageUrl')->willReturn('https://img.test/prof.png');
 
         $this->deckCardRepository->method('findOneBySetCodeAndCardNumber')
-            ->with('PR-SV', '12')
-            ->willReturn($deckCard);
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?DeckCard => 'PR-SV' === $setCode && '12' === $cardNumber ? $deckCard : null);
 
         $result = $this->renderer->render('Play [[card:PR-SV-12]].');
 
