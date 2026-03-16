@@ -75,6 +75,7 @@ A **card list snapshot** — one point-in-time version of a deck. Created when t
 | `estimatedValueAmount`   | `int`        | Yes      | Owner-provided estimated monetary value in cents of the currency. Visible to the owner, organizers, and event staff. |
 | `estimatedValueCurrency` | `string(3)`  | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `estimatedValueAmount` is set. |
 | `rawList`          | `text`             | Yes      | The original PTCG text format pasted by the owner. Preserved for reference and re-import. |
+| `enrichmentStatus` | `string(20)`       | No       | TCGdex card enrichment status: `"pending"`, `"enriched"`, or `"failed"`. Default: `"pending"`. Tracks whether the async enrichment pipeline (F6.2) has processed this version's cards. |
 | `createdAt`        | `DateTimeImmutable` | No      | When this version was created. |
 
 ### Constraints
@@ -108,6 +109,7 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 | `cardType`         | `string(20)`       | No       | Card category: `"pokemon"`, `"trainer"`, or `"energy"`. |
 | `trainerSubtype`   | `string(20)`       | Yes      | Trainer subcategory: `"supporter"`, `"item"`, `"tool"`, or `"stadium"`. Null for non-trainer cards. |
 | `tcgdexId`         | `string(30)`       | Yes      | TCGdex card identifier. Used for image retrieval and validation. |
+| `imageUrl`         | `string(255)`      | Yes      | Card image URL (populated during TCGdex enrichment). Used for hover preview display. |
 
 ### Constraints
 
@@ -175,18 +177,16 @@ Records which deck version a player played at a specific event. Separate from bo
 | `event`            | `Event`            | No       | The event/tournament. |
 | `player`           | `User`             | No       | The player who played this deck. |
 | `deckVersion`      | `DeckVersion`      | No       | The specific version that was played. |
-| `placement`        | `int`              | Yes      | Final standing / ranking (1 = winner, 2 = runner-up, etc.). Set by organizer or staff after the event. Null until results are entered. |
-| `wins`             | `int`              | Yes      | Number of match wins in the tournament. |
-| `losses`           | `int`              | Yes      | Number of match losses in the tournament. |
-| `ties`             | `int`              | Yes      | Number of match ties in the tournament. |
+| `finalPlacement`   | `smallint`         | Yes      | Final standing / ranking (1 = winner, 2 = runner-up, etc.). Set by organizer or staff after the event. Null until results are entered. Must be positive. |
+| `matchRecord`      | `string(20)`       | Yes      | Match record in `W-L-T` format (e.g. `"3-1-0"`). Validated by regex `^\d{1,2}-\d{1,2}-\d{1,2}$`. Null until results are entered. |
 | `createdAt`        | `DateTimeImmutable` | No      | When this entry was recorded. |
 
 ### Constraints
 
 - Unique constraint on (`event`, `player`, `deckVersion`) — a player can't register the same version twice for the same event
 - `player` must be a participant of the event (F3.4)
-- `placement`: optional, >= 1 when provided
-- `wins`, `losses`, `ties`: all null or all set. Each >= 0 when provided.
+- `finalPlacement`: optional, positive integer when provided
+- `matchRecord`: optional, must match `W-L-T` format (e.g. `"3-1-0"`) when provided
 
 ### Relations
 
@@ -271,6 +271,6 @@ Validation errors are shown inline next to the offending card after paste.
 | Layer | Tool | Role |
 |-------|------|------|
 | Parse | `ptcgo-parser` (npm) | Converts PTCG text → structured JS objects |
-| Card data | TCGdex (`@tcgdex/sdk`) | Card metadata, types, subtypes, images (multilingual) |
+| Card data | TCGdex (REST API via PHP `HttpClient`) | Card metadata, types, subtypes, images (multilingual) |
 | Validation | Custom service | Expanded legality: set range, banned list, card counts |
 | Display | Custom React component | Categorized list with image hover |

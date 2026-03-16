@@ -12,9 +12,9 @@
 
 ---
 
-## UI Library — Mantine 7
+## UI Library — Mantine 8
 
-**Choice:** [Mantine 7](https://mantine.dev)
+**Choice:** [Mantine 8](https://mantine.dev)
 
 ### Rationale
 
@@ -297,7 +297,7 @@ For **unauthenticated pages** (login, registration), the locale falls back to th
 
 | Layer    | Library                  | Catalogue format | Locale source |
 |----------|--------------------------|------------------|---------------|
-| Backend  | Symfony Translation      | YAML (`.yaml`)   | `User.preferredLocale` via locale listener, or `Accept-Language` fallback |
+| Backend  | Symfony Translation      | XLIFF (`.xlf`)   | `User.preferredLocale` via locale listener, or `Accept-Language` fallback |
 | Frontend | `react-i18next`          | JSON (`.json`)   | `data-locale` attribute on the root HTML element, set by Twig |
 
 - Translation keys use **dot notation** (e.g. `app.deck.status.available`) matching the project convention

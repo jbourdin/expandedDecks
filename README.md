@@ -3,7 +3,7 @@
 [![CI](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/jbourdin/expandedDecks/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jbourdin/expandedDecks/graph/badge.svg)](https://codecov.io/gh/jbourdin/expandedDecks)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-≥8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![Symfony 7.2](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)](https://symfony.com/)
+[![Symfony 8.0](https://img.shields.io/badge/Symfony-8.0-000000?logo=symfony&logoColor=white)](https://symfony.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 > **Audience:** Developer, Player, Organizer · **Scope:** Overview
@@ -22,7 +22,7 @@ Read the full **[Project Philosophy](docs/philosophy.md)**.
 
 ## Stack
 
-- **Backend:** PHP 8.5, Symfony 7.2, Doctrine ORM
+- **Backend:** PHP 8.5, Symfony 8.0, Doctrine ORM
 - **Frontend:** React.js (via Symfony UX / Webpack Encore)
 - **Database:** MySQL 8
 - **Infrastructure:** Docker, Docker Compose
@@ -41,6 +41,7 @@ Read the full **[Project Philosophy](docs/philosophy.md)**.
 | **F6 — Card Data & Validation** | Parse PTCG text (`ptcgo-parser`), validate via TCGdex, Expanded format rules, card image display. |
 | **F7 — Administration** | Dashboard, user management, audit log. |
 | **F11 — CMS Content Pages** | Admin-managed content pages with Markdown, translatable fields (title, slug, content, SEO), menu categories, English fallback. |
+| **F14 — Deployment & Infrastructure** | Per-transport Messenger DSN, configurable sessions, health check endpoints, production Dockerfile, Sentry error tracking. |
 
 See the **[full feature list](docs/features.md)** for detailed descriptions and priorities.
 

@@ -13,7 +13,7 @@
 ## Features
 
 - [Feature List](features.md) — Full feature catalogue with priorities and status
-- [Implementation Roadmap](roadmap.md) — Recommended build order across 12 phases
+- [Implementation Roadmap](roadmap.md) — Remaining features organized by logical phase
 - [Changelog](changelog.md) — Release history with implemented features per version
 
 ## Frontend
@@ -44,8 +44,14 @@
 - [Camera QR Scanner](technicalities/camera_scanner.md) — Mobile camera fallback for QR code scanning
 - [PDF Label Card](technicalities/pdf_label.md) — Home-printable TCG card-sized deck label (Dompdf)
 - [Mobile UX Audit](technicalities/mobile_audit.md) — Mobile responsiveness issues and fix plan (F10.1)
+- [Localization](technicalities/localization.md) — Locale detection, timezone handling, translation infrastructure
+
+## Planning
+
+- [Initial Plan](initial_plan.md) — Original project skeleton plan
+- [Archetype Features Plan](plans/archetype_features.md) — Archetype ecosystem design and implementation plan
+- [Doctrine Entities Plan](plans/doctrine_entities.md) — Entity modeling decisions and schema design
 
 ## Other
 
-- [Initial Plan](initial_plan.md) — Original project skeleton plan
 - [Credits & References](credits.md) — Libraries, APIs, acknowledgements
