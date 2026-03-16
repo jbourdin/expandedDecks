@@ -34,7 +34,7 @@ final class HealthControllerTest extends TestCase
 
     public function testReadinessReturns200WhenDatabaseIsReachable(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willReturn($this->createStub(\Doctrine\DBAL\Result::class));
 
         $controller = new HealthController($connection);
@@ -50,7 +50,7 @@ final class HealthControllerTest extends TestCase
 
     public function testReadinessReturns503WhenDatabaseIsUnreachable(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willThrowException(new \RuntimeException('Connection refused'));
 
         $controller = new HealthController($connection);
