@@ -16,10 +16,10 @@ namespace App\Controller;
 use App\Message\EnrichDeckVersionMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
+use App\Service\BannedCardsSyncService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -33,6 +33,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly DeckVersionRepository $deckVersionRepository,
         private readonly BannedCardRepository $bannedCardRepository,
         private readonly MessageBusInterface $messageBus,
+        private readonly BannedCardsSyncService $bannedCardsSyncService,
     ) {
         parent::__construct($translator);
     }
@@ -86,11 +87,9 @@ class AdminTechnicalController extends AbstractAppController
             return $this->redirectToRoute('app_admin_technical_dashboard');
         }
 
-        $process = new Process(['symfony', 'console', 'app:banned-cards:sync'], $this->getParameter('kernel.project_dir'));
-        $process->setTimeout(60);
-        $process->run();
+        $result = $this->bannedCardsSyncService->sync();
 
-        if ($process->isSuccessful()) {
+        if ($result->success) {
             $this->addFlash('success', 'app.admin.technical.banned_cards.synced');
         } else {
             $this->addFlash('danger', 'app.admin.technical.banned_cards.failed');
