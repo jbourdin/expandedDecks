@@ -149,6 +149,36 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertSame(2, $result->added);
     }
 
+    public function testSyncParsesCardNameWithEmTagInAltAttribute(): void
+    {
+        $html = $this->buildHtml(
+            '<ul><li>'
+            .'<a rel="imagepopup" href="https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/xy-series/xy6/77/" target="_self" src="https://www.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY6/XY6_EN_77.png" alt="Shaymin-<em>EX</em>">Shaymin-<em>EX</em></a>'
+            .' (<em>XY—Roaring Skies</em>, 77/108, 77a/108, and 106/108)'
+            .'</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $persisted = [];
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::exactly(3))->method('persist')
+            ->willReturnCallback(static function (BannedCard $card) use (&$persisted): void {
+                $persisted[] = $card->getCardName();
+            });
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(3, $result->added);
+        self::assertSame(['Shaymin-EX', 'Shaymin-EX', 'Shaymin-EX'], $persisted);
+    }
+
     public function testSyncFailsWhenNoExpandedSection(): void
     {
         $html = '<html><body><h2>Standard</h2><ul><li>Card (Set, 1/100)</li></ul></body></html>';

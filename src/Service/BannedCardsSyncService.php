@@ -332,24 +332,21 @@ class BannedCardsSyncService
 
     /**
      * Extracts the card name from a <li> inner HTML.
+     *
+     * Uses strip_tags + text parsing instead of regex on raw HTML, because
+     * pokemon.com embeds unescaped <em> tags inside <a> attribute values
+     * (e.g. alt="Shaymin-<em>EX</em>"), which breaks regex-based tag matching.
      */
     private function extractCardName(string $liHtml): ?string
     {
-        if (preg_match('/<a[^>]*>(.*?)<\/a>/si', $liHtml, $match)) {
-            $name = html_entity_decode(strip_tags($match[1]), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
-            $name = trim($name);
-
-            return '' !== $name ? $name : null;
-        }
-
-        $text = strip_tags($liHtml);
+        $text = html_entity_decode(strip_tags($liHtml), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $parenPosition = strpos($text, '(');
 
         if (false !== $parenPosition) {
             $text = substr($text, 0, $parenPosition);
         }
 
-        $text = html_entity_decode(trim($text), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $text = trim($text);
 
         return '' !== $text ? $text : null;
     }
