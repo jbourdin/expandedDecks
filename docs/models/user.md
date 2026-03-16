@@ -30,7 +30,6 @@
 | `deletedAt`       | `DateTimeImmutable` | Yes  | Soft-delete timestamp. Null = active. See F1.8. |
 | `isAnonymized`    | `bool`          | No       | Personal data anonymized after deletion. Default: `false`. See F1.8. |
 | `notificationPreferences` | `json`  | Yes      | Per-type email/in-app notification preferences. Null = all enabled (default). Structure: `{"borrow_requested": {"email": true, "inApp": false}, ...}`. See F8.3. |
-| `iCalToken`       | `string(64)`    | Yes      | Random token for the personal iCal feed URL. Generated on first access, regenerable from profile (invalidates previous URL). See F3.14. |
 
 ### Roles
 
@@ -64,7 +63,6 @@ ROLE_ADMIN > ROLE_ORGANIZER > ROLE_CMS_EDITOR > ROLE_ARCHETYPE_EDITOR > ROLE_PLA
 - `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`
 - `deletedAt`: once set, cannot be cleared (irreversible)
 - `isAnonymized`: only `false → true` transition allowed (irreversible). Anonymized users cannot log in.
-- `iCalToken`: generated as 64-character random hex string. Unique. Regenerable (old token immediately invalidated).
 
 ### Authentication Flow
 
@@ -122,7 +120,7 @@ Users can download all their personal data as a **JSON file** from their profile
 
 - **F1.5 — MFA/TOTP**: Will add `totpSecret` field and a `isTotpEnabled` flag. Planned for later.
 - **F1.6 — Pokemon SSO**: If feasible, would add an `externalId` field for the Pokemon Company account link. Requires investigation.
-- **F3.14 — iCal agenda feed**: `iCalToken` field supports the personal iCal feed URL. Token-authenticated (no login required for calendar clients). *(Implemented)*
+- **F3.14 — iCal agenda feed**: Will add an `iCalToken` field for the personal iCal feed URL. Token-authenticated (no login required for calendar clients). *(Not yet implemented)*
 - **F8.3 — Notification preferences**: `notificationPreferences` JSON field stores per-type email/in-app toggles. `isNotificationEnabled()` checks preferences before dispatch. *(Implemented)*
 - **F9 — Localization**: `preferredLocale` and `timezone` fields are part of the core model. *(Implemented)*
 

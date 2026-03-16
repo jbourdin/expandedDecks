@@ -19,6 +19,7 @@ Represents the full lifecycle of a deck borrow request — from request to retur
 | `event`            | `Event`            | No       | The event this borrow is for. |
 | `status`           | `string(30)`       | No       | Current borrow status. See Status enum below. Default: `"pending"`. |
 | `isDelegatedToStaff` | `bool`           | No       | Auto-set from `EventDeckRegistration.delegateToStaff` at borrow creation time (F4.8). When true, event staff can approve, deny, hand off, and confirm return. Default: `false`. |
+| `isWalkUp`         | `bool`             | No       | Whether this borrow was created as a walk-up lend (F4.12) — directly in `lent` state, skipping request/approval. Default: `false`. |
 | `requestedAt`      | `DateTimeImmutable` | No      | When the borrow request was made. |
 | `approvedAt`       | `DateTimeImmutable` | Yes     | When the request was approved (by owner or staff). |
 | `approvedBy`       | `User`             | Yes      | Who approved the request (owner or staff member). |

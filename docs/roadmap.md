@@ -25,9 +25,9 @@ F8.1, F8.2, F8.3, F8.4,
 F9.1, F9.2, F9.3, F9.4,
 F10.1, F10.2,
 F11.1, F11.2, F11.3,
-F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
+F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7
 
-**Total: 81 features done.**
+**Total: 82 features done.**
 
 ---
 
@@ -46,7 +46,7 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 
 **Progress: 6/6 done**
 
-**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. SQS webhook endpoint eliminates the need for long-running workers in production — messages are pushed over HTTPS and processed on demand. Health check endpoints for container orchestration liveness/readiness probes. Multi-stage Dockerfile for production container image. All external service connections (mail sender, admin recipient, mailer DSN, trusted proxies) configurable via environment variables.
+**Deliverable:** Each Messenger transport independently configurable via env vars. Session storage switchable between filesystem, Redis, and PDO. Doctrine-based async messaging with cron job consumption (replaced SQS webhook approach). Health check endpoints for container orchestration liveness/readiness probes. Multi-stage Dockerfile for production container image. All external service connections (mail sender, admin recipient, mailer DSN, trusted proxies) configurable via environment variables.
 
 ---
 
@@ -56,7 +56,7 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 
 | ID     | Feature                                           | Priority | Depends on | Status |
 |--------|---------------------------------------------------|----------|------------|--------|
-| F14.7  | Sentry error tracking                             | High     | —          |        |
+| F14.7  | Sentry error tracking                             | High     | —          | Done   |
 
 **F14.7:** Sentry integration for production error tracking. Inject `SENTRY_DSN` env var to enable. Captures unhandled exceptions, Messenger worker errors, and Monolog error-level logs. Performance tracing configurable via `SENTRY_TRACES_SAMPLE_RATE` (default: 0 — disabled). Disabled in dev/test.
 
@@ -218,6 +218,6 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **30**   |              |
+|       | **Total remaining**             | **29**   |              |
 
-81 features done · 30 remaining.
+82 features done · 29 remaining.

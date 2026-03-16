@@ -277,7 +277,7 @@ make test          # Run test suite
 ## External APIs
 
 - **TCGdex API** — multilingual Pokemon TCG card database (card metadata, types, subtypes, images)
-- Package: `@tcgdex/sdk` (npm) — no API key needed
+- Called via PHP `HttpClient` (REST API) — no API key needed
 - Used for card validation and image display
 - **PrintNode API** — cloud printing service to push ZPL payloads to Zebra printers
 - API client service: `App\Service\PrintNode\ApiClient`
