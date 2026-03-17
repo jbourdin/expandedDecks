@@ -46,6 +46,10 @@ RUN npx encore production
 # ---------------------------------------------------------------------------
 FROM dunglas/frankenphp:php8.5 AS runtime
 
+# Application version — pass at build time:
+#   docker build --build-arg APP_VERSION=$(git describe --tags --always) .
+ARG APP_VERSION=dev
+
 # Install required PHP extensions
 RUN install-php-extensions \
     pdo_mysql \
@@ -93,6 +97,7 @@ RUN rm -rf tests/ .env .env.test .env.dev docker-compose.yml node_modules/ asset
     'MESSENGER_TRANSPORT_FAILED_DSN=doctrine://default' \
     'MAIL_SENDER=noreply@localhost' \
     'ADMIN_EMAIL=admin@localhost' \
+    "APP_VERSION=${APP_VERSION}" \
     'SENTRY_DSN=' \
     'SENTRY_TRACES_SAMPLE_RATE=0' \
     > .env

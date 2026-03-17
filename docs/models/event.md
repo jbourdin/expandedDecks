@@ -20,7 +20,7 @@
 | `location`             | `string(255)`      | Yes      | Venue name and/or address. Nullable — can be derived from the league's address when a league is linked. |
 | `description`          | `text`             | Yes      | Optional free-text description or notes about the event. |
 | `organizer`            | `User`             | No       | The user who created the event (must have `ROLE_ORGANIZER` or `ROLE_ADMIN`). |
-| `registrationLink`     | `string(255)`      | No       | External registration URL (this project doesn't handle registration). |
+| `registrationLink`     | `string(255)`      | Yes      | External registration URL (this project doesn't handle registration). Optional. |
 | `tournamentStructure`  | `string(30)`       | No       | Tournament format. See `TournamentStructure` enum below. |
 | `minAttendees`         | `int`              | Yes      | Minimum number of attendees for the event to take place. |
 | `maxAttendees`         | `int`              | Yes      | Maximum number of attendees (capacity). |
@@ -28,7 +28,8 @@
 | `topCutRoundDuration`  | `int`              | Yes      | Duration in minutes for top cut rounds. Only applicable for `swiss_top_cut`. |
 | `entryFeeAmount`       | `int`              | Yes      | Entry fee in cents of the currency. Null = free event. |
 | `entryFeeCurrency`     | `string(3)`        | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `entryFeeAmount` is set. |
-| `visibility`           | `EventVisibility`  | No       | Event discoverability mode: `public`, `series`, or `invitation_only`. Default: `public`. See F3.11 and `EventVisibility` enum below. |
+| `visibility`           | `EventVisibility`  | No       | Event discoverability mode: `public`, `draft`, or `private`. Default: `public`. See F3.11 and `EventVisibility` enum below. |
+| `isInvitationOnly`     | `bool`             | No       | Whether only invited or registered users can see and join the event. Default: `false`. Independent from `visibility`. |
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
 | `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
@@ -51,7 +52,7 @@
 - `date`: required, must be in the future at creation time
 - `endDate`: if provided, must be >= `date`
 - `location`: **nullable**.
-- `registrationLink`: required, valid URL format
+- `registrationLink`: optional, valid URL format when provided
 - `tournamentStructure`: required, must be a valid `TournamentStructure` value
 - `minAttendees`: optional, >= 1 when provided
 - `maxAttendees`: optional, >= `minAttendees` when both provided
@@ -294,7 +295,7 @@ Join entity modeling a player's relationship with an event. Replaces the former 
 | Value             | Description |
 |-------------------|-------------|
 | `public`          | Visible to all visitors, listed in the event finder (F3.15) and agendas. Default. |
-| `series`          | Not independently discoverable. Visible only from the parent series page (F3.12). |
-| `invitation_only` | Visible only to users with an `invited` or `registered` engagement state. The `invited` state (F3.13) doubles as access grant. |
+| `draft`           | Not yet published. Visible only to the organizer and admins. |
+| `private`         | Visible only to users with an `invited` or `registered` engagement state. |
 
-The `Event` entity gains a `visibility` field of type `EventVisibility` (default: `public`). This replaces any previous binary visibility concept.
+The `Event` entity has a `visibility` field of type `EventVisibility` (default: `public`) and a separate `isInvitationOnly` boolean (default: `false`). `isInvitationOnly` restricts event access to invited or registered users, independently from visibility.
