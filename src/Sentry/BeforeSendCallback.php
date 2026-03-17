@@ -16,6 +16,7 @@ namespace App\Sentry;
 use Sentry\Event;
 use Sentry\EventHint;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Drops client-error (4xx) HTTP exceptions from Sentry reporting.
@@ -28,6 +29,10 @@ final class BeforeSendCallback
     public function __invoke(Event $event, ?EventHint $hint): ?Event
     {
         $exception = $hint?->exception;
+
+        if ($exception instanceof AccessDeniedException) {
+            return null;
+        }
 
         if ($exception instanceof HttpExceptionInterface
             && $exception->getStatusCode() >= 400

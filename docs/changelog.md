@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.4] — 2026-03-17
+
+Fourth beta — Sentry noise reduction and favicon redirect.
+
+### Bug Fixes
+
+- **Sentry AccessDeniedException filter** — `BeforeSendCallback` now drops `Symfony\Component\Security\Core\Exception\AccessDeniedException`, which bypassed the existing `HttpExceptionInterface` 4xx filter because it is thrown before the kernel converts it to a 403.
+- **Favicon redirect** — added a 301 redirect from `/favicon.ico` to `/favicon.svg` to eliminate 404 noise from browsers and bots requesting the default favicon path.
+- **Favicon route fix** — removed ambiguous empty `route` default that caused a `RuntimeException` in `RedirectController`.
+
+### Testing & Quality
+
+- Unit test for `AccessDeniedException` filtering in `BeforeSendCallback`.
+
+---
+
 ## [1.0.0-beta.3] — 2026-03-17
 
 Third beta — production observability improvements and version tracking.
