@@ -12,7 +12,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Expanded Decks{% endblock %}</title>
-        <link rel="icon" href="{{ path('app_favicon') }}" type="image/svg+xml">
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block meta %}{% endblock %}
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
@@ -163,6 +163,7 @@
         <footer class="footer-pokemon py-3 mt-auto">
             <div class="container text-center">
                 &copy; {{ "now"|date("Y") }} {{ 'app.footer.copyright'|trans }}
+                <span class="text-muted ms-2" style="font-size: 0.75rem;">{{ app_version }}</span>
             </div>
         </footer>
 
