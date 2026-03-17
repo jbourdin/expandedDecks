@@ -51,6 +51,9 @@ when@prod:
                 type: service
                 id: Sentry\Monolog\Handler
                 level: error
+            sentry_logs:
+                type: service
+                id: Sentry\SentryBundle\Monolog\LogsHandler
             console:
                 type: console
                 process_psr_3_messages: false
