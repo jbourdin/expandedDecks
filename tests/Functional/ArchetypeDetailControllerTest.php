@@ -109,11 +109,13 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testMetaDescriptionRendered(): void
     {
-        // Set a meta description for testing
+        // Set a meta description on the EN translation for testing
         $entityManager = $this->getEntityManager();
         $archetype = $entityManager->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
         self::assertNotNull($archetype);
-        $archetype->setMetaDescription('The best deck in Expanded format.');
+        $translation = $archetype->getTranslation('en');
+        self::assertNotNull($translation);
+        $translation->setMetaDescription('The best deck in Expanded format.');
         $entityManager->flush();
 
         $crawler = $this->client->request('GET', '/archetypes/regidrago');

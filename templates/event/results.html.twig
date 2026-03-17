@@ -47,7 +47,7 @@
                                     <td>{{ entry.matchRecord ?? '—' }}</td>
                                     <td>
                                         {% if entry.deckVersion.deck.archetype %}
-                                            {% if entry.deckVersion.deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: entry.deckVersion.deck.archetype.slug}) }}">{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}</a>{% else %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.name }}{% endif %}
+                                            {% if entry.deckVersion.deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: entry.deckVersion.deck.archetype.slug}) }}">{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}{% endif %}
                                         {% else %}
                                             —
                                         {% endif %}

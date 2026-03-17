@@ -23,9 +23,6 @@
         <div class="card-body">
             {{ form_start(form) }}
                 {{ form_row(form.name) }}
-                {{ form_row(form.description) }}
-                <p class="text-muted small">{{ 'app.archetype.description_help'|trans }}</p>
-                {{ form_row(form.metaDescription) }}
 
                 <div class="mb-3">
                     <label class="form-label">{{ 'app.archetype.pokemon_slugs_label'|trans }}</label>
@@ -52,11 +49,55 @@
             {{ form_end(form) }}
         </div>
     </div>
+
+    {# Translations — tabbed card #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                {% for locale in supportedLocales %}
+                    {% set translation = archetype.getTranslation(locale) %}
+                    {% set hasTranslation = translation and translation.locale == locale %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ loop.first ? 'active' : '' }}" id="tab-{{ locale }}" data-bs-toggle="tab" data-bs-target="#pane-{{ locale }}" type="button" role="tab" aria-controls="pane-{{ locale }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">
+                            {{ locale|upper }}
+                            {% if hasTranslation %}
+                                <span class="badge bg-success ms-1">{{ 'app.cms.status.translated'|trans }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark ms-1">{{ 'app.cms.status.missing'|trans }}</span>
+                            {% endif %}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                {% for locale in supportedLocales %}
+                    <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" id="pane-{{ locale }}" role="tabpanel" aria-labelledby="tab-{{ locale }}">
+                        {{ form_start(translationForms[locale]) }}
+                            {{ form_widget(translationForms[locale]) }}
+                            <button type="submit" class="btn btn-gold mt-3">{{ 'app.cms.admin.save_translation'|trans({'%locale%': locale|upper}) }}</button>
+                        {{ form_end(translationForms[locale]) }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_form') }}
+    <script>
+        {# Activate the correct translation tab based on URL hash #}
+        (function() {
+            var hash = window.location.hash;
+            if (hash) {
+                var tab = document.querySelector('[data-bs-target="' + hash + '"]');
+                if (tab) { tab.click(); }
+            }
+        })();
+    </script>
     <script>
         (function() {
             const input = document.getElementById('pokemon-slugs-input');

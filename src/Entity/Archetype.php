@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ArchetypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -60,19 +62,6 @@ class Archetype
     /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
-
-    /**
-     * @see docs/features.md F2.10 — Archetype detail page
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    private ?string $metaDescription = null;
-
-    /**
-     * @see docs/features.md F2.10 — Archetype detail page
-     */
     #[ORM\Column]
     private bool $isPublished = false;
 
@@ -82,9 +71,18 @@ class Archetype
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * @var Collection<int, ArchetypeTranslation>
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    #[ORM\OneToMany(targetEntity: ArchetypeTranslation::class, mappedBy: 'archetype', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $translations;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,30 +157,6 @@ class Archetype
         return $this;
     }
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): static
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    public function getMetaDescription(): ?string
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaDescription(?string $metaDescription): static
-    {
-        $this->metaDescription = $metaDescription;
-
-        return $this;
-    }
-
     public function isPublished(): bool
     {
         return $this->isPublished;
@@ -193,6 +167,93 @@ class Archetype
         $this->isPublished = $isPublished;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, ArchetypeTranslation>
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function getTranslations(): Collection
+    {
+        return $this->translations;
+    }
+
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function addTranslation(ArchetypeTranslation $translation): static
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setArchetype($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function removeTranslation(ArchetypeTranslation $translation): static
+    {
+        $this->translations->removeElement($translation);
+
+        return $this;
+    }
+
+    /**
+     * Get the translation for a given locale, with fallback to 'en'.
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function getTranslation(string $locale): ?ArchetypeTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale) {
+                return $translation;
+            }
+        }
+
+        if ('en' !== $locale) {
+            foreach ($this->translations as $translation) {
+                if ('en' === $translation->getLocale()) {
+                    return $translation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the localized name, falling back to the canonical name.
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function getLocalizedName(string $locale = 'en'): string
+    {
+        return $this->getTranslation($locale)?->getName() ?? $this->name;
+    }
+
+    /**
+     * Get the localized description (falls back to EN translation).
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function getLocalizedDescription(string $locale = 'en'): ?string
+    {
+        return $this->getTranslation($locale)?->getDescription();
+    }
+
+    /**
+     * Get the localized meta description (falls back to EN translation).
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function getLocalizedMetaDescription(string $locale = 'en'): ?string
+    {
+        return $this->getTranslation($locale)?->getMetaDescription();
     }
 
     #[ORM\PrePersist]

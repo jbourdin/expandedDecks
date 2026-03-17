@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use App\Entity\Borrow;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
@@ -61,20 +62,43 @@ class DevFixtures extends Fixture
         $this->createInvitationalEvent($manager, $organizer, $admin, $staff2);
         $this->createDraftEvent($manager, $organizer, $admin);
 
-        // Create archetypes
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.', true, ['Aggressive', 'Spread']);
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.', true, ['Toolbox', 'Aggressive']);
-        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], <<<'MARKDOWN'
+        // Create archetypes (descriptions are now stored as EN translations)
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], true, ['Aggressive', 'Spread']);
+        $this->addArchetypeTranslation($manager, $archetypeIronThorns, 'en', 'Iron Thorns ex', 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.');
+
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], true, ['Toolbox', 'Aggressive']);
+        $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'en', 'Ancient Box', 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.');
+        $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'fr', 'Box Anciens', "L'archétype **Box Anciens** combine plusieurs Pokémon Anciens pour tirer parti des cartes de support Anciennes dans une stratégie d'attaque polyvalente.");
+
+        $regidragoDescription = <<<'MARKDOWN'
 **Regidrago VSTAR** is generally considered to be the best deck in the format. It has all the options ever, and more. It can lock the opponent in multiple ways (Item lock, Ability lock, Special Energy lock...), decimate Basic boards with [[archetype:kyurem]], oneshot anything with [[archetype:salamence-ex]], and even take an extra turn with [[card:UPR-100]].
 
 Although Regidrago has been a top tier deck for a long time, it has gained many options in the last year, such as [[card:SCR-133]] to deal with its main weakness (its lack of Energy acceleration), [[card:SFA-46]] for the mirror match and many other relevant decks, and [[card:PRE-4]] to buy time when going second.
 
 It's gotten to the point where many lists are trying unconventional techs to try to get an edge in the mirror match.
-MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
-        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.', true, ['Spread']);
-        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.', true, ['Aggressive']);
-        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], null, false);
-        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.', true, ['Aggressive', 'Combo']);
+MARKDOWN;
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], true, ['Combo', 'Lock', 'Toolbox']);
+        $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'en', 'Regidrago', $regidragoDescription);
+        $regidragoDescriptionFr = <<<'MARKDOWN'
+**Regidrago VSTAR** est généralement considéré comme le meilleur deck du format. Il dispose de toutes les options possibles, et même plus. Il peut verrouiller l'adversaire de multiples façons (blocage d'Objets, blocage de Talents, blocage d'Énergies spéciales...), décimer les bancs de Bases avec [[archetype:kyurem]], mettre KO n'importe quoi avec [[archetype:salamence-ex]], et même prendre un tour supplémentaire avec [[card:UPR-100]].
+
+Bien que Regidrago soit un deck de haut niveau depuis longtemps, il a gagné de nombreuses options cette dernière année, comme [[card:SCR-133]] pour pallier sa principale faiblesse (son manque d'accélération d'Énergie), [[card:SFA-46]] pour le match miroir et de nombreux autres decks pertinents, et [[card:PRE-4]] pour gagner du temps en passant second.
+
+On en est au point où de nombreuses listes essaient des techs non conventionnelles pour tenter d'obtenir un avantage dans le match miroir.
+MARKDOWN;
+        $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'fr', 'Regidrago', $regidragoDescriptionFr);
+
+        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], true, ['Spread']);
+        $this->addArchetypeTranslation($manager, $archetypeKyurem, 'en', 'Kyurem', 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.');
+
+        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], true, ['Aggressive']);
+        $this->addArchetypeTranslation($manager, $archetypeSalamence, 'en', 'Salamence ex', 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.');
+
+        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], false);
+
+        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], true, ['Aggressive', 'Combo']);
+        $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'en', 'Charizard Flareon', 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.');
+        $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'fr', 'Dracaufeu Pyroli', "Un deck **Dracaufeu & Pyroli** qui fait évoluer Évoli en Pyroli pour l'accélération d'énergie, alimentant les attaques de feu massives de Dracaufeu.");
 
         $ironThorns = $this->createDeck($manager, $admin, 'Iron Thorns');
         $ironThorns->setArchetype($archetypeIronThorns);
@@ -107,12 +131,24 @@ MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
         $charizardFlareon->setPublic(true);
         $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
-        // Update Regidrago description with a deck link now that decks exist
-        $archetypeRegidrago->setDescription(\sprintf(
-            "%s\n\nCheck out a sample Regidrago build: [[deck:%s]].",
-            (string) $archetypeRegidrago->getDescription(),
-            $lenderDeck->getShortTag(),
-        ));
+        // Update Regidrago translations with a deck link now that decks exist
+        $regidragoTranslationEn = $archetypeRegidrago->getTranslation('en');
+        if ($regidragoTranslationEn instanceof ArchetypeTranslation) {
+            $regidragoTranslationEn->setDescription(\sprintf(
+                "%s\n\nCheck out a sample Regidrago build: [[deck:%s]].",
+                (string) $regidragoTranslationEn->getDescription(),
+                $lenderDeck->getShortTag(),
+            ));
+        }
+
+        $regidragoTranslationFr = $archetypeRegidrago->getTranslation('fr');
+        if ($regidragoTranslationFr instanceof ArchetypeTranslation && 'fr' === $regidragoTranslationFr->getLocale()) {
+            $regidragoTranslationFr->setDescription(\sprintf(
+                "%s\n\nDécouvrez un exemple de build Regidrago : [[deck:%s]].",
+                (string) $regidragoTranslationFr->getDescription(),
+                $lenderDeck->getShortTag(),
+            ));
+        }
 
         $manager->flush();
 
@@ -505,12 +541,11 @@ MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
      * @param list<string> $pokemonSlugs
      * @param list<string> $playstyleTags
      */
-    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], ?string $description = null, bool $isPublished = false, array $playstyleTags = []): Archetype
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], bool $isPublished = false, array $playstyleTags = []): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
         $archetype->setPokemonSlugs($pokemonSlugs);
-        $archetype->setDescription($description);
         $archetype->setIsPublished($isPublished);
         $archetype->setPlaystyleTags(array_map(
             static fn (string $tag): string => mb_convert_case(trim($tag), \MB_CASE_TITLE),
@@ -520,6 +555,21 @@ MARKDOWN, true, ['Combo', 'Lock', 'Toolbox']);
         $manager->persist($archetype);
 
         return $archetype;
+    }
+
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    private function addArchetypeTranslation(ObjectManager $manager, Archetype $archetype, string $locale, string $name, ?string $description = null): void
+    {
+        $translation = new ArchetypeTranslation();
+        $translation->setArchetype($archetype);
+        $translation->setLocale($locale);
+        $translation->setName($name);
+        $translation->setDescription($description);
+        $archetype->addTranslation($translation);
+
+        $manager->persist($translation);
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
