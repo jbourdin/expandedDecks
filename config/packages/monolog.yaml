@@ -48,9 +48,9 @@ when@prod:
                 level: debug
                 formatter: monolog.formatter.json
             sentry:
-                type: sentry
+                type: service
+                id: Sentry\Monolog\Handler
                 level: error
-                hub_id: Sentry\State\HubInterface
             console:
                 type: console
                 process_psr_3_messages: false
