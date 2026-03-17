@@ -8,6 +8,5 @@ app_favicon_redirect:
     path: /favicon.ico
     controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
     defaults:
-        route: ''
         path: /favicon.svg
         permanent: true
