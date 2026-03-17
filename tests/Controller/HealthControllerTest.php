@@ -16,6 +16,7 @@ namespace App\Tests\Controller;
 use App\Controller\HealthController;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * @see docs/features.md F14.4 — Health check endpoint
@@ -24,7 +25,7 @@ final class HealthControllerTest extends TestCase
 {
     public function testLivenessReturns200(): void
     {
-        $controller = new HealthController($this->createStub(Connection::class));
+        $controller = new HealthController($this->createStub(Connection::class), new NullLogger());
 
         $response = $controller->liveness();
 
@@ -37,7 +38,7 @@ final class HealthControllerTest extends TestCase
         $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willReturn($this->createStub(\Doctrine\DBAL\Result::class));
 
-        $controller = new HealthController($connection);
+        $controller = new HealthController($connection, new NullLogger());
         $response = $controller->readiness();
 
         self::assertSame(200, $response->getStatusCode());
@@ -53,7 +54,7 @@ final class HealthControllerTest extends TestCase
         $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willThrowException(new \RuntimeException('Connection refused'));
 
-        $controller = new HealthController($connection);
+        $controller = new HealthController($connection, new NullLogger());
         $response = $controller->readiness();
 
         self::assertSame(503, $response->getStatusCode());
