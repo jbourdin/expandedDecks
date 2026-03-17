@@ -16,6 +16,31 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.3] — 2026-03-17
+
+Third beta — production observability improvements and version tracking.
+
+### Infrastructure
+
+- **Sentry 4xx suppression** — `BeforeSendCallback` drops all HTTP 4xx exceptions from Sentry issues. Monolog `excluded_http_codes` expanded to cover all common 4xx codes (400, 401, 403, 404, 405, 409, 410, 422, 429). Sentry structured logs (`sentry_logs`) wrapped in `fingers_crossed` handlers (buffering from info, triggering on error) with the same 4xx exclusions.
+- **Sentry structured logs** — enabled via `enable_logs: true` in sentry-symfony config.
+- **Sentry smoke-test routes** — `/health/sentry-logs` and `/health/sentry-error` for manual verification of Sentry integration.
+- **Custom error page** — branded error template for 403, 404, and 500 responses.
+- **Static favicon** — gray Fairy-type energy SVG at `public/favicon.svg`, eliminating 404 noise from browser requests.
+- **APP_VERSION env var** — set at Docker build time via `--build-arg APP_VERSION=$(git describe --tags --always)`. Used as Sentry `release` and displayed in the footer.
+
+### Documentation
+
+- Full documentation consistency audit (Symfony/React version references, feature IDs).
+
+### Testing & Quality
+
+- Unit tests for `BeforeSendCallback` (4xx drop, 5xx keep, null hint edge cases).
+- Banned cards sync service extracted and tested (`BannedCardsSyncService`).
+- Test quality: replaced mocks with stubs where no expectations are set.
+
+---
+
 ## [1.0.0-beta.2] — 2026-03-16
 
 Second beta — deployment hardening, production observability, and infrastructure improvements. Sentry integration, Doctrine-based async messaging, APCu caching, technical admin dashboard, and container fixes.
