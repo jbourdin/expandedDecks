@@ -34,3 +34,7 @@ services:
         arguments:
             $hub: '@Sentry\State\HubInterface'
             $level: !php/const Monolog\Level::Error
+
+    Sentry\SentryBundle\Monolog\LogsHandler:
+        arguments:
+            - !php/const Monolog\Level::Info

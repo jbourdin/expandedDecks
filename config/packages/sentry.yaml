@@ -7,6 +7,7 @@ sentry:
         environment: '%kernel.environment%'
         send_default_pii: false
         traces_sample_rate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
+        enable_logs: true
 
 when@dev:
     sentry:
