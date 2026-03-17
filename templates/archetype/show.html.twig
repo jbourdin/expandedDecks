@@ -8,14 +8,15 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ archetype.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ archetype.localizedName(app.request.locale) }} — Expanded Decks{% endblock %}
 
 {% block meta %}
-    {% if archetype.metaDescription %}
-        <meta name="description" content="{{ archetype.metaDescription }}">
-        <meta property="og:description" content="{{ archetype.metaDescription }}">
+    {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}
+    {% if localizedMeta %}
+        <meta name="description" content="{{ localizedMeta }}">
+        <meta property="og:description" content="{{ localizedMeta }}">
     {% endif %}
-    <meta property="og:title" content="{{ archetype.name }} — Expanded Decks">
+    <meta property="og:title" content="{{ archetype.localizedName(app.request.locale) }} — Expanded Decks">
 {% endblock %}
 
 {% block body %}
@@ -28,7 +29,7 @@
             <div class="card-header card-header-themed">
                 <h1 class="mb-0 h4">
                     {{ archetype_sprites(archetype) }}
-                    {{ archetype.name }}
+                    {{ archetype.localizedName(app.request.locale) }}
                     {% for tag in archetype.playstyleTags %}
                         <span class="badge bg-secondary ms-1 fs-6 align-middle">{{ tag }}</span>
                     {% endfor %}

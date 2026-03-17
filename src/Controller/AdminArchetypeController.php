@@ -14,10 +14,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use App\Form\ArchetypeFormType;
+use App\Form\ArchetypeTranslationFormType;
 use App\Repository\ArchetypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,11 +30,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @see docs/features.md F2.6 — Archetype management
  * @see docs/features.md F2.18 — Admin archetype create/edit form
+ * @see docs/features.md F9.6 — Archetype localization
  */
 #[Route('/admin/archetypes')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminArchetypeController extends AbstractAppController
 {
+    private const array SUPPORTED_LOCALES = ['en', 'fr'];
+
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
@@ -92,11 +98,55 @@ class AdminArchetypeController extends AbstractAppController
             return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
         }
 
+        $translationForms = $this->buildTranslationForms($archetype, $request);
+
         return $this->render('admin/archetype/edit.html.twig', [
             'archetype' => $archetype,
             'form' => $form,
             'existingTags' => $this->collectExistingTags($archetypeRepository),
+            'translationForms' => $translationForms,
+            'supportedLocales' => self::SUPPORTED_LOCALES,
         ]);
+    }
+
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    #[Route('/{id}/translation/{locale}', name: 'app_admin_archetype_translation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function saveTranslation(Request $request, Archetype $archetype, string $locale): Response
+    {
+        if (!\in_array($locale, self::SUPPORTED_LOCALES, true)) {
+            throw $this->createNotFoundException();
+        }
+
+        $translation = $archetype->getTranslation($locale);
+        $isNew = false;
+
+        if (!$translation instanceof ArchetypeTranslation || $translation->getLocale() !== $locale) {
+            $translation = new ArchetypeTranslation();
+            $translation->setLocale($locale);
+            $translation->setArchetype($archetype);
+            $isNew = true;
+        }
+
+        $form = $this->createForm(ArchetypeTranslationFormType::class, $translation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($isNew) {
+                $archetype->addTranslation($translation);
+                $this->em->persist($translation);
+            }
+            $this->em->flush();
+
+            $this->addFlash('success', 'app.cms.translation_saved', ['%locale%' => strtoupper($locale)]);
+        } else {
+            $this->addFlash('danger', 'app.cms.translation_invalid');
+        }
+
+        return $this->redirect(
+            $this->generateUrl('app_admin_archetype_edit', ['id' => $archetype->getId()]).'#pane-'.$locale
+        );
     }
 
     /**
@@ -147,6 +197,36 @@ class AdminArchetypeController extends AbstractAppController
         $cleaned = trim(preg_replace('/\s+/', ' ', $cleaned) ?? '');
 
         return mb_convert_case($cleaned, \MB_CASE_TITLE);
+    }
+
+    /**
+     * @return array<string, FormView>
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    private function buildTranslationForms(Archetype $archetype, Request $request): array
+    {
+        $forms = [];
+
+        foreach (self::SUPPORTED_LOCALES as $locale) {
+            $translation = $archetype->getTranslation($locale);
+
+            if (!$translation instanceof ArchetypeTranslation || $translation->getLocale() !== $locale) {
+                $translation = new ArchetypeTranslation();
+                $translation->setLocale($locale);
+            }
+
+            $form = $this->createForm(ArchetypeTranslationFormType::class, $translation, [
+                'action' => $this->generateUrl('app_admin_archetype_translation', [
+                    'id' => $archetype->getId(),
+                    'locale' => $locale,
+                ]),
+            ]);
+
+            $forms[$locale] = $form->createView();
+        }
+
+        return $forms;
     }
 
     /**

@@ -17,6 +17,7 @@ use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -27,10 +28,12 @@ class ArchetypeDetailController extends AbstractController
 {
     /**
      * @see docs/features.md F2.10 — Archetype detail page
+     * @see docs/features.md F9.6 — Archetype localization
      */
     #[Route('/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
+        Request $request,
         ArchetypeRepository $archetypeRepository,
         DeckRepository $deckRepository,
         ArchetypeDescriptionRenderer $descriptionRenderer,
@@ -45,8 +48,10 @@ class ArchetypeDetailController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $htmlContent = null !== $archetype->getDescription()
-            ? $descriptionRenderer->render($archetype->getDescription())
+        $locale = $request->getLocale();
+        $description = $archetype->getLocalizedDescription($locale);
+        $htmlContent = null !== $description
+            ? $descriptionRenderer->render($description, $locale)
             : null;
 
         $latestDecks = $deckRepository->findLatestPublicByArchetype($archetype);

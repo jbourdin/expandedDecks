@@ -97,7 +97,6 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
 
         $form = $crawler->selectButton('Save')->form();
-        $form['archetype_form[description]'] = 'Updated description for testing.';
         $form['archetype_form[isPublished]']->tick();
         $this->client->submit($form);
 
@@ -128,7 +127,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $archetype = $this->getArchetype('Iron Thorns ex');
 
         self::assertSame(['iron-thorns'], $archetype->getPokemonSlugs());
-        self::assertNotNull($archetype->getDescription());
+        self::assertNotNull($archetype->getLocalizedDescription('en'));
         self::assertTrue($archetype->isPublished());
     }
 
@@ -137,7 +136,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $archetype = $this->getArchetype('Lugia Archeops');
 
         self::assertFalse($archetype->isPublished());
-        self::assertNull($archetype->getDescription());
+        self::assertNull($archetype->getLocalizedDescription('en'));
     }
 
     /**

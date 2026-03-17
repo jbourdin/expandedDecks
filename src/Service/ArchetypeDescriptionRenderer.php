@@ -47,19 +47,21 @@ class ArchetypeDescriptionRenderer
     /**
      * Render a Markdown description with custom tag expansion.
      *
-     * The full rendered output is cached for 1 hour, keyed by content hash.
+     * The full rendered output is cached for 1 hour, keyed by content hash and locale.
      * Cache invalidates automatically when the description text changes.
+     *
+     * @see docs/features.md F9.6 — Archetype localization
      */
-    public function render(string $description): string
+    public function render(string $description, string $locale = 'en'): string
     {
-        $cacheKey = 'archetype_desc.rendered.'.md5($description);
+        $cacheKey = 'archetype_desc.rendered.'.$locale.'.'.md5($description);
 
         /** @var string $html */
-        $html = $this->cache->get($cacheKey, function (ItemInterface $item) use ($description): string {
+        $html = $this->cache->get($cacheKey, function (ItemInterface $item) use ($description, $locale): string {
             $item->expiresAfter(3600);
 
             $rendered = $this->markdownRenderer->render($description);
-            $rendered = $this->expandArchetypeTags($rendered);
+            $rendered = $this->expandArchetypeTags($rendered, $locale);
             $rendered = $this->expandDeckTags($rendered);
             $rendered = $this->expandCardTags($rendered);
 
@@ -69,11 +71,14 @@ class ArchetypeDescriptionRenderer
         return $html;
     }
 
-    private function expandArchetypeTags(string $html): string
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    private function expandArchetypeTags(string $html, string $locale): string
     {
         return (string) preg_replace_callback(
             '/\[\[archetype:([a-z0-9-]+)\]\]/',
-            function (array $matches): string {
+            function (array $matches) use ($locale): string {
                 $slug = $matches[1];
                 $archetype = $this->archetypeRepository->findOneBy(['slug' => $slug]);
 
@@ -82,7 +87,7 @@ class ArchetypeDescriptionRenderer
                 }
 
                 $sprites = $this->spriteRuntime->renderSprites($archetype);
-                $name = htmlspecialchars($archetype->getName(), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                $name = htmlspecialchars($archetype->getLocalizedName($locale), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
 
                 if (!$archetype->isPublished()) {
                     return \sprintf('%s %s', $sprites, $name);

@@ -30,7 +30,7 @@
                                  data-create-url="{{ path('app_archetype_create') }}"
                                  {% if deck.archetype %}
                                      data-archetype-id="{{ deck.archetype.id }}"
-                                     data-archetype-name="{{ deck.archetype.name }}"
+                                     data-archetype-name="{{ deck.archetype.localizedName(app.request.locale) }}"
                                  {% endif %}
                             ></div>
                             {{ form_widget(form.archetype) }}

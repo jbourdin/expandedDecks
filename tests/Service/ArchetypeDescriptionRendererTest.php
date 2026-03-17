@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use App\Entity\DeckCard;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckCardRepository;
@@ -215,6 +216,33 @@ class ArchetypeDescriptionRendererTest extends TestCase
         self::assertStringContainsString('/archetypes/kyurem', $result);
         self::assertStringContainsString('ABC123', $result);
         self::assertStringContainsString('Dialga GX', $result);
+    }
+
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function testExpandsArchetypeTagWithLocalizedName(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setName('Ancient Box');
+        $archetype->setPokemonSlugs(['roaring-moon']);
+        $archetype->setIsPublished(true);
+
+        $translation = new ArchetypeTranslation();
+        $translation->setLocale('fr');
+        $translation->setName('Box Anciens');
+        $archetype->addTranslation($translation);
+
+        $this->archetypeRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'ancient-box' === ($criteria['slug'] ?? null) ? $archetype : null);
+
+        $this->urlGenerator->method('generate')
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_archetype_show' === $route && 'ancient-box' === ($parameters['slug'] ?? null) ? '/archetypes/ancient-box' : '');
+
+        $result = $this->renderer->render('See [[archetype:ancient-box]].', 'fr');
+
+        self::assertStringContainsString('Box Anciens', $result);
+        self::assertStringNotContainsString('Ancient Box', $result);
     }
 
     public function testPromoSetCodeWithHyphen(): void

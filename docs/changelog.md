@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.5] — 2026-03-18
+
+Fifth beta — archetype localization and Sentry observability tuning.
+
+### Deck Library
+
+- **F9.6** — Archetype localization *(completed)*: archetype names and descriptions are now translatable via `ArchetypeTranslation` entities. Admin edit form supports per-locale translations. Archetype display adapts to the user's active locale across catalog, detail, and deck views.
+
+### Infrastructure
+
+- **Sentry logs action level** — `SENTRY_LOGS_ACTION_LEVEL` env var makes the Sentry logs `fingers_crossed` handler threshold configurable (default: `error`). Lowering to `info` sends all logs to Sentry even without an error trigger.
+- **`/release-create` slash command** — added Claude Code skill for automated release branch, changelog, and PR creation.
+
+---
+
 ## [1.0.0-beta.4] — 2026-03-17
 
 Fourth beta — Sentry noise reduction and favicon redirect.

@@ -362,3 +362,4 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 | `/ci`         | Watch CI until green then merge, or investigate failures and propose fixes  |
 | `/cover-pr`   | Analyze test coverage of added/modified lines in the current PR             |
 | `/cover-more` | Find least covered code and write tests to improve coverage                 |
+| `/release-create` | Suggest a release version and create the release branch, changelog, and PR |
