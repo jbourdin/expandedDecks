@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,6 +28,7 @@ class HealthController
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -59,6 +61,27 @@ class HealthController
             ['status' => $healthy ? 'healthy' : 'unhealthy', 'checks' => $checks],
             $healthy ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE,
         );
+    }
+
+    /**
+     * Sentry logs smoke test — emits an info and an error log, returns OK.
+     */
+    #[Route('/health/sentry-logs', name: 'app_health_sentry_logs', methods: ['GET'])]
+    public function sentryLogs(): JsonResponse
+    {
+        $this->logger->info('Sentry logs smoke test: info level');
+        $this->logger->error('Sentry logs smoke test: error level');
+
+        return new JsonResponse(['status' => 'ok', 'message' => 'Logs emitted']);
+    }
+
+    /**
+     * Sentry issue smoke test — throws an exception to trigger a Sentry issue.
+     */
+    #[Route('/health/sentry-error', name: 'app_health_sentry_error', methods: ['GET'])]
+    public function sentryError(): never
+    {
+        throw new \RuntimeException('Sentry smoke test: this exception should appear as a Sentry issue.');
     }
 
     /**

@@ -9,10 +9,6 @@ sentry:
         traces_sample_rate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
         enable_logs: true
 
-when@dev:
-    sentry:
-        dsn: '' # Disabled in dev by default — set SENTRY_DSN in .env.local to enable
-
 when@test:
     sentry:
         dsn: '' # Always disabled in test

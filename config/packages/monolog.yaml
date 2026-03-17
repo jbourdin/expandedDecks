@@ -10,6 +10,10 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
+            sentry_logs:
+                type: service
+                id: Sentry\SentryBundle\Monolog\LogsHandler
+                level: warning
             console:
                 type: console
                 process_psr_3_messages: false
@@ -54,6 +58,7 @@ when@prod:
             sentry_logs:
                 type: service
                 id: Sentry\SentryBundle\Monolog\LogsHandler
+                level: error
             console:
                 type: console
                 process_psr_3_messages: false
