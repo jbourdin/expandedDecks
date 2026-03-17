@@ -20,6 +20,7 @@ use Sentry\EventHint;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class BeforeSendCallbackTest extends TestCase
 {
@@ -34,6 +35,16 @@ final class BeforeSendCallbackTest extends TestCase
     {
         $event = Event::createEvent();
         $hint = EventHint::fromArray(['exception' => new NotFoundHttpException()]);
+
+        $result = ($this->callback)($event, $hint);
+
+        self::assertNull($result);
+    }
+
+    public function testDropsSecurityAccessDeniedException(): void
+    {
+        $event = Event::createEvent();
+        $hint = EventHint::fromArray(['exception' => new AccessDeniedException()]);
 
         $result = ($this->callback)($event, $hint);
 
