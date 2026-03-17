@@ -8,6 +8,7 @@ sentry:
         send_default_pii: false
         traces_sample_rate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
         enable_logs: true
+        before_send: 'App\Sentry\BeforeSendCallback'
 
 when@test:
     sentry:
