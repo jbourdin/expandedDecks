@@ -13,22 +13,19 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @see docs/features.md F2.6 — Archetype management
- * @see docs/features.md F2.15 — Archetype playstyle tags
- * @see docs/features.md F2.18 — Admin archetype create/edit form
+ * @see docs/features.md F9.6 — Archetype localization
  *
- * @extends AbstractType<Archetype>
+ * @extends AbstractType<ArchetypeTranslation>
  */
-class ArchetypeFormType extends AbstractType
+class ArchetypeTranslationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -36,22 +33,25 @@ class ArchetypeFormType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'app.archetype.name_label',
             ])
-            ->add('pokemonSlugs', HiddenType::class, [
-                'mapped' => false,
-            ])
-            ->add('playstyleTags', HiddenType::class, [
-                'mapped' => false,
-            ])
-            ->add('isPublished', CheckboxType::class, [
-                'label' => 'app.archetype.is_published_label',
+            ->add('description', TextareaType::class, [
+                'label' => 'app.archetype.description_label',
                 'required' => false,
+                'attr' => [
+                    'rows' => 10,
+                    'placeholder' => 'app.archetype.description_placeholder',
+                ],
+            ])
+            ->add('metaDescription', TextType::class, [
+                'label' => 'app.archetype.meta_description_label',
+                'required' => false,
+                'attr' => ['maxlength' => 255],
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Archetype::class,
+            'data_class' => ArchetypeTranslation::class,
         ]);
     }
 }

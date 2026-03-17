@@ -30,6 +30,9 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class ArchetypeSearchController extends AbstractController
 {
+    /**
+     * @see docs/features.md F9.6 — Archetype localization
+     */
     #[Route('/api/archetype/search', name: 'app_archetype_search', methods: ['GET'])]
     public function search(Request $request, ArchetypeRepository $archetypeRepository): JsonResponse
     {
@@ -39,11 +42,12 @@ class ArchetypeSearchController extends AbstractController
             return $this->json([]);
         }
 
+        $locale = $request->getLocale();
         $archetypes = $archetypeRepository->searchByName($query);
 
         $data = array_map(static fn (Archetype $a): array => [
             'id' => $a->getId(),
-            'name' => $a->getName(),
+            'name' => $a->getLocalizedName($locale),
             'slug' => $a->getSlug(),
         ], $archetypes);
 
@@ -55,14 +59,16 @@ class ArchetypeSearchController extends AbstractController
      * including pokemon slugs for sprite rendering in the filter dropdown.
      *
      * @see docs/features.md F2.17 — Deck catalog archetype filter UX
+     * @see docs/features.md F9.6 — Archetype localization
      */
     #[Route('/api/archetype/catalog', name: 'app_archetype_catalog', methods: ['GET'])]
-    public function catalog(ArchetypeRepository $archetypeRepository): JsonResponse
+    public function catalog(Request $request, ArchetypeRepository $archetypeRepository): JsonResponse
     {
+        $locale = $request->getLocale();
         $archetypes = $archetypeRepository->findPublishedWithPublicDecks();
 
         $data = array_map(static fn (Archetype $archetype): array => [
-            'name' => $archetype->getName(),
+            'name' => $archetype->getLocalizedName($locale),
             'slug' => $archetype->getSlug(),
             'pokemonSlugs' => $archetype->getPokemonSlugs(),
         ], $archetypes);

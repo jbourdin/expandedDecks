@@ -65,7 +65,7 @@
                             <div class="card-body">
                                 <h5 class="card-title mb-2">
                                     {{ archetype_sprites(archetype) }}
-                                    {{ archetype.name }}
+                                    {{ archetype.localizedName(app.request.locale) }}
                                 </h5>
                                 {% if archetype.playstyleTags|length > 0 %}
                                     <div class="mb-2">

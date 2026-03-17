@@ -85,7 +85,7 @@ class DeckCatalogController extends AbstractController
         if ('' !== $archetypeSlug) {
             $archetype = $archetypeRepository->findOneBy(['slug' => $archetypeSlug]);
             if (null !== $archetype) {
-                $archetypeName = $archetype->getName();
+                $archetypeName = $archetype->getLocalizedName($request->getLocale());
             }
         }
 
