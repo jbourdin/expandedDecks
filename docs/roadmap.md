@@ -25,9 +25,11 @@ F8.1, F8.2, F8.3, F8.4,
 F9.1, F9.2, F9.3, F9.4,
 F10.1, F10.2,
 F11.1, F11.2, F11.3,
-F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7
+F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7,
+F6.5-fix,
+F9.6
 
-**Total: 82 features done.**
+**Total: 84 features done.**
 
 ---
 
@@ -68,7 +70,9 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7
 
 | ID     | Feature                                           | Priority | Depends on | Status |
 |--------|---------------------------------------------------|----------|------------|--------|
-| F6.5-fix | Refactor banned cards sync into a service       | High     | F6.5       |        |
+| F6.5-fix | Refactor banned cards sync into a service       | High     | F6.5       | Done   |
+
+**Progress: 1/1 done**
 
 **F6.5-fix:** The `BannedCardsSyncCommand` contains all the parsing/sync logic inline. The technical admin controller (`AdminTechnicalController`) currently shells out to `symfony console app:banned-cards:sync` via `Process`, which fails in the serverless container (no `symfony` CLI binary). Extract the sync logic into a `BannedCardsSyncService` callable from both the CLI command and the controller directly.
 
@@ -86,9 +90,9 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7
 | F13.1 | Bookmark a deck                         | Low      | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | F3.2             |
 | F13.3 | Bookmark an archetype                   | Low      | F2.16            |
-| F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       |
+| F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       | Done |
 
-**Progress: 0/7 done**
+**Progress: 1/7 done**
 
 **Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, a visual card mosaic alternative for deck lists, and localized archetype names and descriptions.
 
@@ -211,13 +215,13 @@ F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
 | 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
-| A     | UX Polish & Overdue Tracking    | 7        |              |
+| A     | UX Polish & Overdue Tracking    | 6 (+1 Done) |           |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **29**   |              |
+|       | **Total remaining**             | **27**   |              |
 
-82 features done · 29 remaining.
+84 features done · 27 remaining.
