@@ -203,8 +203,50 @@ class TcgdexApiClient
 
     private function fetchCard(string $setId, string $cardNumber): ?TcgdexCard
     {
-        $url = \sprintf('%s/cards/%s-%s', self::BASE_URL, $setId, $cardNumber);
+        return $this->fetchCardById(\sprintf('%s-%s', $setId, $cardNumber));
+    }
 
+    /**
+     * Fetches all printings of a card by name from TCGdex, returning full card details.
+     *
+     * @see docs/features.md F6.10 — Card identity and printing model
+     *
+     * @return list<TcgdexCard>
+     */
+    public function findAllPrintingsByName(string $cardName): array
+    {
+        $url = self::BASE_URL.'/cards?name='.urlencode($cardName);
+        $response = $this->httpClient->request('GET', $url);
+
+        if (200 !== $response->getStatusCode()) {
+            return [];
+        }
+
+        /** @var list<array<string, mixed>> $results */
+        $results = $response->toArray();
+
+        $cards = [];
+
+        foreach ($results as $result) {
+            $cardId = isset($result['id']) && \is_string($result['id']) ? $result['id'] : null;
+
+            if (null === $cardId) {
+                continue;
+            }
+
+            $card = $this->fetchCardById($cardId);
+
+            if (null !== $card) {
+                $cards[] = $card;
+            }
+        }
+
+        return $cards;
+    }
+
+    private function fetchCardById(string $cardId): ?TcgdexCard
+    {
+        $url = \sprintf('%s/cards/%s', self::BASE_URL, $cardId);
         $response = $this->httpClient->request('GET', $url);
 
         if (404 === $response->getStatusCode()) {
@@ -214,6 +256,14 @@ class TcgdexApiClient
         /** @var array<string, mixed> $data */
         $data = $response->toArray();
 
+        return $this->parseCardData($data);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function parseCardData(array $data): TcgdexCard
+    {
         $imageBase = isset($data['image']) && \is_string($data['image']) ? $data['image'] : null;
         $imageUrl = null !== $imageBase ? $imageBase.'/high.webp' : null;
 
@@ -230,6 +280,30 @@ class TcgdexApiClient
         /** @var string $category */
         $category = $data['category'] ?? '';
 
+        $hp = isset($data['hp']) && \is_int($data['hp']) ? $data['hp'] : null;
+        $rarity = isset($data['rarity']) && \is_string($data['rarity']) ? $data['rarity'] : null;
+
+        /** @var list<string> $attacks */
+        $attacks = [];
+
+        if (isset($data['attacks']) && \is_array($data['attacks'])) {
+            foreach ($data['attacks'] as $attack) {
+                if (\is_array($attack) && isset($attack['name']) && \is_string($attack['name'])) {
+                    $attacks[] = $attack['name'];
+                }
+            }
+        }
+
+        $setReleaseDate = null;
+
+        if (isset($data['set']) && \is_array($data['set'])) {
+            if (isset($data['set']['releaseDate']) && \is_string($data['set']['releaseDate'])) {
+                $setReleaseDate = $data['set']['releaseDate'];
+            }
+        }
+
+        $localId = isset($data['localId']) && \is_string($data['localId']) ? $data['localId'] : null;
+
         return new TcgdexCard(
             id: $id,
             name: $name,
@@ -237,6 +311,11 @@ class TcgdexApiClient
             trainerType: $trainerType,
             imageUrl: $imageUrl,
             isExpandedLegal: $isExpandedLegal,
+            hp: $hp,
+            attacks: $attacks,
+            rarity: $rarity,
+            setReleaseDate: $setReleaseDate,
+            cardNumber: $localId,
         );
     }
 }

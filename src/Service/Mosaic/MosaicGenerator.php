@@ -49,9 +49,12 @@ class MosaicGenerator
     /**
      * Render the mosaic image for a DeckVersion and store it via Flysystem.
      *
+     * @param string                  $variant           variant suffix for storage path (e.g. 'minified')
+     * @param array<int, string>|null $imageUrlOverrides map of DeckCard::id → image URL to override
+     *
      * @return string the storage path (relative to the Flysystem root)
      */
-    public function generate(DeckVersion $version): string
+    public function generate(DeckVersion $version, string $variant = '', ?array $imageUrlOverrides = null): string
     {
         $cards = $this->sortCards($version);
 
@@ -76,15 +79,15 @@ class MosaicGenerator
             $x = self::PADDING + $column * (self::CARD_WIDTH + self::PADDING);
             $y = self::PADDING + $row * (self::CARD_HEIGHT + self::PADDING);
 
-            $this->drawCard($canvas, $card, $x, $y);
+            $this->drawCard($canvas, $card, $x, $y, $imageUrlOverrides);
         }
 
         // Center the last row if it has fewer cards than CARDS_PER_ROW
         if ($columnsInLastRow < self::CARDS_PER_ROW && $rows > 1) {
-            $this->centerLastRow($canvas, $cards, $rows, $columnsInLastRow, $canvasWidth);
+            $this->centerLastRow($canvas, $cards, $rows, $columnsInLastRow, $canvasWidth, $imageUrlOverrides);
         }
 
-        $storagePath = $this->buildStoragePath($version);
+        $storagePath = $this->buildStoragePath($version, $variant);
 
         ob_start();
         imagepng($canvas);
@@ -190,9 +193,15 @@ class MosaicGenerator
         return $canvas;
     }
 
-    private function drawCard(\GdImage $canvas, DeckCard $card, int $x, int $y): void
+    /**
+     * @param array<int, string>|null $imageUrlOverrides
+     */
+    private function drawCard(\GdImage $canvas, DeckCard $card, int $x, int $y, ?array $imageUrlOverrides = null): void
     {
-        $imageUrl = $card->getImageUrl();
+        $cardId = $card->getId();
+        $imageUrl = (null !== $imageUrlOverrides && null !== $cardId && isset($imageUrlOverrides[$cardId]))
+            ? $imageUrlOverrides[$cardId]
+            : $card->getImageUrl();
 
         if (null !== $imageUrl && '' !== $imageUrl) {
             $this->drawCardImage($canvas, $imageUrl, $card->getCardName(), $x, $y);
@@ -315,9 +324,10 @@ class MosaicGenerator
     }
 
     /**
-     * @param list<DeckCard> $cards
+     * @param list<DeckCard>          $cards
+     * @param array<int, string>|null $imageUrlOverrides
      */
-    private function centerLastRow(\GdImage $canvas, array $cards, int $rows, int $columnsInLastRow, int $canvasWidth): void
+    private function centerLastRow(\GdImage $canvas, array $cards, int $rows, int $columnsInLastRow, int $canvasWidth, ?array $imageUrlOverrides = null): void
     {
         $lastRowWidth = $columnsInLastRow * self::CARD_WIDTH + ($columnsInLastRow - 1) * self::PADDING;
         $offsetX = (int) (($canvasWidth - $lastRowWidth) / 2);
@@ -358,15 +368,16 @@ class MosaicGenerator
         for ($i = 0; $i < $columnsInLastRow; ++$i) {
             $card = $cards[$lastRowStartIndex + $i];
             $x = $offsetX + $i * (self::CARD_WIDTH + self::PADDING);
-            $this->drawCard($canvas, $card, $x, $lastRowY);
+            $this->drawCard($canvas, $card, $x, $lastRowY, $imageUrlOverrides);
         }
     }
 
-    private function buildStoragePath(DeckVersion $version): string
+    private function buildStoragePath(DeckVersion $version, string $variant = ''): string
     {
         $deckId = $version->getDeck()->getId();
         $versionId = $version->getId();
+        $suffix = '' !== $variant ? '_'.$variant : '';
 
-        return \sprintf('mosaic/%d/%d.png', $deckId, $versionId);
+        return \sprintf('mosaic/%d/%d%s.png', $deckId, $versionId, $suffix);
     }
 }

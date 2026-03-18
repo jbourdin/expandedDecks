@@ -35,14 +35,19 @@ class MosaicUrlResolver
      */
     public function resolve(string $storagePath): string
     {
-        // Extract deckId and versionId from "mosaic/{deckId}/{versionId}.png"
-        if (!preg_match('#^mosaic/(\d+)/(\d+)\.png$#', $storagePath, $matches)) {
+        // Extract deckId, versionId, and optional variant from "mosaic/{deckId}/{versionId}[_variant].png"
+        if (!preg_match('#^mosaic/(\d+)/(\d+)(?:_(\w+))?\.png$#', $storagePath, $matches)) {
             throw new \InvalidArgumentException(\sprintf('Unexpected mosaic storage path format: "%s".', $storagePath));
         }
 
+        $variant = $matches[3] ?? '';
+        $fileName = '' !== $variant
+            ? \sprintf('%d_%s', (int) $matches[2], $variant)
+            : (string) (int) $matches[2];
+
         return $this->urlGenerator->generate('app_mosaic_show', [
             'deckId' => (int) $matches[1],
-            'versionId' => (int) $matches[2],
+            'versionId' => $fileName,
         ]);
     }
 }

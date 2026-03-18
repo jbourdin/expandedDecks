@@ -15,9 +15,13 @@ namespace App\Service\Tcgdex;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
+ * @see docs/features.md F6.10 — Card identity and printing model
  */
 readonly class TcgdexCard
 {
+    /**
+     * @param list<string> $attacks
+     */
     public function __construct(
         public string $id,
         public string $name,
@@ -25,6 +29,12 @@ readonly class TcgdexCard
         public ?string $trainerType,
         public ?string $imageUrl,
         public bool $isExpandedLegal,
+        public ?int $hp = null,
+        public array $attacks = [],
+        public ?string $rarity = null,
+        public ?string $setReleaseDate = null,
+        public ?string $setCode = null,
+        public ?string $cardNumber = null,
     ) {
     }
 }

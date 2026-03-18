@@ -272,14 +272,25 @@
             </div>
         {% endif %}
 
-        {# View mode toggle + export button #}
+        {% set hasMinifiedList = deck.currentVersion.minifiedList is not null %}
+        {% set hasMinifiedMosaic = deck.currentVersion.minifiedMosaicImageUrl is not null %}
+
+        {# View mode toggle + export buttons #}
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
+            <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyList" title="{{ 'app.deck.export_copy_tooltip'|trans }}">
                     {{ 'app.deck.export_copy'|trans }}
                 </button>
-                <span class="text-success small ms-2" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
+                {% if hasMinifiedList %}
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyMinifiedList" title="{{ 'app.deck.export_minified_tooltip'|trans }}">
+                        {{ 'app.deck.export_copy_minified'|trans }}
+                    </button>
+                {% endif %}
+                <span class="text-success small" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
                 <pre id="deckRawList" class="d-none">{{ deck.currentVersion.rawList }}</pre>
+                {% if hasMinifiedList %}
+                    <pre id="deckMinifiedList" class="d-none">{{ deck.currentVersion.minifiedList }}</pre>
+                {% endif %}
             </div>
             {% if hasMosaic %}
                 <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.view_toggle'|trans }}">
@@ -324,8 +335,26 @@
 
         {# Mosaic view #}
         {% if hasMosaic %}
-            <div id="deckMosaicView" class="text-center" style="display: none;">
-                <img src="{{ deck.currentVersion.mosaicImageUrl }}" alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}" class="img-fluid rounded shadow-sm">
+            <div id="deckMosaicView" style="display: none;">
+                {% if hasMinifiedMosaic %}
+                    <div class="d-flex justify-content-center mb-2">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.mosaic_variant_toggle'|trans }}">
+                            <button type="button" class="btn btn-outline-secondary active" id="mosaicOriginal" aria-pressed="true">
+                                {{ 'app.deck.mosaic_original'|trans }}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="mosaicMinified" aria-pressed="false">
+                                {{ 'app.deck.mosaic_minified'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="text-center">
+                    <img id="deckMosaicImg" src="{{ deck.currentVersion.mosaicImageUrl }}"
+                         alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
+                         class="img-fluid rounded shadow-sm"
+                         data-original-src="{{ deck.currentVersion.mosaicImageUrl }}"
+                         {% if hasMinifiedMosaic %}data-minified-src="{{ deck.currentVersion.minifiedMosaicImageUrl }}"{% endif %}>
+                </div>
             </div>
         {% endif %}
     {% else %}

@@ -33,7 +33,7 @@ final class MosaicControllerTest extends TestCase
 
         $this->expectException(NotFoundHttpException::class);
 
-        $controller->show(1, 2);
+        $controller->show(1, '2');
     }
 
     public function testShowReturns404OnFilesystemException(): void
@@ -47,7 +47,7 @@ final class MosaicControllerTest extends TestCase
 
         $this->expectException(NotFoundHttpException::class);
 
-        $controller->show(1, 2);
+        $controller->show(1, '2');
     }
 
     public function testShowReturnsStreamedResponseWithCacheHeaders(): void
@@ -63,7 +63,7 @@ final class MosaicControllerTest extends TestCase
         $storage->method('lastModified')->willReturn(1710000000);
 
         $controller = new MosaicController($storage);
-        $response = $controller->show(42, 7);
+        $response = $controller->show(42, '7');
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('image/png', $response->headers->get('Content-Type'));

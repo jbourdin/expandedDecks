@@ -15,6 +15,8 @@ namespace App\MessageHandler;
 
 use App\Message\EnrichDeckVersionMessage;
 use App\Message\GenerateDeckMosaicMessage;
+use App\Message\GenerateMinifiedListMessage;
+use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\DeckVersionRepository;
 use App\Service\Tcgdex\CardEnricher;
 use Psr\Log\LoggerInterface;
@@ -69,9 +71,11 @@ class EnrichDeckVersionHandler
             ]);
         }
 
-        // Dispatch mosaic generation if enrichment succeeded
+        // Dispatch downstream generation if enrichment succeeded
         if ('done' === $version->getEnrichmentStatus()) {
             $this->messageBus->dispatch(new GenerateDeckMosaicMessage($message->deckVersionId));
+            $this->messageBus->dispatch(new GenerateMinifiedListMessage($message->deckVersionId));
+            $this->messageBus->dispatch(new GenerateMinifiedMosaicMessage($message->deckVersionId));
         }
     }
 }

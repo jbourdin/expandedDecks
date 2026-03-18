@@ -34,10 +34,10 @@ class MosaicController
     ) {
     }
 
-    #[Route('/mosaic/{deckId}/{versionId}.png', name: 'app_mosaic_show', requirements: ['deckId' => '\d+', 'versionId' => '\d+'], methods: ['GET'])]
-    public function show(int $deckId, int $versionId): Response
+    #[Route('/mosaic/{deckId}/{versionId}.png', name: 'app_mosaic_show', requirements: ['deckId' => '\d+', 'versionId' => '\d+(_\w+)?'], methods: ['GET'])]
+    public function show(int $deckId, string $versionId): Response
     {
-        $path = \sprintf('mosaic/%d/%d.png', $deckId, $versionId);
+        $path = \sprintf('mosaic/%d/%s.png', $deckId, $versionId);
 
         try {
             if (!$this->mosaicStorage->fileExists($path)) {

@@ -64,18 +64,19 @@ initViewToggle();
 
 /**
  * @see docs/features.md F6.7 — Export deck list as PTCGL text
+ * @see docs/features.md F6.8 — Minified deck list export
  */
 function initCopyList(): void {
-    const copyButton = document.getElementById('deckCopyList');
-    const rawList = document.getElementById('deckRawList');
     const feedback = document.getElementById('deckCopyFeedback');
 
-    if (!copyButton || !rawList || !feedback) {
-        return;
-    }
+    const copyToClipboard = (elementId: string): void => {
+        const element = document.getElementById(elementId);
 
-    copyButton.addEventListener('click', () => {
-        const text = rawList.textContent?.trim() ?? '';
+        if (!element || !feedback) {
+            return;
+        }
+
+        const text = element.textContent?.trim() ?? '';
 
         navigator.clipboard.writeText(text).then(() => {
             feedback.style.display = '';
@@ -83,7 +84,49 @@ function initCopyList(): void {
                 feedback.style.display = 'none';
             }, 2000);
         });
+    };
+
+    document.getElementById('deckCopyList')?.addEventListener('click', () => {
+        copyToClipboard('deckRawList');
+    });
+
+    document.getElementById('deckCopyMinifiedList')?.addEventListener('click', () => {
+        copyToClipboard('deckMinifiedList');
     });
 }
 
 initCopyList();
+
+/**
+ * @see docs/features.md F6.6b — Minified mosaic
+ */
+function initMosaicVariantToggle(): void {
+    const originalButton = document.getElementById('mosaicOriginal');
+    const minifiedButton = document.getElementById('mosaicMinified');
+    const mosaicImg = document.getElementById('deckMosaicImg') as HTMLImageElement | null;
+
+    if (!originalButton || !minifiedButton || !mosaicImg) {
+        return;
+    }
+
+    const originalSrc = mosaicImg.dataset.originalSrc ?? '';
+    const minifiedSrc = mosaicImg.dataset.minifiedSrc ?? '';
+
+    originalButton.addEventListener('click', () => {
+        mosaicImg.src = originalSrc;
+        originalButton.classList.add('active');
+        originalButton.setAttribute('aria-pressed', 'true');
+        minifiedButton.classList.remove('active');
+        minifiedButton.setAttribute('aria-pressed', 'false');
+    });
+
+    minifiedButton.addEventListener('click', () => {
+        mosaicImg.src = minifiedSrc;
+        minifiedButton.classList.add('active');
+        minifiedButton.setAttribute('aria-pressed', 'true');
+        originalButton.classList.remove('active');
+        originalButton.setAttribute('aria-pressed', 'false');
+    });
+}
+
+initMosaicVariantToggle();

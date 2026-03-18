@@ -15,24 +15,39 @@ namespace App\Service\Tcgdex;
 
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\CardIdentity\CardIdentityResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Enriches DeckCards with data from TCGdex (trainerSubtype, imageUrl, tcgdexId).
  *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
+ * @see docs/features.md F6.9 — Improved energy card enrichment
+ * @see docs/features.md F6.10 — Card identity and printing model
  */
 class CardEnricher
 {
     /**
      * Energy set codes (SVE, SME…) don't exist in TCGdex.
-     * Cards from these sets are basic energy — we assign a static image.
+     * Cards from these sets are basic energy — skip set+number lookup.
      */
     private const array ENERGY_SET_CODES = ['SVE', 'SME', 'XYE', 'BWE'];
 
+    /** Basic energy card names for detection regardless of set code. */
+    private const array BASIC_ENERGY_NAMES = [
+        'Grass Energy',
+        'Fire Energy',
+        'Water Energy',
+        'Lightning Energy',
+        'Psychic Energy',
+        'Fighting Energy',
+        'Darkness Energy',
+        'Metal Energy',
+        'Fairy Energy',
+    ];
+
     /**
-     * Fallback image URLs for basic energy cards whose sets don't exist in TCGdex.
-     * Each points to a recent TCGdex card image.
+     * Fallback image URLs for basic energy cards when TCGdex returns nothing.
      */
     private const array BASIC_ENERGY_IMAGES = [
         'Grass Energy' => 'https://assets.tcgdex.net/en/bw/bw1/105/high.webp',
@@ -48,6 +63,7 @@ class CardEnricher
 
     public function __construct(
         private readonly TcgdexApiClient $apiClient,
+        private readonly CardIdentityResolver $identityResolver,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -64,10 +80,8 @@ class CardEnricher
 
         try {
             foreach ($version->getCards() as $card) {
-                $setCode = strtoupper($card->getSetCode());
-
-                // Basic energy sets don't exist in TCGdex — use static images
-                if (\in_array($setCode, self::ENERGY_SET_CODES, true)) {
+                // Basic energy: detect by name (regardless of set code)
+                if ($this->isBasicEnergy($card)) {
                     $this->enrichBasicEnergy($card);
                     ++$enrichedCount;
 
@@ -111,6 +125,10 @@ class CardEnricher
                     $card->setTrainerSubtype($tcgdexCard->trainerType);
                 }
 
+                // Link to CardIdentity/CardPrinting model
+                $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+                $card->setCardPrinting($printing);
+
                 if (!$tcgdexCard->isExpandedLegal) {
                     $legalityWarnings[] = \sprintf(
                         '"%s" (%s %s) is not marked as Expanded-legal in TCGdex.',
@@ -135,9 +153,48 @@ class CardEnricher
         return new CardEnrichmentReport($enrichedCount, $notFoundCount, $notFoundCards, $legalityWarnings);
     }
 
+    private function isBasicEnergy(DeckCard $card): bool
+    {
+        // Detect by name (covers all sets including non-energy sets like SVI)
+        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
+            return true;
+        }
+
+        // Also detect by energy set code for safety
+        return \in_array(strtoupper($card->getSetCode()), self::ENERGY_SET_CODES, true);
+    }
+
+    /**
+     * @see docs/features.md F6.9 — Improved energy card enrichment
+     */
     private function enrichBasicEnergy(DeckCard $card): void
     {
-        $imageUrl = self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null;
-        $card->setImageUrl($imageUrl);
+        $setCode = strtoupper($card->getSetCode());
+
+        // For non-energy sets (e.g. SVI), try set+number lookup first
+        if (!\in_array($setCode, self::ENERGY_SET_CODES, true)) {
+            $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
+
+            if (null !== $tcgdexCard) {
+                $card->setTcgdexId($tcgdexCard->id);
+                $card->setImageUrl($tcgdexCard->imageUrl);
+                $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+                $card->setCardPrinting($printing);
+
+                return;
+            }
+        }
+
+        // Try name-based search to get a tcgdexId
+        $imageUrl = $this->apiClient->findImageByName($card->getCardName());
+
+        if (null !== $imageUrl) {
+            $card->setImageUrl($imageUrl);
+
+            return;
+        }
+
+        // Final fallback: static image map
+        $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
     }
 }

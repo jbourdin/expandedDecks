@@ -462,7 +462,27 @@
             </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
-                <target>Copier la liste</target>
+                <target>Copier la liste originale</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_minified">
+                <source>app.deck.export_copy_minified</source>
+                <target>Copier la liste simplifiée</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_minified_tooltip">
+                <source>app.deck.export_minified_tooltip</source>
+                <target>Copier une version économique utilisant les impressions les moins rares</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_variant_toggle">
+                <source>app.deck.mosaic_variant_toggle</source>
+                <target>Variante mosaïque</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_original">
+                <source>app.deck.mosaic_original</source>
+                <target>Originale</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_minified">
+                <source>app.deck.mosaic_minified</source>
+                <target>Simplifiée</target>
             </trans-unit>
             <trans-unit id="app.deck.export_copy_tooltip">
                 <source>app.deck.export_copy_tooltip</source>
