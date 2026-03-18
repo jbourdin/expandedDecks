@@ -72,6 +72,11 @@ class CardIdentityResolver
                 continue;
             }
 
+            // TCGdex name search is a "contains" match — filter to exact name only
+            if ($tcgdexCard->name !== $identity->getName()) {
+                continue;
+            }
+
             // Skip if already stored
             if (null !== $this->printingRepository->findByTcgdexId($tcgdexCard->id)) {
                 continue;

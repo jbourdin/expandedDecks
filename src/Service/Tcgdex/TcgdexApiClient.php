@@ -140,6 +140,13 @@ class TcgdexApiClient
         $results = $response->toArray();
 
         foreach ($results as $result) {
+            // TCGdex name search is a "contains" match — filter to exact name
+            $resultName = isset($result['name']) && \is_string($result['name']) ? $result['name'] : '';
+
+            if ($resultName !== $cardName) {
+                continue;
+            }
+
             if (isset($result['image']) && \is_string($result['image'])) {
                 return $result['image'].'/high.webp';
             }
