@@ -89,14 +89,18 @@ F9.6
 | F7.5  | Registered decks aggregate view         | Low      | F7.1             |
 | F6.6  | Visual deck list (card mosaic)          | Low      | F6.4             | Done |
 | F6.7  | Export deck list as PTCGL text (simple)  | Low      | F2.2             | Done |
+| F6.10 | Card identity and printing model        | Medium   | F6.2             |
+| F6.8  | Minified deck list export               | Low      | F6.7, F6.10      |
+| F6.6b | Minified mosaic                         | Low      | F6.6, F6.10      |
+| F6.9  | Improved energy card enrichment         | Low      | F6.2             |
 | F13.1 | Bookmark a deck                         | Low      | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | F3.2             |
 | F13.3 | Bookmark an archetype                   | Low      | F2.16            |
 | F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       | Done |
 
-**Progress: 3/8 done**
+**Progress: 3/12 done**
 
-**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, a visual card mosaic alternative for deck lists, and localized archetype names and descriptions.
+**Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, visual card mosaic with original and minified variants, card identity model for cross-set equivalence, minified deck list export, improved energy enrichment, and localized archetype names and descriptions.
 
 ---
 
@@ -206,15 +210,11 @@ F9.6
 
 | ID    | Feature                            | Priority | Depends on       |
 |-------|------------------------------------|----------|------------------|
-| F6.10 | Card identity and printing model   | Medium   | F6.2             |
-| F6.8  | Minified deck list export          | Low      | F6.7, F6.10      |
-| F6.6b | Minified mosaic                    | Low      | F6.6, F6.10      |
-| F6.9  | Improved energy card enrichment    | Low      | F6.2             |
 | F4.16 | Lost & found deck alert            | Low      | F4.4, F8.1       |
 
-**Progress: 0/5 done**
+**Progress: 0/1 done**
 
-**Deliverable:** Card identity model grouping all printings of the same functional card (by name+HP+attacks for Pokemon, by name for Trainers/Energy). Minified deck list export and minified mosaic using lowest-rarity printings and latest basic energies. Improved energy card enrichment. Lost-and-found alert system.
+**Deliverable:** Lost-and-found alert system enabling anyone (including anonymous visitors) to report finding a deck, notifying the owner and borrower for quick physical recovery.
 
 ---
 
@@ -235,14 +235,14 @@ F9.6
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
 | 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
-| A     | UX Polish & Overdue Tracking    | 5 (+3 Done) |           |
+| A     | UX Polish & Overdue Tracking    | 9 (+3 Done) |           |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-| H     | Export & Recovery               | 5        |              |
+| H     | Lost & Found                   | 1        |              |
 |       | **Total remaining**             | **31**   |              |
 
 86 features done · 31 remaining.
