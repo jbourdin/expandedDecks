@@ -256,7 +256,7 @@
         {# Warning: cards matched by name only (Japanese/unrecognized set codes) #}
         {% set nameMatchedCards = [] %}
         {% for card in pokemonCards|merge(trainerCards)|merge(energyCards) %}
-            {% if card.imageUrl is not null and card.tcgdexId is null %}
+            {% if card.imageUrl is not null and card.tcgdexId is null and card.cardType != 'energy' %}
                 {% set nameMatchedCards = nameMatchedCards|merge([card]) %}
             {% endif %}
         {% endfor %}
