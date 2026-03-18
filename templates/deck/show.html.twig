@@ -245,17 +245,15 @@
         </div>
     {% endif %}
 
-    {# Card list — view toggle between table and mosaic #}
+    {# Card list — React island with variant toggle, mosaic, and copy #}
     {% if deck.currentVersion and groupedCards|length > 0 %}
-        {% set hasMosaic = deck.currentVersion.mosaicImageUrl is not null %}
-        {% set pokemonCards = groupedCards.pokemon|default([]) %}
-        {% set trainerCards = groupedCards.trainer|default([]) %}
-        {% set energyCards = groupedCards.energy|default([]) %}
-        {% set energyInLeft = pokemonCards|length <= trainerCards|length %}
-
         {# Warning: cards matched by name only (Japanese/unrecognized set codes) #}
+        {% set allCards = [] %}
+        {% for type, cards in groupedCards %}
+            {% set allCards = allCards|merge(cards) %}
+        {% endfor %}
         {% set nameMatchedCards = [] %}
-        {% for card in pokemonCards|merge(trainerCards)|merge(energyCards) %}
+        {% for card in allCards %}
             {% if card.imageUrl is not null and card.tcgdexId is null and card.cardType != 'energy' %}
                 {% set nameMatchedCards = nameMatchedCards|merge([card]) %}
             {% endif %}
@@ -272,145 +270,51 @@
             </div>
         {% endif %}
 
-        {% set hasMinifiedList = deck.currentVersion.minifiedList is not null %}
-        {% set hasMinifiedMosaic = deck.currentVersion.minifiedMosaicImageUrl is not null %}
-        {% set hasMinified = hasMinifiedList or minifiedGroupedCards|length > 0 %}
+        {# Serialize card data for React island #}
+        {% macro serializeCards(groupedCards) %}
+            {% set serialized = {} %}
+            {% for type, cards in groupedCards %}
+                {% set cardList = [] %}
+                {% for card in cards %}
+                    {% set cardList = cardList|merge([{
+                        cardName: card.cardName,
+                        quantity: card.quantity,
+                        setCode: card.setCode,
+                        cardNumber: card.cardNumber,
+                        cardType: card.cardType,
+                        trainerSubtype: card.trainerSubtype,
+                        imageUrl: card.imageUrl,
+                    }]) %}
+                {% endfor %}
+                {% set serialized = serialized|merge({(type): cardList}) %}
+            {% endfor %}
+            {{ serialized|json_encode }}
+        {% endmacro %}
 
-        {# Top bar: Original/Minified toggle (left) + Copy button (center) + Table/Mosaic toggle (right) #}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-2">
-                {% if hasMinified %}
-                    <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.variant_toggle'|trans }}">
-                        <button type="button" class="btn btn-outline-secondary" id="deckVariantOriginal" aria-pressed="false">
-                            {{ 'app.deck.variant_original'|trans }}
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary active" id="deckVariantMinified" aria-pressed="true">
-                            {{ 'app.deck.variant_minified'|trans }}
-                        </button>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyList" title="{{ 'app.deck.export_copy_tooltip'|trans }}">
-                    {{ 'app.deck.export_copy_button'|trans }}
-                </button>
-                <span class="text-success small" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
-                <pre id="deckRawList" class="d-none">{{ deck.currentVersion.rawList }}</pre>
-                {% if hasMinifiedList %}
-                    <pre id="deckMinifiedList" class="d-none">{{ deck.currentVersion.minifiedList }}</pre>
-                {% endif %}
-            </div>
-            {% if hasMosaic %}
-                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.view_toggle'|trans }}">
-                    <button type="button" class="btn btn-outline-secondary" id="deckViewTable" aria-pressed="false">
-                        {{ 'app.deck.view_table'|trans }}
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary active" id="deckViewMosaic" aria-pressed="true">
-                        {{ 'app.deck.view_mosaic'|trans }}
-                    </button>
-                </div>
-            {% endif %}
+        <div id="deck-card-list-root"
+             data-original-cards="{{ _self.serializeCards(groupedCards)|trim }}"
+             data-minified-cards="{{ _self.serializeCards(minifiedGroupedCards)|trim }}"
+             data-mosaic-url="{{ deck.currentVersion.mosaicImageUrl }}"
+             data-minified-mosaic-url="{{ deck.currentVersion.minifiedMosaicImageUrl }}"
+             data-raw-list="{{ deck.currentVersion.rawList|e('html_attr') }}"
+             data-minified-list="{{ deck.currentVersion.minifiedList|e('html_attr') }}"
+             data-deck-name="{{ deck.name }}"
+             data-label-variant-original="{{ 'app.deck.variant_original'|trans }}"
+             data-label-variant-minified="{{ 'app.deck.variant_minified'|trans }}"
+             data-label-view-table="{{ 'app.deck.view_table'|trans }}"
+             data-label-view-mosaic="{{ 'app.deck.view_mosaic'|trans }}"
+             data-label-copy-button="{{ 'app.deck.export_copy_button'|trans }}"
+             data-label-copied="{{ 'app.deck.export_copied'|trans }}"
+             data-label-mosaic-alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
+             data-label-section-pokemon="{{ 'app.deck.section_pokemon'|trans }}"
+             data-label-section-trainer="{{ 'app.deck.section_trainer'|trans }}"
+             data-label-section-energy="{{ 'app.deck.section_energy'|trans }}"
+             data-label-table-qty="{{ 'app.deck.table_qty'|trans }}"
+             data-label-table-card="{{ 'app.deck.table_card'|trans }}"
+             data-label-table-set="{{ 'app.deck.table_set'|trans }}"
+             data-label-name-match-warning-title="{{ 'app.deck.name_match_warning_title'|trans }}"
+             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}">
         </div>
-
-        {% set hasMinifiedTable = minifiedGroupedCards|length > 0 %}
-
-        {# Table view #}
-        <div id="deckTableView" style="{% if hasMosaic %}display: none;{% endif %}">
-
-            {# Original table — hidden by default when minified is available #}
-            <div id="deckTableOriginal"{% if hasMinifiedTable %} style="display: none;"{% endif %}>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        {% if pokemonCards|length > 0 %}
-                            {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
-                        {% endif %}
-                        {% if energyInLeft and energyCards|length > 0 %}
-                            <div class="mt-3">
-                                {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        {% if trainerCards|length > 0 %}
-                            {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
-                        {% endif %}
-                        {% if not energyInLeft and energyCards|length > 0 %}
-                            <div class="mt-3">
-                                {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            {# Minified table #}
-            {% if hasMinifiedTable %}
-                {% set minPokemon = minifiedGroupedCards.pokemon|default([]) %}
-                {% set minTrainer = minifiedGroupedCards.trainer|default([]) %}
-                {% set minEnergy = minifiedGroupedCards.energy|default([]) %}
-                {% set minEnergyInLeft = minPokemon|length <= minTrainer|length %}
-
-                <div id="deckTableMinified">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {% if minPokemon|length > 0 %}
-                                {{ _self.cardSection('app.deck.section_pokemon'|trans, minPokemon) }}
-                            {% endif %}
-                            {% if minEnergyInLeft and minEnergy|length > 0 %}
-                                <div class="mt-3">
-                                    {{ _self.cardSection('app.deck.section_energy'|trans, minEnergy) }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {% if minTrainer|length > 0 %}
-                                {{ _self.cardSection('app.deck.section_trainer'|trans, minTrainer) }}
-                            {% endif %}
-                            {% if not minEnergyInLeft and minEnergy|length > 0 %}
-                                <div class="mt-3">
-                                    {{ _self.cardSection('app.deck.section_energy'|trans, minEnergy) }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        {# Mosaic view — shown by default on desktop, hidden on mobile #}
-        {% if hasMosaic %}
-            <div id="deckMosaicView">
-                <div class="text-center">
-                    <img id="deckMosaicImg"
-                         src="{{ hasMinifiedMosaic ? deck.currentVersion.minifiedMosaicImageUrl : deck.currentVersion.mosaicImageUrl }}"
-                         alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
-                         class="img-fluid rounded shadow-sm"
-                         data-original-src="{{ deck.currentVersion.mosaicImageUrl }}"
-                         {% if hasMinifiedMosaic %}data-minified-src="{{ deck.currentVersion.minifiedMosaicImageUrl }}"{% endif %}>
-                </div>
-            </div>
-        {% endif %}
-
-    {# Mosaic fullscreen modal for mobile #}
-    {% if hasMosaic %}
-        <div class="modal fade" id="mosaicFullscreenModal" tabindex="-1" aria-labelledby="mosaicFullscreenModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-0 py-2">
-                        <h6 class="modal-title text-white" id="mosaicFullscreenModalLabel">{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}</h6>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body d-flex align-items-center justify-content-center p-2 overflow-auto">
-                        <img id="mosaicFullscreenImg"
-                             src=""
-                             alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
-                             class="img-fluid"
-                             style="max-height: 90vh;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
@@ -440,7 +344,12 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('deck_card_list') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('deck_show') }}
+    {{ encore_entry_script_tags('deck_card_list') }}
 {% endblock %}
