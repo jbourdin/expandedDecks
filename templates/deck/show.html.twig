@@ -377,7 +377,7 @@
             {% endif %}
         </div>
 
-        {# Mosaic view — shown by default #}
+        {# Mosaic view — shown by default on desktop, hidden on mobile #}
         {% if hasMosaic %}
             <div id="deckMosaicView">
                 <div class="text-center">
@@ -390,6 +390,27 @@
                 </div>
             </div>
         {% endif %}
+
+    {# Mosaic fullscreen modal for mobile #}
+    {% if hasMosaic %}
+        <div class="modal fade" id="mosaicFullscreenModal" tabindex="-1" aria-labelledby="mosaicFullscreenModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header border-0 py-2">
+                        <h6 class="modal-title text-white" id="mosaicFullscreenModalLabel">{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex align-items-center justify-content-center p-2 overflow-auto">
+                        <img id="mosaicFullscreenImg"
+                             src=""
+                             alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
+                             class="img-fluid"
+                             style="max-height: 90vh;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
