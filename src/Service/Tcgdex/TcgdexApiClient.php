@@ -295,14 +295,27 @@ class TcgdexApiClient
         }
 
         $setReleaseDate = null;
+        $setId = null;
 
         if (isset($data['set']) && \is_array($data['set'])) {
             if (isset($data['set']['releaseDate']) && \is_string($data['set']['releaseDate'])) {
                 $setReleaseDate = $data['set']['releaseDate'];
             }
+
+            if (isset($data['set']['id']) && \is_string($data['set']['id'])) {
+                $setId = $data['set']['id'];
+            }
+        }
+
+        // If set release date is missing, fetch it from the set endpoint
+        if (null === $setReleaseDate && null !== $setId) {
+            $setReleaseDate = $this->getSetReleaseDate($setId);
         }
 
         $localId = isset($data['localId']) && \is_string($data['localId']) ? $data['localId'] : null;
+
+        // Parse pricing: prefer Cardmarket avg, fall back to TCGPlayer mid
+        $priceInCents = $this->parsePriceInCents($data);
 
         return new TcgdexCard(
             id: $id,
@@ -316,6 +329,69 @@ class TcgdexApiClient
             rarity: $rarity,
             setReleaseDate: $setReleaseDate,
             cardNumber: $localId,
+            priceInCents: $priceInCents,
         );
+    }
+
+    /**
+     * Fetch the release date for a set, cached.
+     */
+    private function getSetReleaseDate(string $setId): ?string
+    {
+        /** @var array<string, ?string> $cache */
+        $cache = $this->cache->get('tcgdex.set_release_dates', static fn (): array => []);
+
+        if (isset($cache[$setId])) {
+            return $cache[$setId];
+        }
+
+        $url = self::BASE_URL.'/sets/'.$setId;
+        $response = $this->httpClient->request('GET', $url);
+
+        if (200 !== $response->getStatusCode()) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $detail */
+        $detail = $response->toArray();
+
+        return isset($detail['releaseDate']) && \is_string($detail['releaseDate']) ? $detail['releaseDate'] : null;
+    }
+
+    /**
+     * Extract the average price in euro cents from TCGdex pricing data.
+     *
+     * Prefers Cardmarket avg (EUR), falls back to TCGPlayer normal midPrice (USD, approximate).
+     *
+     * @param array<string, mixed> $data
+     */
+    private function parsePriceInCents(array $data): ?int
+    {
+        if (!isset($data['pricing']) || !\is_array($data['pricing'])) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $pricing */
+        $pricing = $data['pricing'];
+
+        // Cardmarket (EUR)
+        if (isset($pricing['cardmarket']) && \is_array($pricing['cardmarket'])) {
+            $avg = $pricing['cardmarket']['avg'] ?? null;
+
+            if (\is_float($avg) || \is_int($avg)) {
+                return (int) round($avg * 100);
+            }
+        }
+
+        // TCGPlayer fallback (USD, approximate)
+        if (isset($pricing['tcgplayer']) && \is_array($pricing['tcgplayer'])) {
+            $normal = $pricing['tcgplayer']['normal'] ?? null;
+
+            if (\is_array($normal) && isset($normal['midPrice']) && (\is_float($normal['midPrice']) || \is_int($normal['midPrice']))) {
+                return (int) round($normal['midPrice'] * 100);
+            }
+        }
+
+        return null;
     }
 }

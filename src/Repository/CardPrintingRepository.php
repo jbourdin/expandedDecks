@@ -38,9 +38,14 @@ class CardPrintingRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /** Expanded era starts with Black & White (2011-04-25). */
+    private const string EXPANDED_ERA_START = '2011-04-25';
+
     /**
      * Find the lowest-rarity Expanded-legal printing for a card identity.
-     * Sorts by rarity tier ascending (cheapest first), then release date descending (most recent).
+     *
+     * Filters to expanded-era sets only, then sorts by rarity tier ascending,
+     * price ascending (cheapest), and release date descending (most recent).
      */
     public function findLowestRarityForIdentity(CardIdentity $identity): ?CardPrinting
     {
@@ -49,9 +54,12 @@ class CardPrintingRepository extends ServiceEntityRepository
             ->where('cp.cardIdentity = :identity')
             ->andWhere('cp.isExpandedLegal = :legal')
             ->andWhere('cp.imageUrl IS NOT NULL')
+            ->andWhere('cp.setReleaseDate >= :expandedStart OR cp.setReleaseDate IS NULL')
             ->setParameter('identity', $identity)
             ->setParameter('legal', true)
+            ->setParameter('expandedStart', new \DateTimeImmutable(self::EXPANDED_ERA_START))
             ->orderBy('cp.rarityTier', 'ASC')
+            ->addOrderBy('cp.priceInCents', 'ASC')
             ->addOrderBy('cp.setReleaseDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -61,7 +69,7 @@ class CardPrintingRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find the most recent printing for a card identity (for basic energies).
+     * Find the most recent expanded-era printing for a card identity (for basic energies).
      */
     public function findLatestForIdentity(CardIdentity $identity): ?CardPrinting
     {
@@ -70,8 +78,10 @@ class CardPrintingRepository extends ServiceEntityRepository
             ->where('cp.cardIdentity = :identity')
             ->andWhere('cp.isExpandedLegal = :legal')
             ->andWhere('cp.imageUrl IS NOT NULL')
+            ->andWhere('cp.setReleaseDate >= :expandedStart OR cp.setReleaseDate IS NULL')
             ->setParameter('identity', $identity)
             ->setParameter('legal', true)
+            ->setParameter('expandedStart', new \DateTimeImmutable(self::EXPANDED_ERA_START))
             ->orderBy('cp.setReleaseDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery()

@@ -56,6 +56,10 @@ class CardPrinting
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $setReleaseDate = null;
 
+    /** Average price in euro cents from Cardmarket (nullable if unknown). */
+    #[ORM\Column(nullable: true)]
+    private ?int $priceInCents = null;
+
     #[ORM\Column]
     private bool $isExpandedLegal = false;
 
@@ -156,6 +160,18 @@ class CardPrinting
     public function setSetReleaseDate(?\DateTimeImmutable $setReleaseDate): static
     {
         $this->setReleaseDate = $setReleaseDate;
+
+        return $this;
+    }
+
+    public function getPriceInCents(): ?int
+    {
+        return $this->priceInCents;
+    }
+
+    public function setPriceInCents(?int $priceInCents): static
+    {
+        $this->priceInCents = $priceInCents;
 
         return $this;
     }

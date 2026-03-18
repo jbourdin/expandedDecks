@@ -134,6 +134,7 @@ class CardIdentityResolver
         $setId = str_contains($tcgdexCard->id, '-') ? substr($tcgdexCard->id, 0, (int) strpos($tcgdexCard->id, '-')) : null;
         $printing->setRarityTier($this->rarityTierMapper->map($tcgdexCard->rarity, $setId));
         $printing->setImageUrl($tcgdexCard->imageUrl);
+        $printing->setPriceInCents($tcgdexCard->priceInCents);
         $printing->setIsExpandedLegal($tcgdexCard->isExpandedLegal);
 
         if (null !== $tcgdexCard->setReleaseDate) {
