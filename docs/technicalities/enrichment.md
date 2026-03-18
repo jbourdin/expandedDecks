@@ -84,7 +84,10 @@ PTCG deck lists use set codes (e.g. `ASR`, `SVI`) that differ from TCGdex's inte
    - Cached for 24 hours
 
 2. **Reverse mapping** (`getReverseSetMapping()`): TCGdex set ID → PTCG code
-   - Simple `array_flip` of the forward mapping, also cached
+   - Built separately (not `array_flip`) because multiple PTCG codes can map to the same TCGdex set ID (e.g. both `NXD` and `NEX` → `bw4`)
+   - **Prefers `tcgOnline` codes** (PTCGL-compatible, e.g. `NXD`) over `abbreviation.official` (e.g. `NEX`): official is set first as fallback, then `tcgOnline` overwrites
+   - This ensures the minified export outputs set codes accepted by PTCGL and Limitless
+   - Cached for 24 hours (cache key `tcgdex.reverse_set_mapping.v2`)
 
 ### Static Overrides
 
