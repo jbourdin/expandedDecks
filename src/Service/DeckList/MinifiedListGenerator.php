@@ -51,10 +51,13 @@ class MinifiedListGenerator
     /**
      * Generate the minified PTCGL text for a DeckVersion.
      */
+    private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
+    private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
+
     public function generate(DeckVersion $version): string
     {
-        // Key: "name|setCode|cardNumber" → aggregated quantity
-        /** @var array<string, array{quantity: int, name: string, setCode: string, cardNumber: string}> $merged */
+        // Key: "name|setCode|cardNumber" → aggregated data
+        /** @var array<string, array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}> $merged */
         $merged = [];
 
         foreach ($version->getCards() as $card) {
@@ -68,9 +71,35 @@ class MinifiedListGenerator
             }
         }
 
+        // Sort: Pokemon → Trainer (supporter, item, tool, stadium) → Energy, then qty desc, name asc
+        $entries = array_values($merged);
+        usort($entries, static function (array $entryA, array $entryB): int {
+            $typeA = self::TYPE_ORDER[$entryA['cardType']] ?? 3;
+            $typeB = self::TYPE_ORDER[$entryB['cardType']] ?? 3;
+
+            if ($typeA !== $typeB) {
+                return $typeA <=> $typeB;
+            }
+
+            if ('trainer' === $entryA['cardType']) {
+                $subtypeA = self::TRAINER_SUBTYPE_ORDER[strtolower((string) $entryA['trainerSubtype'])] ?? 4;
+                $subtypeB = self::TRAINER_SUBTYPE_ORDER[strtolower((string) $entryB['trainerSubtype'])] ?? 4;
+
+                if ($subtypeA !== $subtypeB) {
+                    return $subtypeA <=> $subtypeB;
+                }
+            }
+
+            if ($entryA['quantity'] !== $entryB['quantity']) {
+                return $entryB['quantity'] <=> $entryA['quantity'];
+            }
+
+            return $entryA['name'] <=> $entryB['name'];
+        });
+
         $lines = [];
 
-        foreach ($merged as $entry) {
+        foreach ($entries as $entry) {
             $lines[] = $this->formatLine($entry['quantity'], $entry['name'], $entry['setCode'], $entry['cardNumber']);
         }
 
@@ -78,7 +107,7 @@ class MinifiedListGenerator
     }
 
     /**
-     * @return array{quantity: int, name: string, setCode: string, cardNumber: string}
+     * @return array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
@@ -87,6 +116,8 @@ class MinifiedListGenerator
             'name' => $card->getCardName(),
             'setCode' => $card->getSetCode(),
             'cardNumber' => $card->getCardNumber(),
+            'cardType' => $card->getCardType(),
+            'trainerSubtype' => $card->getTrainerSubtype(),
         ];
 
         $printing = $card->getCardPrinting();
@@ -129,6 +160,8 @@ class MinifiedListGenerator
             'name' => $card->getCardName(),
             'setCode' => $setCode,
             'cardNumber' => $bestPrinting->getCardNumber(),
+            'cardType' => $card->getCardType(),
+            'trainerSubtype' => $card->getTrainerSubtype(),
         ];
     }
 
