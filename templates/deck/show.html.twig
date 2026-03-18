@@ -245,70 +245,77 @@
         </div>
     {% endif %}
 
-    {# Card list — view toggle between table and mosaic #}
+    {# Card list — React island with variant toggle, mosaic, and copy #}
     {% if deck.currentVersion and groupedCards|length > 0 %}
-        {% set hasMosaic = deck.currentVersion.mosaicImageUrl is not null %}
-        {% set pokemonCards = groupedCards.pokemon|default([]) %}
-        {% set trainerCards = groupedCards.trainer|default([]) %}
-        {% set energyCards = groupedCards.energy|default([]) %}
-        {% set energyInLeft = pokemonCards|length <= trainerCards|length %}
-
-        {# View mode toggle + export button #}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyList" title="{{ 'app.deck.export_copy_tooltip'|trans }}">
-                    {{ 'app.deck.export_copy'|trans }}
-                </button>
-                <span class="text-success small ms-2" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
-                <pre id="deckRawList" class="d-none">{{ deck.currentVersion.rawList }}</pre>
-            </div>
-            {% if hasMosaic %}
-                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.view_toggle'|trans }}">
-                    <button type="button" class="btn btn-outline-secondary active" id="deckViewTable" aria-pressed="true">
-                        {{ 'app.deck.view_table'|trans }}
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" id="deckViewMosaic" aria-pressed="false">
-                        {{ 'app.deck.view_mosaic'|trans }}
-                    </button>
-                </div>
+        {# Warning: cards matched by name only (Japanese/unrecognized set codes) #}
+        {% set allCards = [] %}
+        {% for type, cards in groupedCards %}
+            {% set allCards = allCards|merge(cards) %}
+        {% endfor %}
+        {% set nameMatchedCards = [] %}
+        {% for card in allCards %}
+            {% if card.imageUrl is not null and card.tcgdexId is null and card.cardType != 'energy' %}
+                {% set nameMatchedCards = nameMatchedCards|merge([card]) %}
             {% endif %}
-        </div>
-
-        {# Table view #}
-        <div id="deckTableView">
-            <div class="row">
-                {# Left column: Pokemon + Energy if pokemon is shorter #}
-                <div class="col-md-6 mb-3">
-                    {% if pokemonCards|length > 0 %}
-                        {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
-                    {% endif %}
-                    {% if energyInLeft and energyCards|length > 0 %}
-                        <div class="mt-3">
-                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                        </div>
-                    {% endif %}
-                </div>
-
-                {# Right column: Trainer + Energy if trainer is shorter #}
-                <div class="col-md-6 mb-3">
-                    {% if trainerCards|length > 0 %}
-                        {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
-                    {% endif %}
-                    {% if not energyInLeft and energyCards|length > 0 %}
-                        <div class="mt-3">
-                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        {# Mosaic view #}
-        {% if hasMosaic %}
-            <div id="deckMosaicView" class="text-center" style="display: none;">
-                <img src="{{ deck.currentVersion.mosaicImageUrl }}" alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}" class="img-fluid rounded shadow-sm">
+        {% endfor %}
+        {% if nameMatchedCards|length > 0 %}
+            <div class="alert alert-warning mb-2">
+                <strong>{{ 'app.deck.name_match_warning_title'|trans }}</strong>
+                {{ 'app.deck.name_match_warning_body'|trans }}
+                <ul class="mb-0 mt-1">
+                    {% for card in nameMatchedCards %}
+                        <li>{{ card.cardName }} ({{ card.setCode }} {{ card.cardNumber }})</li>
+                    {% endfor %}
+                </ul>
             </div>
         {% endif %}
+
+        {# Serialize card data for React island #}
+        {% macro serializeCards(groupedCards) %}
+            {% set serialized = {} %}
+            {% for type, cards in groupedCards %}
+                {% set cardList = [] %}
+                {% for card in cards %}
+                    {% set cardList = cardList|merge([{
+                        cardName: card.cardName,
+                        quantity: card.quantity,
+                        setCode: card.setCode,
+                        cardNumber: card.cardNumber,
+                        cardType: card.cardType,
+                        trainerSubtype: card.trainerSubtype,
+                        imageUrl: card.imageUrl,
+                    }]) %}
+                {% endfor %}
+                {% set serialized = serialized|merge({(type): cardList}) %}
+            {% endfor %}
+            {{ serialized|json_encode }}
+        {% endmacro %}
+
+        <div id="deck-card-list-root"
+             data-original-cards="{{ _self.serializeCards(groupedCards)|trim }}"
+             data-minified-cards="{{ _self.serializeCards(minifiedGroupedCards)|trim }}"
+             data-mosaic-url="{{ deck.currentVersion.mosaicImageUrl }}"
+             data-minified-mosaic-url="{{ deck.currentVersion.minifiedMosaicImageUrl }}"
+             data-raw-list="{{ deck.currentVersion.rawList|e('html_attr') }}"
+             data-minified-list="{{ deck.currentVersion.minifiedList|e('html_attr') }}"
+             data-deck-name="{{ deck.name }}"
+             data-label-variant-original="{{ 'app.deck.variant_original'|trans }}"
+             data-label-variant-minified="{{ 'app.deck.variant_minified'|trans }}"
+             data-label-view-table="{{ 'app.deck.view_table'|trans }}"
+             data-label-view-mosaic="{{ 'app.deck.view_mosaic'|trans }}"
+             data-label-copy-button="{{ 'app.deck.export_copy_button'|trans }}"
+             data-label-copied="{{ 'app.deck.export_copied'|trans }}"
+             data-label-share-mosaic="{{ 'app.deck.share_mosaic'|trans }}"
+             data-label-mosaic-alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}"
+             data-label-section-pokemon="{{ 'app.deck.section_pokemon'|trans }}"
+             data-label-section-trainer="{{ 'app.deck.section_trainer'|trans }}"
+             data-label-section-energy="{{ 'app.deck.section_energy'|trans }}"
+             data-label-table-qty="{{ 'app.deck.table_qty'|trans }}"
+             data-label-table-card="{{ 'app.deck.table_card'|trans }}"
+             data-label-table-set="{{ 'app.deck.table_set'|trans }}"
+             data-label-name-match-warning-title="{{ 'app.deck.name_match_warning_title'|trans }}"
+             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}">
+        </div>
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
@@ -338,7 +345,12 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('deck_card_list') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('deck_show') }}
+    {{ encore_entry_script_tags('deck_card_list') }}
 {% endblock %}

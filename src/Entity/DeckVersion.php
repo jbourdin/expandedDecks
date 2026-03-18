@@ -58,6 +58,12 @@ class DeckVersion
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $mosaicImageUrl = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $minifiedList = null;
+
+    #[ORM\Column(length: 512, nullable: true)]
+    private ?string $minifiedMosaicImageUrl = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -156,6 +162,30 @@ class DeckVersion
     public function setMosaicImageUrl(?string $mosaicImageUrl): static
     {
         $this->mosaicImageUrl = $mosaicImageUrl;
+
+        return $this;
+    }
+
+    public function getMinifiedList(): ?string
+    {
+        return $this->minifiedList;
+    }
+
+    public function setMinifiedList(?string $minifiedList): static
+    {
+        $this->minifiedList = $minifiedList;
+
+        return $this;
+    }
+
+    public function getMinifiedMosaicImageUrl(): ?string
+    {
+        return $this->minifiedMosaicImageUrl;
+    }
+
+    public function setMinifiedMosaicImageUrl(?string $minifiedMosaicImageUrl): static
+    {
+        $this->minifiedMosaicImageUrl = $minifiedMosaicImageUrl;
 
         return $this;
     }

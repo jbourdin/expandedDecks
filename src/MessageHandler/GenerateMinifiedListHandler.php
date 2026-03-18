@@ -13,35 +13,33 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
-use App\Message\GenerateDeckMosaicMessage;
+use App\Message\GenerateMinifiedListMessage;
 use App\Repository\DeckVersionRepository;
-use App\Service\Mosaic\MosaicGenerator;
-use App\Service\Mosaic\MosaicUrlResolver;
+use App\Service\DeckList\MinifiedListGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @see docs/features.md F6.6 — Visual deck list (card mosaic)
+ * @see docs/features.md F6.8 — Minified deck list export
  */
 #[AsMessageHandler]
-class GenerateDeckMosaicHandler
+class GenerateMinifiedListHandler
 {
     public function __construct(
-        private readonly MosaicGenerator $mosaicGenerator,
-        private readonly MosaicUrlResolver $mosaicUrlResolver,
+        private readonly MinifiedListGenerator $listGenerator,
         private readonly DeckVersionRepository $versionRepo,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
     ) {
     }
 
-    public function __invoke(GenerateDeckMosaicMessage $message): void
+    public function __invoke(GenerateMinifiedListMessage $message): void
     {
         $version = $this->versionRepo->find($message->deckVersionId);
 
         if (null === $version) {
-            $this->logger->warning('DeckVersion #{id} not found for mosaic generation.', [
+            $this->logger->warning('DeckVersion #{id} not found for minified list generation.', [
                 'id' => $message->deckVersionId,
             ]);
 
@@ -49,22 +47,23 @@ class GenerateDeckMosaicHandler
         }
 
         if ('done' !== $version->getEnrichmentStatus()) {
-            $this->logger->info('DeckVersion #{id} not fully enriched (status: {status}), skipping mosaic.', [
+            $this->logger->info('DeckVersion #{id} not fully enriched, skipping minified list.', [
                 'id' => $message->deckVersionId,
-                'status' => $version->getEnrichmentStatus(),
             ]);
 
             return;
         }
 
         try {
-            $this->mosaicGenerator->generate($version);
-            $publicUrl = $this->mosaicUrlResolver->resolveForVersion($version);
-
-            $version->setMosaicImageUrl($publicUrl);
+            $minifiedList = $this->listGenerator->generate($version);
+            $version->setMinifiedList($minifiedList);
             $this->entityManager->flush();
+
+            $this->logger->info('Minified list generated for DeckVersion #{id}.', [
+                'id' => $message->deckVersionId,
+            ]);
         } catch (\Throwable $exception) {
-            $this->logger->error('Mosaic generation failed for DeckVersion #{id}: {error}', [
+            $this->logger->error('Minified list generation failed for DeckVersion #{id}: {error}', [
                 'id' => $message->deckVersionId,
                 'error' => $exception->getMessage(),
                 'exception' => $exception,

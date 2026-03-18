@@ -452,9 +452,69 @@
                 <target>Paste a deck list to import it immediately. Leave empty to add one later.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_title">
+                <source>app.deck.name_match_warning_title</source>
+                <target>Some cards use non-international set codes.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_body">
+                <source>app.deck.name_match_warning_body</source>
+                <target>The following cards were matched by name only — the displayed image may not correspond to the exact card version. Please re-import the deck list using international (English) set codes for accurate matching.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_toggle">
+                <source>app.deck.variant_toggle</source>
+                <target>Card variant</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_original">
+                <source>app.deck.variant_original</source>
+                <target>Original</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_minified">
+                <source>app.deck.variant_minified</source>
+                <target>Minified</target>
+            </trans-unit>
+            <trans-unit id="app.deck.share_mosaic">
+                <source>app.deck.share_mosaic</source>
+                <target>Share mosaic image</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_button">
+                <source>app.deck.export_copy_button</source>
+                <target>Copy list</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
-                <target>Copy list</target>
+                <target>Copy original list</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_minified">
+                <source>app.deck.export_copy_minified</source>
+                <target>Copy minified list</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_minified_tooltip">
+                <source>app.deck.export_minified_tooltip</source>
+                <target>Copy a budget-friendly version using the cheapest printings</target>
+            </trans-unit>
+            <trans-unit id="app.deck.table_variant_toggle">
+                <source>app.deck.table_variant_toggle</source>
+                <target>Table variant</target>
+            </trans-unit>
+            <trans-unit id="app.deck.table_original">
+                <source>app.deck.table_original</source>
+                <target>Original</target>
+            </trans-unit>
+            <trans-unit id="app.deck.table_minified">
+                <source>app.deck.table_minified</source>
+                <target>Minified</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_variant_toggle">
+                <source>app.deck.mosaic_variant_toggle</source>
+                <target>Mosaic variant</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_original">
+                <source>app.deck.mosaic_original</source>
+                <target>Original</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_minified">
+                <source>app.deck.mosaic_minified</source>
+                <target>Minified</target>
             </trans-unit>
             <trans-unit id="app.deck.export_copy_tooltip">
                 <source>app.deck.export_copy_tooltip</source>
@@ -3820,6 +3880,30 @@
             <trans-unit id="app.admin.technical.banned_cards.failed">
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.title">
+                <source>app.admin.technical.flush.title</source>
+                <target>Flush All Enrichment Data</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.description">
+                <source>app.admin.technical.flush.description</source>
+                <target>Reset all deck versions to pre-enrichment state. This clears card images, TCGdex IDs, trainer subtypes, card identities, card printings, mosaic images, and minified lists.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.warning">
+                <source>app.admin.technical.flush.warning</source>
+                <target>This action is destructive and cannot be undone. All enrichment data will be deleted. You will need to re-enrich all deck versions afterwards.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.confirm">
+                <source>app.admin.technical.flush.confirm</source>
+                <target>Are you sure you want to flush ALL enrichment data? This cannot be undone.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.button">
+                <source>app.admin.technical.flush.button</source>
+                <target>Flush all enrichment data</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.success">
+                <source>app.admin.technical.flush.success</source>
+                <target>All enrichment data has been flushed. Use "Retry all enrichments" to re-enrich.</target>
             </trans-unit>
         </body>
     </file>

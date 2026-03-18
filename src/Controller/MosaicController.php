@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Deck;
+use App\Repository\DeckRepository;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,13 +33,20 @@ class MosaicController
 
     public function __construct(
         private readonly FilesystemOperator $mosaicStorage,
+        private readonly DeckRepository $deckRepository,
     ) {
     }
 
-    #[Route('/mosaic/{deckId}/{versionId}.png', name: 'app_mosaic_show', requirements: ['deckId' => '\d+', 'versionId' => '\d+'], methods: ['GET'])]
-    public function show(int $deckId, int $versionId): Response
+    #[Route('/mosaic/{shortTag}/{versionId}.png', name: 'app_mosaic_show', requirements: ['shortTag' => '[A-HJ-NP-Z0-9]{6}', 'versionId' => '\d+(_\w+)?'], methods: ['GET'])]
+    public function show(string $shortTag, string $versionId): Response
     {
-        $path = \sprintf('mosaic/%d/%d.png', $deckId, $versionId);
+        $deck = $this->deckRepository->findOneBy(['shortTag' => $shortTag]);
+
+        if (!$deck instanceof Deck) {
+            throw new NotFoundHttpException('Deck not found.');
+        }
+
+        $path = \sprintf('mosaic/%d/%s.png', $deck->getId(), $versionId);
 
         try {
             if (!$this->mosaicStorage->fileExists($path)) {

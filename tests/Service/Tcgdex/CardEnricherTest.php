@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\Tcgdex\CardEnricher;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
@@ -27,11 +29,14 @@ use PHPUnit\Framework\TestCase;
 class CardEnricherTest extends TestCase
 {
     private EntityManagerInterface $em;
+    private CardIdentityResolver $identityResolver;
 
     protected function setUp(): void
     {
         $this->em = $this->createStub(EntityManagerInterface::class);
         $this->em->method('flush');
+        $this->identityResolver = $this->createStub(CardIdentityResolver::class);
+        $this->identityResolver->method('resolveFromTcgdexCard')->willReturn(new CardPrinting());
     }
 
     public function testEnrichVersionSetsFieldsCorrectly(): void
@@ -56,7 +61,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -91,7 +96,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $enricher->enrichVersion($version);
 
         self::assertSame('Supporter', $card->getTrainerSubtype());
@@ -111,7 +116,7 @@ class CardEnricherTest extends TestCase
         $apiClient = $this->createMock(TcgdexApiClient::class);
         $apiClient->expects(self::never())->method('findCard');
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -132,7 +137,7 @@ class CardEnricherTest extends TestCase
 
         $apiClient = $this->createStub(TcgdexApiClient::class);
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -153,7 +158,7 @@ class CardEnricherTest extends TestCase
         $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(0, $report->enrichedCount);
@@ -184,7 +189,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: false,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertCount(1, $report->legalityWarnings);
@@ -218,7 +223,7 @@ class CardEnricherTest extends TestCase
             ->with('Double Colorless Energy')
             ->willReturn('https://assets.tcgdex.net/en/xy/xy1/130/high.webp');
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -250,7 +255,7 @@ class CardEnricherTest extends TestCase
         $apiClient->expects(self::never())
             ->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $enricher->enrichVersion($version);
 
         self::assertSame('https://assets.tcgdex.net/en/swsh/swsh9/123/high.webp', $card->getImageUrl());
@@ -271,7 +276,7 @@ class CardEnricherTest extends TestCase
         $apiClient->method('findCard')
             ->willThrowException(new \RuntimeException('API error'));
 
-        $enricher = new CardEnricher($apiClient, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
 
         self::expectException(\RuntimeException::class);
         self::expectExceptionMessage('API error');
