@@ -724,22 +724,15 @@ MARKDOWN;
         // Add Crushing Hammer
         $cardsVersion2[] = ['name' => 'Crushing Hammer', 'set' => 'SSH', 'number' => '159', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'];
 
+        $this->applyQuantityOverrides($cardsVersion2, ['Plumeria' => 3, 'Enhanced Hammer' => 3]);
+        $version->setRawList($this->buildRawList($cardsVersion2));
+
         foreach ($cardsVersion2 as $cardData) {
             $card = new DeckCard();
             $card->setCardName($cardData['name']);
             $card->setSetCode($cardData['set']);
             $card->setCardNumber($cardData['number']);
-
-            // Apply quantity changes
-            $quantity = $cardData['quantity'];
-            if ('Plumeria' === $cardData['name']) {
-                $quantity = 3;
-            }
-            if ('Enhanced Hammer' === $cardData['name']) {
-                $quantity = 3;
-            }
-
-            $card->setQuantity($quantity);
+            $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
             $card->setTrainerSubtype($cardData['subtype']);
 
@@ -776,27 +769,15 @@ MARKDOWN;
         // Add Lightning Energy
         $cardsVersion3[] = ['name' => 'Lightning Energy', 'set' => 'SVE', 'number' => '4', 'quantity' => 2, 'type' => 'energy', 'subtype' => null];
 
+        $this->applyQuantityOverrides($cardsVersion3, ['Plumeria' => 3, 'Enhanced Hammer' => 3, 'Chaotic Swell' => 2, 'VS Seeker' => 4]);
+        $version->setRawList($this->buildRawList($cardsVersion3));
+
         foreach ($cardsVersion3 as $cardData) {
             $card = new DeckCard();
             $card->setCardName($cardData['name']);
             $card->setSetCode($cardData['set']);
             $card->setCardNumber($cardData['number']);
-
-            $quantity = $cardData['quantity'];
-            if ('Plumeria' === $cardData['name']) {
-                $quantity = 3; // same as v2
-            }
-            if ('Enhanced Hammer' === $cardData['name']) {
-                $quantity = 3; // same as v2
-            }
-            if ('Chaotic Swell' === $cardData['name']) {
-                $quantity = 2; // was 3 in v1/v2
-            }
-            if ('VS Seeker' === $cardData['name']) {
-                $quantity = 4; // was 3 in v1/v2
-            }
-
-            $card->setQuantity($quantity);
+            $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
             $card->setTrainerSubtype($cardData['subtype']);
 
@@ -831,21 +812,15 @@ MARKDOWN;
         $cardsVersion2[] = ['name' => 'Giratina VSTAR', 'set' => 'LOR', 'number' => '131', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null];
         $cardsVersion2[] = ['name' => 'Float Stone', 'set' => 'PLF', 'number' => '99', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'];
 
+        $this->applyQuantityOverrides($cardsVersion2, ['Guzma' => 1, "Professor's Research" => 4]);
+        $version->setRawList($this->buildRawList($cardsVersion2));
+
         foreach ($cardsVersion2 as $cardData) {
             $card = new DeckCard();
             $card->setCardName($cardData['name']);
             $card->setSetCode($cardData['set']);
             $card->setCardNumber($cardData['number']);
-
-            $quantity = $cardData['quantity'];
-            if ('Guzma' === $cardData['name']) {
-                $quantity = 1; // was 2
-            }
-            if ("Professor's Research" === $cardData['name']) {
-                $quantity = 4; // was 3
-            }
-
-            $card->setQuantity($quantity);
+            $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
             $card->setTrainerSubtype($cardData['subtype']);
 
@@ -1831,5 +1806,36 @@ Energy: 8
 
 Total Cards: 59
 DECK;
+    }
+
+    /**
+     * Build a PTCGL-formatted raw deck list from a card data array.
+     *
+     * @param list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> $cards
+     */
+    private function buildRawList(array $cards): string
+    {
+        $lines = [];
+
+        foreach ($cards as $card) {
+            $lines[] = \sprintf('%d %s %s %s', $card['quantity'], $card['name'], $card['set'], $card['number']);
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Apply quantity overrides to a card data array (by card name).
+     *
+     * @param list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> &$cards
+     * @param array<string, int>                                                                                        $overrides card name => new quantity
+     */
+    private function applyQuantityOverrides(array &$cards, array $overrides): void
+    {
+        foreach ($cards as &$card) {
+            if (isset($overrides[$card['name']])) {
+                $card['quantity'] = $overrides[$card['name']];
+            }
+        }
     }
 }

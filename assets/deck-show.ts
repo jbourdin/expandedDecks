@@ -61,3 +61,29 @@ function initViewToggle(): void {
 }
 
 initViewToggle();
+
+/**
+ * @see docs/features.md F6.7 — Export deck list as PTCGL text
+ */
+function initCopyList(): void {
+    const copyButton = document.getElementById('deckCopyList');
+    const rawList = document.getElementById('deckRawList');
+    const feedback = document.getElementById('deckCopyFeedback');
+
+    if (!copyButton || !rawList || !feedback) {
+        return;
+    }
+
+    copyButton.addEventListener('click', () => {
+        const text = rawList.textContent?.trim() ?? '';
+
+        navigator.clipboard.writeText(text).then(() => {
+            feedback.style.display = '';
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 2000);
+        });
+    });
+}
+
+initCopyList();

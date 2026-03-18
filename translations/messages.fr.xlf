@@ -452,6 +452,18 @@
                 <target>Collez une liste pour l&apos;importer immédiatement. Laissez vide pour en ajouter une plus tard.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.export_copy">
+                <source>app.deck.export_copy</source>
+                <target>Copier la liste</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_tooltip">
+                <source>app.deck.export_copy_tooltip</source>
+                <target>Copier la liste du deck au format PTCGL dans le presse-papiers</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copied">
+                <source>app.deck.export_copied</source>
+                <target>Copié !</target>
+            </trans-unit>
             <trans-unit id="app.deck.view_toggle">
                 <source>app.deck.view_toggle</source>
                 <target>Mode d'affichage</target>

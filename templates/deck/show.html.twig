@@ -253,9 +253,16 @@
         {% set energyCards = groupedCards.energy|default([]) %}
         {% set energyInLeft = pokemonCards|length <= trainerCards|length %}
 
-        {# View mode toggle #}
-        {% if hasMosaic %}
-            <div class="d-flex justify-content-end mb-2">
+        {# View mode toggle + export button #}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyList" title="{{ 'app.deck.export_copy_tooltip'|trans }}">
+                    {{ 'app.deck.export_copy'|trans }}
+                </button>
+                <span class="text-success small ms-2" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
+                <pre id="deckRawList" class="d-none">{{ deck.currentVersion.rawList }}</pre>
+            </div>
+            {% if hasMosaic %}
                 <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.view_toggle'|trans }}">
                     <button type="button" class="btn btn-outline-secondary active" id="deckViewTable" aria-pressed="true">
                         {{ 'app.deck.view_table'|trans }}
@@ -264,8 +271,8 @@
                         {{ 'app.deck.view_mosaic'|trans }}
                     </button>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
 
         {# Table view #}
         <div id="deckTableView">

@@ -27,9 +27,10 @@ F10.1, F10.2,
 F11.1, F11.2, F11.3,
 F14.1, F14.2, F14.3, F14.4, F14.5, F14.6, F14.7,
 F6.5-fix,
+F6.6, F6.7,
 F9.6
 
-**Total: 84 features done.**
+**Total: 86 features done.**
 
 ---
 
@@ -86,13 +87,14 @@ F9.6
 |-------|-----------------------------------------|----------|------------------|
 | F4.6  | Overdue tracking                        | Low      | F4.4             |
 | F7.5  | Registered decks aggregate view         | Low      | F7.1             |
-| F6.6  | Visual deck list (card mosaic)          | Low      | F6.4             |
+| F6.6  | Visual deck list (card mosaic)          | Low      | F6.4             | Done |
+| F6.7  | Export deck list as PTCGL text (simple)  | Low      | F2.2             | Done |
 | F13.1 | Bookmark a deck                         | Low      | F2.4             |
 | F13.2 | Bookmark an event                       | Low      | F3.2             |
 | F13.3 | Bookmark an archetype                   | Low      | F2.16            |
 | F9.6  | Archetype localization                  | Medium   | F2.6, F9.3       | Done |
 
-**Progress: 1/7 done**
+**Progress: 3/8 done**
 
 **Deliverable:** Overdue tracking with automated reminders, bookmarks for quick access to decks/events/archetypes, registered decks aggregate view for organizers, a visual card mosaic alternative for deck lists, and localized archetype names and descriptions.
 
@@ -198,6 +200,21 @@ F9.6
 
 ---
 
+## Phase H — Export & Recovery
+
+> Advanced deck list export and deck recovery workflow.
+
+| ID    | Feature                        | Priority | Depends on       |
+|-------|--------------------------------|----------|------------------|
+| F6.8  | Optimized deck list export     | Low      | F6.7             |
+| F4.16 | Lost & found deck alert        | Low      | F4.4, F8.1       |
+
+**Progress: 0/2 done**
+
+**Deliverable:** Optimized deck list export that substitutes lowest-rarity printings for easy PTCGL import. Lost-and-found alert system enabling anyone (including anonymous visitors) to report finding a deck, notifying the owner and borrower for quick physical recovery.
+
+---
+
 ## Cross-Cutting: Testing Infrastructure
 
 | Item                                  | State       | Notes                                  |
@@ -215,13 +232,14 @@ F9.6
 | Phase | Name                            | Features | Target       |
 |-------|---------------------------------|----------|--------------|
 | 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
-| A     | UX Polish & Overdue Tracking    | 6 (+1 Done) |           |
+| A     | UX Polish & Overdue Tracking    | 5 (+3 Done) |           |
 | B     | Event Enrichment                | 4        |              |
 | C     | PDF Labels & Camera Scanning    | 2        |              |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-|       | **Total remaining**             | **27**   |              |
+| H     | Export & Recovery               | 2        |              |
+|       | **Total remaining**             | **28**   |              |
 
-84 features done · 27 remaining.
+86 features done · 28 remaining.
