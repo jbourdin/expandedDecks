@@ -245,38 +245,70 @@
         </div>
     {% endif %}
 
-    {# Card list — 2 columns on md+, energy under the shortest column #}
+    {# Card list — view toggle between table and mosaic #}
     {% if deck.currentVersion and groupedCards|length > 0 %}
+        {% set hasMosaic = deck.currentVersion.mosaicImageUrl is not null %}
         {% set pokemonCards = groupedCards.pokemon|default([]) %}
         {% set trainerCards = groupedCards.trainer|default([]) %}
         {% set energyCards = groupedCards.energy|default([]) %}
         {% set energyInLeft = pokemonCards|length <= trainerCards|length %}
 
-        <div class="row">
-            {# Left column: Pokemon + Energy if pokemon is shorter #}
-            <div class="col-md-6 mb-3">
-                {% if pokemonCards|length > 0 %}
-                    {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
-                {% endif %}
-                {% if energyInLeft and energyCards|length > 0 %}
-                    <div class="mt-3">
-                        {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                    </div>
-                {% endif %}
+        {# View mode toggle + export button #}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="deckCopyList" title="{{ 'app.deck.export_copy_tooltip'|trans }}">
+                    {{ 'app.deck.export_copy'|trans }}
+                </button>
+                <span class="text-success small ms-2" id="deckCopyFeedback" style="display: none;">{{ 'app.deck.export_copied'|trans }}</span>
+                <pre id="deckRawList" class="d-none">{{ deck.currentVersion.rawList }}</pre>
             </div>
+            {% if hasMosaic %}
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.view_toggle'|trans }}">
+                    <button type="button" class="btn btn-outline-secondary active" id="deckViewTable" aria-pressed="true">
+                        {{ 'app.deck.view_table'|trans }}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="deckViewMosaic" aria-pressed="false">
+                        {{ 'app.deck.view_mosaic'|trans }}
+                    </button>
+                </div>
+            {% endif %}
+        </div>
 
-            {# Right column: Trainer + Energy if trainer is shorter #}
-            <div class="col-md-6 mb-3">
-                {% if trainerCards|length > 0 %}
-                    {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
-                {% endif %}
-                {% if not energyInLeft and energyCards|length > 0 %}
-                    <div class="mt-3">
-                        {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                    </div>
-                {% endif %}
+        {# Table view #}
+        <div id="deckTableView">
+            <div class="row">
+                {# Left column: Pokemon + Energy if pokemon is shorter #}
+                <div class="col-md-6 mb-3">
+                    {% if pokemonCards|length > 0 %}
+                        {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
+                    {% endif %}
+                    {% if energyInLeft and energyCards|length > 0 %}
+                        <div class="mt-3">
+                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Right column: Trainer + Energy if trainer is shorter #}
+                <div class="col-md-6 mb-3">
+                    {% if trainerCards|length > 0 %}
+                        {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
+                    {% endif %}
+                    {% if not energyInLeft and energyCards|length > 0 %}
+                        <div class="mt-3">
+                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
+
+        {# Mosaic view #}
+        {% if hasMosaic %}
+            <div id="deckMosaicView" class="text-center" style="display: none;">
+                <img src="{{ deck.currentVersion.mosaicImageUrl }}" alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': deck.name}) }}" class="img-fluid rounded shadow-sm">
+            </div>
+        {% endif %}
     {% else %}
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">

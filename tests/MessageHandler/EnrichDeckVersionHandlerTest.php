@@ -21,6 +21,8 @@ use App\Service\Tcgdex\CardEnricher;
 use App\Service\Tcgdex\CardEnrichmentReport;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
@@ -29,6 +31,7 @@ class EnrichDeckVersionHandlerTest extends TestCase
 {
     private CardEnricher $cardEnricher;
     private DeckVersionRepository $versionRepository;
+    private MessageBusInterface $messageBus;
     private LoggerInterface $logger;
     private EnrichDeckVersionHandler $handler;
 
@@ -36,11 +39,14 @@ class EnrichDeckVersionHandlerTest extends TestCase
     {
         $this->cardEnricher = $this->createStub(CardEnricher::class);
         $this->versionRepository = $this->createStub(DeckVersionRepository::class);
+        $this->messageBus = $this->createStub(MessageBusInterface::class);
+        $this->messageBus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->handler = new EnrichDeckVersionHandler(
             $this->cardEnricher,
             $this->versionRepository,
+            $this->messageBus,
             $this->logger,
         );
     }

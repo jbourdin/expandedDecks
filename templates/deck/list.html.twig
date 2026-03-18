@@ -94,7 +94,7 @@
         <div class="row">
             {% for deck in decks %}
                 <div class="col-sm-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm{% if deck.currentVersion and deck.currentVersion.mosaicImageUrl %} deck-mosaic-hover{% endif %}">
                         <div class="card-body">
                             <h5 class="card-title">
                                 <span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>
@@ -109,6 +109,9 @@
                                 </p>
                             {% endif %}
                         </div>
+                        {% if deck.currentVersion and deck.currentVersion.mosaicImageUrl %}
+                            <img class="deck-mosaic-hover-img" src="{{ deck.currentVersion.mosaicImageUrl }}" alt="{{ deck.name }}">
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
