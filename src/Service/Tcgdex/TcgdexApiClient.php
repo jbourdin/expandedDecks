@@ -82,6 +82,23 @@ class TcgdexApiClient
     }
 
     /**
+     * Reverse mapping: TCGdex set ID → PTCG code.
+     *
+     * @return array<string, string>
+     */
+    public function getReverseSetMapping(): array
+    {
+        /** @var array<string, string> $reverse */
+        $reverse = $this->cache->get('tcgdex.reverse_set_mapping', function (ItemInterface $item): array {
+            $item->expiresAfter(86400);
+
+            return array_flip($this->getSetMapping());
+        });
+
+        return $reverse;
+    }
+
+    /**
      * Looks up a card by its PTCG set code and card number.
      */
     public function findCard(string $ptcgSetCode, string $cardNumber): ?TcgdexCard
@@ -321,6 +338,14 @@ class TcgdexApiClient
 
         $localId = isset($data['localId']) && \is_string($data['localId']) ? $data['localId'] : null;
 
+        // Resolve PTCG set code from TCGdex set ID via reverse mapping
+        $setCode = null;
+
+        if (null !== $setId) {
+            $reverseMapping = $this->getReverseSetMapping();
+            $setCode = $reverseMapping[$setId] ?? null;
+        }
+
         // Parse pricing: prefer Cardmarket avg, fall back to TCGPlayer mid
         $priceInCents = $this->parsePriceInCents($data);
 
@@ -335,6 +360,7 @@ class TcgdexApiClient
             attacks: $attacks,
             rarity: $rarity,
             setReleaseDate: $setReleaseDate,
+            setCode: $setCode,
             cardNumber: $localId,
             priceInCents: $priceInCents,
         );
