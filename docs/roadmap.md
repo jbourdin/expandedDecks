@@ -207,13 +207,14 @@ F9.6
 | ID    | Feature                            | Priority | Depends on       |
 |-------|------------------------------------|----------|------------------|
 | F6.10 | Card identity and printing model   | Medium   | F6.2             |
-| F6.8  | Optimized deck list export         | Low      | F6.7, F6.10      |
+| F6.8  | Minified deck list export          | Low      | F6.7, F6.10      |
+| F6.6b | Minified mosaic                    | Low      | F6.6, F6.10      |
 | F6.9  | Improved energy card enrichment    | Low      | F6.2             |
 | F4.16 | Lost & found deck alert            | Low      | F4.4, F8.1       |
 
-**Progress: 0/4 done**
+**Progress: 0/5 done**
 
-**Deliverable:** Card identity model grouping all printings of the same functional card (by name+HP+attacks for Pokemon, by name for Trainers/Energy). Optimized deck list export using lowest-rarity printings and budget mosaic variant. Improved energy card enrichment. Lost-and-found alert system.
+**Deliverable:** Card identity model grouping all printings of the same functional card (by name+HP+attacks for Pokemon, by name for Trainers/Energy). Minified deck list export and minified mosaic using lowest-rarity printings and latest basic energies. Improved energy card enrichment. Lost-and-found alert system.
 
 ---
 
@@ -241,7 +242,7 @@ F9.6
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-| H     | Export & Recovery               | 4        |              |
-|       | **Total remaining**             | **30**   |              |
+| H     | Export & Recovery               | 5        |              |
+|       | **Total remaining**             | **31**   |              |
 
-86 features done · 30 remaining.
+86 features done · 31 remaining.
