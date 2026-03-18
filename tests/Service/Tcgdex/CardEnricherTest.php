@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
-use App\Entity\CardPrinting;
 use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\Tcgdex\CardEnricher;
 use App\Service\Tcgdex\TcgdexApiClient;

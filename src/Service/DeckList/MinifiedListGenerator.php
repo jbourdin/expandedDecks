@@ -22,6 +22,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Generates a minified PTCGL deck list using the lowest-rarity printing of each card.
  *
+ * When multiple deck entries resolve to the same minified printing, their quantities
+ * are summed into a single line.
+ *
  * @see docs/features.md F6.8 — Minified deck list export
  */
 class MinifiedListGenerator
@@ -50,23 +53,46 @@ class MinifiedListGenerator
      */
     public function generate(DeckVersion $version): string
     {
-        $lines = [];
+        // Key: "name|setCode|cardNumber" → aggregated quantity
+        /** @var array<string, array{quantity: int, name: string, setCode: string, cardNumber: string}> $merged */
+        $merged = [];
 
         foreach ($version->getCards() as $card) {
-            $line = $this->resolveMinifiedLine($card);
-            $lines[] = $line;
+            $resolved = $this->resolveMinifiedCard($card);
+            $key = \sprintf('%s|%s|%s', $resolved['name'], $resolved['setCode'], $resolved['cardNumber']);
+
+            if (isset($merged[$key])) {
+                $merged[$key]['quantity'] += $resolved['quantity'];
+            } else {
+                $merged[$key] = $resolved;
+            }
+        }
+
+        $lines = [];
+
+        foreach ($merged as $entry) {
+            $lines[] = $this->formatLine($entry['quantity'], $entry['name'], $entry['setCode'], $entry['cardNumber']);
         }
 
         return implode("\n", $lines);
     }
 
-    private function resolveMinifiedLine(DeckCard $card): string
+    /**
+     * @return array{quantity: int, name: string, setCode: string, cardNumber: string}
+     */
+    private function resolveMinifiedCard(DeckCard $card): array
     {
+        $default = [
+            'quantity' => $card->getQuantity(),
+            'name' => $card->getCardName(),
+            'setCode' => $card->getSetCode(),
+            'cardNumber' => $card->getCardNumber(),
+        ];
+
         $printing = $card->getCardPrinting();
 
         if (null === $printing) {
-            // No card printing linked — use original data
-            return $this->formatLine($card->getQuantity(), $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
+            return $default;
         }
 
         $identity = $printing->getCardIdentity();
@@ -76,7 +102,6 @@ class MinifiedListGenerator
             $this->identityResolver->expandPrintings($identity);
         }
 
-        // For basic energies, use the most recent printing
         if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
             $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
         } else {
@@ -84,13 +109,11 @@ class MinifiedListGenerator
         }
 
         if (null === $bestPrinting) {
-            // No Expanded-legal printing found — use original
-            return $this->formatLine($card->getQuantity(), $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
+            return $default;
         }
 
         $setCode = $bestPrinting->getSetCode();
 
-        // If the set code is empty (TCGdex doesn't have it), use the original
         if ('' === $setCode) {
             $setCode = $card->getSetCode();
         }
@@ -101,7 +124,12 @@ class MinifiedListGenerator
             'minified' => \sprintf('%s %s', $setCode, $bestPrinting->getCardNumber()),
         ]);
 
-        return $this->formatLine($card->getQuantity(), $card->getCardName(), $setCode, $bestPrinting->getCardNumber());
+        return [
+            'quantity' => $card->getQuantity(),
+            'name' => $card->getCardName(),
+            'setCode' => $setCode,
+            'cardNumber' => $bestPrinting->getCardNumber(),
+        ];
     }
 
     private function formatLine(int $quantity, string $name, string $setCode, string $cardNumber): string

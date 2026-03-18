@@ -19,6 +19,7 @@ use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\Mosaic\MosaicGenerator;
+use App\Service\Mosaic\MosaicTile;
 use App\Service\Mosaic\MosaicUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -34,6 +35,9 @@ class GenerateMinifiedMosaicHandler
         'Grass Energy', 'Fire Energy', 'Water Energy', 'Lightning Energy',
         'Psychic Energy', 'Fighting Energy', 'Darkness Energy', 'Metal Energy', 'Fairy Energy',
     ];
+
+    private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
+    private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
     public function __construct(
         private readonly MosaicGenerator $mosaicGenerator,
@@ -63,9 +67,9 @@ class GenerateMinifiedMosaicHandler
         }
 
         try {
-            $imageUrlOverrides = $this->buildImageOverrides($version->getCards()->toArray());
+            $tiles = $this->buildMergedTiles($version->getCards()->toArray());
 
-            $storagePath = $this->mosaicGenerator->generate($version, 'minified', $imageUrlOverrides);
+            $storagePath = $this->mosaicGenerator->generateFromTiles($version, $tiles, 'minified');
             $publicUrl = $this->mosaicUrlResolver->resolve($storagePath);
 
             $version->setMinifiedMosaicImageUrl($publicUrl);
@@ -82,42 +86,95 @@ class GenerateMinifiedMosaicHandler
     }
 
     /**
-     * Build a map of DeckCard ID → lowest-rarity image URL.
+     * Build merged MosaicTile list: resolve lowest-rarity image for each card,
+     * then merge tiles that resolve to the same image+name into one tile with summed quantity.
      *
      * @param array<int, DeckCard> $cards
      *
-     * @return array<int, string>
+     * @return list<MosaicTile>
      */
-    private function buildImageOverrides(array $cards): array
+    private function buildMergedTiles(array $cards): array
     {
-        $overrides = [];
+        /** @var array<string, array{name: string, quantity: int, imageUrl: ?string, cardType: string, trainerSubtype: ?string}> $merged */
+        $merged = [];
 
         foreach ($cards as $card) {
-            $cardId = $card->getId();
-            $printing = $card->getCardPrinting();
+            $imageUrl = $this->resolveMinifiedImageUrl($card);
+            $key = \sprintf('%s|%s', $card->getCardName(), $imageUrl ?? '');
 
-            if (null === $cardId || null === $printing) {
-                continue;
-            }
-
-            $identity = $printing->getCardIdentity();
-
-            // Expand printings if needed
-            if ($identity->getPrintings()->count() <= 1) {
-                $this->identityResolver->expandPrintings($identity);
-            }
-
-            if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-                $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
+            if (isset($merged[$key])) {
+                $merged[$key]['quantity'] += $card->getQuantity();
             } else {
-                $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-            }
-
-            if (null !== $bestPrinting && null !== $bestPrinting->getImageUrl()) {
-                $overrides[$cardId] = $bestPrinting->getImageUrl();
+                $merged[$key] = [
+                    'name' => $card->getCardName(),
+                    'quantity' => $card->getQuantity(),
+                    'imageUrl' => $imageUrl,
+                    'cardType' => $card->getCardType(),
+                    'trainerSubtype' => $card->getTrainerSubtype(),
+                ];
             }
         }
 
-        return $overrides;
+        $tiles = [];
+
+        foreach ($merged as $entry) {
+            $tiles[] = new MosaicTile(
+                $entry['name'],
+                $entry['quantity'],
+                $entry['imageUrl'],
+                $entry['cardType'],
+                $entry['trainerSubtype'],
+            );
+        }
+
+        // Sort: Pokemon → Trainer (supporter, item, tool, stadium) → Energy
+        usort($tiles, static function (MosaicTile $tileA, MosaicTile $tileB): int {
+            $typeA = self::TYPE_ORDER[$tileA->cardType] ?? 3;
+            $typeB = self::TYPE_ORDER[$tileB->cardType] ?? 3;
+
+            if ($typeA !== $typeB) {
+                return $typeA <=> $typeB;
+            }
+
+            if ('trainer' === $tileA->cardType) {
+                $subtypeA = self::TRAINER_SUBTYPE_ORDER[strtolower((string) $tileA->trainerSubtype)] ?? 4;
+                $subtypeB = self::TRAINER_SUBTYPE_ORDER[strtolower((string) $tileB->trainerSubtype)] ?? 4;
+
+                if ($subtypeA !== $subtypeB) {
+                    return $subtypeA <=> $subtypeB;
+                }
+            }
+
+            if ($tileA->quantity !== $tileB->quantity) {
+                return $tileB->quantity <=> $tileA->quantity;
+            }
+
+            return $tileA->cardName <=> $tileB->cardName;
+        });
+
+        return $tiles;
+    }
+
+    private function resolveMinifiedImageUrl(DeckCard $card): ?string
+    {
+        $printing = $card->getCardPrinting();
+
+        if (null === $printing) {
+            return $card->getImageUrl();
+        }
+
+        $identity = $printing->getCardIdentity();
+
+        if ($identity->getPrintings()->count() <= 1) {
+            $this->identityResolver->expandPrintings($identity);
+        }
+
+        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
+            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
+        } else {
+            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
+        }
+
+        return $bestPrinting?->getImageUrl() ?? $card->getImageUrl();
     }
 }
