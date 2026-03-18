@@ -92,10 +92,19 @@ class CardEnricher
 
                 // Fallback: if set+number lookup failed, try by card name
                 if (null === $tcgdexCard) {
-                    $imageUrl = $this->apiClient->findImageByName($card->getCardName());
+                    $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
 
-                    if (null !== $imageUrl) {
-                        $card->setImageUrl($imageUrl);
+                    if (null !== $tcgdexCard) {
+                        $card->setTcgdexId($tcgdexCard->id);
+                        $card->setImageUrl($tcgdexCard->imageUrl);
+
+                        if (null !== $tcgdexCard->trainerType) {
+                            $card->setTrainerSubtype($tcgdexCard->trainerType);
+                        }
+
+                        $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+                        $card->setCardPrinting($printing);
+
                         $legalityWarnings[] = \sprintf(
                             '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
                             $card->getCardName(),
@@ -196,5 +205,24 @@ class CardEnricher
 
         // Final fallback: static image map
         $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
+    }
+
+    /**
+     * Find the first exact-name-matching printing from TCGdex, returning a full TcgdexCard.
+     *
+     * Unlike findImageByName() which only returns a URL, this returns the complete
+     * card data needed for CardIdentity resolution.
+     */
+    private function findFirstPrintingByName(string $cardName): ?TcgdexCard
+    {
+        $printings = $this->apiClient->findAllPrintingsByName($cardName);
+
+        foreach ($printings as $printing) {
+            if ($printing->name === $cardName && null !== $printing->imageUrl) {
+                return $printing;
+            }
+        }
+
+        return null;
     }
 }
