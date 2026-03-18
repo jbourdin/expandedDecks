@@ -98,6 +98,40 @@ function initCopyList(): void {
 initCopyList();
 
 /**
+ * @see docs/features.md F6.8 — Minified deck list export
+ */
+function initTableVariantToggle(): void {
+    const originalButton = document.getElementById('tableOriginal');
+    const minifiedButton = document.getElementById('tableMinified');
+    const originalTable = document.getElementById('deckTableOriginal');
+    const minifiedTable = document.getElementById('deckTableMinified');
+
+    if (!originalButton || !minifiedButton || !originalTable || !minifiedTable) {
+        return;
+    }
+
+    originalButton.addEventListener('click', () => {
+        originalTable.style.display = '';
+        minifiedTable.style.display = 'none';
+        originalButton.classList.add('active');
+        originalButton.setAttribute('aria-pressed', 'true');
+        minifiedButton.classList.remove('active');
+        minifiedButton.setAttribute('aria-pressed', 'false');
+    });
+
+    minifiedButton.addEventListener('click', () => {
+        originalTable.style.display = 'none';
+        minifiedTable.style.display = '';
+        minifiedButton.classList.add('active');
+        minifiedButton.setAttribute('aria-pressed', 'true');
+        originalButton.classList.remove('active');
+        originalButton.setAttribute('aria-pressed', 'false');
+    });
+}
+
+initTableVariantToggle();
+
+/**
  * @see docs/features.md F6.6b — Minified mosaic
  */
 function initMosaicVariantToggle(): void {

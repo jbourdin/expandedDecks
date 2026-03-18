@@ -472,6 +472,18 @@
                 <source>app.deck.export_minified_tooltip</source>
                 <target>Copy a budget-friendly version using the cheapest printings</target>
             </trans-unit>
+            <trans-unit id="app.deck.table_variant_toggle">
+                <source>app.deck.table_variant_toggle</source>
+                <target>Table variant</target>
+            </trans-unit>
+            <trans-unit id="app.deck.table_original">
+                <source>app.deck.table_original</source>
+                <target>Original</target>
+            </trans-unit>
+            <trans-unit id="app.deck.table_minified">
+                <source>app.deck.table_minified</source>
+                <target>Minified</target>
+            </trans-unit>
             <trans-unit id="app.deck.mosaic_variant_toggle">
                 <source>app.deck.mosaic_variant_toggle</source>
                 <target>Mosaic variant</target>

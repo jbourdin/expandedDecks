@@ -22,6 +22,7 @@ use App\Repository\BorrowRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +45,7 @@ class DeckShowController extends AbstractController
         EventRepository $eventRepository,
         EventDeckEntryRepository $eventDeckEntryRepository,
         EventDeckRegistrationRepository $eventDeckRegistrationRepository,
+        MinifiedCardViewBuilder $minifiedCardViewBuilder,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -155,9 +157,16 @@ class DeckShowController extends AbstractController
 
         $activeBorrowCount = $isOwner ? $borrowRepository->countActiveBorrowsForDeck($deck) : 0;
 
+        $minifiedGroupedCards = [];
+
+        if (null !== $currentVersion && null !== $currentVersion->getMinifiedList()) {
+            $minifiedGroupedCards = $minifiedCardViewBuilder->buildGrouped($currentVersion);
+        }
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
+            'minifiedGroupedCards' => $minifiedGroupedCards,
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
             'totalBorrowCount' => $totalBorrowCount,

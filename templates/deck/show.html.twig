@@ -304,33 +304,81 @@
             {% endif %}
         </div>
 
+        {% set hasMinifiedTable = minifiedGroupedCards|length > 0 %}
+
         {# Table view #}
         <div id="deckTableView">
-            <div class="row">
-                {# Left column: Pokemon + Energy if pokemon is shorter #}
-                <div class="col-md-6 mb-3">
-                    {% if pokemonCards|length > 0 %}
-                        {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
-                    {% endif %}
-                    {% if energyInLeft and energyCards|length > 0 %}
-                        <div class="mt-3">
-                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                        </div>
-                    {% endif %}
+            {% if hasMinifiedTable %}
+                <div class="d-flex justify-content-center mb-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.deck.table_variant_toggle'|trans }}">
+                        <button type="button" class="btn btn-outline-secondary active" id="tableOriginal" aria-pressed="true">
+                            {{ 'app.deck.table_original'|trans }}
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="tableMinified" aria-pressed="false">
+                            {{ 'app.deck.table_minified'|trans }}
+                        </button>
+                    </div>
                 </div>
+            {% endif %}
 
-                {# Right column: Trainer + Energy if trainer is shorter #}
-                <div class="col-md-6 mb-3">
-                    {% if trainerCards|length > 0 %}
-                        {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
-                    {% endif %}
-                    {% if not energyInLeft and energyCards|length > 0 %}
-                        <div class="mt-3">
-                            {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
-                        </div>
-                    {% endif %}
+            {# Original table #}
+            <div id="deckTableOriginal">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {% if pokemonCards|length > 0 %}
+                            {{ _self.cardSection('app.deck.section_pokemon'|trans, pokemonCards) }}
+                        {% endif %}
+                        {% if energyInLeft and energyCards|length > 0 %}
+                            <div class="mt-3">
+                                {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {% if trainerCards|length > 0 %}
+                            {{ _self.cardSection('app.deck.section_trainer'|trans, trainerCards) }}
+                        {% endif %}
+                        {% if not energyInLeft and energyCards|length > 0 %}
+                            <div class="mt-3">
+                                {{ _self.cardSection('app.deck.section_energy'|trans, energyCards) }}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+
+            {# Minified table #}
+            {% if hasMinifiedTable %}
+                {% set minPokemon = minifiedGroupedCards.pokemon|default([]) %}
+                {% set minTrainer = minifiedGroupedCards.trainer|default([]) %}
+                {% set minEnergy = minifiedGroupedCards.energy|default([]) %}
+                {% set minEnergyInLeft = minPokemon|length <= minTrainer|length %}
+
+                <div id="deckTableMinified" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {% if minPokemon|length > 0 %}
+                                {{ _self.cardSection('app.deck.section_pokemon'|trans, minPokemon) }}
+                            {% endif %}
+                            {% if minEnergyInLeft and minEnergy|length > 0 %}
+                                <div class="mt-3">
+                                    {{ _self.cardSection('app.deck.section_energy'|trans, minEnergy) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {% if minTrainer|length > 0 %}
+                                {{ _self.cardSection('app.deck.section_trainer'|trans, minTrainer) }}
+                            {% endif %}
+                            {% if not minEnergyInLeft and minEnergy|length > 0 %}
+                                <div class="mt-3">
+                                    {{ _self.cardSection('app.deck.section_energy'|trans, minEnergy) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
 
         {# Mosaic view #}
