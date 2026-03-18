@@ -204,14 +204,15 @@ F9.6
 
 > Advanced deck list export and deck recovery workflow.
 
-| ID    | Feature                        | Priority | Depends on       |
-|-------|--------------------------------|----------|------------------|
-| F6.8  | Optimized deck list export     | Low      | F6.7             |
-| F4.16 | Lost & found deck alert        | Low      | F4.4, F8.1       |
+| ID    | Feature                            | Priority | Depends on       |
+|-------|------------------------------------|----------|------------------|
+| F6.8  | Optimized deck list export         | Low      | F6.7             |
+| F6.9  | Improved energy card enrichment    | Low      | F6.2             |
+| F4.16 | Lost & found deck alert            | Low      | F4.4, F8.1       |
 
-**Progress: 0/2 done**
+**Progress: 0/3 done**
 
-**Deliverable:** Optimized deck list export that substitutes lowest-rarity printings for easy PTCGL import. Lost-and-found alert system enabling anyone (including anonymous visitors) to report finding a deck, notifying the owner and borrower for quick physical recovery.
+**Deliverable:** Optimized deck list export that substitutes lowest-rarity printings for easy PTCGL import. Improved energy card enrichment with proper TCGdex lookup and tcgdexId assignment. Lost-and-found alert system enabling anyone (including anonymous visitors) to report finding a deck, notifying the owner and borrower for quick physical recovery.
 
 ---
 
@@ -239,7 +240,7 @@ F9.6
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
-| H     | Export & Recovery               | 2        |              |
-|       | **Total remaining**             | **28**   |              |
+| H     | Export & Recovery               | 3        |              |
+|       | **Total remaining**             | **29**   |              |
 
-86 features done · 28 remaining.
+86 features done · 29 remaining.
