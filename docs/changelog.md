@@ -16,6 +16,49 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.7] — 2026-03-19
+
+Seventh beta — card identity model, minified export/mosaic, enrichment edge cases, and React island refactor.
+
+### Deck Library
+
+- **F6.10** — Card identity and printing model *(completed)*: `CardIdentity` entity groups all printings of the same functional card (by name+HP+attacks for Pokemon, by name for Trainers/Energy). `CardPrinting` stores per-set printing with rarity tier (1–7), Cardmarket avg price in cents, set release date. `CardIdentityResolver` creates identities during enrichment and lazily expands all printings from TCGdex. `RarityTierMapper` maps TCGdex rarity strings to 7-tier system with blacklisted sets (Hidden Fates Shiny Vault, promos, trainer kits, McDonald's).
+- **F6.8** — Minified deck list export *(completed)*: `MinifiedListGenerator` selects the lowest-rarity Expanded-era printing of each card, with price as tiebreaker. Basic energies use the latest printing. Duplicate entries merging when multiple cards resolve to the same printing. Stored on `DeckVersion.minifiedList`.
+- **F6.6b** — Minified mosaic *(completed)*: second mosaic variant using lowest-rarity card images with merged tiles. `MosaicTile` DTO and `MosaicGenerator.generateFromTiles()` for clean separation. Stored on `DeckVersion.minifiedMosaicImageUrl`.
+- **F6.9** — Improved energy card enrichment *(completed)*: detect basic energies by name regardless of set code (covers SVI, SVE, etc.). Three-step lookup: set+number → name search → static fallback. Excluded from name-match warning.
+- **Deck detail React island** — replaced 209 lines of vanilla JS DOM manipulation with a `DeckCardList` Mantine component. Global Original/Minified toggle controls table, mosaic, and copy simultaneously. Table/Mosaic toggle: desktop inline swap, mobile table default with fullscreen mosaic modal. Single copy button copies the active variant. Share mosaic button (Web Share API on mobile, clipboard fallback).
+- **Mosaic URLs** — changed from `/mosaic/{deckId}/...` to `/mosaic/{shortTag}/...` for human-readable, shareable URLs.
+- **Shadow Rider Calyrex** fixture added with JP/TG/letter-suffix edge case cards.
+
+### Bug Fixes
+
+- **Trainer Gallery** (`ASR-TG 30`) — strip `-TG` suffix from set codes, prepend `TG` to card number.
+- **Letter suffixes** (`FLI 113a`) — strip trailing letters from card numbers before lookup.
+- **Japanese set codes** (`S6K`, `SM8`) — name-based fallback with full CardIdentity/CardPrinting linking for minified resolution.
+- **TCGdex name search** — filter to exact name matches only (TCGdex `/cards?name=` is a contains match).
+- **Reverse set mapping** — prefer `tcgOnline` codes (`NXD`) over `abbreviation.official` (`NEX`) for PTCGL/Limitless compatibility.
+- **Rarity data** — unknown/unmapped rarities default to tier 7 (rarest); blacklisted sets always return tier 7.
+- **Basic energy warning** — excluded from the "matched by name only" warning banner.
+
+### Administration
+
+- **Flush enrichment** — danger-zone button in technical admin to reset all enrichment data (card images, identities, printings, mosaics, minified lists). Double confirmation (JS confirm + CSRF).
+
+### Documentation
+
+- **`docs/technicalities/enrichment.md`** — comprehensive technical deep-dive: enrichment pipeline, TCGdex API (set mapping, card lookup, edge cases), card identity model, rarity tiers, minified export, energy handling, admin tools, known limitations.
+- Updated mosaic doc with shortTag URLs and minified pipeline diagram.
+- F6.6b, F6.8, F6.9, F6.10 marked Done. Phase A: 7/12 done. Total: 90 done / 27 remaining.
+
+### Refactoring
+
+- Deck card list display refactored from Twig + vanilla JS to React/Mantine island (`DeckCardList` component).
+- `MosaicUrlResolver.resolve()` replaced by `resolveForVersion(DeckVersion, variant)`.
+- `TcgdexApiClient`: `parseCardData()` extracted, `fetchCardById()`, `findAllPrintingsByName()`, `getReverseSetMapping()`, `buildReverseSetMapping()` added.
+- `TcgdexCard` DTO extended with `hp`, `attacks`, `rarity`, `setReleaseDate`, `setCode`, `cardNumber`, `priceInCents`.
+
+---
+
 ## [1.0.0-beta.6] — 2026-03-18
 
 Sixth beta — deck mosaic image generation, copy-to-clipboard deck export, and production installation guide.
