@@ -84,15 +84,19 @@ class TcgdexApiClient
     /**
      * Reverse mapping: TCGdex set ID → PTCG code.
      *
+     * Prefers tcgOnline codes (PTCGL-compatible) over abbreviation.official
+     * when both exist. Cannot use array_flip() because multiple PTCG codes
+     * may map to the same TCGdex set ID (e.g. NXD and NEX both → bw4).
+     *
      * @return array<string, string>
      */
     public function getReverseSetMapping(): array
     {
         /** @var array<string, string> $reverse */
-        $reverse = $this->cache->get('tcgdex.reverse_set_mapping', function (ItemInterface $item): array {
+        $reverse = $this->cache->get('tcgdex.reverse_set_mapping.v2', function (ItemInterface $item): array {
             $item->expiresAfter(86400);
 
-            return array_flip($this->getSetMapping());
+            return $this->buildReverseSetMapping();
         });
 
         return $reverse;
@@ -223,6 +227,53 @@ class TcgdexApiClient
         }
 
         return $mapping;
+    }
+
+    /**
+     * Builds a TCGdex set ID → PTCG code mapping, preferring tcgOnline codes.
+     *
+     * tcgOnline codes (NXD, EPO…) are the PTCGL-compatible codes used for import.
+     * abbreviation.official codes (NEX, EP…) are used as fallback only.
+     *
+     * @return array<string, string>
+     */
+    private function buildReverseSetMapping(): array
+    {
+        // Start with reverse of static overrides
+        $reverse = array_flip(self::STATIC_OVERRIDES);
+
+        $listResponse = $this->httpClient->request('GET', self::BASE_URL.'/sets');
+        /** @var list<array{id: string}> $sets */
+        $sets = $listResponse->toArray();
+
+        /** @var array<string, ResponseInterface> $responses */
+        $responses = [];
+
+        foreach ($sets as $set) {
+            $responses[$set['id']] = $this->httpClient->request('GET', self::BASE_URL.'/sets/'.$set['id']);
+        }
+
+        foreach ($responses as $setId => $response) {
+            /** @var array<string, mixed> $detail */
+            $detail = $response->toArray();
+
+            // abbreviation.official as fallback (don't overwrite)
+            /** @var array<string, mixed> $abbreviation */
+            $abbreviation = isset($detail['abbreviation']) && \is_array($detail['abbreviation']) ? $detail['abbreviation'] : [];
+
+            if (isset($abbreviation['official']) && \is_string($abbreviation['official']) && '' !== $abbreviation['official']) {
+                if (!isset($reverse[$setId])) {
+                    $reverse[$setId] = strtoupper($abbreviation['official']);
+                }
+            }
+
+            // tcgOnline always wins (overwrite abbreviation.official)
+            if (isset($detail['tcgOnline']) && \is_string($detail['tcgOnline']) && '' !== $detail['tcgOnline']) {
+                $reverse[$setId] = strtoupper($detail['tcgOnline']);
+            }
+        }
+
+        return $reverse;
     }
 
     private function fetchCard(string $setId, string $cardNumber): ?TcgdexCard
