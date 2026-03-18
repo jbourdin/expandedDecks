@@ -3849,6 +3849,30 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.flush.title">
+                <source>app.admin.technical.flush.title</source>
+                <target>Purger toutes les données d'enrichissement</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.description">
+                <source>app.admin.technical.flush.description</source>
+                <target>Réinitialiser toutes les versions de deck à l'état pré-enrichissement. Cela supprime les images, identifiants TCGdex, sous-types, identités de cartes, impressions, mosaïques et listes simplifiées.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.warning">
+                <source>app.admin.technical.flush.warning</source>
+                <target>Cette action est destructrice et irréversible. Toutes les données d'enrichissement seront supprimées. Vous devrez relancer l'enrichissement de toutes les versions de deck ensuite.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.confirm">
+                <source>app.admin.technical.flush.confirm</source>
+                <target>Êtes-vous sûr de vouloir purger TOUTES les données d'enrichissement ? Cette action est irréversible.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.button">
+                <source>app.admin.technical.flush.button</source>
+                <target>Purger toutes les données d'enrichissement</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.success">
+                <source>app.admin.technical.flush.success</source>
+                <target>Toutes les données d'enrichissement ont été purgées. Utilisez « Relancer tous les enrichissements » pour ré-enrichir.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

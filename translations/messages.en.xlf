@@ -3849,6 +3849,30 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.flush.title">
+                <source>app.admin.technical.flush.title</source>
+                <target>Flush All Enrichment Data</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.description">
+                <source>app.admin.technical.flush.description</source>
+                <target>Reset all deck versions to pre-enrichment state. This clears card images, TCGdex IDs, trainer subtypes, card identities, card printings, mosaic images, and minified lists.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.warning">
+                <source>app.admin.technical.flush.warning</source>
+                <target>This action is destructive and cannot be undone. All enrichment data will be deleted. You will need to re-enrich all deck versions afterwards.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.confirm">
+                <source>app.admin.technical.flush.confirm</source>
+                <target>Are you sure you want to flush ALL enrichment data? This cannot be undone.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.button">
+                <source>app.admin.technical.flush.button</source>
+                <target>Flush all enrichment data</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush.success">
+                <source>app.admin.technical.flush.success</source>
+                <target>All enrichment data has been flushed. Use "Retry all enrichments" to re-enrich.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
