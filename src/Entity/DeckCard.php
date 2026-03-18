@@ -70,6 +70,10 @@ class DeckCard
     #[Assert\Length(max: 255)]
     private ?string $imageUrl = null;
 
+    #[ORM\ManyToOne(targetEntity: CardPrinting::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?CardPrinting $cardPrinting = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -179,6 +183,18 @@ class DeckCard
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getCardPrinting(): ?CardPrinting
+    {
+        return $this->cardPrinting;
+    }
+
+    public function setCardPrinting(?CardPrinting $cardPrinting): static
+    {
+        $this->cardPrinting = $cardPrinting;
 
         return $this;
     }

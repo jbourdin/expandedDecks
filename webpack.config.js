@@ -21,7 +21,7 @@ Encore
 
     .addEntry('app', './assets/app.tsx')
     .addEntry('deck_form', './assets/deck-form.tsx')
-    .addEntry('deck_show', './assets/deck-show.ts')
+    .addEntry('deck_card_list', './assets/deck-card-list.tsx')
     .addEntry('archetype_show', './assets/archetype-show.ts')
     .addEntry('staff_autocomplete', './assets/staff-autocomplete.tsx')
     .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.tsx')

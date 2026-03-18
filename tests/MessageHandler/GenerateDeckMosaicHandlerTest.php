@@ -90,13 +90,13 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         $this->versionRepo->method('find')->willReturn($version);
 
         $this->generator->method('generate')->willReturn('mosaic/1/5.png');
-        $this->urlResolver->method('resolve')->willReturn('/mosaic/1/5.png');
+        $this->urlResolver->method('resolveForVersion')->willReturn('/mosaic/AB3K7N/5.png');
 
         $this->entityManager->expects(self::once())->method('flush');
 
         ($this->handler)(new GenerateDeckMosaicMessage(5));
 
-        self::assertSame('/mosaic/1/5.png', $version->getMosaicImageUrl());
+        self::assertSame('/mosaic/AB3K7N/5.png', $version->getMosaicImageUrl());
     }
 
     public function testGenerationFailureLogsErrorAndRethrows(): void

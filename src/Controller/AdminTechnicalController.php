@@ -17,6 +17,7 @@ use App\Message\EnrichDeckVersionMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\BannedCardsSyncService;
+use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly MessageBusInterface $messageBus,
         private readonly BannedCardsSyncService $bannedCardsSyncService,
         private readonly MosaicRedispatchService $mosaicRedispatchService,
+        private readonly EnrichmentFlushService $enrichmentFlushService,
     ) {
         parent::__construct($translator);
     }
@@ -101,6 +103,21 @@ class AdminTechnicalController extends AbstractAppController
         } else {
             $this->addFlash('success', 'app.admin.technical.mosaic.dispatched', ['%count%' => $count]);
         }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/flush-enrichment', name: 'app_admin_technical_flush_enrichment', methods: ['POST'])]
+    public function flushEnrichment(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-flush-enrichment', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $this->enrichmentFlushService->flush();
+        $this->addFlash('warning', 'app.admin.technical.flush.success');
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }
