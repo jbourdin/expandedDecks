@@ -17,6 +17,7 @@ use App\Message\EnrichDeckVersionMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\BannedCardsSyncService;
+use App\Service\Mosaic\MosaicRedispatchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -34,6 +35,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly BannedCardRepository $bannedCardRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly BannedCardsSyncService $bannedCardsSyncService,
+        private readonly MosaicRedispatchService $mosaicRedispatchService,
     ) {
         parent::__construct($translator);
     }
@@ -42,10 +44,12 @@ class AdminTechnicalController extends AbstractAppController
     public function dashboard(): Response
     {
         $pendingEnrichments = $this->deckVersionRepository->findNotEnriched();
+        $pendingMosaics = $this->deckVersionRepository->findEnrichedWithoutMosaic();
         $bannedCardCount = $this->bannedCardRepository->count();
 
         return $this->render('admin/technical/dashboard.html.twig', [
             'pendingEnrichments' => $pendingEnrichments,
+            'pendingMosaics' => $pendingMosaics,
             'bannedCardCount' => $bannedCardCount,
         ]);
     }
@@ -74,6 +78,29 @@ class AdminTechnicalController extends AbstractAppController
         }
 
         $this->addFlash('success', 'app.admin.technical.enrich.dispatched', ['%count%' => \count($versions)]);
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * @see docs/features.md F6.6 — Visual deck list (card mosaic)
+     */
+    #[Route('/mosaic-generate', name: 'app_admin_technical_mosaic_generate', methods: ['POST'])]
+    public function mosaicGenerate(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-mosaic-generate', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $count = $this->mosaicRedispatchService->redispatch();
+
+        if (0 === $count) {
+            $this->addFlash('info', 'app.admin.technical.mosaic.none_pending');
+        } else {
+            $this->addFlash('success', 'app.admin.technical.mosaic.dispatched', ['%count%' => $count]);
+        }
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

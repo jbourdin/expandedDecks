@@ -14,10 +14,12 @@ declare(strict_types=1);
 namespace App\MessageHandler;
 
 use App\Message\EnrichDeckVersionMessage;
+use App\Message\GenerateDeckMosaicMessage;
 use App\Repository\DeckVersionRepository;
 use App\Service\Tcgdex\CardEnricher;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
@@ -28,6 +30,7 @@ class EnrichDeckVersionHandler
     public function __construct(
         private readonly CardEnricher $cardEnricher,
         private readonly DeckVersionRepository $versionRepo,
+        private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -64,6 +67,11 @@ class EnrichDeckVersionHandler
                 'id' => $message->deckVersionId,
                 'warnings' => implode('; ', $report->legalityWarnings),
             ]);
+        }
+
+        // Dispatch mosaic generation if enrichment succeeded
+        if ('done' === $version->getEnrichmentStatus()) {
+            $this->messageBus->dispatch(new GenerateDeckMosaicMessage($message->deckVersionId));
         }
     }
 }

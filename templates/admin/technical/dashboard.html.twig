@@ -61,6 +61,48 @@
         </div>
     </div>
 
+    {# Mosaic generation card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.mosaic.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.mosaic.description'|trans }}</p>
+
+            {% if pendingMosaics|length > 0 %}
+                <div class="alert alert-warning">
+                    {{ 'app.admin.technical.mosaic.pending_count'|trans({'%count%': pendingMosaics|length}) }}
+                </div>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ 'app.admin.technical.enrich.table.deck'|trans }}</th>
+                            <th>{{ 'app.admin.technical.enrich.table.version'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for version in pendingMosaics %}
+                            <tr>
+                                <td>{{ version.deck.name }}</td>
+                                <td>v{{ version.versionNumber }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <form method="post" action="{{ path('app_admin_technical_mosaic_generate') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-mosaic-generate') }}">
+                    <button type="submit" class="btn btn-gold">
+                        {{ 'app.admin.technical.mosaic.generate_button'|trans }}
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-success mb-0">
+                    {{ 'app.admin.technical.mosaic.all_done'|trans }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
     {# Banned cards sync card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">

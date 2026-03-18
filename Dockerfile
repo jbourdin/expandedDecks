@@ -55,7 +55,8 @@ RUN install-php-extensions \
     pdo_mysql \
     intl \
     opcache \
-    apcu
+    apcu \
+    gd
 
 # OPcache production settings
 RUN echo '\

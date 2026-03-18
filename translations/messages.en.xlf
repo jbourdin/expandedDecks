@@ -452,6 +452,34 @@
                 <target>Paste a deck list to import it immediately. Leave empty to add one later.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.export_copy">
+                <source>app.deck.export_copy</source>
+                <target>Copy list</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_tooltip">
+                <source>app.deck.export_copy_tooltip</source>
+                <target>Copy deck list in PTCGL format to clipboard</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copied">
+                <source>app.deck.export_copied</source>
+                <target>Copied!</target>
+            </trans-unit>
+            <trans-unit id="app.deck.view_toggle">
+                <source>app.deck.view_toggle</source>
+                <target>View mode</target>
+            </trans-unit>
+            <trans-unit id="app.deck.view_table">
+                <source>app.deck.view_table</source>
+                <target>Table</target>
+            </trans-unit>
+            <trans-unit id="app.deck.view_mosaic">
+                <source>app.deck.view_mosaic</source>
+                <target>Mosaic</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_alt">
+                <source>app.deck.mosaic_alt</source>
+                <target>Card mosaic for %name%</target>
+            </trans-unit>
             <trans-unit id="app.deck.no_list">
                 <source>app.deck.no_list</source>
                 <target>No deck list imported yet.</target>
@@ -3736,6 +3764,34 @@
             <trans-unit id="app.admin.technical.enrich.dispatched">
                 <source>app.admin.technical.enrich.dispatched</source>
                 <target>%count% enrichment message(s) dispatched.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.title">
+                <source>app.admin.technical.mosaic.title</source>
+                <target>Mosaic Generation</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.description">
+                <source>app.admin.technical.mosaic.description</source>
+                <target>Generate mosaic images for enriched deck versions that are missing one.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.pending_count">
+                <source>app.admin.technical.mosaic.pending_count</source>
+                <target>%count% deck version(s) pending mosaic generation.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.generate_button">
+                <source>app.admin.technical.mosaic.generate_button</source>
+                <target>Generate all mosaics</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.all_done">
+                <source>app.admin.technical.mosaic.all_done</source>
+                <target>All enriched deck versions have a mosaic image.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.none_pending">
+                <source>app.admin.technical.mosaic.none_pending</source>
+                <target>No deck versions need mosaic generation.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.dispatched">
+                <source>app.admin.technical.mosaic.dispatched</source>
+                <target>%count% mosaic generation message(s) dispatched.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>

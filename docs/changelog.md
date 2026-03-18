@@ -16,6 +16,40 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.6] — 2026-03-18
+
+Sixth beta — deck mosaic image generation, copy-to-clipboard deck export, and production installation guide.
+
+### Deck Library
+
+- **F6.6** — Visual deck list (card mosaic) *(completed)*: server-generated composite image of the full deck list using PHP GD. Cards arranged in an 8-column grid on the site's Fairy energy background texture, with red hexagonal quantity badges (with shadow). Card order follows Pokemon community convention: Pokemon → Trainer (supporter, item, tool, stadium) → Energy. Async generation via `deck_enrichment` Messenger transport after card enrichment completes. Images stored via Flysystem (local in dev, Scaleway S3 in production). Served via `MosaicController` with 30-day immutable cache headers. Deck detail page includes a table/mosaic view toggle with localStorage persistence. Deck catalog shows mosaic as a desktop hover overlay on deck cards.
+- **F6.7** — Export deck list as PTCGL text *(completed)*: "Copy list" button on the deck detail page copies the raw PTCGL text to clipboard with visual feedback.
+
+### Infrastructure
+
+- **GD extension** added to the production Dockerfile (`install-php-extensions gd`).
+- **Flysystem** — `league/flysystem` and `league/flysystem-aws-s3-v3` installed for mosaic image storage. `MosaicStorageFactory` selects local or S3 adapter based on `MOSAIC_STORAGE_ADAPTER` env var.
+- **Mosaic storage env vars** — `MOSAIC_STORAGE_ADAPTER`, `MOSAIC_STORAGE_LOCAL_DIR`, `SCALEWAY_S3_*`, `MOSAIC_PUBLIC_URL`.
+- **CLAUDE.md** — added cache clear requirement (`symfony console c:c`) after every code modification.
+
+### Documentation
+
+- **Production installation guide** (`docs/installation.md`) — full reference of all 26+ env vars, Docker image build, worker setup, health checks, and minimal `docker run` example.
+- **Mosaic technical deep-dive** (`docs/technicalities/mosaic.md`) — generation pipeline, GD rendering, Flysystem storage, file naming, dependencies.
+- **Feature status** — added Status column to all feature tables in `docs/features.md` (86 Done, 28 remaining).
+- **Roadmap** — marked F6.6, F6.7 as done; added Phase H (Export & Recovery) with F6.8 (optimized export) and F4.16 (lost & found deck alert).
+
+### Administration
+
+- **Mosaic generation admin card** — technical admin dashboard shows count of enriched deck versions missing a mosaic image, with a "Generate all" action button that dispatches `GenerateDeckMosaicMessage` for each.
+
+### Testing & Quality
+
+- 19 new unit tests covering `MosaicGenerator`, `GenerateDeckMosaicHandler`, `MosaicController`, `MosaicStorageFactory`, `MosaicRedispatchService`, and `MosaicUrlResolver`.
+- Fixtures updated: `rawList` added to Iron Thorns v2/v3 and Regidrago v2.
+
+---
+
 ## [1.0.0-beta.5] — 2026-03-18
 
 Fifth beta — archetype localization and Sentry observability tuning.

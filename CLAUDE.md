@@ -194,6 +194,8 @@ make lint-container # Validate Symfony DI container
 make test          # Run test suite
 ```
 
+> **CRITICAL: After every code modification, always run `symfony console c:c` to clear the Symfony cache.** The DI container, routing, and Twig templates are compiled and cached — stale caches cause runtime errors that don't surface during static analysis.
+
 ### Manual Testing Before Merge
 
 > **CRITICAL: NEVER merge a PR without asking the user to manually test the changes first.** After CI passes, always ask the user to verify the feature visually in the dev environment before merging. Wait for explicit confirmation before proceeding with the merge.
@@ -315,6 +317,9 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/roadmap.md](docs/roadmap.md) — Implementation roadmap across 12 phases
 - [docs/changelog.md](docs/changelog.md) — Release history with implemented features per version
 
+**Deployment**
+- [docs/installation.md](docs/installation.md) — Production Docker image, env vars, workers, health checks
+
 **Data Models**
 - [docs/models/user.md](docs/models/user.md) — User entity, roles, auth flows, GDPR
 - [docs/models/deck.md](docs/models/deck.md) — Deck, DeckVersion, DeckCard, Archetype
@@ -338,6 +343,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/scanner.md](docs/technicalities/scanner.md) — USB HID scanner detection
 - [docs/technicalities/camera_scanner.md](docs/technicalities/camera_scanner.md) — Camera QR scanner
 - [docs/technicalities/pdf_label.md](docs/technicalities/pdf_label.md) — PDF label card generation
+- [docs/technicalities/mosaic.md](docs/technicalities/mosaic.md) — Server-generated deck mosaic image (GD, Flysystem)
 
 ### Documentation Rules
 

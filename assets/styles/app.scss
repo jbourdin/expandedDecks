@@ -261,7 +261,7 @@ footer {
 
         &::before {
             content: "\f397"; // bi-file-fill
-            font-family: "bootstrap-icons", sans-serif;
+            font-family: bootstrap-icons, sans-serif;
             margin-right: 3px;
             font-size: .8em;
             opacity: .6;
@@ -303,6 +303,33 @@ footer {
         min-height: 44px;
         padding-top: .5rem;
         padding-bottom: .5rem;
+    }
+}
+
+// --- Deck mosaic hover overlay (desktop only) ---
+// Shows the mosaic image on hover over deck cards in list views.
+.deck-mosaic-hover {
+    position: relative;
+}
+
+.deck-mosaic-hover-img {
+    display: none;
+    position: absolute;
+    z-index: 1050;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 600px;
+    width: max-content;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+    pointer-events: none;
+    margin-top: 4px;
+}
+
+@include media-breakpoint-up(md) {
+    .deck-mosaic-hover:hover .deck-mosaic-hover-img {
+        display: block;
     }
 }
 
