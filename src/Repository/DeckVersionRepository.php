@@ -64,6 +64,24 @@ class DeckVersionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F6.6 — Visual deck list (card mosaic)
+     *
+     * @return list<DeckVersion>
+     */
+    public function findEnrichedWithoutMosaic(): array
+    {
+        /** @var list<DeckVersion> $results */
+        $results = $this->createQueryBuilder('dv')
+            ->where('dv.enrichmentStatus = :status')
+            ->andWhere('dv.mosaicImageUrl IS NULL')
+            ->setParameter('status', 'done')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.2 — Import deck list (PTCG text format)
      */
     public function findMaxVersionNumber(Deck $deck): int

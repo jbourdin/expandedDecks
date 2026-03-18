@@ -55,6 +55,9 @@ class DeckVersion
     #[ORM\Column(length: 20)]
     private string $enrichmentStatus = 'pending';
 
+    #[ORM\Column(length: 512, nullable: true)]
+    private ?string $mosaicImageUrl = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -141,6 +144,18 @@ class DeckVersion
     public function setEnrichmentStatus(string $enrichmentStatus): static
     {
         $this->enrichmentStatus = $enrichmentStatus;
+
+        return $this;
+    }
+
+    public function getMosaicImageUrl(): ?string
+    {
+        return $this->mosaicImageUrl;
+    }
+
+    public function setMosaicImageUrl(?string $mosaicImageUrl): static
+    {
+        $this->mosaicImageUrl = $mosaicImageUrl;
 
         return $this;
     }

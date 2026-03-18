@@ -452,6 +452,22 @@
                 <target>Collez une liste pour l&apos;importer immédiatement. Laissez vide pour en ajouter une plus tard.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.view_toggle">
+                <source>app.deck.view_toggle</source>
+                <target>Mode d'affichage</target>
+            </trans-unit>
+            <trans-unit id="app.deck.view_table">
+                <source>app.deck.view_table</source>
+                <target>Tableau</target>
+            </trans-unit>
+            <trans-unit id="app.deck.view_mosaic">
+                <source>app.deck.view_mosaic</source>
+                <target>Mosaïque</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_alt">
+                <source>app.deck.mosaic_alt</source>
+                <target>Mosaïque de cartes pour %name%</target>
+            </trans-unit>
             <trans-unit id="app.deck.no_list">
                 <source>app.deck.no_list</source>
                 <target>Aucune decklist importée pour le moment.</target>
@@ -3736,6 +3752,34 @@
             <trans-unit id="app.admin.technical.enrich.dispatched">
                 <source>app.admin.technical.enrich.dispatched</source>
                 <target>%count% message(s) d'enrichissement envoyé(s).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.title">
+                <source>app.admin.technical.mosaic.title</source>
+                <target>Génération des mosaïques</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.description">
+                <source>app.admin.technical.mosaic.description</source>
+                <target>Générer les images mosaïques pour les versions de deck enrichies qui n'en ont pas encore.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.pending_count">
+                <source>app.admin.technical.mosaic.pending_count</source>
+                <target>%count% version(s) de deck en attente de génération de mosaïque.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.generate_button">
+                <source>app.admin.technical.mosaic.generate_button</source>
+                <target>Générer toutes les mosaïques</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.all_done">
+                <source>app.admin.technical.mosaic.all_done</source>
+                <target>Toutes les versions de deck enrichies ont une image mosaïque.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.none_pending">
+                <source>app.admin.technical.mosaic.none_pending</source>
+                <target>Aucune version de deck n'a besoin de génération de mosaïque.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.mosaic.dispatched">
+                <source>app.admin.technical.mosaic.dispatched</source>
+                <target>%count% message(s) de génération de mosaïque envoyé(s).</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>

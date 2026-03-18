@@ -194,6 +194,8 @@ make lint-container # Validate Symfony DI container
 make test          # Run test suite
 ```
 
+> **CRITICAL: After every code modification, always run `symfony console c:c` to clear the Symfony cache.** The DI container, routing, and Twig templates are compiled and cached — stale caches cause runtime errors that don't surface during static analysis.
+
 ### Manual Testing Before Merge
 
 > **CRITICAL: NEVER merge a PR without asking the user to manually test the changes first.** After CI passes, always ask the user to verify the feature visually in the dev environment before merging. Wait for explicit confirmation before proceeding with the merge.
