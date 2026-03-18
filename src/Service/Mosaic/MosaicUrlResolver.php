@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Service\Mosaic;
 
+use App\Entity\DeckVersion;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -31,22 +32,19 @@ class MosaicUrlResolver
     /**
      * Build the application URL that serves the mosaic image.
      *
-     * The storage path follows the pattern "mosaic/{deckId}/{versionId}.png".
+     * Uses the deck's shortTag for a human-readable URL (e.g. /mosaic/AB3K7N/5.png).
      */
-    public function resolve(string $storagePath): string
+    public function resolveForVersion(DeckVersion $version, string $variant = ''): string
     {
-        // Extract deckId, versionId, and optional variant from "mosaic/{deckId}/{versionId}[_variant].png"
-        if (!preg_match('#^mosaic/(\d+)/(\d+)(?:_(\w+))?\.png$#', $storagePath, $matches)) {
-            throw new \InvalidArgumentException(\sprintf('Unexpected mosaic storage path format: "%s".', $storagePath));
-        }
+        $shortTag = $version->getDeck()->getShortTag();
+        $versionId = (string) $version->getId();
 
-        $variant = $matches[3] ?? '';
         $fileName = '' !== $variant
-            ? \sprintf('%d_%s', (int) $matches[2], $variant)
-            : (string) (int) $matches[2];
+            ? \sprintf('%s_%s', $versionId, $variant)
+            : $versionId;
 
         return $this->urlGenerator->generate('app_mosaic_show', [
-            'deckId' => (int) $matches[1],
+            'shortTag' => $shortTag,
             'versionId' => $fileName,
         ]);
     }

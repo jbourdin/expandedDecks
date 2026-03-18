@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Mosaic;
 
+use App\Entity\Deck;
+use App\Entity\DeckVersion;
 use App\Service\Mosaic\MosaicUrlResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -31,30 +33,45 @@ final class MosaicUrlResolverTest extends TestCase
         $this->resolver = new MosaicUrlResolver($this->urlGenerator);
     }
 
-    public function testResolveValidPathGeneratesRoute(): void
+    public function testResolveForVersionGeneratesRouteWithShortTag(): void
     {
+        $version = $this->createVersion('AB3K7N', 7);
+
         $this->urlGenerator->expects(self::once())
             ->method('generate')
-            ->with('app_mosaic_show', ['deckId' => 42, 'versionId' => 7])
-            ->willReturn('/mosaic/42/7.png');
+            ->with('app_mosaic_show', ['shortTag' => 'AB3K7N', 'versionId' => '7'])
+            ->willReturn('/mosaic/AB3K7N/7.png');
 
-        $result = $this->resolver->resolve('mosaic/42/7.png');
+        $result = $this->resolver->resolveForVersion($version);
 
-        self::assertSame('/mosaic/42/7.png', $result);
+        self::assertSame('/mosaic/AB3K7N/7.png', $result);
     }
 
-    public function testResolveInvalidPathThrowsException(): void
+    public function testResolveForVersionWithVariant(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unexpected mosaic storage path format');
+        $version = $this->createVersion('XY9Z2P', 3);
 
-        $this->resolver->resolve('invalid/path.jpg');
+        $this->urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_mosaic_show', ['shortTag' => 'XY9Z2P', 'versionId' => '3_minified'])
+            ->willReturn('/mosaic/XY9Z2P/3_minified.png');
+
+        $result = $this->resolver->resolveForVersion($version, 'minified');
+
+        self::assertSame('/mosaic/XY9Z2P/3_minified.png', $result);
     }
 
-    public function testResolvePathWithoutPngExtensionThrowsException(): void
+    private function createVersion(string $shortTag, int $versionId): DeckVersion
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $deck = new Deck();
+        $deckReflection = new \ReflectionProperty(Deck::class, 'shortTag');
+        $deckReflection->setValue($deck, $shortTag);
 
-        $this->resolver->resolve('mosaic/1/2.jpg');
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $versionReflection = new \ReflectionProperty(DeckVersion::class, 'id');
+        $versionReflection->setValue($version, $versionId);
+
+        return $version;
     }
 }

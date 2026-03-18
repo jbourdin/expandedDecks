@@ -69,8 +69,8 @@ class GenerateMinifiedMosaicHandler
         try {
             $tiles = $this->buildMergedTiles($version->getCards()->toArray());
 
-            $storagePath = $this->mosaicGenerator->generateFromTiles($version, $tiles, 'minified');
-            $publicUrl = $this->mosaicUrlResolver->resolve($storagePath);
+            $this->mosaicGenerator->generateFromTiles($version, $tiles, 'minified');
+            $publicUrl = $this->mosaicUrlResolver->resolveForVersion($version, 'minified');
 
             $version->setMinifiedMosaicImageUrl($publicUrl);
             $this->entityManager->flush();

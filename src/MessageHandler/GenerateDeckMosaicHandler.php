@@ -58,8 +58,8 @@ class GenerateDeckMosaicHandler
         }
 
         try {
-            $storagePath = $this->mosaicGenerator->generate($version);
-            $publicUrl = $this->mosaicUrlResolver->resolve($storagePath);
+            $this->mosaicGenerator->generate($version);
+            $publicUrl = $this->mosaicUrlResolver->resolveForVersion($version);
 
             $version->setMosaicImageUrl($publicUrl);
             $this->entityManager->flush();
