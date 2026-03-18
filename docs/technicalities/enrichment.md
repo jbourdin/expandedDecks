@@ -35,7 +35,7 @@ EnrichDeckVersionHandler
     │   ├── Basic energy? → enrichBasicEnergy()
     │   └── Regular card? → TcgdexApiClient.findCard()
     │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting
-    │       └── Not found → fallback to findImageByName() (name-only match)
+    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity)
     ├── Sets DeckVersion.enrichmentStatus = 'done' (or 'failed' on exception)
     │
     ▼  (if status = 'done')
@@ -122,9 +122,17 @@ Resolves a card by PTCG set code and card number:
 6. **Fetch card** — `GET /cards/{setId}-{cardNumber}`
 7. **Zero-padding fallback** — if not found and the card number is less than 3 digits, retry with zero-padded number (e.g. `1` → `001`)
 
-### Card Lookup: `findImageByName()`
+### Name Fallback: `findFirstPrintingByName()`
 
-Fallback when `findCard()` returns `null`. Searches `GET /cards?name={name}` and returns the first exact-name match that has an image URL. TCGdex name search is a contains-match, so the code filters results to exact name equality in a loop.
+When `findCard()` returns `null` (e.g. Japanese set codes like `S6K`, `SM8`), the enricher calls `findFirstPrintingByName()` which uses `findAllPrintingsByName()` to fetch all printings of the card name. It returns the first exact-name match with an image, as a full `TcgdexCard` DTO — not just an image URL. This allows the enricher to:
+
+1. Set `tcgdexId` and `imageUrl` on the `DeckCard`
+2. Create a proper `CardIdentity` + `CardPrinting` via `CardIdentityResolver`
+3. Link the `CardPrinting` to the `DeckCard`
+
+This means name-fallback cards participate fully in the minified export pipeline — the minified list/mosaic can resolve an international printing (e.g. `S6K 36` → `CRE 74`) instead of returning the original invalid set code.
+
+A legacy `findImageByName()` method also exists for simpler fallback cases (returns only an image URL string). TCGdex name search is a contains-match, so both methods filter results to exact name equality.
 
 ### Card Lookup: `findAllPrintingsByName()`
 
@@ -340,7 +348,7 @@ After flushing, an enrich retry re-populates everything from scratch.
 
 - **TCGdex name search is contains-match** — searching for "Pikachu" also returns "Pikachu V", "Flying Pikachu", etc. The code filters results to exact name equality, but this means every result in the response is fetched and compared.
 
-- **Japanese set codes** — sets like `S6K` and `SM8` have no card data in TCGdex (which covers English-language sets). Cards from these sets fall back to name-based image matching, which may show a different printing's artwork.
+- **Japanese set codes** — sets like `S6K` and `SM8` have no card data in TCGdex (which covers English-language sets). Cards from these sets fall back to name-based matching via `findFirstPrintingByName()`, which creates a proper `CardIdentity`/`CardPrinting` link. The minified export can then resolve an international printing, but the original deck view still shows the Japanese set code. A warning banner is displayed asking the user to re-import with international set codes.
 
 - **Unreliable rarity in some sets** — Hidden Fates Shiny Vault (`sma`), Yellow A Alternate (`xya`), and other sets have all cards marked as "Common" in TCGdex. These sets are blacklisted and their cards default to tier 7, which means they are never selected as budget picks even if they would be cheaper.
 
