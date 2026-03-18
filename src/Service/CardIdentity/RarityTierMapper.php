@@ -65,12 +65,15 @@ class RarityTierMapper
         'Three Star' => 6,
     ];
 
+    /** Tier for unknown or unmapped rarities — treated as rarest to avoid false budget picks. */
+    public const int UNKNOWN_TIER = 7;
+
     public function map(?string $rarity): int
     {
         if (null === $rarity || '' === $rarity) {
-            return 6;
+            return self::UNKNOWN_TIER;
         }
 
-        return self::RARITY_TIERS[$rarity] ?? 6;
+        return self::RARITY_TIERS[$rarity] ?? self::UNKNOWN_TIER;
     }
 }
