@@ -87,7 +87,20 @@ class TcgdexApiClient
     public function findCard(string $ptcgSetCode, string $cardNumber): ?TcgdexCard
     {
         $mapping = $this->getSetMapping();
-        $setId = $mapping[strtoupper($ptcgSetCode)] ?? null;
+
+        $normalizedSetCode = strtoupper($ptcgSetCode);
+        $normalizedNumber = $cardNumber;
+
+        // Trainer Gallery: "ASR-TG" → set "ASR", number "TG30"
+        if (str_ends_with($normalizedSetCode, '-TG')) {
+            $normalizedSetCode = substr($normalizedSetCode, 0, -3);
+            $normalizedNumber = 'TG'.$cardNumber;
+        }
+
+        // Strip trailing letter suffixes from card numbers (e.g. "113a" → "113")
+        $normalizedNumber = preg_replace('/[a-z]+$/i', '', $normalizedNumber) ?? $normalizedNumber;
+
+        $setId = $mapping[$normalizedSetCode] ?? null;
 
         if (null === $setId) {
             return null;
@@ -95,7 +108,7 @@ class TcgdexApiClient
 
         // Promo sets use era-prefixed card numbers in TCGdex (e.g. XY177, SWSH001)
         $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
-        $lookupNumber = null !== $prefix ? $prefix.$cardNumber : $cardNumber;
+        $lookupNumber = null !== $prefix ? $prefix.$normalizedNumber : $normalizedNumber;
 
         // Try the resolved card number first
         $card = $this->fetchCard($setId, $lookupNumber);

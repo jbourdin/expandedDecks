@@ -452,6 +452,14 @@
                 <target>Paste a deck list to import it immediately. Leave empty to add one later.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_title">
+                <source>app.deck.name_match_warning_title</source>
+                <target>Some cards use non-international set codes.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_body">
+                <source>app.deck.name_match_warning_body</source>
+                <target>The following cards were matched by name only — the displayed image may not correspond to the exact card version. Please re-import the deck list using international (English) set codes for accurate matching.</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
                 <target>Copy list</target>

@@ -253,6 +253,25 @@
         {% set energyCards = groupedCards.energy|default([]) %}
         {% set energyInLeft = pokemonCards|length <= trainerCards|length %}
 
+        {# Warning: cards matched by name only (Japanese/unrecognized set codes) #}
+        {% set nameMatchedCards = [] %}
+        {% for card in pokemonCards|merge(trainerCards)|merge(energyCards) %}
+            {% if card.imageUrl is not null and card.tcgdexId is null %}
+                {% set nameMatchedCards = nameMatchedCards|merge([card]) %}
+            {% endif %}
+        {% endfor %}
+        {% if nameMatchedCards|length > 0 %}
+            <div class="alert alert-warning mb-2">
+                <strong>{{ 'app.deck.name_match_warning_title'|trans }}</strong>
+                {{ 'app.deck.name_match_warning_body'|trans }}
+                <ul class="mb-0 mt-1">
+                    {% for card in nameMatchedCards %}
+                        <li>{{ card.cardName }} ({{ card.setCode }} {{ card.cardNumber }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
         {# View mode toggle + export button #}
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div>

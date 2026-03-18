@@ -452,6 +452,14 @@
                 <target>Collez une liste pour l&apos;importer immédiatement. Laissez vide pour en ajouter une plus tard.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_title">
+                <source>app.deck.name_match_warning_title</source>
+                <target>Certaines cartes utilisent des codes de set non internationaux.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.name_match_warning_body">
+                <source>app.deck.name_match_warning_body</source>
+                <target>Les cartes suivantes ont été identifiées par nom uniquement — l'image affichée peut ne pas correspondre à la version exacte de la carte. Veuillez réimporter la liste du deck avec des codes de set internationaux (anglais) pour un résultat précis.</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
                 <target>Copier la liste</target>

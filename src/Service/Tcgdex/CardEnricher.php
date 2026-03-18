@@ -76,7 +76,23 @@ class CardEnricher
 
                 $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
 
+                // Fallback: if set+number lookup failed, try by card name
                 if (null === $tcgdexCard) {
+                    $imageUrl = $this->apiClient->findImageByName($card->getCardName());
+
+                    if (null !== $imageUrl) {
+                        $card->setImageUrl($imageUrl);
+                        $legalityWarnings[] = \sprintf(
+                            '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
+                            $card->getCardName(),
+                            $card->getSetCode(),
+                            $card->getCardNumber(),
+                        );
+                        ++$enrichedCount;
+
+                        continue;
+                    }
+
                     ++$notFoundCount;
                     $notFoundCards[] = \sprintf('%s (%s %s)', $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
 
