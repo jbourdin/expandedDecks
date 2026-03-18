@@ -460,6 +460,22 @@
                 <source>app.deck.name_match_warning_body</source>
                 <target>The following cards were matched by name only — the displayed image may not correspond to the exact card version. Please re-import the deck list using international (English) set codes for accurate matching.</target>
             </trans-unit>
+            <trans-unit id="app.deck.variant_toggle">
+                <source>app.deck.variant_toggle</source>
+                <target>Card variant</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_original">
+                <source>app.deck.variant_original</source>
+                <target>Original</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_minified">
+                <source>app.deck.variant_minified</source>
+                <target>Minified</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_button">
+                <source>app.deck.export_copy_button</source>
+                <target>Copy list</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
                 <target>Copy original list</target>

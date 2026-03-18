@@ -10,6 +10,7 @@
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  * @see docs/features.md F6.6 — Visual deck list (card mosaic)
+ * @see docs/features.md F6.8 — Minified deck list export
  */
 
 import { initCardHover } from './shared/card-hover';
@@ -17,6 +18,65 @@ import { initCardHover } from './shared/card-hover';
 initCardHover();
 
 /**
+ * Global variant state: 'original' or 'minified'.
+ * Controls table content, mosaic image, and which list gets copied.
+ */
+let currentVariant: 'original' | 'minified' = 'minified';
+
+/**
+ * Global variant toggle — controls table, mosaic, and copy list.
+ */
+function initVariantToggle(): void {
+    const originalButton = document.getElementById('deckVariantOriginal');
+    const minifiedButton = document.getElementById('deckVariantMinified');
+
+    if (!originalButton || !minifiedButton) {
+        return;
+    }
+
+    const setVariant = (variant: 'original' | 'minified'): void => {
+        currentVariant = variant;
+
+        const isMinified = variant === 'minified';
+
+        // Toggle buttons
+        originalButton.classList.toggle('active', !isMinified);
+        originalButton.setAttribute('aria-pressed', String(!isMinified));
+        minifiedButton.classList.toggle('active', isMinified);
+        minifiedButton.setAttribute('aria-pressed', String(isMinified));
+
+        // Toggle table
+        const originalTable = document.getElementById('deckTableOriginal');
+        const minifiedTable = document.getElementById('deckTableMinified');
+
+        if (originalTable) {
+            originalTable.style.display = isMinified ? 'none' : '';
+        }
+
+        if (minifiedTable) {
+            minifiedTable.style.display = isMinified ? '' : 'none';
+        }
+
+        // Toggle mosaic image
+        const mosaicImg = document.getElementById('deckMosaicImg') as HTMLImageElement | null;
+
+        if (mosaicImg) {
+            const src = isMinified
+                ? (mosaicImg.dataset.minifiedSrc ?? mosaicImg.dataset.originalSrc ?? '')
+                : (mosaicImg.dataset.originalSrc ?? '');
+            mosaicImg.src = src;
+        }
+    };
+
+    originalButton.addEventListener('click', () => setVariant('original'));
+    minifiedButton.addEventListener('click', () => setVariant('minified'));
+}
+
+initVariantToggle();
+
+/**
+ * Table/Mosaic view toggle.
+ *
  * @see docs/features.md F6.6 — Visual deck list (card mosaic)
  */
 function initViewToggle(): void {
@@ -29,9 +89,6 @@ function initViewToggle(): void {
         return;
     }
 
-    const storageKey = 'deckViewMode';
-    const savedMode = localStorage.getItem(storageKey);
-
     const showTable = (): void => {
         tableView.style.display = '';
         mosaicView.style.display = 'none';
@@ -39,7 +96,6 @@ function initViewToggle(): void {
         tableButton.setAttribute('aria-pressed', 'true');
         mosaicButton.classList.remove('active');
         mosaicButton.setAttribute('aria-pressed', 'false');
-        localStorage.setItem(storageKey, 'table');
     };
 
     const showMosaic = (): void => {
@@ -49,30 +105,33 @@ function initViewToggle(): void {
         mosaicButton.setAttribute('aria-pressed', 'true');
         tableButton.classList.remove('active');
         tableButton.setAttribute('aria-pressed', 'false');
-        localStorage.setItem(storageKey, 'mosaic');
     };
 
     tableButton.addEventListener('click', showTable);
     mosaicButton.addEventListener('click', showMosaic);
-
-    if (savedMode === 'mosaic') {
-        showMosaic();
-    }
 }
 
 initViewToggle();
 
 /**
+ * Single copy button that copies either original or minified list
+ * based on the current variant toggle state.
+ *
  * @see docs/features.md F6.7 — Export deck list as PTCGL text
- * @see docs/features.md F6.8 — Minified deck list export
  */
 function initCopyList(): void {
+    const copyButton = document.getElementById('deckCopyList');
     const feedback = document.getElementById('deckCopyFeedback');
 
-    const copyToClipboard = (elementId: string): void => {
-        const element = document.getElementById(elementId);
+    if (!copyButton || !feedback) {
+        return;
+    }
 
-        if (!element || !feedback) {
+    copyButton.addEventListener('click', () => {
+        const elementId = currentVariant === 'minified' ? 'deckMinifiedList' : 'deckRawList';
+        const element = document.getElementById(elementId) ?? document.getElementById('deckRawList');
+
+        if (!element) {
             return;
         }
 
@@ -84,83 +143,7 @@ function initCopyList(): void {
                 feedback.style.display = 'none';
             }, 2000);
         });
-    };
-
-    document.getElementById('deckCopyList')?.addEventListener('click', () => {
-        copyToClipboard('deckRawList');
-    });
-
-    document.getElementById('deckCopyMinifiedList')?.addEventListener('click', () => {
-        copyToClipboard('deckMinifiedList');
     });
 }
 
 initCopyList();
-
-/**
- * @see docs/features.md F6.8 — Minified deck list export
- */
-function initTableVariantToggle(): void {
-    const originalButton = document.getElementById('tableOriginal');
-    const minifiedButton = document.getElementById('tableMinified');
-    const originalTable = document.getElementById('deckTableOriginal');
-    const minifiedTable = document.getElementById('deckTableMinified');
-
-    if (!originalButton || !minifiedButton || !originalTable || !minifiedTable) {
-        return;
-    }
-
-    originalButton.addEventListener('click', () => {
-        originalTable.style.display = '';
-        minifiedTable.style.display = 'none';
-        originalButton.classList.add('active');
-        originalButton.setAttribute('aria-pressed', 'true');
-        minifiedButton.classList.remove('active');
-        minifiedButton.setAttribute('aria-pressed', 'false');
-    });
-
-    minifiedButton.addEventListener('click', () => {
-        originalTable.style.display = 'none';
-        minifiedTable.style.display = '';
-        minifiedButton.classList.add('active');
-        minifiedButton.setAttribute('aria-pressed', 'true');
-        originalButton.classList.remove('active');
-        originalButton.setAttribute('aria-pressed', 'false');
-    });
-}
-
-initTableVariantToggle();
-
-/**
- * @see docs/features.md F6.6b — Minified mosaic
- */
-function initMosaicVariantToggle(): void {
-    const originalButton = document.getElementById('mosaicOriginal');
-    const minifiedButton = document.getElementById('mosaicMinified');
-    const mosaicImg = document.getElementById('deckMosaicImg') as HTMLImageElement | null;
-
-    if (!originalButton || !minifiedButton || !mosaicImg) {
-        return;
-    }
-
-    const originalSrc = mosaicImg.dataset.originalSrc ?? '';
-    const minifiedSrc = mosaicImg.dataset.minifiedSrc ?? '';
-
-    originalButton.addEventListener('click', () => {
-        mosaicImg.src = originalSrc;
-        originalButton.classList.add('active');
-        originalButton.setAttribute('aria-pressed', 'true');
-        minifiedButton.classList.remove('active');
-        minifiedButton.setAttribute('aria-pressed', 'false');
-    });
-
-    minifiedButton.addEventListener('click', () => {
-        mosaicImg.src = minifiedSrc;
-        minifiedButton.classList.add('active');
-        minifiedButton.setAttribute('aria-pressed', 'true');
-        originalButton.classList.remove('active');
-        originalButton.setAttribute('aria-pressed', 'false');
-    });
-}
-
-initMosaicVariantToggle();

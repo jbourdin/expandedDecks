@@ -460,6 +460,22 @@
                 <source>app.deck.name_match_warning_body</source>
                 <target>Les cartes suivantes ont été identifiées par nom uniquement — l'image affichée peut ne pas correspondre à la version exacte de la carte. Veuillez réimporter la liste du deck avec des codes de set internationaux (anglais) pour un résultat précis.</target>
             </trans-unit>
+            <trans-unit id="app.deck.variant_toggle">
+                <source>app.deck.variant_toggle</source>
+                <target>Variante des cartes</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_original">
+                <source>app.deck.variant_original</source>
+                <target>Originale</target>
+            </trans-unit>
+            <trans-unit id="app.deck.variant_minified">
+                <source>app.deck.variant_minified</source>
+                <target>Simplifiée</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_button">
+                <source>app.deck.export_copy_button</source>
+                <target>Copier la liste</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy">
                 <source>app.deck.export_copy</source>
                 <target>Copier la liste originale</target>
