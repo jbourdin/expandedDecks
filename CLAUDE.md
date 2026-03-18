@@ -315,6 +315,9 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/roadmap.md](docs/roadmap.md) — Implementation roadmap across 12 phases
 - [docs/changelog.md](docs/changelog.md) — Release history with implemented features per version
 
+**Deployment**
+- [docs/installation.md](docs/installation.md) — Production Docker image, env vars, workers, health checks
+
 **Data Models**
 - [docs/models/user.md](docs/models/user.md) — User entity, roles, auth flows, GDPR
 - [docs/models/deck.md](docs/models/deck.md) — Deck, DeckVersion, DeckCard, Archetype
@@ -338,6 +341,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/scanner.md](docs/technicalities/scanner.md) — USB HID scanner detection
 - [docs/technicalities/camera_scanner.md](docs/technicalities/camera_scanner.md) — Camera QR scanner
 - [docs/technicalities/pdf_label.md](docs/technicalities/pdf_label.md) — PDF label card generation
+- [docs/technicalities/mosaic.md](docs/technicalities/mosaic.md) — Server-generated deck mosaic image (GD, Flysystem)
 
 ### Documentation Rules
 

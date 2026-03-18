@@ -9,6 +9,7 @@
 ## Project
 
 - [Philosophy](philosophy.md) — Mission, values, and relationship to official services
+- [Production Installation](installation.md) — Docker image, environment variables, workers, health checks
 
 ## Features
 
@@ -45,6 +46,7 @@
 - [PDF Label Card](technicalities/pdf_label.md) — Home-printable TCG card-sized deck label (Dompdf)
 - [Mobile UX Audit](technicalities/mobile_audit.md) — Mobile responsiveness issues and fix plan (F10.1)
 - [Localization](technicalities/localization.md) — Locale detection, timezone handling, translation infrastructure
+- [Deck Mosaic](technicalities/mosaic.md) — Server-generated card mosaic image (GD, Flysystem, S3)
 
 ## Planning
 
