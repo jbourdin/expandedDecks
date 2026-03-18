@@ -47,6 +47,7 @@
 - [Mobile UX Audit](technicalities/mobile_audit.md) — Mobile responsiveness issues and fix plan (F10.1)
 - [Localization](technicalities/localization.md) — Locale detection, timezone handling, translation infrastructure
 - [Deck Mosaic](technicalities/mosaic.md) — Server-generated card mosaic image (GD, Flysystem, S3)
+- [Card Enrichment](technicalities/enrichment.md) — TCGdex enrichment pipeline, card identity model, minified export
 
 ## Planning
 
