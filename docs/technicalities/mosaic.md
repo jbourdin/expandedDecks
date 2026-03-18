@@ -33,11 +33,15 @@ EnrichDeckVersionMessage dispatched
     ↓
 CardEnricher fetches TCGdex images (async, deck_enrichment transport)
     ↓
-All cards enriched → GenerateDeckMosaicMessage dispatched
+All cards enriched → 3 messages dispatched:
+    ├── GenerateDeckMosaicMessage    → original mosaic
+    ├── GenerateMinifiedListMessage  → minified PTCGL text (F6.8)
+    └── GenerateMinifiedMosaicMessage → minified mosaic (F6.6b)
     ↓
 MosaicGenerator renders composite image (GD)
     ↓
-Image stored via Flysystem → public URL saved on DeckVersion.mosaicImageUrl
+Image stored via Flysystem → shortTag-based URL saved on DeckVersion
+    (e.g. /mosaic/AB3K7N/5.png, /mosaic/AB3K7N/5_minified.png)
 ```
 
 ### Re-dispatch (admin)
@@ -78,7 +82,10 @@ Two adapters, selected via the `MOSAIC_STORAGE_ADAPTER` env var:
 
 ### File naming
 
-Pattern: `mosaic/{deckId}/{versionId}.png` (or `.webp`)
+**Storage path:** `mosaic/{deckId}/{versionId}.png` (numeric IDs, internal to Flysystem)
+**Minified variant:** `mosaic/{deckId}/{versionId}_minified.png`
+
+**Public URL:** `/mosaic/{shortTag}/{versionId}.png` — uses the deck's 6-character shortTag for human-readable, shareable URLs. The `MosaicController` resolves the shortTag to the deck ID for the Flysystem lookup. `MosaicUrlResolver::resolveForVersion()` generates these URLs from a `DeckVersion` entity.
 
 ---
 
