@@ -44,7 +44,7 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck?q=&archetype=&event=&owner=');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '3 decks found');
+        self::assertSelectorTextContains('body', '4 decks found');
     }
 
     public function testArchetypeSearchIsPubliclyAccessible(): void
@@ -92,7 +92,7 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '3 decks found');
+        self::assertSelectorTextContains('body', '4 decks found');
     }
 
     /**
@@ -188,7 +188,7 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', '2 decks found');
+        self::assertSelectorTextContains('body', '3 decks found');
     }
 
     public function testOwnerFilter(): void

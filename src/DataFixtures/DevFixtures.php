@@ -131,6 +131,14 @@ MARKDOWN;
         $charizardFlareon->setPublic(true);
         $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
+        $archetypeShadowRider = $this->createArchetype($manager, 'Shadow Rider Calyrex', ['calyrex-shadow-rider'], true, ['Control']);
+        $this->addArchetypeTranslation($manager, $archetypeShadowRider, 'en', 'Shadow Rider Calyrex', 'A **Shadow Rider Calyrex VMAX** control deck that uses hand disruption and item lock to starve the opponent of resources.');
+        $shadowRider = $this->createDeck($manager, $admin, 'Shadow Rider Calyrex');
+        $shadowRider->setArchetype($archetypeShadowRider);
+        $shadowRider->setLanguages(['en', 'jp']);
+        $shadowRider->setPublic(true);
+        $this->createShadowRiderDeckVersion($manager, $shadowRider);
+
         // Update Regidrago translations with a deck link now that decks exist
         $regidragoTranslationEn = $archetypeRegidrago->getTranslation('en');
         if ($regidragoTranslationEn instanceof ArchetypeTranslation) {
@@ -1811,7 +1819,7 @@ DECK;
     /**
      * Build a PTCGL-formatted raw deck list from a card data array.
      *
-     * @param list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> $cards
+     * @param array<int, array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> $cards
      */
     private function buildRawList(array $cards): string
     {
@@ -1826,9 +1834,134 @@ DECK;
 
     /**
      * Apply quantity overrides to a card data array (by card name).
-     *
-     * @param list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> &$cards
-     * @param array<string, int>                                                                                        $overrides card name => new quantity
+     */
+    private function createShadowRiderDeckVersion(ObjectManager $manager, Deck $deck): void
+    {
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setRawList($this->getShadowRiderRawDeckList());
+
+        foreach ($this->getShadowRiderDeckCards() as $cardData) {
+            $card = new DeckCard();
+            $card->setCardName($cardData['name']);
+            $card->setSetCode($cardData['set']);
+            $card->setCardNumber($cardData['number']);
+            $card->setQuantity($cardData['quantity']);
+            $card->setCardType($cardData['type']);
+            $card->setTrainerSubtype($cardData['subtype']);
+
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+
+        $deck->setCurrentVersion($version);
+    }
+
+    /**
+     * @return list<array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}>
+     */
+    private function getShadowRiderDeckCards(): array
+    {
+        return [
+            // Pokemon
+            ['name' => 'Shadow Rider Calyrex V', 'set' => 'S6K', 'number' => '76', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Shadow Rider Calyrex V', 'set' => 'S6K', 'number' => '36', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Shadow Rider Calyrex V', 'set' => 'CRE', 'number' => '74', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Shadow Rider Calyrex VMAX', 'set' => 'ASR-TG', 'number' => '30', 'quantity' => 3, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Trevenant & Dusknoir-GX', 'set' => 'SMP', 'number' => '217', 'quantity' => 2, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Tapu Lele-GX', 'set' => 'GRI', 'number' => '155', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Tapu Lele-GX', 'set' => 'GRI', 'number' => '137', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => "Lillie's Clefairy ex", 'set' => 'JTG', 'number' => '56', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Budew', 'set' => 'PRE', 'number' => '4', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Chimecho', 'set' => 'CIN', 'number' => '43', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Girafarig', 'set' => 'SM8', 'number' => '45', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Wobbuffet', 'set' => 'PHF', 'number' => '36', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Latias ex', 'set' => 'SSP', 'number' => '220', 'quantity' => 1, 'type' => 'pokemon', 'subtype' => null],
+            // Trainer - Supporter
+            ['name' => 'Guzma', 'set' => 'BUS', 'number' => '115', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => "Professor's Research", 'set' => 'JTG', 'number' => '155', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Raihan', 'set' => 'CRZ', 'number' => '140', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Arven', 'set' => 'SVI', 'number' => '235', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Faba', 'set' => 'LOT', 'number' => '173', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Acerola', 'set' => 'BUS', 'number' => '112', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'N', 'set' => 'FCO', 'number' => '105', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Marnie', 'set' => 'SSH', 'number' => '169', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            ['name' => 'Tulip', 'set' => 'PAR', 'number' => '181', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'supporter'],
+            // Trainer - Item
+            ['name' => 'Fog Crystal', 'set' => 'CRE', 'number' => '140', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Mysterious Treasure', 'set' => 'FLI', 'number' => '113a', 'quantity' => 4, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'VS Seeker', 'set' => 'PHF', 'number' => '109', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Battle VIP Pass', 'set' => 'FST', 'number' => '225', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Night Stretcher', 'set' => 'SFA', 'number' => '61', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Hisuian Heavy Ball', 'set' => 'ASR', 'number' => '146', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Unfair Stamp', 'set' => 'TWM', 'number' => '165', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'Field Blower', 'set' => 'GRI', 'number' => '125', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            ['name' => 'VS Seeker', 'set' => 'ROS', 'number' => '110', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'item'],
+            // Trainer - Tool
+            ['name' => 'Float Stone', 'set' => 'BKT', 'number' => '137', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+            ['name' => 'Forest Seal Stone', 'set' => 'SIT', 'number' => '156', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+            ['name' => 'Fighting Fury Belt', 'set' => 'BKP', 'number' => '99', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+            ['name' => 'Float Stone', 'set' => 'PLF', 'number' => '99', 'quantity' => 1, 'type' => 'trainer', 'subtype' => 'tool'],
+            // Trainer - Stadium
+            ['name' => 'Temple of Sinnoh', 'set' => 'ASR', 'number' => '155', 'quantity' => 2, 'type' => 'trainer', 'subtype' => 'stadium'],
+            // Energy
+            ['name' => 'Psychic Energy', 'set' => 'SVE', 'number' => '21', 'quantity' => 11, 'type' => 'energy', 'subtype' => null],
+        ];
+    }
+
+    private function getShadowRiderRawDeckList(): string
+    {
+        return <<<'PTCG'
+Pokémon: 16
+1 Shadow Rider Calyrex V S6K 76
+1 Shadow Rider Calyrex V S6K 36
+1 Shadow Rider Calyrex V CRE 74
+3 Shadow Rider Calyrex VMAX ASR-TG 30
+2 Trevenant & Dusknoir-GX SMP 217
+1 Tapu Lele-GX GRI 155
+1 Tapu Lele-GX GRI 137
+1 Lillie's Clefairy ex JTG 56
+1 Budew PRE 4
+1 Chimecho CIN 43
+1 Girafarig SM8 45
+1 Wobbuffet PHF 36
+1 Latias ex SSP 220
+
+Trainer: 33
+2 Guzma BUS 115
+1 Professor's Research JTG 155
+1 Raihan CRZ 140
+1 Arven SVI 235
+1 Faba LOT 173
+1 Acerola BUS 112
+1 N FCO 105
+1 Marnie SSH 169
+1 Tulip PAR 181
+4 Fog Crystal CRE 140
+4 Mysterious Treasure FLI 113a
+2 VS Seeker PHF 109
+2 Battle VIP Pass FST 225
+1 Night Stretcher SFA 61
+1 Hisuian Heavy Ball ASR 146
+1 Unfair Stamp TWM 165
+1 Field Blower GRI 125
+1 VS Seeker ROS 110
+1 Float Stone BKT 137
+1 Forest Seal Stone SIT 156
+1 Fighting Fury Belt BKP 99
+1 Float Stone PLF 99
+2 Temple of Sinnoh ASR 155
+
+Energy: 11
+11 Psychic Energy SVE 21
+PTCG;
+    }
+
+    /**
+     * @param array<int, array{name: string, set: string, number: string, quantity: int, type: string, subtype: string|null}> &$cards
+     * @param array<string, int>                                                                                              $overrides
      */
     private function applyQuantityOverrides(array &$cards, array $overrides): void
     {
