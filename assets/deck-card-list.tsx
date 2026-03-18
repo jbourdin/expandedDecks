@@ -34,6 +34,7 @@ if (root) {
         viewMosaic: root.dataset.labelViewMosaic ?? 'Mosaic',
         copyButton: root.dataset.labelCopyButton ?? 'Copy list',
         copied: root.dataset.labelCopied ?? 'Copied!',
+        shareMosaic: root.dataset.labelShareMosaic ?? 'Share mosaic',
         mosaicAlt: root.dataset.labelMosaicAlt ?? 'Card mosaic',
         sectionPokemon: root.dataset.labelSectionPokemon ?? 'Pokémon',
         sectionTrainer: root.dataset.labelSectionTrainer ?? 'Trainer',

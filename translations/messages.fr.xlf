@@ -472,6 +472,10 @@
                 <source>app.deck.variant_minified</source>
                 <target>Simplifiée</target>
             </trans-unit>
+            <trans-unit id="app.deck.share_mosaic">
+                <source>app.deck.share_mosaic</source>
+                <target>Partager l'image mosaïque</target>
+            </trans-unit>
             <trans-unit id="app.deck.export_copy_button">
                 <source>app.deck.export_copy_button</source>
                 <target>Copier la liste</target>

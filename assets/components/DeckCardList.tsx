@@ -25,7 +25,7 @@ import {
     Tooltip,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconCheck } from '@tabler/icons-react';
+import { IconCopy, IconCheck, IconShare } from '@tabler/icons-react';
 
 interface CardData {
     cardName: string;
@@ -44,6 +44,7 @@ interface Labels {
     viewMosaic: string;
     copyButton: string;
     copied: string;
+    shareMosaic: string;
     mosaicAlt: string;
     sectionPokemon: string;
     sectionTrainer: string;
@@ -224,6 +225,50 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
         });
     }, [activeList]);
 
+    const handleShareMosaic = useCallback(async () => {
+        if (!activeMosaicUrl) {
+            return;
+        }
+
+        // Try Web Share API with the image file
+        if (navigator.share) {
+            try {
+                const response = await fetch(activeMosaicUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'deck-mosaic.png', { type: 'image/png' });
+
+                await navigator.share({
+                    files: [file],
+                });
+
+                return;
+            } catch {
+                // Share cancelled or not supported with files — fall back to URL share
+            }
+
+            try {
+                await navigator.share({
+                    title: labels.mosaicAlt,
+                    url: activeMosaicUrl,
+                });
+
+                return;
+            } catch {
+                // Share cancelled — fall back to clipboard
+            }
+        }
+
+        // Fallback: copy mosaic URL to clipboard
+        await navigator.clipboard.writeText(window.location.origin + activeMosaicUrl);
+        setCopied(true);
+
+        if (copyTimeout.current) {
+            clearTimeout(copyTimeout.current);
+        }
+
+        copyTimeout.current = setTimeout(() => setCopied(false), 2000);
+    }, [activeMosaicUrl, labels.mosaicAlt]);
+
     const handleMosaicClick = useCallback(() => {
         if (isMobile) {
             setMosaicModalOpen(true);
@@ -261,6 +306,18 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
                             {copied ? <IconCheck size={18} /> : <IconCopy size={18} />}
                         </ActionIcon>
                     </Tooltip>
+                    {activeMosaicUrl && (
+                        <Tooltip label={labels.shareMosaic}>
+                            <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                onClick={handleShareMosaic}
+                                size="lg"
+                            >
+                                <IconShare size={18} />
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
                     {copied && (
                         <Text size="sm" c="green">
                             {labels.copied}
