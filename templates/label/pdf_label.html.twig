@@ -1,0 +1,174 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+        }
+
+        .page {
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+        }
+
+        /* Card label — centered on page
+         * Outer size: 63.5 × 88.9 mm (TCG card)
+         * Dompdf uses content-box: width/height = outer − padding − border
+         * Border: 0.3mm × 2 = 0.6mm; Padding: 3mm top + 2mm bottom = 5mm
+         * Content width: 63.5 − 0.6 = 62.9mm; Content height: 88.9 − 5 − 0.6 = 83.3mm
+         */
+        .label {
+            width: 62.9mm;
+            height: 83.3mm;
+            border: 0.3mm solid #ccc;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -31.75mm;
+            margin-top: -44.45mm;
+            text-align: center;
+            padding: 3mm 0 2mm;
+            overflow: hidden;
+        }
+
+        /* Crop marks */
+        .crop-top-left-h, .crop-top-right-h, .crop-bottom-left-h, .crop-bottom-right-h,
+        .crop-top-left-v, .crop-top-right-v, .crop-bottom-left-v, .crop-bottom-right-v {
+            position: absolute;
+            background: #000;
+        }
+
+        /* Horizontal crop marks — full width from page edge to label edge */
+        .crop-top-left-h    { height: 0.2mm; top: calc(50% - 44.45mm); left: 0; right: calc(50% + 31.75mm + 2mm); }
+        .crop-top-right-h   { height: 0.2mm; top: calc(50% - 44.45mm); left: calc(50% + 31.75mm + 2mm); right: 0; }
+        .crop-bottom-left-h { height: 0.2mm; top: calc(50% + 44.45mm); left: 0; right: calc(50% + 31.75mm + 2mm); }
+        .crop-bottom-right-h{ height: 0.2mm; top: calc(50% + 44.45mm); left: calc(50% + 31.75mm + 2mm); right: 0; }
+
+        /* Vertical crop marks */
+        .crop-top-left-v    { width: 0.2mm; height: 5mm; top: calc(50% - 44.45mm - 7mm); left: calc(50% - 31.75mm); }
+        .crop-top-right-v   { width: 0.2mm; height: 5mm; top: calc(50% - 44.45mm - 7mm); left: calc(50% + 31.75mm); }
+        .crop-bottom-left-v { width: 0.2mm; height: 5mm; top: calc(50% + 44.45mm + 2mm); left: calc(50% - 31.75mm); }
+        .crop-bottom-right-v{ width: 0.2mm; height: 5mm; top: calc(50% + 44.45mm + 2mm); left: calc(50% + 31.75mm); }
+
+        .deck-name {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 1mm 3mm 1mm;
+            line-height: 1.2;
+            color: #1a1a1a;
+        }
+
+        .sprites {
+            margin: 1mm 0 1mm;
+            line-height: 0;
+        }
+
+        .sprite-img {
+            width: 12mm;
+            height: 12mm;
+            margin: 0 1mm;
+        }
+
+        .separator {
+            border-top: 0.3mm solid #ddd;
+            margin: 1.5mm 0;
+        }
+
+        .qr-code {
+            width: 18mm;
+            height: 18mm;
+            margin: 1.5mm auto 1mm;
+        }
+
+        .short-tag {
+            font-size: 9pt;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1.5pt;
+            color: #333;
+            margin: 1mm 0;
+        }
+
+        .screen-name {
+            font-size: 10pt;
+            color: #333;
+            margin: 1mm 0 0;
+        }
+
+        .full-name {
+            font-size: 7.5pt;
+            color: #777;
+            margin: 0.5mm 0 0;
+        }
+
+        .base-url {
+            font-size: 6.5pt;
+            color: #aaa;
+            margin: 0 3mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        {# Crop marks #}
+        <div class="crop-top-left-h"></div>
+        <div class="crop-top-right-h"></div>
+        <div class="crop-bottom-left-h"></div>
+        <div class="crop-bottom-right-h"></div>
+        <div class="crop-top-left-v"></div>
+        <div class="crop-top-right-v"></div>
+        <div class="crop-bottom-left-v"></div>
+        <div class="crop-bottom-right-v"></div>
+
+        {# Label card #}
+        <div class="label">
+            <div class="deck-name">{{ deck.name }}</div>
+
+            {% if spriteDataUris is not empty %}
+                <div class="sprites">
+                    {% for sprite in spriteDataUris %}
+                        <img src="{{ sprite.dataUri }}" alt="{{ sprite.name }}" class="sprite-img">
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="separator"></div>
+
+            <img src="{{ qrCodeDataUri }}" class="qr-code" alt="QR Code">
+
+            <div class="short-tag">{{ deck.shortTag }}</div>
+
+            <div class="separator"></div>
+
+            <div class="screen-name">{{ deck.owner.screenName }}</div>
+            <div class="full-name">{{ deck.owner.firstName }} {{ deck.owner.lastName }}</div>
+
+            <div class="separator"></div>
+
+            <div class="base-url">{{ baseUrl }}</div>
+        </div>
+    </div>
+</body>
+</html>

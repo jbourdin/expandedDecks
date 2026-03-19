@@ -23,6 +23,7 @@ use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Service\DeckList\MinifiedCardViewBuilder;
+use App\Service\Label\PdfLabelGenerator;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @see docs/features.md F2.3 — Detail view
  * @see docs/features.md F2.14 — Deck event status overview
  * @see docs/features.md F4.5 — Borrow history
+ * @see docs/features.md F5.7 — PDF label card (home printing)
  * @see docs/features.md F5.12 — Deck show activity pagination
  */
 class DeckShowController extends AbstractController
@@ -174,6 +176,54 @@ class DeckShowController extends AbstractController
             'eligibleEvents' => $eligibleEvents,
             'eventStatusOverview' => $eventStatusOverview,
             'versionCount' => $deck->getVersions()->count(),
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F5.7 — PDF label card (home printing)
+     * @see docs/technicalities/pdf_label.md
+     */
+    #[Route('/deck/{short_tag}/label.pdf', name: 'app_deck_label_pdf', methods: ['GET'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
+    public function labelPdf(
+        #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
+        PdfLabelGenerator $labelGenerator,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($deck->getOwner()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $pdf = $labelGenerator->generate($deck);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => \sprintf('inline; filename="deck-%s-label.pdf"', $deck->getShortTag()),
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F5.7 — PDF label card (home printing)
+     * @see docs/technicalities/pdf_label.md
+     */
+    #[Route('/deck/{short_tag}/label-foldable.pdf', name: 'app_deck_label_foldable_pdf', methods: ['GET'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
+    public function labelFoldablePdf(
+        #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
+        PdfLabelGenerator $labelGenerator,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($deck->getOwner()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $pdf = $labelGenerator->generateFoldable($deck);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => \sprintf('inline; filename="deck-%s-label-foldable.pdf"', $deck->getShortTag()),
         ]);
     }
 }
