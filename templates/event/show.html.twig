@@ -653,8 +653,19 @@
                 </div>
                 <div class="card-body">
                     {% set selectedDeckId = currentDeckEntry ? currentDeckEntry.deckVersion.deck.id : 0 %}
-                    <form method="post" action="{{ path('app_event_select_deck', {id: event.id}) }}">
+                    <form method="post" action="{{ path('app_event_select_deck', {id: event.id}) }}"
+                          onsubmit="return (function(form) {
+                              var selected = form.querySelector('input[name=deck_id]:checked');
+                              if (!selected) return true;
+                              var pending = selected.getAttribute('data-pending-borrows');
+                              if (pending) {
+                                  if (!confirm('{{ 'app.event.confirm_cancel_pending_borrows'|trans|e('js') }}')) return false;
+                                  form.querySelector('input[name=confirm_cancel_borrows]').value = '1';
+                              }
+                              return true;
+                          })(this)">
                         <input type="hidden" name="_token" value="{{ csrf_token('select-deck-' ~ event.id) }}">
+                        <input type="hidden" name="confirm_cancel_borrows" value="0">
                         <table class="table table-sm table-themed mb-2">
                             <thead>
                                 <tr>
@@ -678,26 +689,36 @@
                                     {% set regInfo = deckRegistrationMap[deck.id] ?? null %}
                                     {% set isWithStaff = regInfo is not null and regInfo.delegated and regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
                                     {% set isDeckLent = deck.status.value == 'lent' %}
-                                    {% set isUnavailable = isWithStaff or isDeckLent %}
+                                    {% set hasBorrowBlock = deckBorrowBlockMap[deck.id] ?? false %}
+                                    {% set pendingBorrowCount = deckPendingBorrowCountMap[deck.id] ?? 0 %}
+                                    {% set isUnavailable = isWithStaff or isDeckLent or hasBorrowBlock %}
                                     <tr>
                                         <td>
                                             <input type="radio" name="deck_id" value="{{ deck.id }}" class="form-check-input"
                                                 {{ selectedDeckId == deck.id ? 'checked' }}
-                                                {{ (not canChangeDeck or isUnavailable) ? 'disabled' }}>
+                                                {{ (not canChangeDeck or isUnavailable) ? 'disabled' }}
+                                                {% if pendingBorrowCount > 0 and not isUnavailable %}
+                                                    data-pending-borrows="{{ pendingBorrowCount }}"
+                                                {% endif %}>
                                         </td>
                                         <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{% if deck.archetype %}{{ archetype_sprites(deck.archetype) }} {% endif %}{{ deck.name }}</a></td>
                                         <td>
                                             {% if isWithStaff %}
-                                                <span class="badge bg-info">With staff</span>
+                                                <span class="badge bg-info">{{ 'app.event.with_staff'|trans }}</span>
                                             {% elseif isDeckLent %}
-                                                <span class="badge bg-warning text-dark">Lent</span>
+                                                <span class="badge bg-warning text-dark">{{ 'app.event.deck_lent'|trans }}</span>
+                                            {% elseif hasBorrowBlock %}
+                                                <span class="badge bg-primary">{{ 'app.event.deck_reserved'|trans }}</span>
+                                            {% elseif pendingBorrowCount > 0 %}
+                                                <span class="badge bg-secondary">{{ 'app.event.own_deck'|trans }}</span>
+                                                <span class="badge bg-light text-dark">{{ 'app.event.pending_borrows'|trans({'%count%': pendingBorrowCount}) }}</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">{{ 'app.event.own_deck'|trans }}</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {% if isUnavailable %}
-                                                <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">Browse decks</a>
+                                                <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.event.browse_available'|trans }}</a>
                                             {% endif %}
                                         </td>
                                     </tr>

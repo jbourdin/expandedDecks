@@ -1308,6 +1308,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
             '_token' => $csrfToken,
             'deck_id' => (string) $deck->getId(),
+            'confirm_cancel_borrows' => '1',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -1469,6 +1470,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
             '_token' => $csrfToken,
             'deck_id' => (string) $deck->getId(),
+            'confirm_cancel_borrows' => '1',
         ]);
 
         self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
@@ -1493,6 +1495,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
             '_token' => $csrfToken,
             'deck_id' => (string) $ironThorns->getId(),
+            'confirm_cancel_borrows' => '1',
         ]);
         self::assertResponseRedirects();
         $this->client->followRedirect();
@@ -1590,6 +1593,7 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('POST', \sprintf('/event/%d/select-deck', $event->getId()), [
             '_token' => $csrfToken,
             'deck_id' => (string) $deck->getId(),
+            'confirm_cancel_borrows' => '1',
         ]);
         self::assertResponseRedirects();
         $this->client->followRedirect();

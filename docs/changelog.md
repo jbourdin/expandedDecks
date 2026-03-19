@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.8] — 2026-03-19
+
+Eighth beta — deck selection borrow conflict guards, PHP memory limit for mosaics, CI workflow improvements.
+
+### Borrow Workflow
+
+- **F3.7 / F4.11** — Deck selection borrow conflict guards *(completed)*: owner cannot select their own deck for an event when an approved/lent/overdue borrow exists (hard block with "Reserved" badge). Selecting a deck with pending borrow requests triggers a confirmation dialog; confirming cancels all pending requests via `BorrowService::cancel()`. New `BorrowRepository::findAllPendingBorrowsForDeckAtEvent()` query. Hardcoded UI strings replaced with proper translation keys (en/fr).
+
+### Infrastructure
+
+- PHP memory limit raised to 512M in Docker for mosaic generation.
+- `/pr` workflow auto-creates feature branch from `develop` when invoked on the `develop` branch.
+
+---
+
 ## [1.0.0-beta.7] — 2026-03-19
 
 Seventh beta — card identity model, minified export/mosaic, enrichment edge cases, and React island refactor.
