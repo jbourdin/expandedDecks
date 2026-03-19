@@ -105,19 +105,16 @@ class PdfLabelGenerator
             ? $this->groupCards($currentVersion)
             : [];
 
-        // Count total card lines (+ gaps between sections) to compute font size
-        $cardLineCount = 0;
-        $sectionCount = 0;
+        // Count total card lines to compute font size
+        $totalLines = 0;
         foreach ($groupedCards as $cards) {
-            $cardLineCount += \count($cards);
-            ++$sectionCount;
+            $totalLines += \count($cards);
         }
-        // Add inter-section gaps (one less than section count)
-        $totalLines = $cardLineCount + max(0, $sectionCount - 1);
 
-        // Compute font size to fit: ~80mm usable height, header ~3mm, footer ~2mm
-        // Available height ≈ 75mm. Line height = font_size × 1.4 (in pt→mm: 1pt ≈ 0.353mm)
-        $availableHeightMm = 75.0;
+        // Compute font size to fit: ~83mm usable height, footer ~2mm, section padding ~1mm per section
+        // Available height ≈ 80mm. Line height = font_size × 1.4 (in pt→mm: 1pt ≈ 0.353mm)
+        $sectionPaddingMm = \count($groupedCards) * 1.0;
+        $availableHeightMm = 80.0 - $sectionPaddingMm;
         $lineHeightFactor = 1.4;
         $ptToMm = 0.353;
 
@@ -141,7 +138,10 @@ class PdfLabelGenerator
     }
 
     /**
-     * Group and sort deck cards by type for compact list rendering.
+     * Group and sort deck cards by detailed type for compact list rendering.
+     *
+     * Trainers are split by subtype (supporter, item, tool, stadium).
+     * Order: pokemon → supporter → item → tool → stadium → energy.
      *
      * @return array<string, list<DeckCard>>
      */
@@ -150,22 +150,28 @@ class PdfLabelGenerator
         $grouped = [];
 
         foreach ($version->getCards() as $card) {
-            $grouped[$card->getCardType()][] = $card;
+            if ('trainer' === $card->getCardType() && null !== $card->getTrainerSubtype()) {
+                $grouped[$card->getTrainerSubtype()][] = $card;
+            } else {
+                $grouped[$card->getCardType()][] = $card;
+            }
         }
 
-        foreach ($grouped as &$cards) {
-            usort($cards, static function (DeckCard $a, DeckCard $b): int {
-                if ($a->getQuantity() !== $b->getQuantity()) {
-                    return $b->getQuantity() - $a->getQuantity();
-                }
+        $sortFn = static function (DeckCard $a, DeckCard $b): int {
+            if ($a->getQuantity() !== $b->getQuantity()) {
+                return $b->getQuantity() - $a->getQuantity();
+            }
 
-                return strcmp($a->getCardName(), $b->getCardName());
-            });
+            return strcmp($a->getCardName(), $b->getCardName());
+        };
+
+        foreach ($grouped as &$cards) {
+            usort($cards, $sortFn);
         }
         unset($cards);
 
         $ordered = [];
-        foreach (['pokemon', 'trainer', 'energy'] as $section) {
+        foreach (['pokemon', 'supporter', 'item', 'tool', 'stadium', 'energy'] as $section) {
             if (isset($grouped[$section])) {
                 $ordered[$section] = $grouped[$section];
             }

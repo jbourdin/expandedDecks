@@ -149,22 +149,14 @@
         }
 
         /* === Back panel styles (deck list) === */
-        .decklist-header {
-            font-size: 8pt;
-            font-weight: bold;
-            margin: 0 2mm 1mm;
-            color: #1a1a1a;
-            text-align: center;
-        }
-
         .decklist-section {
-            margin: 0 2mm;
+            margin: 0;
+            padding: 0.5mm 2mm;
             text-align: left;
         }
 
-        .decklist-gap {
-            height: 1mm;
-        }
+        .decklist-shade-0 { background: #ffffff; }
+        .decklist-shade-1 { background: #f4f4f4; }
 
         .decklist-card {
             font-size: {{ decklistFontSize }}pt;
@@ -208,13 +200,8 @@
 
         {# Left panel — deck list (back when folded) #}
         <div class="panel panel-back">
-            <div class="decklist-header">{{ deck.name }}</div>
-
             {% for type, cards in groupedCards %}
-                {% if not loop.first %}
-                    <div class="decklist-gap"></div>
-                {% endif %}
-                <div class="decklist-section">
+                <div class="decklist-section decklist-shade-{{ loop.index0 % 2 }}">
                     {% for card in cards %}
                         <div class="decklist-card">
                             <span class="decklist-qty">{{ card.quantity }}</span> {{ card.cardName }} <span class="decklist-set">{{ card.setCode }} {{ card.cardNumber }}</span>
