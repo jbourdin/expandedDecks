@@ -151,7 +151,9 @@ class PdfLabelGenerator
 
         foreach ($version->getCards() as $card) {
             if ('trainer' === $card->getCardType()) {
-                $subtype = $card->getTrainerSubtype() ?? 'trainer';
+                $subtype = null !== $card->getTrainerSubtype()
+                    ? strtolower($card->getTrainerSubtype())
+                    : 'trainer';
                 $grouped[$subtype][] = $card;
             } else {
                 $grouped[$card->getCardType()][] = $card;
