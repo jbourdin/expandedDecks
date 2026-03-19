@@ -1257,6 +1257,31 @@
                 <target>Deck personnel</target>
                 <note>Badge indicating an owned deck</note>
             </trans-unit>
+            <trans-unit id="app.event.with_staff">
+                <source>app.event.with_staff</source>
+                <target>Chez le staff</target>
+                <note>Badge indicating a deck is in staff custody</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_lent">
+                <source>app.event.deck_lent</source>
+                <target>Prêté</target>
+                <note>Badge indicating a deck is currently lent to a borrower</note>
+            </trans-unit>
+            <trans-unit id="app.event.deck_reserved">
+                <source>app.event.deck_reserved</source>
+                <target>Réservé</target>
+                <note>Badge indicating a deck is reserved (approved borrow) for a borrower at this event</note>
+            </trans-unit>
+            <trans-unit id="app.event.pending_borrows">
+                <source>app.event.pending_borrows</source>
+                <target>{1} %count% demande en attente|]1,Inf[ %count% demandes en attente</target>
+                <note>Badge showing the number of pending borrow requests on a deck</note>
+            </trans-unit>
+            <trans-unit id="app.event.confirm_cancel_pending_borrows">
+                <source>app.event.confirm_cancel_pending_borrows</source>
+                <target>Ce deck a des demandes d'emprunt en attente. Le sélectionner annulera toutes les demandes en attente pour ce deck à cet événement. Continuer ?</target>
+                <note>Confirmation dialog when owner selects a deck that has pending borrows</note>
+            </trans-unit>
             <trans-unit id="app.event.save_selection">
                 <source>app.event.save_selection</source>
                 <target>Enregistrer la sélection</target>
@@ -1859,6 +1884,11 @@
                 <source>app.flash.event.selection_cleared</source>
                 <target>Sélection de deck effacée.</target>
                 <note>Success flash after clearing deck selection</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.pending_borrows_not_confirmed">
+                <source>app.flash.event.pending_borrows_not_confirmed</source>
+                <target>Ce deck a des demandes d'emprunt en attente. Veuillez confirmer l'annulation avant de le sélectionner.</target>
+                <note>Warning when owner tries to select a deck with pending borrows without confirming</note>
             </trans-unit>
             <trans-unit id="app.flash.event.deck_not_available">
                 <source>app.flash.event.deck_not_available</source>
