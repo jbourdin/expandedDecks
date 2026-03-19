@@ -146,6 +146,9 @@ class EventController extends AbstractAppController
         $currentDeckEntry = null;
         $canChangeDeck = false;
 
+        $deckBorrowBlockMap = [];
+        $deckPendingBorrowCountMap = [];
+
         if ($isParticipant) {
             $playableOwnDecks = array_filter(
                 $deckRepository->findByOwner($user),
@@ -153,6 +156,23 @@ class EventController extends AbstractAppController
                     && null !== $deck->getCurrentVersion(),
             );
             $playableOwnDecks = array_values($playableOwnDecks);
+
+            // Build borrow conflict maps for own decks at this event
+            foreach ($playableOwnDecks as $deck) {
+                $deckId = $deck->getId();
+                if (null === $deckId) {
+                    continue;
+                }
+
+                if (null !== $borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
+                    $deckBorrowBlockMap[$deckId] = true;
+                }
+
+                $pendingCount = \count($borrowRepository->findAllPendingBorrowsForDeckAtEvent($deck, $event));
+                if ($pendingCount > 0) {
+                    $deckPendingBorrowCountMap[$deckId] = $pendingCount;
+                }
+            }
 
             $currentDeckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
             $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
@@ -180,6 +200,8 @@ class EventController extends AbstractAppController
             'playableOwnDecks' => $playableOwnDecks,
             'currentDeckEntry' => $currentDeckEntry,
             'canChangeDeck' => $canChangeDeck,
+            'deckBorrowBlockMap' => $deckBorrowBlockMap,
+            'deckPendingBorrowCountMap' => $deckPendingBorrowCountMap,
             'ownedDecksWithVersion' => $ownedDecksWithVersion,
             'deckRegistrationMap' => $deckRegistrationMap,
             'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
@@ -229,6 +251,7 @@ class EventController extends AbstractAppController
         EntityManagerInterface $em,
         DeckRepository $deckRepository,
         BorrowRepository $borrowRepository,
+        BorrowService $borrowService,
         EventDeckEntryRepository $entryRepository,
     ): Response {
         /** @var User $user */
@@ -287,6 +310,21 @@ class EventController extends AbstractAppController
             $this->addFlash('danger', 'app.flash.event.deck_not_available');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        // Cancel pending borrows for own deck when owner selects it for themselves
+        if ($deck->getOwner()->getId() === $user->getId()) {
+            $pendingBorrows = $borrowRepository->findAllPendingBorrowsForDeckAtEvent($deck, $event);
+
+            if ([] !== $pendingBorrows && '1' !== $request->getPayload()->getString('confirm_cancel_borrows')) {
+                $this->addFlash('warning', 'app.flash.event.pending_borrows_not_confirmed');
+
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            }
+
+            foreach ($pendingBorrows as $pendingBorrow) {
+                $borrowService->cancel($pendingBorrow, $user);
+            }
         }
 
         if (null !== $existingEntry) {
@@ -1070,9 +1108,14 @@ class EventController extends AbstractAppController
         Event $event,
         BorrowRepository $borrowRepository,
     ): ?DeckVersion {
-        // Own deck: must not be lent or retired, and must have a current version
+        // Own deck: must not be lent, retired, or committed to a borrower at this event
         if ($deck->getOwner()->getId() === $user->getId()) {
             if (DeckStatus::Lent === $deck->getStatus() || DeckStatus::Retired === $deck->getStatus()) {
+                return null;
+            }
+
+            // Block if an approved/lent/overdue borrow exists for this deck at this event
+            if (null !== $borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
                 return null;
             }
 

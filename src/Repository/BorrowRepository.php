@@ -337,6 +337,32 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all pending borrows for a deck at an event (no exclusion).
+     *
+     * Used when the owner selects their own deck for play — pending borrows
+     * must be cancelled since the deck is no longer available.
+     *
+     * @see docs/features.md F3.7 — Register played deck for event
+     *
+     * @return list<Borrow>
+     */
+    public function findAllPendingBorrowsForDeckAtEvent(Deck $deck, Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->where('b.deck = :deck')
+            ->andWhere('b.event = :event')
+            ->andWhere('b.status = :status')
+            ->setParameter('deck', $deck)
+            ->setParameter('event', $event)
+            ->setParameter('status', BorrowStatus::Pending->value)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * Find all pending borrows for a deck (across all events).
      *
      * @see docs/features.md F2.7 — Retire / reactivate a deck
