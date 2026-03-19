@@ -18,7 +18,7 @@ F1.1, F1.2, F1.3, F1.4, F1.7, F1.8, F1.11,
 F2.1, F2.2, F2.3, F2.4, F2.5, F2.6, F2.7, F2.8, F2.9, F2.10, F2.11, F2.12, F2.13, F2.14, F2.15, F2.16, F2.17, F2.18,
 F3.1, F3.2, F3.3, F3.4, F3.5, F3.7, F3.9, F3.10, F3.11, F3.13, F3.15, F3.17, F3.18, F3.20, F3.21,
 F4.1, F4.2, F4.3, F4.4, F4.5, F4.7, F4.8, F4.9, F4.10, F4.11, F4.12, F4.13, F4.14,
-F5.12,
+F5.7, F5.12,
 F6.1, F6.2, F6.3, F6.4, F6.5,
 F7.1, F7.2, F7.4,
 F8.1, F8.2, F8.3, F8.4,
@@ -30,7 +30,7 @@ F6.5-fix,
 F6.6, F6.6b, F6.7, F6.8, F6.9, F6.10,
 F9.6
 
-**Total: 90 features done.**
+**Total: 91 features done.**
 
 ---
 
@@ -127,10 +127,10 @@ F9.6
 
 | ID    | Feature                           | Priority | Depends on |
 |-------|-----------------------------------|----------|------------|
-| F5.7  | PDF label card (home printing)    | Medium   | —          |
+| F5.7  | PDF label card (home printing)    | Medium   | —          | Done |
 | F5.6  | Camera QR scan (mobile fallback)  | Medium   | F5.7       |
 
-**Progress: 0/2 done**
+**Progress: 1/2 done**
 
 **Deliverable:** Generate downloadable PDF labels (TCG card-sized, with QR code) for any deck, printable on any home printer. Scan these QR codes via the device camera to identify decks and trigger borrow actions. No special hardware needed.
 
@@ -237,12 +237,12 @@ F9.6
 | 0     | Deployment Readiness            | 6 (Done) | 1.0.0-beta.2 |
 | A     | UX Polish & Overdue Tracking    | 5 (+7 Done) |           |
 | B     | Event Enrichment                | 4        |              |
-| C     | PDF Labels & Camera Scanning    | 2        |              |
+| C     | PDF Labels & Camera Scanning    | 1 (+1 Done) |           |
 | D     | Zebra Labels & HID Scanning     | 5        |              |
 | E     | Auth Hardening & Delegation     | 4        |              |
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
 | H     | Lost & Found                   | 1        |              |
-|       | **Total remaining**             | **27**   |              |
+|       | **Total remaining**             | **26**   |              |
 
-90 features done · 27 remaining.
+91 features done · 26 remaining.

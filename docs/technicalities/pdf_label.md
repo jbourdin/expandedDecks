@@ -14,18 +14,21 @@ Without a label, the deck cannot be scanned at the event for hand-off (F4.3) or 
 
 ## Strategy
 
-Generate a **downloadable PDF** containing a single TCG card-sized label that the user can print on any home printer, cut out, and slip into a card sleeve at the front of the deck box.
+Generate **downloadable PDFs** containing TCG card-sized labels that the user can print on any home printer, cut out, and slip into a card sleeve at the front of the deck box. Two variants are available:
+
+1. **Simple label** — single card with deck identity and QR code
+2. **Foldable label** — two cards side by side (book layout) with a deck list on the back
 
 Key choices:
 
-- **Dompdf** — HTML/CSS to PDF conversion via a Twig template, well integrated with Symfony
-- **`endroid/qr-code`** — QR code generation as base64 PNG, embedded directly in the HTML template
-- **TCG card dimensions** — The label is sized to fit a standard card sleeve, so it sits naturally in the deck box
-- **Same QR encoding** — Identical deck identifier format as the ZPL label (F5.1), so existing scanners (F5.3, F5.6) work unchanged
+- **Dompdf** — HTML/CSS to PDF conversion via Twig templates, well integrated with Symfony
+- **`endroid/qr-code` v6** — QR code generation as base64 PNG, embedded directly in the HTML template
+- **TCG card dimensions** — Labels are sized to fit a standard card sleeve (63.5 × 88.9 mm)
+- **Public URL encoding** — QR code links to the deck page, allowing anyone finding the deck to identify the owner
 
 ## TCG Card Dimensions
 
-The label is rendered at **standard poker-size TCG card dimensions**:
+Each label panel is rendered at **standard poker-size TCG card dimensions**:
 
 | Dimension | Value     | Notes                                          |
 |-----------|-----------|-------------------------------------------------|
@@ -33,141 +36,179 @@ The label is rendered at **standard poker-size TCG card dimensions**:
 | Height    | 88.9 mm   | Standard poker card height                      |
 | Fit       | Any standard card sleeve (e.g. Ultra PRO, Dragon Shield) | Same dimensions as a Pokemon card |
 
-## Label Layout
+## Variant 1: Simple Label
 
-The card-sized label contains the same information as the ZPL label (F5.1): QR code, deck name, owner name, and deck ID.
+### Layout
+
+The card-sized label contains: deck name, archetype sprites, QR code (linking to the deck page), short tag, owner identity, and the application base URL.
 
 ```
 +-------------------------+
 |                         |
-|     +-------------+     |
-|     |             |     |
-|     |   QR CODE   |     |
-|     |  (deck ID)  |     |
-|     |             |     |
-|     +-------------+     |
-|                         |
-|   -------------------   |
-|                         |
 |       Deck Name         |
-|    (e.g. Lugia VSTAR)   |
+|    (e.g. Ancient Box)   |
+|      🔥  🐉  (sprites) |
 |                         |
-|       Owner Name        |
-|    (e.g. John D.)       |
+|  ———————————————————————|
 |                         |
-|   -------------------   |
+|     +-------------+     |
+|     |   QR CODE   |     |
+|     | (deck URL)  |     |
+|     +-------------+     |
+|       JXFBT7            |
 |                         |
-|       DECK-0042         |
+|  ———————————————————————|
 |                         |
-|  +-------------------+  |
-|  |  EXPANDED DECKS   |  |
-|  +-------------------+  |
+|     Screen Name         |
+|   First Last (smaller)  |
+|                         |
+|  ———————————————————————|
+|  expanded-decks.wip     |
 |                         |
 +-------------------------+
    63.5 mm x 88.9 mm
 ```
 
-## Printed Page Layout
+### Page Layout
 
-The label is **centered on an A4 (or Letter) page** with crop marks at the four corners to guide cutting:
-
-```
-+--------------------------------------------------+
-|                                                  |
-|                                                  |
-|                  +    +                          |
-|                  |    |                          |
-|              ----+----+----                      |
-|              |            |                      |
-|              |   LABEL    |                      |
-|              |  63.5 mm   |                      |
-|              |  x 88.9mm  |                      |
-|              |            |                      |
-|              ----+----+----                      |
-|                  |    |                          |
-|                  +    +                          |
-|                                                  |
-|                                                  |
-|                  A4 / Letter                     |
-+--------------------------------------------------+
-```
-
-One label per page. Crop marks are thin lines extending ~5 mm outward from each corner of the label rectangle.
-
-## Dompdf + Symfony Integration
-
-### Package
-
-**`dompdf/dompdf`** — a PHP library that renders HTML + CSS into PDF documents. It supports `@page` CSS rules, mm-unit positioning, and embedded base64 images (for the QR code).
-
-### Service: `App\Service\Label\PdfLabelGenerator`
-
-Responsibilities:
-
-1. Accept a `Deck` entity
-2. Generate a QR code (base64 PNG) encoding the deck identifier — same format as F5.1
-3. Render the Twig template `label/pdf_label.html.twig` with deck data and QR image
-4. Pass the rendered HTML to Dompdf and return the PDF binary string
-
-```php
-class PdfLabelGenerator
-{
-    public function generate(Deck $deck): string
-    {
-        // 1. Generate QR code as base64 PNG
-        // 2. Render Twig template with deck data + QR
-        // 3. Dompdf render → return PDF binary
-    }
-}
-```
-
-### Twig Template: `label/pdf_label.html.twig`
-
-The template uses CSS `@page` rules and mm-unit positioning to produce the exact card dimensions:
-
-- `@page { size: A4; margin: 0; }` — full-bleed A4 page
-- The label is a `div` sized at `63.5mm x 88.9mm`, centered on the page using flexbox
-- Crop marks are rendered as pseudo-elements or thin border lines at each corner
-- The QR code is embedded as a `<img src="data:image/png;base64,...">` tag
-- Text is sized for legibility at print resolution (deck name ~12pt, owner ~10pt, ID ~9pt)
+Single label **centered on an A4 portrait page** with crop marks at the four corners. Horizontal crop marks extend from the page edge to the label edge for easy cutting alignment.
 
 ### Route
 
 ```
-GET /deck/{id}/label.pdf
+GET /deck/{short_tag}/label.pdf
 ```
 
-- Controller action returns a `Response` with `Content-Type: application/pdf`
-- Content-Disposition: `inline` (opens in browser's PDF viewer for direct printing)
-- Filename: `deck-{id}-label.pdf`
-- Access: restricted to the deck owner (voter check)
+- Content-Type: `application/pdf`
+- Content-Disposition: `inline` (opens in browser's PDF viewer)
+- Filename: `deck-{shortTag}-label.pdf`
+- Access: restricted to the deck owner
+- Template: `label/pdf_label.html.twig`
+
+## Variant 2: Foldable Label (Label + Deck List)
+
+### Layout
+
+Two card-sized panels placed **side by side on landscape A4** (book layout):
+
+```
++-------------------------+---+-------------------------+
+|                         |   |                         |
+|  4 Flutter Mane TEF 78  | F |       Deck Name         |
+|  4 Roaring Moon TEF 109 | O |    (e.g. Ancient Box)   |
+|  1 Great Tusk TEF 97    | L |      🔥  🐉  (sprites) |
+|  ...                    | D |                         |
+|                         |   |  ———————————————————————|
+|  4 Explorer's Guid...   | L |     +-------------+     |
+|  4 Prof. Sada's... TEF  | I |     |   QR CODE   |     |
+|  2 Boss's Orders PAL    | N |     +-------------+     |
+|  ...                    | E |       JXFBT7            |
+|                         |   |  ———————————————————————|
+|  4 Ancient Booster...   |   |     Screen Name         |
+|  1 Exp. Share SVI 174   |   |   First Last (smaller)  |
+|                         |   |  ———————————————————————|
+|  7 Darkness Energy SVE  |   |  expanded-decks.wip     |
+|                         |   |                         |
++-------------------------+---+-------------------------+
+       BACK (deck list)    ↕         FRONT (label)
+                         fold
+```
+
+**Fold like a book:** fold along the center vertical line (right panel behind left). Both sides read correctly — no upside-down issue.
+
+### Deck List Panel
+
+- Cards are grouped by detailed type: **pokemon → supporter → item → tool → stadium → energy**
+- Trainers are split by subtype (values from `DeckCard.trainerSubtype`, lowercased); trainers with null subtype fall back to a `trainer` catch-all group
+- **No section titles** — groups are visually separated by **alternating background shades** (white / light gray `#f4f4f4`)
+- **Dynamic font size** — computed from the total card line count to fit the 88.9mm card height:
+  - Available height ≈ 80mm minus section padding
+  - Formula: `min(7, max(4, available_height / (lines × 1.4 × 0.353)))` (pt→mm conversion)
+  - Typical result: ~5.5–6pt for a standard 60-card deck
+- Each line shows: `{quantity} {cardName} {setCode} {cardNumber}`
+- Set code and card number are rendered in a lighter, slightly smaller font
+
+### Route
+
+```
+GET /deck/{short_tag}/label-foldable.pdf
+```
+
+- Content-Type: `application/pdf`
+- Content-Disposition: `inline`
+- Filename: `deck-{shortTag}-label-foldable.pdf`
+- Access: restricted to the deck owner
+- Template: `label/pdf_label_foldable.html.twig`
+- Only available when the deck has a current version (deck list exists)
 
 ## QR Code Generation
 
-Uses the **`endroid/qr-code`** PHP library to generate QR codes server-side.
+Uses **`endroid/qr-code` v6** PHP library to generate QR codes server-side.
 
 | Parameter          | Value      | Notes                                              |
 |--------------------|------------|----------------------------------------------------|
-| Content            | Deck identifier (same encoding as F5.1)  | Ensures scanner compatibility |
+| Content            | Public deck URL (e.g. `https://expanded-decks.wip/deck/JXFBT7`) | Anyone can scan to find the owner |
 | Error correction   | M (15%)    | Balances data density with damage tolerance         |
-| Rendered size      | ~30 mm     | Large enough for reliable camera scanning           |
+| Rendered size      | 18 mm (CSS), 300 px (generated) | Scaled down via CSS for sharpness |
 | Output format      | PNG (base64-encoded) | Embedded directly in the HTML template    |
 
-The QR code uses **the same deck identifier encoding** as the ZPL label (F5.1). This means:
+The QR code encodes the **public deck URL** (not a raw identifier). This means:
 
-- USB HID scanners (F5.3) can read it
-- Camera QR scanners (F5.6) can read it
-- No changes needed to the existing scanner infrastructure
+- Any smartphone camera app can scan it and open the deck page directly
+- USB HID scanners (F5.3) and camera QR scanners (F5.6) can also read it
+- The URL is generated via `UrlGeneratorInterface::ABSOLUTE_URL`, using the `DEFAULT_URI` env var as base
 
-## Configuration Constants
+## Dompdf Integration
 
-| Constant                         | Value   | Purpose                                 |
+### Service: `App\Service\Label\PdfLabelGenerator`
+
+Two public methods:
+
+| Method | Description | Paper |
+|--------|-------------|-------|
+| `generate(Deck)` | Simple label (single card) | A4 portrait |
+| `generateFoldable(Deck)` | Foldable label + deck list (two cards) | A4 landscape |
+
+Internal helpers:
+- `generateQrCode(string $url)` — returns base64 data URI via endroid/qr-code v6 Builder API
+- `buildSpriteDataUris(Deck)` — reads archetype sprite PNGs from `public/build/sprites/pokemon/` and converts to base64 data URIs (Dompdf cannot resolve web-relative paths)
+- `groupCards(DeckVersion)` — groups and sorts cards by detailed type (pokemon/supporter/item/tool/stadium/trainer/energy), sorted by quantity desc then name asc
+- `renderPdf(string $html, string $orientation)` — Dompdf render with configurable orientation
+
+### Dompdf Quirks
+
+- **No `box-sizing: border-box`** — label dimensions are manually computed: content width/height = outer size − padding − border
+- **No CSS transforms** — the foldable layout uses side-by-side panels (book fold) instead of rotating one panel 180°
+- **No relative image paths** — all images (QR code, sprites) must be embedded as base64 data URIs
+- **`overflow: hidden`** — used on label panels to clip content at the border
+
+### Templates
+
+| Template | Variant | Paper |
+|----------|---------|-------|
+| `label/pdf_label.html.twig` | Simple label | A4 portrait |
+| `label/pdf_label_foldable.html.twig` | Foldable label + list | A4 landscape |
+
+### Controller
+
+Both routes are on `DeckShowController` using `{short_tag}` with `#[MapEntity]` for deck resolution:
+
+```php
+#[Route('/deck/{short_tag}/label.pdf', ...)]
+#[Route('/deck/{short_tag}/label-foldable.pdf', ...)]
+```
+
+## Configuration
+
+| Setting                          | Value   | Location                                |
 |----------------------------------|---------|-----------------------------------------|
-| `PDF_LABEL_CARD_WIDTH_MM`        | `63.5`  | TCG card width in millimeters           |
-| `PDF_LABEL_CARD_HEIGHT_MM`       | `88.9`  | TCG card height in millimeters          |
-| `PDF_LABEL_PAGE_FORMAT`          | `A4`    | Output page format                      |
-| `PDF_LABEL_QR_SIZE_MM`           | `30`    | QR code rendered size in millimeters    |
-| `PDF_LABEL_QR_ERROR_CORRECTION`  | `M`     | QR error correction level (15%)         |
+| QR code generation size (px)     | `300`   | `PdfLabelGenerator::QR_CODE_SIZE_PX`   |
+| QR rendered size (CSS)           | `18mm`  | `pdf_label.html.twig`                   |
+| Sprite size (CSS)                | `12mm`  | `pdf_label.html.twig`                   |
+| Page format (simple)             | A4 portrait | `PdfLabelGenerator::generate()`     |
+| Page format (foldable)           | A4 landscape | `PdfLabelGenerator::generateFoldable()` |
+| Base URL for QR content          | env     | `DEFAULT_URI` in `.env`                 |
+| Decklist font size range         | 4–7 pt  | `PdfLabelGenerator::generateFoldable()` |
 
 ## ZPL Label vs PDF Label Card
 
@@ -177,11 +218,12 @@ The QR code uses **the same deck identifier encoding** as the ZPL label (F5.1). 
 | Printer             | Zebra thermal (via PrintNode)    | Any home printer                     |
 | Label size          | Zebra label stock (varies)       | 63.5 x 88.9 mm (TCG card size)      |
 | Use case            | At venue — instant printing      | At home — pre-event preparation      |
-| QR encoding         | Deck identifier                  | Same deck identifier                 |
+| QR encoding         | Deck identifier                  | Public deck URL                      |
 | Scanner compatible  | F5.3 (HID) + F5.6 (camera)      | F5.3 (HID) + F5.6 (camera)          |
 | Physical form       | Adhesive label on deck box       | Card in sleeve at front of deck box  |
+| Variants            | Single label                     | Simple label + foldable with deck list |
 
-Both label types produce scannable QR codes with identical encoding, so the scanning infrastructure is fully shared.
+Both label types produce scannable QR codes, so the scanning infrastructure is fully shared.
 
 ## References
 
