@@ -16,6 +16,36 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.9] — 2026-03-19
+
+Ninth beta — PDF label cards for home printing, GitHub link in footer.
+
+### Labels & Printing
+
+- **F5.7** — PDF label card (home printing) *(completed)*: generate downloadable PDFs with TCG card-sized labels (63.5 × 88.9 mm). Two variants: **(1) Simple label** on A4 portrait — deck name, archetype sprites (12mm, base64-embedded), QR code (18mm, linking to the deck page via `DEFAULT_URI`), short tag, owner identity (screen name + full name), and base URL. **(2) Foldable label** on A4 landscape (book layout) — left panel shows a compact deck list grouped by detailed type (pokemon/supporter/item/tool/stadium/energy) with alternating gray shades and dynamic font size (4–7pt computed from card count); right panel shows the same label. Fold along the center for a double-sided sleeve insert. Routes: `GET /deck/{short_tag}/label.pdf` and `GET /deck/{short_tag}/label-foldable.pdf` (owner-only). Uses Dompdf + endroid/qr-code v6. Content-box dimension workaround for Dompdf (no `border-box` support). Crop marks with full-width horizontal guides. Trainer cards split by subtype with `strtolower()` normalization.
+
+### Infrastructure
+
+- GitHub repository link added to the page footer.
+- Version number in footer no longer uses reduced opacity (visible at smaller font size only).
+
+---
+
+## [1.0.0-beta.8] — 2026-03-19
+
+Eighth beta — deck selection borrow conflict guards, PHP memory limit for mosaics, CI workflow improvements.
+
+### Borrow Workflow
+
+- **F3.7 / F4.11** — Deck selection borrow conflict guards *(completed)*: owner cannot select their own deck for an event when an approved/lent/overdue borrow exists (hard block with "Reserved" badge). Selecting a deck with pending borrow requests triggers a confirmation dialog; confirming cancels all pending requests via `BorrowService::cancel()`. New `BorrowRepository::findAllPendingBorrowsForDeckAtEvent()` query. Hardcoded UI strings replaced with proper translation keys (en/fr).
+
+### Infrastructure
+
+- PHP memory limit raised to 512M in Docker for mosaic generation.
+- `/pr` workflow auto-creates feature branch from `develop` when invoked on the `develop` branch.
+
+---
+
 ## [1.0.0-beta.7] — 2026-03-19
 
 Seventh beta — card identity model, minified export/mosaic, enrichment edge cases, and React island refactor.
