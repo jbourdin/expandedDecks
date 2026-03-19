@@ -150,8 +150,9 @@ class PdfLabelGenerator
         $grouped = [];
 
         foreach ($version->getCards() as $card) {
-            if ('trainer' === $card->getCardType() && null !== $card->getTrainerSubtype()) {
-                $grouped[$card->getTrainerSubtype()][] = $card;
+            if ('trainer' === $card->getCardType()) {
+                $subtype = $card->getTrainerSubtype() ?? 'trainer';
+                $grouped[$subtype][] = $card;
             } else {
                 $grouped[$card->getCardType()][] = $card;
             }
@@ -170,8 +171,9 @@ class PdfLabelGenerator
         }
         unset($cards);
 
+        // Ordered sections — 'trainer' is the fallback for unknown subtypes
         $ordered = [];
-        foreach (['pokemon', 'supporter', 'item', 'tool', 'stadium', 'energy'] as $section) {
+        foreach (['pokemon', 'supporter', 'item', 'tool', 'stadium', 'trainer', 'energy'] as $section) {
             if (isset($grouped[$section])) {
                 $ordered[$section] = $grouped[$section];
             }
