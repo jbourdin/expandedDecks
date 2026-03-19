@@ -67,6 +67,9 @@ opcache.validate_timestamps=0\n\
 opcache.preload_user=www-data\n\
 ' > "$PHP_INI_DIR/conf.d/opcache-prod.ini"
 
+# Raise memory limit for mosaic image generation (default 128M is too low)
+RUN echo 'memory_limit=512M' > "$PHP_INI_DIR/conf.d/memory-limit.ini"
+
 # Use production php.ini
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
