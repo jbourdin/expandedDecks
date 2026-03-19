@@ -35,37 +35,36 @@ The label is rendered at **standard poker-size TCG card dimensions**:
 
 ## Label Layout
 
-The card-sized label contains the same information as the ZPL label (F5.1): QR code, deck name, owner name, and deck ID.
+The card-sized label contains: deck name, archetype sprites, QR code (linking to the deck page), short tag, owner identity, and the application base URL.
 
 ```
 +-------------------------+
 |                         |
-|     +-------------+     |
-|     |             |     |
-|     |   QR CODE   |     |
-|     |  (deck ID)  |     |
-|     |             |     |
-|     +-------------+     |
-|                         |
-|   -------------------   |
-|                         |
 |       Deck Name         |
-|    (e.g. Lugia VSTAR)   |
+|    (e.g. Ancient Box)   |
+|      🔥  🐉  (sprites) |
 |                         |
-|       Owner Name        |
-|    (e.g. John D.)       |
+|  ———————————————————————|
 |                         |
-|   -------------------   |
+|     +-------------+     |
+|     |   QR CODE   |     |
+|     | (deck URL)  |     |
+|     +-------------+     |
+|       JXFBT7            |
 |                         |
-|       DECK-0042         |
+|  ———————————————————————|
 |                         |
-|  +-------------------+  |
-|  |  EXPANDED DECKS   |  |
-|  +-------------------+  |
+|     Screen Name         |
+|   First Last (smaller)  |
+|                         |
+|  ———————————————————————|
+|  expanded-decks.wip     |
 |                         |
 +-------------------------+
    63.5 mm x 88.9 mm
 ```
+
+The QR code encodes the **public deck URL** (e.g. `https://expanded-decks.wip/deck/JXFBT7`), generated via Symfony's `UrlGeneratorInterface` using the `DEFAULT_URI` env var. This allows anyone finding the deck to scan the code and reach the deck page to identify the owner.
 
 ## Printed Page Layout
 
@@ -126,10 +125,11 @@ class PdfLabelGenerator
 The template uses CSS `@page` rules and mm-unit positioning to produce the exact card dimensions:
 
 - `@page { size: A4; margin: 0; }` — full-bleed A4 page
-- The label is a `div` sized at `63.5mm x 88.9mm`, centered on the page using flexbox
-- Crop marks are rendered as pseudo-elements or thin border lines at each corner
-- The QR code is embedded as a `<img src="data:image/png;base64,...">` tag
-- Text is sized for legibility at print resolution (deck name ~12pt, owner ~10pt, ID ~9pt)
+- The label is a `div` with content-box dimensions computed to produce a 63.5 × 88.9mm outer size (Dompdf does not support `border-box`), centered on the page with absolute positioning
+- Crop marks are rendered as absolutely positioned `div` elements at each corner — horizontal marks span from page edge to label edge
+- Separator lines span the full label width (edge-to-edge) using `margin: 0`
+- The QR code and archetype sprites are embedded as `<img src="data:image/png;base64,...">` tags (Dompdf cannot resolve relative paths)
+- Text is sized for legibility at print resolution (deck name ~12pt, screen name ~10pt, full name ~7.5pt, short tag ~9pt mono, base URL ~6.5pt)
 
 ### Route
 
@@ -139,8 +139,8 @@ GET /deck/{id}/label.pdf
 
 - Controller action returns a `Response` with `Content-Type: application/pdf`
 - Content-Disposition: `inline` (opens in browser's PDF viewer for direct printing)
-- Filename: `deck-{id}-label.pdf`
-- Access: restricted to the deck owner (voter check)
+- Filename: `deck-{shortTag}-label.pdf`
+- Access: restricted to the deck owner
 
 ## QR Code Generation
 
@@ -148,26 +148,26 @@ Uses the **`endroid/qr-code`** PHP library to generate QR codes server-side.
 
 | Parameter          | Value      | Notes                                              |
 |--------------------|------------|----------------------------------------------------|
-| Content            | Deck identifier (same encoding as F5.1)  | Ensures scanner compatibility |
+| Content            | Public deck URL (e.g. `https://expanded-decks.wip/deck/JXFBT7`) | Anyone can scan to find the owner |
 | Error correction   | M (15%)    | Balances data density with damage tolerance         |
-| Rendered size      | ~30 mm     | Large enough for reliable camera scanning           |
+| Rendered size      | 18 mm (CSS), 300 px (generated) | Scaled down via CSS for sharpness |
 | Output format      | PNG (base64-encoded) | Embedded directly in the HTML template    |
 
-The QR code uses **the same deck identifier encoding** as the ZPL label (F5.1). This means:
+The QR code encodes the **public deck URL** (not a raw identifier). This means:
 
-- USB HID scanners (F5.3) can read it
-- Camera QR scanners (F5.6) can read it
-- No changes needed to the existing scanner infrastructure
+- Any smartphone camera app can scan it and open the deck page directly
+- USB HID scanners (F5.3) and camera QR scanners (F5.6) can also read it
+- The URL is generated via `UrlGeneratorInterface::ABSOLUTE_URL`, using the `DEFAULT_URI` env var as base
 
-## Configuration Constants
+## Configuration
 
-| Constant                         | Value   | Purpose                                 |
+| Setting                          | Value   | Location                                |
 |----------------------------------|---------|-----------------------------------------|
-| `PDF_LABEL_CARD_WIDTH_MM`        | `63.5`  | TCG card width in millimeters           |
-| `PDF_LABEL_CARD_HEIGHT_MM`       | `88.9`  | TCG card height in millimeters          |
-| `PDF_LABEL_PAGE_FORMAT`          | `A4`    | Output page format                      |
-| `PDF_LABEL_QR_SIZE_MM`           | `30`    | QR code rendered size in millimeters    |
-| `PDF_LABEL_QR_ERROR_CORRECTION`  | `M`     | QR error correction level (15%)         |
+| QR code generation size (px)     | `300`   | `PdfLabelGenerator::QR_CODE_SIZE_PX`   |
+| QR rendered size (CSS)           | `18mm`  | `pdf_label.html.twig`                   |
+| Sprite size (CSS)                | `12mm`  | `pdf_label.html.twig`                   |
+| Page format                      | `A4`    | `PdfLabelGenerator::renderPdf()`        |
+| Base URL for QR content          | env     | `DEFAULT_URI` in `.env`                 |
 
 ## ZPL Label vs PDF Label Card
 

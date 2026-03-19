@@ -417,6 +417,11 @@
                 <target>Importer une liste</target>
                 <note>Deck list import UI</note>
             </trans-unit>
+            <trans-unit id="app.deck.label_pdf">
+                <source>app.deck.label_pdf</source>
+                <target>Imprimer l'étiquette</target>
+                <note>Button to download printable PDF label for a deck</note>
+            </trans-unit>
             <trans-unit id="app.deck.retire">
                 <source>app.deck.retire</source>
                 <target>Retirer</target>

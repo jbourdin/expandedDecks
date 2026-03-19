@@ -27,6 +27,7 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Service\BorrowService;
 use App\Service\DeckListParser;
 use App\Service\DeckListValidator;
+use App\Service\Label\PdfLabelGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,6 +41,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F2.7 — Retire / reactivate a deck
  * @see docs/features.md F2.8 — Update list
  * @see docs/features.md F2.13 — Inline deck list import on creation
+ * @see docs/features.md F5.7 — PDF label card (home printing)
  */
 #[Route('/deck')]
 #[IsGranted('ROLE_USER')]
@@ -249,6 +251,23 @@ class DeckController extends AbstractAppController
         }
 
         return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+    }
+
+    /**
+     * @see docs/features.md F5.7 — PDF label card (home printing)
+     * @see docs/technicalities/pdf_label.md
+     */
+    #[Route('/{id}/label.pdf', name: 'app_deck_label_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function labelPdf(Deck $deck, PdfLabelGenerator $labelGenerator): Response
+    {
+        $this->denyAccessUnlessOwner($deck);
+
+        $pdf = $labelGenerator->generate($deck);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => \sprintf('inline; filename="deck-%s-label.pdf"', $deck->getShortTag()),
+        ]);
     }
 
     /**
