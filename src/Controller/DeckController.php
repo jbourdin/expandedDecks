@@ -271,6 +271,23 @@ class DeckController extends AbstractAppController
     }
 
     /**
+     * @see docs/features.md F5.7 — PDF label card (home printing)
+     * @see docs/technicalities/pdf_label.md
+     */
+    #[Route('/{id}/label-foldable.pdf', name: 'app_deck_label_foldable_pdf', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function labelFoldablePdf(Deck $deck, PdfLabelGenerator $labelGenerator): Response
+    {
+        $this->denyAccessUnlessOwner($deck);
+
+        $pdf = $labelGenerator->generateFoldable($deck);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => \sprintf('inline; filename="deck-%s-label-foldable.pdf"', $deck->getShortTag()),
+        ]);
+    }
+
+    /**
      * Validates a raw deck list string, returning all parse and validation errors.
      *
      * @return list<string> errors (empty if valid)

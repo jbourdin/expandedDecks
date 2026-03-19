@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Service\Label;
 
 use App\Entity\Deck;
+use App\Entity\DeckCard;
+use App\Entity\DeckVersion;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\Builder\Builder;
@@ -70,6 +72,81 @@ class PdfLabelGenerator
         ]);
 
         return $this->renderPdf($html);
+    }
+
+    /**
+     * Generate a foldable PDF label: front (label) + back (deck list).
+     *
+     * Two card-sized panels stacked vertically on A4. When cut and folded,
+     * the front shows the label and the back shows a compact deck list.
+     *
+     * @see docs/features.md F5.7 — PDF label card (home printing)
+     *
+     * @return string the raw PDF binary content
+     */
+    public function generateFoldable(Deck $deck): string
+    {
+        $currentVersion = $deck->getCurrentVersion();
+
+        $deckUrl = $this->urlGenerator->generate(
+            'app_deck_show',
+            ['short_tag' => $deck->getShortTag()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $qrCodeDataUri = $this->generateQrCode($deckUrl);
+        $spriteDataUris = $this->buildSpriteDataUris($deck);
+
+        $parsed = parse_url($deckUrl);
+        $baseUrl = ($parsed['scheme'] ?? 'https').'://'.($parsed['host'] ?? '');
+
+        $groupedCards = null !== $currentVersion
+            ? $this->groupCards($currentVersion)
+            : [];
+
+        $html = $this->twig->render('label/pdf_label_foldable.html.twig', [
+            'deck' => $deck,
+            'qrCodeDataUri' => $qrCodeDataUri,
+            'spriteDataUris' => $spriteDataUris,
+            'baseUrl' => $baseUrl,
+            'groupedCards' => $groupedCards,
+        ]);
+
+        return $this->renderPdf($html);
+    }
+
+    /**
+     * Group and sort deck cards by type for compact list rendering.
+     *
+     * @return array<string, list<DeckCard>>
+     */
+    private function groupCards(DeckVersion $version): array
+    {
+        $grouped = [];
+
+        foreach ($version->getCards() as $card) {
+            $grouped[$card->getCardType()][] = $card;
+        }
+
+        foreach ($grouped as &$cards) {
+            usort($cards, static function (DeckCard $a, DeckCard $b): int {
+                if ($a->getQuantity() !== $b->getQuantity()) {
+                    return $b->getQuantity() - $a->getQuantity();
+                }
+
+                return strcmp($a->getCardName(), $b->getCardName());
+            });
+        }
+        unset($cards);
+
+        $ordered = [];
+        foreach (['pokemon', 'trainer', 'energy'] as $section) {
+            if (isset($grouped[$section])) {
+                $ordered[$section] = $grouped[$section];
+            }
+        }
+
+        return $ordered;
     }
 
     private function generateQrCode(string $content): string

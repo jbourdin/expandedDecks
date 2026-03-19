@@ -422,6 +422,11 @@
                 <target>Print Label</target>
                 <note>Button to download printable PDF label for a deck</note>
             </trans-unit>
+            <trans-unit id="app.deck.label_foldable_pdf">
+                <source>app.deck.label_foldable_pdf</source>
+                <target>Print Label + List</target>
+                <note>Button to download foldable PDF label with deck list on the back</note>
+            </trans-unit>
             <trans-unit id="app.deck.retire">
                 <source>app.deck.retire</source>
                 <target>Retire</target>
