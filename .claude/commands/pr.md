@@ -17,7 +17,11 @@ Run in parallel:
 - `git branch --show-current` — get the current branch name
 
 **Guard rails:**
-- If the branch is `main` or `develop`, **stop immediately** and tell the user: "You are on `<branch>`. Create a feature branch first (`git checkout -b <prefix>/<name>`)."
+- If the branch is `main`, **stop immediately** and tell the user: "You are on `main`. Create a feature branch first."
+- If the branch is `develop`, automatically create a new branch before proceeding:
+  1. Analyse the uncommitted changes and/or unpushed commits to infer the appropriate branch prefix (`feature/`, `fix/`, `chore/`, `refactor/`, `docs/`) and a short descriptive slug.
+  2. Run `git checkout -b <prefix>/<slug>` to create and switch to the new branch. The unpushed commits on `develop` will carry over.
+  3. Continue with the rest of the workflow on this new branch.
 - Determine the **base branch**: if the branch starts with `hotfix/` or `release/`, base is `main`; otherwise base is `develop`.
 
 ### 2. Commit uncommitted changes (if any)
