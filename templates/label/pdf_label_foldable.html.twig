@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            size: A4;
+            size: A4 landscape;
             margin: 0;
         }
 
@@ -23,72 +23,73 @@
 
         body {
             font-family: Helvetica, Arial, sans-serif;
-            width: 210mm;
-            height: 297mm;
+            width: 297mm;
+            height: 210mm;
             position: relative;
         }
 
         .page {
-            width: 210mm;
-            height: 297mm;
+            width: 297mm;
+            height: 210mm;
             position: relative;
         }
 
-        /* Two panels stacked vertically, centered horizontally
+        /* Two panels side by side (book layout)
          * Each panel: 63.5 × 88.9 mm outer
          * Content-box: 62.9 × 83.3 mm (border 0.3mm×2, padding 3mm+2mm)
-         * Combined height: 88.9 × 2 = 177.8 mm
-         * Vertical offset from center: 88.9mm
+         * Panels are adjacent at the horizontal center
+         * Left = deck list (back), Right = label (front)
+         * Fold along the center vertical line like a book
          */
         .panel {
             width: 62.9mm;
             height: 83.3mm;
             border: 0.3mm solid #ccc;
             position: absolute;
-            left: 50%;
-            margin-left: -31.75mm;
+            top: 50%;
+            margin-top: -44.45mm;
             text-align: center;
             padding: 3mm 0 2mm;
             overflow: hidden;
         }
 
-        /* Front panel (top) — label content */
-        .panel-front {
-            top: calc(50% - 88.9mm);
+        /* Left panel (deck list / back side) — right edge at page center */
+        .panel-back {
+            right: 50%;
         }
 
-        /* Back panel (bottom) — deck list */
-        .panel-back {
-            top: 50%;
+        /* Right panel (label / front side) — left edge at page center */
+        .panel-front {
+            left: 50%;
         }
 
         /* Fold line between panels */
         .fold-line {
             position: absolute;
-            top: 50%;
-            left: calc(50% - 31.75mm - 10mm);
-            width: calc(63.5mm + 20mm);
-            height: 0;
-            border-top: 0.3mm dashed #bbb;
+            left: 50%;
+            top: calc(50% - 44.45mm - 10mm);
+            height: calc(88.9mm + 20mm);
+            width: 0;
+            border-left: 0.3mm dashed #bbb;
         }
 
         /* Crop marks */
-        .crop-h, .crop-v {
+        .crop-mark {
             position: absolute;
             background: #000;
         }
 
-        /* Horizontal marks — top and bottom of the combined pair */
-        .crop-top-l    { height: 0.2mm; top: calc(50% - 88.9mm); left: 0; right: calc(50% + 31.75mm + 2mm); }
-        .crop-top-r    { height: 0.2mm; top: calc(50% - 88.9mm); left: calc(50% + 31.75mm + 2mm); right: 0; }
-        .crop-bottom-l { height: 0.2mm; top: calc(50% + 88.9mm); left: 0; right: calc(50% + 31.75mm + 2mm); }
-        .crop-bottom-r { height: 0.2mm; top: calc(50% + 88.9mm); left: calc(50% + 31.75mm + 2mm); right: 0; }
+        /* Horizontal marks — top and bottom edges of both panels */
+        .crop-top-l  { height: 0.2mm; top: calc(50% - 44.45mm); left: 0; right: calc(50% + 63.5mm + 2mm); }
+        .crop-top-r  { height: 0.2mm; top: calc(50% - 44.45mm); left: calc(50% + 63.5mm + 2mm); right: 0; }
+        .crop-bot-l  { height: 0.2mm; top: calc(50% + 44.45mm); left: 0; right: calc(50% + 63.5mm + 2mm); }
+        .crop-bot-r  { height: 0.2mm; top: calc(50% + 44.45mm); left: calc(50% + 63.5mm + 2mm); right: 0; }
 
-        /* Vertical marks */
-        .crop-vtl { width: 0.2mm; height: 5mm; top: calc(50% - 88.9mm - 7mm); left: calc(50% - 31.75mm); }
-        .crop-vtr { width: 0.2mm; height: 5mm; top: calc(50% - 88.9mm - 7mm); left: calc(50% + 31.75mm); }
-        .crop-vbl { width: 0.2mm; height: 5mm; top: calc(50% + 88.9mm + 2mm); left: calc(50% - 31.75mm); }
-        .crop-vbr { width: 0.2mm; height: 5mm; top: calc(50% + 88.9mm + 2mm); left: calc(50% + 31.75mm); }
+        /* Vertical marks — outer edges of the pair */
+        .crop-v-tl { width: 0.2mm; height: 5mm; top: calc(50% - 44.45mm - 7mm); left: calc(50% - 63.5mm); }
+        .crop-v-tr { width: 0.2mm; height: 5mm; top: calc(50% - 44.45mm - 7mm); left: calc(50% + 63.5mm); }
+        .crop-v-bl { width: 0.2mm; height: 5mm; top: calc(50% + 44.45mm + 2mm); left: calc(50% - 63.5mm); }
+        .crop-v-br { width: 0.2mm; height: 5mm; top: calc(50% + 44.45mm + 2mm); left: calc(50% + 63.5mm); }
 
         /* === Front panel styles === */
         .deck-name {
@@ -151,7 +152,7 @@
         .decklist-header {
             font-size: 8pt;
             font-weight: bold;
-            margin: 1mm 2mm 0.5mm;
+            margin: 0 2mm 1mm;
             color: #1a1a1a;
             text-align: center;
         }
@@ -161,26 +162,13 @@
             text-align: left;
         }
 
-        .decklist-section-title {
-            font-size: 6pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #888;
-            letter-spacing: 0.5pt;
-            margin: 1mm 0 0.3mm;
-            padding-top: 0.5mm;
-            border-top: 0.2mm solid #eee;
-        }
-
-        .decklist-section-title:first-child {
-            border-top: none;
-            margin-top: 0;
-            padding-top: 0;
+        .decklist-gap {
+            height: 1mm;
         }
 
         .decklist-card {
-            font-size: 5.5pt;
-            line-height: 1.5;
+            font-size: {{ decklistFontSize }}pt;
+            line-height: 1.4;
             color: #333;
         }
 
@@ -192,7 +180,7 @@
 
         .decklist-set {
             color: #999;
-            font-size: 5pt;
+            font-size: {{ (decklistFontSize - 0.5)|round(1) }}pt;
         }
 
         .decklist-footer {
@@ -206,19 +194,39 @@
 <body>
     <div class="page">
         {# Crop marks #}
-        <div class="crop-h crop-top-l"></div>
-        <div class="crop-h crop-top-r"></div>
-        <div class="crop-h crop-bottom-l"></div>
-        <div class="crop-h crop-bottom-r"></div>
-        <div class="crop-v crop-vtl"></div>
-        <div class="crop-v crop-vtr"></div>
-        <div class="crop-v crop-vbl"></div>
-        <div class="crop-v crop-vbr"></div>
+        <div class="crop-mark crop-top-l"></div>
+        <div class="crop-mark crop-top-r"></div>
+        <div class="crop-mark crop-bot-l"></div>
+        <div class="crop-mark crop-bot-r"></div>
+        <div class="crop-mark crop-v-tl"></div>
+        <div class="crop-mark crop-v-tr"></div>
+        <div class="crop-mark crop-v-bl"></div>
+        <div class="crop-mark crop-v-br"></div>
 
         {# Fold line #}
         <div class="fold-line"></div>
 
-        {# Front panel — label #}
+        {# Left panel — deck list (back when folded) #}
+        <div class="panel panel-back">
+            <div class="decklist-header">{{ deck.name }}</div>
+
+            {% for type, cards in groupedCards %}
+                {% if not loop.first %}
+                    <div class="decklist-gap"></div>
+                {% endif %}
+                <div class="decklist-section">
+                    {% for card in cards %}
+                        <div class="decklist-card">
+                            <span class="decklist-qty">{{ card.quantity }}</span> {{ card.cardName }} <span class="decklist-set">{{ card.setCode }} {{ card.cardNumber }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <div class="decklist-footer">{{ deck.shortTag }}</div>
+        </div>
+
+        {# Right panel — label (front when folded) #}
         <div class="panel panel-front">
             <div class="deck-name">{{ deck.name }}</div>
 
@@ -244,29 +252,6 @@
             <div class="separator"></div>
 
             <div class="base-url">{{ baseUrl }}</div>
-        </div>
-
-        {# Back panel — deck list #}
-        <div class="panel panel-back">
-            <div class="decklist-header">{{ deck.name }}</div>
-
-            {% for type, cards in groupedCards %}
-                <div class="decklist-section">
-                    <div class="decklist-section-title">
-                        {% if type == 'pokemon' %}Pokémon
-                        {% elseif type == 'trainer' %}Trainer
-                        {% elseif type == 'energy' %}Energy
-                        {% endif %}
-                    </div>
-                    {% for card in cards %}
-                        <div class="decklist-card">
-                            <span class="decklist-qty">{{ card.quantity }}</span> {{ card.cardName }} <span class="decklist-set">{{ card.setCode }} {{ card.cardNumber }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-
-            <div class="decklist-footer">{{ deck.shortTag }}</div>
         </div>
     </div>
 </body>

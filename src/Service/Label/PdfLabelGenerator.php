@@ -77,8 +77,9 @@ class PdfLabelGenerator
     /**
      * Generate a foldable PDF label: front (label) + back (deck list).
      *
-     * Two card-sized panels stacked vertically on A4. When cut and folded,
-     * the front shows the label and the back shows a compact deck list.
+     * Two card-sized panels side by side on landscape A4 (book layout).
+     * Left = deck list, right = label. Fold along the center like a book
+     * for a double-sided sleeve insert with both sides right-side up.
      *
      * @see docs/features.md F5.7 — PDF label card (home printing)
      *
@@ -104,15 +105,39 @@ class PdfLabelGenerator
             ? $this->groupCards($currentVersion)
             : [];
 
+        // Count total card lines (+ gaps between sections) to compute font size
+        $cardLineCount = 0;
+        $sectionCount = 0;
+        foreach ($groupedCards as $cards) {
+            $cardLineCount += \count($cards);
+            ++$sectionCount;
+        }
+        // Add inter-section gaps (one less than section count)
+        $totalLines = $cardLineCount + max(0, $sectionCount - 1);
+
+        // Compute font size to fit: ~80mm usable height, header ~3mm, footer ~2mm
+        // Available height ≈ 75mm. Line height = font_size × 1.4 (in pt→mm: 1pt ≈ 0.353mm)
+        $availableHeightMm = 75.0;
+        $lineHeightFactor = 1.4;
+        $ptToMm = 0.353;
+
+        if ($totalLines > 0) {
+            $maxFontSizePt = $availableHeightMm / ($totalLines * $lineHeightFactor * $ptToMm);
+            $decklistFontSize = min(7.0, max(4.0, round($maxFontSizePt, 1)));
+        } else {
+            $decklistFontSize = 6.0;
+        }
+
         $html = $this->twig->render('label/pdf_label_foldable.html.twig', [
             'deck' => $deck,
             'qrCodeDataUri' => $qrCodeDataUri,
             'spriteDataUris' => $spriteDataUris,
             'baseUrl' => $baseUrl,
             'groupedCards' => $groupedCards,
+            'decklistFontSize' => $decklistFontSize,
         ]);
 
-        return $this->renderPdf($html);
+        return $this->renderPdf($html, 'landscape');
     }
 
     /**
@@ -203,7 +228,7 @@ class PdfLabelGenerator
         return $sprites;
     }
 
-    private function renderPdf(string $html): string
+    private function renderPdf(string $html, string $orientation = 'portrait'): string
     {
         $options = new Options();
         $options->setIsRemoteEnabled(false);
@@ -211,7 +236,7 @@ class PdfLabelGenerator
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4');
+        $dompdf->setPaper('A4', $orientation);
         $dompdf->render();
 
         return (string) $dompdf->output();
