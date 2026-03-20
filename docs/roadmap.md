@@ -218,6 +218,20 @@ F9.6
 
 ---
 
+## Phase I — Multi-Organizer Events
+
+> Allow events to have multiple organizers via a co-organizer invitation system. Enables shared event management responsibilities.
+
+| ID    | Feature                                        | Priority | Depends on       |
+|-------|------------------------------------------------|----------|------------------|
+| F3.22 | Multi-organizer events (co-organizer invite)   | Low      | F3.1, F1.4       |
+
+**Progress: 0/1 done**
+
+**Deliverable:** Co-organizer invitation flow allowing the primary organizer to invite other organizers to share full event management privileges (edit, cancel, finish, staff assignment).
+
+---
+
 ## Cross-Cutting: Testing Infrastructure
 
 | Item                                  | State       | Notes                                  |
@@ -243,6 +257,7 @@ F9.6
 | F     | Play Pokemon QR Integration     | 3        |              |
 | G     | Operational Excellence          | 4        |              |
 | H     | Lost & Found                   | 1        |              |
-|       | **Total remaining**             | **26**   |              |
+| I     | Multi-Organizer Events          | 1        |              |
+|       | **Total remaining**             | **27**   |              |
 
-91 features done · 26 remaining.
+91 features done · 27 remaining.
