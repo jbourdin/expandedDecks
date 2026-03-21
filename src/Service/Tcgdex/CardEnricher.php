@@ -219,7 +219,9 @@ class CardEnricher
         $setCode = strtoupper($card->getSetCode());
 
         // For energy-only sets (SVE, MEE…): use our static image map for exact match
-        $energySetKey = $setCode.'|'.$card->getCardNumber();
+        // Normalize card number by stripping leading zeros (SVE 04, SVE 004 → SVE 4)
+        $normalizedNumber = ltrim($card->getCardNumber(), '0') ?: '0';
+        $energySetKey = $setCode.'|'.$normalizedNumber;
 
         if (isset(self::ENERGY_SET_IMAGES[$energySetKey])) {
             $card->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
