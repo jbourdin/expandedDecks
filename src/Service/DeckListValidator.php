@@ -27,19 +27,6 @@ class DeckListValidator
     private const int REQUIRED_CARD_COUNT = 60;
     private const int MAX_COPIES = 4;
 
-    /** Official basic energy card names (unlimited copies allowed). */
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy',
-        'Fire Energy',
-        'Water Energy',
-        'Lightning Energy',
-        'Psychic Energy',
-        'Fighting Energy',
-        'Darkness Energy',
-        'Metal Energy',
-        'Fairy Energy',
-    ];
-
     public function __construct(
         private readonly BannedCardRepository $bannedCardRepo,
         private readonly TranslatorInterface $translator,
@@ -114,6 +101,6 @@ class DeckListValidator
 
     private function isBasicEnergy(ParsedCard $card): bool
     {
-        return 'energy' === $card->cardType && \in_array($card->cardName, self::BASIC_ENERGY_NAMES, true);
+        return \in_array($card->cardName, DeckListParser::BASIC_ENERGY_NAMES, true);
     }
 }

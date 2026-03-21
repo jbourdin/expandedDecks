@@ -206,7 +206,7 @@ class DeckListParserTest extends TestCase
         self::assertSame('PR-SW', $result->cards[1]->setCode);
     }
 
-    public function testParseCardBeforeSectionHeaderProducesError(): void
+    public function testParseCardBeforeSectionHeaderUsesUnknownType(): void
     {
         $rawList = <<<'PTCG'
             1 Pikachu V CEL 25
@@ -216,9 +216,40 @@ class DeckListParserTest extends TestCase
 
         $result = $this->parser->parse($rawList);
 
-        self::assertFalse($result->isValid());
-        self::assertCount(1, $result->cards);
-        self::assertCount(1, $result->errors);
-        self::assertStringContainsString('app.deck.parse.no_section_header', $result->errors[0]);
+        self::assertTrue($result->isValid());
+        self::assertCount(2, $result->cards);
+        self::assertCount(0, $result->errors);
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[0]->cardType);
+        self::assertSame('pokemon', $result->cards[1]->cardType);
+    }
+
+    public function testParseWithoutSectionHeaders(): void
+    {
+        $rawList = <<<'PTCG'
+            1 Budew PRE 4
+            4 Genesect V FST 185
+            4 Mew V FST 113
+            3 Mew VMAX FST 114
+            4 Battle VIP Pass FST 225
+            4 Double Colorless Energy XY 130
+            4 Psychic Energy SVE 5
+            PTCG;
+
+        $result = $this->parser->parse($rawList);
+
+        self::assertTrue($result->isValid());
+        self::assertCount(7, $result->cards);
+        self::assertCount(0, $result->errors);
+        self::assertSame([], $result->sectionTotals);
+
+        // Non-energy cards without headers get 'unknown'
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[0]->cardType);
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[4]->cardType);
+
+        // Basic energies are detected by name even without headers
+        // Note: Double Colorless Energy is a special energy, not basic
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[5]->cardType);
+        self::assertSame('energy', $result->cards[6]->cardType);
+        self::assertSame('Psychic Energy', $result->cards[6]->cardName);
     }
 }

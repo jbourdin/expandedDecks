@@ -35,6 +35,55 @@ class DeckListParser
     private const string SECTION_HEADER_PATTERN = '/^(Pok[eé]mon|Trainer|Energy)\s*:\s*(\d+)$/iu';
     private const string CARD_LINE_PATTERN = '/^(\d+)\s+(.+?)\s+([A-Z][A-Za-z0-9-]{1,5})\s+(\S+)$/';
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
+    public const string UNKNOWN_CARD_TYPE = 'unknown';
+
+    /** Basic energy card names — detected as energy even without section headers. */
+    public const array BASIC_ENERGY_NAMES = [
+        'Grass Energy',
+        'Fire Energy',
+        'Water Energy',
+        'Lightning Energy',
+        'Psychic Energy',
+        'Fighting Energy',
+        'Darkness Energy',
+        'Metal Energy',
+        'Fairy Energy',
+    ];
+
+    /**
+     * Default basic energy printings for minified export.
+     * MEE (Mega Evolution Energy) for the 8 standard types, SUM (Sun & Moon) for Fairy.
+     *
+     * @see data/basic_energies.json — full catalogue
+     * @see docs/technicalities/basic_energy_images.md
+     *
+     * @var array<string, array{setCode: string, cardNumber: string, imageUrl: string}>
+     */
+    public const array DEFAULT_BASIC_ENERGY_PRINTINGS = [
+        'Grass Energy' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Fire Energy' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Water Energy' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Lightning Energy' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Psychic Energy' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Fighting Energy' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Darkness Energy' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Metal Energy' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Fairy Energy' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+    ];
+
+    /**
+     * Static minified printing overrides for cards with known TCGdex data issues.
+     *
+     * When TCGdex returns incorrect images for specific printings, this map
+     * forces the minified export to use an alternative printing instead.
+     * Keyed by "{PTCGL_SET_CODE}|{cardNumber}".
+     *
+     * @var array<string, array{setCode: string, cardNumber: string, imageUrl: string}>
+     */
+    public const array MINIFIED_PRINTING_OVERRIDES = [
+        // GEN 73: TCGdex image for g1-73 shows the full-art 73a instead of regular Uncommon
+        'GEN|73' => ['setCode' => 'XY', 'cardNumber' => '129', 'imageUrl' => 'https://assets.tcgdex.net/en/xy/xy1/129/high.webp'],
+    ];
 
     private const array SECTION_MAP = [
         'pokemon' => 'pokemon',
@@ -79,21 +128,16 @@ class DeckListParser
             }
 
             if (preg_match(self::CARD_LINE_PATTERN, $line, $matches)) {
-                if (null === $currentSection) {
-                    $errors[] = $this->translator->trans('app.deck.parse.no_section_header', [
-                        '%line%' => $lineNumber + 1,
-                        '%content%' => $line,
-                    ]);
-
-                    continue;
-                }
+                $cardName = $matches[2];
+                $cardType = $currentSection
+                    ?? (\in_array($cardName, self::BASIC_ENERGY_NAMES, true) ? 'energy' : self::UNKNOWN_CARD_TYPE);
 
                 $cards[] = new ParsedCard(
                     quantity: (int) $matches[1],
-                    cardName: $matches[2],
+                    cardName: $cardName,
                     setCode: $matches[3],
                     cardNumber: $matches[4],
-                    cardType: $currentSection,
+                    cardType: $cardType,
                 );
 
                 continue;

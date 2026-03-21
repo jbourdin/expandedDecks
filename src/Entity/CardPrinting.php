@@ -63,6 +63,14 @@ class CardPrinting
     #[ORM\Column]
     private bool $isExpandedLegal = false;
 
+    /** Cardmarket product ID for direct linking (e.g. cardmarket.com/en/Pokemon/Products/Singles/{id}). */
+    #[ORM\Column(nullable: true)]
+    private ?int $cardmarketProductId = null;
+
+    /** TCGPlayer product ID for direct linking (e.g. tcgplayer.com/product/{id}). */
+    #[ORM\Column(nullable: true)]
+    private ?int $tcgplayerProductId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -184,6 +192,30 @@ class CardPrinting
     public function setIsExpandedLegal(bool $isExpandedLegal): static
     {
         $this->isExpandedLegal = $isExpandedLegal;
+
+        return $this;
+    }
+
+    public function getCardmarketProductId(): ?int
+    {
+        return $this->cardmarketProductId;
+    }
+
+    public function setCardmarketProductId(?int $cardmarketProductId): static
+    {
+        $this->cardmarketProductId = $cardmarketProductId;
+
+        return $this;
+    }
+
+    public function getTcgplayerProductId(): ?int
+    {
+        return $this->tcgplayerProductId;
+    }
+
+    public function setTcgplayerProductId(?int $tcgplayerProductId): static
+    {
+        $this->tcgplayerProductId = $tcgplayerProductId;
 
         return $this;
     }

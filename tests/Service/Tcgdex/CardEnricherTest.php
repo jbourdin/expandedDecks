@@ -121,7 +121,7 @@ class CardEnricherTest extends TestCase
 
         self::assertSame(1, $report->enrichedCount);
         self::assertSame(0, $report->notFoundCount);
-        self::assertStringContainsString('tcgdex.net', (string) $card->getImageUrl());
+        self::assertStringContainsString('SVE_EN_4', (string) $card->getImageUrl());
     }
 
     public function testEnrichVersionAssignsNullForUnknownEnergyName(): void
@@ -197,7 +197,7 @@ class CardEnricherTest extends TestCase
         self::assertStringContainsString('not marked as Expanded-legal', $report->legalityWarnings[0]);
     }
 
-    public function testEnrichVersionFallsBackToFindImageByNameWhenImageUrlIsNull(): void
+    public function testEnrichVersionFallsBackToPokemontcgioWhenImageUrlIsNull(): void
     {
         $card = new DeckCard();
         $card->setCardName('Double Colorless Energy');
@@ -208,7 +208,7 @@ class CardEnricherTest extends TestCase
 
         $version = $this->createVersionWithCards([$card]);
 
-        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')
             ->willReturn(new TcgdexCard(
                 id: 'sm35-69',
@@ -218,16 +218,13 @@ class CardEnricherTest extends TestCase
                 imageUrl: null,
                 isExpandedLegal: true,
             ));
-        $apiClient->expects(self::once())
-            ->method('findImageByName')
-            ->with('Double Colorless Energy')
-            ->willReturn('https://assets.tcgdex.net/en/xy/xy1/130/high.webp');
 
         $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
-        self::assertSame('https://assets.tcgdex.net/en/xy/xy1/130/high.webp', $card->getImageUrl());
+        // Falls back to PokemonTCG.io CDN URL built from tcgdex ID
+        self::assertSame('https://images.pokemontcg.io/sm35/69_hires.png', $card->getImageUrl());
         self::assertSame('sm35-69', $card->getTcgdexId());
     }
 

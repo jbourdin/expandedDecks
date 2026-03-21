@@ -300,7 +300,7 @@
              data-minified-cards="{{ _self.serializeCards(minifiedGroupedCards)|trim }}"
              data-mosaic-url="{{ deck.currentVersion.mosaicImageUrl }}"
              data-minified-mosaic-url="{{ deck.currentVersion.minifiedMosaicImageUrl }}"
-             data-raw-list="{{ deck.currentVersion.rawList|e('html_attr') }}"
+             data-raw-list="{{ formattedOriginalList|e('html_attr') }}"
              data-minified-list="{{ deck.currentVersion.minifiedList|e('html_attr') }}"
              data-deck-name="{{ deck.name }}"
              data-label-variant-original="{{ 'app.deck.variant_original'|trans }}"

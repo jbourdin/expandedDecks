@@ -8,7 +8,7 @@
 
 ## Overview
 
-Enrichment is the process of augmenting raw deck card data (imported via PTCG text paste) with metadata from the TCGdex API. A deck list as imported only contains card names, set codes, and card numbers. Enrichment resolves each card against TCGdex to populate image URLs, trainer subtypes, legality status, rarity, pricing, and the card identity/printing model. This data powers the visual mosaic, minified export, and budget optimization features.
+Enrichment is the process of augmenting raw deck card data (imported via PTCG text paste) with metadata from the TCGdex API. A deck list as imported only contains card names, set codes, and card numbers — and optionally card types (from section headers). Enrichment resolves each card against TCGdex to populate image URLs, trainer subtypes, card types (when unknown), legality status, rarity, pricing, and the card identity/printing model. This data powers the visual mosaic, minified export, and budget optimization features.
 
 **Feature references:**
 - `@see docs/features.md F6.2` — TCGdex card data enrichment
@@ -32,10 +32,10 @@ EnrichDeckVersionMessage dispatched
 EnrichDeckVersionHandler
     ├── Sets DeckVersion.enrichmentStatus = 'enriching'
     ├── Iterates every DeckCard in the version
-    │   ├── Basic energy? → enrichBasicEnergy()
+    │   ├── Basic energy? → enrichBasicEnergy() + resolve cardType to 'energy'
     │   └── Regular card? → TcgdexApiClient.findCard()
-    │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting
-    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity)
+    │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting + resolve cardType from TCGdex category
+    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity) + resolve cardType
     ├── Sets DeckVersion.enrichmentStatus = 'done' (or 'failed' on exception)
     │
     ▼  (if status = 'done')
@@ -67,6 +67,10 @@ The `DeckVersion.enrichmentStatus` field tracks progress:
 **Key files:**
 - `src/MessageHandler/EnrichDeckVersionHandler.php`
 - `src/Service/Tcgdex/CardEnricher.php`
+
+### Card Type Resolution
+
+Section headers (`Pokémon:`, `Trainer:`, `Energy:`) in the imported deck list are optional. When headers are absent, the parser assigns `unknown` as the card type. During enrichment, the `CardEnricher` resolves unknown card types from the TCGdex `category` field (`Pokemon` → `pokemon`, `Trainer` → `trainer`, `Energy` → `energy`). Cards that already have a known type (from section headers) are not overwritten. Cards that cannot be found in TCGdex retain the `unknown` type.
 
 ---
 
@@ -155,7 +159,7 @@ Returns `null` if no pricing data is available.
 
 **Key file:** `src/Service/Tcgdex/TcgdexApiClient.php`
 
-**DTO:** `src/Service/Tcgdex/TcgdexCard.php` — readonly value object carrying all parsed card data (id, name, category, trainerType, imageUrl, isExpandedLegal, hp, attacks, rarity, setReleaseDate, setCode, cardNumber, priceInCents).
+**DTO:** `src/Service/Tcgdex/TcgdexCard.php` — readonly value object carrying all parsed card data (id, name, category, trainerType, imageUrl, isExpandedLegal, hp, attacks, rarity, setReleaseDate, setCode, cardNumber, priceInCents, cardmarketProductId, tcgplayerProductId).
 
 ---
 
@@ -190,6 +194,8 @@ Represents a specific physical printing of a card in a particular set:
 | `setReleaseDate`   | Set release date (for era filtering and sorting)        |
 | `priceInCents`     | Average price in euro cents from Cardmarket              |
 | `isExpandedLegal`  | Whether TCGdex marks this printing as Expanded-legal    |
+| `cardmarketProductId` | Cardmarket product ID for direct linking (nullable)  |
+| `tcgplayerProductId`  | TCGPlayer product ID for direct linking (nullable)   |
 
 ### Identity Resolution
 
@@ -250,20 +256,38 @@ The minified export feature generates a budget-optimized deck list by replacing 
 
 ### Lowest-Rarity Printing Selection
 
-For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` selects the best printing using this sort order:
+For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` uses a two-pass strategy:
 
-1. **Rarity tier** ascending (lowest = cheapest rarity)
-2. **Price in cents** ascending (cheapest within the same tier)
-3. **Set release date** descending (most recent if tied on price)
+**Pass 1 — Common printings (tier 1–3: Common, Uncommon, Rare):**
+1. Rarity tier ascending
+2. **Release date descending** — most recent reprint (latest Ultra Ball)
+3. Price ascending — tiebreaker
 
-Additional filters applied:
+**Pass 2 — Rare+ printings (tier 4+), only if no common printing exists:**
+1. Rarity tier ascending
+2. **Price ascending** — cheapest first (picks regular GX at €5 over Full Art at €50 when TCGdex reports both as "Ultra Rare")
+3. Release date descending — tiebreaker
+
+**Pass 3 — Last resort (all tiers, including premium):**
+
+Only reached if Passes 1–2 found nothing (e.g. a card that only exists as a TG printing). Same as Pass 2 but without the premium exclusion.
+
+### Premium Card Exclusion
+
+Trainer Gallery (TG) and Galarian Gallery (GG) cards are full-art premium variants that TCGdex often marks as "Rare" — the same tier as the regular version. They are identified by card number prefix (`TG01`, `GG05`, etc.) and excluded from Passes 1–2. This prevents BRS TG01 Flareon (€11) from being selected over VIV 26 Flareon (€0.50) despite both being "Rare" tier 3.
+
+### Filters (all passes)
+
 - Must be marked `isExpandedLegal = true`
 - Must have a non-null `imageUrl`
 - Must be from the **Expanded era** (set release date >= 2011-04-25, or null release date allowed)
+- Passes 1–2: card number must not start with `TG` or `GG` (premium exclusion)
 
-### Basic Energy: Latest Printing
+### Basic Energy: Static Default Printings
 
-Basic energy cards use a different strategy: `findLatestForIdentity()` selects the most recently released Expanded-legal printing. Since all basic energies are functionally identical and cost-free, the goal is to pick the most modern-looking artwork rather than the cheapest.
+Basic energy cards use a different strategy: instead of querying the database for the best printing, they use a **static default** from `DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS`. This maps each energy type directly to MEE (Mega Evolution Energy) for the 8 standard types, or SUM (Sun & Moon) for Fairy Energy. This ensures the minified export always uses the cleanest, most modern plain basic energy image — regardless of what TCGdex has indexed.
+
+See [`data/basic_energies.json`](/data/basic_energies.json) for the full catalogue and [`basic_energy_images.md`](basic_energy_images.md) for CDN source details.
 
 ### Card Merging
 
@@ -290,7 +314,9 @@ Both the list generator and view builder trigger `expandPrintings()` lazily: if 
 
 ## Basic Energy Handling
 
-Basic energy cards receive special treatment throughout the enrichment pipeline because energy set codes (SVE, SME, XYE, BWE) do not exist in TCGdex, and energy cards are functionally interchangeable across all sets.
+Basic energy cards receive special treatment throughout the enrichment pipeline because energy set codes (SVE, SME, XYE, BWE, MEE) do not exist in TCGdex, and energy cards are functionally interchangeable across all sets.
+
+A comprehensive reference of all known basic energy printings, image sources, and minified defaults is maintained in [`data/basic_energies.json`](/data/basic_energies.json) — see [basic_energy_images.md](basic_energy_images.md) for details.
 
 ### Detection
 
@@ -298,7 +324,7 @@ A card is classified as basic energy if:
 1. Its name matches one of the 9 basic energy names (Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal, Fairy), **or**
 2. Its set code is one of the energy-specific codes: `SVE`, `SME`, `XYE`, `BWE`
 
-Name-based detection is primary, covering energy cards that appear in non-energy sets (e.g. `SVI`).
+Name-based detection is primary, covering energy cards that appear in non-energy sets (e.g. `SVI`). The parser also detects basic energies at parse time and assigns `energy` card type even without section headers.
 
 ### Enrichment Lookup Chain
 
@@ -307,8 +333,8 @@ For energy cards from non-energy sets (e.g. `SVI 257`):
 2. If found, enrich normally (tcgdexId, imageUrl, CardPrinting)
 
 For energy cards from energy sets (`SVE`, `SME`, etc.) or when set+number fails:
-1. **Name search** — `findImageByName()` to get any available image
-2. **Static fallback** — hardcoded Black & White base set image URLs (Fairy Energy uses Sun & Moon base)
+1. **Simplest printing by name** — `findSimplestBasicEnergyByName()` searches all TCGdex printings and selects the Common-rarity one with the most recent release date, creating a proper `CardIdentity`/`CardPrinting` link
+2. **Static fallback** — hardcoded image URLs from `BASIC_ENERGY_IMAGES`, used only when TCGdex returns no results
 
 Energy cards matched by name only do not generate "not found" warnings, unlike regular cards.
 

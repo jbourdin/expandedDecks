@@ -125,6 +125,10 @@ function useScannerDetection(onScan) {
 - Use template literals `` `Hello ${name}` `` instead of string concatenation
 - Never use jQuery or other DOM manipulation libraries, unless interacting with a third-party library that requires it. Use vanilla JS or React instead
 
+### PHPUnit Testing
+
+- Use `createStub()` when a test double only needs `method()->willReturn()` behavior. Use `createMock()` **only** when the test verifies interactions via `expects()`. PHPUnit 13 emits a notice ("No expectations were configured for the mock object") when `createMock()` is used without `expects()` calls, and the project treats notices as issues (`failOnNotice="true"`).
+
 ## Version Control
 
 > Full details: [docs/standards/version_control.md](docs/standards/version_control.md)

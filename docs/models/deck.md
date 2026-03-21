@@ -106,7 +106,7 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 | `setCode`          | `string(20)`       | No       | Set abbreviation (e.g. `"SIT"`, `"BRS"`). |
 | `cardNumber`       | `string(20)`       | No       | Card number within the set (e.g. `"186"`, `"TG1"`). |
 | `quantity`         | `int`              | No       | Number of copies in the deck (1–4 for most cards, unlimited for basic energy). |
-| `cardType`         | `string(20)`       | No       | Card category: `"pokemon"`, `"trainer"`, or `"energy"`. |
+| `cardType`         | `string(20)`       | No       | Card category: `"pokemon"`, `"trainer"`, `"energy"`, or `"unknown"` (when imported without section headers — resolved during enrichment). |
 | `trainerSubtype`   | `string(20)`       | Yes      | Trainer subcategory: `"supporter"`, `"item"`, `"tool"`, or `"stadium"`. Null for non-trainer cards. |
 | `tcgdexId`         | `string(30)`       | Yes      | TCGdex card identifier. Used for image retrieval and validation. |
 | `imageUrl`         | `string(255)`      | Yes      | Card image URL (populated during TCGdex enrichment). Used for hover preview display. |
@@ -115,7 +115,7 @@ A single card entry in a deck version's card list. Parsed from PTCG text format 
 
 - Unique constraint on (`deckVersion`, `setCode`, `cardNumber`) — no duplicate card entries per version
 - `quantity`: required, >= 1
-- `cardType`: required, one of `"pokemon"`, `"trainer"`, `"energy"`
+- `cardType`: required, one of `"pokemon"`, `"trainer"`, `"energy"`, or `"unknown"` (pre-enrichment, when imported without section headers)
 - `trainerSubtype`: required when `cardType` is `"trainer"`, null otherwise
 
 ---
@@ -212,7 +212,7 @@ There is **no deck editor** in the application. Users paste a deck list in stand
 ```
 
 The system:
-1. **Parses** the text using `ptcgo-parser` (npm) → structured card objects
+1. **Parses** the text → structured card objects (section headers are optional; cards without headers get `unknown` type)
 2. **Validates** each card against TCGdex → confirms card exists, resolves card type and trainer subtype
 3. **Validates Expanded legality** → checks that all cards are from Black & White series onward and not on the banned list
 4. **Creates a new `DeckVersion`** with the parsed cards as `DeckCard` entities + preserves the raw text in `DeckVersion.rawList`

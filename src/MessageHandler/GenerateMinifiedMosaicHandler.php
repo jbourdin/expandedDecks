@@ -18,6 +18,7 @@ use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 use App\Service\Mosaic\MosaicGenerator;
 use App\Service\Mosaic\MosaicTile;
 use App\Service\Mosaic\MosaicUrlResolver;
@@ -31,11 +32,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 class GenerateMinifiedMosaicHandler
 {
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy', 'Fire Energy', 'Water Energy', 'Lightning Energy',
-        'Psychic Energy', 'Fighting Energy', 'Darkness Energy', 'Metal Energy', 'Fairy Energy',
-    ];
-
     private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
     private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
@@ -157,6 +153,21 @@ class GenerateMinifiedMosaicHandler
 
     private function resolveMinifiedImageUrl(DeckCard $card): ?string
     {
+        // Static overrides for known TCGdex data issues
+        $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
+
+        if (null !== $override) {
+            return $override['imageUrl'];
+        }
+
+        // Basic energies always use the default printing image
+        $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
+
+        if (null !== $energyDefault) {
+            return $energyDefault['imageUrl'];
+        }
+
         $printing = $card->getCardPrinting();
 
         if (null === $printing) {
@@ -169,11 +180,7 @@ class GenerateMinifiedMosaicHandler
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
-        } else {
-            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-        }
+        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
         return $bestPrinting?->getImageUrl() ?? $card->getImageUrl();
     }
