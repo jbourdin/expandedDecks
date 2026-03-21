@@ -118,9 +118,6 @@ class TcgdexApiClient
             $normalizedNumber = 'TG'.$cardNumber;
         }
 
-        // Strip trailing letter suffixes from card numbers (e.g. "113a" → "113")
-        $normalizedNumber = preg_replace('/[a-z]+$/i', '', $normalizedNumber) ?? $normalizedNumber;
-
         $setId = $mapping[$normalizedSetCode] ?? null;
 
         if (null === $setId) {
@@ -131,12 +128,27 @@ class TcgdexApiClient
         $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
         $lookupNumber = null !== $prefix ? $prefix.$normalizedNumber : $normalizedNumber;
 
-        // Try the resolved card number first
+        // Try the exact card number first (preserving letter suffixes like "28a")
         $card = $this->fetchCard($setId, $lookupNumber);
 
+        if (null !== $card) {
+            return $card;
+        }
+
+        // If not found and number has a letter suffix, retry without it (e.g. "113a" → "113")
+        $strippedNumber = preg_replace('/[a-z]+$/i', '', $lookupNumber) ?? $lookupNumber;
+
+        if ($strippedNumber !== $lookupNumber) {
+            $card = $this->fetchCard($setId, $strippedNumber);
+
+            if (null !== $card) {
+                return $card;
+            }
+        }
+
         // If not found and number is < 3 digits, retry with zero-padded
-        if (null === $card && \strlen($lookupNumber) < 3 && ctype_digit($lookupNumber)) {
-            $paddedNumber = str_pad($lookupNumber, 3, '0', \STR_PAD_LEFT);
+        if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
+            $paddedNumber = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
             $card = $this->fetchCard($setId, $paddedNumber);
         }
 
