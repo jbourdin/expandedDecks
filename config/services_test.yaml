@@ -2,3 +2,12 @@ services:
     App\Tests\DBAL\StaticConnectionMiddleware:
         tags:
             - { name: doctrine.middleware }
+
+    # Replace the real HTTP client with a mock for TCGdex API calls in functional tests.
+    # This prevents live network calls that cause flaky CI failures from API timeouts.
+    App\Tests\HttpClient\TcgdexMockHttpClient: ~
+
+    App\Service\Tcgdex\TcgdexApiClient:
+        autowire: true
+        arguments:
+            $httpClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
