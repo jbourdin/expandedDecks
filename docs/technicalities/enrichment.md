@@ -268,14 +268,20 @@ For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()`
 2. **Price ascending** — cheapest first (picks regular GX at €5 over Full Art at €50 when TCGdex reports both as "Ultra Rare")
 3. Release date descending — tiebreaker
 
-This two-pass approach ensures:
-- Common cards (Ultra Ball, Trainers' Mail) use the **latest reprint**
-- Rare cards (GX, V, VSTAR) use the **cheapest version**, naturally excluding Full Art and Secret Rare variants even when TCGdex doesn't distinguish rarity granularly
+**Pass 3 — Last resort (all tiers, including premium):**
 
-Additional filters (both passes):
+Only reached if Passes 1–2 found nothing (e.g. a card that only exists as a TG printing). Same as Pass 2 but without the premium exclusion.
+
+### Premium Card Exclusion
+
+Trainer Gallery (TG) and Galarian Gallery (GG) cards are full-art premium variants that TCGdex often marks as "Rare" — the same tier as the regular version. They are identified by card number prefix (`TG01`, `GG05`, etc.) and excluded from Passes 1–2. This prevents BRS TG01 Flareon (€11) from being selected over VIV 26 Flareon (€0.50) despite both being "Rare" tier 3.
+
+### Filters (all passes)
+
 - Must be marked `isExpandedLegal = true`
 - Must have a non-null `imageUrl`
 - Must be from the **Expanded era** (set release date >= 2011-04-25, or null release date allowed)
+- Passes 1–2: card number must not start with `TG` or `GG` (premium exclusion)
 
 ### Basic Energy: Static Default Printings
 

@@ -45,28 +45,41 @@ class CardPrintingRepository extends ServiceEntityRepository
     private const int COMMON_TIER_THRESHOLD = 3;
 
     /**
+     * Trainer Gallery card number prefixes — these are always premium full-art
+     * variants despite TCGdex often reporting them as "Rare" (same tier as the
+     * regular version). They should be excluded from minified selection.
+     */
+    private const array PREMIUM_CARD_NUMBER_PREFIXES = ['TG', 'GG'];
+
+    /**
      * Find the best Expanded-legal printing for minified export.
      *
-     * Two-pass strategy:
-     * 1. Look for a common printing (tier 1–3): prefer most recent reprint, then cheapest.
-     *    This picks the latest Ultra Ball Common rather than an old cheap one.
-     * 2. If none, fall back to rare+ printings (tier 4+): prefer cheapest, then most recent.
-     *    This picks the regular GX (€5) over the Full Art (€50) when TCGdex reports
-     *    both as "Ultra Rare" at the same tier.
+     * Three-pass strategy:
+     * 1. Look for a common non-premium printing (tier 1–3, no TG/GG prefix):
+     *    prefer most recent reprint, then cheapest.
+     * 2. If none, fall back to rare+ non-premium (tier 4+): prefer cheapest, then most recent.
+     * 3. If none, include premium printings (TG/GG) as last resort.
      *
      * @see docs/technicalities/enrichment.md — Lowest-Rarity Printing Selection
      */
     public function findLowestRarityForIdentity(CardIdentity $identity): ?CardPrinting
     {
-        // Pass 1: common printings (tiers 1–3) — most recent first, price as tiebreaker
-        $result = $this->findPrintingByTierRange($identity, 1, self::COMMON_TIER_THRESHOLD, 'date');
+        // Pass 1: common non-premium printings (tiers 1–3) — most recent first
+        $result = $this->findPrintingByTierRange($identity, 1, self::COMMON_TIER_THRESHOLD, 'date', true);
 
         if (null !== $result) {
             return $result;
         }
 
-        // Pass 2: rare+ printings (tier 4+) — cheapest first, date as tiebreaker
-        return $this->findPrintingByTierRange($identity, self::COMMON_TIER_THRESHOLD + 1, null, 'price');
+        // Pass 2: rare+ non-premium printings (tier 4+) — cheapest first
+        $result = $this->findPrintingByTierRange($identity, self::COMMON_TIER_THRESHOLD + 1, null, 'price', true);
+
+        if (null !== $result) {
+            return $result;
+        }
+
+        // Pass 3: any printing including premium (TG/GG) — cheapest first
+        return $this->findPrintingByTierRange($identity, 1, null, 'price', false);
     }
 
     /**
@@ -77,6 +90,7 @@ class CardPrintingRepository extends ServiceEntityRepository
         int $minTier,
         ?int $maxTier,
         string $primarySort,
+        bool $excludePremiumNumbers,
     ): ?CardPrinting {
         $queryBuilder = $this->createQueryBuilder('cp')
             ->where('cp.cardIdentity = :identity')
@@ -94,6 +108,14 @@ class CardPrintingRepository extends ServiceEntityRepository
             $queryBuilder
                 ->andWhere('cp.rarityTier <= :maxTier')
                 ->setParameter('maxTier', $maxTier);
+        }
+
+        if ($excludePremiumNumbers) {
+            foreach (self::PREMIUM_CARD_NUMBER_PREFIXES as $index => $prefix) {
+                $queryBuilder
+                    ->andWhere(\sprintf('cp.cardNumber NOT LIKE :premiumPrefix%d', $index))
+                    ->setParameter(\sprintf('premiumPrefix%d', $index), $prefix.'%');
+            }
         }
 
         $queryBuilder->addOrderBy('cp.rarityTier', 'ASC');
