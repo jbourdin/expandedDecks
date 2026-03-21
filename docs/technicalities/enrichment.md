@@ -159,7 +159,7 @@ Returns `null` if no pricing data is available.
 
 **Key file:** `src/Service/Tcgdex/TcgdexApiClient.php`
 
-**DTO:** `src/Service/Tcgdex/TcgdexCard.php` — readonly value object carrying all parsed card data (id, name, category, trainerType, imageUrl, isExpandedLegal, hp, attacks, rarity, setReleaseDate, setCode, cardNumber, priceInCents).
+**DTO:** `src/Service/Tcgdex/TcgdexCard.php` — readonly value object carrying all parsed card data (id, name, category, trainerType, imageUrl, isExpandedLegal, hp, attacks, rarity, setReleaseDate, setCode, cardNumber, priceInCents, cardmarketProductId, tcgplayerProductId).
 
 ---
 
@@ -194,6 +194,8 @@ Represents a specific physical printing of a card in a particular set:
 | `setReleaseDate`   | Set release date (for era filtering and sorting)        |
 | `priceInCents`     | Average price in euro cents from Cardmarket              |
 | `isExpandedLegal`  | Whether TCGdex marks this printing as Expanded-legal    |
+| `cardmarketProductId` | Cardmarket product ID for direct linking (nullable)  |
+| `tcgplayerProductId`  | TCGPlayer product ID for direct linking (nullable)   |
 
 ### Identity Resolution
 

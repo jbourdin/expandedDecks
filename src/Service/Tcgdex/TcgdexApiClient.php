@@ -397,8 +397,9 @@ class TcgdexApiClient
             $setCode = $reverseMapping[$setId] ?? null;
         }
 
-        // Parse pricing: prefer Cardmarket avg, fall back to TCGPlayer mid
+        // Parse pricing and marketplace IDs
         $priceInCents = $this->parsePriceInCents($data);
+        [$cardmarketProductId, $tcgplayerProductId] = $this->parseMarketplaceIds($data);
 
         return new TcgdexCard(
             id: $id,
@@ -414,6 +415,8 @@ class TcgdexApiClient
             setCode: $setCode,
             cardNumber: $localId,
             priceInCents: $priceInCents,
+            cardmarketProductId: $cardmarketProductId,
+            tcgplayerProductId: $tcgplayerProductId,
         );
     }
 
@@ -477,5 +480,46 @@ class TcgdexApiClient
         }
 
         return null;
+    }
+
+    /**
+     * Extract marketplace product IDs from TCGdex pricing data.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array{0: ?int, 1: ?int} [cardmarketProductId, tcgplayerProductId]
+     */
+    private function parseMarketplaceIds(array $data): array
+    {
+        $cardmarketId = null;
+        $tcgplayerId = null;
+
+        if (!isset($data['pricing']) || !\is_array($data['pricing'])) {
+            return [$cardmarketId, $tcgplayerId];
+        }
+
+        /** @var array<string, mixed> $pricing */
+        $pricing = $data['pricing'];
+
+        if (isset($pricing['cardmarket']) && \is_array($pricing['cardmarket'])) {
+            $idProduct = $pricing['cardmarket']['idProduct'] ?? null;
+
+            if (\is_int($idProduct)) {
+                $cardmarketId = $idProduct;
+            }
+        }
+
+        // TCGPlayer stores productId per variant — take the first one found
+        if (isset($pricing['tcgplayer']) && \is_array($pricing['tcgplayer'])) {
+            foreach ($pricing['tcgplayer'] as $key => $value) {
+                if (\is_array($value) && isset($value['productId']) && \is_int($value['productId'])) {
+                    $tcgplayerId = $value['productId'];
+
+                    break;
+                }
+            }
+        }
+
+        return [$cardmarketId, $tcgplayerId];
     }
 }

@@ -141,6 +141,8 @@ class CardIdentityResolver
         $printing->setImageUrl($tcgdexCard->imageUrl);
         $printing->setPriceInCents($tcgdexCard->priceInCents);
         $printing->setIsExpandedLegal($tcgdexCard->isExpandedLegal);
+        $printing->setCardmarketProductId($tcgdexCard->cardmarketProductId);
+        $printing->setTcgplayerProductId($tcgdexCard->tcgplayerProductId);
 
         if (null !== $tcgdexCard->setReleaseDate) {
             try {

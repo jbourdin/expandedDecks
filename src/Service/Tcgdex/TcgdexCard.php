@@ -36,6 +36,8 @@ readonly class TcgdexCard
         public ?string $setCode = null,
         public ?string $cardNumber = null,
         public ?int $priceInCents = null,
+        public ?int $cardmarketProductId = null,
+        public ?int $tcgplayerProductId = null,
     ) {
     }
 }
