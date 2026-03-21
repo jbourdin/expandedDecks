@@ -67,6 +67,8 @@ class CardIdentityResolver
     {
         $allPrintings = $this->apiClient->findAllPrintingsByName($identity->getName());
 
+        $newPrintings = [];
+
         foreach ($allPrintings as $tcgdexCard) {
             if ('' === $tcgdexCard->id) {
                 continue;
@@ -94,9 +96,22 @@ class CardIdentityResolver
 
             $printing = $this->createPrinting($identity, $tcgdexCard);
             $this->entityManager->persist($printing);
+            $newPrintings[] = $printing;
         }
 
-        $this->entityManager->flush();
+        if ([] === $newPrintings) {
+            return;
+        }
+
+        try {
+            $this->entityManager->flush();
+        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException) {
+            // Race condition: another worker already inserted some of these printings.
+            // Detach the failed entities and continue — the data is already in the DB.
+            foreach ($newPrintings as $printing) {
+                $this->entityManager->detach($printing);
+            }
+        }
     }
 
     private function findOrCreateIdentity(TcgdexCard $tcgdexCard): CardIdentity
