@@ -372,6 +372,8 @@ class TcgdexApiClient
         $setReleaseDate = null;
         $setId = null;
 
+        $setOfficialCardCount = null;
+
         if (isset($data['set']) && \is_array($data['set'])) {
             if (isset($data['set']['releaseDate']) && \is_string($data['set']['releaseDate'])) {
                 $setReleaseDate = $data['set']['releaseDate'];
@@ -379,6 +381,14 @@ class TcgdexApiClient
 
             if (isset($data['set']['id']) && \is_string($data['set']['id'])) {
                 $setId = $data['set']['id'];
+            }
+
+            if (isset($data['set']['cardCount']) && \is_array($data['set']['cardCount'])) {
+                $official = $data['set']['cardCount']['official'] ?? null;
+
+                if (\is_int($official)) {
+                    $setOfficialCardCount = $official;
+                }
             }
         }
 
@@ -417,6 +427,7 @@ class TcgdexApiClient
             priceInCents: $priceInCents,
             cardmarketProductId: $cardmarketProductId,
             tcgplayerProductId: $tcgplayerProductId,
+            setOfficialCardCount: $setOfficialCardCount,
         );
     }
 

@@ -92,11 +92,19 @@ class RarityTierMapper
     /** Tier for unknown or unmapped rarities — treated as rarest to avoid false budget picks. */
     public const int UNKNOWN_TIER = 7;
 
+    /** Minimum tier for cards beyond the set's official count or with premium prefixes (TG, GG). */
+    private const int SECRET_RARE_MIN_TIER = 5;
+
+    /** Card number prefixes that always indicate premium/full-art variants. */
+    private const array PREMIUM_CARD_NUMBER_PREFIXES = ['TG', 'GG'];
+
     /**
-     * @param string|null $rarity the rarity string from TCGdex
-     * @param string|null $setId  the TCGdex set ID (e.g. 'sma', 'swshp') — used to check the blacklist
+     * @param string|null $rarity               the rarity string from TCGdex
+     * @param string|null $setId                the TCGdex set ID (e.g. 'sma', 'swshp') — used to check the blacklist
+     * @param string|null $cardNumber           the card number within the set (e.g. '100', 'TG01')
+     * @param int|null    $setOfficialCardCount the set's official card count — cards beyond this are secret/premium
      */
-    public function map(?string $rarity, ?string $setId = null): int
+    public function map(?string $rarity, ?string $setId = null, ?string $cardNumber = null, ?int $setOfficialCardCount = null): int
     {
         if (null !== $setId && \in_array($setId, self::UNRELIABLE_RARITY_SETS, true)) {
             return self::UNKNOWN_TIER;
@@ -106,6 +114,32 @@ class RarityTierMapper
             return self::UNKNOWN_TIER;
         }
 
-        return self::RARITY_TIERS[$rarity] ?? self::UNKNOWN_TIER;
+        $tier = self::RARITY_TIERS[$rarity] ?? self::UNKNOWN_TIER;
+
+        // Bump tier for cards beyond the official set count (secret rares, full arts)
+        if (null !== $cardNumber && $tier < self::SECRET_RARE_MIN_TIER) {
+            if ($this->isPremiumCardNumber($cardNumber, $setOfficialCardCount)) {
+                $tier = self::SECRET_RARE_MIN_TIER;
+            }
+        }
+
+        return $tier;
+    }
+
+    private function isPremiumCardNumber(string $cardNumber, ?int $setOfficialCardCount): bool
+    {
+        // TG/GG prefixed cards are always premium
+        foreach (self::PREMIUM_CARD_NUMBER_PREFIXES as $prefix) {
+            if (str_starts_with($cardNumber, $prefix)) {
+                return true;
+            }
+        }
+
+        // Numeric card number beyond the official count → secret rare
+        if (null !== $setOfficialCardCount && ctype_digit($cardNumber)) {
+            return (int) $cardNumber > $setOfficialCardCount;
+        }
+
+        return false;
     }
 }
