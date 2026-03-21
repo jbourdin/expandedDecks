@@ -43,6 +43,40 @@ class CardEnricher
     private const array ENERGY_SET_CODES = ['SVE', 'SME', 'XYE', 'BWE', 'MEE'];
 
     /**
+     * Known energy-set card images, keyed by "{PTCGL_SET_CODE}|{cardNumber}".
+     * Sourced from data/basic_energies.json — enables exact image matching
+     * for energy-set codes that TCGdex does not index.
+     *
+     * @see docs/technicalities/basic_energy_images.md
+     */
+    private const array ENERGY_SET_IMAGES = [
+        'SVE|1' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_1.png',
+        'SVE|2' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_2.png',
+        'SVE|3' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_3.png',
+        'SVE|4' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_4.png',
+        'SVE|5' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_5.png',
+        'SVE|6' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_6.png',
+        'SVE|7' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_7.png',
+        'SVE|8' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_8.png',
+        'SVE|9' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_9.png',
+        'SVE|10' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_10.png',
+        'SVE|11' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_11.png',
+        'SVE|12' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_12.png',
+        'SVE|13' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_13.png',
+        'SVE|14' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_14.png',
+        'SVE|15' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_15.png',
+        'SVE|16' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_16.png',
+        'MEE|1' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'MEE|2' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'MEE|3' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'MEE|4' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'MEE|5' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'MEE|6' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'MEE|7' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'MEE|8' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+    ];
+
+    /**
      * Fallback image URLs for basic energy cards when TCGdex returns nothing.
      * Uses MEE (Mega Evolution Energy) from pokemon.com CDN for the 8 standard types,
      * and sm1 from pokemontcg.io for Fairy Energy.
@@ -184,7 +218,16 @@ class CardEnricher
     {
         $setCode = strtoupper($card->getSetCode());
 
-        // For non-energy sets (e.g. SVI), try set+number lookup first
+        // For energy-only sets (SVE, MEE…): use our static image map for exact match
+        $energySetKey = $setCode.'|'.$card->getCardNumber();
+
+        if (isset(self::ENERGY_SET_IMAGES[$energySetKey])) {
+            $card->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+
+            return;
+        }
+
+        // For non-energy sets (e.g. SVI), try set+number lookup in TCGdex
         if (!\in_array($setCode, self::ENERGY_SET_CODES, true)) {
             $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
 
@@ -198,7 +241,7 @@ class CardEnricher
             }
         }
 
-        // For energy sets (SVE, SME…) or when set+number failed: pick simplest recent printing
+        // Fallback: pick simplest TCGdex printing by name
         $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
 
         if (null !== $tcgdexCard) {
@@ -210,7 +253,7 @@ class CardEnricher
             return;
         }
 
-        // Final fallback: static image map
+        // Final fallback: static image map by energy name
         $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
     }
 
