@@ -256,13 +256,23 @@ The minified export feature generates a budget-optimized deck list by replacing 
 
 ### Lowest-Rarity Printing Selection
 
-For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` selects the best printing using this sort order:
+For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` uses a two-pass strategy:
 
-1. **Rarity tier** ascending (lowest rarity first — Common before Rare)
-2. **Price in cents** ascending (cheapest within the same tier — distinguishes regular GX from Full Art when TCGdex reports both as "Ultra Rare")
-3. **Set release date** descending (most recent among equally-priced reprints)
+**Pass 1 — Common printings (tier 1–3: Common, Uncommon, Rare):**
+1. Rarity tier ascending
+2. **Release date descending** — most recent reprint (latest Ultra Ball)
+3. Price ascending — tiebreaker
 
-Additional filters applied:
+**Pass 2 — Rare+ printings (tier 4+), only if no common printing exists:**
+1. Rarity tier ascending
+2. **Price ascending** — cheapest first (picks regular GX at €5 over Full Art at €50 when TCGdex reports both as "Ultra Rare")
+3. Release date descending — tiebreaker
+
+This two-pass approach ensures:
+- Common cards (Ultra Ball, Trainers' Mail) use the **latest reprint**
+- Rare cards (GX, V, VSTAR) use the **cheapest version**, naturally excluding Full Art and Secret Rare variants even when TCGdex doesn't distinguish rarity granularly
+
+Additional filters (both passes):
 - Must be marked `isExpandedLegal = true`
 - Must have a non-null `imageUrl`
 - Must be from the **Expanded era** (set release date >= 2011-04-25, or null release date allowed)
