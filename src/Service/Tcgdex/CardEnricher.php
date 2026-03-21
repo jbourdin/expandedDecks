@@ -40,21 +40,26 @@ class CardEnricher
      * Energy set codes (SVE, SME…) don't exist in TCGdex.
      * Cards from these sets are basic energy — skip set+number lookup.
      */
-    private const array ENERGY_SET_CODES = ['SVE', 'SME', 'XYE', 'BWE'];
+    private const array ENERGY_SET_CODES = ['SVE', 'SME', 'XYE', 'BWE', 'MEE'];
 
     /**
      * Fallback image URLs for basic energy cards when TCGdex returns nothing.
+     * Uses MEE (Mega Evolution Energy) from pokemon.com CDN for the 8 standard types,
+     * and sm1 from pokemontcg.io for Fairy Energy.
+     *
+     * @see data/basic_energies.json — full catalogue of all basic energy printings
+     * @see docs/technicalities/basic_energy_images.md
      */
     private const array BASIC_ENERGY_IMAGES = [
-        'Grass Energy' => 'https://assets.tcgdex.net/en/bw/bw1/105/high.webp',
-        'Fire Energy' => 'https://assets.tcgdex.net/en/bw/bw1/106/high.webp',
-        'Water Energy' => 'https://assets.tcgdex.net/en/bw/bw1/107/high.webp',
-        'Lightning Energy' => 'https://assets.tcgdex.net/en/bw/bw1/108/high.webp',
-        'Psychic Energy' => 'https://assets.tcgdex.net/en/bw/bw1/109/high.webp',
-        'Fighting Energy' => 'https://assets.tcgdex.net/en/bw/bw1/110/high.webp',
-        'Darkness Energy' => 'https://assets.tcgdex.net/en/bw/bw1/111/high.webp',
-        'Metal Energy' => 'https://assets.tcgdex.net/en/bw/bw1/112/high.webp',
-        'Fairy Energy' => 'https://assets.tcgdex.net/en/sm/sm1/172/high.webp',
+        'Grass Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Fire Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Water Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Lightning Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Psychic Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Fighting Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Darkness Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Metal Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Fairy Energy' => 'https://images.pokemontcg.io/sm1/172_hires.png',
     ];
 
     public function __construct(

@@ -153,6 +153,13 @@ class GenerateMinifiedMosaicHandler
 
     private function resolveMinifiedImageUrl(DeckCard $card): ?string
     {
+        // Basic energies always use the default printing image
+        $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
+
+        if (null !== $energyDefault) {
+            return $energyDefault['imageUrl'];
+        }
+
         $printing = $card->getCardPrinting();
 
         if (null === $printing) {
@@ -165,11 +172,7 @@ class GenerateMinifiedMosaicHandler
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), DeckListParser::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestSimpleForIdentity($identity);
-        } else {
-            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-        }
+        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
         return $bestPrinting?->getImageUrl() ?? $card->getImageUrl();
     }

@@ -117,6 +117,26 @@ class MinifiedListGenerator
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
+        // Basic energies always use the default printing (MEE for standard types, SUM for Fairy)
+        $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
+
+        if (null !== $energyDefault) {
+            $this->logger->debug('Minified {card}: {original} → {minified}', [
+                'card' => $card->getCardName(),
+                'original' => \sprintf('%s %s', $card->getSetCode(), $card->getCardNumber()),
+                'minified' => \sprintf('%s %s', $energyDefault['setCode'], $energyDefault['cardNumber']),
+            ]);
+
+            return [
+                'quantity' => $card->getQuantity(),
+                'name' => $card->getCardName(),
+                'setCode' => $energyDefault['setCode'],
+                'cardNumber' => $energyDefault['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+            ];
+        }
+
         $default = [
             'quantity' => $card->getQuantity(),
             'name' => $card->getCardName(),
@@ -139,11 +159,7 @@ class MinifiedListGenerator
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), DeckListParser::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestSimpleForIdentity($identity);
-        } else {
-            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-        }
+        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
         if (null === $bestPrinting) {
             return $default;

@@ -121,7 +121,7 @@ class CardEnricherTest extends TestCase
 
         self::assertSame(1, $report->enrichedCount);
         self::assertSame(0, $report->notFoundCount);
-        self::assertStringContainsString('tcgdex.net', (string) $card->getImageUrl());
+        self::assertStringContainsString('MEE_EN_4', (string) $card->getImageUrl());
     }
 
     public function testEnrichVersionAssignsNullForUnknownEnergyName(): void

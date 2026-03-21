@@ -265,9 +265,11 @@ Additional filters applied:
 - Must have a non-null `imageUrl`
 - Must be from the **Expanded era** (set release date >= 2011-04-25, or null release date allowed)
 
-### Basic Energy: Simplest Recent Printing
+### Basic Energy: Static Default Printings
 
-Basic energy cards use a different strategy: `findLatestSimpleForIdentity()` selects the most recent **Common-rarity** Expanded-legal printing. This avoids stamped, foiled, secret rare, or special art variants (Ultra Rare, Hyper Rare, etc.) and picks the plain basic energy from the latest core set. Sort order: rarity tier ascending (Common = tier 1 first), then release date descending.
+Basic energy cards use a different strategy: instead of querying the database for the best printing, they use a **static default** from `DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS`. This maps each energy type directly to MEE (Mega Evolution Energy) for the 8 standard types, or SUM (Sun & Moon) for Fairy Energy. This ensures the minified export always uses the cleanest, most modern plain basic energy image — regardless of what TCGdex has indexed.
+
+See [`data/basic_energies.json`](/data/basic_energies.json) for the full catalogue and [`basic_energy_images.md`](basic_energy_images.md) for CDN source details.
 
 ### Card Merging
 
