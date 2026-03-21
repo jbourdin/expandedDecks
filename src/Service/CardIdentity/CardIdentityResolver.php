@@ -137,10 +137,17 @@ class CardIdentityResolver
         $printing->setRarity($tcgdexCard->rarity);
         // Extract set ID from tcgdexId (e.g. "sma-SV84" → "sma")
         $setId = str_contains($tcgdexCard->id, '-') ? substr($tcgdexCard->id, 0, (int) strpos($tcgdexCard->id, '-')) : null;
-        $printing->setRarityTier($this->rarityTierMapper->map($tcgdexCard->rarity, $setId));
+        $printing->setRarityTier($this->rarityTierMapper->map(
+            $tcgdexCard->rarity,
+            $setId,
+            $tcgdexCard->cardNumber,
+            $tcgdexCard->setOfficialCardCount,
+        ));
         $printing->setImageUrl($tcgdexCard->imageUrl);
         $printing->setPriceInCents($tcgdexCard->priceInCents);
         $printing->setIsExpandedLegal($tcgdexCard->isExpandedLegal);
+        $printing->setCardmarketProductId($tcgdexCard->cardmarketProductId);
+        $printing->setTcgplayerProductId($tcgdexCard->tcgplayerProductId);
 
         if (null !== $tcgdexCard->setReleaseDate) {
             try {

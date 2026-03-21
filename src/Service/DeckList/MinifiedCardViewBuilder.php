@@ -17,6 +17,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Repository\CardPrintingRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 
 /**
  * Builds grouped MinifiedCardView arrays for the deck detail table view.
@@ -28,11 +29,6 @@ use App\Service\CardIdentity\CardIdentityResolver;
  */
 class MinifiedCardViewBuilder
 {
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy', 'Fire Energy', 'Water Energy', 'Lightning Energy',
-        'Psychic Energy', 'Fighting Energy', 'Darkness Energy', 'Metal Energy', 'Fairy Energy',
-    ];
-
     private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
     private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
@@ -136,6 +132,37 @@ class MinifiedCardViewBuilder
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
+        // Static overrides for known TCGdex data issues
+        $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
+
+        if (null !== $override) {
+            return [
+                'name' => $card->getCardName(),
+                'quantity' => $card->getQuantity(),
+                'setCode' => $override['setCode'],
+                'cardNumber' => $override['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+                'imageUrl' => $override['imageUrl'],
+            ];
+        }
+
+        // Basic energies always use the default printing (MEE for standard types, SUM for Fairy)
+        $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
+
+        if (null !== $energyDefault) {
+            return [
+                'name' => $card->getCardName(),
+                'quantity' => $card->getQuantity(),
+                'setCode' => $energyDefault['setCode'],
+                'cardNumber' => $energyDefault['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+                'imageUrl' => $energyDefault['imageUrl'],
+            ];
+        }
+
         $default = [
             'name' => $card->getCardName(),
             'quantity' => $card->getQuantity(),
@@ -158,11 +185,7 @@ class MinifiedCardViewBuilder
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
-        } else {
-            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-        }
+        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
         if (null === $bestPrinting) {
             return $default;

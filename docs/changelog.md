@@ -16,6 +16,53 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.10] — 2026-03-21
+
+Tenth beta — optional section headers in deck list import, basic energy image improvements, smarter minified export printing selection, marketplace IDs, and test infrastructure hardening.
+
+### Deck Library
+
+- **F6.1** — Optional section headers in deck list import: `Pokémon:`, `Trainer:`, `Energy:` headers are now optional. Cards without headers get `unknown` type, resolved during TCGdex enrichment. Basic energies detected by name at parse time.
+- **Minified export — basic energies**: always use MEE (Mega Evolution Energy) for the 8 standard types and SUM (Sun & Moon) for Fairy. Static defaults from `DEFAULT_BASIC_ENERGY_PRINTINGS`, no DB query needed.
+- **Minified export — two-pass printing selection**: tier 1–3 (Common/Uncommon/Rare) sorted by date DESC then price; tier 4+ sorted by price ASC then date. Trainer Gallery (TG) and Galarian Gallery (GG) cards excluded from passes 1–2.
+- **Minified export — rarity tier bump**: cards beyond the set's official card count or with TG/GG prefix are bumped to tier 5 during enrichment, even when TCGdex reports them as "Rare" or "Ultra Rare".
+- **Energy-set image resolution**: SVE and MEE cards resolved via static `ENERGY_SET_IMAGES` map with exact images from pokemon.com CDN. Card numbers normalized (SVE 4 / SVE 04 / SVE 004 all match).
+- **Card number letter suffix**: exact card number tried before stripping letter suffixes (fixes GEN 28a Jolteon-EX resolving to full art g1-28).
+- **PokemonTCG.io image fallback**: when TCGdex has no image for a card, build a PokemonTCG.io CDN URL from the tcgdex ID as first fallback.
+- **Static override mechanism**: `IMAGE_OVERRIDES` in CardEnricher and `MINIFIED_PRINTING_OVERRIDES` in DeckListParser for known TCGdex data issues (GEN 73 Team Flare Grunt).
+- **Marketplace IDs**: `cardmarketProductId` and `tcgplayerProductId` added to `CardPrinting` entity (+ migration), populated from TCGdex pricing data during enrichment.
+- **Original list export**: new `OriginalListFormatter` generates proper PTCGL text with section headers and trainer subtype ordering.
+- **Minified list export**: includes PTCGL section headers (`Pokémon:`, `Trainer:`, `Energy:`) and `Total Cards:` footer.
+- **Original card table**: trainers sorted by subtype (supporter → item → tool → stadium).
+- Centralized `BASIC_ENERGY_NAMES` in `DeckListParser` (removed 5 duplicate lists).
+
+### Bug Fixes
+
+- Basic energy validator checks by name only (supports headerless imports).
+- Enrichment fallback images updated from old BW1 TCGdex URLs to MEE (pokemon.com) and pokemontcg.io (Fairy).
+- `findSimplestBasicEnergyByName()` picks Common rarity + most recent release instead of first TCGdex result.
+
+### Data & Documentation
+
+- `data/basic_energies.json` — 194 known basic energy printings with multi-source image URLs and minified defaults.
+- `docs/technicalities/basic_energy_images.md` — CDN research (pokemon.com, pokemontcg.io, TCGdex).
+- `docs/technicalities/tcgdex_known_issues.md` — known data quality issues and workarounds.
+- PHPUnit `createStub` vs `createMock` guidance added to CLAUDE.md.
+- Updated features.md, models/deck.md, enrichment.md, docs.md.
+
+### Testing & Quality
+
+- `TcgdexMockHttpClient` replaces live TCGdex API calls in functional tests — eliminates flaky CI failures from API timeouts, ~30s faster test suite.
+- Fixed 6 PHPUnit 13 notices (`createMock` → `createStub` where no expectations configured).
+- Mock set mapping expanded to 45 sets covering all fixture data.
+
+### Infrastructure
+
+- PDF label: foldable layout with deck list on back, short tag routes, trainer subtype grouping.
+- GitHub link added to footer.
+
+---
+
 ## [1.0.0-beta.9] — 2026-03-19
 
 Ninth beta — PDF label cards for home printing, GitHub link in footer.

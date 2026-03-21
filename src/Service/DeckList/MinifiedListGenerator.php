@@ -17,6 +17,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Repository\CardPrintingRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,18 +30,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinifiedListGenerator
 {
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy',
-        'Fire Energy',
-        'Water Energy',
-        'Lightning Energy',
-        'Psychic Energy',
-        'Fighting Energy',
-        'Darkness Energy',
-        'Metal Energy',
-        'Fairy Energy',
-    ];
-
     public function __construct(
         private readonly CardPrintingRepository $printingRepository,
         private readonly CardIdentityResolver $identityResolver,
@@ -51,6 +40,7 @@ class MinifiedListGenerator
     /**
      * Generate the minified PTCGL text for a DeckVersion.
      */
+    private const array SECTION_LABELS = ['pokemon' => 'Pokémon', 'trainer' => 'Trainer', 'energy' => 'Energy'];
     private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
     private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
@@ -98,10 +88,26 @@ class MinifiedListGenerator
         });
 
         $lines = [];
+        $currentType = null;
 
         foreach ($entries as $entry) {
+            $type = $entry['cardType'];
+
+            if ($type !== $currentType) {
+                if (null !== $currentType) {
+                    $lines[] = '';
+                }
+
+                $sectionCount = $this->countSectionCards($entries, $type);
+                $lines[] = \sprintf('%s: %d', self::SECTION_LABELS[$type] ?? ucfirst($type), $sectionCount);
+                $currentType = $type;
+            }
+
             $lines[] = $this->formatLine($entry['quantity'], $entry['name'], $entry['setCode'], $entry['cardNumber']);
         }
+
+        $lines[] = '';
+        $lines[] = \sprintf('Total Cards: %d', $this->countTotalCards($entries));
 
         return implode("\n", $lines);
     }
@@ -111,6 +117,47 @@ class MinifiedListGenerator
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
+        // Static overrides for known TCGdex data issues
+        $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
+
+        if (null !== $override) {
+            $this->logger->debug('Minified {card}: {original} → {minified} (override)', [
+                'card' => $card->getCardName(),
+                'original' => \sprintf('%s %s', $card->getSetCode(), $card->getCardNumber()),
+                'minified' => \sprintf('%s %s', $override['setCode'], $override['cardNumber']),
+            ]);
+
+            return [
+                'quantity' => $card->getQuantity(),
+                'name' => $card->getCardName(),
+                'setCode' => $override['setCode'],
+                'cardNumber' => $override['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+            ];
+        }
+
+        // Basic energies always use the default printing (MEE for standard types, SUM for Fairy)
+        $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
+
+        if (null !== $energyDefault) {
+            $this->logger->debug('Minified {card}: {original} → {minified}', [
+                'card' => $card->getCardName(),
+                'original' => \sprintf('%s %s', $card->getSetCode(), $card->getCardNumber()),
+                'minified' => \sprintf('%s %s', $energyDefault['setCode'], $energyDefault['cardNumber']),
+            ]);
+
+            return [
+                'quantity' => $card->getQuantity(),
+                'name' => $card->getCardName(),
+                'setCode' => $energyDefault['setCode'],
+                'cardNumber' => $energyDefault['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+            ];
+        }
+
         $default = [
             'quantity' => $card->getQuantity(),
             'name' => $card->getCardName(),
@@ -133,11 +180,7 @@ class MinifiedListGenerator
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
-        } else {
-            $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
-        }
+        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
         if (null === $bestPrinting) {
             return $default;
@@ -163,6 +206,36 @@ class MinifiedListGenerator
             'cardType' => $card->getCardType(),
             'trainerSubtype' => $card->getTrainerSubtype(),
         ];
+    }
+
+    /**
+     * @param list<array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}> $entries
+     */
+    private function countSectionCards(array $entries, string $type): int
+    {
+        $count = 0;
+
+        foreach ($entries as $entry) {
+            if ($entry['cardType'] === $type) {
+                $count += $entry['quantity'];
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param list<array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}> $entries
+     */
+    private function countTotalCards(array $entries): int
+    {
+        $count = 0;
+
+        foreach ($entries as $entry) {
+            $count += $entry['quantity'];
+        }
+
+        return $count;
     }
 
     private function formatLine(int $quantity, string $name, string $setCode, string $cardNumber): string

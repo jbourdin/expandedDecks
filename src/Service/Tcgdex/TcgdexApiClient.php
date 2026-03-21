@@ -118,9 +118,6 @@ class TcgdexApiClient
             $normalizedNumber = 'TG'.$cardNumber;
         }
 
-        // Strip trailing letter suffixes from card numbers (e.g. "113a" → "113")
-        $normalizedNumber = preg_replace('/[a-z]+$/i', '', $normalizedNumber) ?? $normalizedNumber;
-
         $setId = $mapping[$normalizedSetCode] ?? null;
 
         if (null === $setId) {
@@ -131,12 +128,27 @@ class TcgdexApiClient
         $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
         $lookupNumber = null !== $prefix ? $prefix.$normalizedNumber : $normalizedNumber;
 
-        // Try the resolved card number first
+        // Try the exact card number first (preserving letter suffixes like "28a")
         $card = $this->fetchCard($setId, $lookupNumber);
 
+        if (null !== $card) {
+            return $card;
+        }
+
+        // If not found and number has a letter suffix, retry without it (e.g. "113a" → "113")
+        $strippedNumber = preg_replace('/[a-z]+$/i', '', $lookupNumber) ?? $lookupNumber;
+
+        if ($strippedNumber !== $lookupNumber) {
+            $card = $this->fetchCard($setId, $strippedNumber);
+
+            if (null !== $card) {
+                return $card;
+            }
+        }
+
         // If not found and number is < 3 digits, retry with zero-padded
-        if (null === $card && \strlen($lookupNumber) < 3 && ctype_digit($lookupNumber)) {
-            $paddedNumber = str_pad($lookupNumber, 3, '0', \STR_PAD_LEFT);
+        if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
+            $paddedNumber = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
             $card = $this->fetchCard($setId, $paddedNumber);
         }
 
@@ -372,6 +384,8 @@ class TcgdexApiClient
         $setReleaseDate = null;
         $setId = null;
 
+        $setOfficialCardCount = null;
+
         if (isset($data['set']) && \is_array($data['set'])) {
             if (isset($data['set']['releaseDate']) && \is_string($data['set']['releaseDate'])) {
                 $setReleaseDate = $data['set']['releaseDate'];
@@ -379,6 +393,14 @@ class TcgdexApiClient
 
             if (isset($data['set']['id']) && \is_string($data['set']['id'])) {
                 $setId = $data['set']['id'];
+            }
+
+            if (isset($data['set']['cardCount']) && \is_array($data['set']['cardCount'])) {
+                $official = $data['set']['cardCount']['official'] ?? null;
+
+                if (\is_int($official)) {
+                    $setOfficialCardCount = $official;
+                }
             }
         }
 
@@ -397,8 +419,9 @@ class TcgdexApiClient
             $setCode = $reverseMapping[$setId] ?? null;
         }
 
-        // Parse pricing: prefer Cardmarket avg, fall back to TCGPlayer mid
+        // Parse pricing and marketplace IDs
         $priceInCents = $this->parsePriceInCents($data);
+        [$cardmarketProductId, $tcgplayerProductId] = $this->parseMarketplaceIds($data);
 
         return new TcgdexCard(
             id: $id,
@@ -414,6 +437,9 @@ class TcgdexApiClient
             setCode: $setCode,
             cardNumber: $localId,
             priceInCents: $priceInCents,
+            cardmarketProductId: $cardmarketProductId,
+            tcgplayerProductId: $tcgplayerProductId,
+            setOfficialCardCount: $setOfficialCardCount,
         );
     }
 
@@ -477,5 +503,46 @@ class TcgdexApiClient
         }
 
         return null;
+    }
+
+    /**
+     * Extract marketplace product IDs from TCGdex pricing data.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array{0: ?int, 1: ?int} [cardmarketProductId, tcgplayerProductId]
+     */
+    private function parseMarketplaceIds(array $data): array
+    {
+        $cardmarketId = null;
+        $tcgplayerId = null;
+
+        if (!isset($data['pricing']) || !\is_array($data['pricing'])) {
+            return [$cardmarketId, $tcgplayerId];
+        }
+
+        /** @var array<string, mixed> $pricing */
+        $pricing = $data['pricing'];
+
+        if (isset($pricing['cardmarket']) && \is_array($pricing['cardmarket'])) {
+            $idProduct = $pricing['cardmarket']['idProduct'] ?? null;
+
+            if (\is_int($idProduct)) {
+                $cardmarketId = $idProduct;
+            }
+        }
+
+        // TCGPlayer stores productId per variant — take the first one found
+        if (isset($pricing['tcgplayer']) && \is_array($pricing['tcgplayer'])) {
+            foreach ($pricing['tcgplayer'] as $key => $value) {
+                if (\is_array($value) && isset($value['productId']) && \is_int($value['productId'])) {
+                    $tcgplayerId = $value['productId'];
+
+                    break;
+                }
+            }
+        }
+
+        return [$cardmarketId, $tcgplayerId];
     }
 }

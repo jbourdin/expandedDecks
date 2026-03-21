@@ -23,6 +23,7 @@ use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Service\DeckList\MinifiedCardViewBuilder;
+use App\Service\DeckList\OriginalListFormatter;
 use App\Service\Label\PdfLabelGenerator;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,6 +49,7 @@ class DeckShowController extends AbstractController
         EventDeckEntryRepository $eventDeckEntryRepository,
         EventDeckRegistrationRepository $eventDeckRegistrationRepository,
         MinifiedCardViewBuilder $minifiedCardViewBuilder,
+        OriginalListFormatter $originalListFormatter,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -85,14 +87,24 @@ class DeckShowController extends AbstractController
                 $groupedCards[$card->getCardType()][] = $card;
             }
 
-            // Sort within each group: quantity desc, name asc
-            foreach ($groupedCards as &$cards) {
-                usort($cards, static function (DeckCard $a, DeckCard $b): int {
-                    if ($a->getQuantity() !== $b->getQuantity()) {
-                        return $b->getQuantity() - $a->getQuantity();
+            // Sort within each group: trainer subtype, then quantity desc, then name asc
+            foreach ($groupedCards as $type => &$cards) {
+                usort($cards, static function (DeckCard $cardA, DeckCard $cardB) use ($type): int {
+                    if ('trainer' === $type) {
+                        $subtypeOrder = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
+                        $subtypeA = $subtypeOrder[strtolower((string) $cardA->getTrainerSubtype())] ?? 4;
+                        $subtypeB = $subtypeOrder[strtolower((string) $cardB->getTrainerSubtype())] ?? 4;
+
+                        if ($subtypeA !== $subtypeB) {
+                            return $subtypeA <=> $subtypeB;
+                        }
                     }
 
-                    return strcmp($a->getCardName(), $b->getCardName());
+                    if ($cardA->getQuantity() !== $cardB->getQuantity()) {
+                        return $cardB->getQuantity() <=> $cardA->getQuantity();
+                    }
+
+                    return strcmp($cardA->getCardName(), $cardB->getCardName());
                 });
             }
             unset($cards);
@@ -165,10 +177,15 @@ class DeckShowController extends AbstractController
             $minifiedGroupedCards = $minifiedCardViewBuilder->buildGrouped($currentVersion);
         }
 
+        $formattedOriginalList = null !== $currentVersion
+            ? $originalListFormatter->format($currentVersion)
+            : '';
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
             'minifiedGroupedCards' => $minifiedGroupedCards,
+            'formattedOriginalList' => $formattedOriginalList,
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
             'totalBorrowCount' => $totalBorrowCount,
