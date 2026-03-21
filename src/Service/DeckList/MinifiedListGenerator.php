@@ -117,6 +117,27 @@ class MinifiedListGenerator
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
+        // Static overrides for known TCGdex data issues
+        $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
+
+        if (null !== $override) {
+            $this->logger->debug('Minified {card}: {original} → {minified} (override)', [
+                'card' => $card->getCardName(),
+                'original' => \sprintf('%s %s', $card->getSetCode(), $card->getCardNumber()),
+                'minified' => \sprintf('%s %s', $override['setCode'], $override['cardNumber']),
+            ]);
+
+            return [
+                'quantity' => $card->getQuantity(),
+                'name' => $card->getCardName(),
+                'setCode' => $override['setCode'],
+                'cardNumber' => $override['cardNumber'],
+                'cardType' => $card->getCardType(),
+                'trainerSubtype' => $card->getTrainerSubtype(),
+            ];
+        }
+
         // Basic energies always use the default printing (MEE for standard types, SUM for Fairy)
         $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
 

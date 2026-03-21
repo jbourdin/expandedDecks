@@ -153,6 +153,14 @@ class GenerateMinifiedMosaicHandler
 
     private function resolveMinifiedImageUrl(DeckCard $card): ?string
     {
+        // Static overrides for known TCGdex data issues
+        $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
+
+        if (null !== $override) {
+            return $override['imageUrl'];
+        }
+
         // Basic energies always use the default printing image
         $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
 

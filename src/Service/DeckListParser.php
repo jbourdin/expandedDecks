@@ -71,6 +71,20 @@ class DeckListParser
         'Fairy Energy' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
     ];
 
+    /**
+     * Static minified printing overrides for cards with known TCGdex data issues.
+     *
+     * When TCGdex returns incorrect images for specific printings, this map
+     * forces the minified export to use an alternative printing instead.
+     * Keyed by "{PTCGL_SET_CODE}|{cardNumber}".
+     *
+     * @var array<string, array{setCode: string, cardNumber: string, imageUrl: string}>
+     */
+    public const array MINIFIED_PRINTING_OVERRIDES = [
+        // GEN 73: TCGdex image for g1-73 shows the full-art 73a instead of regular Uncommon
+        'GEN|73' => ['setCode' => 'XY', 'cardNumber' => '129', 'imageUrl' => 'https://assets.tcgdex.net/en/xy/xy1/129/high.webp'],
+    ];
+
     private const array SECTION_MAP = [
         'pokemon' => 'pokemon',
         'pokémon' => 'pokemon',

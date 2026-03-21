@@ -28,6 +28,18 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class CardEnricher
 {
+    /**
+     * Static overrides for known TCGdex data issues.
+     *
+     * When TCGdex returns incorrect images or data for specific cards,
+     * this map forces the correct image URL keyed by "{PTCGL_SET_CODE}|{cardNumber}".
+     * Add entries here when a TCGdex image/data bug is discovered.
+     */
+    private const array IMAGE_OVERRIDES = [
+        // g1-73 (GEN 73): TCGdex image shows the full-art 73a instead of the regular Uncommon
+        'GEN|73' => 'https://assets.tcgdex.net/en/xy/xy1/129/high.webp',
+    ];
+
     /** Maps TCGdex category names to internal card types. */
     private const array CATEGORY_TO_CARD_TYPE = [
         'pokemon' => 'pokemon',
@@ -141,6 +153,7 @@ class CardEnricher
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
                         $this->resolveCardType($card, $tcgdexCard->category);
+                        $this->applyImageOverride($card);
 
                         $legalityWarnings[] = \sprintf(
                             '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
@@ -175,6 +188,7 @@ class CardEnricher
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
                 $this->resolveCardType($card, $tcgdexCard->category);
+                $this->applyImageOverride($card);
 
                 if (!$tcgdexCard->isExpandedLegal) {
                     $legalityWarnings[] = \sprintf(
@@ -257,6 +271,22 @@ class CardEnricher
 
         // Final fallback: static image map by energy name
         $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
+    }
+
+    /**
+     * Applies a static image override for known TCGdex data issues.
+     *
+     * Call after setting the card image URL from TCGdex. If the card's
+     * set code + number matches a known buggy entry, the image is replaced.
+     */
+    private function applyImageOverride(DeckCard $card): void
+    {
+        $key = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $override = self::IMAGE_OVERRIDES[$key] ?? null;
+
+        if (null !== $override) {
+            $card->setImageUrl($override);
+        }
     }
 
     /**
