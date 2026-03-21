@@ -35,6 +35,7 @@ class DeckListParser
     private const string SECTION_HEADER_PATTERN = '/^(Pok[eé]mon|Trainer|Energy)\s*:\s*(\d+)$/iu';
     private const string CARD_LINE_PATTERN = '/^(\d+)\s+(.+?)\s+([A-Z][A-Za-z0-9-]{1,5})\s+(\S+)$/';
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
+    public const string UNKNOWN_CARD_TYPE = 'unknown';
 
     private const array SECTION_MAP = [
         'pokemon' => 'pokemon',
@@ -79,21 +80,12 @@ class DeckListParser
             }
 
             if (preg_match(self::CARD_LINE_PATTERN, $line, $matches)) {
-                if (null === $currentSection) {
-                    $errors[] = $this->translator->trans('app.deck.parse.no_section_header', [
-                        '%line%' => $lineNumber + 1,
-                        '%content%' => $line,
-                    ]);
-
-                    continue;
-                }
-
                 $cards[] = new ParsedCard(
                     quantity: (int) $matches[1],
                     cardName: $matches[2],
                     setCode: $matches[3],
                     cardNumber: $matches[4],
-                    cardType: $currentSection,
+                    cardType: $currentSection ?? self::UNKNOWN_CARD_TYPE,
                 );
 
                 continue;

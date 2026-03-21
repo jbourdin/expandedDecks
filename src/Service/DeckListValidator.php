@@ -114,6 +114,6 @@ class DeckListValidator
 
     private function isBasicEnergy(ParsedCard $card): bool
     {
-        return 'energy' === $card->cardType && \in_array($card->cardName, self::BASIC_ENERGY_NAMES, true);
+        return \in_array($card->cardName, self::BASIC_ENERGY_NAMES, true);
     }
 }

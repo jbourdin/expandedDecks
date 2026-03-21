@@ -16,6 +16,7 @@ namespace App\Service\Tcgdex;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -27,6 +28,14 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class CardEnricher
 {
+    /** Maps TCGdex category names to internal card types. */
+    private const array CATEGORY_TO_CARD_TYPE = [
+        'pokemon' => 'pokemon',
+        'pokémon' => 'pokemon',
+        'trainer' => 'trainer',
+        'energy' => 'energy',
+    ];
+
     /**
      * Energy set codes (SVE, SME…) don't exist in TCGdex.
      * Cards from these sets are basic energy — skip set+number lookup.
@@ -83,6 +92,7 @@ class CardEnricher
                 // Basic energy: detect by name (regardless of set code)
                 if ($this->isBasicEnergy($card)) {
                     $this->enrichBasicEnergy($card);
+                    $this->resolveCardType($card, 'Energy');
                     ++$enrichedCount;
 
                     continue;
@@ -104,6 +114,7 @@ class CardEnricher
 
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
+                        $this->resolveCardType($card, $tcgdexCard->category);
 
                         $legalityWarnings[] = \sprintf(
                             '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
@@ -137,6 +148,7 @@ class CardEnricher
                 // Link to CardIdentity/CardPrinting model
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
+                $this->resolveCardType($card, $tcgdexCard->category);
 
                 if (!$tcgdexCard->isExpandedLegal) {
                     $legalityWarnings[] = \sprintf(
@@ -205,6 +217,24 @@ class CardEnricher
 
         // Final fallback: static image map
         $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
+    }
+
+    /**
+     * Updates the card type from TCGdex category when it was not determined by section headers.
+     *
+     * @see docs/features.md F6.1 — Parse PTCG text format
+     */
+    private function resolveCardType(DeckCard $card, string $tcgdexCategory): void
+    {
+        if (DeckListParser::UNKNOWN_CARD_TYPE !== $card->getCardType()) {
+            return;
+        }
+
+        $mapped = self::CATEGORY_TO_CARD_TYPE[strtolower($tcgdexCategory)] ?? null;
+
+        if (null !== $mapped) {
+            $card->setCardType($mapped);
+        }
     }
 
     /**

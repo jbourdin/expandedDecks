@@ -51,6 +51,7 @@ class MinifiedListGenerator
     /**
      * Generate the minified PTCGL text for a DeckVersion.
      */
+    private const array SECTION_LABELS = ['pokemon' => 'Pokémon', 'trainer' => 'Trainer', 'energy' => 'Energy'];
     private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
     private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
@@ -98,10 +99,26 @@ class MinifiedListGenerator
         });
 
         $lines = [];
+        $currentType = null;
 
         foreach ($entries as $entry) {
+            $type = $entry['cardType'];
+
+            if ($type !== $currentType) {
+                if (null !== $currentType) {
+                    $lines[] = '';
+                }
+
+                $sectionCount = $this->countSectionCards($entries, $type);
+                $lines[] = \sprintf('%s: %d', self::SECTION_LABELS[$type] ?? ucfirst($type), $sectionCount);
+                $currentType = $type;
+            }
+
             $lines[] = $this->formatLine($entry['quantity'], $entry['name'], $entry['setCode'], $entry['cardNumber']);
         }
+
+        $lines[] = '';
+        $lines[] = \sprintf('Total Cards: %d', $this->countTotalCards($entries));
 
         return implode("\n", $lines);
     }
@@ -163,6 +180,36 @@ class MinifiedListGenerator
             'cardType' => $card->getCardType(),
             'trainerSubtype' => $card->getTrainerSubtype(),
         ];
+    }
+
+    /**
+     * @param list<array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}> $entries
+     */
+    private function countSectionCards(array $entries, string $type): int
+    {
+        $count = 0;
+
+        foreach ($entries as $entry) {
+            if ($entry['cardType'] === $type) {
+                $count += $entry['quantity'];
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param list<array{quantity: int, name: string, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string}> $entries
+     */
+    private function countTotalCards(array $entries): int
+    {
+        $count = 0;
+
+        foreach ($entries as $entry) {
+            $count += $entry['quantity'];
+        }
+
+        return $count;
     }
 
     private function formatLine(int $quantity, string $name, string $setCode, string $cardNumber): string

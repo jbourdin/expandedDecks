@@ -8,7 +8,7 @@
 
 ## Overview
 
-Enrichment is the process of augmenting raw deck card data (imported via PTCG text paste) with metadata from the TCGdex API. A deck list as imported only contains card names, set codes, and card numbers. Enrichment resolves each card against TCGdex to populate image URLs, trainer subtypes, legality status, rarity, pricing, and the card identity/printing model. This data powers the visual mosaic, minified export, and budget optimization features.
+Enrichment is the process of augmenting raw deck card data (imported via PTCG text paste) with metadata from the TCGdex API. A deck list as imported only contains card names, set codes, and card numbers — and optionally card types (from section headers). Enrichment resolves each card against TCGdex to populate image URLs, trainer subtypes, card types (when unknown), legality status, rarity, pricing, and the card identity/printing model. This data powers the visual mosaic, minified export, and budget optimization features.
 
 **Feature references:**
 - `@see docs/features.md F6.2` — TCGdex card data enrichment
@@ -32,10 +32,10 @@ EnrichDeckVersionMessage dispatched
 EnrichDeckVersionHandler
     ├── Sets DeckVersion.enrichmentStatus = 'enriching'
     ├── Iterates every DeckCard in the version
-    │   ├── Basic energy? → enrichBasicEnergy()
+    │   ├── Basic energy? → enrichBasicEnergy() + resolve cardType to 'energy'
     │   └── Regular card? → TcgdexApiClient.findCard()
-    │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting
-    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity)
+    │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting + resolve cardType from TCGdex category
+    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity) + resolve cardType
     ├── Sets DeckVersion.enrichmentStatus = 'done' (or 'failed' on exception)
     │
     ▼  (if status = 'done')
@@ -67,6 +67,10 @@ The `DeckVersion.enrichmentStatus` field tracks progress:
 **Key files:**
 - `src/MessageHandler/EnrichDeckVersionHandler.php`
 - `src/Service/Tcgdex/CardEnricher.php`
+
+### Card Type Resolution
+
+Section headers (`Pokémon:`, `Trainer:`, `Energy:`) in the imported deck list are optional. When headers are absent, the parser assigns `unknown` as the card type. During enrichment, the `CardEnricher` resolves unknown card types from the TCGdex `category` field (`Pokemon` → `pokemon`, `Trainer` → `trainer`, `Energy` → `energy`). Cards that already have a known type (from section headers) are not overwritten. Cards that cannot be found in TCGdex retain the `unknown` type.
 
 ---
 
