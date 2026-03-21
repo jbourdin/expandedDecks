@@ -193,8 +193,8 @@ class CardEnricher
             }
         }
 
-        // For energy sets (SVE, SME…) or when set+number failed: full name-based resolution
-        $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
+        // For energy sets (SVE, SME…) or when set+number failed: pick simplest recent printing
+        $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
 
         if (null !== $tcgdexCard) {
             $card->setTcgdexId($tcgdexCard->id);
@@ -225,6 +225,56 @@ class CardEnricher
         if (null !== $mapped) {
             $card->setCardType($mapped);
         }
+    }
+
+    /**
+     * Find the simplest, most recent basic energy printing from TCGdex.
+     *
+     * Prefers Common rarity over special art variants, then picks the most recent
+     * release date. This avoids stamped, foiled, or secret rare energy cards
+     * (e.g. swsh12.5 Ultra Rare, swsh8 Secret Rare) and selects the plain version
+     * from the latest core set (e.g. sm1 Common).
+     *
+     * @see docs/features.md F6.9 — Improved energy card enrichment
+     */
+    private function findSimplestBasicEnergyByName(string $cardName): ?TcgdexCard
+    {
+        $printings = $this->apiClient->findAllPrintingsByName($cardName);
+
+        $best = null;
+
+        foreach ($printings as $printing) {
+            if ($printing->name !== $cardName || null === $printing->imageUrl) {
+                continue;
+            }
+
+            if (null === $best) {
+                $best = $printing;
+
+                continue;
+            }
+
+            $bestIsCommon = null !== $best->rarity && 'Common' === $best->rarity;
+            $currentIsCommon = null !== $printing->rarity && 'Common' === $printing->rarity;
+
+            // Prefer Common rarity over non-Common
+            if ($currentIsCommon && !$bestIsCommon) {
+                $best = $printing;
+
+                continue;
+            }
+
+            if (!$currentIsCommon && $bestIsCommon) {
+                continue;
+            }
+
+            // Within same rarity class, prefer most recent release date
+            if (($printing->setReleaseDate ?? '') > ($best->setReleaseDate ?? '')) {
+                $best = $printing;
+            }
+        }
+
+        return $best;
     }
 
     /**
