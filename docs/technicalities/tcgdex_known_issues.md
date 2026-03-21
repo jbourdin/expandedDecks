@@ -24,7 +24,7 @@ TCGdex does not index dedicated energy-only sets. These are PTCG Live / physical
 
 | Card | TCGdex ID | Issue | Workaround |
 |------|-----------|-------|------------|
-| Team Flare Grunt GEN 73 | `g1-73` | Image shows the full-art version (physically printed as 73a) instead of the regular Uncommon | `IMAGE_OVERRIDES` in `CardEnricher` redirects to XY 129 image |
+| Team Flare Grunt GEN 73 | `g1-73` | Asset `https://assets.tcgdex.net/en/xy/g1/73/high.webp` shows the full-art version (which should be at `g1/73a/high.webp`) instead of the regular Uncommon | `IMAGE_OVERRIDES` in `CardEnricher` redirects to XY 129 image |
 
 ## Inaccurate Rarity
 
