@@ -232,17 +232,24 @@ class DeckListParserTest extends TestCase
             3 Mew VMAX FST 114
             4 Battle VIP Pass FST 225
             4 Double Colorless Energy XY 130
+            4 Psychic Energy SVE 5
             PTCG;
 
         $result = $this->parser->parse($rawList);
 
         self::assertTrue($result->isValid());
-        self::assertCount(6, $result->cards);
+        self::assertCount(7, $result->cards);
         self::assertCount(0, $result->errors);
         self::assertSame([], $result->sectionTotals);
 
-        foreach ($result->cards as $card) {
-            self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $card->cardType);
-        }
+        // Non-energy cards without headers get 'unknown'
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[0]->cardType);
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[4]->cardType);
+
+        // Basic energies are detected by name even without headers
+        // Note: Double Colorless Energy is a special energy, not basic
+        self::assertSame(DeckListParser::UNKNOWN_CARD_TYPE, $result->cards[5]->cardType);
+        self::assertSame('energy', $result->cards[6]->cardType);
+        self::assertSame('Psychic Energy', $result->cards[6]->cardName);
     }
 }

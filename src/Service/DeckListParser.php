@@ -37,6 +37,19 @@ class DeckListParser
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
     public const string UNKNOWN_CARD_TYPE = 'unknown';
 
+    /** Basic energy card names — detected as energy even without section headers. */
+    public const array BASIC_ENERGY_NAMES = [
+        'Grass Energy',
+        'Fire Energy',
+        'Water Energy',
+        'Lightning Energy',
+        'Psychic Energy',
+        'Fighting Energy',
+        'Darkness Energy',
+        'Metal Energy',
+        'Fairy Energy',
+    ];
+
     private const array SECTION_MAP = [
         'pokemon' => 'pokemon',
         'pokémon' => 'pokemon',
@@ -80,12 +93,16 @@ class DeckListParser
             }
 
             if (preg_match(self::CARD_LINE_PATTERN, $line, $matches)) {
+                $cardName = $matches[2];
+                $cardType = $currentSection
+                    ?? (\in_array($cardName, self::BASIC_ENERGY_NAMES, true) ? 'energy' : self::UNKNOWN_CARD_TYPE);
+
                 $cards[] = new ParsedCard(
                     quantity: (int) $matches[1],
-                    cardName: $matches[2],
+                    cardName: $cardName,
                     setCode: $matches[3],
                     cardNumber: $matches[4],
-                    cardType: $currentSection ?? self::UNKNOWN_CARD_TYPE,
+                    cardType: $cardType,
                 );
 
                 continue;

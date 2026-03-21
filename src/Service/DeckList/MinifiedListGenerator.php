@@ -17,6 +17,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Repository\CardPrintingRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,18 +30,6 @@ use Psr\Log\LoggerInterface;
  */
 class MinifiedListGenerator
 {
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy',
-        'Fire Energy',
-        'Water Energy',
-        'Lightning Energy',
-        'Psychic Energy',
-        'Fighting Energy',
-        'Darkness Energy',
-        'Metal Energy',
-        'Fairy Energy',
-    ];
-
     public function __construct(
         private readonly CardPrintingRepository $printingRepository,
         private readonly CardIdentityResolver $identityResolver,
@@ -150,8 +139,8 @@ class MinifiedListGenerator
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
+        if (\in_array($card->getCardName(), DeckListParser::BASIC_ENERGY_NAMES, true)) {
+            $bestPrinting = $this->printingRepository->findLatestSimpleForIdentity($identity);
         } else {
             $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
         }

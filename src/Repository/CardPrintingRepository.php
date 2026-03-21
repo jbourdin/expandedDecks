@@ -69,9 +69,13 @@ class CardPrintingRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find the most recent expanded-era printing for a card identity (for basic energies).
+     * Find the simplest, most recent expanded-era printing for a card identity (for basic energies).
+     *
+     * Prefers Common rarity (tier 1) over special art variants, then picks the most recent
+     * release date. This ensures the plain basic energy from the latest core set is selected,
+     * avoiding stamped, foiled, or secret rare versions.
      */
-    public function findLatestForIdentity(CardIdentity $identity): ?CardPrinting
+    public function findLatestSimpleForIdentity(CardIdentity $identity): ?CardPrinting
     {
         /** @var CardPrinting|null $result */
         $result = $this->createQueryBuilder('cp')
@@ -82,7 +86,8 @@ class CardPrintingRepository extends ServiceEntityRepository
             ->setParameter('identity', $identity)
             ->setParameter('legal', true)
             ->setParameter('expandedStart', new \DateTimeImmutable(self::EXPANDED_ERA_START))
-            ->orderBy('cp.setReleaseDate', 'DESC')
+            ->orderBy('cp.rarityTier', 'ASC')
+            ->addOrderBy('cp.setReleaseDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

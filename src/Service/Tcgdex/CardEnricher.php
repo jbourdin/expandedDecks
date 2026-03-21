@@ -42,19 +42,6 @@ class CardEnricher
      */
     private const array ENERGY_SET_CODES = ['SVE', 'SME', 'XYE', 'BWE'];
 
-    /** Basic energy card names for detection regardless of set code. */
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy',
-        'Fire Energy',
-        'Water Energy',
-        'Lightning Energy',
-        'Psychic Energy',
-        'Fighting Energy',
-        'Darkness Energy',
-        'Metal Energy',
-        'Fairy Energy',
-    ];
-
     /**
      * Fallback image URLs for basic energy cards when TCGdex returns nothing.
      */
@@ -177,7 +164,7 @@ class CardEnricher
     private function isBasicEnergy(DeckCard $card): bool
     {
         // Detect by name (covers all sets including non-energy sets like SVI)
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
+        if (\in_array($card->getCardName(), DeckListParser::BASIC_ENERGY_NAMES, true)) {
             return true;
         }
 
@@ -206,11 +193,14 @@ class CardEnricher
             }
         }
 
-        // Try name-based search to get a tcgdexId
-        $imageUrl = $this->apiClient->findImageByName($card->getCardName());
+        // For energy sets (SVE, SME…) or when set+number failed: full name-based resolution
+        $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
 
-        if (null !== $imageUrl) {
-            $card->setImageUrl($imageUrl);
+        if (null !== $tcgdexCard) {
+            $card->setTcgdexId($tcgdexCard->id);
+            $card->setImageUrl($tcgdexCard->imageUrl);
+            $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+            $card->setCardPrinting($printing);
 
             return;
         }

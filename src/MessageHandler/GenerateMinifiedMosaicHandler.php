@@ -18,6 +18,7 @@ use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckListParser;
 use App\Service\Mosaic\MosaicGenerator;
 use App\Service\Mosaic\MosaicTile;
 use App\Service\Mosaic\MosaicUrlResolver;
@@ -31,11 +32,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 class GenerateMinifiedMosaicHandler
 {
-    private const array BASIC_ENERGY_NAMES = [
-        'Grass Energy', 'Fire Energy', 'Water Energy', 'Lightning Energy',
-        'Psychic Energy', 'Fighting Energy', 'Darkness Energy', 'Metal Energy', 'Fairy Energy',
-    ];
-
     private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
     private const array TRAINER_SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
 
@@ -169,8 +165,8 @@ class GenerateMinifiedMosaicHandler
             $this->identityResolver->expandPrintings($identity);
         }
 
-        if (\in_array($card->getCardName(), self::BASIC_ENERGY_NAMES, true)) {
-            $bestPrinting = $this->printingRepository->findLatestForIdentity($identity);
+        if (\in_array($card->getCardName(), DeckListParser::BASIC_ENERGY_NAMES, true)) {
+            $bestPrinting = $this->printingRepository->findLatestSimpleForIdentity($identity);
         } else {
             $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
         }

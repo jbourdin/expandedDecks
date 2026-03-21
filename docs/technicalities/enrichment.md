@@ -265,9 +265,9 @@ Additional filters applied:
 - Must have a non-null `imageUrl`
 - Must be from the **Expanded era** (set release date >= 2011-04-25, or null release date allowed)
 
-### Basic Energy: Latest Printing
+### Basic Energy: Simplest Recent Printing
 
-Basic energy cards use a different strategy: `findLatestForIdentity()` selects the most recently released Expanded-legal printing. Since all basic energies are functionally identical and cost-free, the goal is to pick the most modern-looking artwork rather than the cheapest.
+Basic energy cards use a different strategy: `findLatestSimpleForIdentity()` selects the most recent **Common-rarity** Expanded-legal printing. This avoids stamped, foiled, secret rare, or special art variants (Ultra Rare, Hyper Rare, etc.) and picks the plain basic energy from the latest core set. Sort order: rarity tier ascending (Common = tier 1 first), then release date descending.
 
 ### Card Merging
 
@@ -311,8 +311,8 @@ For energy cards from non-energy sets (e.g. `SVI 257`):
 2. If found, enrich normally (tcgdexId, imageUrl, CardPrinting)
 
 For energy cards from energy sets (`SVE`, `SME`, etc.) or when set+number fails:
-1. **Name search** — `findImageByName()` to get any available image
-2. **Static fallback** — hardcoded Black & White base set image URLs (Fairy Energy uses Sun & Moon base)
+1. **Full name-based resolution** — `findFirstPrintingByName()` returns a complete `TcgdexCard`, creating a proper `CardIdentity`/`CardPrinting` link (tcgdexId, imageUrl, printing record)
+2. **Static fallback** — hardcoded Black & White base set image URLs (Fairy Energy uses Sun & Moon base), used only when TCGdex returns no results
 
 Energy cards matched by name only do not generate "not found" warnings, unlike regular cards.
 
