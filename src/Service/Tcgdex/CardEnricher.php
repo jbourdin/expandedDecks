@@ -175,7 +175,11 @@ class CardEnricher
                 $card->setTcgdexId($tcgdexCard->id);
 
                 if (null === $tcgdexCard->imageUrl) {
-                    $card->setImageUrl($this->apiClient->findImageByName($card->getCardName()));
+                    // TCGdex has no image for this card — try PokemonTCG.io CDN as exact fallback
+                    $card->setImageUrl(
+                        self::buildPokemontcgioUrl($tcgdexCard->id)
+                        ?? $this->apiClient->findImageByName($card->getCardName()),
+                    );
                 } else {
                     $card->setImageUrl($tcgdexCard->imageUrl);
                 }
@@ -287,6 +291,32 @@ class CardEnricher
         if (null !== $override) {
             $card->setImageUrl($override);
         }
+    }
+
+    /**
+     * Builds a PokemonTCG.io image URL from a TCGdex card ID.
+     *
+     * TCGdex ID format: "{setId}-{localId}" (e.g. "sm3.5-68", "sm6-82").
+     * PokemonTCG.io URL: "https://images.pokemontcg.io/{setId}/{localId}_hires.png"
+     * with dots removed from set ID (sm3.5 → sm35, sv03.5 → sv03pt5 is handled
+     * differently by pokemontcg.io, so only dot-to-nothing conversion is applied).
+     *
+     * Returns null if the ID format is unrecognized.
+     */
+    private static function buildPokemontcgioUrl(string $tcgdexId): ?string
+    {
+        if (!str_contains($tcgdexId, '-')) {
+            return null;
+        }
+
+        $dashPos = (int) strpos($tcgdexId, '-');
+        $setId = substr($tcgdexId, 0, $dashPos);
+        $localId = substr($tcgdexId, $dashPos + 1);
+
+        // PokemonTCG.io uses dots removed from set IDs (sm3.5 → sm35)
+        $pokemontcgSetId = str_replace('.', '', $setId);
+
+        return \sprintf('https://images.pokemontcg.io/%s/%s_hires.png', $pokemontcgSetId, $localId);
     }
 
     /**

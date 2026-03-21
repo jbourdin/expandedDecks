@@ -44,6 +44,22 @@ In some sets, TCGdex stores the regular and alternate-art versions with swapped 
 |-----|-------|
 | Generations (g1) | Regular cards use letter-suffixed IDs (e.g. `g1-28a` = regular Jolteon-EX, `g1-28` = full art). Our API client now tries the exact card number before stripping letter suffixes. |
 
+## Missing Card Images
+
+Some cards exist in TCGdex's database but have no `image` field and no image on the CDN (404). When a deck list references one of these cards, the enricher falls back to `findImageByName()` which finds an image from another printing of the same card. The `CardPrinting` records for these cards are stored with `imageUrl = null` (excluded from minified selection by the `imageUrl IS NOT NULL` filter).
+
+| tcgdex_id | Card | Set | PokemonTCG.io |
+|-----------|------|-----|---------------|
+| `sm3.5-68` | Ultra Ball | Shining Legends (SLG) | `sm35/68` exists |
+| `sm3.5-69` | Double Colorless Energy | Shining Legends (SLG) | `sm35/69` exists |
+| `sm6-82` | Dialga GX | Forbidden Light (FLI) | `sm6/82` exists |
+| `smp-SM193` | Garchomp & Giratina GX | SM Promos (PR-SM) | `smp/SM193` exists |
+| `tk-dp-l-10` | Quick Ball | Trainer Kit (TK3L) | Missing everywhere |
+
+**Impact on original card display:** When a user imports e.g. `SLG 68` (Ultra Ball), the enricher finds the card in TCGdex (correct metadata, no image), then `findImageByName("Ultra Ball")` returns an image from another printing. The DeckCard gets an image, but it may not match the exact set artwork. A warning banner is shown.
+
+**Impact on minified export:** None — `CardPrinting` records with null images are excluded by the query filter.
+
 ## Other Limitations
 
 - **Energy cards from energy sets** (SVE, SME, etc.) cannot be looked up via the API — `findCard()` returns null. Worked around with `ENERGY_SET_IMAGES` static map and `findSimplestBasicEnergyByName()` fallback.
