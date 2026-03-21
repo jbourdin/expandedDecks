@@ -259,8 +259,8 @@ The minified export feature generates a budget-optimized deck list by replacing 
 For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` selects the best printing using this sort order:
 
 1. **Rarity tier** ascending (lowest rarity first — Common before Rare)
-2. **Set release date** descending (most recent reprint within the same rarity)
-3. **Price in cents** ascending (cheapest as final tiebreaker)
+2. **Price in cents** ascending (cheapest within the same tier — distinguishes regular GX from Full Art when TCGdex reports both as "Ultra Rare")
+3. **Set release date** descending (most recent among equally-priced reprints)
 
 Additional filters applied:
 - Must be marked `isExpandedLegal = true`

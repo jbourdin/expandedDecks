@@ -42,12 +42,13 @@ class CardPrintingRepository extends ServiceEntityRepository
     private const string EXPANDED_ERA_START = '2011-04-25';
 
     /**
-     * Find the least rare, most recent Expanded-legal printing for a card identity.
+     * Find the least rare, cheapest, most recent Expanded-legal printing for a card identity.
      *
      * Sort priority:
      * 1. Rarity tier ascending — lowest rarity first (Common before Rare)
-     * 2. Release date descending — most recent reprint within same rarity
-     * 3. Price ascending — cheapest as final tiebreaker
+     * 2. Price ascending — cheapest within the same tier (distinguishes regular GX
+     *    from Full Art when TCGdex reports both as "Ultra Rare")
+     * 3. Release date descending — most recent among equally-priced reprints
      */
     public function findLowestRarityForIdentity(CardIdentity $identity): ?CardPrinting
     {
@@ -61,8 +62,8 @@ class CardPrintingRepository extends ServiceEntityRepository
             ->setParameter('legal', true)
             ->setParameter('expandedStart', new \DateTimeImmutable(self::EXPANDED_ERA_START))
             ->orderBy('cp.rarityTier', 'ASC')
-            ->addOrderBy('cp.setReleaseDate', 'DESC')
             ->addOrderBy('cp.priceInCents', 'ASC')
+            ->addOrderBy('cp.setReleaseDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
