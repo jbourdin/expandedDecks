@@ -294,7 +294,9 @@ Both the list generator and view builder trigger `expandPrintings()` lazily: if 
 
 ## Basic Energy Handling
 
-Basic energy cards receive special treatment throughout the enrichment pipeline because energy set codes (SVE, SME, XYE, BWE) do not exist in TCGdex, and energy cards are functionally interchangeable across all sets.
+Basic energy cards receive special treatment throughout the enrichment pipeline because energy set codes (SVE, SME, XYE, BWE, MEE) do not exist in TCGdex, and energy cards are functionally interchangeable across all sets.
+
+A comprehensive reference of all known basic energy printings, image sources, and minified defaults is maintained in [`data/basic_energies.json`](/data/basic_energies.json) — see [basic_energy_images.md](basic_energy_images.md) for details.
 
 ### Detection
 
@@ -302,7 +304,7 @@ A card is classified as basic energy if:
 1. Its name matches one of the 9 basic energy names (Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal, Fairy), **or**
 2. Its set code is one of the energy-specific codes: `SVE`, `SME`, `XYE`, `BWE`
 
-Name-based detection is primary, covering energy cards that appear in non-energy sets (e.g. `SVI`).
+Name-based detection is primary, covering energy cards that appear in non-energy sets (e.g. `SVI`). The parser also detects basic energies at parse time and assigns `energy` card type even without section headers.
 
 ### Enrichment Lookup Chain
 
@@ -311,8 +313,8 @@ For energy cards from non-energy sets (e.g. `SVI 257`):
 2. If found, enrich normally (tcgdexId, imageUrl, CardPrinting)
 
 For energy cards from energy sets (`SVE`, `SME`, etc.) or when set+number fails:
-1. **Full name-based resolution** — `findFirstPrintingByName()` returns a complete `TcgdexCard`, creating a proper `CardIdentity`/`CardPrinting` link (tcgdexId, imageUrl, printing record)
-2. **Static fallback** — hardcoded Black & White base set image URLs (Fairy Energy uses Sun & Moon base), used only when TCGdex returns no results
+1. **Simplest printing by name** — `findSimplestBasicEnergyByName()` searches all TCGdex printings and selects the Common-rarity one with the most recent release date, creating a proper `CardIdentity`/`CardPrinting` link
+2. **Static fallback** — hardcoded image URLs from `BASIC_ENERGY_IMAGES`, used only when TCGdex returns no results
 
 Energy cards matched by name only do not generate "not found" warnings, unlike regular cards.
 

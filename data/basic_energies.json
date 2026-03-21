@@ -1,0 +1,3425 @@
+{
+  "Grass Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "1",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/001/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "99",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/99_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "127",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/127_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "129",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/129_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "129",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/129_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "108",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/108_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "162",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/162_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "104",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_104.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/104_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "101",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_101.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/101_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "105",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_105.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/105_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "103",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_103.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/103_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "123",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_123.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/123_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "115",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_115.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/115_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "88",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_88.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/88_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "105",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_105.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/105_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "132",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_132.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/132_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "75",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_75.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/75_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "91",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_91.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/91_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "164",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/164_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm2",
+      "setName": "Guardians Rising",
+      "cardNumber": "167",
+      "releaseDate": "2017/05/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SM2/SM2_EN_167.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm2/167_hires.png"
+        }
+      ],
+      "ptcglCode": "GRI"
+    },
+    {
+      "setId": "swsh8",
+      "setName": "Fusion Strike",
+      "cardNumber": "283",
+      "releaseDate": "2021/11/12",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH8/SWSH8_EN_283.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh8/283_hires.png"
+        }
+      ],
+      "ptcglCode": "FST"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "152",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/152_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "1",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_1.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/1_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "9",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_9.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/9_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv2",
+      "setName": "Paldea Evolved",
+      "cardNumber": "278",
+      "releaseDate": "2023/06/09",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV02/SV02_EN_278.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv2/278_hires.png"
+        }
+      ],
+      "ptcglCode": "PAL"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "26",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_26.png"
+        }
+      ]
+    }
+  ],
+  "Fire Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "2",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/002/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "98",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/98_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "126",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/126_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "128",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/128_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "128",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/128_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "107",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/107_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "161",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/161_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "108",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_108.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/108_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "102",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_102.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/102_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "106",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_106.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/106_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "104",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_104.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/104_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "124",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_124.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/124_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "116",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_116.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/116_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "89",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_89.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/89_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "106",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_106.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/106_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "133",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_133.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/133_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "76",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_76.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/76_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "92",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_92.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/92_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "165",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/165_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm3",
+      "setName": "Burning Shadows",
+      "cardNumber": "167",
+      "releaseDate": "2017/08/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm3/167_hires.png"
+        }
+      ],
+      "ptcglCode": "BUS"
+    },
+    {
+      "setId": "swsh8",
+      "setName": "Fusion Strike",
+      "cardNumber": "284",
+      "releaseDate": "2021/11/12",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH8/SWSH8_EN_284.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh8/284_hires.png"
+        }
+      ],
+      "ptcglCode": "FST"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "153",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/153_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "2",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_2.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/2_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "10",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_10.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/10_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv3",
+      "setName": "Obsidian Flames",
+      "cardNumber": "230",
+      "releaseDate": "2023/08/11",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV03/SV03_EN_230.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv3/230_hires.png"
+        }
+      ],
+      "ptcglCode": "OBF"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "27",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_27.png"
+        }
+      ]
+    }
+  ],
+  "Water Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "3",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/003/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "102",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/102_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "130",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/130_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "132",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/132_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "132",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/132_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "111",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/111_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "165",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/165_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "106",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_106.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/106_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "103",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_103.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/103_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "107",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_107.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/107_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "105",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_105.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/105_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "125",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_125.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/125_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "117",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_117.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/117_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "90",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_90.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/90_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "107",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_107.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/107_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "134",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_134.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/134_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "77",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_77.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/77_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "93",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_93.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/93_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "166",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/166_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm4",
+      "setName": "Crimson Invasion",
+      "cardNumber": "124",
+      "releaseDate": "2017/11/03",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm4/124_hires.png"
+        }
+      ],
+      "ptcglCode": "CIN"
+    },
+    {
+      "setId": "swsh6",
+      "setName": "Chilling Reign",
+      "cardNumber": "231",
+      "releaseDate": "2021/06/18",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH6/SWSH6_EN_231.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh6/231_hires.png"
+        }
+      ],
+      "ptcglCode": "CRE"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "154",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/154_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "3",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_3.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/3_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "11",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_11.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/11_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv2",
+      "setName": "Paldea Evolved",
+      "cardNumber": "279",
+      "releaseDate": "2023/06/09",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV02/SV02_EN_279.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv2/279_hires.png"
+        }
+      ],
+      "ptcglCode": "PAL"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "28",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_28.png"
+        }
+      ]
+    }
+  ],
+  "Lightning Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "4",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/004/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "100",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/100_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "128",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/128_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "130",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/130_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "130",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/130_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "109",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/109_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "163",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/163_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "109",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_109.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/109_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "104",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_104.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/104_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "108",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_108.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/108_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "106",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_106.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/106_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "126",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_126.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/126_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "118",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_118.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/118_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "91",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_91.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/91_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "108",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_108.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/108_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "135",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_135.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/135_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "78",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_78.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/78_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "94",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_94.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/94_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "167",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/167_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm2",
+      "setName": "Guardians Rising",
+      "cardNumber": "168",
+      "releaseDate": "2017/05/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SM2/SM2_EN_168.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm2/168_hires.png"
+        }
+      ],
+      "ptcglCode": "GRI"
+    },
+    {
+      "setId": "swsh7",
+      "setName": "Evolving Skies",
+      "cardNumber": "235",
+      "releaseDate": "2021/08/27",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH7/SWSH7_EN_235.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh7/235_hires.png"
+        }
+      ],
+      "ptcglCode": "EVS"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "155",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/155_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sv1",
+      "setName": "Scarlet & Violet",
+      "cardNumber": "257",
+      "releaseDate": "2023/03/31",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV01/SV01_EN_257.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv1/257_hires.png"
+        }
+      ],
+      "ptcglCode": "SVI"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "4",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_4.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/4_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "12",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_12.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/12_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "29",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_29.png"
+        }
+      ]
+    }
+  ],
+  "Psychic Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "5",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/005/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "101",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/101_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "129",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/129_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "131",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/131_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "131",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/131_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "110",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/110_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "164",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/164_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "107",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_107.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/107_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "105",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_105.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/105_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "109",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_109.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/109_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "107",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_107.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/107_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "127",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_127.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/127_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "119",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_119.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/119_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "92",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_92.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/92_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "109",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_109.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/109_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "136",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_136.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/136_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "79",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_79.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/79_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "95",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_95.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/95_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "162",
+      "releaseDate": "2017/02/03",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/162_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "168",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/168_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "swsh6",
+      "setName": "Chilling Reign",
+      "cardNumber": "232",
+      "releaseDate": "2021/06/18",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH6/SWSH6_EN_232.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh6/232_hires.png"
+        }
+      ],
+      "ptcglCode": "CRE"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "156",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/156_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "5",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_5.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/5_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "13",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_13.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/13_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv3pt5",
+      "setName": "151",
+      "cardNumber": "207",
+      "releaseDate": "2023/09/22",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV03PT5/SV03PT5_EN_207.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv3pt5/207_hires.png"
+        }
+      ],
+      "ptcglCode": "MEW"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "30",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_30.png"
+        }
+      ]
+    }
+  ],
+  "Fighting Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "6",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/006/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "base1",
+      "setName": "Base",
+      "cardNumber": "97",
+      "releaseDate": "1999/01/09",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base1/97_hires.png"
+        }
+      ],
+      "ptcglCode": "BS"
+    },
+    {
+      "setId": "base4",
+      "setName": "Base Set 2",
+      "cardNumber": "125",
+      "releaseDate": "2000/02/24",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/base4/125_hires.png"
+        }
+      ],
+      "ptcglCode": "B2"
+    },
+    {
+      "setId": "gym1",
+      "setName": "Gym Heroes",
+      "cardNumber": "127",
+      "releaseDate": "2000/08/14",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym1/127_hires.png"
+        }
+      ],
+      "ptcglCode": "G1"
+    },
+    {
+      "setId": "gym2",
+      "setName": "Gym Challenge",
+      "cardNumber": "127",
+      "releaseDate": "2000/10/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/gym2/127_hires.png"
+        }
+      ],
+      "ptcglCode": "G2"
+    },
+    {
+      "setId": "neo1",
+      "setName": "Neo Genesis",
+      "cardNumber": "106",
+      "releaseDate": "2000/12/16",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/neo1/106_hires.png"
+        }
+      ],
+      "ptcglCode": "N1"
+    },
+    {
+      "setId": "ecard1",
+      "setName": "Expedition Base Set",
+      "cardNumber": "160",
+      "releaseDate": "2002/09/15",
+      "rarity": null,
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ecard1/160_hires.png"
+        }
+      ],
+      "ptcglCode": "SI"
+    },
+    {
+      "setId": "ex1",
+      "setName": "Ruby & Sapphire",
+      "cardNumber": "105",
+      "releaseDate": "2003/07/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX1/EX1_EN_105.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex1/105_hires.png"
+        }
+      ],
+      "ptcglCode": "RS"
+    },
+    {
+      "setId": "ex9",
+      "setName": "Emerald",
+      "cardNumber": "106",
+      "releaseDate": "2005/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX9/EX9_EN_106.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex9/106_hires.png"
+        }
+      ],
+      "ptcglCode": "EM"
+    },
+    {
+      "setId": "ex13",
+      "setName": "Holon Phantoms",
+      "cardNumber": "110",
+      "releaseDate": "2006/05/01",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX13/EX13_EN_110.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex13/110_hires.png"
+        }
+      ],
+      "ptcglCode": "DF"
+    },
+    {
+      "setId": "ex16",
+      "setName": "Power Keepers",
+      "cardNumber": "108",
+      "releaseDate": "2007/02/02",
+      "rarity": "Rare Holo",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/EX16/EX16_EN_108.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/ex16/108_hires.png"
+        }
+      ],
+      "ptcglCode": "PK"
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "128",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_128.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/128_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "120",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_120.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/120_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "93",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_93.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/93_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "110",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_110.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/110_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "137",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_137.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/137_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "80",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_80.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/80_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "96",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_96.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/96_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "169",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/169_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm2",
+      "setName": "Guardians Rising",
+      "cardNumber": "169",
+      "releaseDate": "2017/05/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SM2/SM2_EN_169.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm2/169_hires.png"
+        }
+      ],
+      "ptcglCode": "GRI"
+    },
+    {
+      "setId": "swsh6",
+      "setName": "Chilling Reign",
+      "cardNumber": "233",
+      "releaseDate": "2021/06/18",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH6/SWSH6_EN_233.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh6/233_hires.png"
+        }
+      ],
+      "ptcglCode": "CRE"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "157",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/157_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sv1",
+      "setName": "Scarlet & Violet",
+      "cardNumber": "258",
+      "releaseDate": "2023/03/31",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV01/SV01_EN_258.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv1/258_hires.png"
+        }
+      ],
+      "ptcglCode": "SVI"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "6",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_6.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/6_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "14",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_14.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/14_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "31",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_31.png"
+        }
+      ]
+    }
+  ],
+  "Darkness Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "7",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/007/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "129",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_129.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/129_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "121",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_121.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/121_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "94",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_94.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/94_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "111",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_111.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/111_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "138",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_138.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/138_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "81",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_81.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/81_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "97",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_97.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/97_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "170",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/170_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm3",
+      "setName": "Burning Shadows",
+      "cardNumber": "168",
+      "releaseDate": "2017/08/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm3/168_hires.png"
+        }
+      ],
+      "ptcglCode": "BUS"
+    },
+    {
+      "setId": "swsh7",
+      "setName": "Evolving Skies",
+      "cardNumber": "236",
+      "releaseDate": "2021/08/27",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH7/SWSH7_EN_236.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh7/236_hires.png"
+        }
+      ],
+      "ptcglCode": "EVS"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "158",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/158_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "7",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_7.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/7_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "15",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_15.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/15_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv6pt5",
+      "setName": "Shrouded Fable",
+      "cardNumber": "98",
+      "releaseDate": "2024/08/02",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV06PT5/SV06PT5_EN_98.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv6pt5/98_hires.png"
+        }
+      ],
+      "ptcglCode": "PRE"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "32",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_32.png"
+        }
+      ]
+    }
+  ],
+  "Metal Energy": [
+    {
+      "setId": "mee",
+      "setName": "Mega Evolution Energy",
+      "cardNumber": "8",
+      "ptcglCode": "MEE",
+      "releaseDate": "2025-09-25",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png"
+        },
+        {
+          "source": "tcgdex (pending)",
+          "url": "https://assets.tcgdex.net/en/me/mee/008/high.webp"
+        }
+      ]
+    },
+    {
+      "setId": "dp1",
+      "setName": "Diamond & Pearl",
+      "cardNumber": "130",
+      "releaseDate": "2007/05/01",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/DP1/DP1_EN_130.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/dp1/130_hires.png"
+        }
+      ],
+      "ptcglCode": "DP"
+    },
+    {
+      "setId": "hgss1",
+      "setName": "HeartGold & SoulSilver",
+      "cardNumber": "122",
+      "releaseDate": "2010/02/10",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/HGSS1/HGSS1_EN_122.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/hgss1/122_hires.png"
+        }
+      ],
+      "ptcglCode": "HS"
+    },
+    {
+      "setId": "col1",
+      "setName": "Call of Legends",
+      "cardNumber": "95",
+      "releaseDate": "2011/02/09",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/COL1/COL1_EN_95.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/col1/95_hires.png"
+        }
+      ],
+      "ptcglCode": "CL"
+    },
+    {
+      "setId": "bw1",
+      "setName": "Black & White",
+      "cardNumber": "112",
+      "releaseDate": "2011/04/25",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/BW1/BW1_EN_112.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/bw1/112_hires.png"
+        }
+      ],
+      "ptcglCode": "BLW"
+    },
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "139",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_139.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/139_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "82",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_82.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/82_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "98",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_98.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/98_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "163",
+      "releaseDate": "2017/02/03",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/163_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "171",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/171_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "swsh7",
+      "setName": "Evolving Skies",
+      "cardNumber": "237",
+      "releaseDate": "2021/08/27",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SWSH7/SWSH7_EN_237.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh7/237_hires.png"
+        }
+      ],
+      "ptcglCode": "EVS"
+    },
+    {
+      "setId": "swsh12pt5",
+      "setName": "Crown Zenith",
+      "cardNumber": "159",
+      "releaseDate": "2023/01/20",
+      "rarity": "Rare Ultra",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/swsh12pt5/159_hires.png"
+        }
+      ],
+      "ptcglCode": "CRZ"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "8",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_8.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/8_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sve",
+      "setName": "Scarlet & Violet Energies",
+      "cardNumber": "16",
+      "releaseDate": "2023/03/31",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SVE/SVE_EN_16.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sve/16_hires.png"
+        }
+      ],
+      "ptcglCode": "SVE"
+    },
+    {
+      "setId": "sv6pt5",
+      "setName": "Shrouded Fable",
+      "cardNumber": "99",
+      "releaseDate": "2024/08/02",
+      "rarity": "Hyper Rare",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SV06PT5/SV06PT5_EN_99.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sv6pt5/99_hires.png"
+        }
+      ],
+      "ptcglCode": "PRE"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "33",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_33.png"
+        }
+      ]
+    }
+  ],
+  "Fairy Energy": [
+    {
+      "setId": "xy1",
+      "setName": "XY",
+      "cardNumber": "140",
+      "releaseDate": "2014/02/05",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_140.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy1/140_hires.png"
+        }
+      ],
+      "ptcglCode": "XY"
+    },
+    {
+      "setId": "g1",
+      "setName": "Generations",
+      "cardNumber": "83",
+      "releaseDate": "2016/02/22",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/G1/G1_EN_83.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/g1/83_hires.png"
+        }
+      ],
+      "ptcglCode": "GEN"
+    },
+    {
+      "setId": "xy12",
+      "setName": "Evolutions",
+      "cardNumber": "99",
+      "releaseDate": "2016/11/02",
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY12/XY12_EN_99.png"
+        },
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/xy12/99_hires.png"
+        }
+      ],
+      "ptcglCode": "EVO"
+    },
+    {
+      "setId": "sm1",
+      "setName": "Sun & Moon",
+      "cardNumber": "172",
+      "releaseDate": "2017/02/03",
+      "rarity": "Common",
+      "defaultForMinified": true,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm1/172_hires.png"
+        }
+      ],
+      "ptcglCode": "SUM"
+    },
+    {
+      "setId": "sm3",
+      "setName": "Burning Shadows",
+      "cardNumber": "169",
+      "releaseDate": "2017/08/05",
+      "rarity": "Rare Secret",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemontcg.io",
+          "url": "https://images.pokemontcg.io/sm3/169_hires.png"
+        }
+      ],
+      "ptcglCode": "BUS"
+    },
+    {
+      "setId": "nrg",
+      "setName": "NRG (Legacy Energy)",
+      "cardNumber": "34",
+      "releaseDate": null,
+      "rarity": "Common",
+      "defaultForMinified": false,
+      "images": [
+        {
+          "source": "pokemon.com",
+          "url": "https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_34.png"
+        }
+      ]
+    }
+  ]
+}
