@@ -31,7 +31,7 @@ final class MosaicGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storage = $this->createMock(FilesystemOperator::class);
+        $this->storage = $this->createStub(FilesystemOperator::class);
         $this->generator = new MosaicGenerator(
             $this->storage,
             new NullLogger(),
@@ -51,12 +51,15 @@ final class MosaicGeneratorTest extends TestCase
 
     public function testGenerateWritesPngToStorage(): void
     {
+        $storage = $this->createMock(FilesystemOperator::class);
+        $generator = new MosaicGenerator($storage, new NullLogger(), \dirname(__DIR__, 3));
+
         $version = $this->createVersion(1, 1);
         $this->addCard($version, 'Pikachu', 'pokemon', null, 4);
         $this->addCard($version, 'Professor Oak', 'trainer', 'supporter', 2);
         $this->addCard($version, 'Lightning Energy', 'energy', null, 8);
 
-        $this->storage->expects(self::once())
+        $storage->expects(self::once())
             ->method('write')
             ->with(
                 'mosaic/1/1.png',
@@ -66,7 +69,7 @@ final class MosaicGeneratorTest extends TestCase
                 }),
             );
 
-        $result = $this->generator->generate($version);
+        $result = $generator->generate($version);
 
         self::assertSame('mosaic/1/1.png', $result);
     }

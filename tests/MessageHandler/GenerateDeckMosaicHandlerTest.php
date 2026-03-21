@@ -33,22 +33,24 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
     private DeckVersionRepository $versionRepo;
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
-    private GenerateDeckMosaicHandler $handler;
 
     protected function setUp(): void
     {
         $this->generator = $this->createStub(MosaicGenerator::class);
         $this->urlResolver = $this->createStub(MosaicUrlResolver::class);
         $this->versionRepo = $this->createStub(DeckVersionRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->entityManager = $this->createStub(EntityManagerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
+    }
 
-        $this->handler = new GenerateDeckMosaicHandler(
+    private function createHandler(?EntityManagerInterface $entityManager = null, ?LoggerInterface $logger = null): GenerateDeckMosaicHandler
+    {
+        return new GenerateDeckMosaicHandler(
             $this->generator,
             $this->urlResolver,
             $this->versionRepo,
-            $this->entityManager,
-            $this->logger,
+            $entityManager ?? $this->entityManager,
+            $logger ?? $this->logger,
         );
     }
 
@@ -56,13 +58,15 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
     {
         $this->versionRepo->method('find')->willReturn(null);
 
-        $this->logger->expects(self::once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
             ->method('warning')
             ->with('DeckVersion #{id} not found for mosaic generation.', ['id' => 99]);
 
-        $this->entityManager->expects(self::never())->method('flush');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
 
-        ($this->handler)(new GenerateDeckMosaicMessage(99));
+        ($this->createHandler($entityManager, $logger))(new GenerateDeckMosaicMessage(99));
     }
 
     public function testVersionNotEnrichedSkipsMosaic(): void
@@ -71,16 +75,18 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         $version->setEnrichmentStatus('pending');
         $this->versionRepo->method('find')->willReturn($version);
 
-        $this->logger->expects(self::once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
             ->method('info')
             ->with(
                 'DeckVersion #{id} not fully enriched (status: {status}), skipping mosaic.',
                 self::callback(static fn (array $context): bool => 'pending' === $context['status']),
             );
 
-        $this->entityManager->expects(self::never())->method('flush');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
 
-        ($this->handler)(new GenerateDeckMosaicMessage(5));
+        ($this->createHandler($entityManager, $logger))(new GenerateDeckMosaicMessage(5));
     }
 
     public function testSuccessfulGenerationSetsUrlAndFlushes(): void
@@ -92,9 +98,10 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         $this->generator->method('generate')->willReturn('mosaic/1/5.png');
         $this->urlResolver->method('resolveForVersion')->willReturn('/mosaic/AB3K7N/5.png');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('flush');
 
-        ($this->handler)(new GenerateDeckMosaicMessage(5));
+        ($this->createHandler($entityManager))(new GenerateDeckMosaicMessage(5));
 
         self::assertSame('/mosaic/AB3K7N/5.png', $version->getMosaicImageUrl());
     }
@@ -108,7 +115,8 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         $exception = new \RuntimeException('GD failed');
         $this->generator->method('generate')->willThrowException($exception);
 
-        $this->logger->expects(self::once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
             ->method('error')
             ->with(
                 'Mosaic generation failed for DeckVersion #{id}: {error}',
@@ -118,6 +126,6 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('GD failed');
 
-        ($this->handler)(new GenerateDeckMosaicMessage(5));
+        ($this->createHandler(logger: $logger))(new GenerateDeckMosaicMessage(5));
     }
 }
