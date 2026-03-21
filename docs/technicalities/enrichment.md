@@ -258,9 +258,9 @@ The minified export feature generates a budget-optimized deck list by replacing 
 
 For each non-energy card, `CardPrintingRepository.findLowestRarityForIdentity()` selects the best printing using this sort order:
 
-1. **Rarity tier** ascending (lowest = cheapest rarity)
-2. **Price in cents** ascending (cheapest within the same tier)
-3. **Set release date** descending (most recent if tied on price)
+1. **Rarity tier** ascending (lowest rarity first — Common before Rare)
+2. **Set release date** descending (most recent reprint within the same rarity)
+3. **Price in cents** ascending (cheapest as final tiebreaker)
 
 Additional filters applied:
 - Must be marked `isExpandedLegal = true`
