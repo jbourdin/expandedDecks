@@ -8,6 +8,11 @@
                 <target>Dashboard</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_decks">
+                <source>app.nav.my_decks</source>
+                <target>My Decks</target>
+                <note>User dropdown menu link to own decks</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archetypes</target>
@@ -542,6 +547,14 @@
                 <source>app.deck.export_copy_cardmarket_tooltip</source>
                 <target>Copy card list for Cardmarket wishlist import (basic energies excluded)</target>
             </trans-unit>
+            <trans-unit id="app.deck.mosaic_generating">
+                <source>app.deck.mosaic_generating</source>
+                <target>The visual mosaic is being generated…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.minified_generating">
+                <source>app.deck.minified_generating</source>
+                <target>The minified list is being generated…</target>
+            </trans-unit>
             <trans-unit id="app.deck.view_toggle">
                 <source>app.deck.view_toggle</source>
                 <target>View mode</target>
@@ -642,6 +655,10 @@
                 <source>app.deck.no_results</source>
                 <target>No decks match your search criteria.</target>
                 <note>Empty state when catalog search returns nothing</note>
+            </trans-unit>
+            <trans-unit id="app.deck.not_public">
+                <source>app.deck.not_public</source>
+                <target>This deck is not public</target>
             </trans-unit>
             <trans-unit id="app.deck.owner_filter">
                 <source>app.deck.owner_filter</source>
