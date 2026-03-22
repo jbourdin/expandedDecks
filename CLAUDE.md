@@ -218,12 +218,13 @@ make test          # Run test suite
 
 ### Project Tracking
 
-The project uses a [GitHub Project board](https://github.com/users/jbourdin/projects/1) with Kanban columns (Backlog, Next, In Progress, Done). When implementing a feature or fix:
+The project uses a [GitHub Project board](https://github.com/users/jbourdin/projects/1) with Kanban columns (Backlog → Next → In Progress → Testing → Done). When implementing a feature or fix:
 
 1. **Move the issue** to "In Progress" when work starts
 2. **Update code and documentation** in the same PR (docs must stay in sync)
 3. **Update `docs/roadmap.md`** when a feature's status changes (Not started → Partial → Done)
-4. **Move the issue** to "Done" when the PR is merged
+4. **Move the issue** to "Testing" when the PR is ready for manual verification
+5. **Move the issue** to "Done" when the PR is merged after user confirmation
 
 When creating new features or backlog items, create a GitHub issue with the feature ID, assign it to the correct milestone, and add it to the project board.
 
