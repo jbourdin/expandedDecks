@@ -3954,6 +3954,30 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.title">
+                <source>app.admin.technical.flush_reenrich.title</source>
+                <target>Flush &amp; Re-enrich All</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.description">
+                <source>app.admin.technical.flush_reenrich.description</source>
+                <target>Delete all card identities, printings, and enrichment data, then re-dispatch enrichment for every deck version. Use this after data model changes (e.g. new ability signature field).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.warning">
+                <source>app.admin.technical.flush_reenrich.warning</source>
+                <target>This action is destructive: all enrichment data will be deleted and re-generated from scratch. Card images and mosaics will be temporarily unavailable until workers complete.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.confirm">
+                <source>app.admin.technical.flush_reenrich.confirm</source>
+                <target>Are you sure? This will flush ALL enrichment data and re-enrich every deck version from scratch.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.button">
+                <source>app.admin.technical.flush_reenrich.button</source>
+                <target>Flush &amp; re-enrich all</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.success">
+                <source>app.admin.technical.flush_reenrich.success</source>
+                <target>All enrichment data flushed. Re-enrichment dispatched for %count% deck version(s).</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.flush.title">
                 <source>app.admin.technical.flush.title</source>
                 <target>Flush All Enrichment Data</target>

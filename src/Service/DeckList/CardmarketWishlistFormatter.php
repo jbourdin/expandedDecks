@@ -19,19 +19,33 @@ use App\Service\DeckListParser;
 /**
  * Generates a Cardmarket-compatible wishlist text from a DeckVersion.
  *
- * Format: one line per card, `{qty}x {name} {expansion name}`.
- * Basic energies are excluded. Uses lowest-rarity printings via MinifiedCardViewBuilder.
+ * Uses the minified card list (cheapest printings) as the base.
+ * Cardmarket identifies cards by name + abilities + attacks (for Pokemon)
+ * or by name only (for Trainers and Energy). Basic energies are excluded.
+ *
+ * Format:
+ *   Pokemon:        {qty}x {name} {ability1} {ability2} {attack1} {attack2}
+ *   Trainer/Energy: {qty}x {name}
  *
  * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
  */
 class CardmarketWishlistFormatter
 {
+    /**
+     * Card names that Cardmarket cannot resolve without a more specific name.
+     * Maps the PTCG card name to the Cardmarket-compatible name.
+     *
+     * @var array<string, string>
+     */
+    private const array CARDMARKET_NAME_OVERRIDES = [
+        "Professor's Research" => "Professor's Research - Professor Sada",
+    ];
+
     /** @var array<string, true> */
     private readonly array $basicEnergyNames;
 
     public function __construct(
         private readonly MinifiedCardViewBuilder $minifiedCardViewBuilder,
-        private readonly CardmarketExpansionNameMapper $expansionNameMapper,
     ) {
         $names = [];
 
@@ -67,14 +81,27 @@ class CardmarketWishlistFormatter
                     continue;
                 }
 
-                $expansionName = $this->expansionNameMapper->getExpansionName($card->getSetCode());
+                $cardName = self::CARDMARKET_NAME_OVERRIDES[$card->getCardName()] ?? $card->getCardName();
+                $line = \sprintf('%dx %s', $card->getQuantity(), $cardName);
 
-                if (null === $expansionName) {
-                    // Fall back to the raw PTCG set code when no mapping exists
-                    $expansionName = $card->getSetCode();
+                // For Pokemon cards, append ability and attack names in original card order
+                if ('pokemon' === $card->getCardType()) {
+                    $suffixParts = [];
+
+                    if ('' !== $card->getAbilityNames()) {
+                        $suffixParts = array_merge($suffixParts, explode(',', $card->getAbilityNames()));
+                    }
+
+                    if ('' !== $card->getAttackNames()) {
+                        $suffixParts = array_merge($suffixParts, explode(',', $card->getAttackNames()));
+                    }
+
+                    if ([] !== $suffixParts) {
+                        $line .= ' '.implode(' ', $suffixParts);
+                    }
                 }
 
-                $lines[] = \sprintf('%dx %s %s', $card->getQuantity(), $card->getCardName(), $expansionName);
+                $lines[] = $line;
             }
         }
 

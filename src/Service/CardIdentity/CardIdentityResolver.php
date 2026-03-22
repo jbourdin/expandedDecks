@@ -84,12 +84,15 @@ class CardIdentityResolver
                 continue;
             }
 
-            // For Pokemon, verify same functional card (HP + attacks)
+            // For Pokemon, verify same functional card (HP + abilities + attacks)
             if ('Pokemon' === $identity->getCategory() || 'pokemon' === $identity->getCategory()) {
-                $candidateSignature = self::computeAttackSignature($tcgdexCard);
+                $candidateAbilitySignature = self::computeAbilitySignature($tcgdexCard);
+                $candidateAttackSignature = self::computeAttackSignature($tcgdexCard);
                 $candidateHp = $tcgdexCard->hp ?? 0;
 
-                if ($candidateHp !== $identity->getHp() || $candidateSignature !== $identity->getAttackSignature()) {
+                if ($candidateHp !== $identity->getHp()
+                    || $candidateAbilitySignature !== $identity->getAbilitySignature()
+                    || $candidateAttackSignature !== $identity->getAttackSignature()) {
                     continue;
                 }
             }
@@ -118,12 +121,14 @@ class CardIdentityResolver
     {
         $category = strtolower($tcgdexCard->category);
         $hp = 'pokemon' === $category ? ($tcgdexCard->hp ?? 0) : 0;
+        $abilitySignature = 'pokemon' === $category ? self::computeAbilitySignature($tcgdexCard) : '';
         $attackSignature = 'pokemon' === $category ? self::computeAttackSignature($tcgdexCard) : '';
 
         $existing = $this->identityRepository->findBySignature(
             $tcgdexCard->name,
             $category,
             $hp,
+            $abilitySignature,
             $attackSignature,
         );
 
@@ -135,7 +140,10 @@ class CardIdentityResolver
         $identity->setName($tcgdexCard->name);
         $identity->setCategory($category);
         $identity->setHp($hp);
+        $identity->setAbilitySignature($abilitySignature);
+        $identity->setAbilityNames(implode(',', $tcgdexCard->abilities));
         $identity->setAttackSignature($attackSignature);
+        $identity->setAttackNames(implode(',', $tcgdexCard->attacks));
 
         $this->entityManager->persist($identity);
 
@@ -175,6 +183,14 @@ class CardIdentityResolver
         $identity->addPrinting($printing);
 
         return $printing;
+    }
+
+    public static function computeAbilitySignature(TcgdexCard $tcgdexCard): string
+    {
+        $abilities = $tcgdexCard->abilities;
+        sort($abilities);
+
+        return implode(',', $abilities);
     }
 
     public static function computeAttackSignature(TcgdexCard $tcgdexCard): string

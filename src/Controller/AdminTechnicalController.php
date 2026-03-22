@@ -107,17 +107,26 @@ class AdminTechnicalController extends AbstractAppController
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }
 
-    #[Route('/flush-enrichment', name: 'app_admin_technical_flush_enrichment', methods: ['POST'])]
-    public function flushEnrichment(Request $request): Response
+    #[Route('/flush-reenrich', name: 'app_admin_technical_flush_reenrich', methods: ['POST'])]
+    public function flushAndReenrich(Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('technical-flush-enrichment', $request->getPayload()->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('technical-flush-reenrich', $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
 
             return $this->redirectToRoute('app_admin_technical_dashboard');
         }
 
         $this->enrichmentFlushService->flush();
-        $this->addFlash('warning', 'app.admin.technical.flush.success');
+
+        $versions = $this->deckVersionRepository->findNotEnriched();
+
+        foreach ($versions as $version) {
+            /** @var int $id */
+            $id = $version->getId();
+            $this->messageBus->dispatch(new EnrichDeckVersionMessage($id));
+        }
+
+        $this->addFlash('warning', 'app.admin.technical.flush_reenrich.success', ['%count%' => \count($versions)]);
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

@@ -20,6 +20,7 @@ namespace App\Service\Tcgdex;
 readonly class TcgdexCard
 {
     /**
+     * @param list<string> $abilities
      * @param list<string> $attacks
      */
     public function __construct(
@@ -30,6 +31,7 @@ readonly class TcgdexCard
         public ?string $imageUrl,
         public bool $isExpandedLegal,
         public ?int $hp = null,
+        public array $abilities = [],
         public array $attacks = [],
         public ?string $rarity = null,
         public ?string $setReleaseDate = null,

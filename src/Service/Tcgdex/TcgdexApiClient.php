@@ -370,6 +370,17 @@ class TcgdexApiClient
         $hp = isset($data['hp']) && \is_int($data['hp']) ? $data['hp'] : null;
         $rarity = isset($data['rarity']) && \is_string($data['rarity']) ? $data['rarity'] : null;
 
+        /** @var list<string> $abilities */
+        $abilities = [];
+
+        if (isset($data['abilities']) && \is_array($data['abilities'])) {
+            foreach ($data['abilities'] as $ability) {
+                if (\is_array($ability) && isset($ability['name']) && \is_string($ability['name'])) {
+                    $abilities[] = $ability['name'];
+                }
+            }
+        }
+
         /** @var list<string> $attacks */
         $attacks = [];
 
@@ -431,6 +442,7 @@ class TcgdexApiClient
             imageUrl: $imageUrl,
             isExpandedLegal: $isExpandedLegal,
             hp: $hp,
+            abilities: $abilities,
             attacks: $attacks,
             rarity: $rarity,
             setReleaseDate: $setReleaseDate,
