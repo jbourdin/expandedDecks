@@ -534,6 +534,14 @@
                 <source>app.deck.export_copied</source>
                 <target>Copié !</target>
             </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket">
+                <source>app.deck.export_copy_cardmarket</source>
+                <target>Copier pour Cardmarket</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket_tooltip">
+                <source>app.deck.export_copy_cardmarket_tooltip</source>
+                <target>Copier la liste pour import dans les recherches Cardmarket (énergies de base exclues)</target>
+            </trans-unit>
             <trans-unit id="app.deck.view_toggle">
                 <source>app.deck.view_toggle</source>
                 <target>Mode d'affichage</target>
@@ -2224,6 +2232,10 @@
                 <target>Mon profil</target>
                 <note>Profile page heading</note>
             </trans-unit>
+            <trans-unit id="app.profile.features_section">
+                <source>app.profile.features_section</source>
+                <target>Fonctionnalités optionnelles</target>
+            </trans-unit>
             <trans-unit id="app.profile.save_button">
                 <source>app.profile.save_button</source>
                 <target>Enregistrer</target>
@@ -2290,6 +2302,10 @@
                 <source>app.form.label.timezone</source>
                 <target>Fuseau horaire</target>
                 <note>Form label for timezone selector</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.show_cardmarket_export">
+                <source>app.form.label.show_cardmarket_export</source>
+                <target>Afficher le bouton « Copier pour Cardmarket » sur les pages de deck</target>
             </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>

@@ -11,6 +11,7 @@
  * @see docs/features.md F6.6 — Visual deck list (card mosaic)
  * @see docs/features.md F6.7 — Export deck list as PTCGL text
  * @see docs/features.md F6.8 — Minified deck list export
+ * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
  */
 
 import React from 'react';
@@ -44,6 +45,8 @@ if (root) {
         tableSet: root.dataset.labelTableSet ?? 'Set',
         nameMatchWarningTitle: root.dataset.labelNameMatchWarningTitle ?? '',
         nameMatchWarningBody: root.dataset.labelNameMatchWarningBody ?? '',
+        copyCardmarket: root.dataset.labelCopyCardmarket ?? 'Copy for Cardmarket',
+        copyCardmarketTooltip: root.dataset.labelCopyCardmarketTooltip ?? 'Copy card list for Cardmarket wishlist import (basic energies excluded)',
     };
 
     createRoot(root).render(
@@ -55,6 +58,7 @@ if (root) {
                 minifiedMosaicUrl={root.dataset.minifiedMosaicUrl ?? null}
                 rawList={root.dataset.rawList ?? ''}
                 minifiedList={root.dataset.minifiedList ?? null}
+                cardmarketWishlist={root.dataset.cardmarketWishlist || null}
                 deckName={root.dataset.deckName ?? ''}
                 labels={labels}
             />

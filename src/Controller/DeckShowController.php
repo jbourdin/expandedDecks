@@ -22,6 +22,7 @@ use App\Repository\BorrowRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
+use App\Service\DeckList\CardmarketWishlistFormatter;
 use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\OriginalListFormatter;
 use App\Service\Label\PdfLabelGenerator;
@@ -50,6 +51,7 @@ class DeckShowController extends AbstractController
         EventDeckRegistrationRepository $eventDeckRegistrationRepository,
         MinifiedCardViewBuilder $minifiedCardViewBuilder,
         OriginalListFormatter $originalListFormatter,
+        CardmarketWishlistFormatter $cardmarketWishlistFormatter,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -181,11 +183,17 @@ class DeckShowController extends AbstractController
             ? $originalListFormatter->format($currentVersion)
             : '';
 
+        $showCardmarketExport = $user instanceof User && $user->isShowCardmarketExport();
+        $cardmarketWishlist = $showCardmarketExport && null !== $currentVersion && null !== $currentVersion->getMinifiedList()
+            ? $cardmarketWishlistFormatter->format($currentVersion)
+            : null;
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
             'minifiedGroupedCards' => $minifiedGroupedCards,
             'formattedOriginalList' => $formattedOriginalList,
+            'cardmarketWishlist' => $cardmarketWishlist,
             'isOwner' => $isOwner,
             'deckBorrows' => $deckBorrows,
             'totalBorrowCount' => $totalBorrowCount,
