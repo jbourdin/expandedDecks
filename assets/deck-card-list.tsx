@@ -28,6 +28,10 @@ if (root) {
     const originalCards = JSON.parse(root.dataset.originalCards ?? '{}') as DeckCardListProps['originalCards'];
     const minifiedCards = JSON.parse(root.dataset.minifiedCards ?? '{}') as DeckCardListProps['minifiedCards'];
 
+    const mosaicUrl = root.dataset.mosaicUrlNull === '1' ? null : (root.dataset.mosaicUrl || null);
+    const minifiedMosaicUrl = root.dataset.minifiedMosaicUrlNull === '1' ? null : (root.dataset.minifiedMosaicUrl || null);
+    const minifiedList = root.dataset.minifiedListNull === '1' ? null : (root.dataset.minifiedList || null);
+
     const labels = {
         variantOriginal: root.dataset.labelVariantOriginal ?? 'Original',
         variantMinified: root.dataset.labelVariantMinified ?? 'Minified',
@@ -47,6 +51,8 @@ if (root) {
         nameMatchWarningBody: root.dataset.labelNameMatchWarningBody ?? '',
         copyCardmarket: root.dataset.labelCopyCardmarket ?? 'Copy for Cardmarket',
         copyCardmarketTooltip: root.dataset.labelCopyCardmarketTooltip ?? 'Copy card list for Cardmarket wishlist import (basic energies excluded)',
+        mosaicGenerating: root.dataset.labelMosaicGenerating ?? 'The visual mosaic is being generated…',
+        minifiedGenerating: root.dataset.labelMinifiedGenerating ?? 'The minified list is being generated…',
     };
 
     createRoot(root).render(
@@ -54,10 +60,10 @@ if (root) {
             <DeckCardList
                 originalCards={originalCards}
                 minifiedCards={minifiedCards}
-                mosaicUrl={root.dataset.mosaicUrl ?? null}
-                minifiedMosaicUrl={root.dataset.minifiedMosaicUrl ?? null}
+                mosaicUrl={mosaicUrl}
+                minifiedMosaicUrl={minifiedMosaicUrl}
                 rawList={root.dataset.rawList ?? ''}
-                minifiedList={root.dataset.minifiedList ?? null}
+                minifiedList={minifiedList}
                 cardmarketWishlist={root.dataset.cardmarketWishlist || null}
                 deckName={root.dataset.deckName ?? ''}
                 labels={labels}
