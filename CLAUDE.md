@@ -218,14 +218,18 @@ make test          # Run test suite
 
 ### Project Tracking
 
-The project uses a [GitHub Project board](https://github.com/users/jbourdin/projects/1) with Kanban columns (Backlog → Next → In Progress → Testing → Done). When implementing a feature or fix:
+The project uses a [GitHub Project board](https://github.com/users/jbourdin/projects/1) with Kanban columns (Backlog → Next → In Progress → Awaiting Validation → Testing → Ready for Release → Done). When implementing a feature or fix:
 
 1. **Move the issue** to "In Progress" when work starts
 2. **Update code and documentation** in the same PR (docs must stay in sync)
-3. **Move the issue** to "Testing" when the PR is ready for manual verification
-5. **Move the issue** to "Done" when the PR is merged after user confirmation
+3. **Move the issue** to "Awaiting Validation" when the PR is pushed and awaiting CI and code review
+4. **Move the issue** to "Testing" when the PR is merged and awaiting manual verification
+5. **Move the issue** to "Ready for Release" when the user confirms the feature works
+6. **Move the issue** to "Done" only when the release containing it is published
 
 When creating new features or backlog items, create a GitHub issue with the feature ID, assign it to the correct milestone, and add it to the project board.
+
+**Board ordering:** items within each column are manually sorted by **milestone** (Phase A first, then B, C, … J, then no milestone) and then by **priority** (high → medium → low) within a milestone. When adding or moving an issue, place it at the correct position using the `updateProjectV2ItemPosition` GraphQL mutation (`afterId: null` for first position, or `afterId: "<previous-item-id>"` to insert after a specific item).
 
 ## Make Commands
 
@@ -371,7 +375,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 ### Roadmap & Changelog Maintenance
 
-- Feature status is tracked on the [GitHub Project board](https://github.com/users/jbourdin/projects/1) — move issues between columns (Backlog → Next → In Progress → Testing → Done) instead of editing `docs/roadmap.md`
+- Feature status is tracked on the [GitHub Project board](https://github.com/users/jbourdin/projects/1) — move issues between columns (Backlog → Next → In Progress → Awaiting Validation → Testing → Ready for Release → Done) instead of editing `docs/roadmap.md`
 - `docs/changelog.md` entry is required for every tagged release
 
 ## Slash Commands

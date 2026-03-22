@@ -8,15 +8,17 @@ The [GitHub Project board](https://github.com/users/jbourdin/projects/1) is the 
 
 ## Project Board
 
-The Kanban board organizes work into five columns:
+The Kanban board organizes work into seven columns:
 
-| Column        | Meaning                                                    |
-|---------------|------------------------------------------------------------|
-| **Backlog**   | Accepted work, not yet scheduled                           |
-| **Next**      | Prioritized and ready to pick up                           |
-| **In Progress** | Actively being worked on                                 |
-| **Testing**   | PR ready, awaiting manual verification                     |
-| **Done**      | Merged and deployed                                        |
+| Column                    | Meaning                                                    |
+|---------------------------|------------------------------------------------------------|
+| **Backlog**               | Accepted work, not yet scheduled                           |
+| **Next**                  | Prioritized and ready to pick up                           |
+| **In Progress**           | Actively being worked on                                   |
+| **Awaiting Validation**   | PR open, awaiting CI and code review                       |
+| **Testing**               | PR merged, awaiting manual verification                    |
+| **Ready for Release**     | Tested and approved, included in next release              |
+| **Done**                  | Released                                                   |
 
 **Views:**
 

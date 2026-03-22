@@ -60,6 +60,5 @@ Include a one-line summary of each runner-up from features.md.
 6. **When the user picks a feature to start**, move the issue to the **"In Progress"** column on the project board:
 
    ```bash
-   # Get the project item ID and field/option IDs, then update
-   gh project item-edit --project-id <PROJECT_ID> --id <ITEM_ID> --field-id <STATUS_FIELD_ID> --single-select-option-id <IN_PROGRESS_OPTION_ID>
+   gh project item-edit --project-id PVT_kwHOABmPPc4BSa9t --id <ITEM_ID> --field-id PVTSSF_lAHOABmPPc4BSa9tzg_9eC4 --single-select-option-id 9c44dd90
    ```
