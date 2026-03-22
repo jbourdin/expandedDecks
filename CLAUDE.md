@@ -222,8 +222,7 @@ The project uses a [GitHub Project board](https://github.com/users/jbourdin/proj
 
 1. **Move the issue** to "In Progress" when work starts
 2. **Update code and documentation** in the same PR (docs must stay in sync)
-3. **Update `docs/roadmap.md`** when a feature's status changes (Not started → Partial → Done)
-4. **Move the issue** to "Testing" when the PR is ready for manual verification
+3. **Move the issue** to "Testing" when the PR is ready for manual verification
 5. **Move the issue** to "Done" when the PR is merged after user confirmation
 
 When creating new features or backlog items, create a GitHub issue with the feature ID, assign it to the correct milestone, and add it to the project board.
@@ -330,7 +329,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 **Features & Planning**
 - [docs/features.md](docs/features.md) — Full feature catalogue with IDs and priorities
-- [docs/roadmap.md](docs/roadmap.md) — Implementation roadmap across 12 phases
+- [docs/roadmap.md](docs/roadmap.md) — Roadmap overview with links to the GitHub Project board
 - [docs/changelog.md](docs/changelog.md) — Release history with implemented features per version
 
 **Deployment**
@@ -372,15 +371,14 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 ### Roadmap & Changelog Maintenance
 
-- `docs/roadmap.md` **MUST** be updated in the same PR when a feature's state changes (Not started → Partial → Done)
-- Update the per-phase progress line and Summary table counts accordingly
+- Feature status is tracked on the [GitHub Project board](https://github.com/users/jbourdin/projects/1) — move issues between columns (Backlog → Next → In Progress → Testing → Done) instead of editing `docs/roadmap.md`
 - `docs/changelog.md` entry is required for every tagged release
 
 ## Slash Commands
 
 | Command       | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|
-| `/next`       | Recommend the next feature to implement based on roadmap priorities         |
+| `/next`       | Recommend the next feature from the project board's "Next" column          |
 | `/pr`         | Commit, push, and create or update the Pull Request for the current branch  |
 | `/ci`         | Watch CI until green then merge, or investigate failures and propose fixes  |
 | `/cover-pr`   | Analyze test coverage of added/modified lines in the current PR             |
