@@ -318,7 +318,10 @@
              data-label-table-card="{{ 'app.deck.table_card'|trans }}"
              data-label-table-set="{{ 'app.deck.table_set'|trans }}"
              data-label-name-match-warning-title="{{ 'app.deck.name_match_warning_title'|trans }}"
-             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}">
+             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}"
+             data-cardmarket-wishlist="{{ cardmarketWishlist is not null ? cardmarketWishlist|e('html_attr') : '' }}"
+             data-label-copy-cardmarket="{{ 'app.deck.export_copy_cardmarket'|trans }}"
+             data-label-copy-cardmarket-tooltip="{{ 'app.deck.export_copy_cardmarket_tooltip'|trans }}">
         </div>
     {% else %}
         <div class="card shadow-sm">

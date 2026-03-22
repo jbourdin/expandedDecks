@@ -120,6 +120,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $notificationPreferences = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $showCardmarketExport = false;
+
     /** @var Collection<int, Deck> */
     #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'owner')]
     private Collection $ownedDecks;
@@ -548,6 +551,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNotificationPreferences(?array $notificationPreferences): static
     {
         $this->notificationPreferences = $notificationPreferences;
+
+        return $this;
+    }
+
+    public function isShowCardmarketExport(): bool
+    {
+        return $this->showCardmarketExport;
+    }
+
+    public function setShowCardmarketExport(bool $showCardmarketExport): static
+    {
+        $this->showCardmarketExport = $showCardmarketExport;
 
         return $this;
     }

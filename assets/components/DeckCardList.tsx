@@ -12,6 +12,7 @@
  * @see docs/features.md F6.7 — Export deck list as PTCGL text
  * @see docs/features.md F6.8 — Minified deck list export
  * @see docs/features.md F6.6b — Minified mosaic
+ * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
  */
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -25,7 +26,7 @@ import {
     Tooltip,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconCheck, IconShare } from '@tabler/icons-react';
+import { IconCopy, IconCheck, IconShare, IconShoppingCart } from '@tabler/icons-react';
 
 interface CardData {
     cardName: string;
@@ -54,6 +55,8 @@ interface Labels {
     tableSet: string;
     nameMatchWarningTitle: string;
     nameMatchWarningBody: string;
+    copyCardmarket: string;
+    copyCardmarketTooltip: string;
 }
 
 export interface DeckCardListProps {
@@ -63,6 +66,7 @@ export interface DeckCardListProps {
     minifiedMosaicUrl: string | null;
     rawList: string;
     minifiedList: string | null;
+    cardmarketWishlist: string | null;
     deckName: string;
     labels: Labels;
 }
@@ -184,6 +188,7 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     minifiedMosaicUrl,
     rawList,
     minifiedList,
+    cardmarketWishlist,
     labels,
 }) => {
     const hasMinified = Object.keys(minifiedCards).length > 0 || minifiedList !== null;
@@ -194,8 +199,10 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     const [variant, setVariant] = useState<Variant>(hasMinified ? 'minified' : 'original');
     const [viewMode, setViewMode] = useState<ViewMode>(hasMosaic ? 'mosaic' : 'table');
     const [copied, setCopied] = useState(false);
+    const [cardmarketCopied, setCardmarketCopied] = useState(false);
     const [mosaicModalOpen, setMosaicModalOpen] = useState(false);
     const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const cardmarketCopyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const activeCards = variant === 'minified' && Object.keys(minifiedCards).length > 0
         ? minifiedCards
@@ -224,6 +231,22 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
             copyTimeout.current = setTimeout(() => setCopied(false), 2000);
         });
     }, [activeList]);
+
+    const handleCopyCardmarket = useCallback(() => {
+        if (!cardmarketWishlist) {
+            return;
+        }
+
+        navigator.clipboard.writeText(cardmarketWishlist.trim()).then(() => {
+            setCardmarketCopied(true);
+
+            if (cardmarketCopyTimeout.current) {
+                clearTimeout(cardmarketCopyTimeout.current);
+            }
+
+            cardmarketCopyTimeout.current = setTimeout(() => setCardmarketCopied(false), 2000);
+        });
+    }, [cardmarketWishlist]);
 
     const handleShareMosaic = useCallback(async () => {
         if (!activeMosaicUrl) {
@@ -318,7 +341,19 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
                             </ActionIcon>
                         </Tooltip>
                     )}
-                    {copied && (
+                    {cardmarketWishlist && (
+                        <Tooltip label={cardmarketCopied ? labels.copied : labels.copyCardmarketTooltip}>
+                            <ActionIcon
+                                variant="subtle"
+                                color={cardmarketCopied ? 'green' : 'gray'}
+                                onClick={handleCopyCardmarket}
+                                size="lg"
+                            >
+                                {cardmarketCopied ? <IconCheck size={18} /> : <IconShoppingCart size={18} />}
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+                    {(copied || cardmarketCopied) && (
                         <Text size="sm" c="green">
                             {labels.copied}
                         </Text>
