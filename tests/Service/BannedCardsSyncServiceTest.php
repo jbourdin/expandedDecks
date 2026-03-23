@@ -194,4 +194,138 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertFalse($result->success);
         self::assertNotNull($result->error);
     }
+
+    public function testSyncMatchesExpandedFormatHeading(): void
+    {
+        // Some pages use ">Expanded Format<" instead of ">Expanded<"
+        $html = '<html><body><h2>Standard</h2><h2>Expanded Format</h2>'
+            .'<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul></body></html>';
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(1, $result->added);
+    }
+
+    public function testSyncWarnsWhenNoUlFoundAfterExpandedSection(): void
+    {
+        $html = '<html><body><h2>Expanded</h2><p>No list here</p></body></html>';
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(0, $result->added);
+        self::assertContains('Could not find a <ul> list in the Expanded section.', $result->warnings);
+    }
+
+    public function testSyncWarnsOnUnknownSetName(): void
+    {
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">TestCard</a> (<em>Unknown Future Set</em>, 42/100)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(0, $result->added);
+        self::assertNotEmpty($result->warnings);
+        self::assertStringContainsString('Unknown set', $result->warnings[0]);
+    }
+
+    public function testSyncWarnsWhenNoSetInfoInParentheses(): void
+    {
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">CardWithoutSetInfo</a></li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(0, $result->added);
+        self::assertStringContainsString('No set info found', $result->warnings[0]);
+    }
+
+    public function testSyncWarnsWhenNoCommaInSetGroup(): void
+    {
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">BadEntry</a> (Black &amp; White—Noble Victories)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(0, $result->added);
+        self::assertStringContainsString('Could not parse set group', $result->warnings[0]);
+    }
+
+    public function testSyncNormalizesDashVariantsInSetName(): void
+    {
+        // Use en-dash (–) instead of em-dash (—) in set name
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White–Noble Victories</em>, 67/101)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
+        $bannedCardRepo->method('findAll')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(1, $result->added);
+    }
 }

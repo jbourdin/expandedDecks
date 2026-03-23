@@ -13,8 +13,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\CardIdentity;
 
+use App\Entity\CardIdentity;
+use App\Entity\CardPrinting;
+use App\Repository\CardIdentityRepository;
+use App\Repository\CardPrintingRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\CardIdentity\RarityTierMapper;
+use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -69,6 +76,389 @@ class CardIdentityResolverTest extends TestCase
         $card = $this->createTcgdexCard(attacks: ['Cross Fusion Strike', 'Max Miracle', 'Astral Barrage']);
 
         self::assertSame('Astral Barrage,Cross Fusion Strike,Max Miracle', CardIdentityResolver::computeAttackSignature($card));
+    }
+
+    /**
+     * Covers resolveFromTcgdexCard when printing already exists (returns early).
+     */
+    public function testResolveFromTcgdexCardReturnsExistingPrinting(): void
+    {
+        $existingPrinting = new CardPrinting();
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn($existingPrinting);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = $this->createTcgdexCard();
+
+        $result = $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        self::assertSame($existingPrinting, $result);
+    }
+
+    /**
+     * Covers resolveFromTcgdexCard when no existing printing — creates new identity and printing.
+     */
+    public function testResolveFromTcgdexCardCreatesNewPrintingAndIdentity(): void
+    {
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $identityRepository->method('findBySignature')->willReturn(null);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(3);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::atLeastOnce())->method('persist');
+        $entityManager->expects(self::once())->method('flush');
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = new TcgdexCard(
+            id: 'swsh9-123',
+            name: 'Arceus VSTAR',
+            category: 'Pokemon',
+            trainerType: null,
+            imageUrl: 'https://example.com/image.webp',
+            isExpandedLegal: true,
+            hp: 280,
+            abilities: ['Star Birth'],
+            attacks: ['Trinity Nova'],
+            rarity: 'Rare',
+            setReleaseDate: '2022-02-25',
+            setCode: 'BRS',
+            cardNumber: '123',
+        );
+
+        $result = $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        self::assertSame('swsh9-123', $result->getTcgdexId());
+        self::assertSame('BRS', $result->getSetCode());
+        self::assertSame('123', $result->getCardNumber());
+        self::assertSame('https://example.com/image.webp', $result->getImageUrl());
+        self::assertTrue($result->isExpandedLegal());
+        self::assertSame(3, $result->getRarityTier());
+        self::assertSame('Arceus VSTAR', $result->getCardIdentity()->getName());
+        self::assertSame('pokemon', $result->getCardIdentity()->getCategory());
+        self::assertSame(280, $result->getCardIdentity()->getHp());
+    }
+
+    /**
+     * Covers resolveFromTcgdexCard reusing an existing identity (found by signature).
+     */
+    public function testResolveFromTcgdexCardReusesExistingIdentity(): void
+    {
+        $existingIdentity = new CardIdentity();
+        $existingIdentity->setName('Pikachu');
+        $existingIdentity->setCategory('pokemon');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $identityRepository->method('findBySignature')->willReturn($existingIdentity);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(1);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = $this->createTcgdexCard();
+
+        $result = $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        self::assertSame($existingIdentity, $result->getCardIdentity());
+    }
+
+    /**
+     * Covers expandPrintings: filters out printings with non-matching names.
+     */
+    public function testExpandPrintingsFiltersNonMatchingNames(): void
+    {
+        $identity = new CardIdentity();
+        $identity->setName('Pikachu');
+        $identity->setCategory('pokemon');
+        $identity->setHp(60);
+        $identity->setAbilitySignature('');
+        $identity->setAttackSignature('Thunder Shock');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findAllPrintingsByName')->willReturn([
+            new TcgdexCard(
+                id: 'xy1-42',
+                name: 'Pikachu',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: 'https://example.com/pikachu.webp',
+                isExpandedLegal: true,
+                hp: 60,
+                attacks: ['Thunder Shock'],
+            ),
+            new TcgdexCard(
+                id: 'xy1-43',
+                name: 'Pikachu EX',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: 'https://example.com/pikachu-ex.webp',
+                isExpandedLegal: true,
+                hp: 130,
+                attacks: ['Thunder Shock', 'Mega Bolt'],
+            ),
+        ]);
+
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(1);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+        $entityManager->expects(self::once())->method('flush');
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $resolver->expandPrintings($identity);
+
+        // Only the exact-name matching Pikachu should have been added (1 printing)
+        self::assertCount(1, $identity->getPrintings());
+    }
+
+    /**
+     * Covers expandPrintings: Pokemon HP/signature mismatch filters out non-matching printings.
+     */
+    public function testExpandPrintingsFiltersPokemonByHpAndSignature(): void
+    {
+        $identity = new CardIdentity();
+        $identity->setName('Pikachu');
+        $identity->setCategory('Pokemon');
+        $identity->setHp(60);
+        $identity->setAbilitySignature('');
+        $identity->setAttackSignature('Thunder Shock');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findAllPrintingsByName')->willReturn([
+            // Same name and HP but different attacks — should be filtered out
+            new TcgdexCard(
+                id: 'bw1-115',
+                name: 'Pikachu',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: 'https://example.com/different-attacks.webp',
+                isExpandedLegal: true,
+                hp: 60,
+                attacks: ['Iron Tail'],
+            ),
+            // Same name but different HP — should be filtered out
+            new TcgdexCard(
+                id: 'sm1-50',
+                name: 'Pikachu',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: 'https://example.com/different-hp.webp',
+                isExpandedLegal: true,
+                hp: 70,
+                attacks: ['Thunder Shock'],
+            ),
+        ]);
+
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $resolver->expandPrintings($identity);
+
+        // No printings should have been added
+        self::assertCount(0, $identity->getPrintings());
+    }
+
+    /**
+     * Covers expandPrintings: UniqueConstraintViolationException is caught and entities are detached.
+     */
+    public function testExpandPrintingsCatchesUniqueConstraintViolation(): void
+    {
+        $identity = new CardIdentity();
+        $identity->setName("Boss's Orders");
+        $identity->setCategory('trainer');
+        $identity->setHp(0);
+        $identity->setAbilitySignature('');
+        $identity->setAttackSignature('');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findAllPrintingsByName')->willReturn([
+            new TcgdexCard(
+                id: 'swsh9-132',
+                name: "Boss's Orders",
+                category: 'Trainer',
+                trainerType: 'Supporter',
+                imageUrl: 'https://example.com/boss.webp',
+                isExpandedLegal: true,
+            ),
+        ]);
+
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(3);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+        $entityManager->expects(self::once())->method('flush')
+            ->willThrowException(new \Doctrine\DBAL\Exception\UniqueConstraintViolationException(
+                new \Doctrine\DBAL\Driver\PDO\Exception('Duplicate entry', '23000'),
+                null,
+            ));
+        $entityManager->expects(self::once())->method('detach');
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        // Should not throw — the exception is caught
+        $resolver->expandPrintings($identity);
+
+        // No assertion needed: if no exception is thrown, the test passes
+        self::assertTrue(true);
+    }
+
+    /**
+     * Covers expandPrintings: skips printings with empty ID.
+     */
+    public function testExpandPrintingsSkipsEmptyId(): void
+    {
+        $identity = new CardIdentity();
+        $identity->setName('Nest Ball');
+        $identity->setCategory('trainer');
+        $identity->setHp(0);
+        $identity->setAbilitySignature('');
+        $identity->setAttackSignature('');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findAllPrintingsByName')->willReturn([
+            new TcgdexCard(
+                id: '',
+                name: 'Nest Ball',
+                category: 'Trainer',
+                trainerType: 'Item',
+                imageUrl: 'https://example.com/nest.webp',
+                isExpandedLegal: true,
+            ),
+        ]);
+
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $resolver->expandPrintings($identity);
+
+        self::assertCount(0, $identity->getPrintings());
+    }
+
+    /**
+     * Covers createPrinting with an invalid setReleaseDate format (ignored).
+     */
+    public function testResolveFromTcgdexCardHandlesInvalidReleaseDate(): void
+    {
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $identityRepository->method('findBySignature')->willReturn(null);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(1);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = new TcgdexCard(
+            id: 'test-001',
+            name: 'Test Card',
+            category: 'Trainer',
+            trainerType: null,
+            imageUrl: null,
+            isExpandedLegal: true,
+            setReleaseDate: 'not-a-valid-date',
+        );
+
+        $result = $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        self::assertNull($result->getSetReleaseDate());
     }
 
     /**
