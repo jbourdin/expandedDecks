@@ -23,7 +23,7 @@ use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Service\DeckList\CardmarketWishlistFormatter;
-use App\Service\DeckList\MinifiedCardViewBuilder;
+use App\Service\DeckList\MinifiedCardView;
 use App\Service\DeckList\OriginalListFormatter;
 use App\Service\Label\PdfLabelGenerator;
 use App\Service\Tcgdex\TcgdexApiClient;
@@ -50,7 +50,6 @@ class DeckShowController extends AbstractController
         EventRepository $eventRepository,
         EventDeckEntryRepository $eventDeckEntryRepository,
         EventDeckRegistrationRepository $eventDeckRegistrationRepository,
-        MinifiedCardViewBuilder $minifiedCardViewBuilder,
         OriginalListFormatter $originalListFormatter,
         CardmarketWishlistFormatter $cardmarketWishlistFormatter,
         TcgdexApiClient $tcgdexApiClient,
@@ -185,8 +184,8 @@ class DeckShowController extends AbstractController
 
         $minifiedGroupedCards = [];
 
-        if (null !== $currentVersion && null !== $currentVersion->getMinifiedList()) {
-            $minifiedGroupedCards = $minifiedCardViewBuilder->buildGrouped($currentVersion);
+        if (null !== $currentVersion && null !== $currentVersion->getMinifiedCardViews()) {
+            $minifiedGroupedCards = MinifiedCardView::deserializeGrouped($currentVersion->getMinifiedCardViews());
         }
 
         $formattedOriginalList = null !== $currentVersion
@@ -194,7 +193,7 @@ class DeckShowController extends AbstractController
             : '';
 
         $showCardmarketExport = $user instanceof User && $user->isShowCardmarketExport();
-        $cardmarketWishlist = $showCardmarketExport && null !== $currentVersion && null !== $currentVersion->getMinifiedList()
+        $cardmarketWishlist = $showCardmarketExport && null !== $currentVersion && null !== $currentVersion->getMinifiedCardViews()
             ? $cardmarketWishlistFormatter->format($currentVersion)
             : null;
 

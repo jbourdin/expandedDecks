@@ -15,6 +15,8 @@ namespace App\MessageHandler;
 
 use App\Message\GenerateMinifiedListMessage;
 use App\Repository\DeckVersionRepository;
+use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\MinifiedListGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -28,6 +30,7 @@ class GenerateMinifiedListHandler
 {
     public function __construct(
         private readonly MinifiedListGenerator $listGenerator,
+        private readonly MinifiedCardViewBuilder $cardViewBuilder,
         private readonly DeckVersionRepository $versionRepo,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
@@ -57,9 +60,13 @@ class GenerateMinifiedListHandler
         try {
             $minifiedList = $this->listGenerator->generate($version);
             $version->setMinifiedList($minifiedList);
+
+            $groupedCardViews = $this->cardViewBuilder->buildGrouped($version);
+            $version->setMinifiedCardViews(MinifiedCardView::serializeGrouped($groupedCardViews));
+
             $this->entityManager->flush();
 
-            $this->logger->info('Minified list generated for DeckVersion #{id}.', [
+            $this->logger->info('Minified list and card views generated for DeckVersion #{id}.', [
                 'id' => $message->deckVersionId,
             ]);
         } catch (\Throwable $exception) {
