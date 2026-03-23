@@ -16,6 +16,7 @@ namespace App\Tests\Service\DeckList;
 use App\Entity\DeckVersion;
 use App\Service\DeckList\CardmarketWishlistFormatter;
 use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,7 +28,8 @@ class CardmarketWishlistFormatterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->formatter = new CardmarketWishlistFormatter();
+        $viewBuilder = $this->createStub(MinifiedCardViewBuilder::class);
+        $this->formatter = new CardmarketWishlistFormatter($viewBuilder);
     }
 
     public function testPokemonWithAbilitiesAndAttacks(): void

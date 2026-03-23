@@ -24,6 +24,7 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventRepository;
 use App\Service\DeckList\CardmarketWishlistFormatter;
 use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\OriginalListFormatter;
 use App\Service\Label\PdfLabelGenerator;
 use App\Service\Tcgdex\TcgdexApiClient;
@@ -50,6 +51,7 @@ class DeckShowController extends AbstractController
         EventRepository $eventRepository,
         EventDeckEntryRepository $eventDeckEntryRepository,
         EventDeckRegistrationRepository $eventDeckRegistrationRepository,
+        MinifiedCardViewBuilder $minifiedCardViewBuilder,
         OriginalListFormatter $originalListFormatter,
         CardmarketWishlistFormatter $cardmarketWishlistFormatter,
         TcgdexApiClient $tcgdexApiClient,
@@ -186,6 +188,9 @@ class DeckShowController extends AbstractController
 
         if (null !== $currentVersion && null !== $currentVersion->getMinifiedCardViews()) {
             $minifiedGroupedCards = MinifiedCardView::deserializeGrouped($currentVersion->getMinifiedCardViews());
+        } elseif (null !== $currentVersion && null !== $currentVersion->getMinifiedList()) {
+            // Fallback for deck versions not yet re-enriched with the new column
+            $minifiedGroupedCards = $minifiedCardViewBuilder->buildGrouped($currentVersion);
         }
 
         $formattedOriginalList = null !== $currentVersion
@@ -193,7 +198,8 @@ class DeckShowController extends AbstractController
             : '';
 
         $showCardmarketExport = $user instanceof User && $user->isShowCardmarketExport();
-        $cardmarketWishlist = $showCardmarketExport && null !== $currentVersion && null !== $currentVersion->getMinifiedCardViews()
+        $cardmarketWishlist = $showCardmarketExport && null !== $currentVersion
+            && (null !== $currentVersion->getMinifiedCardViews() || null !== $currentVersion->getMinifiedList())
             ? $cardmarketWishlistFormatter->format($currentVersion)
             : null;
 

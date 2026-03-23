@@ -44,8 +44,9 @@ class CardmarketWishlistFormatter
     /** @var array<string, true> */
     private readonly array $basicEnergyNames;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly MinifiedCardViewBuilder $minifiedCardViewBuilder,
+    ) {
         $names = [];
 
         foreach (array_keys(DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS) as $name) {
@@ -62,11 +63,12 @@ class CardmarketWishlistFormatter
      */
     public function format(DeckVersion $version): ?string
     {
-        if (null === $version->getMinifiedCardViews()) {
-            return null;
+        if (null !== $version->getMinifiedCardViews()) {
+            $groupedCards = MinifiedCardView::deserializeGrouped($version->getMinifiedCardViews());
+        } else {
+            // Fallback for deck versions not yet re-enriched with the new column
+            $groupedCards = $this->minifiedCardViewBuilder->buildGrouped($version);
         }
-
-        $groupedCards = MinifiedCardView::deserializeGrouped($version->getMinifiedCardViews());
 
         if ([] === $groupedCards) {
             return null;
