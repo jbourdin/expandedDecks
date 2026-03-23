@@ -4036,15 +4036,15 @@
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.title">
                 <source>app.deck.awaiting_mappings.title</source>
-                <target>Préparation</target>
+                <target>Indisponible</target>
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.heading">
                 <source>app.deck.awaiting_mappings.heading</source>
-                <target>Préparation des données de cartes…</target>
+                <target>Correspondances de sets indisponibles</target>
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.message">
                 <source>app.deck.awaiting_mappings.message</source>
-                <target>Les correspondances de sets sont en cours de construction. Cette page se rafraîchira automatiquement.</target>
+                <target>Les correspondances de sets n'ont pas encore été construites. Un administrateur doit déclencher la reconstruction depuis le tableau de bord technique.</target>
             </trans-unit>
         </body>
     </file>

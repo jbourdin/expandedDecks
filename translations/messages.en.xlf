@@ -4036,15 +4036,15 @@
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.title">
                 <source>app.deck.awaiting_mappings.title</source>
-                <target>Preparing</target>
+                <target>Unavailable</target>
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.heading">
                 <source>app.deck.awaiting_mappings.heading</source>
-                <target>Setting up card data…</target>
+                <target>Card set mappings not available</target>
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.message">
                 <source>app.deck.awaiting_mappings.message</source>
-                <target>Card set mappings are being built. This page will refresh automatically.</target>
+                <target>Card set mappings have not been built yet. An administrator needs to trigger a rebuild from the technical dashboard.</target>
             </trans-unit>
         </body>
     </file>

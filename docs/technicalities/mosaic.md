@@ -33,16 +33,19 @@ EnrichDeckVersionMessage dispatched
     ↓
 CardEnricher fetches TCGdex images (async, deck_enrichment transport)
     ↓
-All cards enriched → 3 messages dispatched:
-    ├── GenerateDeckMosaicMessage    → original mosaic
-    ├── GenerateMinifiedListMessage  → minified PTCGL text (F6.8)
-    └── GenerateMinifiedMosaicMessage → minified mosaic (F6.6b)
+All cards enriched → 2 messages dispatched:
+    ├── GenerateDeckMosaicMessage    → original mosaic (uses DeckCard.imageUrl)
+    └── GenerateMinifiedListMessage  → minified PTCGL text + pre-computed card views JSON
+                                         ↓ (after CardPrinting rows populated)
+                                      GenerateMinifiedMosaicMessage → minified mosaic
     ↓
 MosaicGenerator renders composite image (GD)
     ↓
 Image stored via Flysystem → shortTag-based URL saved on DeckVersion
     (e.g. /mosaic/AB3K7N/5.png, /mosaic/AB3K7N/5_minified.png)
 ```
+
+The minified mosaic is **chained after** the minified list handler (not dispatched in parallel) because it depends on `CardPrinting` rows populated by `expandPrintings()` during minified list generation. Without this ordering, the minified mosaic may render with missing images.
 
 ### Re-dispatch (admin)
 

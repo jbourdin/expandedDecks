@@ -61,6 +61,9 @@ class DeckVersion
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $minifiedList = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $minifiedCardViews = null;
+
     #[ORM\Column(length: 512, nullable: true)]
     private ?string $minifiedMosaicImageUrl = null;
 
@@ -174,6 +177,18 @@ class DeckVersion
     public function setMinifiedList(?string $minifiedList): static
     {
         $this->minifiedList = $minifiedList;
+
+        return $this;
+    }
+
+    public function getMinifiedCardViews(): ?string
+    {
+        return $this->minifiedCardViews;
+    }
+
+    public function setMinifiedCardViews(?string $minifiedCardViews): static
+    {
+        $this->minifiedCardViews = $minifiedCardViews;
 
         return $this;
     }

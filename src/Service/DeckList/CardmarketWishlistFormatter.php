@@ -63,11 +63,12 @@ class CardmarketWishlistFormatter
      */
     public function format(DeckVersion $version): ?string
     {
-        if ($version->getCards()->isEmpty()) {
-            return null;
+        if (null !== $version->getMinifiedCardViews()) {
+            $groupedCards = MinifiedCardView::deserializeGrouped($version->getMinifiedCardViews());
+        } else {
+            // Fallback for deck versions not yet re-enriched with the new column
+            $groupedCards = $this->minifiedCardViewBuilder->buildGrouped($version);
         }
-
-        $groupedCards = $this->minifiedCardViewBuilder->buildGrouped($version);
 
         if ([] === $groupedCards) {
             return null;

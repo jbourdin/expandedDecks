@@ -42,6 +42,12 @@ class TcgdexApiClient
         'PR-XY' => 'xyp',
         'PR-BW' => 'bwp',
         'SVI' => 'sv01',
+        // PTCGO (older client) uses short promo codes without the "PR-" prefix
+        'SVP' => 'svp',
+        'SWP' => 'swshp',
+        'SMP' => 'smp',
+        'XYP' => 'xyp',
+        'BWP' => 'bwp',
     ];
 
     /**

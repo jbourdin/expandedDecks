@@ -29,15 +29,14 @@ Cardmarket identifies cards by **name + abilities + attacks** (for Pokemon) or b
 1. **Abilities come before attacks**, both in their original card order (not alphabetically sorted).
 2. **Basic energies are excluded** (Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal, Fairy).
 3. **Special energies are included** (Double Turbo Energy, Double Colorless Energy, etc.).
-4. The export uses the **minified card list** (cheapest printings via `MinifiedCardViewBuilder`), same base as F6.8.
+4. The export uses the **pre-computed minified card views** (`DeckVersion.minifiedCardViews` JSON column), same base as F6.8.
 
 ## Data flow
 
 ```
-DeckVersion
-  → MinifiedCardViewBuilder.buildGrouped()
-    → resolves cheapest printing per card via CardIdentity/CardPrinting
-    → populates MinifiedCardView with abilityNames + attackNames from CardIdentity
+DeckVersion.minifiedCardViews (pre-computed JSON)
+  → MinifiedCardView::deserializeGrouped()
+    → reconstructs MinifiedCardView DTOs with abilityNames + attackNames
   → CardmarketWishlistFormatter.format()
     → iterates MinifiedCardView entries
     → applies name overrides (CARDMARKET_NAME_OVERRIDES)
@@ -45,6 +44,8 @@ DeckVersion
     → excludes basic energies
     → returns formatted text
 ```
+
+For deck versions not yet re-enriched with the `minifiedCardViews` column, the formatter falls back to `MinifiedCardViewBuilder.buildGrouped()` (runtime computation).
 
 ## Card identity fields
 
@@ -91,7 +92,7 @@ To add new overrides, append entries to this constant. Use the exact card name a
 | File | Role |
 |------|------|
 | `src/Service/DeckList/CardmarketWishlistFormatter.php` | Formats the export text |
-| `src/Service/DeckList/MinifiedCardViewBuilder.php` | Resolves cheapest printings, provides ability/attack names |
+| `src/Service/DeckList/MinifiedCardViewBuilder.php` | Resolves cheapest printings (fallback for pre-existing versions) |
 | `src/Service/DeckList/MinifiedCardView.php` | DTO carrying card data including ability/attack names |
 | `src/Entity/CardIdentity.php` | Stores ability/attack signatures and names |
 | `src/Service/CardIdentity/CardIdentityResolver.php` | Populates CardIdentity from TCGdex data |

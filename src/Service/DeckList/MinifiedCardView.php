@@ -79,4 +79,59 @@ readonly class MinifiedCardView
     {
         return $this->attackNames;
     }
+
+    /**
+     * Serialize grouped MinifiedCardView arrays to JSON for storage.
+     *
+     * @param array<string, list<self>> $grouped
+     */
+    public static function serializeGrouped(array $grouped): string
+    {
+        $data = [];
+
+        foreach ($grouped as $type => $cards) {
+            $data[$type] = array_map(static fn (self $card): array => [
+                'n' => $card->cardName,
+                'q' => $card->quantity,
+                's' => $card->setCode,
+                'c' => $card->cardNumber,
+                't' => $card->cardType,
+                'ts' => $card->trainerSubtype,
+                'i' => $card->imageUrl,
+                'ab' => $card->abilityNames,
+                'at' => $card->attackNames,
+            ], $cards);
+        }
+
+        return json_encode($data, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Deserialize JSON back to grouped MinifiedCardView arrays.
+     *
+     * @return array<string, list<self>>
+     */
+    public static function deserializeGrouped(string $json): array
+    {
+        /** @var array<string, list<array{n: string, q: int, s: string, c: string, t: string, ts: ?string, i: ?string, ab?: string, at?: string}>> $data */
+        $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+
+        $grouped = [];
+
+        foreach ($data as $type => $cards) {
+            $grouped[$type] = array_map(static fn (array $card): self => new self(
+                $card['n'],
+                $card['q'],
+                $card['s'],
+                $card['c'],
+                $card['t'],
+                $card['ts'],
+                $card['i'],
+                $card['ab'] ?? '',
+                $card['at'] ?? '',
+            ), $cards);
+        }
+
+        return $grouped;
+    }
 }

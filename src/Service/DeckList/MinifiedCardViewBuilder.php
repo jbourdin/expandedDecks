@@ -16,7 +16,6 @@ namespace App\Service\DeckList;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Repository\CardPrintingRepository;
-use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\DeckListParser;
 
 /**
@@ -34,7 +33,6 @@ class MinifiedCardViewBuilder
 
     public function __construct(
         private readonly CardPrintingRepository $printingRepository,
-        private readonly CardIdentityResolver $identityResolver,
     ) {
     }
 
@@ -187,10 +185,6 @@ class MinifiedCardViewBuilder
         }
 
         $identity = $printing->getCardIdentity();
-
-        if ($identity->getPrintings()->count() <= 1) {
-            $this->identityResolver->expandPrintings($identity);
-        }
 
         $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 

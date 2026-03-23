@@ -33,6 +33,7 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/DataFixtures/data/'
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
