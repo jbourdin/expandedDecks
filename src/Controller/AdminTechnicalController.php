@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Message\BuildSetMappingsMessage;
 use App\Message\EnrichDeckVersionMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
+use App\Repository\TcgdexSetMappingRepository;
 use App\Service\BannedCardsSyncService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
@@ -38,6 +40,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly BannedCardsSyncService $bannedCardsSyncService,
         private readonly MosaicRedispatchService $mosaicRedispatchService,
         private readonly EnrichmentFlushService $enrichmentFlushService,
+        private readonly TcgdexSetMappingRepository $setMappingRepository,
     ) {
         parent::__construct($translator);
     }
@@ -48,11 +51,13 @@ class AdminTechnicalController extends AbstractAppController
         $pendingEnrichments = $this->deckVersionRepository->findNotEnriched();
         $pendingMosaics = $this->deckVersionRepository->findEnrichedWithoutMosaic();
         $bannedCardCount = $this->bannedCardRepository->count();
+        $setMappingCount = $this->setMappingRepository->count();
 
         return $this->render('admin/technical/dashboard.html.twig', [
             'pendingEnrichments' => $pendingEnrichments,
             'pendingMosaics' => $pendingMosaics,
             'bannedCardCount' => $bannedCardCount,
+            'setMappingCount' => $setMappingCount,
         ]);
     }
 
@@ -127,6 +132,23 @@ class AdminTechnicalController extends AbstractAppController
         }
 
         $this->addFlash('warning', 'app.admin.technical.flush_reenrich.success', ['%count%' => \count($versions)]);
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/set-mappings-rebuild', name: 'app_admin_technical_set_mappings_rebuild', methods: ['POST'])]
+    public function setMappingsRebuild(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-set-mappings-rebuild', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $this->setMappingRepository->truncate();
+        $this->messageBus->dispatch(new BuildSetMappingsMessage());
+
+        $this->addFlash('success', 'app.admin.technical.set_mappings.dispatched');
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

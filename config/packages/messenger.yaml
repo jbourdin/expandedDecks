@@ -53,6 +53,7 @@ framework:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: transactional_email
             Symfony\Component\Notifier\Message\ChatMessage: notification
             Symfony\Component\Notifier\Message\SmsMessage: notification
+            App\Message\BuildSetMappingsMessage: deck_enrichment
             App\Message\EnrichDeckVersionMessage: deck_enrichment
             App\Message\GenerateDeckMosaicMessage: deck_enrichment
             App\Message\GenerateMinifiedListMessage: deck_enrichment

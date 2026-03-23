@@ -103,6 +103,32 @@
         </div>
     </div>
 
+    {# TCGdex set mappings card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.set_mappings.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.set_mappings.description'|trans }}</p>
+
+            <div class="mb-3">
+                {% if setMappingCount > 0 %}
+                    <span class="badge bg-success">{{ 'app.admin.technical.set_mappings.count'|trans({'%count%': setMappingCount}) }}</span>
+                {% else %}
+                    <span class="badge bg-warning">{{ 'app.admin.technical.set_mappings.empty'|trans }}</span>
+                {% endif %}
+            </div>
+
+            <form method="post" action="{{ path('app_admin_technical_set_mappings_rebuild') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-set-mappings-rebuild') }}">
+                <button type="submit" class="btn btn-gold"
+                        onclick="return confirm('{{ 'app.admin.technical.set_mappings.confirm_rebuild'|trans|e('js') }}')">
+                    {{ 'app.admin.technical.set_mappings.rebuild_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+
     {# Banned cards sync card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">
