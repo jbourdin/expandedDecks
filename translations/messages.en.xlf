@@ -3926,6 +3926,34 @@
                 <source>app.admin.technical.mosaic.dispatched</source>
                 <target>%count% mosaic generation message(s) dispatched.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.title">
+                <source>app.admin.technical.set_mappings.title</source>
+                <target>TCGdex Set Mappings</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.description">
+                <source>app.admin.technical.set_mappings.description</source>
+                <target>Persistent mapping between TCGdex set IDs and PTCG codes. Built asynchronously via a background job.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.count">
+                <source>app.admin.technical.set_mappings.count</source>
+                <target>%count% mapping(s) in database</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.empty">
+                <source>app.admin.technical.set_mappings.empty</source>
+                <target>No mappings — build required</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.rebuild_button">
+                <source>app.admin.technical.set_mappings.rebuild_button</source>
+                <target>Rebuild set mappings</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.confirm_rebuild">
+                <source>app.admin.technical.set_mappings.confirm_rebuild</source>
+                <target>This will wipe and rebuild all set mappings in the background. Continue?</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.dispatched">
+                <source>app.admin.technical.set_mappings.dispatched</source>
+                <target>Set mappings rebuild dispatched. It will complete in the background.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>
                 <target>Banned Cards Sync</target>
@@ -4001,6 +4029,22 @@
             <trans-unit id="app.admin.technical.flush.success">
                 <source>app.admin.technical.flush.success</source>
                 <target>All enrichment data has been flushed. Use "Retry all enrichments" to re-enrich.</target>
+            </trans-unit>
+            <trans-unit id="app.common.loading">
+                <source>app.common.loading</source>
+                <target>Loading…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.title">
+                <source>app.deck.awaiting_mappings.title</source>
+                <target>Preparing</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.heading">
+                <source>app.deck.awaiting_mappings.heading</source>
+                <target>Setting up card data…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.message">
+                <source>app.deck.awaiting_mappings.message</source>
+                <target>Card set mappings are being built. This page will refresh automatically.</target>
             </trans-unit>
         </body>
     </file>

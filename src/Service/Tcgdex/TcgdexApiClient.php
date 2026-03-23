@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace App\Service\Tcgdex;
 
+use App\Repository\TcgdexSetMappingRepository;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Client for the TCGdex REST API (v2).
@@ -59,47 +58,45 @@ class TcgdexApiClient
     ];
 
     public function __construct(
-        private readonly HttpClientInterface $httpClient,
+        private readonly HttpClientInterface $tcgdexClient,
         private readonly CacheInterface $cache,
+        private readonly TcgdexSetMappingRepository $setMappingRepository,
     ) {
     }
 
     /**
-     * Builds a PTCG code → TCGdex set ID mapping from set metadata.
+     * Returns the PTCG code → TCGdex set ID mapping from the database.
+     *
+     * Returns an empty array if the mappings have not been built yet.
      *
      * @return array<string, string>
      */
     public function getSetMapping(): array
     {
-        /** @var array<string, string> $mapping */
-        $mapping = $this->cache->get('tcgdex.set_mapping', function (ItemInterface $item): array {
-            $item->expiresAfter(86400); // 24 hours
-
-            return $this->buildSetMapping();
-        });
-
-        return $mapping;
+        return array_merge(
+            self::STATIC_OVERRIDES,
+            $this->setMappingRepository->getForwardMapping(),
+        );
     }
 
     /**
-     * Reverse mapping: TCGdex set ID → PTCG code.
+     * Returns the TCGdex set ID → PTCG code reverse mapping from the database.
      *
-     * Prefers tcgOnline codes (PTCGL-compatible) over abbreviation.official
-     * when both exist. Cannot use array_flip() because multiple PTCG codes
-     * may map to the same TCGdex set ID (e.g. NXD and NEX both → bw4).
+     * Returns an empty array if the mappings have not been built yet.
      *
      * @return array<string, string>
      */
     public function getReverseSetMapping(): array
     {
-        /** @var array<string, string> $reverse */
-        $reverse = $this->cache->get('tcgdex.reverse_set_mapping.v2', function (ItemInterface $item): array {
-            $item->expiresAfter(86400);
+        return array_merge(
+            array_flip(self::STATIC_OVERRIDES),
+            $this->setMappingRepository->getReverseMapping(),
+        );
+    }
 
-            return $this->buildReverseSetMapping();
-        });
-
-        return $reverse;
+    public function hasMappings(): bool
+    {
+        return !$this->setMappingRepository->isEmpty();
     }
 
     /**
@@ -163,7 +160,7 @@ class TcgdexApiClient
     public function findImageByName(string $cardName): ?string
     {
         $url = self::BASE_URL.'/cards?name='.urlencode($cardName);
-        $response = $this->httpClient->request('GET', $url);
+        $response = $this->tcgdexClient->request('GET', $url);
 
         if (200 !== $response->getStatusCode()) {
             return null;
@@ -188,106 +185,6 @@ class TcgdexApiClient
         return null;
     }
 
-    /**
-     * Fetches all set IDs, then each set's detail concurrently to read tcgOnline.
-     *
-     * The /sets list endpoint only returns summaries (no tcgOnline),
-     * so we must hit /sets/{id} for each set to get the PTCG online code.
-     *
-     * @return array<string, string>
-     */
-    private function buildSetMapping(): array
-    {
-        // 1. Get all set IDs from the summary list
-        $listResponse = $this->httpClient->request('GET', self::BASE_URL.'/sets');
-        /** @var list<array{id: string}> $sets */
-        $sets = $listResponse->toArray();
-
-        // 2. Fire all detail requests concurrently
-        /** @var array<string, ResponseInterface> $responses */
-        $responses = [];
-
-        foreach ($sets as $set) {
-            $setId = $set['id'];
-            $responses[$setId] = $this->httpClient->request('GET', self::BASE_URL.'/sets/'.$setId);
-        }
-
-        // 3. Collect PTCG codes as responses stream back
-        //    tcgOnline is present on older sets (BW–SWSH era).
-        //    abbreviation.official is present on all sets (SV era and earlier).
-        $mapping = self::STATIC_OVERRIDES;
-
-        foreach ($responses as $setId => $response) {
-            /** @var array<string, mixed> $detail */
-            $detail = $response->toArray();
-
-            if (isset($detail['tcgOnline']) && \is_string($detail['tcgOnline']) && '' !== $detail['tcgOnline']) {
-                $mapping[strtoupper($detail['tcgOnline'])] = $setId;
-            }
-
-            /** @var array<string, mixed> $abbreviation */
-            $abbreviation = isset($detail['abbreviation']) && \is_array($detail['abbreviation']) ? $detail['abbreviation'] : [];
-
-            if (isset($abbreviation['official']) && \is_string($abbreviation['official']) && '' !== $abbreviation['official']) {
-                $code = strtoupper($abbreviation['official']);
-
-                // Don't overwrite an existing mapping (tcgOnline takes precedence)
-                if (!isset($mapping[$code])) {
-                    $mapping[$code] = $setId;
-                }
-            }
-        }
-
-        return $mapping;
-    }
-
-    /**
-     * Builds a TCGdex set ID → PTCG code mapping, preferring tcgOnline codes.
-     *
-     * tcgOnline codes (NXD, EPO…) are the PTCGL-compatible codes used for import.
-     * abbreviation.official codes (NEX, EP…) are used as fallback only.
-     *
-     * @return array<string, string>
-     */
-    private function buildReverseSetMapping(): array
-    {
-        // Start with reverse of static overrides
-        $reverse = array_flip(self::STATIC_OVERRIDES);
-
-        $listResponse = $this->httpClient->request('GET', self::BASE_URL.'/sets');
-        /** @var list<array{id: string}> $sets */
-        $sets = $listResponse->toArray();
-
-        /** @var array<string, ResponseInterface> $responses */
-        $responses = [];
-
-        foreach ($sets as $set) {
-            $responses[$set['id']] = $this->httpClient->request('GET', self::BASE_URL.'/sets/'.$set['id']);
-        }
-
-        foreach ($responses as $setId => $response) {
-            /** @var array<string, mixed> $detail */
-            $detail = $response->toArray();
-
-            // abbreviation.official as fallback (don't overwrite)
-            /** @var array<string, mixed> $abbreviation */
-            $abbreviation = isset($detail['abbreviation']) && \is_array($detail['abbreviation']) ? $detail['abbreviation'] : [];
-
-            if (isset($abbreviation['official']) && \is_string($abbreviation['official']) && '' !== $abbreviation['official']) {
-                if (!isset($reverse[$setId])) {
-                    $reverse[$setId] = strtoupper($abbreviation['official']);
-                }
-            }
-
-            // tcgOnline always wins (overwrite abbreviation.official)
-            if (isset($detail['tcgOnline']) && \is_string($detail['tcgOnline']) && '' !== $detail['tcgOnline']) {
-                $reverse[$setId] = strtoupper($detail['tcgOnline']);
-            }
-        }
-
-        return $reverse;
-    }
-
     private function fetchCard(string $setId, string $cardNumber): ?TcgdexCard
     {
         return $this->fetchCardById(\sprintf('%s-%s', $setId, $cardNumber));
@@ -303,7 +200,7 @@ class TcgdexApiClient
     public function findAllPrintingsByName(string $cardName): array
     {
         $url = self::BASE_URL.'/cards?name='.urlencode($cardName);
-        $response = $this->httpClient->request('GET', $url);
+        $response = $this->tcgdexClient->request('GET', $url);
 
         if (200 !== $response->getStatusCode()) {
             return [];
@@ -334,7 +231,7 @@ class TcgdexApiClient
     private function fetchCardById(string $cardId): ?TcgdexCard
     {
         $url = \sprintf('%s/cards/%s', self::BASE_URL, $cardId);
-        $response = $this->httpClient->request('GET', $url);
+        $response = $this->tcgdexClient->request('GET', $url);
 
         if (404 === $response->getStatusCode()) {
             return null;
@@ -468,7 +365,7 @@ class TcgdexApiClient
         }
 
         $url = self::BASE_URL.'/sets/'.$setId;
-        $response = $this->httpClient->request('GET', $url);
+        $response = $this->tcgdexClient->request('GET', $url);
 
         if (200 !== $response->getStatusCode()) {
             return null;
