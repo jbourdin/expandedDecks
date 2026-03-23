@@ -50,6 +50,9 @@ FROM dunglas/frankenphp:php8.5 AS runtime
 #   docker build --build-arg APP_VERSION=$(git describe --tags --always) .
 ARG APP_VERSION=dev
 
+# Install Supervisor (manages FrankenPHP + Messenger workers)
+RUN apt-get update && apt-get install -y --no-install-recommends supervisor && rm -rf /var/lib/apt/lists/*
+
 # Install required PHP extensions
 RUN install-php-extensions \
     pdo_mysql \
@@ -67,8 +70,8 @@ opcache.validate_timestamps=0\n\
 opcache.preload_user=www-data\n\
 ' > "$PHP_INI_DIR/conf.d/opcache-prod.ini"
 
-# Raise memory limit for mosaic image generation (default 128M is too low)
-RUN echo 'memory_limit=512M' > "$PHP_INI_DIR/conf.d/memory-limit.ini"
+# Raise memory limit for mosaic image generation and deck enrichment workers
+RUN echo 'memory_limit=768M' > "$PHP_INI_DIR/conf.d/memory-limit.ini"
 
 # Use production php.ini
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -116,11 +119,13 @@ RUN mkdir -p /data/caddy /config/caddy && chown -R www-data:www-data /data /conf
 # Ensure var/ is writable by www-data for runtime cache compilation
 RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
 
-# Startup script: clears and warms cache with actual runtime env vars
+# Supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Startup script: clears and warms cache, then execs Supervisor
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
