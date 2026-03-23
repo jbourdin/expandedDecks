@@ -16,6 +16,40 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.11] — 2026-03-23
+
+Eleventh beta — Cardmarket wishlist export rework (ability/attack-based format), pending state placeholders for async deck views, "My Decks" shortcut, and flush & re-enrich admin action.
+
+### Deck Library
+
+- **F2.19** — Pending state for async deck views: show generating placeholders (spinner + message) when mosaic or minified data is not yet available, instead of silently hiding UI. Variant and view mode toggles are always visible.
+- **F2.20** — My Decks shortcut in user menu: "My Decks" link in the user dropdown (between Dashboard and Profile), pointing to the deck catalog filtered by the current user.
+- **Lock icon for non-public decks**: deck cards in the catalog show a `bi-lock-fill` icon when the deck is not public (visible to owner only).
+- **F6.11** — Cardmarket wishlist export rework: Cardmarket identifies cards by name + abilities + attacks (not set codes). Format changed to `{qty}x {name} {abilities} {attacks}` for Pokemon and `{qty}x {name}` for Trainer/Energy. Added `CARDMARKET_NAME_OVERRIDES` for ambiguous cards (e.g. Professor's Research → Professor's Research - Professor Sada).
+- **F6.10** — Card identity model extended: `abilitySignature` (sorted, for dedup) and `abilityNames`/`attackNames` (original card order) added to `CardIdentity`. TCGdex enrichment now parses abilities from the API.
+
+### Administration
+
+- **Flush & Re-enrich All**: new combined action on the technical dashboard — flushes all enrichment data and re-dispatches enrichment for every deck version in one step. Replaces the standalone flush button.
+
+### Bug Fixes
+
+- **F4.11** — Handle race condition in `expandPrintings` when multiple workers process the same card identity concurrently.
+
+### Documentation
+
+- New `docs/technicalities/cardmarket_export.md` deep-dive: format rules, data flow, name overrides, known limitations.
+- **F2.21** — Draft flag for decks documented in features.md (backlog, no milestone).
+- Migrated roadmap tracking to GitHub Project board.
+- Added Awaiting Validation and Ready for Release columns to project tracking workflow.
+
+### Testing & Quality
+
+- `CardIdentityResolverTest` — 7 tests for ability/attack signature computation.
+- `TcgdexApiClientTest` — 3 new tests for abilities/attacks parsing from API responses.
+
+---
+
 ## [1.0.0-beta.10] — 2026-03-21
 
 Tenth beta — optional section headers in deck list import, basic energy image improvements, smarter minified export printing selection, marketplace IDs, and test infrastructure hardening.
