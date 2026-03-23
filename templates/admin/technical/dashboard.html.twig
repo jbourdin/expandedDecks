@@ -125,21 +125,21 @@
         </div>
     </div>
 
-    {# Flush enrichment card — danger zone #}
+    {# Flush & Re-enrich card — danger zone #}
     <div class="card shadow-sm mb-3 border-danger">
         <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">{{ 'app.admin.technical.flush.title'|trans }}</h5>
+            <h5 class="mb-0">{{ 'app.admin.technical.flush_reenrich.title'|trans }}</h5>
         </div>
         <div class="card-body">
-            <p>{{ 'app.admin.technical.flush.description'|trans }}</p>
+            <p>{{ 'app.admin.technical.flush_reenrich.description'|trans }}</p>
             <div class="alert alert-danger">
-                {{ 'app.admin.technical.flush.warning'|trans }}
+                {{ 'app.admin.technical.flush_reenrich.warning'|trans }}
             </div>
-            <form method="post" action="{{ path('app_admin_technical_flush_enrichment') }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('technical-flush-enrichment') }}">
+            <form method="post" action="{{ path('app_admin_technical_flush_reenrich') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-flush-reenrich') }}">
                 <button type="submit" class="btn btn-danger"
-                        onclick="return confirm('{{ 'app.admin.technical.flush.confirm'|trans|e('js') }}')">
-                    {{ 'app.admin.technical.flush.button'|trans }}
+                        onclick="return confirm('{{ 'app.admin.technical.flush_reenrich.confirm'|trans|e('js') }}')">
+                    {{ 'app.admin.technical.flush_reenrich.button'|trans }}
                 </button>
             </form>
         </div>

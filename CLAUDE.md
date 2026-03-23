@@ -364,6 +364,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/pdf_label.md](docs/technicalities/pdf_label.md) — PDF label card generation
 - [docs/technicalities/mosaic.md](docs/technicalities/mosaic.md) — Server-generated deck mosaic image (GD, Flysystem)
 - [docs/technicalities/enrichment.md](docs/technicalities/enrichment.md) — TCGdex enrichment, card identity model, minified export
+- [docs/technicalities/cardmarket_export.md](docs/technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
 
 ### Documentation Rules
 
