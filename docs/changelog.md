@@ -16,6 +16,61 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.13] — 2026-03-23
+
+Thirteenth beta — pre-computed deck card views, enrichment pipeline chaining, CI OOM fix, PTCGO promo code support, and comprehensive unit test additions.
+
+### Features
+
+- **Pre-computed minified card views** — new `minifiedCardViews` JSON column on `DeckVersion`, populated during async enrichment. Deck show page and Cardmarket wishlist formatter read pre-built JSON instead of computing at request time, eliminating all TCGdex API calls and per-card DB queries from the request path.
+
+### Bug Fixes
+
+- **Eliminated 36+ synchronous TCGdex API calls** from deck show page — removed `expandPrintings()` from `MinifiedCardViewBuilder` and auto-dispatch of `BuildSetMappingsMessage` from `DeckShowController`.
+- **Chained enrichment pipeline** — `GenerateMinifiedMosaicMessage` is now dispatched by `GenerateMinifiedListHandler` after `CardPrinting` rows are populated, preventing race condition where minified mosaics rendered with missing images.
+- **PTCGO short promo codes** — added `SMP`, `SWP`, `SVP`, `XYP`, `BWP` as static overrides. Cards pasted from old PTCGO client (e.g. "Trevenant & Dusknoir-GX SMP 217") now resolve correctly during enrichment.
+- **`EnrichmentFlushService`** — added `minified_card_views = NULL` to flush SQL.
+- **CI OOM** — wired `BuildSetMappingsHandler` to mock HTTP client in test env, increased memory limit to 768M, added `tearDown` cleanup.
+
+### Administration
+
+- **TCGdex Set Mappings** — set mappings now persisted in MySQL (`TcgdexSetMapping` entity) instead of APCu cache. Rebuild via admin dashboard button only (no auto-dispatch). Fixtures seed 162 mappings for dev/test.
+
+### Testing & Quality
+
+- 48 new unit tests (523 → 571): `RarityTierMapperTest` (24), `OriginalListFormatterTest` (7), `MinifiedCardViewTest` (9), `GenerateMinifiedListHandlerTest` (5), `BuildSetMappingsHandlerTest` (3).
+
+### Documentation
+
+- Updated `enrichment.md`, `mosaic.md`, `cardmarket_export.md`, `deck.md`, `CLAUDE.md` for pipeline chaining, pre-computed card views, DB-based set mappings, and PTCGO promo codes.
+
+---
+
+## [1.0.0-beta.12] — 2026-03-23
+
+Twelfth beta — persistent TCGdex set mappings in MySQL replacing APCu cache, async build via Messenger, admin rebuild button, and Supervisor worker tuning.
+
+### Bug Fixes
+
+- **EXPANDEDDECKS-J** — Fixed production timeout on `/deck/{short_tag}` where `buildReverseSetMapping()` fired 100+ concurrent HTTP requests to TCGdex during an APCu cache miss, exceeding PHP's 30s `max_execution_time`. Set mappings are now persistent in MySQL, built asynchronously via a Messenger worker, and only wiped by explicit admin action.
+
+### Administration
+
+- **TCGdex Set Mappings card** on the technical dashboard: shows current mapping count (or "empty" badge) and a rebuild button that wipes the table and re-dispatches the async build.
+
+### Infrastructure
+
+- New `TcgdexSetMapping` Doctrine entity and repository (`tcgdex_set_mapping` table).
+- `BuildSetMappingsMessage` / `BuildSetMappingsHandler` on the `deck_enrichment` transport.
+- Scoped HTTP client `tcgdex.client` with base URI and 10s timeout.
+- Added `--sleep=20` to all four Supervisor Messenger worker commands to reduce idle CPU usage.
+
+### Testing & Quality
+
+- Updated `TcgdexApiClientTest` and `TcgdexApiClientCoverageTest` for repository-based set mappings.
+
+---
+
 ## [1.0.0-beta.11] — 2026-03-23
 
 Eleventh beta — Cardmarket wishlist export rework (ability/attack-based format), pending state placeholders for async deck views, "My Decks" shortcut, and flush & re-enrich admin action.
