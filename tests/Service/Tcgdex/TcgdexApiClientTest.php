@@ -256,6 +256,97 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame('Supporter', $card->trainerType);
     }
 
+    public function testFindCardParsesAbilitiesAndAttacks(): void
+    {
+        $httpClient = $this->createFullMockClient(
+            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
+            [
+                'swsh8-185' => [
+                    'status' => 200,
+                    'body' => [
+                        'id' => 'swsh8-185',
+                        'name' => 'Genesect V',
+                        'category' => 'Pokemon',
+                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/185',
+                        'legal' => ['expanded' => true],
+                        'hp' => 190,
+                        'abilities' => [
+                            ['type' => 'Ability', 'name' => 'Fusion Strike System', 'effect' => 'Draw cards...'],
+                        ],
+                        'attacks' => [
+                            ['cost' => ['Metal', 'Metal', 'Colorless'], 'name' => 'Techno Blast', 'damage' => 210, 'effect' => 'Cannot attack next turn.'],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $card = $client->findCard('FST', '185');
+
+        self::assertNotNull($card);
+        self::assertSame(['Fusion Strike System'], $card->abilities);
+        self::assertSame(['Techno Blast'], $card->attacks);
+    }
+
+    public function testFindCardParsesMultipleAttacksNoAbilities(): void
+    {
+        $httpClient = $this->createFullMockClient(
+            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
+            [
+                'swsh8-113' => [
+                    'status' => 200,
+                    'body' => [
+                        'id' => 'swsh8-113',
+                        'name' => 'Mew V',
+                        'category' => 'Pokemon',
+                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/113',
+                        'legal' => ['expanded' => true],
+                        'hp' => 180,
+                        'attacks' => [
+                            ['cost' => ['Colorless'], 'name' => 'Energy Mix', 'effect' => '...'],
+                            ['cost' => ['Psychic', 'Colorless'], 'name' => 'Psychic Leap', 'damage' => 70, 'effect' => '...'],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $card = $client->findCard('FST', '113');
+
+        self::assertNotNull($card);
+        self::assertSame([], $card->abilities);
+        self::assertSame(['Energy Mix', 'Psychic Leap'], $card->attacks);
+    }
+
+    public function testFindCardReturnsEmptyAbilitiesAndAttacksForTrainer(): void
+    {
+        $httpClient = $this->createFullMockClient(
+            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
+            [
+                'swsh8-225' => [
+                    'status' => 200,
+                    'body' => [
+                        'id' => 'swsh8-225',
+                        'name' => 'Battle VIP Pass',
+                        'category' => 'Trainer',
+                        'trainerType' => 'Item',
+                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/225',
+                        'legal' => ['expanded' => true],
+                    ],
+                ],
+            ],
+        );
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $card = $client->findCard('FST', '225');
+
+        self::assertNotNull($card);
+        self::assertSame([], $card->abilities);
+        self::assertSame([], $card->attacks);
+    }
+
     public function testFindImageByNameReturnsFirstAvailableImage(): void
     {
         $httpClient = $this->createSearchMockClient([

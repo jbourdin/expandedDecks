@@ -12,12 +12,14 @@
  * @see docs/features.md F6.7 — Export deck list as PTCGL text
  * @see docs/features.md F6.8 — Minified deck list export
  * @see docs/features.md F6.6b — Minified mosaic
+ * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
  */
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
     ActionIcon,
     Group,
+    Loader,
     Modal,
     SegmentedControl,
     Table,
@@ -25,7 +27,7 @@ import {
     Tooltip,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconCheck, IconShare } from '@tabler/icons-react';
+import { IconCopy, IconCheck, IconShare, IconShoppingCart } from '@tabler/icons-react';
 
 interface CardData {
     cardName: string;
@@ -54,6 +56,10 @@ interface Labels {
     tableSet: string;
     nameMatchWarningTitle: string;
     nameMatchWarningBody: string;
+    copyCardmarket: string;
+    copyCardmarketTooltip: string;
+    mosaicGenerating: string;
+    minifiedGenerating: string;
 }
 
 export interface DeckCardListProps {
@@ -63,6 +69,7 @@ export interface DeckCardListProps {
     minifiedMosaicUrl: string | null;
     rawList: string;
     minifiedList: string | null;
+    cardmarketWishlist: string | null;
     deckName: string;
     labels: Labels;
 }
@@ -177,6 +184,20 @@ const CardTable: React.FC<{
     );
 };
 
+/**
+ * Placeholder shown when async-generated data is not yet available.
+ *
+ * @see docs/features.md F2.3 — Show pending state when mosaic/minified data is not yet available
+ */
+const GeneratingPlaceholder: React.FC<{ message: string }> = ({ message }) => (
+    <div className="card shadow-sm">
+        <div className="card-body text-center py-5">
+            <Loader size="sm" className="mb-2" />
+            <Text size="sm" c="dimmed">{message}</Text>
+        </div>
+    </div>
+);
+
 export const DeckCardList: React.FC<DeckCardListProps> = ({
     originalCards,
     minifiedCards,
@@ -184,18 +205,23 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     minifiedMosaicUrl,
     rawList,
     minifiedList,
+    cardmarketWishlist,
     labels,
 }) => {
-    const hasMinified = Object.keys(minifiedCards).length > 0 || minifiedList !== null;
+    const hasMinifiedData = Object.keys(minifiedCards).length > 0 || minifiedList !== null;
     const hasMosaic = mosaicUrl !== null;
     const hasMinifiedMosaic = minifiedMosaicUrl !== null;
     const isMobile = useMediaQuery('(max-width: 767px)');
 
-    const [variant, setVariant] = useState<Variant>(hasMinified ? 'minified' : 'original');
+    const [variant, setVariant] = useState<Variant>(hasMinifiedData ? 'minified' : 'original');
     const [viewMode, setViewMode] = useState<ViewMode>(hasMosaic ? 'mosaic' : 'table');
     const [copied, setCopied] = useState(false);
+    const [cardmarketCopied, setCardmarketCopied] = useState(false);
     const [mosaicModalOpen, setMosaicModalOpen] = useState(false);
     const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const cardmarketCopyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const isMinifiedPending = variant === 'minified' && !hasMinifiedData;
 
     const activeCards = variant === 'minified' && Object.keys(minifiedCards).length > 0
         ? minifiedCards
@@ -208,6 +234,8 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
 
         return mosaicUrl;
     }, [variant, mosaicUrl, minifiedMosaicUrl, hasMinifiedMosaic]);
+
+    const isMosaicPending = viewMode === 'mosaic' && activeMosaicUrl === null;
 
     const activeList = variant === 'minified' && minifiedList !== null
         ? minifiedList
@@ -224,6 +252,22 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
             copyTimeout.current = setTimeout(() => setCopied(false), 2000);
         });
     }, [activeList]);
+
+    const handleCopyCardmarket = useCallback(() => {
+        if (!cardmarketWishlist) {
+            return;
+        }
+
+        navigator.clipboard.writeText(cardmarketWishlist.trim()).then(() => {
+            setCardmarketCopied(true);
+
+            if (cardmarketCopyTimeout.current) {
+                clearTimeout(cardmarketCopyTimeout.current);
+            }
+
+            cardmarketCopyTimeout.current = setTimeout(() => setCardmarketCopied(false), 2000);
+        });
+    }, [cardmarketWishlist]);
 
     const handleShareMosaic = useCallback(async () => {
         if (!activeMosaicUrl) {
@@ -282,17 +326,15 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
             {/* Top bar: Variant toggle (left) + Copy (center) + View toggle (right) */}
             <Group justify="space-between" align="center" mb="xs">
                 <div>
-                    {hasMinified && (
-                        <SegmentedControl
-                            size="xs"
-                            value={variant}
-                            onChange={(value) => setVariant(value as Variant)}
-                            data={[
-                                { label: labels.variantOriginal, value: 'original' },
-                                { label: labels.variantMinified, value: 'minified' },
-                            ]}
-                        />
-                    )}
+                    <SegmentedControl
+                        size="xs"
+                        value={variant}
+                        onChange={(value) => setVariant(value as Variant)}
+                        data={[
+                            { label: labels.variantOriginal, value: 'original' },
+                            { label: labels.variantMinified, value: 'minified' },
+                        ]}
+                    />
                 </div>
 
                 <Group gap="xs">
@@ -318,34 +360,49 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
                             </ActionIcon>
                         </Tooltip>
                     )}
-                    {copied && (
+                    {cardmarketWishlist && (
+                        <Tooltip label={cardmarketCopied ? labels.copied : labels.copyCardmarketTooltip}>
+                            <ActionIcon
+                                variant="subtle"
+                                color={cardmarketCopied ? 'green' : 'gray'}
+                                onClick={handleCopyCardmarket}
+                                size="lg"
+                            >
+                                {cardmarketCopied ? <IconCheck size={18} /> : <IconShoppingCart size={18} />}
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+                    {(copied || cardmarketCopied) && (
                         <Text size="sm" c="green">
                             {labels.copied}
                         </Text>
                     )}
                 </Group>
 
-                {hasMosaic && (
-                    <SegmentedControl
-                        size="xs"
-                        value={isMobile ? 'table' : viewMode}
-                        onChange={(value) => {
-                            if (value === 'mosaic') {
-                                handleMosaicClick();
-                            } else {
-                                setViewMode('table');
-                            }
-                        }}
-                        data={[
-                            { label: labels.viewTable, value: 'table' },
-                            { label: labels.viewMosaic, value: 'mosaic' },
-                        ]}
-                    />
-                )}
+                <SegmentedControl
+                    size="xs"
+                    value={isMobile ? 'table' : viewMode}
+                    onChange={(value) => {
+                        if (value === 'mosaic') {
+                            handleMosaicClick();
+                        } else {
+                            setViewMode('table');
+                        }
+                    }}
+                    data={[
+                        { label: labels.viewTable, value: 'table' },
+                        { label: labels.viewMosaic, value: 'mosaic' },
+                    ]}
+                />
             </Group>
 
+            {/* Minified variant pending */}
+            {isMinifiedPending && (
+                <GeneratingPlaceholder message={labels.minifiedGenerating} />
+            )}
+
             {/* Table view */}
-            {(viewMode === 'table' || isMobile) && (
+            {!isMinifiedPending && (viewMode === 'table' || isMobile) && (
                 <CardTable groupedCards={activeCards} labels={labels} />
             )}
 
@@ -360,35 +417,43 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
                 </div>
             )}
 
-            {/* Mosaic fullscreen modal (mobile) */}
-            {hasMosaic && (
-                <Modal
-                    opened={mosaicModalOpen}
-                    onClose={() => setMosaicModalOpen(false)}
-                    fullScreen
-                    title={labels.mosaicAlt}
-                    styles={{
-                        body: {
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: 8,
-                            overflow: 'auto',
-                        },
-                        header: { backgroundColor: '#213568', color: 'white' },
-                        content: { backgroundColor: '#213568' },
-                    }}
-                >
-                    {activeMosaicUrl && (
-                        <img
-                            src={activeMosaicUrl}
-                            alt={labels.mosaicAlt}
-                            className="img-fluid"
-                            style={{ maxHeight: '90vh' }}
-                        />
-                    )}
-                </Modal>
+            {/* Mosaic view pending (desktop inline) */}
+            {isMosaicPending && !isMobile && !isMinifiedPending && (
+                <GeneratingPlaceholder message={labels.mosaicGenerating} />
             )}
+
+            {/* Mosaic fullscreen modal (mobile) */}
+            <Modal
+                opened={mosaicModalOpen}
+                onClose={() => setMosaicModalOpen(false)}
+                fullScreen
+                title={labels.mosaicAlt}
+                styles={{
+                    body: {
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 8,
+                        overflow: 'auto',
+                    },
+                    header: { backgroundColor: '#213568', color: 'white' },
+                    content: { backgroundColor: '#213568' },
+                }}
+            >
+                {activeMosaicUrl ? (
+                    <img
+                        src={activeMosaicUrl}
+                        alt={labels.mosaicAlt}
+                        className="img-fluid"
+                        style={{ maxHeight: '90vh' }}
+                    />
+                ) : (
+                    <div className="text-center py-5">
+                        <Loader size="sm" className="mb-2" color="white" />
+                        <Text size="sm" c="white">{labels.mosaicGenerating}</Text>
+                    </div>
+                )}
+            </Modal>
         </>
     );
 };

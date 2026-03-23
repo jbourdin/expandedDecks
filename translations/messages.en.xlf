@@ -8,6 +8,11 @@
                 <target>Dashboard</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_decks">
+                <source>app.nav.my_decks</source>
+                <target>My Decks</target>
+                <note>User dropdown menu link to own decks</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archetypes</target>
@@ -534,6 +539,22 @@
                 <source>app.deck.export_copied</source>
                 <target>Copied!</target>
             </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket">
+                <source>app.deck.export_copy_cardmarket</source>
+                <target>Copy for Cardmarket</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket_tooltip">
+                <source>app.deck.export_copy_cardmarket_tooltip</source>
+                <target>Copy card list for Cardmarket wishlist import (basic energies excluded)</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_generating">
+                <source>app.deck.mosaic_generating</source>
+                <target>The visual mosaic is being generated…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.minified_generating">
+                <source>app.deck.minified_generating</source>
+                <target>The minified list is being generated…</target>
+            </trans-unit>
             <trans-unit id="app.deck.view_toggle">
                 <source>app.deck.view_toggle</source>
                 <target>View mode</target>
@@ -634,6 +655,10 @@
                 <source>app.deck.no_results</source>
                 <target>No decks match your search criteria.</target>
                 <note>Empty state when catalog search returns nothing</note>
+            </trans-unit>
+            <trans-unit id="app.deck.not_public">
+                <source>app.deck.not_public</source>
+                <target>This deck is not public</target>
             </trans-unit>
             <trans-unit id="app.deck.owner_filter">
                 <source>app.deck.owner_filter</source>
@@ -2224,6 +2249,10 @@
                 <target>My profile</target>
                 <note>Profile page heading</note>
             </trans-unit>
+            <trans-unit id="app.profile.features_section">
+                <source>app.profile.features_section</source>
+                <target>Optional features</target>
+            </trans-unit>
             <trans-unit id="app.profile.save_button">
                 <source>app.profile.save_button</source>
                 <target>Save changes</target>
@@ -2290,6 +2319,10 @@
                 <source>app.form.label.timezone</source>
                 <target>Timezone</target>
                 <note>Form label for timezone selector</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.show_cardmarket_export">
+                <source>app.form.label.show_cardmarket_export</source>
+                <target>Show "Copy for Cardmarket" button on deck pages</target>
             </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>
@@ -3920,6 +3953,30 @@
             <trans-unit id="app.admin.technical.banned_cards.failed">
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.title">
+                <source>app.admin.technical.flush_reenrich.title</source>
+                <target>Flush &amp; Re-enrich All</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.description">
+                <source>app.admin.technical.flush_reenrich.description</source>
+                <target>Delete all card identities, printings, and enrichment data, then re-dispatch enrichment for every deck version. Use this after data model changes (e.g. new ability signature field).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.warning">
+                <source>app.admin.technical.flush_reenrich.warning</source>
+                <target>This action is destructive: all enrichment data will be deleted and re-generated from scratch. Card images and mosaics will be temporarily unavailable until workers complete.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.confirm">
+                <source>app.admin.technical.flush_reenrich.confirm</source>
+                <target>Are you sure? This will flush ALL enrichment data and re-enrich every deck version from scratch.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.button">
+                <source>app.admin.technical.flush_reenrich.button</source>
+                <target>Flush &amp; re-enrich all</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.success">
+                <source>app.admin.technical.flush_reenrich.success</source>
+                <target>All enrichment data flushed. Re-enrichment dispatched for %count% deck version(s).</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.title">
                 <source>app.admin.technical.flush.title</source>

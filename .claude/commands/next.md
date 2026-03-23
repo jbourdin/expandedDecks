@@ -1,44 +1,41 @@
 ---
 description: Recommend the next feature to implement based on roadmap priorities and dependencies
-allowed-tools: Read
+allowed-tools: Bash, Read, Grep
 ---
 
 # Next Feature Recommendation
 
-Analyze the project roadmap and feature list to recommend the next feature to implement.
+Query the GitHub Project board Kanban and recommend the highest-priority issue from the **"Next"** column.
 
 ## Instructions
 
-1. **Read `docs/roadmap.md`** and extract:
-   - The list of **completed feature IDs** from the "Completed Features" section
-   - All **remaining features** from each phase table (A through G), capturing: ID, Feature name, Priority, Depends on, and Phase letter
+1. **Fetch all items in the "Next" column** from the GitHub Project board (project #1, owner `jbourdin`):
 
-2. **Resolve actionable features** — a feature is **actionable** if ALL of its dependencies are already in the completed list (or the dependency column is `—`):
-   - Dependencies are comma-separated (e.g. `F4.2, F4.3, F3.4`) — ALL must be completed
-   - Dependencies with `/` are alternatives (e.g. `F5.6/F5.3`) — at least ONE must be completed
-   - Special dependencies like "All controllers" or "All state-changing actions" should be treated as **not yet met** (these are meta-dependencies that require human judgment)
+   ```bash
+   gh project item-list 1 --owner jbourdin --format json --limit 100
+   ```
 
-3. **Rank actionable features** using this sort order:
-   1. **Phase**: earlier phase first. Phases may be numbered or lettered — numbered phases (0, 1, 2, …) come before lettered phases (A, B, C, …), and each group is sorted naturally (0 < 1 < 2 < … < A < B < C < …)
-   2. **Priority**: High > Medium > Low
-   3. **Feature ID**: lower number first (F1.x before F2.x, then F1.1 before F1.2)
+   Filter to items where `status == "Next"` and `content.type == "Issue"`.
 
-   **Exception — blocked-blocking promotion:** if a feature in a later phase **blocks** a feature in an earlier phase (i.e., the earlier-phase feature depends on it), promote the blocking feature to the rank of the earliest phase it unblocks. This ensures dependency chains are resolved in the order needed by the phase roadmap.
+2. **Rank the issues** using this sort order:
+   1. **Priority label**: `priority: high` > `priority: medium` > `priority: low` > unlabelled
+   2. **Milestone phase**: earlier phase first (Phase A before Phase B, etc.)
+   3. **Issue number**: lower number first (older issues first)
 
-4. **Read `docs/features.md`** and retrieve the full description for:
+3. **Read `docs/features.md`** and retrieve the full feature description for:
    - The **top recommendation** (rank #1)
-   - The next **2–3 runner-ups**
+   - The next **2–3 runner-ups** (if any exist in the Next column)
 
-5. **Present the results** in this format:
+4. **Present the results** in this format:
 
 ---
 
 ### 🎯 Recommended Next Feature
 
-**[Feature ID] — [Feature Name]**
-- **Phase:** [Phase letter] — [Phase name]
+**[Feature ID] — [Feature Name]** (issue #[number])
 - **Priority:** [High/Medium/Low]
-- **Dependencies:** [list or "None"]
+- **Milestone:** [Phase name]
+- **GitHub issue:** [URL]
 
 **Full description from features.md:**
 > [paste the full feature description here]
@@ -47,17 +44,21 @@ Analyze the project roadmap and feature list to recommend the next feature to im
 
 ### Runner-ups
 
-For each runner-up (2–3), show:
+For each runner-up (up to 3), show:
 
-| Rank | ID | Feature | Phase | Priority | Dependencies |
-|------|----|---------|-------|----------|-------------|
-| 2 | ... | ... | ... | ... | ... |
-| 3 | ... | ... | ... | ... | ... |
+| Rank | Issue | Feature | Priority | Milestone |
+|------|-------|---------|----------|-----------|
+| 2    | #...  | ...     | ...      | ...       |
+| 3    | #...  | ...     | ...      | ...       |
 
 Include a one-line summary of each runner-up from features.md.
 
 ---
 
-### Blocked Features
+5. If the **"Next" column is empty**, say so and suggest the user triage issues from the Backlog column into Next.
 
-List any features that are **not yet actionable** because their dependencies are incomplete. Group by what's blocking them (i.e., which missing dependency). Only include features whose dependencies are partially met (at least one dep completed) — skip features that are deeply blocked.
+6. **When the user picks a feature to start**, move the issue to the **"In Progress"** column on the project board:
+
+   ```bash
+   gh project item-edit --project-id PVT_kwHOABmPPc4BSa9t --id <ITEM_ID> --field-id PVTSSF_lAHOABmPPc4BSa9tzg_9eC4 --single-select-option-id 9c44dd90
+   ```

@@ -80,6 +80,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_deck_list', {owner: app.user.id}) }}">{{ 'app.nav.my_decks'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_profile_edit') }}">{{ 'app.nav.profile'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_profile_notifications') }}">{{ 'app.nav.notifications'|trans }}</a></li>
                                     {% if is_granted('ROLE_ADMIN') %}

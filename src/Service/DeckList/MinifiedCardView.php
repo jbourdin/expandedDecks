@@ -30,6 +30,8 @@ readonly class MinifiedCardView
         private string $cardType,
         private ?string $trainerSubtype,
         private ?string $imageUrl,
+        private string $abilityNames = '',
+        private string $attackNames = '',
     ) {
     }
 
@@ -66,5 +68,15 @@ readonly class MinifiedCardView
     public function getImageUrl(): ?string
     {
         return $this->imageUrl;
+    }
+
+    public function getAbilityNames(): string
+    {
+        return $this->abilityNames;
+    }
+
+    public function getAttackNames(): string
+    {
+        return $this->attackNames;
     }
 }

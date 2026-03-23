@@ -48,6 +48,7 @@
 - [Localization](technicalities/localization.md) — Locale detection, timezone handling, translation infrastructure
 - [Deck Mosaic](technicalities/mosaic.md) — Server-generated card mosaic image (GD, Flysystem, S3)
 - [Card Enrichment](technicalities/enrichment.md) — TCGdex enrichment pipeline, card identity model, minified export
+- [Cardmarket Export](technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
 - [Basic Energy Images](technicalities/basic_energy_images.md) — Image sources for basic energy cards (MEE, SVE, NRG, all eras)
 - [TCGdex Known Issues](technicalities/tcgdex_known_issues.md) — Data quality issues and workarounds
 

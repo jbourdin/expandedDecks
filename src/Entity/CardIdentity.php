@@ -21,13 +21,13 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Groups all printings of the same functional card across sets.
  *
- * For Pokemon: identity = name + HP + attack signature (sorted attack names).
- * For Trainers/Energy: identity = name only (hp=0, attackSignature='').
+ * For Pokemon: identity = name + HP + ability signature + attack signature.
+ * For Trainers/Energy: identity = name only (hp=0, abilitySignature='', attackSignature='').
  *
  * @see docs/features.md F6.10 — Card identity and printing model
  */
 #[ORM\Entity(repositoryClass: CardIdentityRepository::class)]
-#[ORM\UniqueConstraint(name: 'uniq_card_identity', columns: ['name', 'category', 'hp', 'attack_signature'])]
+#[ORM\UniqueConstraint(name: 'uniq_card_identity', columns: ['name', 'category', 'hp', 'ability_signature', 'attack_signature'])]
 class CardIdentity
 {
     #[ORM\Id]
@@ -45,9 +45,21 @@ class CardIdentity
     #[ORM\Column]
     private int $hp = 0;
 
+    /** Sorted comma-joined ability names. Empty string for non-Pokemon cards. */
+    #[ORM\Column(length: 255)]
+    private string $abilitySignature = '';
+
+    /** Comma-joined ability names in original card order (for Cardmarket export). */
+    #[ORM\Column(length: 255)]
+    private string $abilityNames = '';
+
     /** Sorted comma-joined attack names. Empty string for non-Pokemon cards. */
-    #[ORM\Column(length: 500)]
+    #[ORM\Column(length: 255)]
     private string $attackSignature = '';
+
+    /** Comma-joined attack names in original card order (for Cardmarket export). */
+    #[ORM\Column(length: 255)]
+    private string $attackNames = '';
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -103,6 +115,30 @@ class CardIdentity
         return $this;
     }
 
+    public function getAbilitySignature(): string
+    {
+        return $this->abilitySignature;
+    }
+
+    public function setAbilitySignature(string $abilitySignature): static
+    {
+        $this->abilitySignature = $abilitySignature;
+
+        return $this;
+    }
+
+    public function getAbilityNames(): string
+    {
+        return $this->abilityNames;
+    }
+
+    public function setAbilityNames(string $abilityNames): static
+    {
+        $this->abilityNames = $abilityNames;
+
+        return $this;
+    }
+
     public function getAttackSignature(): string
     {
         return $this->attackSignature;
@@ -111,6 +147,18 @@ class CardIdentity
     public function setAttackSignature(string $attackSignature): static
     {
         $this->attackSignature = $attackSignature;
+
+        return $this;
+    }
+
+    public function getAttackNames(): string
+    {
+        return $this->attackNames;
+    }
+
+    public function setAttackNames(string $attackNames): static
+    {
+        $this->attackNames = $attackNames;
 
         return $this;
     }

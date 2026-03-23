@@ -96,7 +96,7 @@ class MinifiedCardViewBuilder
      */
     private function buildMergedCards(DeckVersion $version): array
     {
-        /** @var array<string, array{name: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string, imageUrl: ?string}> $merged */
+        /** @var array<string, array{name: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string, imageUrl: ?string, abilityNames: string, attackNames: string}> $merged */
         $merged = [];
 
         foreach ($version->getCards() as $card) {
@@ -121,6 +121,8 @@ class MinifiedCardViewBuilder
                 $entry['cardType'],
                 $entry['trainerSubtype'],
                 $entry['imageUrl'],
+                $entry['abilityNames'],
+                $entry['attackNames'],
             );
         }
 
@@ -128,10 +130,12 @@ class MinifiedCardViewBuilder
     }
 
     /**
-     * @return array{name: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string, imageUrl: ?string}
+     * @return array{name: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: ?string, imageUrl: ?string, abilityNames: string, attackNames: string}
      */
     private function resolveMinifiedCard(DeckCard $card): array
     {
+        $identitySignatures = $this->resolveIdentitySignatures($card);
+
         // Static overrides for known TCGdex data issues
         $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
         $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
@@ -145,6 +149,7 @@ class MinifiedCardViewBuilder
                 'cardType' => $card->getCardType(),
                 'trainerSubtype' => $card->getTrainerSubtype(),
                 'imageUrl' => $override['imageUrl'],
+                ...$identitySignatures,
             ];
         }
 
@@ -160,6 +165,7 @@ class MinifiedCardViewBuilder
                 'cardType' => $card->getCardType(),
                 'trainerSubtype' => $card->getTrainerSubtype(),
                 'imageUrl' => $energyDefault['imageUrl'],
+                ...$identitySignatures,
             ];
         }
 
@@ -171,6 +177,7 @@ class MinifiedCardViewBuilder
             'cardType' => $card->getCardType(),
             'trainerSubtype' => $card->getTrainerSubtype(),
             'imageUrl' => $card->getImageUrl(),
+            ...$identitySignatures,
         ];
 
         $printing = $card->getCardPrinting();
@@ -205,6 +212,26 @@ class MinifiedCardViewBuilder
             'cardType' => $card->getCardType(),
             'trainerSubtype' => $card->getTrainerSubtype(),
             'imageUrl' => $bestPrinting->getImageUrl(),
+            ...$identitySignatures,
+        ];
+    }
+
+    /**
+     * @return array{abilityNames: string, attackNames: string}
+     */
+    private function resolveIdentitySignatures(DeckCard $card): array
+    {
+        $printing = $card->getCardPrinting();
+
+        if (null === $printing) {
+            return ['abilityNames' => '', 'attackNames' => ''];
+        }
+
+        $identity = $printing->getCardIdentity();
+
+        return [
+            'abilityNames' => $identity->getAbilityNames(),
+            'attackNames' => $identity->getAttackNames(),
         ];
     }
 }

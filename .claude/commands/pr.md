@@ -92,7 +92,24 @@ EOF
 )"
 ```
 
-### 5. Report result
+### 5. Move linked issues to "Awaiting Validation"
+
+If the PR body contains `Closes #<number>` or `Fixes #<number>` references, move each linked issue to the **"Awaiting Validation"** column on the project board:
+
+1. Fetch the project item ID for the issue:
+   ```bash
+   gh project item-list 1 --owner jbourdin --format json --limit 100
+   ```
+   Find the item where `content.number` matches the issue number.
+
+2. Update its status to "Awaiting Validation":
+   ```bash
+   gh project item-edit --project-id PVT_kwHOABmPPc4BSa9t --id <ITEM_ID> --field-id PVTSSF_lAHOABmPPc4BSa9tzg_9eC4 --single-select-option-id fc347211
+   ```
+
+If no issue references are found in the PR body, skip this step.
+
+### 6. Report result
 
 Print the PR URL so the user can review it.
 

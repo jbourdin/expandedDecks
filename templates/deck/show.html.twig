@@ -298,10 +298,13 @@
         <div id="deck-card-list-root"
              data-original-cards="{{ _self.serializeCards(groupedCards)|trim }}"
              data-minified-cards="{{ _self.serializeCards(minifiedGroupedCards)|trim }}"
-             data-mosaic-url="{{ deck.currentVersion.mosaicImageUrl }}"
-             data-minified-mosaic-url="{{ deck.currentVersion.minifiedMosaicImageUrl }}"
+             data-mosaic-url="{{ deck.currentVersion.mosaicImageUrl is not null ? deck.currentVersion.mosaicImageUrl : '' }}"
+             data-mosaic-url-null="{{ deck.currentVersion.mosaicImageUrl is null ? '1' : '' }}"
+             data-minified-mosaic-url="{{ deck.currentVersion.minifiedMosaicImageUrl is not null ? deck.currentVersion.minifiedMosaicImageUrl : '' }}"
+             data-minified-mosaic-url-null="{{ deck.currentVersion.minifiedMosaicImageUrl is null ? '1' : '' }}"
              data-raw-list="{{ formattedOriginalList|e('html_attr') }}"
-             data-minified-list="{{ deck.currentVersion.minifiedList|e('html_attr') }}"
+             data-minified-list="{{ deck.currentVersion.minifiedList is not null ? deck.currentVersion.minifiedList|e('html_attr') : '' }}"
+             data-minified-list-null="{{ deck.currentVersion.minifiedList is null ? '1' : '' }}"
              data-deck-name="{{ deck.name }}"
              data-label-variant-original="{{ 'app.deck.variant_original'|trans }}"
              data-label-variant-minified="{{ 'app.deck.variant_minified'|trans }}"
@@ -318,7 +321,12 @@
              data-label-table-card="{{ 'app.deck.table_card'|trans }}"
              data-label-table-set="{{ 'app.deck.table_set'|trans }}"
              data-label-name-match-warning-title="{{ 'app.deck.name_match_warning_title'|trans }}"
-             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}">
+             data-label-name-match-warning-body="{{ 'app.deck.name_match_warning_body'|trans }}"
+             data-cardmarket-wishlist="{{ cardmarketWishlist is not null ? cardmarketWishlist|e('html_attr') : '' }}"
+             data-label-copy-cardmarket="{{ 'app.deck.export_copy_cardmarket'|trans }}"
+             data-label-copy-cardmarket-tooltip="{{ 'app.deck.export_copy_cardmarket_tooltip'|trans }}"
+             data-label-mosaic-generating="{{ 'app.deck.mosaic_generating'|trans }}"
+             data-label-minified-generating="{{ 'app.deck.minified_generating'|trans }}">
         </div>
     {% else %}
         <div class="card shadow-sm">

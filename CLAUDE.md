@@ -216,6 +216,21 @@ make test          # Run test suite
 6. Back-merge `main` into `develop`
 7. Delete the release branch
 
+### Project Tracking
+
+The project uses a [GitHub Project board](https://github.com/users/jbourdin/projects/1) with Kanban columns (Backlog → Next → In Progress → Awaiting Validation → Testing → Ready for Release → Done). When implementing a feature or fix:
+
+1. **Move the issue** to "In Progress" when work starts
+2. **Update code and documentation** in the same PR (docs must stay in sync)
+3. **Move the issue** to "Awaiting Validation" when the PR is pushed and awaiting CI and code review
+4. **Move the issue** to "Testing" when the PR is merged and awaiting manual verification
+5. **Move the issue** to "Ready for Release" when the user confirms the feature works
+6. **Move the issue** to "Done" only when the release containing it is published
+
+When creating new features or backlog items, create a GitHub issue with the feature ID, assign it to the correct milestone, and add it to the project board.
+
+**Board ordering:** items within each column are manually sorted by **milestone** (Phase A first, then B, C, … J, then no milestone) and then by **priority** (high → medium → low) within a milestone. When adding or moving an issue, place it at the correct position using the `updateProjectV2ItemPosition` GraphQL mutation (`afterId: null` for first position, or `afterId: "<previous-item-id>"` to insert after a specific item).
+
 ## Make Commands
 
 > **CRITICAL: Always use `make` targets instead of running underlying commands directly.** The Makefile wraps `symfony`, `npx`, and other tools with the correct flags and environment. Running raw commands (e.g. `npx encore dev`) may produce builds or results that the dev server does not pick up.
@@ -318,7 +333,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 **Features & Planning**
 - [docs/features.md](docs/features.md) — Full feature catalogue with IDs and priorities
-- [docs/roadmap.md](docs/roadmap.md) — Implementation roadmap across 12 phases
+- [docs/roadmap.md](docs/roadmap.md) — Roadmap overview with links to the GitHub Project board
 - [docs/changelog.md](docs/changelog.md) — Release history with implemented features per version
 
 **Deployment**
@@ -349,6 +364,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/pdf_label.md](docs/technicalities/pdf_label.md) — PDF label card generation
 - [docs/technicalities/mosaic.md](docs/technicalities/mosaic.md) — Server-generated deck mosaic image (GD, Flysystem)
 - [docs/technicalities/enrichment.md](docs/technicalities/enrichment.md) — TCGdex enrichment, card identity model, minified export
+- [docs/technicalities/cardmarket_export.md](docs/technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
 
 ### Documentation Rules
 
@@ -360,15 +376,14 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 ### Roadmap & Changelog Maintenance
 
-- `docs/roadmap.md` **MUST** be updated in the same PR when a feature's state changes (Not started → Partial → Done)
-- Update the per-phase progress line and Summary table counts accordingly
+- Feature status is tracked on the [GitHub Project board](https://github.com/users/jbourdin/projects/1) — move issues between columns (Backlog → Next → In Progress → Awaiting Validation → Testing → Ready for Release → Done) instead of editing `docs/roadmap.md`
 - `docs/changelog.md` entry is required for every tagged release
 
 ## Slash Commands
 
 | Command       | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|
-| `/next`       | Recommend the next feature to implement based on roadmap priorities         |
+| `/next`       | Recommend the next feature from the project board's "Next" column          |
 | `/pr`         | Commit, push, and create or update the Pull Request for the current branch  |
 | `/ci`         | Watch CI until green then merge, or investigate failures and propose fixes  |
 | `/cover-pr`   | Analyze test coverage of added/modified lines in the current PR             |

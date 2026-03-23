@@ -15,6 +15,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
@@ -53,6 +54,10 @@ class ProfileFormType extends AbstractType
             ])
             ->add('timezone', TimezoneType::class, [
                 'label' => 'app.form.label.timezone',
+            ])
+            ->add('showCardmarketExport', CheckboxType::class, [
+                'label' => 'app.form.label.show_cardmarket_export',
+                'required' => false,
             ]);
     }
 

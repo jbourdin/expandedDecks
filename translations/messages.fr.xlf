@@ -8,6 +8,11 @@
                 <target>Tableau de bord</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_decks">
+                <source>app.nav.my_decks</source>
+                <target>Mes Decks</target>
+                <note>User dropdown menu link to own decks</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archétypes</target>
@@ -534,6 +539,22 @@
                 <source>app.deck.export_copied</source>
                 <target>Copié !</target>
             </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket">
+                <source>app.deck.export_copy_cardmarket</source>
+                <target>Copier pour Cardmarket</target>
+            </trans-unit>
+            <trans-unit id="app.deck.export_copy_cardmarket_tooltip">
+                <source>app.deck.export_copy_cardmarket_tooltip</source>
+                <target>Copier la liste pour import dans les recherches Cardmarket (énergies de base exclues)</target>
+            </trans-unit>
+            <trans-unit id="app.deck.mosaic_generating">
+                <source>app.deck.mosaic_generating</source>
+                <target>La mosaïque visuelle est en cours de génération…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.minified_generating">
+                <source>app.deck.minified_generating</source>
+                <target>La liste simplifiée est en cours de génération…</target>
+            </trans-unit>
             <trans-unit id="app.deck.view_toggle">
                 <source>app.deck.view_toggle</source>
                 <target>Mode d'affichage</target>
@@ -634,6 +655,10 @@
                 <source>app.deck.no_results</source>
                 <target>Aucun deck ne correspond à vos critères de recherche.</target>
                 <note>Empty state when catalog search returns nothing</note>
+            </trans-unit>
+            <trans-unit id="app.deck.not_public">
+                <source>app.deck.not_public</source>
+                <target>Ce deck n'est pas public</target>
             </trans-unit>
             <trans-unit id="app.deck.owner_filter">
                 <source>app.deck.owner_filter</source>
@@ -2224,6 +2249,10 @@
                 <target>Mon profil</target>
                 <note>Profile page heading</note>
             </trans-unit>
+            <trans-unit id="app.profile.features_section">
+                <source>app.profile.features_section</source>
+                <target>Fonctionnalités optionnelles</target>
+            </trans-unit>
             <trans-unit id="app.profile.save_button">
                 <source>app.profile.save_button</source>
                 <target>Enregistrer</target>
@@ -2290,6 +2319,10 @@
                 <source>app.form.label.timezone</source>
                 <target>Fuseau horaire</target>
                 <note>Form label for timezone selector</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.show_cardmarket_export">
+                <source>app.form.label.show_cardmarket_export</source>
+                <target>Afficher le bouton « Copier pour Cardmarket » sur les pages de deck</target>
             </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>
@@ -3920,6 +3953,30 @@
             <trans-unit id="app.admin.technical.banned_cards.failed">
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.title">
+                <source>app.admin.technical.flush_reenrich.title</source>
+                <target>Purger et ré-enrichir tout</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.description">
+                <source>app.admin.technical.flush_reenrich.description</source>
+                <target>Supprimer toutes les identités de cartes, impressions et données d'enrichissement, puis relancer l'enrichissement pour chaque version de deck. À utiliser après un changement de modèle de données.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.warning">
+                <source>app.admin.technical.flush_reenrich.warning</source>
+                <target>Cette action est destructrice : toutes les données d'enrichissement seront supprimées et régénérées de zéro. Les images et mosaïques seront temporairement indisponibles.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.confirm">
+                <source>app.admin.technical.flush_reenrich.confirm</source>
+                <target>Êtes-vous sûr ? Toutes les données d'enrichissement seront purgées et chaque version de deck sera ré-enrichie de zéro.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.button">
+                <source>app.admin.technical.flush_reenrich.button</source>
+                <target>Purger et ré-enrichir tout</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.flush_reenrich.success">
+                <source>app.admin.technical.flush_reenrich.success</source>
+                <target>Données d'enrichissement purgées. Ré-enrichissement lancé pour %count% version(s) de deck.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.title">
                 <source>app.admin.technical.flush.title</source>
