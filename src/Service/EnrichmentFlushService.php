@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
  * Flushes all enrichment-derived data, resetting deck versions to pre-enrichment state.
  *
  * Clears: DeckCard enrichment fields (tcgdexId, imageUrl, trainerSubtype, cardPrinting),
- * DeckVersion generated fields (enrichmentStatus, mosaicImageUrl, minifiedList, minifiedMosaicImageUrl),
+ * DeckVersion generated fields (enrichmentStatus, mosaicImageUrl, minifiedList, minifiedCardViews, minifiedMosaicImageUrl),
  * all CardPrinting and CardIdentity records, and all mosaic image files from storage.
  */
 class EnrichmentFlushService
@@ -42,7 +42,7 @@ class EnrichmentFlushService
 
         // 2. Reset DeckVersion generated fields
         $this->connection->executeStatement(
-            "UPDATE deck_version SET enrichment_status = 'pending', mosaic_image_url = NULL, minified_list = NULL, minified_mosaic_image_url = NULL",
+            "UPDATE deck_version SET enrichment_status = 'pending', mosaic_image_url = NULL, minified_list = NULL, minified_card_views = NULL, minified_mosaic_image_url = NULL",
         );
 
         // 3. Delete all CardPrinting records (FK to CardIdentity)

@@ -75,7 +75,11 @@ A **card list snapshot** — one point-in-time version of a deck. Created when t
 | `estimatedValueAmount`   | `int`        | Yes      | Owner-provided estimated monetary value in cents of the currency. Visible to the owner, organizers, and event staff. |
 | `estimatedValueCurrency` | `string(3)`  | Yes      | ISO 4217 currency code (e.g. `"EUR"`, `"USD"`). Required when `estimatedValueAmount` is set. |
 | `rawList`          | `text`             | Yes      | The original PTCG text format pasted by the owner. Preserved for reference and re-import. |
-| `enrichmentStatus` | `string(20)`       | No       | TCGdex card enrichment status: `"pending"`, `"enriched"`, or `"failed"`. Default: `"pending"`. Tracks whether the async enrichment pipeline (F6.2) has processed this version's cards. |
+| `enrichmentStatus` | `string(20)`       | No       | TCGdex card enrichment status: `"pending"`, `"enriching"`, `"done"`, or `"failed"`. Default: `"pending"`. Tracks whether the async enrichment pipeline (F6.2) has processed this version's cards. |
+| `mosaicImageUrl`   | `string(512)`      | Yes      | URL path of the generated deck mosaic image (e.g. `/mosaic/AB3K7N/5.png`). |
+| `minifiedList`     | `text`             | Yes      | PTCGL-format minified deck list text (budget printings). Generated async by `GenerateMinifiedListHandler`. |
+| `minifiedCardViews` | `text`            | Yes      | Pre-computed JSON of grouped `MinifiedCardView` objects. Generated alongside `minifiedList`. Used by `DeckShowController` and `CardmarketWishlistFormatter` to avoid runtime computation. |
+| `minifiedMosaicImageUrl` | `string(512)` | Yes     | URL path of the generated minified mosaic image (e.g. `/mosaic/AB3K7N/5_minified.png`). |
 | `createdAt`        | `DateTimeImmutable` | No      | When this version was created. |
 
 ### Constraints

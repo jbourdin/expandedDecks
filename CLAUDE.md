@@ -311,7 +311,7 @@ Symfony Messenger with domain-separated transports (see `config/packages/messeng
 | Transport            | Queue               | Messages                                             |
 |----------------------|---------------------|------------------------------------------------------|
 | `transactional_email`| `transactionalEmail`| `SendEmailMessage` (Symfony Mailer)                  |
-| `deck_enrichment`    | `deck_enrichment`   | `EnrichDeckVersionMessage` (TCGdex card enrichment)  |
+| `deck_enrichment`    | `deck_enrichment`   | `EnrichDeckVersionMessage`, `BuildSetMappingsMessage`, `GenerateDeckMosaicMessage`, `GenerateMinifiedListMessage`, `GenerateMinifiedMosaicMessage` |
 | `notification`       | `notification`      | `ChatMessage`, `SmsMessage` (Symfony Notifier)       |
 | `borrow_lifecycle`   | `borrow_lifecycle`  | `DeclineCompetingBorrowsMessage`, `CancelEventBorrowsMessage` |
 
