@@ -16,6 +16,31 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0-beta.12] — 2026-03-23
+
+Twelfth beta — persistent TCGdex set mappings in MySQL replacing APCu cache, async build via Messenger, admin rebuild button, and Supervisor worker tuning.
+
+### Bug Fixes
+
+- **EXPANDEDDECKS-J** — Fixed production timeout on `/deck/{short_tag}` where `buildReverseSetMapping()` fired 100+ concurrent HTTP requests to TCGdex during an APCu cache miss, exceeding PHP's 30s `max_execution_time`. Set mappings are now persistent in MySQL, built asynchronously via a Messenger worker, and only wiped by explicit admin action.
+
+### Administration
+
+- **TCGdex Set Mappings card** on the technical dashboard: shows current mapping count (or "empty" badge) and a rebuild button that wipes the table and re-dispatches the async build.
+
+### Infrastructure
+
+- New `TcgdexSetMapping` Doctrine entity and repository (`tcgdex_set_mapping` table).
+- `BuildSetMappingsMessage` / `BuildSetMappingsHandler` on the `deck_enrichment` transport.
+- Scoped HTTP client `tcgdex.client` with base URI and 10s timeout.
+- Added `--sleep=20` to all four Supervisor Messenger worker commands to reduce idle CPU usage.
+
+### Testing & Quality
+
+- Updated `TcgdexApiClientTest` and `TcgdexApiClientCoverageTest` for repository-based set mappings — replaced API-mocking helpers with repository stubs.
+
+---
+
 ## [1.0.0-beta.11] — 2026-03-23
 
 Eleventh beta — Cardmarket wishlist export rework (ability/attack-based format), pending state placeholders for async deck views, "My Decks" shortcut, and flush & re-enrich admin action.
