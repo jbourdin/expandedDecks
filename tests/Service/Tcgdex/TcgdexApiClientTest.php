@@ -59,6 +59,53 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame('swshp', $mapping['PR-SW']);
     }
 
+    public function testGetSetMappingIncludesPtcgoShortPromoCodes(): void
+    {
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardMapping')->willReturn([]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $mapping = $client->getSetMapping();
+
+        // PTCGO short codes map to the same TCGdex IDs as the PR-XX codes
+        self::assertSame('svp', $mapping['SVP']);
+        self::assertSame('swshp', $mapping['SWP']);
+        self::assertSame('smp', $mapping['SMP']);
+        self::assertSame('xyp', $mapping['XYP']);
+        self::assertSame('bwp', $mapping['BWP']);
+
+        // Verify consistency: short codes and PR-XX codes resolve to the same TCGdex ID
+        self::assertSame($mapping['PR-SV'], $mapping['SVP']);
+        self::assertSame($mapping['PR-SW'], $mapping['SWP']);
+        self::assertSame($mapping['PR-SM'], $mapping['SMP']);
+        self::assertSame($mapping['PR-XY'], $mapping['XYP']);
+        self::assertSame($mapping['PR-BW'], $mapping['BWP']);
+    }
+
+    public function testFindCardResolvesPtcgoShortPromoCode(): void
+    {
+        // SMP 217 (Trevenant & Dusknoir-GX) should resolve to smp-SM217
+        $httpClient = $this->createCardMockClient([
+            'smp-SM217' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'smp-SM217',
+                    'name' => 'Trevenant & Dusknoir GX',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/sm/smp/SM217',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $card = $client->findCard('SMP', '217');
+
+        self::assertNotNull($card);
+        self::assertSame('smp-SM217', $card->id);
+    }
+
     public function testGetSetMappingReadsFromRepository(): void
     {
         $repository = $this->createStub(TcgdexSetMappingRepository::class);
