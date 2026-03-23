@@ -11,3 +11,8 @@ services:
         autowire: true
         arguments:
             $tcgdexClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
+
+    App\MessageHandler\BuildSetMappingsHandler:
+        autowire: true
+        arguments:
+            $tcgdexClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'

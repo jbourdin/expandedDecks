@@ -29,6 +29,7 @@ use App\Entity\MenuCategoryTranslation;
 use App\Entity\Notification;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
+use App\Entity\TcgdexSetMapping;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
@@ -168,6 +169,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
+        $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
     }
@@ -1969,6 +1971,16 @@ PTCG;
             if (isset($overrides[$card['name']])) {
                 $card['quantity'] = $overrides[$card['name']];
             }
+        }
+    }
+
+    private function createTcgdexSetMappings(ObjectManager $manager): void
+    {
+        /** @var array<string, string> $mappings */
+        $mappings = require __DIR__.'/data/tcgdex_set_mappings.php';
+
+        foreach ($mappings as $tcgdexSetId => $ptcgCode) {
+            $manager->persist(new TcgdexSetMapping($tcgdexSetId, $ptcgCode));
         }
     }
 }

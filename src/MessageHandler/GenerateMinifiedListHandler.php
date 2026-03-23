@@ -14,11 +14,15 @@ declare(strict_types=1);
 namespace App\MessageHandler;
 
 use App\Message\GenerateMinifiedListMessage;
+use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\DeckVersionRepository;
+use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\MinifiedListGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @see docs/features.md F6.8 — Minified deck list export
@@ -28,8 +32,10 @@ class GenerateMinifiedListHandler
 {
     public function __construct(
         private readonly MinifiedListGenerator $listGenerator,
+        private readonly MinifiedCardViewBuilder $cardViewBuilder,
         private readonly DeckVersionRepository $versionRepo,
         private readonly EntityManagerInterface $entityManager,
+        private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -57,9 +63,16 @@ class GenerateMinifiedListHandler
         try {
             $minifiedList = $this->listGenerator->generate($version);
             $version->setMinifiedList($minifiedList);
+
+            $groupedCardViews = $this->cardViewBuilder->buildGrouped($version);
+            $version->setMinifiedCardViews(MinifiedCardView::serializeGrouped($groupedCardViews));
+
             $this->entityManager->flush();
 
-            $this->logger->info('Minified list generated for DeckVersion #{id}.', [
+            // Dispatch minified mosaic now that CardPrinting rows are populated
+            $this->messageBus->dispatch(new GenerateMinifiedMosaicMessage($message->deckVersionId));
+
+            $this->logger->info('Minified list and card views generated for DeckVersion #{id}.', [
                 'id' => $message->deckVersionId,
             ]);
         } catch (\Throwable $exception) {

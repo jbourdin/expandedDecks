@@ -39,10 +39,12 @@ EnrichDeckVersionHandler
     ├── Sets DeckVersion.enrichmentStatus = 'done' (or 'failed' on exception)
     │
     ▼  (if status = 'done')
-Three downstream messages dispatched in parallel:
+Downstream messages dispatched (chained, not parallel):
     ├── GenerateDeckMosaicMessage     → renders the card mosaic image (see mosaic.md)
-    ├── GenerateMinifiedListMessage   → generates the budget PTCGL text export
-    └── GenerateMinifiedMosaicMessage → renders the minified (budget) mosaic image
+    └── GenerateMinifiedListMessage   → generates PTCGL text + pre-computed card views JSON
+                                          │
+                                          ▼  (after CardPrinting rows populated)
+                                       GenerateMinifiedMosaicMessage → renders minified mosaic
 ```
 
 ### Enrichment Status
@@ -80,18 +82,22 @@ Section headers (`Pokémon:`, `Trainer:`, `Energy:`) in the imported deck list a
 
 ### Set Mapping
 
-PTCG deck lists use set codes (e.g. `ASR`, `SVI`) that differ from TCGdex's internal set IDs. The client builds a bidirectional mapping:
+PTCG deck lists use set codes (e.g. `ASR`, `SVI`) that differ from TCGdex's internal set IDs. The client reads a bidirectional mapping from the database (`TcgdexSetMapping` entity):
 
 1. **Forward mapping** (`getSetMapping()`): PTCG code → TCGdex set ID
-   - Fetches all sets from `/sets`, then each set's detail concurrently to read `tcgOnline` and `abbreviation.official`
-   - `tcgOnline` takes precedence over `abbreviation.official` when both exist
-   - Cached for 24 hours
+   - Reads from `tcgdex_set_mapping` table, merged with static overrides
+   - No cache expiration — mappings persist until explicitly rebuilt
 
 2. **Reverse mapping** (`getReverseSetMapping()`): TCGdex set ID → PTCG code
-   - Built separately (not `array_flip`) because multiple PTCG codes can map to the same TCGdex set ID (e.g. both `NXD` and `NEX` → `bw4`)
-   - **Prefers `tcgOnline` codes** (PTCGL-compatible, e.g. `NXD`) over `abbreviation.official` (e.g. `NEX`): official is set first as fallback, then `tcgOnline` overwrites
-   - This ensures the minified export outputs set codes accepted by PTCGL and Limitless
-   - Cached for 24 hours (cache key `tcgdex.reverse_set_mapping.v2`)
+   - Reads from `tcgdex_set_mapping` table (reverse direction), merged with flipped static overrides
+   - Multiple PTCG codes can map to the same TCGdex set ID (e.g. both `NXD` and `NEX` → `bw4`)
+   - **Prefers `tcgOnline` codes** (PTCGL-compatible) over `abbreviation.official`
+
+3. **Building mappings**: `BuildSetMappingsMessage` dispatched to `deck_enrichment` transport
+   - `BuildSetMappingsHandler` fetches all sets from TCGdex `/sets` API concurrently
+   - Wipes and repopulates the `tcgdex_set_mapping` table
+   - Triggered only by explicit admin action (rebuild button on technical dashboard)
+   - Mappings are also seeded by `DevFixtures` for dev/test environments
 
 ### Static Overrides
 
@@ -99,11 +105,16 @@ Some PTCG codes have no match in TCGdex metadata and are hardcoded:
 
 | PTCG Code | TCGdex ID | Reason                                      |
 |-----------|-----------|---------------------------------------------|
-| `PR-SV`   | `svp`     | Promo sets use `PR-XX` pattern in PTCG      |
+| `PR-SV`   | `svp`     | Promo sets use `PR-XX` pattern in PTCGL     |
 | `PR-SW`   | `swshp`   | Same                                        |
 | `PR-SM`   | `smp`     | Same                                        |
 | `PR-XY`   | `xyp`     | Same                                        |
 | `PR-BW`   | `bwp`     | Same                                        |
+| `SVP`     | `svp`     | PTCGO (older client) short promo code       |
+| `SWP`     | `swshp`   | Same                                        |
+| `SMP`     | `smp`     | Same                                        |
+| `XYP`     | `xyp`     | Same                                        |
+| `BWP`     | `bwp`     | Same                                        |
 | `SVI`     | `sv01`    | PTCG Live uses `SVI`, TCGdex uses `sv01`    |
 
 ### Promo Card Number Prefixes
@@ -204,9 +215,11 @@ Represents a specific physical printing of a card in a particular set:
 2. Find or create a `CardIdentity` by signature lookup
 3. Create and persist a new `CardPrinting` linked to the identity
 
-### Lazy Printing Expansion
+### Printing Expansion
 
-`CardIdentityResolver.expandPrintings()` is called lazily by the minified export when an identity has only one printing. It fetches all printings from TCGdex by name, filters to exact name matches, and for Pokemon cards additionally verifies that HP and attack signature match before creating new `CardPrinting` records. This populates the full printing catalog so the minified export can pick the cheapest.
+`CardIdentityResolver.expandPrintings()` fetches all printings from TCGdex by name, filters to exact name matches, and for Pokemon cards additionally verifies that HP and attack signature match before creating new `CardPrinting` records. This populates the full printing catalog so the minified export can pick the cheapest.
+
+Expansion is called during the async enrichment pipeline only (by `MinifiedListGenerator` and `GenerateMinifiedMosaicHandler`). It is **never called at request time** — the deck show page reads pre-computed data from `DeckVersion.minifiedCardViews` (JSON column).
 
 **Key files:**
 - `src/Entity/CardIdentity.php`
@@ -299,15 +312,22 @@ Produces PTCGL-format text output. Cards are sorted by type (Pokemon, then Train
 
 ### MinifiedCardViewBuilder
 
-Produces structured `MinifiedCardView` objects grouped by card type (`pokemon`, `trainer`, `energy`) for the deck detail table view. Uses the same merging and sorting logic as the list generator but includes image URLs for display.
+Produces structured `MinifiedCardView` objects grouped by card type (`pokemon`, `trainer`, `energy`). Uses the same merging and sorting logic as the list generator but includes image URLs and ability/attack names for display.
 
-### Lazy Expansion Trigger
+The builder is called during the async enrichment pipeline (by `GenerateMinifiedListHandler`) to pre-compute the result as JSON, stored in `DeckVersion.minifiedCardViews`. At request time, the controller deserializes the JSON — no DB queries or API calls needed.
 
-Both the list generator and view builder trigger `expandPrintings()` lazily: if a card identity has only one known printing (the one from the original deck), all other printings are fetched from TCGdex before selecting the cheapest. This avoids fetching printings for cards that are never minified.
+### Pre-computed Card Views
+
+`DeckVersion.minifiedCardViews` stores a JSON-serialized `array<string, list<MinifiedCardView>>` (grouped by card type). Generated alongside `minifiedList` by `GenerateMinifiedListHandler`. Deserialized via `MinifiedCardView::deserializeGrouped()`. Used by `DeckShowController` and `CardmarketWishlistFormatter` to avoid runtime computation.
+
+### Printing Expansion Trigger
+
+The list generator triggers `expandPrintings()` during async processing: if a card identity has only one known printing, all other printings are fetched from TCGdex before selecting the cheapest. This runs in the Messenger worker, never at request time.
 
 **Key files:**
 - `src/Service/DeckList/MinifiedListGenerator.php`
 - `src/Service/DeckList/MinifiedCardViewBuilder.php`
+- `src/Service/DeckList/MinifiedCardView.php`
 - `src/Repository/CardPrintingRepository.php`
 
 ---
@@ -358,7 +378,7 @@ Redispatches `GenerateDeckMosaicMessage` for fully enriched versions that are mi
 
 Nuclear reset that clears all enrichment-derived data:
 1. Nullifies `DeckCard` fields: `tcgdexId`, `imageUrl`, `trainerSubtype`, `cardPrinting` FK
-2. Resets all `DeckVersion` records: `enrichmentStatus` → `'pending'`, nullifies `mosaicImageUrl`, `minifiedList`, `minifiedMosaicImageUrl`
+2. Resets all `DeckVersion` records: `enrichmentStatus` → `'pending'`, nullifies `mosaicImageUrl`, `minifiedList`, `minifiedCardViews`, `minifiedMosaicImageUrl`
 3. Deletes all `CardPrinting` records
 4. Deletes all `CardIdentity` records
 5. Clears all mosaic image files from Flysystem storage
@@ -387,4 +407,4 @@ After flushing, an enrich retry re-populates everything from scratch.
 
 - **Letter suffix stripping** — card numbers like `113a` are stripped to `113` for lookup. If TCGdex stores the card under the suffixed number, the lookup fails and falls back to name search.
 
-- **Concurrent set detail fetching** — building the set mapping requires one HTTP request per set (200+ requests). These are fired concurrently via Symfony HttpClient, but the initial cold-cache build can take several seconds. The result is cached for 24 hours.
+- **Set mapping rebuild** — building the set mapping requires one HTTP request per set (160+ requests). These are fired concurrently via Symfony HttpClient by `BuildSetMappingsHandler`. The result is persisted in the `tcgdex_set_mapping` table with no automatic expiration — rebuild is triggered manually from the admin dashboard.
