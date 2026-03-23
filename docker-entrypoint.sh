@@ -6,5 +6,5 @@ set -e
 php bin/console cache:clear --env=prod --no-debug 2>/dev/null || true
 php bin/console cache:warmup --env=prod --no-debug
 
-# Execute the original FrankenPHP entrypoint
-exec "$@"
+# Launch Supervisor (manages FrankenPHP + Messenger workers)
+exec supervisord -c /etc/supervisor/conf.d/supervisord.conf
