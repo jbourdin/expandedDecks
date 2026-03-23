@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.0] — 2026-03-23
+
+First stable release — graduates from beta after 13 beta iterations. Includes all features from the beta series plus comprehensive test coverage improvements and release process hardening.
+
+### Testing & Quality
+
+- 133 new tests (unit + functional) covering CardEnricher, CardIdentityResolver, TcgdexApiClient, BannedCardsSyncService, RarityTierMapper, OriginalListFormatter, MinifiedCardView, MinifiedCardViewBuilder, MinifiedListGenerator, GenerateMinifiedListHandler, GenerateMinifiedMosaicHandler, BuildSetMappingsHandler, EnrichmentFlushService, EnrichRetryCommand, and 5 previously untested controllers (Health, AdminTechnical, AdminPage, AdminMenuCategory, Page).
+
+### Documentation
+
+- Release process: added critical back-merge verification step to prevent develop/main divergence.
+
+---
+
 ## [1.0.0-beta.13] — 2026-03-23
 
 Thirteenth beta — pre-computed deck card views, enrichment pipeline chaining, CI OOM fix, PTCGO promo code support, and comprehensive unit test additions.
