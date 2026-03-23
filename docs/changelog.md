@@ -45,7 +45,6 @@ Thirteenth beta — pre-computed deck card views, enrichment pipeline chaining, 
 - Updated `enrichment.md`, `mosaic.md`, `cardmarket_export.md`, `deck.md`, `CLAUDE.md` for pipeline chaining, pre-computed card views, DB-based set mappings, and PTCGO promo codes.
 
 ---
-
 ## [1.0.0-beta.12] — 2026-03-23
 
 Twelfth beta — persistent TCGdex set mappings in MySQL replacing APCu cache, async build via Messenger, admin rebuild button, and Supervisor worker tuning.
@@ -67,7 +66,7 @@ Twelfth beta — persistent TCGdex set mappings in MySQL replacing APCu cache, a
 
 ### Testing & Quality
 
-- Updated `TcgdexApiClientTest` and `TcgdexApiClientCoverageTest` for repository-based set mappings.
+- Updated `TcgdexApiClientTest` and `TcgdexApiClientCoverageTest` for repository-based set mappings — replaced API-mocking helpers with repository stubs.
 
 ---
 
