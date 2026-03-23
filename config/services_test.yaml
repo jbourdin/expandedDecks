@@ -10,4 +10,4 @@ services:
     App\Service\Tcgdex\TcgdexApiClient:
         autowire: true
         arguments:
-            $httpClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
+            $tcgdexClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'

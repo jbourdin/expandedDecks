@@ -3926,6 +3926,34 @@
                 <source>app.admin.technical.mosaic.dispatched</source>
                 <target>%count% message(s) de génération de mosaïque envoyé(s).</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.title">
+                <source>app.admin.technical.set_mappings.title</source>
+                <target>Correspondances TCGdex</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.description">
+                <source>app.admin.technical.set_mappings.description</source>
+                <target>Correspondance persistante entre les identifiants TCGdex et les codes PTCG. Construite en arrière-plan via un job asynchrone.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.count">
+                <source>app.admin.technical.set_mappings.count</source>
+                <target>%count% correspondance(s) en base</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.empty">
+                <source>app.admin.technical.set_mappings.empty</source>
+                <target>Aucune correspondance — construction requise</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.rebuild_button">
+                <source>app.admin.technical.set_mappings.rebuild_button</source>
+                <target>Reconstruire les correspondances</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.confirm_rebuild">
+                <source>app.admin.technical.set_mappings.confirm_rebuild</source>
+                <target>Cela va supprimer et reconstruire toutes les correspondances en arrière-plan. Continuer ?</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.set_mappings.dispatched">
+                <source>app.admin.technical.set_mappings.dispatched</source>
+                <target>Reconstruction des correspondances lancée. Elle se terminera en arrière-plan.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>
                 <target>Synchronisation des cartes bannies</target>
@@ -4001,6 +4029,22 @@
             <trans-unit id="app.admin.technical.flush.success">
                 <source>app.admin.technical.flush.success</source>
                 <target>Toutes les données d'enrichissement ont été purgées. Utilisez « Relancer tous les enrichissements » pour ré-enrichir.</target>
+            </trans-unit>
+            <trans-unit id="app.common.loading">
+                <source>app.common.loading</source>
+                <target>Chargement…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.title">
+                <source>app.deck.awaiting_mappings.title</source>
+                <target>Préparation</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.heading">
+                <source>app.deck.awaiting_mappings.heading</source>
+                <target>Préparation des données de cartes…</target>
+            </trans-unit>
+            <trans-unit id="app.deck.awaiting_mappings.message">
+                <source>app.deck.awaiting_mappings.message</source>
+                <target>Les correspondances de sets sont en cours de construction. Cette page se rafraîchira automatiquement.</target>
             </trans-unit>
         </body>
     </file>

@@ -11,6 +11,12 @@ framework:
     session:
         handler_id: '%env(DATABASE_URL)%'
 
+    http_client:
+        scoped_clients:
+            tcgdex.client:
+                base_uri: 'https://api.tcgdex.net/v2/en'
+                timeout: 10
+
     #esi: true
     #fragments: true
 
