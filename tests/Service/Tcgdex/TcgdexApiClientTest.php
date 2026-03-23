@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -35,58 +36,58 @@ class TcgdexApiClientTest extends TestCase
         'sv06' => ['id' => 'sv06', 'abbreviation' => ['official' => 'TWM']], // SV era: no tcgOnline
     ];
 
-    public function testGetSetMappingBuildsFromApiAndIncludesPromoOverrides(): void
+    public function testGetSetMappingMergesRepositoryWithStaticOverrides(): void
     {
-        $client = new TcgdexApiClient($this->createSetMockClient(self::DEFAULT_SETS), new ArrayAdapter());
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardMapping')->willReturn([
+            'BRS' => 'swsh9',
+            'LOR' => 'swsh11',
+            'TWM' => 'sv06',
+        ]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
         $mapping = $client->getSetMapping();
 
-        // tcgOnline mappings (older sets)
+        // Repository mappings
         self::assertSame('swsh9', $mapping['BRS']);
         self::assertSame('swsh11', $mapping['LOR']);
-
-        // abbreviation.official mapping (SV era, no tcgOnline)
         self::assertSame('sv06', $mapping['TWM']);
 
-        // Promo overrides
+        // Static promo overrides
         self::assertSame('svp', $mapping['PR-SV']);
         self::assertSame('swshp', $mapping['PR-SW']);
     }
 
-    public function testGetSetMappingIsCached(): void
+    public function testGetSetMappingReadsFromRepository(): void
     {
-        $callCount = 0;
-        $sets = ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']];
-        $httpClient = $this->createSetMockClient($sets, $callCount);
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardMapping')->willReturn(['BRS' => 'swsh9']);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
-        $client->getSetMapping();
-        $firstCallCount = $callCount;
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
 
-        $client->getSetMapping();
+        $mapping = $client->getSetMapping();
 
-        // Second call should not make any new HTTP requests (cached)
-        self::assertSame($firstCallCount, $callCount);
+        self::assertSame('swsh9', $mapping['BRS']);
     }
 
     public function testFindCardReturnsCardOnSuccess(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']],
-            [
-                'swsh9-123' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh9-123',
-                        'name' => 'Arceus VSTAR',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -100,12 +101,9 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardReturnsNullOn404(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']],
-            ['swsh9-999' => ['status' => 404]],
-        );
+        $httpClient = $this->createCardMockClient(['swsh9-999' => ['status' => 404]]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '999');
 
         self::assertNull($card);
@@ -113,24 +111,21 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardRetriesWithPaddedNumber(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']],
-            [
-                'swsh9-79' => ['status' => 404],
-                'swsh9-079' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh9-079',
-                        'name' => 'Comfey',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/079',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'swsh9-79' => ['status' => 404],
+            'swsh9-079' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-079',
+                    'name' => 'Comfey',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/079',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '79');
 
         self::assertNotNull($card);
@@ -139,11 +134,9 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardReturnsNullForUnknownSetCode(): void
     {
-        $httpClient = $this->createSetMockClient(
-            ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']],
-        );
+        $httpClient = $this->createStub(HttpClientInterface::class);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('UNKNOWN', '1');
 
         self::assertNull($card);
@@ -152,23 +145,21 @@ class TcgdexApiClientTest extends TestCase
     public function testFindCardResolvesPromoCode(): void
     {
         // SV promos use plain card numbers (no era prefix)
-        $httpClient = $this->createFullMockClient(
-            [],
-            [
-                'svp-67' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'svp-67',
-                        'name' => 'Roaring Moon ex',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/sv/svp/067',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'svp-67' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'svp-67',
+                    'name' => 'Roaring Moon ex',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/sv/svp/067',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        // PR-SV is a static override, no repository mapping needed
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SV', '67');
 
         self::assertNotNull($card);
@@ -178,24 +169,22 @@ class TcgdexApiClientTest extends TestCase
     public function testFindCardPrefixesCardNumberForXyPromos(): void
     {
         // XY promos: PTCG "XYP 177" → TCGdex "xyp-XY177"
-        $httpClient = $this->createFullMockClient(
-            [],
-            [
-                'xyp-XY177' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'xyp-XY177',
-                        'name' => 'Karen',
-                        'category' => 'Trainer',
-                        'trainerType' => 'Supporter',
-                        'image' => 'https://assets.tcgdex.net/en/xy/xyp/XY177',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'xyp-XY177' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'xyp-XY177',
+                    'name' => 'Karen',
+                    'category' => 'Trainer',
+                    'trainerType' => 'Supporter',
+                    'image' => 'https://assets.tcgdex.net/en/xy/xyp/XY177',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        // PR-XY is a static override
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
         $card = $client->findCard('PR-XY', '177');
 
         self::assertNotNull($card);
@@ -207,23 +196,21 @@ class TcgdexApiClientTest extends TestCase
     public function testFindCardPrefixesCardNumberForSwshPromos(): void
     {
         // SWSH promos: PTCG "PR-SW 001" → TCGdex "swshp-SWSH001"
-        $httpClient = $this->createFullMockClient(
-            [],
-            [
-                'swshp-SWSH001' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swshp-SWSH001',
-                        'name' => 'Grookey',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swshp/SWSH001',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'swshp-SWSH001' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swshp-SWSH001',
+                    'name' => 'Grookey',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swshp/SWSH001',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        // PR-SW is a static override
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SW', '001');
 
         self::assertNotNull($card);
@@ -232,24 +219,21 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardIncludesTrainerType(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh9' => ['id' => 'swsh9', 'tcgOnline' => 'BRS']],
-            [
-                'swsh9-132' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh9-132',
-                        'name' => "Boss's Orders",
-                        'category' => 'Trainer',
-                        'trainerType' => 'Supporter',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/132',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'swsh9-132' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-132',
+                    'name' => "Boss's Orders",
+                    'category' => 'Trainer',
+                    'trainerType' => 'Supporter',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/132',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '132');
 
         self::assertNotNull($card);
@@ -258,30 +242,27 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardParsesAbilitiesAndAttacks(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
-            [
-                'swsh8-185' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh8-185',
-                        'name' => 'Genesect V',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/185',
-                        'legal' => ['expanded' => true],
-                        'hp' => 190,
-                        'abilities' => [
-                            ['type' => 'Ability', 'name' => 'Fusion Strike System', 'effect' => 'Draw cards...'],
-                        ],
-                        'attacks' => [
-                            ['cost' => ['Metal', 'Metal', 'Colorless'], 'name' => 'Techno Blast', 'damage' => 210, 'effect' => 'Cannot attack next turn.'],
-                        ],
+        $httpClient = $this->createCardMockClient([
+            'swsh8-185' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh8-185',
+                    'name' => 'Genesect V',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/185',
+                    'legal' => ['expanded' => true],
+                    'hp' => 190,
+                    'abilities' => [
+                        ['type' => 'Ability', 'name' => 'Fusion Strike System', 'effect' => 'Draw cards...'],
+                    ],
+                    'attacks' => [
+                        ['cost' => ['Metal', 'Metal', 'Colorless'], 'name' => 'Techno Blast', 'damage' => 210, 'effect' => 'Cannot attack next turn.'],
                     ],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '185');
 
         self::assertNotNull($card);
@@ -291,28 +272,25 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardParsesMultipleAttacksNoAbilities(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
-            [
-                'swsh8-113' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh8-113',
-                        'name' => 'Mew V',
-                        'category' => 'Pokemon',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/113',
-                        'legal' => ['expanded' => true],
-                        'hp' => 180,
-                        'attacks' => [
-                            ['cost' => ['Colorless'], 'name' => 'Energy Mix', 'effect' => '...'],
-                            ['cost' => ['Psychic', 'Colorless'], 'name' => 'Psychic Leap', 'damage' => 70, 'effect' => '...'],
-                        ],
+        $httpClient = $this->createCardMockClient([
+            'swsh8-113' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh8-113',
+                    'name' => 'Mew V',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/113',
+                    'legal' => ['expanded' => true],
+                    'hp' => 180,
+                    'attacks' => [
+                        ['cost' => ['Colorless'], 'name' => 'Energy Mix', 'effect' => '...'],
+                        ['cost' => ['Psychic', 'Colorless'], 'name' => 'Psychic Leap', 'damage' => 70, 'effect' => '...'],
                     ],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '113');
 
         self::assertNotNull($card);
@@ -322,24 +300,21 @@ class TcgdexApiClientTest extends TestCase
 
     public function testFindCardReturnsEmptyAbilitiesAndAttacksForTrainer(): void
     {
-        $httpClient = $this->createFullMockClient(
-            ['swsh8' => ['id' => 'swsh8', 'tcgOnline' => 'FST']],
-            [
-                'swsh8-225' => [
-                    'status' => 200,
-                    'body' => [
-                        'id' => 'swsh8-225',
-                        'name' => 'Battle VIP Pass',
-                        'category' => 'Trainer',
-                        'trainerType' => 'Item',
-                        'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/225',
-                        'legal' => ['expanded' => true],
-                    ],
+        $httpClient = $this->createCardMockClient([
+            'swsh8-225' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh8-225',
+                    'name' => 'Battle VIP Pass',
+                    'category' => 'Trainer',
+                    'trainerType' => 'Item',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/225',
+                    'legal' => ['expanded' => true],
                 ],
             ],
-        );
+        ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '225');
 
         self::assertNotNull($card);
@@ -354,7 +329,7 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'sm3.5-69', 'name' => 'Double Colorless Energy', 'image' => 'https://assets.tcgdex.net/en/sm/sm35/069'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertSame('https://assets.tcgdex.net/en/sm/sm35/069/high.webp', $imageUrl);
@@ -367,82 +342,37 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'xy1-42', 'name' => 'Double Colorless Energy'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertNull($imageUrl);
     }
 
     /**
-     * Creates a mock client that only handles set list + set detail requests.
+     * Creates a repository stub with the given forward mapping.
      *
-     * @param array<string, array<string, mixed>> $sets
+     * @param array<string, string> $forwardMapping PTCG code → TCGdex set ID
      */
-    private function createSetMockClient(array $sets, ?int &$callCount = null): HttpClientInterface
+    private function createRepositoryStub(array $forwardMapping): TcgdexSetMappingRepository
     {
-        $callCount = 0;
-        $listData = array_map(static fn (array $set): array => ['id' => $set['id']], $sets);
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardMapping')->willReturn($forwardMapping);
+        $repository->method('getReverseMapping')->willReturn(array_flip($forwardMapping));
 
-        $httpClient = $this->createStub(HttpClientInterface::class);
-        $httpClient->method('request')
-            ->willReturnCallback(function (string $method, string $url) use ($sets, $listData, &$callCount): ResponseInterface {
-                ++$callCount;
-
-                $response = $this->createStub(ResponseInterface::class);
-
-                if (str_ends_with($url, '/sets')) {
-                    $response->method('toArray')->willReturn(array_values($listData));
-
-                    return $response;
-                }
-
-                // /sets/{id} detail
-                foreach ($sets as $setId => $detail) {
-                    if (str_ends_with($url, '/sets/'.$setId)) {
-                        $response->method('toArray')->willReturn($detail);
-
-                        return $response;
-                    }
-                }
-
-                $response->method('toArray')->willReturn([]);
-
-                return $response;
-            });
-
-        return $httpClient;
+        return $repository;
     }
 
     /**
-     * Creates a mock client that handles set mapping AND card lookup requests.
+     * Creates a mock client that handles card lookup requests only.
      *
-     * @param array<string, array<string, mixed>>                            $sets
      * @param array<string, array{status: int, body?: array<string, mixed>}> $cards keyed by "{setId}-{number}"
      */
-    private function createFullMockClient(array $sets, array $cards): HttpClientInterface
+    private function createCardMockClient(array $cards): HttpClientInterface
     {
-        $listData = array_map(static fn (array $set): array => ['id' => $set['id']], $sets);
-
         $httpClient = $this->createStub(HttpClientInterface::class);
         $httpClient->method('request')
-            ->willReturnCallback(function (string $method, string $url) use ($sets, $listData, $cards): ResponseInterface {
+            ->willReturnCallback(function (string $method, string $url) use ($cards): ResponseInterface {
                 $response = $this->createStub(ResponseInterface::class);
-
-                // /sets (list)
-                if (str_ends_with($url, '/sets')) {
-                    $response->method('toArray')->willReturn(array_values($listData));
-
-                    return $response;
-                }
-
-                // /sets/{id} (detail)
-                foreach ($sets as $setId => $detail) {
-                    if (str_ends_with($url, '/sets/'.$setId)) {
-                        $response->method('toArray')->willReturn($detail);
-
-                        return $response;
-                    }
-                }
 
                 // /cards/{setId}-{number}
                 foreach ($cards as $cardKey => $cardData) {

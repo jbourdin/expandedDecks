@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -37,7 +38,9 @@ class TcgdexApiClientCoverageTest extends TestCase
         $httpClient = $this->createStub(HttpClientInterface::class);
         $httpClient->method('request')->willReturn($response);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter());
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
         $imageUrl = $client->findImageByName('Nonexistent Card');
 
         self::assertNull($imageUrl);
