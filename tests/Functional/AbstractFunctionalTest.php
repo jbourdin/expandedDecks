@@ -50,6 +50,7 @@ abstract class AbstractFunctionalTest extends WebTestCase
             $conn->rollbackTestTransaction();
         }
 
+        unset($this->client);
         parent::tearDown();
     }
 

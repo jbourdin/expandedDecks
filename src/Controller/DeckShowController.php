@@ -18,7 +18,6 @@ use App\Entity\DeckCard;
 use App\Entity\User;
 use App\Enum\DeckEventStatus;
 use App\Enum\DeckStatus;
-use App\Message\BuildSetMappingsMessage;
 use App\Repository\BorrowRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
@@ -31,7 +30,6 @@ use App\Service\Tcgdex\TcgdexApiClient;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -56,7 +54,6 @@ class DeckShowController extends AbstractController
         OriginalListFormatter $originalListFormatter,
         CardmarketWishlistFormatter $cardmarketWishlistFormatter,
         TcgdexApiClient $tcgdexApiClient,
-        MessageBusInterface $messageBus,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -86,10 +83,9 @@ class DeckShowController extends AbstractController
             }
         }
 
-        // If set mappings are not built yet, dispatch a build and show an awaiting page
+        // If set mappings are not built yet, show an awaiting page.
+        // Mappings are populated by fixtures or via the admin rebuild button — never auto-dispatched.
         if (!$tcgdexApiClient->hasMappings()) {
-            $messageBus->dispatch(new BuildSetMappingsMessage());
-
             return $this->render('deck/awaiting_mappings.html.twig', [
                 'deck' => $deck,
             ]);
