@@ -66,10 +66,14 @@
 
 9. **Back-merge `main` into `develop`**:
 
+   > **CRITICAL: Always verify `main` is fully merged into `develop` after every release.** The release branch adds a changelog commit directly to `main` via the PR merge. If this back-merge is skipped, `develop` diverges from `main` and future release PRs will have merge conflicts.
+
    ```bash
    git checkout develop && git pull origin develop
-   git merge main
+   git merge main --no-edit
    git push origin develop
+   # Verify no divergence:
+   git log develop..origin/main  # should be empty
    ```
 
 10. **Clean up** the release branch:

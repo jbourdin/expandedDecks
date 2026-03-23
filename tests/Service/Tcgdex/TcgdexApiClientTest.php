@@ -59,6 +59,53 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame('swshp', $mapping['PR-SW']);
     }
 
+    public function testGetSetMappingIncludesPtcgoShortPromoCodes(): void
+    {
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardMapping')->willReturn([]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $mapping = $client->getSetMapping();
+
+        // PTCGO short codes map to the same TCGdex IDs as the PR-XX codes
+        self::assertSame('svp', $mapping['SVP']);
+        self::assertSame('swshp', $mapping['SWP']);
+        self::assertSame('smp', $mapping['SMP']);
+        self::assertSame('xyp', $mapping['XYP']);
+        self::assertSame('bwp', $mapping['BWP']);
+
+        // Verify consistency: short codes and PR-XX codes resolve to the same TCGdex ID
+        self::assertSame($mapping['PR-SV'], $mapping['SVP']);
+        self::assertSame($mapping['PR-SW'], $mapping['SWP']);
+        self::assertSame($mapping['PR-SM'], $mapping['SMP']);
+        self::assertSame($mapping['PR-XY'], $mapping['XYP']);
+        self::assertSame($mapping['PR-BW'], $mapping['BWP']);
+    }
+
+    public function testFindCardResolvesPtcgoShortPromoCode(): void
+    {
+        // SMP 217 (Trevenant & Dusknoir-GX) should resolve to smp-SM217
+        $httpClient = $this->createCardMockClient([
+            'smp-SM217' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'smp-SM217',
+                    'name' => 'Trevenant & Dusknoir GX',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/sm/smp/SM217',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $card = $client->findCard('SMP', '217');
+
+        self::assertNotNull($card);
+        self::assertSame('smp-SM217', $card->id);
+    }
+
     public function testGetSetMappingReadsFromRepository(): void
     {
         $repository = $this->createStub(TcgdexSetMappingRepository::class);
@@ -346,6 +393,267 @@ class TcgdexApiClientTest extends TestCase
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertNull($imageUrl);
+    }
+
+    public function testFindCardHandlesTrainerGallerySuffix(): void
+    {
+        // ASR-TG 30 → set ASR, number TG30
+        $httpClient = $this->createCardMockClient([
+            'swsh10-TG30' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh10-TG30',
+                    'name' => 'Shadow Rider Calyrex VMAX',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh10/TG30',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['ASR' => 'swsh10']));
+        $card = $client->findCard('ASR-TG', '30');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh10-TG30', $card->id);
+    }
+
+    public function testFindCardStripsLetterSuffix(): void
+    {
+        // Card number "113a" should retry with "113" if "113a" not found
+        $httpClient = $this->createCardMockClient([
+            'swsh9-113a' => ['status' => 404],
+            'swsh9-113' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-113',
+                    'name' => 'Mew V',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/113',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '113a');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh9-113', $card->id);
+    }
+
+    public function testFindAllPrintingsByNameReturnsEmptyOnNon200(): void
+    {
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(500);
+        $httpClient->method('request')->willReturn($response);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $result = $client->findAllPrintingsByName('NonexistentCard');
+
+        self::assertSame([], $result);
+    }
+
+    public function testFindAllPrintingsByNameSkipsResultsWithoutId(): void
+    {
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url): ResponseInterface {
+                $response = $this->createStub(ResponseInterface::class);
+
+                if (str_contains($url, '/cards?name=')) {
+                    $response->method('getStatusCode')->willReturn(200);
+                    $response->method('toArray')->willReturn([
+                        ['name' => 'Test Card'], // no 'id' key
+                    ]);
+
+                    return $response;
+                }
+
+                $response->method('getStatusCode')->willReturn(404);
+
+                return $response;
+            });
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $result = $client->findAllPrintingsByName('Test Card');
+
+        self::assertSame([], $result);
+    }
+
+    public function testFindCardParsesCardmarketPricing(): void
+    {
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
+                    'legal' => ['expanded' => true],
+                    'pricing' => [
+                        'cardmarket' => ['avg' => 5.42, 'idProduct' => 12345],
+                    ],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame(542, $card->priceInCents);
+        self::assertSame(12345, $card->cardmarketProductId);
+    }
+
+    public function testFindCardParsesTcgplayerPricingFallback(): void
+    {
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
+                    'legal' => ['expanded' => true],
+                    'pricing' => [
+                        'tcgplayer' => [
+                            'normal' => ['midPrice' => 3.99, 'productId' => 67890],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame(399, $card->priceInCents);
+        self::assertSame(67890, $card->tcgplayerProductId);
+    }
+
+    public function testFindCardParsesSetMetadata(): void
+    {
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'localId' => '123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
+                    'legal' => ['expanded' => true],
+                    'hp' => 280,
+                    'rarity' => 'Ultra Rare',
+                    'set' => [
+                        'id' => 'swsh9',
+                        'releaseDate' => '2022-02-25',
+                        'cardCount' => ['official' => 172],
+                    ],
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame(280, $card->hp);
+        self::assertSame('Ultra Rare', $card->rarity);
+        self::assertSame('2022-02-25', $card->setReleaseDate);
+        self::assertSame('BRS', $card->setCode);
+        self::assertSame('123', $card->cardNumber);
+        self::assertSame(172, $card->setOfficialCardCount);
+    }
+
+    public function testFindCardFetchesReleaseDateFromSetEndpointWhenMissing(): void
+    {
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url): ResponseInterface {
+                $response = $this->createStub(ResponseInterface::class);
+
+                if (str_ends_with($url, '/cards/swsh9-123')) {
+                    $response->method('getStatusCode')->willReturn(200);
+                    $response->method('toArray')->willReturn([
+                        'id' => 'swsh9-123',
+                        'name' => 'Arceus VSTAR',
+                        'category' => 'Pokemon',
+                        'legal' => ['expanded' => true],
+                        'set' => ['id' => 'swsh9'], // no releaseDate
+                    ]);
+
+                    return $response;
+                }
+
+                if (str_ends_with($url, '/sets/swsh9')) {
+                    $response->method('getStatusCode')->willReturn(200);
+                    $response->method('toArray')->willReturn(['releaseDate' => '2022-02-25']);
+
+                    return $response;
+                }
+
+                $response->method('getStatusCode')->willReturn(404);
+
+                return $response;
+            });
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame('2022-02-25', $card->setReleaseDate);
+    }
+
+    public function testFindCardReturnsNullPricingWhenNoPricingData(): void
+    {
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'legal' => ['expanded' => true],
+                    // no pricing key
+                ],
+            ],
+        ]);
+
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertNull($card->priceInCents);
+        self::assertNull($card->cardmarketProductId);
+        self::assertNull($card->tcgplayerProductId);
+    }
+
+    public function testHasMappingsReturnsFalseWhenEmpty(): void
+    {
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('isEmpty')->willReturn(true);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+
+        self::assertFalse($client->hasMappings());
+    }
+
+    public function testHasMappingsReturnsTrueWhenNotEmpty(): void
+    {
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('isEmpty')->willReturn(false);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+
+        self::assertTrue($client->hasMappings());
     }
 
     /**

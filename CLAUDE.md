@@ -213,7 +213,7 @@ make test          # Run test suite
 3. Commit, push, open PR to `main` (title: `:rocket: Release: x.y.z`)
 4. Wait for CI to pass, merge (merge commit, **not** squash)
 5. Create GitHub release: `gh release create vx.y.z --target main --title "vx.y.z" --notes-file <changelog-section>`
-6. Back-merge `main` into `develop`
+6. **Back-merge `main` into `develop`** — then verify with `git log develop..origin/main` (must be empty). Skipping this causes divergence and merge conflicts on the next release.
 7. Delete the release branch
 
 ### Project Tracking
