@@ -19,7 +19,11 @@ const fs = require('fs');
  * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  */
 const spritesDir = path.resolve(__dirname, 'assets/vendor/sprites/pokemon');
-const manifestPath = path.resolve(__dirname, 'assets/generated/pokemon-sprites.json');
+const generatedDir = path.resolve(__dirname, 'assets/generated');
+const manifestPath = path.resolve(generatedDir, 'pokemon-sprites.json');
+if (!fs.existsSync(generatedDir)) {
+    fs.mkdirSync(generatedDir, { recursive: true });
+}
 if (fs.existsSync(spritesDir)) {
     const slugs = fs.readdirSync(spritesDir)
         .filter((file) => file.endsWith('.png'))
