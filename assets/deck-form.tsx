@@ -12,12 +12,14 @@ import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import ArchetypeSelect from './components/ArchetypeSelect';
 import LanguageSelect from './components/LanguageSelect';
+import PokemonSpriteSelect from './components/PokemonSpriteSelect';
 
 import '@mantine/core/styles.css';
 
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
+ * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  */
 
 const archetypeRoot = document.getElementById('archetype-select-root');
@@ -59,6 +61,28 @@ if (languageRoot) {
             <LanguageSelect
                 initialLanguages={initialLanguages}
                 hiddenInputName="deck_form[languages]"
+            />
+        </MantineProvider>,
+    );
+}
+
+const spriteRoot = document.getElementById('pokemon-sprite-select-root');
+if (spriteRoot) {
+    let initialSlugs: string[] = [];
+    try {
+        const raw = spriteRoot.dataset.pokemonSlugs;
+        if (raw) {
+            initialSlugs = JSON.parse(raw);
+        }
+    } catch {
+        // Invalid JSON — use empty array
+    }
+
+    createRoot(spriteRoot).render(
+        <MantineProvider>
+            <PokemonSpriteSelect
+                initialValues={initialSlugs}
+                hiddenInputName="deck_form[pokemonSlugs]"
             />
         </MantineProvider>,
     );

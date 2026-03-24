@@ -198,22 +198,18 @@ class PdfLabelGenerator
     }
 
     /**
-     * Build base64 data URIs for archetype sprite images.
+     * Build base64 data URIs for deck sprite images (deck-level first, archetype fallback).
      *
      * Dompdf cannot access files via web-server relative paths,
      * so sprites must be embedded as data URIs.
+     *
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
      *
      * @return list<array{dataUri: string, name: string}>
      */
     private function buildSpriteDataUris(Deck $deck): array
     {
-        $archetype = $deck->getArchetype();
-
-        if (null === $archetype) {
-            return [];
-        }
-
-        $slugs = $archetype->getPokemonSlugs();
+        $slugs = $deck->getEffectivePokemonSlugs();
         $sprites = [];
 
         foreach ($slugs as $slug) {

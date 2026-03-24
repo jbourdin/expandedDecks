@@ -64,6 +64,16 @@ class Deck
     #[ORM\Column(type: Types::JSON)]
     private array $languages = [];
 
+    /**
+     * Custom Pokemon sprites for this deck. When empty, falls back to archetype sprites.
+     *
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $pokemonSlugs = [];
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
@@ -175,6 +185,44 @@ class Deck
         $this->languages = $languages;
 
         return $this;
+    }
+
+    /**
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     *
+     * @return list<string>
+     */
+    public function getPokemonSlugs(): array
+    {
+        return $this->pokemonSlugs;
+    }
+
+    /**
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     *
+     * @param list<string> $pokemonSlugs
+     */
+    public function setPokemonSlugs(array $pokemonSlugs): static
+    {
+        $this->pokemonSlugs = $pokemonSlugs;
+
+        return $this;
+    }
+
+    /**
+     * Returns deck-level sprites if set, otherwise falls back to archetype sprites.
+     *
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     *
+     * @return list<string>
+     */
+    public function getEffectivePokemonSlugs(): array
+    {
+        if ([] !== $this->pokemonSlugs) {
+            return $this->pokemonSlugs;
+        }
+
+        return $this->archetype?->getPokemonSlugs() ?? [];
     }
 
     public function getStatus(): DeckStatus

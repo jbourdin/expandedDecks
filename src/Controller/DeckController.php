@@ -336,6 +336,43 @@ class DeckController extends AbstractAppController
         } else {
             $deck->setLanguages([]);
         }
+
+        $this->handlePokemonSlugs($form, $deck);
+    }
+
+    /**
+     * Decode pokemon slugs from the hidden form field and copy to archetype if needed.
+     *
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     *
+     * @param \Symfony\Component\Form\FormInterface<Deck> $form
+     */
+    private function handlePokemonSlugs(\Symfony\Component\Form\FormInterface $form, Deck $deck): void
+    {
+        /** @var string|null $pokemonSlugsJson */
+        $pokemonSlugsJson = $form->get('pokemonSlugs')->getData();
+
+        if (null !== $pokemonSlugsJson && '' !== $pokemonSlugsJson) {
+            /** @var list<string> $slugs */
+            $slugs = json_decode($pokemonSlugsJson, true);
+            $deck->setPokemonSlugs($slugs);
+        } else {
+            $deck->setPokemonSlugs([]);
+        }
+
+        // Propagate deck state to archetype
+        $archetype = $deck->getArchetype();
+        if (null !== $archetype) {
+            // Copy deck sprites to archetype if archetype has none
+            if ([] !== $deck->getPokemonSlugs() && [] === $archetype->getPokemonSlugs()) {
+                $archetype->setPokemonSlugs($deck->getPokemonSlugs());
+            }
+
+            // Auto-publish archetype when a public deck is linked to it
+            if ($deck->isPublic() && !$archetype->isPublished()) {
+                $archetype->setIsPublished(true);
+            }
+        }
     }
 
     private function denyAccessUnlessOwner(Deck $deck): void
