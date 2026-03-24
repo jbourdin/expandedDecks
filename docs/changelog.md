@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.2] — 2026-03-24
+
+Dashboard cleanup — remove global stats section for organizer view.
+
+### Refactoring
+
+- **Remove global stats from admin dashboard** — removed the "Global overview" row (total decks, active borrows, upcoming events, overdue returns) from the organizer dashboard. The per-user "My Events" stats section is preserved.
+
+### Testing & Quality
+
+- Updated `DashboardStatsTest` to reflect the removal of global stats (removed 3 tests, updated assertions).
+
+---
+
 ## [1.0.1] — 2026-03-24
 
 Custom Pokemon sprites on decks — deck owners can now set per-deck sprite overrides via an autocomplete selector, with archetype fallback.
