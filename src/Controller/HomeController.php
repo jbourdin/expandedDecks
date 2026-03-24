@@ -137,15 +137,6 @@ class HomeController extends AbstractController
             'eventsNeedingDeck' => $eventsNeedingDeck,
         ];
 
-        if ($this->isGranted('ROLE_ORGANIZER')) {
-            $params['stats'] = [
-                'totalDecks' => $deckRepository->countAll(),
-                'activeBorrows' => $borrowRepository->countActive(),
-                'upcomingEvents' => $eventRepository->countUpcoming(),
-                'overdueReturns' => $borrowRepository->countOverdue(),
-            ];
-        }
-
         $myUpcomingEvents = $eventRepository->countUpcomingByOrganizerOrStaff($user);
         if ($myUpcomingEvents > 0 || $this->isGranted('ROLE_ORGANIZER')) {
             $params['myStats'] = [
