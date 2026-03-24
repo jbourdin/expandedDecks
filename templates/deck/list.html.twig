@@ -98,7 +98,7 @@
                         <div class="card-body">
                             <h5 class="card-title">
                                 <span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>
-                                {% if deck.archetype %}{{ archetype_sprites(deck.archetype) }} {% endif %}<a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
+                                {{ deck_sprites(deck) }}<a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
                                 {% if not deck.public %}
                                     <i class="bi bi-lock-fill text-muted ms-1" title="{{ 'app.deck.not_public'|trans }}"></i>
                                 {% endif %}

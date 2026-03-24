@@ -37,6 +37,9 @@ yarn-error.log
 # OS
 .DS_Store
 
+# Generated build artifacts
+/assets/generated/
+
 # Project
 .claude/*
 !.claude/settings.json

@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace App\Twig\Runtime;
 
 use App\Entity\Archetype;
+use App\Entity\Deck;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
- * Renders Pokemon box sprite images for an archetype's pokemonSlugs.
+ * Renders Pokemon box sprite images for an archetype's or deck's pokemonSlugs.
  *
  * @see docs/features.md F2.12 — Archetype sprite pictograms
+ * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  */
 class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
 {
@@ -28,8 +30,24 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
      */
     public function renderSprites(Archetype $archetype): string
     {
-        $slugs = $archetype->getPokemonSlugs();
+        return $this->renderSlugs($archetype->getPokemonSlugs());
+    }
 
+    /**
+     * Renders inline sprite images for the given deck (deck-level first, archetype fallback).
+     *
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     */
+    public function renderDeckSprites(Deck $deck): string
+    {
+        return $this->renderSlugs($deck->getEffectivePokemonSlugs());
+    }
+
+    /**
+     * @param list<string> $slugs
+     */
+    private function renderSlugs(array $slugs): string
+    {
         if ([] === $slugs) {
             return '';
         }
@@ -46,6 +64,6 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
             );
         }
 
-        return \sprintf('<span class="archetype-sprites">%s</span>', $images);
+        return \sprintf('<span class="archetype-sprites">%s</span> ', $images);
     }
 }

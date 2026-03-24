@@ -611,6 +611,16 @@
                 <target>Langues :</target>
                 <note>Label in deck detail info. Includes trailing colon</note>
             </trans-unit>
+            <trans-unit id="app.deck.pokemon_slugs_label">
+                <source>app.deck.pokemon_slugs_label</source>
+                <target>Sprites Pokémon</target>
+                <note>Form field label for the deck-level Pokemon sprite selector (F2.22)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.pokemon_slugs_help">
+                <source>app.deck.pokemon_slugs_help</source>
+                <target>Optionnel. Ces sprites remplacent ceux de l'archétype pour ce deck.</target>
+                <note>Help text under the Pokemon sprite selector on deck forms (F2.22)</note>
+            </trans-unit>
             <trans-unit id="app.deck.notes_label">
                 <source>app.deck.notes_label</source>
                 <target>Notes :</target>
