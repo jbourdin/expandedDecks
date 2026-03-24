@@ -53,6 +53,10 @@ class DeckFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
+            ->add('pokemonSlugs', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add('public', CheckboxType::class, [
                 'label' => 'app.form.label.public',
                 'required' => false,

@@ -26,13 +26,10 @@
 
                 <div class="mb-3">
                     <label class="form-label">{{ 'app.archetype.pokemon_slugs_label'|trans }}</label>
-                    <input type="text"
-                           class="form-control"
-                           id="pokemon-slugs-input"
-                           value=""
-                           placeholder="{{ 'app.archetype.pokemon_slugs_placeholder'|trans }}">
+                    <div id="pokemon-sprite-select-root"
+                         data-values="[]"></div>
                     <p class="text-muted small mt-1">{{ 'app.archetype.pokemon_slugs_help'|trans }}</p>
-                    {{ form_widget(form.pokemonSlugs, {id: 'pokemon-slugs-hidden'}) }}
+                    {{ form_widget(form.pokemonSlugs) }}
                 </div>
 
                 <div class="mb-3">
@@ -54,24 +51,4 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_form') }}
-    <script>
-        (function() {
-            const input = document.getElementById('pokemon-slugs-input');
-            const hidden = document.getElementById('pokemon-slugs-hidden');
-
-            function syncSlugs() {
-                const value = input.value.trim();
-                if (value === '') {
-                    hidden.value = '[]';
-                } else {
-                    const slugs = value.split(',').map(function(slug) { return slug.trim(); }).filter(function(slug) { return slug !== ''; });
-                    hidden.value = JSON.stringify(slugs);
-                }
-            }
-
-            syncSlugs();
-            input.addEventListener('input', syncSlugs);
-            input.closest('form').addEventListener('submit', syncSlugs);
-        })();
-    </script>
 {% endblock %}

@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace App\Tests\Twig\Runtime;
 
 use App\Entity\Archetype;
+use App\Entity\Deck;
 use App\Twig\Runtime\ArchetypeSpriteRuntime;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @see docs/features.md F2.12 — Archetype sprite pictograms
+ * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  */
 class ArchetypeSpriteRuntimeTest extends TestCase
 {
@@ -105,5 +107,51 @@ class ArchetypeSpriteRuntimeTest extends TestCase
 
         self::assertStringNotContainsString('<script>', $html);
         self::assertStringContainsString('test&lt;script&gt;', $html);
+    }
+
+    public function testRenderDeckSpritesWithDeckSlugs(): void
+    {
+        $deck = new Deck();
+        $deck->setPokemonSlugs(['lugia', 'archeops']);
+
+        $html = $this->runtime->renderDeckSprites($deck);
+
+        self::assertStringContainsString('lugia.png', $html);
+        self::assertStringContainsString('archeops.png', $html);
+    }
+
+    public function testRenderDeckSpritesFallsBackToArchetype(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['iron-thorns']);
+
+        $deck = new Deck();
+        $deck->setArchetype($archetype);
+
+        $html = $this->runtime->renderDeckSprites($deck);
+
+        self::assertStringContainsString('iron-thorns.png', $html);
+    }
+
+    public function testRenderDeckSpritesPrefersOwnSlugsOverArchetype(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['iron-thorns']);
+
+        $deck = new Deck();
+        $deck->setArchetype($archetype);
+        $deck->setPokemonSlugs(['lugia']);
+
+        $html = $this->runtime->renderDeckSprites($deck);
+
+        self::assertStringContainsString('lugia.png', $html);
+        self::assertStringNotContainsString('iron-thorns.png', $html);
+    }
+
+    public function testRenderDeckSpritesWithNoSlugsAndNoArchetype(): void
+    {
+        $deck = new Deck();
+
+        self::assertSame('', $this->runtime->renderDeckSprites($deck));
     }
 }

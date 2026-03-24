@@ -19,6 +19,7 @@ use Twig\TwigFunction;
 
 /**
  * @see docs/features.md F2.12 — Archetype sprite pictograms
+ * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  */
 class ArchetypeSpriteExtension extends AbstractExtension
 {
@@ -29,6 +30,7 @@ class ArchetypeSpriteExtension extends AbstractExtension
     {
         return [
             new TwigFunction('archetype_sprites', [ArchetypeSpriteRuntime::class, 'renderSprites'], ['is_safe' => ['html']]),
+            new TwigFunction('deck_sprites', [ArchetypeSpriteRuntime::class, 'renderDeckSprites'], ['is_safe' => ['html']]),
         ];
     }
 }

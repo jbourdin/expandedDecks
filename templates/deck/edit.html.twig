@@ -36,6 +36,18 @@
                             {{ form_widget(form.archetype) }}
                         </div>
 
+                        {# Pokemon sprites — React island (F2.22) #}
+                        <div class="mb-3">
+                            <label class="form-label">{{ 'app.deck.pokemon_slugs_label'|trans }}</label>
+                            <div id="pokemon-sprite-select-root"
+                                 {% if deck.pokemonSlugs is not empty %}
+                                     data-pokemon-slugs="{{ deck.pokemonSlugs|json_encode }}"
+                                 {% endif %}
+                            ></div>
+                            {{ form_widget(form.pokemonSlugs) }}
+                            <div class="form-text">{{ 'app.deck.pokemon_slugs_help'|trans }}</div>
+                        </div>
+
                         {# Languages — React island #}
                         <div class="mb-3">
                             <label class="form-label">{{ 'app.deck.languages_label'|trans }}</label>
