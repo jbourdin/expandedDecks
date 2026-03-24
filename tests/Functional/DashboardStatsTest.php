@@ -25,29 +25,14 @@ class DashboardStatsTest extends AbstractFunctionalTest
         self::assertResponseRedirects('/login');
     }
 
-    public function testOrganizerSeesStatsOverview(): void
+    public function testOrganizerSeesPersonalStatsOverview(): void
     {
         $this->loginAs('admin@example.com');
 
         $crawler = $this->client->request('GET', '/dashboard');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.card .fs-2.fw-bold.text-primary');
-        self::assertSelectorExists('.card .fs-2.fw-bold.text-success');
-        self::assertSelectorExists('.card .fs-2.fw-bold.text-info');
-    }
-
-    public function testRegularUserDoesNotSeeGlobalStats(): void
-    {
-        // Lender has no organizer role and is not staff at any event
-        $this->loginAs('lender@example.com');
-
-        $crawler = $this->client->request('GET', '/dashboard');
-
-        self::assertResponseIsSuccessful();
-        $html = $crawler->html();
-        self::assertStringNotContainsString('Global overview', $html);
-        self::assertStringNotContainsString('Total decks', $html);
+        self::assertSelectorExists('.card .fs-2.fw-bold');
     }
 
     public function testStatsShowNumericValues(): void
@@ -57,26 +42,12 @@ class DashboardStatsTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/dashboard');
 
         $statCards = $crawler->filter('.card .fs-2.fw-bold');
-        // 4 global + 4 personal = 8
-        self::assertGreaterThanOrEqual(8, $statCards->count());
+        // 4 personal stats only (no global stats)
+        self::assertGreaterThanOrEqual(4, $statCards->count());
 
-        for ($i = 0; $i < 8; ++$i) {
+        for ($i = 0; $i < 4; ++$i) {
             self::assertMatchesRegularExpression('/^\d+$/', trim($statCards->eq($i)->text()));
         }
-    }
-
-    public function testGlobalStatsLabelsAreTranslated(): void
-    {
-        $this->loginAs('admin@example.com');
-
-        $crawler = $this->client->request('GET', '/dashboard');
-
-        $html = $crawler->html();
-        self::assertStringContainsString('Global overview', $html);
-        self::assertStringContainsString('Total decks', $html);
-        self::assertStringContainsString('Active borrows', $html);
-        self::assertStringContainsString('Upcoming events', $html);
-        self::assertStringContainsString('Overdue returns', $html);
     }
 
     public function testPersonalStatsLabelsAreTranslated(): void
