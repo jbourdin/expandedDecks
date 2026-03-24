@@ -360,10 +360,18 @@ class DeckController extends AbstractAppController
             $deck->setPokemonSlugs([]);
         }
 
-        // Copy deck sprites to archetype if archetype has none
+        // Propagate deck state to archetype
         $archetype = $deck->getArchetype();
-        if (null !== $archetype && [] !== $deck->getPokemonSlugs() && [] === $archetype->getPokemonSlugs()) {
-            $archetype->setPokemonSlugs($deck->getPokemonSlugs());
+        if (null !== $archetype) {
+            // Copy deck sprites to archetype if archetype has none
+            if ([] !== $deck->getPokemonSlugs() && [] === $archetype->getPokemonSlugs()) {
+                $archetype->setPokemonSlugs($deck->getPokemonSlugs());
+            }
+
+            // Auto-publish archetype when a public deck is linked to it
+            if ($deck->isPublic() && !$archetype->isPublished()) {
+                $archetype->setIsPublished(true);
+            }
         }
     }
 
