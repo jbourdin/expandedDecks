@@ -1,0 +1,28 @@
+# Expanded Decks — only allow indexing of homepage and public pages
+User-agent: *
+Allow: /$
+Allow: /pages/
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /archetypes
+Disallow: /borrow
+Disallow: /borrows
+Disallow: /build/
+Disallow: /confirm-deletion/
+Disallow: /dashboard
+Disallow: /deck/
+Disallow: /event
+Disallow: /events/
+Disallow: /forgot-password
+Disallow: /health
+Disallow: /lends
+Disallow: /login
+Disallow: /logout
+Disallow: /mosaic/
+Disallow: /notifications
+Disallow: /profile
+Disallow: /register
+Disallow: /reset-password/
+Disallow: /verify/
+Disallow: /webhook/
