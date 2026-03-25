@@ -98,10 +98,10 @@ RESTful endpoints for event management. All responses use JSON. Dates are ISO 86
 | Method | Path | Scope | Description |
 |--------|------|-------|-------------|
 | `GET` | `/api/v1/events` | `event:read` | List events (paginated, filterable) |
-| `GET` | `/api/v1/events/{id}` | `event:read` | Get event details |
+| `GET` | `/api/v1/events/{event}` | `event:read` | Get event details |
 | `POST` | `/api/v1/events` | `event:write` | Create an event |
-| `PUT` | `/api/v1/events/{id}` | `event:write` | Update an event |
-| `DELETE` | `/api/v1/events/{id}` | `event:write` | Cancel an event (soft-delete) |
+| `PUT` | `/api/v1/events/{event}` | `event:write` | Update an event |
+| `DELETE` | `/api/v1/events/{event}` | `event:write` | Cancel an event (soft-delete) |
 
 **List filters** (`GET /api/v1/events`):
 
@@ -179,9 +179,9 @@ Endpoints for users to express interest, register as player or spectator, and wi
 
 | Method | Path | Scope | Description |
 |--------|------|-------|-------------|
-| `POST` | `/api/v1/events/{id}/engage` | `event:engage` | Set engagement state for self or another user |
-| `DELETE` | `/api/v1/events/{id}/engage` | `event:engage` | Withdraw engagement for self or another user |
-| `GET` | `/api/v1/events/{id}/engagement` | `event:read` | Get engagement for self or another user |
+| `POST` | `/api/v1/events/{event}/engage` | `event:engage` | Set engagement state for self or another user |
+| `DELETE` | `/api/v1/events/{event}/engage` | `event:engage` | Withdraw engagement for self or another user |
+| `GET` | `/api/v1/events/{event}/engagement` | `event:read` | Get engagement for self or another user |
 
 **Engage payload:**
 
@@ -221,9 +221,9 @@ Valid states: `interested`, `registered_playing`, `registered_spectating`.
 - An `invited` user can transition to any registration state.
 - Withdrawal (`DELETE`) removes the engagement entirely, except for `invited` users who retain their invitation flag.
 
-**Withdrawal for another user:** `DELETE /api/v1/events/{id}/engage?userId=7` or `DELETE /api/v1/events/{id}/engage?playerId=12345678`. Requires `ROLE_ORGANIZER` or event staff.
+**Withdrawal for another user:** `DELETE /api/v1/events/{event}/engage?userId=7` or `DELETE /api/v1/events/{event}/engage?playerId=12345678`. Requires `ROLE_ORGANIZER` or event staff.
 
-**Get engagement for another user:** `GET /api/v1/events/{id}/engagement?userId=7` or `GET /api/v1/events/{id}/engagement?playerId=12345678`.
+**Get engagement for another user:** `GET /api/v1/events/{event}/engagement?userId=7` or `GET /api/v1/events/{event}/engagement?playerId=12345678`.
 
 **Response:** The updated engagement object:
 
@@ -253,7 +253,7 @@ List attendees grouped by engagement type.
 
 | Method | Path | Scope | Description |
 |--------|------|-------|-------------|
-| `GET` | `/api/v1/events/{id}/attendees` | `event:read` | List all attendees |
+| `GET` | `/api/v1/events/{event}/attendees` | `event:read` | List all attendees |
 
 **Query parameters:**
 
@@ -407,7 +407,7 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes
 
 All API endpoints are prefixed with `/api/v1/`. Breaking changes require a new version (`/api/v2/`).
 
-### Authentication
+### Authentication & Authorization
 
 All API requests must include a valid OAuth2 bearer token in the `Authorization` header:
 
@@ -416,6 +416,25 @@ Authorization: Bearer <access_token>
 ```
 
 Requests without a valid token receive `401 Unauthorized`. Requests with insufficient scopes receive `403 Forbidden`.
+
+**Effective permissions = OAuth scopes ∩ user roles.** A granted scope does not elevate the user's privileges — it only defines the ceiling of what the API client is allowed to do. The actual permission for each action is the **intersection** of:
+
+1. **OAuth scopes** granted to the token (e.g. `event:write`)
+2. **User's roles and context** (e.g. `ROLE_ORGANIZER`, event ownership, staff assignment)
+
+Examples:
+
+| Token scope | User role | Action | Result |
+|-------------|-----------|--------|--------|
+| `event:write` | `ROLE_ORGANIZER` | Create event | **Allowed** |
+| `event:write` | `ROLE_PLAYER` | Create event | **403** — user lacks `ROLE_ORGANIZER` |
+| `event:read` | `ROLE_ORGANIZER` | Create event | **403** — token lacks `event:write` scope |
+| `cms:write` | `ROLE_PLAYER` | Create page | **403** — user lacks `ROLE_CMS_EDITOR` |
+| `event:write` | `ROLE_ORGANIZER` | Update another organizer's event | **403** — not the event owner |
+
+This model ensures that a compromised or over-scoped token cannot perform actions the user themselves could not perform through the web UI. The same authorization checks (role guards, ownership checks, per-event staff verification) that protect web controllers are applied to API controllers.
+
+The MCP server (F16.8) follows the same model — MCP tools are subject to both the token's scopes and the user's roles.
 
 ### Error format
 
@@ -461,6 +480,19 @@ Endpoints that accept a user identifier support two fields:
 These fields are **mutually exclusive** — providing both returns `422 Unprocessable Entity`. When neither is provided, the action applies to the authenticated user. If the identifier does not match any user, the API returns `404 Not Found`.
 
 This applies to: engagement endpoints (F16.4), attendee filters (F16.5), and corresponding MCP tools.
+
+### Event identification
+
+All event endpoints accept either identifier in the `{event}` path parameter:
+
+| Format | Example | Resolves by |
+|--------|---------|-------------|
+| Integer | `/api/v1/events/42` | Internal database ID (`Event.id`) |
+| String | `/api/v1/events/0000123456` | Pokemon tournament ID (`Event.eventId`) |
+
+Resolution order: if the value is numeric, it is matched against the internal `id` first; if no match, it falls back to `eventId`. Non-numeric values are matched against `eventId` only. Returns `404 Not Found` if neither matches.
+
+This applies to: all `/api/v1/events/{event}` endpoints (F16.3, F16.4, F16.5) and corresponding MCP tools.
 
 ### Rate limiting
 
