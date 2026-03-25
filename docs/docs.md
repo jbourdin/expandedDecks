@@ -30,6 +30,10 @@
 - [Notification Model](models/notification.md) — In-app notification system
 - [CMS Model](models/cms.md) — Content pages, menu categories, translations
 
+## API
+
+- [API Access](api.md) — REST API specification, OAuth2, MCP server
+
 ## Standards
 
 - [Coding Standards](standards/coding.md) — PSR-12, Symfony ruleset, PHPStan
