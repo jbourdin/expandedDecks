@@ -73,4 +73,17 @@ class RegistrationControllerCoverageTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects('/dashboard');
     }
+
+    /**
+     * When a logged-in user visits /register with a recursive _target_path,
+     * they should be redirected to the dashboard (recursive targets are unsafe).
+     */
+    public function testRegisterIgnoresRecursiveTargetPathWhenLoggedIn(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/register?_target_path=/login%3F_target_path%3D/register');
+
+        self::assertResponseRedirects('/dashboard');
+    }
 }

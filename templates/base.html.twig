@@ -137,10 +137,10 @@
                                 {% endif %}
                             {% endfor %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.login'|trans }}</a>
+                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">{{ 'app.nav.register'|trans }}</a>
+                                <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
                             </li>
                         {% endif %}
                     </ul>
