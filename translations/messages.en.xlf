@@ -2259,6 +2259,22 @@
                 <target>My profile</target>
                 <note>Profile page heading</note>
             </trans-unit>
+            <trans-unit id="app.profile.roles_section">
+                <source>app.profile.roles_section</source>
+                <target>Roles</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_hint">
+                <source>app.profile.organizer_role_hint</source>
+                <target>Enable this to create and manage events on the platform.</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_locked_hint">
+                <source>app.profile.organizer_role_locked_hint</source>
+                <target>You cannot disable this role while you have active (not finished or cancelled) events.</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_admin_hint">
+                <source>app.profile.organizer_role_admin_hint</source>
+                <target>Administrators always have organizer privileges.</target>
+            </trans-unit>
             <trans-unit id="app.profile.features_section">
                 <source>app.profile.features_section</source>
                 <target>Optional features</target>
@@ -2333,6 +2349,10 @@
             <trans-unit id="app.form.label.show_cardmarket_export">
                 <source>app.form.label.show_cardmarket_export</source>
                 <target>Show "Copy for Cardmarket" button on deck pages</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.organizer_role">
+                <source>app.form.label.organizer_role</source>
+                <target>I want to organize events</target>
             </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>
