@@ -179,9 +179,9 @@ Endpoints for users to express interest, register as player or spectator, and wi
 
 | Method | Path | Scope | Description |
 |--------|------|-------|-------------|
-| `POST` | `/api/v1/events/{id}/engage` | `event:engage` | Set engagement state |
-| `DELETE` | `/api/v1/events/{id}/engage` | `event:engage` | Withdraw engagement |
-| `GET` | `/api/v1/events/{id}/engagement` | `event:read` | Get current user's engagement |
+| `POST` | `/api/v1/events/{id}/engage` | `event:engage` | Set engagement state for self or another user |
+| `DELETE` | `/api/v1/events/{id}/engage` | `event:engage` | Withdraw engagement for self or another user |
+| `GET` | `/api/v1/events/{id}/engagement` | `event:read` | Get engagement for self or another user |
 
 **Engage payload:**
 
@@ -190,6 +190,26 @@ Endpoints for users to express interest, register as player or spectator, and wi
   "state": "registered_playing"
 }
 ```
+
+To engage **on behalf of another user** (requires `ROLE_ORGANIZER` or event staff), identify the target user with either field:
+
+```json
+{
+  "state": "registered_playing",
+  "userId": 7
+}
+```
+
+```json
+{
+  "state": "registered_playing",
+  "playerId": "12345678"
+}
+```
+
+When neither `userId` nor `playerId` is provided, the action applies to the authenticated user (self-engagement).
+
+**User resolution:** The `userId` and `playerId` fields are mutually exclusive. `userId` is the internal user ID; `playerId` is the Play! Pokemon player ID (see F1.1). If both are provided, the API returns `422 Unprocessable Entity`. If the identifier does not match any user, the API returns `404 Not Found`.
 
 Valid states: `interested`, `registered_playing`, `registered_spectating`.
 
@@ -201,12 +221,16 @@ Valid states: `interested`, `registered_playing`, `registered_spectating`.
 - An `invited` user can transition to any registration state.
 - Withdrawal (`DELETE`) removes the engagement entirely, except for `invited` users who retain their invitation flag.
 
+**Withdrawal for another user:** `DELETE /api/v1/events/{id}/engage?userId=7` or `DELETE /api/v1/events/{id}/engage?playerId=12345678`. Requires `ROLE_ORGANIZER` or event staff.
+
+**Get engagement for another user:** `GET /api/v1/events/{id}/engagement?userId=7` or `GET /api/v1/events/{id}/engagement?playerId=12345678`.
+
 **Response:** The updated engagement object:
 
 ```json
 {
   "eventId": 42,
-  "userId": 7,
+  "user": { "id": 7, "screenName": "AshK", "playerId": "12345678" },
   "state": "registered_playing",
   "invitedAt": null,
   "engagedAt": "2026-03-25T10:00:00+00:00"
@@ -236,8 +260,12 @@ List attendees grouped by engagement type.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `state` | string | Filter by state: `interested`, `registered_playing`, `registered_spectating`, `invited` |
+| `userId` | int | Filter by internal user ID — returns the single attendee matching this ID (if engaged) |
+| `playerId` | string | Filter by Play! Pokemon player ID — returns the single attendee matching this ID (if engaged) |
 | `page` | int | Page number (default: 1) |
 | `limit` | int | Items per page (default: 50, max: 200) |
+
+`userId` and `playerId` are mutually exclusive. If both are provided, the API returns `422 Unprocessable Entity`. These filters can be combined with `state` to check if a specific user has a particular engagement state.
 
 **Response:**
 
@@ -355,8 +383,8 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes
 | `get_event` | F16.3 | Get full event details and engagement counts |
 | `create_event` | F16.3 | Create a new event |
 | `update_event` | F16.3 | Update event details |
-| `engage_event` | F16.4 | Register or express interest in an event |
-| `list_attendees` | F16.5 | List event attendees by state |
+| `engage_event` | F16.4 | Register or express interest in an event (self or by userId/playerId) |
+| `list_attendees` | F16.5 | List event attendees by state, userId, or playerId |
 | `list_pages` | F16.6 | List CMS pages |
 | `get_page` | F16.6 | Get page content with translations |
 | `create_page` | F16.6 | Create a CMS page (write articles) |
@@ -420,6 +448,19 @@ Paginated responses include a `pagination` object:
   }
 }
 ```
+
+### User identification
+
+Endpoints that accept a user identifier support two fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `userId` | int | Internal Expanded Decks user ID |
+| `playerId` | string | Play! Pokemon player ID (see F1.1) |
+
+These fields are **mutually exclusive** — providing both returns `422 Unprocessable Entity`. When neither is provided, the action applies to the authenticated user. If the identifier does not match any user, the API returns `404 Not Found`.
+
+This applies to: engagement endpoints (F16.4), attendee filters (F16.5), and corresponding MCP tools.
 
 ### Rate limiting
 
