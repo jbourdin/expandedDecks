@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.3] — 2026-03-25
+
+Security fix — prevent recursive `_target_path` redirect loop caused by crawlers.
+
+### Bug Fixes
+
+- **Prevent recursive `_target_path` redirect loop** — bots bouncing between `/login` and `/register` were nesting the `_target_path` query parameter infinitely (~400k useless requests in 7 days). Fixed by using `pathInfo` instead of `requestUri` in nav links and adding a `containsNestedTargetPath()` guard that fully URL-decodes all percent-encoding levels before rejecting recursive targets.
+
+### Testing & Quality
+
+- Added 4 functional tests covering recursive target path rejection (single-encoded, deeply-encoded, logged-in redirect scenarios).
+
+---
+
 ## [1.0.2] — 2026-03-24
 
 Dashboard cleanup — remove global stats section for organizer view.

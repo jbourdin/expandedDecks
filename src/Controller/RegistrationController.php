@@ -88,7 +88,7 @@ class RegistrationController extends AbstractAppController
 
             $this->addFlash('success', 'app.flash.auth.account_created');
 
-            $loginParams = ('' !== $targetPath) ? ['_target_path' => $targetPath] : [];
+            $loginParams = ('' !== $targetPath && $this->isSafeRedirectPath($targetPath)) ? ['_target_path' => $targetPath] : [];
 
             return $this->redirectToRoute('app_login', $loginParams);
         }
@@ -102,6 +102,19 @@ class RegistrationController extends AbstractAppController
     {
         return str_starts_with($path, '/')
             && !str_starts_with($path, '//')
-            && !str_contains($path, '://');
+            && !str_contains($path, '://')
+            && !$this->containsNestedTargetPath($path);
+    }
+
+    private function containsNestedTargetPath(string $path): bool
+    {
+        $decoded = $path;
+
+        do {
+            $previous = $decoded;
+            $decoded = urldecode($decoded);
+        } while ($decoded !== $previous);
+
+        return str_contains($decoded, '_target_path');
     }
 }

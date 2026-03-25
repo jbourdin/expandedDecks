@@ -49,6 +49,19 @@ class SafeAuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandl
     {
         return str_starts_with($path, '/')
             && !str_starts_with($path, '//')
-            && !str_contains($path, '://');
+            && !str_contains($path, '://')
+            && !$this->containsNestedTargetPath($path);
+    }
+
+    private function containsNestedTargetPath(string $path): bool
+    {
+        $decoded = $path;
+
+        do {
+            $previous = $decoded;
+            $decoded = urldecode($decoded);
+        } while ($decoded !== $previous);
+
+        return str_contains($decoded, '_target_path');
     }
 }

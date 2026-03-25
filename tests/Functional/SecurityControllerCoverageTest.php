@@ -75,4 +75,39 @@ class SecurityControllerCoverageTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects('/dashboard');
     }
+
+    /**
+     * A _target_path containing a nested _target_path is treated as unsafe
+     * to prevent crawler redirect loops.
+     */
+    public function testLoginPageIgnoresRecursiveTargetPath(): void
+    {
+        $this->client->request('GET', '/login?_target_path=/register%3F_target_path%3D/login');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form');
+    }
+
+    /**
+     * A _target_path with deeply percent-encoded _target_path is still rejected.
+     */
+    public function testLoginPageIgnoresDeeplyEncodedRecursiveTargetPath(): void
+    {
+        $this->client->request('GET', '/login?_target_path=/register%3F_target_path%253D/login');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form');
+    }
+
+    /**
+     * Logged-in user with recursive target path should redirect to dashboard.
+     */
+    public function testLoginPageRedirectsToDashboardWhenLoggedInWithRecursiveTarget(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/login?_target_path=/register%3F_target_path%3D/deck');
+
+        self::assertResponseRedirects('/dashboard');
+    }
 }
