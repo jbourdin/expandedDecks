@@ -69,15 +69,23 @@
     </div>
 
     {# Delete #}
-    <div class="card shadow-sm border-danger">
-        <div class="card-body">
-            <h5 class="text-danger">{{ 'app.cms.admin.danger_zone'|trans }}</h5>
-            <form method="post" action="{{ path('app_admin_page_delete', {id: page.id}) }}" onsubmit="return confirm('{{ 'app.cms.admin.delete_confirm'|trans }}')">
-                <input type="hidden" name="_token" value="{{ csrf_token('page-delete-' ~ page.id) }}">
-                <button type="submit" class="btn btn-outline-danger">{{ 'app.cms.admin.delete_page'|trans }}</button>
-            </form>
+    {% if page.deletedAt is null %}
+        <div class="card shadow-sm border-danger">
+            <div class="card-body">
+                <h5 class="text-danger">{{ 'app.cms.admin.danger_zone'|trans }}</h5>
+                <form method="post" action="{{ path('app_admin_page_delete', {id: page.id}) }}" onsubmit="return confirm('{{ 'app.cms.admin.delete_confirm'|trans|e('js') }}')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('page-delete-' ~ page.id) }}">
+                    <button type="submit" class="btn btn-outline-danger">{{ 'app.cms.admin.delete_page'|trans }}</button>
+                </form>
+            </div>
         </div>
-    </div>
+    {% else %}
+        <div class="card shadow-sm border-warning">
+            <div class="card-body">
+                <span class="badge bg-danger">{{ 'app.common.deleted'|trans }}</span>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

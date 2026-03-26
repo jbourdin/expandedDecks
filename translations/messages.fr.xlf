@@ -110,6 +110,11 @@
                 <target>Retour</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.deleted">
+                <source>app.common.deleted</source>
+                <target>Supprimé</target>
+                <note>Shared badge label for soft-deleted entities</note>
+            </trans-unit>
             <trans-unit id="app.common.previous">
                 <source>app.common.previous</source>
                 <target>Précédent</target>
@@ -945,6 +950,16 @@
                 <source>app.event.cancel_confirm</source>
                 <target>Êtes-vous sûr de vouloir annuler cet événement ? Cette action est irréversible.</target>
                 <note>JavaScript confirm dialog when cancelling an event</note>
+            </trans-unit>
+            <trans-unit id="app.event.delete_button">
+                <source>app.event.delete_button</source>
+                <target>Supprimer l&apos;événement</target>
+                <note>Button to soft-delete an event (admin only)</note>
+            </trans-unit>
+            <trans-unit id="app.event.delete_confirm">
+                <source>app.event.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer cet événement ? Il sera masqué de toutes les listes.</target>
+                <note>JavaScript confirm dialog when deleting an event</note>
             </trans-unit>
             <trans-unit id="app.event.back_to_events">
                 <source>app.event.back_to_events</source>
@@ -1890,6 +1905,11 @@
                 <target>L&apos;événement « %name% » a été annulé.</target>
                 <note>Success flash after cancelling an event. %name% = event name</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.deleted">
+                <source>app.flash.event.deleted</source>
+                <target>Événement supprimé.</target>
+                <note>Success flash after soft-deleting an event</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.already_cancelled">
                 <source>app.flash.event.already_cancelled</source>
                 <target>Cet événement est déjà annulé.</target>
@@ -2179,6 +2199,26 @@
                 <source>app.flash.deck.cannot_retire_lent</source>
                 <target>Ce deck est actuellement prêté et ne peut pas être retiré.</target>
                 <note>Error flash when trying to retire a deck that is currently lent</note>
+            </trans-unit>
+            <trans-unit id="app.flash.deck.deleted">
+                <source>app.flash.deck.deleted</source>
+                <target>Deck supprimé.</target>
+                <note>Success flash after soft-deleting a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.delete_confirm">
+                <source>app.deck.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer ce deck ? Il sera masqué du catalogue.</target>
+                <note>JavaScript confirm dialog when deleting a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.delete_button">
+                <source>app.deck.delete_button</source>
+                <target>Supprimer le deck</target>
+                <note>Button to soft-delete a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.cannot_delete_active_borrows">
+                <source>app.deck.cannot_delete_active_borrows</source>
+                <target>Ce deck ne peut pas être supprimé car il a des emprunts en cours.</target>
+                <note>Error flash when trying to delete a deck with active borrows</note>
             </trans-unit>
             <!-- Deck list parsing errors -->
             <trans-unit id="app.deck.parse.no_section_header">
@@ -3273,6 +3313,26 @@
                 <target>Publié</target>
                 <note>Admin archetype published checkbox label</note>
             </trans-unit>
+            <trans-unit id="app.admin.archetype.danger_zone">
+                <source>app.admin.archetype.danger_zone</source>
+                <target>Zone de danger</target>
+                <note>Heading for archetype delete section in admin</note>
+            </trans-unit>
+            <trans-unit id="app.admin.archetype.delete_confirm">
+                <source>app.admin.archetype.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer cet archétype ? Il n&apos;apparaîtra plus dans le catalogue.</target>
+                <note>JavaScript confirm dialog when deleting an archetype</note>
+            </trans-unit>
+            <trans-unit id="app.admin.archetype.delete_button">
+                <source>app.admin.archetype.delete_button</source>
+                <target>Supprimer l&apos;archétype</target>
+                <note>Button to soft-delete an archetype</note>
+            </trans-unit>
+            <trans-unit id="app.flash.archetype.deleted">
+                <source>app.flash.archetype.deleted</source>
+                <target>Archétype supprimé.</target>
+                <note>Success flash after soft-deleting an archetype</note>
+            </trans-unit>
             <trans-unit id="app.archetype.updated">
                 <source>app.archetype.updated</source>
                 <target>Archétype « %name% » mis à jour.</target>
@@ -3809,6 +3869,11 @@
             <trans-unit id="app.cms.page_deleted">
                 <source>app.cms.page_deleted</source>
                 <target>Page supprimée.</target>
+            </trans-unit>
+            <trans-unit id="app.flash.page.deleted">
+                <source>app.flash.page.deleted</source>
+                <target>Page supprimée.</target>
+                <note>Success flash after soft-deleting a page</note>
             </trans-unit>
             <trans-unit id="app.cms.category_created">
                 <source>app.cms.category_created</source>

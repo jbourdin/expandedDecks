@@ -414,6 +414,24 @@ class EventController extends AbstractAppController
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
+    #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function delete(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('event-delete-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->setDeletedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.event.deleted');
+
+        return $this->redirectToRoute('app_event_list');
+    }
+
     /**
      * @see docs/features.md F3.20 — Mark event as finished
      */

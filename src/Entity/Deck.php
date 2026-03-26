@@ -90,6 +90,9 @@ class Deck
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletedAt = null;
+
     /** @var Collection<int, DeckVersion> */
     #[ORM\OneToMany(targetEntity: DeckVersion::class, mappedBy: 'deck')]
     private Collection $versions;
@@ -281,6 +284,18 @@ class Deck
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getDeletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeImmutable $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
     }
 
     /**

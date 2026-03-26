@@ -31,6 +31,7 @@ Each milestone corresponds to a thematic phase of work. Issues are assigned to m
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
+| 0     | Soft Deletion                       | [Phase 0](https://github.com/jbourdin/expandedDecks/milestone/12) |
 | A     | UX Polish & Overdue Tracking        | [Phase A](https://github.com/jbourdin/expandedDecks/milestone/1) |
 | B     | Event Enrichment                    | [Phase B](https://github.com/jbourdin/expandedDecks/milestone/2) |
 | C     | PDF Labels & Camera Scanning        | [Phase C](https://github.com/jbourdin/expandedDecks/milestone/3) |

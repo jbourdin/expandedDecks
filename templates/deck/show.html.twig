@@ -105,6 +105,12 @@
                                 {% endif %}
                             </form>
                         {% endif %}
+                        {% if deck.deletedAt is null and activeBorrowCount == 0 %}
+                            <form method="post" action="{{ path('app_deck_delete', {id: deck.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.deck.delete_confirm'|trans|e('js') }}')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('deck-delete-' ~ deck.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.deck.delete_button'|trans }}</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 </span>
             </div>

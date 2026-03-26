@@ -45,6 +45,7 @@ class PageRepository extends ServiceEntityRepository
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->where('t.slug = :slug')
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('slug', $slug)
             ->getQuery()
             ->getOneOrNullResult();
@@ -59,6 +60,7 @@ class PageRepository extends ServiceEntityRepository
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->where('p.slug = :slug')
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('slug', $slug)
             ->getQuery()
             ->getOneOrNullResult();
@@ -78,6 +80,7 @@ class PageRepository extends ServiceEntityRepository
             ->addSelect('t')
             ->where('p.menuCategory = :category')
             ->andWhere('p.isPublished = true')
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('category', $category)
             ->orderBy('p.createdAt', 'DESC');
 
@@ -101,6 +104,7 @@ class PageRepository extends ServiceEntityRepository
             ->select('COUNT(p.id)')
             ->where('p.menuCategory = :category')
             ->andWhere('p.isPublished = true')
+            ->andWhere('p.deletedAt IS NULL')
             ->setParameter('category', $category)
             ->getQuery()
             ->getSingleScalarResult();
