@@ -14,7 +14,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.deck.catalog_title'|trans }}</h1>
         {% if is_granted('ROLE_USER') %}
-            <a href="{{ path('app_deck_new') }}" class="btn btn-gold">{{ 'app.deck.new_deck'|trans }}</a>
+            <div class="d-flex gap-2">
+                <a href="{{ path('app_deck_list', {owner: app.user.id}) }}" class="btn btn-outline-primary">{{ 'app.nav.my_decks'|trans }}</a>
+                <a href="{{ path('app_deck_new') }}" class="btn btn-gold">{{ 'app.deck.new_deck'|trans }}</a>
+            </div>
         {% endif %}
     </div>
 
@@ -52,7 +55,7 @@
                             ></div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">{{ 'app.deck.event_filter'|trans }}</label>
+                            <label class="form-label">{{ 'app.common.event'|trans }}</label>
                             <div data-catalog-event
                                  data-search-url="{{ path('app_event_search') }}"
                                  data-hidden-input="event"
@@ -101,6 +104,9 @@
                                 {{ deck_sprites(deck) }}<a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a>
                                 {% if not deck.public %}
                                     <i class="bi bi-lock-fill text-muted ms-1" title="{{ 'app.deck.not_public'|trans }}"></i>
+                                {% endif %}
+                                {% if deck.status.value == 'retired' %}
+                                    <span class="badge bg-secondary ms-1">{{ 'app.deck.badge_retired'|trans }}</span>
                                 {% endif %}
                             </h5>
                             <p class="card-text mb-1">

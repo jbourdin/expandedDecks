@@ -295,14 +295,14 @@ class DeckRepository extends ServiceEntityRepository
             ->join('d.owner', 'o')
             ->leftJoin('d.archetype', 'a')
             ->addSelect('o', 'a')
-            ->andWhere('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
-            ->setParameter('retired', DeckStatus::Retired)
             ->orderBy('d.updatedAt', 'DESC')
             ->addOrderBy('d.createdAt', 'DESC');
 
         if (!$selfOwner) {
-            $qb->andWhere('d.public = :public')
+            $qb->andWhere('d.status != :retired')
+                ->setParameter('retired', DeckStatus::Retired)
+                ->andWhere('d.public = :public')
                 ->setParameter('public', true);
         }
 
