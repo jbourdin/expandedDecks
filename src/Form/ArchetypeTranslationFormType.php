@@ -31,7 +31,7 @@ class ArchetypeTranslationFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'app.archetype.name_label',
+                'label' => 'app.common.name',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'app.archetype.description_label',

@@ -159,6 +159,66 @@
                 <target>Tous</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.status">
+                <source>app.common.status</source>
+                <target>Statut</target>
+                <note>Shared column header or label</note>
+            </trans-unit>
+            <trans-unit id="app.common.event">
+                <source>app.common.event</source>
+                <target>Événement</target>
+                <note>Shared column header or label</note>
+            </trans-unit>
+            <trans-unit id="app.common.deck">
+                <source>app.common.deck</source>
+                <target>Deck</target>
+                <note>Shared column header or label</note>
+            </trans-unit>
+            <trans-unit id="app.common.name">
+                <source>app.common.name</source>
+                <target>Nom</target>
+                <note>Shared column header or form label</note>
+            </trans-unit>
+            <trans-unit id="app.common.published">
+                <source>app.common.published</source>
+                <target>Publié</target>
+                <note>Shared column header or form label</note>
+            </trans-unit>
+            <trans-unit id="app.common.date">
+                <source>app.common.date</source>
+                <target>Date</target>
+                <note>Shared column header or label</note>
+            </trans-unit>
+            <trans-unit id="app.common.back_to_login">
+                <source>app.common.back_to_login</source>
+                <target>Retour à la connexion</target>
+                <note>Link to return to login page</note>
+            </trans-unit>
+            <trans-unit id="app.common.roles">
+                <source>app.common.roles</source>
+                <target>Rôles</target>
+                <note>Shared section or column header</note>
+            </trans-unit>
+            <trans-unit id="app.common.danger_zone">
+                <source>app.common.danger_zone</source>
+                <target>Zone de danger</target>
+                <note>Section heading for destructive actions</note>
+            </trans-unit>
+            <trans-unit id="app.common.slug">
+                <source>app.common.slug</source>
+                <target>Slug</target>
+                <note>Shared column header or form label</note>
+            </trans-unit>
+            <trans-unit id="app.common.lent">
+                <source>app.common.lent</source>
+                <target>Prêté</target>
+                <note>Badge label for lent status</note>
+            </trans-unit>
+            <trans-unit id="app.common.cancelled">
+                <source>app.common.cancelled</source>
+                <target>Annulé</target>
+                <note>Badge or label for cancelled status</note>
+            </trans-unit>
 
             <!-- Homepage -->
             <trans-unit id="app.home.title">
@@ -262,11 +322,6 @@
                 <source>app.dashboard.no_management_activity</source>
                 <target>Aucune activité de gestion pour le moment.</target>
                 <note>Empty state message shown when no items exist</note>
-            </trans-unit>
-            <trans-unit id="app.dashboard.badge_lent">
-                <source>app.dashboard.badge_lent</source>
-                <target>Prêté</target>
-                <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_retired">
                 <source>app.dashboard.badge_retired</source>
@@ -516,25 +571,9 @@
                 <source>app.deck.table_variant_toggle</source>
                 <target>Variante tableau</target>
             </trans-unit>
-            <trans-unit id="app.deck.table_original">
-                <source>app.deck.table_original</source>
-                <target>Originale</target>
-            </trans-unit>
-            <trans-unit id="app.deck.table_minified">
-                <source>app.deck.table_minified</source>
-                <target>Simplifiée</target>
-            </trans-unit>
             <trans-unit id="app.deck.mosaic_variant_toggle">
                 <source>app.deck.mosaic_variant_toggle</source>
                 <target>Variante mosaïque</target>
-            </trans-unit>
-            <trans-unit id="app.deck.mosaic_original">
-                <source>app.deck.mosaic_original</source>
-                <target>Originale</target>
-            </trans-unit>
-            <trans-unit id="app.deck.mosaic_minified">
-                <source>app.deck.mosaic_minified</source>
-                <target>Simplifiée</target>
             </trans-unit>
             <trans-unit id="app.deck.export_copy_tooltip">
                 <source>app.deck.export_copy_tooltip</source>
@@ -631,11 +670,6 @@
                 <target>Notes :</target>
                 <note>Label in deck detail info. Includes trailing colon</note>
             </trans-unit>
-            <trans-unit id="app.deck.badge_lent">
-                <source>app.deck.badge_lent</source>
-                <target>Prêté</target>
-                <note>Status badge on deck card</note>
-            </trans-unit>
             <trans-unit id="app.deck.badge_retired">
                 <source>app.deck.badge_retired</source>
                 <target>Retiré</target>
@@ -689,11 +723,6 @@
                 <source>app.deck.archetype_filter_placeholder</source>
                 <target>Sélectionner un archétype…</target>
                 <note>Catalog archetype filter placeholder</note>
-            </trans-unit>
-            <trans-unit id="app.deck.event_filter">
-                <source>app.deck.event_filter</source>
-                <target>Événement</target>
-                <note>Catalog filter label</note>
             </trans-unit>
             <trans-unit id="app.deck.borrow_activity">
                 <source>app.deck.borrow_activity</source>
@@ -749,21 +778,6 @@
                 <source>app.deck.event_status_overview</source>
                 <target>Aperçu des événements</target>
                 <note>Section heading for deck event status overview card</note>
-            </trans-unit>
-            <trans-unit id="app.deck.event_status.event">
-                <source>app.deck.event_status.event</source>
-                <target>Événement</target>
-                <note>Column header in event status overview table</note>
-            </trans-unit>
-            <trans-unit id="app.deck.event_status.date">
-                <source>app.deck.event_status.date</source>
-                <target>Date</target>
-                <note>Column header in event status overview table</note>
-            </trans-unit>
-            <trans-unit id="app.deck.event_status.status">
-                <source>app.deck.event_status.status</source>
-                <target>Statut</target>
-                <note>Column header in event status overview table</note>
             </trans-unit>
             <trans-unit id="app.deck.event_status.played">
                 <source>app.deck.event_status.played</source>
@@ -971,11 +985,6 @@
                 <target>Retour à l&apos;événement</target>
                 <note>Navigation link back to event detail</note>
             </trans-unit>
-            <trans-unit id="app.event.badge_cancelled">
-                <source>app.event.badge_cancelled</source>
-                <target>Annulé</target>
-                <note>Status badge shown when event is cancelled</note>
-            </trans-unit>
             <trans-unit id="app.event.badge_finished">
                 <source>app.event.badge_finished</source>
                 <target>Terminé</target>
@@ -995,11 +1004,6 @@
                 <source>app.event.finish_confirm</source>
                 <target>Êtes-vous sûr de vouloir marquer cet événement comme terminé ?</target>
                 <note>JavaScript confirm dialog when finishing an event</note>
-            </trans-unit>
-            <trans-unit id="app.event.date">
-                <source>app.event.date</source>
-                <target>Date</target>
-                <note>Table header label in event detail</note>
             </trans-unit>
             <trans-unit id="app.event.timezone">
                 <source>app.event.timezone</source>
@@ -1322,11 +1326,6 @@
                 <target>Chez le staff</target>
                 <note>Badge indicating a deck is in staff custody</note>
             </trans-unit>
-            <trans-unit id="app.event.deck_lent">
-                <source>app.event.deck_lent</source>
-                <target>Prêté</target>
-                <note>Badge indicating a deck is currently lent to a borrower</note>
-            </trans-unit>
             <trans-unit id="app.event.deck_reserved">
                 <source>app.event.deck_reserved</source>
                 <target>Réservé</target>
@@ -1377,11 +1376,6 @@
                 <target>Prise en charge staff</target>
                 <note>Section heading for staff custody tracking</note>
             </trans-unit>
-            <trans-unit id="app.event.custody.cancelled">
-                <source>app.event.custody.cancelled</source>
-                <target>Annulé</target>
-                <note>Badge shown when event is cancelled and deck was never handed over</note>
-            </trans-unit>
             <trans-unit id="app.event.hand_off">
                 <source>app.event.hand_off</source>
                 <target>Remettre</target>
@@ -1422,11 +1416,6 @@
                 <target>Prêt direct</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
-            <trans-unit id="app.event.walk_up.deck_label">
-                <source>app.event.walk_up.deck_label</source>
-                <target>Deck</target>
-                <note>Walk-up lending page for staff</note>
-            </trans-unit>
             <trans-unit id="app.event.walk_up.borrower_label">
                 <source>app.event.walk_up.borrower_label</source>
                 <target>Emprunteur</target>
@@ -1453,11 +1442,6 @@
                 <source>app.borrow.select_event</source>
                 <target>Sélectionner un événement...</target>
                 <note>Default option in event dropdown on borrow request form</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.event_label">
-                <source>app.borrow.event_label</source>
-                <target>Événement</target>
-                <note>Form field label</note>
             </trans-unit>
             <trans-unit id="app.borrow.notes_label">
                 <source>app.borrow.notes_label</source>
@@ -1529,16 +1513,6 @@
                 <target>Actions</target>
                 <note>Section heading for borrow action buttons</note>
             </trans-unit>
-            <trans-unit id="app.borrow.approve_button">
-                <source>app.borrow.approve_button</source>
-                <target>Approuver</target>
-                <note>Button to approve a borrow request</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.deny_button">
-                <source>app.borrow.deny_button</source>
-                <target>Refuser</target>
-                <note>Button to deny a borrow request</note>
-            </trans-unit>
             <trans-unit id="app.borrow.deny_confirm">
                 <source>app.borrow.deny_confirm</source>
                 <target>Refuser cette demande d&apos;emprunt ?</target>
@@ -1559,11 +1533,6 @@
                 <target>Retourner au propriétaire</target>
                 <note>Button for staff to return deck to owner</note>
             </trans-unit>
-            <trans-unit id="app.borrow.cancel_button">
-                <source>app.borrow.cancel_button</source>
-                <target>Annuler</target>
-                <note>Button to cancel a borrow</note>
-            </trans-unit>
             <trans-unit id="app.borrow.cancel_confirm">
                 <source>app.borrow.cancel_confirm</source>
                 <target>Annuler cet emprunt ?</target>
@@ -1573,11 +1542,6 @@
                 <source>app.borrow.awaiting_custody</source>
                 <target>En attente de remise</target>
                 <note>Badge shown when staff hasn't received the deck yet</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.list_all">
-                <source>app.borrow.list_all</source>
-                <target>Tous</target>
-                <note>Filter button to show all borrows</note>
             </trans-unit>
             <trans-unit id="app.borrow.no_borrows">
                 <source>app.borrow.no_borrows</source>
@@ -1659,16 +1623,6 @@
                 <target>Refusé</target>
                 <note>Borrow workflow status badge label</note>
             </trans-unit>
-            <trans-unit id="app.borrow.table.deck">
-                <source>app.borrow.table.deck</source>
-                <target>Deck</target>
-                <note>Column header in borrow/lend tables</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.table.event">
-                <source>app.borrow.table.event</source>
-                <target>Événement</target>
-                <note>Column header in borrow/lend tables</note>
-            </trans-unit>
             <trans-unit id="app.borrow.table.borrower">
                 <source>app.borrow.table.borrower</source>
                 <target>Emprunteur</target>
@@ -1677,16 +1631,6 @@
             <trans-unit id="app.borrow.table.owner">
                 <source>app.borrow.table.owner</source>
                 <target>Propriétaire</target>
-                <note>Column header in borrow/lend tables</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.table.status">
-                <source>app.borrow.table.status</source>
-                <target>Statut</target>
-                <note>Column header in borrow/lend tables</note>
-            </trans-unit>
-            <trans-unit id="app.borrow.table.date">
-                <source>app.borrow.table.date</source>
-                <target>Date</target>
                 <note>Column header in borrow/lend tables</note>
             </trans-unit>
             <trans-unit id="app.borrow.table.play">
@@ -1791,11 +1735,6 @@
                 <target>Envoyer le lien</target>
                 <note>Forgot password page</note>
             </trans-unit>
-            <trans-unit id="app.auth.forgot_password.back_to_login">
-                <source>app.auth.forgot_password.back_to_login</source>
-                <target>Retour à la connexion</target>
-                <note>Forgot password page</note>
-            </trans-unit>
             <trans-unit id="app.auth.reset_password.title">
                 <source>app.auth.reset_password.title</source>
                 <target>Réinitialiser le mot de passe</target>
@@ -1804,11 +1743,6 @@
             <trans-unit id="app.auth.reset_password.submit">
                 <source>app.auth.reset_password.submit</source>
                 <target>Réinitialiser</target>
-                <note>Reset password page</note>
-            </trans-unit>
-            <trans-unit id="app.auth.reset_password.back_to_login">
-                <source>app.auth.reset_password.back_to_login</source>
-                <target>Retour à la connexion</target>
                 <note>Reset password page</note>
             </trans-unit>
             <trans-unit id="app.auth.verification.title">
@@ -1824,11 +1758,6 @@
             <trans-unit id="app.auth.verification.submit">
                 <source>app.auth.verification.submit</source>
                 <target>Renvoyer l&apos;email</target>
-                <note>Email verification resend page</note>
-            </trans-unit>
-            <trans-unit id="app.auth.verification.back_to_login">
-                <source>app.auth.verification.back_to_login</source>
-                <target>Retour à la connexion</target>
                 <note>Email verification resend page</note>
             </trans-unit>
 
@@ -2298,10 +2227,6 @@
                 <source>app.profile.title</source>
                 <target>Mon profil</target>
                 <note>Profile page heading</note>
-            </trans-unit>
-            <trans-unit id="app.profile.roles_section">
-                <source>app.profile.roles_section</source>
-                <target>Rôles</target>
             </trans-unit>
             <trans-unit id="app.profile.organizer_role_hint">
                 <source>app.profile.organizer_role_hint</source>
@@ -2980,11 +2905,6 @@
                 <target>Vos préférences de notification ont été enregistrées.</target>
                 <note>Flash message after saving notification preferences</note>
             </trans-unit>
-            <trans-unit id="app.flash.invalid_csrf">
-                <source>app.flash.invalid_csrf</source>
-                <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
-                <note>Flash message for invalid CSRF token</note>
-            </trans-unit>
 
             <!-- Tournament Results (F3.17) -->
             <trans-unit id="app.event.results.title">
@@ -3011,11 +2931,6 @@
                 <source>app.event.results.archetype</source>
                 <target>Archétype</target>
                 <note>Results table header: archetype</note>
-            </trans-unit>
-            <trans-unit id="app.event.results.deck">
-                <source>app.event.results.deck</source>
-                <target>Deck</target>
-                <note>Results table header: deck</note>
             </trans-unit>
             <trans-unit id="app.event.results.no_results">
                 <source>app.event.results.no_results</source>
@@ -3164,11 +3079,6 @@
                 <target>Exporter mes données</target>
                 <note>Button to download personal data export</note>
             </trans-unit>
-            <trans-unit id="app.profile.danger_zone">
-                <source>app.profile.danger_zone</source>
-                <target>Zone de danger</target>
-                <note>Profile section title for account deletion</note>
-            </trans-unit>
             <trans-unit id="app.profile.delete_description">
                 <source>app.profile.delete_description</source>
                 <target>Demandez la suppression définitive de votre compte. Un e-mail de confirmation sera envoyé. Une fois confirmé, toutes vos données personnelles seront anonymisées et vous ne pourrez plus vous connecter.</target>
@@ -3268,11 +3178,6 @@
                 <target>Paramètres</target>
                 <note>Admin archetype edit card header</note>
             </trans-unit>
-            <trans-unit id="app.archetype.name_label">
-                <source>app.archetype.name_label</source>
-                <target>Nom</target>
-                <note>Admin archetype name field label</note>
-            </trans-unit>
             <trans-unit id="app.archetype.description_label">
                 <source>app.archetype.description_label</source>
                 <target>Description</target>
@@ -3307,16 +3212,6 @@
                 <source>app.archetype.pokemon_slugs_help</source>
                 <target>Slugs Pokemon séparés par des virgules pour l'affichage des sprites (ex. iron-thorns, mew). Les sprites apparaîtront à côté du nom de l'archétype.</target>
                 <note>Admin archetype pokemon slugs help text</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.is_published_label">
-                <source>app.archetype.is_published_label</source>
-                <target>Publié</target>
-                <note>Admin archetype published checkbox label</note>
-            </trans-unit>
-            <trans-unit id="app.admin.archetype.danger_zone">
-                <source>app.admin.archetype.danger_zone</source>
-                <target>Zone de danger</target>
-                <note>Heading for archetype delete section in admin</note>
             </trans-unit>
             <trans-unit id="app.admin.archetype.delete_confirm">
                 <source>app.admin.archetype.delete_confirm</source>
@@ -3373,24 +3268,9 @@
                 <target>Aucun archétype pour l'instant.</target>
                 <note>Empty state on admin archetype list</note>
             </trans-unit>
-            <trans-unit id="app.archetype.table.name">
-                <source>app.archetype.table.name</source>
-                <target>Nom</target>
-                <note>Admin archetype table column header</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.table.slug">
-                <source>app.archetype.table.slug</source>
-                <target>Slug</target>
-                <note>Admin archetype table column header</note>
-            </trans-unit>
             <trans-unit id="app.archetype.table.pokemon">
                 <source>app.archetype.table.pokemon</source>
                 <target>Pokemon</target>
-                <note>Admin archetype table column header</note>
-            </trans-unit>
-            <trans-unit id="app.archetype.table.published">
-                <source>app.archetype.table.published</source>
-                <target>Publié</target>
                 <note>Admin archetype table column header</note>
             </trans-unit>
 
@@ -3427,11 +3307,6 @@
                 <target>Trier par</target>
                 <note>Label for sort dropdown on archetype catalog</note>
             </trans-unit>
-            <trans-unit id="app.archetype.sort_name">
-                <source>app.archetype.sort_name</source>
-                <target>Nom</target>
-                <note>Sort option: alphabetical by name</note>
-            </trans-unit>
             <trans-unit id="app.archetype.sort_decks">
                 <source>app.archetype.sort_decks</source>
                 <target>Plus de decks</target>
@@ -3459,11 +3334,6 @@
                 <target>Gestion des utilisateurs</target>
                 <note>Admin user list page title</note>
             </trans-unit>
-            <trans-unit id="app.admin.user.search">
-                <source>app.admin.user.search</source>
-                <target>Rechercher</target>
-                <note>Admin user search label</note>
-            </trans-unit>
             <trans-unit id="app.admin.user.search_placeholder">
                 <source>app.admin.user.search_placeholder</source>
                 <target>Nom, e-mail ou ID joueur…</target>
@@ -3482,16 +3352,6 @@
             <trans-unit id="app.admin.user.table.email">
                 <source>app.admin.user.table.email</source>
                 <target>E-mail</target>
-                <note>Admin user table column header</note>
-            </trans-unit>
-            <trans-unit id="app.admin.user.table.roles">
-                <source>app.admin.user.table.roles</source>
-                <target>Rôles</target>
-                <note>Admin user table column header</note>
-            </trans-unit>
-            <trans-unit id="app.admin.user.table.status">
-                <source>app.admin.user.table.status</source>
-                <target>Statut</target>
                 <note>Admin user table column header</note>
             </trans-unit>
             <trans-unit id="app.admin.user.table.created">
@@ -3553,11 +3413,6 @@
                 <source>app.admin.user.detail.locale</source>
                 <target>Langue / Fuseau horaire</target>
                 <note>User detail label</note>
-            </trans-unit>
-            <trans-unit id="app.admin.user.roles_title">
-                <source>app.admin.user.roles_title</source>
-                <target>Rôles</target>
-                <note>Roles section title on user detail page</note>
             </trans-unit>
             <trans-unit id="app.admin.user.save_roles">
                 <source>app.admin.user.save_roles</source>
@@ -3688,10 +3543,6 @@
                 <source>app.cms.admin.missing_translations</source>
                 <target>Traduction manquante : %locales%</target>
             </trans-unit>
-            <trans-unit id="app.cms.admin.danger_zone">
-                <source>app.cms.admin.danger_zone</source>
-                <target>Zone de danger</target>
-            </trans-unit>
             <trans-unit id="app.cms.admin.delete_page">
                 <source>app.cms.admin.delete_page</source>
                 <target>Supprimer la page</target>
@@ -3736,10 +3587,6 @@
                 <source>app.cms.admin.no_categories</source>
                 <target>Aucune catégorie trouvée.</target>
             </trans-unit>
-            <trans-unit id="app.cms.admin.table.slug">
-                <source>app.cms.admin.table.slug</source>
-                <target>Slug</target>
-            </trans-unit>
             <trans-unit id="app.cms.admin.table.title">
                 <source>app.cms.admin.table.title</source>
                 <target>Titre</target>
@@ -3747,10 +3594,6 @@
             <trans-unit id="app.cms.admin.table.category">
                 <source>app.cms.admin.table.category</source>
                 <target>Catégorie</target>
-            </trans-unit>
-            <trans-unit id="app.cms.admin.table.status">
-                <source>app.cms.admin.table.status</source>
-                <target>Statut</target>
             </trans-unit>
             <trans-unit id="app.cms.admin.table.created">
                 <source>app.cms.admin.table.created</source>
@@ -3760,20 +3603,12 @@
                 <source>app.cms.admin.table.position</source>
                 <target>Position</target>
             </trans-unit>
-            <trans-unit id="app.cms.admin.table.name">
-                <source>app.cms.admin.table.name</source>
-                <target>Nom</target>
-            </trans-unit>
             <trans-unit id="app.cms.admin.table.pages_count">
                 <source>app.cms.admin.table.pages_count</source>
                 <target>Pages</target>
             </trans-unit>
 
             <!-- CMS: Form labels -->
-            <trans-unit id="app.cms.form.slug">
-                <source>app.cms.form.slug</source>
-                <target>Slug</target>
-            </trans-unit>
             <trans-unit id="app.cms.form.slug_placeholder">
                 <source>app.cms.form.slug_placeholder</source>
                 <target>mon-slug-de-page</target>
@@ -3785,10 +3620,6 @@
             <trans-unit id="app.cms.form.no_category">
                 <source>app.cms.form.no_category</source>
                 <target>— Aucune catégorie —</target>
-            </trans-unit>
-            <trans-unit id="app.cms.form.published">
-                <source>app.cms.form.published</source>
-                <target>Publié</target>
             </trans-unit>
             <trans-unit id="app.cms.form.no_index">
                 <source>app.cms.form.no_index</source>
@@ -3840,10 +3671,6 @@
             </trans-unit>
 
             <!-- CMS: Status badges -->
-            <trans-unit id="app.cms.status.published">
-                <source>app.cms.status.published</source>
-                <target>Publié</target>
-            </trans-unit>
             <trans-unit id="app.cms.status.draft">
                 <source>app.cms.status.draft</source>
                 <target>Brouillon</target>
@@ -3933,10 +3760,6 @@
                 <source>app.event.filter_scope</source>
                 <target>Filtrer les événements</target>
             </trans-unit>
-            <trans-unit id="app.event.scope_all">
-                <source>app.event.scope_all</source>
-                <target>Tous</target>
-            </trans-unit>
             <trans-unit id="app.event.scope_public">
                 <source>app.event.scope_public</source>
                 <target>Publics</target>
@@ -3965,17 +3788,9 @@
                 <source>app.admin.technical.enrich.pending_count</source>
                 <target>%count% version(s) de deck en attente d'enrichissement.</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.enrich.table.deck">
-                <source>app.admin.technical.enrich.table.deck</source>
-                <target>Deck</target>
-            </trans-unit>
             <trans-unit id="app.admin.technical.enrich.table.version">
                 <source>app.admin.technical.enrich.table.version</source>
                 <target>Version</target>
-            </trans-unit>
-            <trans-unit id="app.admin.technical.enrich.table.status">
-                <source>app.admin.technical.enrich.table.status</source>
-                <target>Statut</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.enrich.retry_button">
                 <source>app.admin.technical.enrich.retry_button</source>

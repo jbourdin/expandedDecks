@@ -17,7 +17,7 @@
             <h5 class="mb-0">{{ event.name }}</h5>
             <div class="d-flex align-items-center gap-2">
                 {% if event.cancelledAt %}
-                    <span class="badge bg-danger">{{ 'app.event.badge_cancelled'|trans }}</span>
+                    <span class="badge bg-danger">{{ 'app.common.cancelled'|trans }}</span>
                 {% elseif event.finishedAt %}
                     <span class="badge bg-secondary">{{ 'app.event.badge_finished'|trans }}</span>
                 {% endif %}
@@ -36,7 +36,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <dl class="row mb-md-0">
-                        <dt class="col-sm-4">{{ 'app.event.date'|trans }}</dt>
+                        <dt class="col-sm-4">{{ 'app.common.date'|trans }}</dt>
                         <dd class="col-sm-8">
                             {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
                             {% if event.endDate %}
@@ -271,8 +271,8 @@
                     <table class="table table-sm table-themed mb-0">
                         <thead>
                             <tr>
-                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                <th>{{ 'app.common.deck'|trans }}</th>
+                                <th>{{ 'app.common.status'|trans }}</th>
                                 <th>{{ 'app.borrow.table.available'|trans }}</th>
                                 <th>{{ 'app.borrow.table.delegate_to_staff'|trans }}</th>
                                 <th>Custody</th>
@@ -333,7 +333,7 @@
                                                 <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned to me</button>
                                             </form>
                                         {% elseif event.cancelledAt %}
-                                            <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                            <span class="badge bg-secondary">{{ 'app.common.cancelled'|trans }}</span>
                                         {% else %}
                                             <span class="badge bg-warning text-dark">Not handed over</span>
                                             <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline ms-1">
@@ -401,7 +401,7 @@
                                                 <button type="submit" class="btn btn-sm btn-outline-primary">Mark returned</button>
                                             </form>
                                         {% elseif event.cancelledAt %}
-                                            <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                            <span class="badge bg-secondary">{{ 'app.common.cancelled'|trans }}</span>
                                         {% else %}
                                             <span class="badge bg-warning text-dark me-1">Not handed over</span>
                                             <form method="post" action="{{ path('app_event_custody_owner_handover', {id: event.id, registrationId: regInfo.registrationId}) }}" class="d-inline">
@@ -434,7 +434,7 @@
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
-                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                    <th>{{ 'app.common.deck'|trans }}</th>
                                     <th>{{ 'app.borrow.table.owner'|trans }}</th>
                                     <th>Custody</th>
                                     <th></th>
@@ -455,7 +455,7 @@
                                             {% elseif reg.staffReceivedAt %}
                                                 <span class="badge bg-info">With staff</span>
                                             {% elseif event.cancelledAt %}
-                                                <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                                <span class="badge bg-secondary">{{ 'app.common.cancelled'|trans }}</span>
                                             {% else %}
                                                 <span class="badge bg-warning text-dark">Awaiting handover</span>
                                             {% endif %}
@@ -493,7 +493,7 @@
                                     {% elseif reg.staffReceivedAt %}
                                         <span class="badge bg-info">With staff</span>
                                     {% elseif event.cancelledAt %}
-                                        <span class="badge bg-secondary">{{ 'app.event.custody.cancelled'|trans }}</span>
+                                        <span class="badge bg-secondary">{{ 'app.common.cancelled'|trans }}</span>
                                     {% else %}
                                         <span class="badge bg-warning text-dark">Awaiting</span>
                                     {% endif %}
@@ -525,10 +525,10 @@
                         <table class="table table-striped table-themed mb-0">
                             <thead>
                                 <tr>
-                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                    <th>{{ 'app.common.deck'|trans }}</th>
                                     <th>{{ 'app.borrow.table.owner'|trans }}</th>
                                     <th>{{ 'app.borrow.table.borrower'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                    <th>{{ 'app.common.status'|trans }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -548,12 +548,12 @@
                                                 <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+                                                    <button type="submit" class="btn btn-sm btn-success">{{ 'app.common.approve'|trans }}</button>
                                                 </form>
                                                 <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.deny'|trans }}</button>
                                                 </form>
                                             {% elseif borrow.status.value == 'approved' %}
                                                 {% set awaitingCustody = false %}
@@ -579,7 +579,7 @@
                                                 <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
                                                     <input type="hidden" name="redirect_to" value="event">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.cancel'|trans }}</button>
                                                 </form>
                                             {% endif %}
                                             <a href="{{ path('app_borrow_show', {id: borrow.id}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
@@ -607,12 +607,12 @@
                                         <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="event">
-                                            <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+                                            <button type="submit" class="btn btn-sm btn-success">{{ 'app.common.approve'|trans }}</button>
                                         </form>
                                         <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                                             <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                                             <input type="hidden" name="redirect_to" value="event">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.deny'|trans }}</button>
                                         </form>
                                     {% elseif borrow.status.value == 'approved' %}
                                         {% set awaitingCustody = false %}
@@ -670,8 +670,8 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px;">{{ 'app.borrow.table.play'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                    <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                    <th>{{ 'app.common.deck'|trans }}</th>
+                                    <th>{{ 'app.common.status'|trans }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -706,7 +706,7 @@
                                             {% if isWithStaff %}
                                                 <span class="badge bg-info">{{ 'app.event.with_staff'|trans }}</span>
                                             {% elseif isDeckLent %}
-                                                <span class="badge bg-warning text-dark">{{ 'app.event.deck_lent'|trans }}</span>
+                                                <span class="badge bg-warning text-dark">{{ 'app.common.lent'|trans }}</span>
                                             {% elseif hasBorrowBlock %}
                                                 <span class="badge bg-primary">{{ 'app.event.deck_reserved'|trans }}</span>
                                             {% elseif pendingBorrowCount > 0 %}
@@ -775,9 +775,9 @@
                     <table class="table table-sm table-themed mb-0">
                         <thead>
                             <tr>
-                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                                <th>{{ 'app.common.deck'|trans }}</th>
                                 <th>{{ 'app.borrow.table.borrower'|trans }}</th>
-                                <th>{{ 'app.borrow.table.status'|trans }}</th>
+                                <th>{{ 'app.common.status'|trans }}</th>
                                 <th></th>
                             </tr>
                         </thead>

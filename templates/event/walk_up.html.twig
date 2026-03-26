@@ -22,7 +22,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token('walk-up-' ~ event.id) }}">
 
                 <div class="mb-3">
-                    <label class="form-label">{{ 'app.event.walk_up.deck_label'|trans }}</label>
+                    <label class="form-label">{{ 'app.common.deck'|trans }}</label>
                     <div data-walk-up-deck-autocomplete
                          data-search-url="{{ path('app_deck_search') }}?event_id={{ event.id }}"
                          data-hidden-input="deck_id"

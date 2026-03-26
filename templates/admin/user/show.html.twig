@@ -61,7 +61,7 @@
     {% if not user.anonymized %}
         <div class="card shadow-sm mb-3">
             <div class="card-header card-header-themed">
-                <h5 class="mb-0">{{ 'app.admin.user.roles_title'|trans }}</h5>
+                <h5 class="mb-0">{{ 'app.common.roles'|trans }}</h5>
             </div>
             <div class="card-body">
                 <form method="post" action="{{ path('app_admin_user_roles', {id: user.id}) }}">

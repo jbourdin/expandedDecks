@@ -16,13 +16,13 @@
                 <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
                 {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+                <button type="submit" class="btn btn-sm btn-success">{{ 'app.common.approve'|trans }}</button>
             </form>
             <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                 <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
                 {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.deny'|trans }}</button>
             </form>
         {% endif %}
         {% if isBorrower %}
@@ -30,7 +30,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
                 {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.cancel'|trans }}</button>
             </form>
         {% endif %}
     {% elseif borrow.status.value == 'approved' %}
@@ -52,7 +52,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
                 {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.cancel'|trans }}</button>
             </form>
         {% endif %}
     {% elseif borrow.status.value == 'lent' or borrow.status.value == 'overdue' %}
@@ -80,9 +80,9 @@
                 <table class="table table-striped table-themed mb-0">
                     <thead>
                         <tr>
-                            <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                            <th>{{ 'app.common.deck'|trans }}</th>
                             <th>{{ 'app.borrow.table.borrower'|trans }}</th>
-                            <th>{{ 'app.borrow.table.status'|trans }}</th>
+                            <th>{{ 'app.common.status'|trans }}</th>
                             <th>{{ 'app.borrow.inbox_requested'|trans }}</th>
                             <th></th>
                         </tr>
