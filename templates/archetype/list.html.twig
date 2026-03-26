@@ -40,7 +40,7 @@
                     <label class="form-label">{{ 'app.archetype.sort_by'|trans }}</label>
                     <select class="form-select form-select-sm" onchange="window.location.href=this.value">
                         <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
-                            {{ 'app.archetype.sort_name'|trans }}
+                            {{ 'app.common.name'|trans }}
                         </option>
                         <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
                             {{ 'app.archetype.sort_decks'|trans }}

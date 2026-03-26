@@ -20,7 +20,7 @@
 
     {% if app.user %}
         <div class="btn-group mb-4" role="group" aria-label="{{ 'app.event.filter_scope'|trans }}">
-            <a href="{{ path('app_event_list', {scope: 'all'}) }}" class="btn btn-sm {{ scope|default('all') == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_all'|trans }}</a>
+            <a href="{{ path('app_event_list', {scope: 'all'}) }}" class="btn btn-sm {{ scope|default('all') == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.common.all'|trans }}</a>
             <a href="{{ path('app_event_list', {scope: 'public'}) }}" class="btn btn-sm {{ scope|default('all') == 'public' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_public'|trans }}</a>
             <a href="{{ path('app_event_list', {scope: 'staffing'}) }}" class="btn btn-sm {{ scope|default('all') == 'staffing' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_staffing'|trans }}</a>
         </div>

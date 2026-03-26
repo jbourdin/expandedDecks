@@ -140,7 +140,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck_sprites(deck) }}{{ deck.name }}</a>
                                     {% if deck.status.value == 'lent' %}
-                                        <span class="badge badge-lent">{{ 'app.dashboard.badge_lent'|trans }}</span>
+                                        <span class="badge badge-lent">{{ 'app.common.lent'|trans }}</span>
                                     {% elseif deck.status.value == 'retired' %}
                                         <span class="badge badge-retired">{{ 'app.dashboard.badge_retired'|trans }}</span>
                                     {% endif %}

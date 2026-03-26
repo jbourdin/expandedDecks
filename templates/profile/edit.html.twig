@@ -35,7 +35,7 @@
                         {{ form_row(form.timezone) }}
 
                         <hr>
-                        <h6 class="text-muted mb-3">{{ 'app.profile.roles_section'|trans }}</h6>
+                        <h6 class="text-muted mb-3">{{ 'app.common.roles'|trans }}</h6>
 
                         {{ form_row(form.organizerRole) }}
                         {% if is_granted('ROLE_ADMIN') %}
@@ -70,7 +70,7 @@
 
             <div class="card shadow-sm mt-4 border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">{{ 'app.profile.danger_zone'|trans }}</h5>
+                    <h5 class="mb-0">{{ 'app.common.danger_zone'|trans }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted mb-3">{{ 'app.profile.delete_description'|trans }}</p>

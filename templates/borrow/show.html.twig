@@ -21,11 +21,11 @@
             <table class="table table-sm table-themed mb-0">
                 <tbody>
                     <tr>
-                        <th>{{ 'app.borrow.table.deck'|trans }}</th>
+                        <th>{{ 'app.common.deck'|trans }}</th>
                         <td><a href="{{ path('app_deck_show', {short_tag: borrow.deck.shortTag}) }}">{{ borrow.deck.name }}</a></td>
                     </tr>
                     <tr>
-                        <th>{{ 'app.borrow.table.event'|trans }}</th>
+                        <th>{{ 'app.common.event'|trans }}</th>
                         <td><a href="{{ path('app_event_show', {id: borrow.event.id}) }}">{{ borrow.event.name }}</a></td>
                     </tr>
                     <tr>
@@ -111,13 +111,13 @@
                 {% if canApprove %}
                     <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
-                        <button type="submit" class="btn btn-sm btn-success">{{ 'app.borrow.approve_button'|trans }}</button>
+                        <button type="submit" class="btn btn-sm btn-success">{{ 'app.common.approve'|trans }}</button>
                     </form>
                 {% endif %}
                 {% if canDeny %}
                     <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                         <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.deny_button'|trans }}</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.deny'|trans }}</button>
                     </form>
                 {% endif %}
                 {% if canHandOff %}
@@ -141,7 +141,7 @@
                 {% if canCancel %}
                     <form method="post" action="{{ path('app_borrow_cancel', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.cancel_confirm'|trans }}')">
                         <input type="hidden" name="_token" value="{{ csrf_token('cancel-borrow-' ~ borrow.id) }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.borrow.cancel_button'|trans }}</button>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.common.cancel'|trans }}</button>
                     </form>
                 {% endif %}
             </div>
