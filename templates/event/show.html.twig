@@ -827,6 +827,12 @@
                 </form>
             {% endif %}
         {% endif %}
+        {% if is_granted('ROLE_ADMIN') and event.deletedAt is null %}
+            <form method="post" action="{{ path('app_event_delete', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.delete_confirm'|trans|e('js') }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('event-delete-' ~ event.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.delete_button'|trans }}</button>
+            </form>
+        {% endif %}
     </div>
 {% endblock %}
 

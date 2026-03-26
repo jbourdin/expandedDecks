@@ -63,7 +63,9 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if page.published %}
+                                        {% if page.deletedAt is not null %}
+                                            <span class="badge bg-danger">{{ 'app.common.deleted'|trans }}</span>
+                                        {% elseif page.published %}
                                             <span class="badge bg-success">{{ 'app.cms.status.published'|trans }}</span>
                                         {% else %}
                                             <span class="badge bg-warning text-dark">{{ 'app.cms.status.draft'|trans }}</span>

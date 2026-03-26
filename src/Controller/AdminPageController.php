@@ -162,10 +162,10 @@ class AdminPageController extends AbstractAppController
             return $this->redirectToRoute('app_admin_page_edit', ['id' => $page->getId()]);
         }
 
-        $this->em->remove($page);
+        $page->setDeletedAt(new \DateTimeImmutable());
         $this->em->flush();
 
-        $this->addFlash('success', 'app.cms.page_deleted');
+        $this->addFlash('success', 'app.flash.page.deleted');
 
         return $this->redirectToRoute('app_admin_page_list');
     }

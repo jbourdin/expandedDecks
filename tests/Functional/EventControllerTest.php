@@ -517,7 +517,9 @@ class EventControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorNotExists('button.btn-outline-danger');
+        // Cancel and finish buttons should be hidden on a cancelled event
+        self::assertSelectorNotExists('button:contains("Cancel Event")');
+        self::assertSelectorNotExists('button:contains("Finish Event")');
     }
 
     // ---------------------------------------------------------------

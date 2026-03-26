@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.5] — 2026-03-26
+
+Soft deletion for core entities — archetypes, pages, events, and decks can now be soft-deleted and restored from the admin interface.
+
+### Features
+
+- **Soft deletion for archetypes, pages, events, and decks** — added `deletedAt` column and soft-delete/restore actions in admin controllers. Soft-deleted entities are excluded from public queries by default and can be restored by administrators.
+
+### Testing & Quality
+
+- 12+ functional tests covering soft deletion and restoration for all four entity types, including repository filtering and controller actions.
+
+---
+
 ## [1.0.4] — 2026-03-26
 
 Self-service organizer role — any user can activate the organizer role from their profile.

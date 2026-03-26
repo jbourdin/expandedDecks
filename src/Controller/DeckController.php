@@ -22,6 +22,7 @@ use App\Enum\DeckStatus;
 use App\Form\DeckFormType;
 use App\Form\DeckImportFormType;
 use App\Message\EnrichDeckVersionMessage;
+use App\Repository\BorrowRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Service\BorrowService;
@@ -249,6 +250,31 @@ class DeckController extends AbstractAppController
         }
 
         return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+    }
+
+    #[Route('/{id}/delete', name: 'app_deck_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function delete(Deck $deck, Request $request, EntityManagerInterface $em, BorrowRepository $borrowRepository): Response
+    {
+        $this->denyAccessUnlessOwner($deck);
+
+        if (!$this->isCsrfTokenValid('deck-delete-'.$deck->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+        }
+
+        if ($borrowRepository->countActiveBorrowsForDeck($deck) > 0) {
+            $this->addFlash('danger', 'app.deck.cannot_delete_active_borrows');
+
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+        }
+
+        $deck->setDeletedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.deck.deleted');
+
+        return $this->redirectToRoute('app_deck_list');
     }
 
     /**
