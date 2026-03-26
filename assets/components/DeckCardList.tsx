@@ -15,9 +15,10 @@
  * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
  */
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActionIcon,
+    CloseButton,
     Group,
     Loader,
     Modal,
@@ -25,9 +26,10 @@ import {
     Table,
     Text,
     Tooltip,
+    UnstyledButton,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconCheck, IconShare, IconShoppingCart } from '@tabler/icons-react';
+import { IconCopy, IconCheck, IconShare, IconShoppingCart, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 interface CardData {
     cardName: string;
@@ -78,10 +80,117 @@ type Variant = 'original' | 'minified';
 type ViewMode = 'table' | 'mosaic';
 
 /**
+ * Card image gallery modal — mobile swipeable viewer with prev/next navigation.
+ *
+ * @see docs/features.md F6.2 — TCGdex card data enrichment
+ */
+const CardImageModal: React.FC<{
+    opened: boolean;
+    cards: CardEntry[];
+    currentIndex: number;
+    onClose: () => void;
+    onNavigate: (index: number) => void;
+}> = ({ opened, cards, currentIndex, onClose, onNavigate }) => {
+    const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
+
+    const card = cards[currentIndex];
+
+    const navigate = useCallback((direction: number) => {
+        onNavigate((currentIndex + direction + cards.length) % cards.length);
+    }, [currentIndex, cards.length, onNavigate]);
+
+    useEffect(() => {
+        if (!opened) return;
+
+        const handleKeyDown = (event: KeyboardEvent): void => {
+            if (event.key === 'ArrowLeft') navigate(-1);
+            if (event.key === 'ArrowRight') navigate(1);
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [opened, navigate]);
+
+    if (!card) return null;
+
+    const title = `${card.quantity} \u00d7 ${card.name}`;
+
+    return (
+        <Modal
+            opened={opened}
+            onClose={onClose}
+            withCloseButton={false}
+            centered
+            size="sm"
+            padding={0}
+            styles={{
+                body: { padding: 0 },
+                content: { overflow: 'hidden' },
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}>
+                <Text size="sm" fw={500} style={{ flex: 1 }}>{title}</Text>
+                <Text size="xs" c="dimmed" style={{ marginRight: 8 }}>
+                    {currentIndex + 1} / {cards.length}
+                </Text>
+                <CloseButton onClick={onClose} />
+            </div>
+            <div
+                style={{ position: 'relative', textAlign: 'center', padding: '0 8px 8px' }}
+                onTouchStart={(event) => {
+                    touchStartX.current = event.touches[0].clientX;
+                    touchStartY.current = event.touches[0].clientY;
+                }}
+                onTouchMove={(event) => {
+                    const deltaX = Math.abs(event.touches[0].clientX - touchStartX.current);
+                    const deltaY = Math.abs(event.touches[0].clientY - touchStartY.current);
+                    if (deltaY > deltaX) {
+                        event.preventDefault();
+                    }
+                }}
+                onTouchEnd={(event) => {
+                    const deltaX = event.changedTouches[0].clientX - touchStartX.current;
+                    if (Math.abs(deltaX) > 50) {
+                        navigate(deltaX < 0 ? 1 : -1);
+                    }
+                }}
+            >
+                <UnstyledButton
+                    onClick={() => navigate(-1)}
+                    style={{ position: 'absolute', left: 4, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}
+                >
+                    <IconChevronLeft size={28} />
+                </UnstyledButton>
+                <img
+                    src={card.imageUrl}
+                    alt={card.name}
+                    style={{ maxWidth: '100%', borderRadius: 4 }}
+                />
+                <UnstyledButton
+                    onClick={() => navigate(1)}
+                    style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}
+                >
+                    <IconChevronRight size={28} />
+                </UnstyledButton>
+            </div>
+        </Modal>
+    );
+};
+
+interface CardEntry {
+    imageUrl: string;
+    name: string;
+    quantity: number;
+}
+
+/**
  * Card hover preview — shows card image on mouse hover (desktop) or tap (mobile modal).
  */
-const CardName: React.FC<{ card: CardData }> = ({ card }) => {
+const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card, onMobileTap }) => {
     const [showPreview, setShowPreview] = useState(false);
+    const isMobile = useMediaQuery('(max-width: 767px)');
 
     if (!card.imageUrl) {
         return <>{card.cardName}</>;
@@ -93,10 +202,16 @@ const CardName: React.FC<{ card: CardData }> = ({ card }) => {
             data-quantity={card.quantity}
             onMouseEnter={() => setShowPreview(true)}
             onMouseLeave={() => setShowPreview(false)}
+            onClick={(event) => {
+                if (isMobile && onMobileTap) {
+                    event.preventDefault();
+                    onMobileTap();
+                }
+            }}
         >
             {card.cardName}
             <img
-                className={`card-hover-img${showPreview ? '' : ''}`}
+                className="card-hover-img"
                 src={card.imageUrl}
                 alt={card.cardName}
                 style={{ display: showPreview ? 'block' : undefined }}
@@ -112,7 +227,8 @@ const CardSection: React.FC<{
     label: string;
     cards: CardData[];
     tableLabels: { qty: string; card: string; set: string };
-}> = ({ label, cards, tableLabels }) => (
+    onCardTap?: (card: CardData) => void;
+}> = ({ label, cards, tableLabels, onCardTap }) => (
     <div className="card shadow-sm">
         <div className="card-header card-header-themed">
             <h5 className="mb-0">{label}</h5>
@@ -132,7 +248,7 @@ const CardSection: React.FC<{
                         <Table.Tr key={`${card.cardName}-${card.setCode}-${card.cardNumber}-${index}`}>
                             <Table.Td>{card.quantity}</Table.Td>
                             <Table.Td>
-                                <CardName card={card} />
+                                <CardName card={card} onMobileTap={onCardTap ? () => onCardTap(card) : undefined} />
                             </Table.Td>
                             <Table.Td><code>{card.setCode}</code></Table.Td>
                             <Table.Td>{card.cardNumber}</Table.Td>
@@ -150,7 +266,8 @@ const CardSection: React.FC<{
 const CardTable: React.FC<{
     groupedCards: Record<string, CardData[]>;
     labels: Labels;
-}> = ({ groupedCards, labels }) => {
+    onCardTap?: (card: CardData) => void;
+}> = ({ groupedCards, labels, onCardTap }) => {
     const pokemonCards = groupedCards.pokemon ?? [];
     const trainerCards = groupedCards.trainer ?? [];
     const energyCards = groupedCards.energy ?? [];
@@ -162,21 +279,21 @@ const CardTable: React.FC<{
         <div className="row">
             <div className="col-md-6 mb-3">
                 {pokemonCards.length > 0 && (
-                    <CardSection label={labels.sectionPokemon} cards={pokemonCards} tableLabels={tableLabels} />
+                    <CardSection label={labels.sectionPokemon} cards={pokemonCards} tableLabels={tableLabels} onCardTap={onCardTap} />
                 )}
                 {energyInLeft && energyCards.length > 0 && (
                     <div className="mt-3">
-                        <CardSection label={labels.sectionEnergy} cards={energyCards} tableLabels={tableLabels} />
+                        <CardSection label={labels.sectionEnergy} cards={energyCards} tableLabels={tableLabels} onCardTap={onCardTap} />
                     </div>
                 )}
             </div>
             <div className="col-md-6 mb-3">
                 {trainerCards.length > 0 && (
-                    <CardSection label={labels.sectionTrainer} cards={trainerCards} tableLabels={tableLabels} />
+                    <CardSection label={labels.sectionTrainer} cards={trainerCards} tableLabels={tableLabels} onCardTap={onCardTap} />
                 )}
                 {!energyInLeft && energyCards.length > 0 && (
                     <div className="mt-3">
-                        <CardSection label={labels.sectionEnergy} cards={energyCards} tableLabels={tableLabels} />
+                        <CardSection label={labels.sectionEnergy} cards={energyCards} tableLabels={tableLabels} onCardTap={onCardTap} />
                     </div>
                 )}
             </div>
@@ -218,6 +335,8 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     const [copied, setCopied] = useState(false);
     const [cardmarketCopied, setCardmarketCopied] = useState(false);
     const [mosaicModalOpen, setMosaicModalOpen] = useState(false);
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [cardModalIndex, setCardModalIndex] = useState(0);
     const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const cardmarketCopyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -240,6 +359,29 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     const activeList = variant === 'minified' && minifiedList !== null
         ? minifiedList
         : rawList;
+
+    const flatCards: CardEntry[] = useMemo(() => {
+        const entries: CardEntry[] = [];
+        const order = ['pokemon', 'trainer', 'energy'];
+
+        for (const section of order) {
+            for (const card of activeCards[section] ?? []) {
+                if (card.imageUrl) {
+                    entries.push({ imageUrl: card.imageUrl, name: card.cardName, quantity: card.quantity });
+                }
+            }
+        }
+
+        return entries;
+    }, [activeCards]);
+
+    const handleCardTap = useCallback((card: CardData) => {
+        const index = flatCards.findIndex((entry) => entry.imageUrl === card.imageUrl && entry.name === card.cardName);
+        if (index >= 0) {
+            setCardModalIndex(index);
+            setCardModalOpen(true);
+        }
+    }, [flatCards]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(activeList.trim()).then(() => {
@@ -403,7 +545,7 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
 
             {/* Table view */}
             {!isMinifiedPending && (viewMode === 'table' || isMobile) && (
-                <CardTable groupedCards={activeCards} labels={labels} />
+                <CardTable groupedCards={activeCards} labels={labels} onCardTap={handleCardTap} />
             )}
 
             {/* Mosaic view (desktop inline) */}
@@ -421,6 +563,15 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
             {isMosaicPending && !isMobile && !isMinifiedPending && (
                 <GeneratingPlaceholder message={labels.mosaicGenerating} />
             )}
+
+            {/* Card image gallery modal (mobile tap-to-view with swipe) */}
+            <CardImageModal
+                opened={cardModalOpen}
+                cards={flatCards}
+                currentIndex={cardModalIndex}
+                onClose={() => setCardModalOpen(false)}
+                onNavigate={setCardModalIndex}
+            />
 
             {/* Mosaic fullscreen modal (mobile) */}
             <Modal
