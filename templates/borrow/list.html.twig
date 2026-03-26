@@ -22,7 +22,7 @@
     <div class="mb-3 d-flex flex-wrap gap-1">
         <a href="{{ path(listRoute, scopeParams) }}"
            class="btn btn-sm {{ currentStatus is null ? 'btn-primary' : 'btn-outline-secondary' }}">
-            {{ 'app.borrow.list_all'|trans }}
+            {{ 'app.common.all'|trans }}
         </a>
         {% for status in statuses %}
             <a href="{{ path(listRoute, scopeParams|merge({status: status.value})) }}"
@@ -58,15 +58,15 @@
                     <table class="table table-striped table-themed mb-0">
                         <thead>
                             <tr>
-                                <th>{{ 'app.borrow.table.deck'|trans }}</th>
-                                <th>{{ 'app.borrow.table.event'|trans }}</th>
+                                <th>{{ 'app.common.deck'|trans }}</th>
+                                <th>{{ 'app.common.event'|trans }}</th>
                                 {% if mode != 'borrows' %}
                                     <th>{{ 'app.borrow.table.borrower'|trans }}</th>
                                 {% else %}
                                     <th>{{ 'app.borrow.table.owner'|trans }}</th>
                                 {% endif %}
-                                <th>{{ 'app.borrow.table.status'|trans }}</th>
-                                <th>{{ 'app.borrow.table.date'|trans }}</th>
+                                <th>{{ 'app.common.status'|trans }}</th>
+                                <th>{{ 'app.common.date'|trans }}</th>
                                 <th></th>
                             </tr>
                         </thead>

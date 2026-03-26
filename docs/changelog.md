@@ -16,6 +16,26 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.6] — 2026-03-26
+
+My Decks filter, retired deck visibility fix, mobile card gallery restoration, and translation cleanup.
+
+### Features
+
+- **My Decks filter** — added a "My Decks" shortcut button on the deck catalog page that filters to the current user's decks, including private and retired ones. Retired decks display a "Retired" badge in the card grid.
+- **Mobile card image gallery** — restored the swipeable card image modal on mobile. Tapping a card name opens a Mantine modal with the card image, quantity, position counter (e.g. "3 / 28"), prev/next chevrons, touch swipe navigation, and keyboard arrow support with cycling.
+
+### Bug Fixes
+
+- **Retired decks visible in owner's catalog** — the deck catalog query now skips the retired-status filter when the owner views their own decks (`selfOwner`), so retired decks are no longer hidden.
+
+### Refactoring
+
+- **Translation deduplication** — consolidated 52 duplicate translation keys into shared `app.common.*` keys across both EN and FR XLIFF files. Removed 4 dead/unused keys. Net reduction of ~364 lines.
+- **Removed dead Bootstrap card modal** — replaced the unused Bootstrap card image modal in the deck show template with the React/Mantine implementation.
+
+---
+
 ## [1.0.5] — 2026-03-26
 
 Soft deletion for core entities — archetypes, pages, events, and decks can now be soft-deleted and restored from the admin interface.

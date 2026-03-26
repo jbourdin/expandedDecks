@@ -66,7 +66,7 @@
     {# Delete #}
     <div class="card shadow-sm border-danger">
         <div class="card-body">
-            <h5 class="text-danger">{{ 'app.cms.admin.danger_zone'|trans }}</h5>
+            <h5 class="text-danger">{{ 'app.common.danger_zone'|trans }}</h5>
             <form method="post" action="{{ path('app_admin_menu_category_delete', {id: category.id}) }}" onsubmit="return confirm('{{ 'app.cms.admin.delete_category_confirm'|trans }}')">
                 <input type="hidden" name="_token" value="{{ csrf_token('category-delete-' ~ category.id) }}">
                 <button type="submit" class="btn btn-outline-danger">{{ 'app.cms.admin.delete_category'|trans }}</button>

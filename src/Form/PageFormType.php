@@ -38,7 +38,7 @@ class PageFormType extends AbstractType
 
         $builder
             ->add('slug', TextType::class, [
-                'label' => 'app.cms.form.slug',
+                'label' => 'app.common.slug',
                 'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
             ])
             ->add('menuCategory', EntityType::class, [
@@ -51,7 +51,7 @@ class PageFormType extends AbstractType
                     ->orderBy('c.position', 'ASC'),
             ])
             ->add('isPublished', CheckboxType::class, [
-                'label' => 'app.cms.form.published',
+                'label' => 'app.common.published',
                 'required' => false,
             ])
             ->add('noIndex', CheckboxType::class, [

@@ -21,11 +21,11 @@
             <thead>
                 <tr>
                     {% for col in columns %}
-                        {% if col == 'deck' %}<th>{{ 'app.borrow.table.deck'|trans }}</th>{% endif %}
-                        {% if col == 'event' %}<th>{{ 'app.borrow.table.event'|trans }}</th>{% endif %}
+                        {% if col == 'deck' %}<th>{{ 'app.common.deck'|trans }}</th>{% endif %}
+                        {% if col == 'event' %}<th>{{ 'app.common.event'|trans }}</th>{% endif %}
                         {% if col == 'borrower' %}<th>{{ 'app.borrow.table.borrower'|trans }}</th>{% endif %}
-                        {% if col == 'status' %}<th>{{ 'app.borrow.table.status'|trans }}</th>{% endif %}
-                        {% if col == 'date' %}<th>{{ 'app.borrow.table.date'|trans }}</th>{% endif %}
+                        {% if col == 'status' %}<th>{{ 'app.common.status'|trans }}</th>{% endif %}
+                        {% if col == 'date' %}<th>{{ 'app.common.date'|trans }}</th>{% endif %}
                     {% endfor %}
                     <th></th>
                 </tr>

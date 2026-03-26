@@ -115,7 +115,7 @@ class ProfileController extends AbstractAppController
         if ($request->isMethod('POST')) {
             $token = $request->request->getString('_token');
             if (!$this->isCsrfTokenValid('notification_preferences', $token)) {
-                $this->addFlash('danger', 'app.flash.invalid_csrf');
+                $this->addFlash('danger', 'app.common.invalid_csrf');
 
                 return $this->redirectToRoute('app_profile_notifications');
             }

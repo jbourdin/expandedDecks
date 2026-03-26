@@ -34,7 +34,7 @@ class ArchetypeFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'app.archetype.name_label',
+                'label' => 'app.common.name',
             ])
             ->add('pokemonSlugs', HiddenType::class, [
                 'mapped' => false,
@@ -43,7 +43,7 @@ class ArchetypeFormType extends AbstractType
                 'mapped' => false,
             ])
             ->add('isPublished', CheckboxType::class, [
-                'label' => 'app.archetype.is_published_label',
+                'label' => 'app.common.published',
                 'required' => false,
             ]);
     }
