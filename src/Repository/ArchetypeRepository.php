@@ -38,6 +38,7 @@ class ArchetypeRepository extends ServiceEntityRepository
         /** @var list<Archetype> $archetypes */
         $archetypes = $this->createQueryBuilder('a')
             ->where('a.name LIKE :query')
+            ->andWhere('a.deletedAt IS NULL')
             ->setParameter('query', '%'.$query.'%')
             ->orderBy('a.name', 'ASC')
             ->setMaxResults($limit)
@@ -59,11 +60,13 @@ class ArchetypeRepository extends ServiceEntityRepository
         /** @var list<Archetype> $archetypes */
         $archetypes = $this->createQueryBuilder('a')
             ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
             ->andWhere('EXISTS (
                 SELECT d.id FROM App\Entity\Deck d
                 WHERE d.archetype = a
                 AND d.public = :public
                 AND d.status != :retired
+                AND d.deletedAt IS NULL
             )')
             ->setParameter('published', true)
             ->setParameter('public', true)
@@ -96,8 +99,10 @@ class ArchetypeRepository extends ServiceEntityRepository
                 WHERE d.archetype = a
                 AND d.public = :public
                 AND d.status != :retired
+                AND d.deletedAt IS NULL
             ) AS deckCount')
             ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
             ->setParameter('published', true)
             ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired);
@@ -138,6 +143,7 @@ class ArchetypeRepository extends ServiceEntityRepository
         $rows = $this->createQueryBuilder('a')
             ->select('a.playstyleTags')
             ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
             ->setParameter('published', true)
             ->getQuery()
             ->getResult();
@@ -161,7 +167,14 @@ class ArchetypeRepository extends ServiceEntityRepository
     public function findPublishedBySlug(string $slug): ?Archetype
     {
         /** @var Archetype|null $archetype */
-        $archetype = $this->findOneBy(['slug' => $slug, 'isPublished' => true]);
+        $archetype = $this->createQueryBuilder('a')
+            ->where('a.slug = :slug')
+            ->andWhere('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
+            ->setParameter('slug', $slug)
+            ->setParameter('published', true)
+            ->getQuery()
+            ->getOneOrNullResult();
 
         return $archetype;
     }

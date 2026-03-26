@@ -35,7 +35,13 @@
                     <tbody>
                         {% for archetype in archetypes %}
                             <tr>
-                                <td>{{ archetype_sprites(archetype) }} <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.name }}</a></td>
+                                <td>
+                                    {{ archetype_sprites(archetype) }}
+                                    <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.name }}</a>
+                                    {% if archetype.deletedAt is not null %}
+                                        <span class="badge bg-danger ms-1">{{ 'app.common.deleted'|trans }}</span>
+                                    {% endif %}
+                                </td>
                                 <td><code>{{ archetype.slug }}</code></td>
                                 <td>{{ archetype.pokemonSlugs|join(', ') }}</td>
                                 <td>

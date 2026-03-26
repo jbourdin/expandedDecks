@@ -109,6 +109,23 @@ class AdminArchetypeController extends AbstractAppController
         ]);
     }
 
+    #[Route('/{id}/delete', name: 'app_admin_archetype_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function delete(Request $request, Archetype $archetype): Response
+    {
+        if (!$this->isCsrfTokenValid('archetype-delete-'.$archetype->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        $archetype->setDeletedAt(new \DateTimeImmutable());
+        $this->em->flush();
+
+        $this->addFlash('success', 'app.flash.archetype.deleted');
+
+        return $this->redirectToRoute('app_admin_archetype_list');
+    }
+
     /**
      * @see docs/features.md F9.6 — Archetype localization
      */
