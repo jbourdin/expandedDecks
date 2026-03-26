@@ -18,7 +18,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { DeckCardList, type DeckCardListProps } from './components/DeckCardList';
-import { initCardHover } from './shared/card-hover';
 
 import '@mantine/core/styles.css';
 
@@ -71,6 +70,3 @@ if (root) {
         </MantineProvider>,
     );
 }
-
-// Card hover for other parts of the page (borrow activity, etc.)
-initCardHover();
