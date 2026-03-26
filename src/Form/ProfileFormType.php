@@ -58,6 +58,13 @@ class ProfileFormType extends AbstractType
             ->add('showCardmarketExport', CheckboxType::class, [
                 'label' => 'app.form.label.show_cardmarket_export',
                 'required' => false,
+            ])
+            ->add('organizerRole', CheckboxType::class, [
+                'label' => 'app.form.label.organizer_role',
+                'required' => false,
+                'mapped' => false,
+                'disabled' => $options['organizer_role_locked'],
+                'data' => $options['is_organizer'],
             ]);
     }
 
@@ -65,6 +72,11 @@ class ProfileFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'organizer_role_locked' => false,
+            'is_organizer' => false,
         ]);
+
+        $resolver->setAllowedTypes('organizer_role_locked', 'bool');
+        $resolver->setAllowedTypes('is_organizer', 'bool');
     }
 }
