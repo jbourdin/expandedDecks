@@ -112,7 +112,7 @@ EOF
 Print the PR URL and remind the user of the remaining release steps:
 - Wait for CI to pass
 - Merge the PR (merge commit, not squash)
-- Create GitHub release with `gh release create`
+- Create GitHub release with `gh release create` (use `--latest` if the version is higher than the current latest)
 - Back-merge `main` into `develop`
 - These steps can be done with `/ci`
 
