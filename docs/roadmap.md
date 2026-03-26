@@ -41,6 +41,7 @@ Each milestone corresponds to a thematic phase of work. Issues are assigned to m
 | H     | Lost & Found                        | [Phase H](https://github.com/jbourdin/expandedDecks/milestone/8) |
 | I     | Multi-Organizer Events              | [Phase I](https://github.com/jbourdin/expandedDecks/milestone/9) |
 | J     | Freeplay Matchmaking                | [Phase J](https://github.com/jbourdin/expandedDecks/milestone/10) |
+| K     | API Access                          | [Phase K](https://github.com/jbourdin/expandedDecks/milestone/11) |
 
 ## Feature Catalogue
 

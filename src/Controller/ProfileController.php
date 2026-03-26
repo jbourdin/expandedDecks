@@ -17,6 +17,7 @@ use App\Entity\User;
 use App\Enum\NotificationType;
 use App\Form\ProfileFormType;
 use App\Repository\BorrowRepository;
+use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -26,6 +27,8 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\LocaleSwitcher;
 
@@ -40,16 +43,49 @@ class ProfileController extends AbstractAppController
      * @see docs/features.md F1.3 — User profile
      */
     #[Route('', name: 'app_profile_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, EntityManagerInterface $em, LocaleSwitcher $localeSwitcher): Response
-    {
+    public function edit(
+        Request $request,
+        EntityManagerInterface $em,
+        LocaleSwitcher $localeSwitcher,
+        EventRepository $eventRepository,
+        TokenStorageInterface $tokenStorage,
+    ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
-        $form = $this->createForm(ProfileFormType::class, $user);
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        $hasExplicitOrganizerRole = \in_array('ROLE_ORGANIZER', $user->getRoles(), true);
+        $effectiveOrganizer = $isAdmin || $hasExplicitOrganizerRole;
+        $hasActiveEvents = $effectiveOrganizer && $eventRepository->hasActiveEventsAsOrganizer($user);
+        $organizerRoleLocked = $isAdmin || ($hasExplicitOrganizerRole && $hasActiveEvents);
+
+        $form = $this->createForm(ProfileFormType::class, $user, [
+            'organizer_role_locked' => $organizerRoleLocked,
+            'is_organizer' => $effectiveOrganizer,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $rolesChanged = false;
+
+            if (!$isAdmin && !$organizerRoleLocked) {
+                $wantsOrganizer = (bool) $form->get('organizerRole')->getData();
+
+                if ($wantsOrganizer !== $hasExplicitOrganizerRole) {
+                    $roles = array_filter($user->getRoles(), static fn (string $role): bool => 'ROLE_ORGANIZER' !== $role && 'ROLE_USER' !== $role);
+                    if ($wantsOrganizer) {
+                        $roles[] = 'ROLE_ORGANIZER';
+                    }
+                    $user->setRoles(array_values($roles));
+                    $rolesChanged = true;
+                }
+            }
+
             $em->flush();
+
+            if ($rolesChanged) {
+                $tokenStorage->setToken(new UsernamePasswordToken($user, 'main', $user->getRoles()));
+            }
 
             $locale = $user->getPreferredLocale();
             $request->setLocale($locale);
@@ -63,6 +99,7 @@ class ProfileController extends AbstractAppController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form,
+            'organizerRoleLocked' => $organizerRoleLocked,
         ]);
     }
 

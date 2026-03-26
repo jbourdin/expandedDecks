@@ -35,6 +35,18 @@
                         {{ form_row(form.timezone) }}
 
                         <hr>
+                        <h6 class="text-muted mb-3">{{ 'app.profile.roles_section'|trans }}</h6>
+
+                        {{ form_row(form.organizerRole) }}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <p class="text-muted small mt-n2">{{ 'app.profile.organizer_role_admin_hint'|trans }}</p>
+                        {% elseif organizerRoleLocked %}
+                            <p class="text-muted small mt-n2">{{ 'app.profile.organizer_role_locked_hint'|trans }}</p>
+                        {% else %}
+                            <p class="text-muted small mt-n2">{{ 'app.profile.organizer_role_hint'|trans }}</p>
+                        {% endif %}
+
+                        <hr>
                         <h6 class="text-muted mb-3">{{ 'app.profile.features_section'|trans }}</h6>
 
                         {{ form_row(form.showCardmarketExport) }}

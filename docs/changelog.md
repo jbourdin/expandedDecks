@@ -16,6 +16,24 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.4] — 2026-03-26
+
+Self-service organizer role — any user can activate the organizer role from their profile.
+
+### Features
+
+- **Self-service organizer role toggle** — new "I want to organize events" checkbox on the profile page. Any user can activate `ROLE_ORGANIZER` to create and manage events. Deactivation is blocked while the user has active (not finished or cancelled) events. Admins see the checkbox checked and disabled (role hierarchy grants organizer privileges automatically). Security token is refreshed after role change to avoid session invalidation.
+
+### Documentation
+
+- API access specs: event ID resolution, scope-role intersection model, userId/playerId attendee identification (Phase K milestone).
+
+### Testing & Quality
+
+- 9 functional tests for organizer role toggle: checkbox state per role/context, role activation/deactivation, locked enforcement, session persistence, `EventRepository::hasActiveEventsAsOrganizer()` query.
+
+---
+
 ## [1.0.3] — 2026-03-25
 
 Security fix — prevent recursive `_target_path` redirect loop caused by crawlers.

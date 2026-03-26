@@ -2259,6 +2259,22 @@
                 <target>Mon profil</target>
                 <note>Profile page heading</note>
             </trans-unit>
+            <trans-unit id="app.profile.roles_section">
+                <source>app.profile.roles_section</source>
+                <target>Rôles</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_hint">
+                <source>app.profile.organizer_role_hint</source>
+                <target>Activez cette option pour créer et gérer des événements sur la plateforme.</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_locked_hint">
+                <source>app.profile.organizer_role_locked_hint</source>
+                <target>Vous ne pouvez pas désactiver ce rôle tant que vous avez des événements actifs (non terminés ou annulés).</target>
+            </trans-unit>
+            <trans-unit id="app.profile.organizer_role_admin_hint">
+                <source>app.profile.organizer_role_admin_hint</source>
+                <target>Les administrateurs disposent toujours des privilèges d'organisateur.</target>
+            </trans-unit>
             <trans-unit id="app.profile.features_section">
                 <source>app.profile.features_section</source>
                 <target>Fonctionnalités optionnelles</target>
@@ -2333,6 +2349,10 @@
             <trans-unit id="app.form.label.show_cardmarket_export">
                 <source>app.form.label.show_cardmarket_export</source>
                 <target>Afficher le bouton « Copier pour Cardmarket » sur les pages de deck</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.organizer_role">
+                <source>app.form.label.organizer_role</source>
+                <target>Je souhaite organiser des événements</target>
             </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>

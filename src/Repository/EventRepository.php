@@ -32,6 +32,24 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Check if a user is the organizer of any active (not cancelled, not finished) event.
+     */
+    public function hasActiveEventsAsOrganizer(User $user): bool
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.organizer = :user')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
+
+    /**
      * @see docs/features.md F10.2 — Anonymous homepage
      */
     public function countUpcoming(): int
