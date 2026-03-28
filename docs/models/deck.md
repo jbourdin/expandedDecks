@@ -48,6 +48,8 @@ When `public` is `true`, the deck is listed in the public catalog (F2.4) and its
 
 A public deck cannot be unpublished while it has active `EventDeckRegistration` entries to prevent breaking event workflows.
 
+**Event-context visibility:** on the event detail page, the owner's deck lists (deck selection for play in F3.7, deck registration for lending in F4.8) show only public decks by default. Private decks are hidden behind a "Show private decks" toggle. Already-selected or already-registered private decks remain visible regardless of the toggle state.
+
 ### Relations
 
 | Relation           | Type         | Target entity  | Description |
