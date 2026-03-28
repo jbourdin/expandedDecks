@@ -22,6 +22,6 @@ framework:
 when@prod:
     framework:
         cache:
-            # Filesystem adapter works everywhere. The Docker production image
-            # overrides this with cache.adapter.apcu via config/packages/prod/cache.yaml.
+            # Filesystem adapter works everywhere. Switch to cache.adapter.apcu
+            # when the PHP APCu extension is available for better performance.
             app: cache.adapter.filesystem
