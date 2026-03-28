@@ -37,8 +37,12 @@ class DeckListParser
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
     public const string UNKNOWN_CARD_TYPE = 'unknown';
 
-    /** Basic energy card names — detected as energy even without section headers. */
+    /**
+     * Basic energy card names — detected as energy even without section headers.
+     * Includes all PTCGL export languages: EN, FR, DE, ES, IT, PT, JA.
+     */
     public const array BASIC_ENERGY_NAMES = [
+        // English
         'Grass Energy',
         'Fire Energy',
         'Water Energy',
@@ -48,6 +52,65 @@ class DeckListParser
         'Darkness Energy',
         'Metal Energy',
         'Fairy Energy',
+        // French
+        'Énergie Plante',
+        'Énergie Feu',
+        'Énergie Eau',
+        'Énergie Électrique',
+        'Énergie Psy',
+        'Énergie Combat',
+        'Énergie Obscurité',
+        'Énergie Métal',
+        'Énergie Fée',
+        // German
+        'Pflanzenenergie',
+        'Feuerenergie',
+        'Wasserenergie',
+        'Elektroenergie',
+        'Psychoenergie',
+        'Kampfenergie',
+        'Finsternis-Energie',
+        'Metallenergie',
+        'Feen-Energie',
+        // Spanish
+        'Energía Planta',
+        'Energía Fuego',
+        'Energía Agua',
+        'Energía Rayo',
+        'Energía Psíquica',
+        'Energía Lucha',
+        'Energía Oscura',
+        'Energía Metálica',
+        'Energía Hada',
+        // Italian
+        'Energia Erba',
+        'Energia Fuoco',
+        'Energia Acqua',
+        'Energia Lampo',
+        'Energia Psico',
+        'Energia Lotta',
+        'Energia Oscurità',
+        'Energia Metallo',
+        'Energia Folletto',
+        // Portuguese
+        'Energia de Grama',
+        'Energia de Fogo',
+        'Energia de Água',
+        'Energia de Raios',
+        'Energia Psíquica',
+        'Energia de Luta',
+        'Energia Noturna',
+        'Energia de Metal',
+        'Energia de Fada',
+        // Japanese
+        '基本草エネルギー',
+        '基本炎エネルギー',
+        '基本水エネルギー',
+        '基本雷エネルギー',
+        '基本超エネルギー',
+        '基本闘エネルギー',
+        '基本悪エネルギー',
+        '基本鋼エネルギー',
     ];
 
     /**
@@ -69,6 +132,65 @@ class DeckListParser
         'Darkness Energy' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
         'Metal Energy' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
         'Fairy Energy' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // French
+        'Énergie Plante' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Énergie Feu' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Énergie Eau' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Énergie Électrique' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Énergie Psy' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Énergie Combat' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Énergie Obscurité' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Énergie Métal' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Énergie Fée' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // German
+        'Pflanzenenergie' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Feuerenergie' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Wasserenergie' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Elektroenergie' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Psychoenergie' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Kampfenergie' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Finsternis-Energie' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Metallenergie' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Feen-Energie' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // Spanish
+        'Energía Planta' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Energía Fuego' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Energía Agua' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Energía Rayo' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Energía Psíquica' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Energía Lucha' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Energía Oscura' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Energía Metálica' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Energía Hada' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // Italian
+        'Energia Erba' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Energia Fuoco' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Energia Acqua' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Energia Lampo' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Energia Psico' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Energia Lotta' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Energia Oscurità' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Energia Metallo' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Energia Folletto' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // Portuguese
+        'Energia de Grama' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Energia de Fogo' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Energia de Água' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Energia de Raios' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Energia Psíquica' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Energia de Luta' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Energia Noturna' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Energia de Metal' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Energia de Fada' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        // Japanese
+        '基本草エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        '基本炎エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        '基本水エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        '基本雷エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        '基本超エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        '基本闘エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        '基本悪エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        '基本鋼エネルギー' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
     ];
 
     /**
