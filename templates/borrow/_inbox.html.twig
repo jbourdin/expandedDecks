@@ -10,14 +10,17 @@
 
 {# Reusable macro for the action buttons (used in both table and card layouts) #}
 {% macro borrowActions(borrow, isBorrower, scope, custodyMap) %}
+    {% set isLendingLocked = borrow.event.endingPhaseAt or borrow.event.finishedAt %}
     {% if borrow.status.value == 'pending' %}
-        {% if not isBorrower %}
+        {% if not isBorrower and not isLendingLocked %}
             <form method="post" action="{{ path('app_borrow_approve', {id: borrow.id}) }}" class="d-inline">
                 <input type="hidden" name="_token" value="{{ csrf_token('approve-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
                 {% if scope is defined and scope %}<input type="hidden" name="redirect_scope" value="{{ scope }}">{% endif %}
                 <button type="submit" class="btn btn-sm btn-success">{{ 'app.common.approve'|trans }}</button>
             </form>
+        {% endif %}
+        {% if not isBorrower %}
             <form method="post" action="{{ path('app_borrow_deny', {id: borrow.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.borrow.deny_confirm'|trans }}')">
                 <input type="hidden" name="_token" value="{{ csrf_token('deny-borrow-' ~ borrow.id) }}">
                 <input type="hidden" name="redirect_to" value="lends">
@@ -34,7 +37,7 @@
             </form>
         {% endif %}
     {% elseif borrow.status.value == 'approved' %}
-        {% if not isBorrower %}
+        {% if not isBorrower and not isLendingLocked %}
             {% set hasCustody = not borrow.delegatedToStaff or (custodyMap is defined and custodyMap[borrow.id] is defined and custodyMap[borrow.id]) %}
             {% if hasCustody %}
                 <form method="post" action="{{ path('app_borrow_hand_off', {id: borrow.id}) }}" class="d-inline">
