@@ -22,6 +22,8 @@ framework:
 when@prod:
     framework:
         cache:
-            # Filesystem adapter works everywhere. Switch to cache.adapter.apcu
-            # when the PHP APCu extension is available for better performance.
-            app: cache.adapter.filesystem
+            # APCu is in-process memory cache — fast, no external dependency,
+            # persists for the lifetime of the FrankenPHP worker process.
+            # Installed in the Docker image (see Dockerfile, install-php-extensions).
+            # For local prod testing without APCu, set APP_ENV=dev instead.
+            app: cache.adapter.apcu
