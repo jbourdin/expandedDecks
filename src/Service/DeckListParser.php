@@ -37,7 +37,10 @@ class DeckListParser
     private const string TOTAL_LINE_PATTERN = '/^Total\s+Cards\s*:/i';
     public const string UNKNOWN_CARD_TYPE = 'unknown';
 
-    /** Basic energy card names — detected as energy even without section headers. */
+    /**
+     * Basic energy card names — detected as energy even without section headers.
+     * Includes English (PTCGO/PTCGL) and French (PTCGL) names.
+     */
     public const array BASIC_ENERGY_NAMES = [
         'Grass Energy',
         'Fire Energy',
@@ -48,6 +51,15 @@ class DeckListParser
         'Darkness Energy',
         'Metal Energy',
         'Fairy Energy',
+        'Énergie Plante',
+        'Énergie Feu',
+        'Énergie Eau',
+        'Énergie Électrique',
+        'Énergie Psy',
+        'Énergie Combat',
+        'Énergie Obscurité',
+        'Énergie Métal',
+        'Énergie Fée',
     ];
 
     /**
@@ -69,6 +81,15 @@ class DeckListParser
         'Darkness Energy' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
         'Metal Energy' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
         'Fairy Energy' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
+        'Énergie Plante' => ['setCode' => 'MEE', 'cardNumber' => '1', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png'],
+        'Énergie Feu' => ['setCode' => 'MEE', 'cardNumber' => '2', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png'],
+        'Énergie Eau' => ['setCode' => 'MEE', 'cardNumber' => '3', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png'],
+        'Énergie Électrique' => ['setCode' => 'MEE', 'cardNumber' => '4', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png'],
+        'Énergie Psy' => ['setCode' => 'MEE', 'cardNumber' => '5', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png'],
+        'Énergie Combat' => ['setCode' => 'MEE', 'cardNumber' => '6', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png'],
+        'Énergie Obscurité' => ['setCode' => 'MEE', 'cardNumber' => '7', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png'],
+        'Énergie Métal' => ['setCode' => 'MEE', 'cardNumber' => '8', 'imageUrl' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png'],
+        'Énergie Fée' => ['setCode' => 'SUM', 'cardNumber' => '172', 'imageUrl' => 'https://images.pokemontcg.io/sm1/172_hires.png'],
     ];
 
     /**
