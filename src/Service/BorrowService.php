@@ -55,6 +55,18 @@ class BorrowService
      */
     public function requestBorrow(Deck $deck, User $borrower, Event $event, ?string $notes = null): Borrow
     {
+        if (null !== $event->getCancelledAt()) {
+            throw new \DomainException('Cannot borrow decks for a cancelled event.');
+        }
+
+        if (null !== $event->getFinishedAt()) {
+            throw new \DomainException('Cannot borrow decks for a finished event.');
+        }
+
+        if (null !== $event->getEndingPhaseAt()) {
+            throw new \DomainException('Cannot borrow decks during the ending phase.');
+        }
+
         if ($deck->getOwner()->getId() === $borrower->getId()) {
             throw new \DomainException('You cannot borrow your own deck.');
         }
@@ -66,18 +78,6 @@ class BorrowService
 
         if (DeckStatus::Retired === $deck->getStatus()) {
             throw new \DomainException('This deck is retired and cannot be borrowed.');
-        }
-
-        if (null !== $event->getCancelledAt()) {
-            throw new \DomainException('Cannot borrow decks for a cancelled event.');
-        }
-
-        if (null !== $event->getFinishedAt()) {
-            throw new \DomainException('Cannot borrow decks for a finished event.');
-        }
-
-        if (null !== $event->getEndingPhaseAt()) {
-            throw new \DomainException('Cannot borrow decks during the ending phase.');
         }
 
         if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {

@@ -1163,8 +1163,8 @@ class EventControllerTest extends AbstractFunctionalTest
         if ($otherBorrowHeaders->count() > 0) {
             $otherTable = $otherBorrowHeaders->closest('table');
             $otherRows = $otherTable->filter('tbody tr');
-            // Lender owns Regidrago which has a delegated borrow at this event
-            self::assertSame(1, $otherRows->count(), 'Lender should see borrows involving their own decks.');
+            // Lender owns Regidrago (delegated borrow) and Lent Fixture Deck (lent borrow) at this event
+            self::assertSame(2, $otherRows->count(), 'Lender should see borrows involving their own decks.');
         }
     }
 
@@ -2462,5 +2462,196 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertNotNull($token);
 
         return $token;
+    }
+
+    // --- F4.6 Ending Phase Tests ---
+
+    /**
+     * @see docs/features.md F4.6 — Overdue tracking
+     */
+    public function testStartEndingPhaseSucceeds(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        self::assertNull($event->getEndingPhaseAt());
+
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-success', 'Ending phase started');
+        self::assertSelectorTextContains('.badge.bg-warning', 'Ending phase');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getEndingPhaseAt());
+    }
+
+    public function testStartEndingPhaseDeniedForNonOrganizer(): void
+    {
+        $event = $this->getFixtureEvent();
+
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', \sprintf('/event/%d/ending-phase', $event->getId()));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testStartEndingPhaseInvalidCsrfRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        $this->client->request('POST', \sprintf('/event/%d/ending-phase', $event->getId()), [
+            '_token' => 'invalid-token',
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'Invalid');
+    }
+
+    public function testStartEndingPhaseOnCancelledEventShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Extract CSRF token from the ending phase form before cancelling
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $endingPhaseToken = $crawler->filter('form[action*="ending-phase"] input[name="_token"]')->attr('value');
+
+        // Cancel the event
+        $this->client->submitForm('Cancel Event');
+        $this->client->followRedirect();
+
+        // Try to start ending phase on the cancelled event
+        $this->client->request('POST', \sprintf('/event/%d/ending-phase', $event->getId()), [
+            '_token' => $endingPhaseToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'cancelled');
+    }
+
+    public function testStartEndingPhaseTwiceShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Extract CSRF token from the ending phase form, then submit
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $endingPhaseToken = $crawler->filter('form[action*="ending-phase"] input[name="_token"]')->attr('value');
+        $this->client->submitForm('Start ending phase');
+        $this->client->followRedirect();
+
+        // Try to start again with the same token
+        $this->client->request('POST', \sprintf('/event/%d/ending-phase', $event->getId()), [
+            '_token' => $endingPhaseToken,
+        ]);
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', 'already');
+    }
+
+    public function testEndingPhaseHidesStartButtonAndCancelButton(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Start ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+        $crawler = $this->client->followRedirect();
+
+        // "Start ending phase" button should be gone
+        self::assertSelectorNotExists('button:contains("Start ending phase")');
+
+        // "Mark as Finished" button should still be visible
+        self::assertSelectorExists('button:contains("Mark as Finished")');
+
+        // "Cancel Event" button should be gone (hidden during ending phase)
+        self::assertSelectorNotExists('button:contains("Cancel Event")');
+    }
+
+    public function testEndingPhaseBlocksWalkUpLending(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Start ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+        $this->client->followRedirect();
+
+        // Try to access walk-up page
+        $this->client->request('GET', \sprintf('/event/%d/walk-up', $event->getId()));
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-warning', '');
+    }
+
+    public function testEndingPhaseBlocksBrowseAvailableDecks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Start ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+        $this->client->followRedirect();
+
+        // Try to browse available decks
+        $this->client->request('GET', \sprintf('/event/%d/decks', $event->getId()));
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+    }
+
+    public function testFinishAfterEndingPhaseMarksOverdue(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Start ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+        $this->client->followRedirect();
+
+        // Finish the event
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Mark as Finished');
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.badge.bg-secondary', 'Finished');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getFinishedAt());
+        self::assertNotNull($updated->getEndingPhaseAt());
     }
 }
