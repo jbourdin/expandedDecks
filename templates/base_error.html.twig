@@ -1,0 +1,43 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Lightweight base template for error pages. Does not depend on any services
+ # (no menu_categories(), path(), gravatar(), etc.) so it cannot fail during
+ # error rendering. Mirrors the visual style of base.html.twig.
+ #}
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Error — Expanded Decks{% endblock %}</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="/">Expanded Decks</a>
+            </div>
+        </nav>
+
+        <main class="container py-4">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="footer-pokemon py-3 mt-auto">
+            <div class="container text-center">
+                &copy; {{ "now"|date("Y") }} Expanded Decks
+            </div>
+        </footer>
+
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

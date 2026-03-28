@@ -22,7 +22,6 @@ framework:
 when@prod:
     framework:
         cache:
-            # APCu is in-process memory cache — fast, no external dependency,
-            # persists for the lifetime of the FrankenPHP worker process.
-            # Ideal for serverless containers where filesystem is ephemeral.
-            app: cache.adapter.apcu
+            # Filesystem adapter works everywhere. The Docker production image
+            # overrides this with cache.adapter.apcu via config/packages/prod/cache.yaml.
+            app: cache.adapter.filesystem
