@@ -721,6 +721,56 @@ class BorrowRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all borrows in "lent" status for a given event.
+     *
+     * @see docs/features.md F4.6 — Overdue tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findLentBorrowsByEvent(Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('d.owner', 'o')
+            ->join('b.borrower', 'u')
+            ->addSelect('d', 'o', 'u')
+            ->where('b.event = :event')
+            ->andWhere('b.status = :status')
+            ->setParameter('event', $event)
+            ->setParameter('status', BorrowStatus::Lent->value)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
+     * Find delegated borrows in "returned" status (in staff custody, not yet returned to owner).
+     *
+     * @see docs/features.md F4.6 — Overdue tracking
+     *
+     * @return list<Borrow>
+     */
+    public function findInCustodyBorrowsByEvent(Event $event): array
+    {
+        /** @var list<Borrow> $borrows */
+        $borrows = $this->createQueryBuilder('b')
+            ->join('b.deck', 'd')
+            ->join('d.owner', 'o')
+            ->addSelect('d', 'o')
+            ->where('b.event = :event')
+            ->andWhere('b.status = :status')
+            ->andWhere('b.isDelegatedToStaff = true')
+            ->setParameter('event', $event)
+            ->setParameter('status', BorrowStatus::Returned->value)
+            ->getQuery()
+            ->getResult();
+
+        return $borrows;
+    }
+
+    /**
      * @see docs/features.md F4.5 — Borrow history
      */
     public function createBorrowerQueryBuilder(User $borrower, ?BorrowStatus $status = null): QueryBuilder

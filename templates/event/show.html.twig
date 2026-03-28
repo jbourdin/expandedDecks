@@ -20,6 +20,8 @@
                     <span class="badge bg-danger">{{ 'app.common.cancelled'|trans }}</span>
                 {% elseif event.finishedAt %}
                     <span class="badge bg-secondary">{{ 'app.event.badge_finished'|trans }}</span>
+                {% elseif event.endingPhaseAt %}
+                    <span class="badge bg-warning text-dark">{{ 'app.event.badge_ending_phase'|trans }}</span>
                 {% endif %}
                 {% if event.invitationOnly %}
                     <span class="badge bg-warning text-dark">{{ 'app.event.badge_invitation_only'|trans }}</span>
@@ -653,6 +655,29 @@
         </div>
     {% endif %}
 
+    {# Ending phase banners #}
+    {% if event.endingPhaseAt and not event.finishedAt and not event.cancelledAt %}
+        {% if endingPhaseLentBorrows is defined and endingPhaseLentBorrows > 0 %}
+            <div class="alert alert-warning mb-3">
+                <strong>{{ 'app.event.badge_ending_phase'|trans }}</strong> — {{ 'app.event.banner.return_prompt'|trans }}
+            </div>
+        {% endif %}
+        {% if endingPhaseOwnerStats is defined and endingPhaseOwnerStats.inCustody > 0 %}
+            <div class="alert alert-info mb-3">
+                {{ 'app.event.banner.owner_custody_status'|trans({'%inCustody%': endingPhaseOwnerStats.inCustody, '%stillOut%': endingPhaseOwnerStats.stillOut}) }}
+            </div>
+        {% elseif endingPhaseOwnerStats is defined and endingPhaseOwnerStats.stillOut > 0 %}
+            <div class="alert alert-info mb-3">
+                {{ 'app.event.banner.owner_decks_out'|trans({'%stillOut%': endingPhaseOwnerStats.stillOut}) }}
+            </div>
+        {% endif %}
+        {% if isStaff and endingPhaseGlobalStats is defined %}
+            <div class="alert alert-info mb-3">
+                {{ 'app.event.banner.organizer_return_progress'|trans({'%returned%': endingPhaseGlobalStats.returned, '%stillOut%': endingPhaseGlobalStats.stillOut}) }}
+            </div>
+        {% endif %}
+    {% endif %}
+
     {% if not event.cancelledAt and not event.finishedAt %}
         {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
 
@@ -838,14 +863,22 @@
         {% endif %}
         {% if isOrganizer and not event.cancelledAt %}
             {% if not event.finishedAt %}
-                <form method="post" action="{{ path('app_event_finish', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.finish_confirm'|trans }}')">
+                {% if not event.endingPhaseAt %}
+                    <form method="post" action="{{ path('app_event_ending_phase', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.ending_phase_confirm'|trans|e('js') }}')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('ending-phase-event-' ~ event.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-warning">{{ 'app.event.start_ending_phase'|trans }}</button>
+                    </form>
+                {% endif %}
+                <form method="post" action="{{ path('app_event_finish', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.finish_confirm'|trans|e('js') }}')">
                     <input type="hidden" name="_token" value="{{ csrf_token('finish-event-' ~ event.id) }}">
                     <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.event.finish_event'|trans }}</button>
                 </form>
-                <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.cancel_confirm'|trans }}')">
-                    <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.cancel_event'|trans }}</button>
-                </form>
+                {% if not event.endingPhaseAt %}
+                    <form method="post" action="{{ path('app_event_cancel', {id: event.id}) }}" onsubmit="return confirm('{{ 'app.event.cancel_confirm'|trans|e('js') }}')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel-event-' ~ event.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.cancel_event'|trans }}</button>
+                    </form>
+                {% endif %}
             {% endif %}
         {% endif %}
         {% if is_granted('ROLE_ADMIN') and event.deletedAt is null %}

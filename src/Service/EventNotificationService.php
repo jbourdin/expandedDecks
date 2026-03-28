@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Borrow;
 use App\Entity\Event;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Enum\NotificationType;
+use App\Repository\BorrowRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -123,6 +125,136 @@ class EventNotificationService
             $this->trans('app.notification.event.invited_message', ['%event%' => $event->getName()], $invitedUser),
             $event,
         );
+    }
+
+    /**
+     * Notify borrowers and owners that the ending phase has started.
+     *
+     * @see docs/features.md F4.6 — Overdue tracking
+     */
+    public function notifyEndingPhase(Event $event, BorrowRepository $borrowRepository): void
+    {
+        $lentBorrows = $borrowRepository->findLentBorrowsByEvent($event);
+
+        // Group by borrower for "please return" notifications
+        /** @var array<int, list<Borrow>> $byBorrower */
+        $byBorrower = [];
+        /** @var array<int, User> $borrowerMap */
+        $borrowerMap = [];
+        /** @var array<int, list<Borrow>> $byOwner */
+        $byOwner = [];
+        /** @var array<int, User> $ownerMap */
+        $ownerMap = [];
+
+        foreach ($lentBorrows as $borrow) {
+            $borrowerId = (int) $borrow->getBorrower()->getId();
+            $byBorrower[$borrowerId][] = $borrow;
+            $borrowerMap[$borrowerId] = $borrow->getBorrower();
+
+            $ownerId = (int) $borrow->getDeck()->getOwner()->getId();
+            $byOwner[$ownerId][] = $borrow;
+            $ownerMap[$ownerId] = $borrow->getDeck()->getOwner();
+        }
+
+        foreach ($byBorrower as $borrowerId => $borrows) {
+            $borrower = $borrowerMap[$borrowerId];
+            $deckNames = array_map(static fn (Borrow $borrow): string => $borrow->getDeck()->getName(), $borrows);
+
+            if ($borrower->isNotificationEnabled(NotificationType::EventEndingPhase, 'email')) {
+                $this->sendEmail(
+                    $borrower,
+                    $this->trans('app.email.event.ending_phase_subject', ['%event%' => $event->getName()], $borrower),
+                    'email/event/ending_phase.html.twig',
+                    $event,
+                    ['deckNames' => $deckNames],
+                );
+            }
+
+            $this->createNotification(
+                $borrower,
+                NotificationType::EventEndingPhase,
+                $this->trans('app.notification.event.ending_phase_title', [], $borrower),
+                $this->trans('app.notification.event.ending_phase_message', [
+                    '%event%' => $event->getName(),
+                    '%count%' => (string) \count($borrows),
+                ], $borrower),
+                $event,
+            );
+        }
+
+        foreach ($byOwner as $ownerId => $borrows) {
+            $owner = $ownerMap[$ownerId];
+
+            if ($owner->isNotificationEnabled(NotificationType::EventEndingPhase, 'email')) {
+                $this->sendEmail(
+                    $owner,
+                    $this->trans('app.email.event.ending_phase_owner_subject', ['%event%' => $event->getName()], $owner),
+                    'email/event/ending_phase_owner.html.twig',
+                    $event,
+                    ['deckCount' => \count($borrows)],
+                );
+            }
+
+            $this->createNotification(
+                $owner,
+                NotificationType::EventEndingPhase,
+                $this->trans('app.notification.event.ending_phase_owner_title', [], $owner),
+                $this->trans('app.notification.event.ending_phase_owner_message', [
+                    '%event%' => $event->getName(),
+                    '%count%' => (string) \count($borrows),
+                ], $owner),
+                $event,
+            );
+        }
+    }
+
+    /**
+     * Notify owners of delegated decks in staff custody to pick them up.
+     *
+     * @see docs/features.md F4.6 — Overdue tracking
+     * @see docs/features.md F3.20 — Mark event as finished
+     */
+    public function notifyCustodyPickup(Event $event, BorrowRepository $borrowRepository): void
+    {
+        $custodyBorrows = $borrowRepository->findInCustodyBorrowsByEvent($event);
+
+        // Group by owner
+        /** @var array<int, list<Borrow>> $byOwner */
+        $byOwner = [];
+        /** @var array<int, User> $ownerMap */
+        $ownerMap = [];
+
+        foreach ($custodyBorrows as $borrow) {
+            $ownerId = (int) $borrow->getDeck()->getOwner()->getId();
+            $byOwner[$ownerId][] = $borrow;
+            $ownerMap[$ownerId] = $borrow->getDeck()->getOwner();
+        }
+
+        foreach ($byOwner as $ownerId => $borrows) {
+            $owner = $ownerMap[$ownerId];
+            $deckNames = array_map(static fn (Borrow $borrow): string => $borrow->getDeck()->getName(), $borrows);
+
+            if ($owner->isNotificationEnabled(NotificationType::EventCustodyPickup, 'email')) {
+                $this->sendEmail(
+                    $owner,
+                    $this->trans('app.email.event.custody_pickup_subject', ['%event%' => $event->getName()], $owner),
+                    'email/event/custody_pickup.html.twig',
+                    $event,
+                    ['deckNames' => $deckNames],
+                );
+            }
+
+            $this->createNotification(
+                $owner,
+                NotificationType::EventCustodyPickup,
+                $this->trans('app.notification.event.custody_pickup_title', [], $owner),
+                $this->trans('app.notification.event.custody_pickup_message', [
+                    '%event%' => $event->getName(),
+                    '%count%' => (string) \count($borrows),
+                ], $owner),
+                $event,
+            );
+        }
     }
 
     /**
