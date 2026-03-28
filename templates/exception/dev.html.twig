@@ -1,0 +1,60 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base_error.html.twig' %}
+
+{% block title %}{{ status_code }} {{ status_text }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="text-center mb-4">
+        {% if status_code == 403 %}
+            <img src="/build/sprites/pokemon/snorlax.png" alt="Snorlax" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <p class="text-muted">{{ 'app.error.403'|trans }}</p>
+        {% elseif status_code == 404 %}
+            <img src="/build/sprites/pokemon/ditto.png" alt="Ditto" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <p class="text-muted">{{ 'app.error.404'|trans }}</p>
+        {% elseif status_code == 429 %}
+            <img src="/build/sprites/pokemon/maushold-family-of-four.png" alt="Maushold" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <p class="text-muted">{{ 'app.error.429'|trans }}</p>
+        {% elseif status_code == 500 %}
+            <img src="/build/sprites/pokemon/porygon.png" alt="Porygon" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <p class="text-muted">{{ 'app.error.500'|trans }}</p>
+        {% else %}
+            <img src="/build/sprites/pokemon/psyduck.png" alt="Psyduck" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <p class="text-muted">{{ 'app.error.generic'|trans }}</p>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <div class="d-flex align-items-center mb-3">
+            <span class="badge bg-danger fs-4 me-3">{{ status_code }}</span>
+            <h1 class="h3 mb-0">{{ exception.message }}</h1>
+        </div>
+        <p class="text-muted mb-0"><code>{{ class_name }}</code> in <code>{{ exception.file }}:{{ exception.line }}</code></p>
+    </div>
+
+    {% if exception.previous %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">Previous exception</h5>
+            </div>
+            <div class="card-body">
+                <strong>{{ previous_class_name }}</strong>: {{ exception.previous.message }}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">Stack trace</h5>
+        </div>
+        <div class="card-body p-0">
+            <pre class="mb-0 p-3" style="overflow-x: auto; font-size: .8rem; background: #1e1e2e; color: #cdd6f4; border-radius: 0 0 .375rem .375rem;">{{ exception.traceAsString }}</pre>
+        </div>
+    </div>
+{% endblock %}

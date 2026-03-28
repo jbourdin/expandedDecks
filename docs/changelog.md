@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.7] — 2026-03-28
+
+Archetype soft-delete hardening and custom Pokemon-themed error pages.
+
+### Features
+
+- **Custom error pages with Pokemon sprites** — error pages now display Pokemon sprites and themed messages: Snorlax (403), Ditto (404), Maushold family of four (429), Porygon (500), Psyduck (generic). Dev pages show full stack trace inside the app template. XHR/JSON requests receive JSON error bodies with correct HTTP status. Non-HTML requests get empty bodies.
+- **CDN error page route** — `/cdn-error/{code}` returns 200 with the themed error page HTML, for Bunny CDN to fetch and cache as custom error pages. Does not trigger Sentry.
+- **Test error route** — `/test-error/{code}` throws a real HTTP exception for previewing error pages in dev.
+
+### Bug Fixes
+
+- **Deleted archetypes hidden from all views** — soft-deleted archetypes are now filtered from the admin list, deck detail properties, deck catalog, event available decks, and tournament results.
+- **Deleted archetype detail returns 404** — `/archetypes/{slug}` now returns 404 for deleted archetypes, including for admin users.
+- **Archetype deletion guard** — archetypes can only be deleted when they have zero associated decks. The admin edit page hides the delete button and the server rejects deletion attempts when decks exist. A deck count column was added to the admin archetype list.
+- **Soft-delete test fix** — `testDeckDeleteBlockedByActiveBorrows` no longer skips; switched to admin user who has decks with active borrows in fixtures.
+
+### Documentation
+
+- **Archetype soft-delete rules** — documented in `docs/models/deck.md`: `deletedAt` field, deletion guard constraint, and visibility rules.
+- **Error pages technical reference** — `docs/technicalities/error_pages.md` covers request type handling, sprite mapping, template architecture, CDN integration, and Sentry behavior.
+
+### Testing & Quality
+
+- 17 new functional tests covering `CdnErrorController`, `TestErrorController`, and `ExceptionListener` (XHR/JSON, non-HTML, dev HTML, sprites per code).
+
+---
+
 ## [1.0.6] — 2026-03-26
 
 My Decks filter, retired deck visibility fix, mobile card gallery restoration, and translation cleanup.

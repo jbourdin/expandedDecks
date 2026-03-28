@@ -24,5 +24,6 @@ when@prod:
         cache:
             # APCu is in-process memory cache — fast, no external dependency,
             # persists for the lifetime of the FrankenPHP worker process.
-            # Ideal for serverless containers where filesystem is ephemeral.
+            # Installed in the Docker image (see Dockerfile, install-php-extensions).
+            # For local prod testing without APCu, set APP_ENV=dev instead.
             app: cache.adapter.apcu

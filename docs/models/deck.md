@@ -142,6 +142,7 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 | `description`      | `text`             | Yes      | Markdown content for the archetype detail page (F2.10). Rendered via `ArchetypeDescriptionRenderer` which processes Markdown and expands custom tags: `[[archetype:slug]]` (archetype link with sprites), `[[deck:SHORTTAG]]` (deck badge link), `[[card:SET-NUMBER]]` (card name with hover image). |
 | `metaDescription`  | `string(255)`      | Yes      | SEO meta description for the archetype detail page. Max 255 characters. |
 | `isPublished`      | `bool`             | No       | Controls visibility of the archetype detail page (F2.10). Default: `false`. |
+| `deletedAt`        | `DateTimeImmutable` | Yes     | Soft-delete timestamp. Null = active. When set, the archetype is hidden from all lists (admin and public) and its detail page returns 404. See Soft-Delete Rules below. |
 | `createdAt`        | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
 
@@ -150,12 +151,22 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 - `name`: required, unique, 2–100 characters
 - `slug`: required, unique, auto-generated from name via `AsciiSlugger`
 - `metaDescription`: max 255 characters
+- **Soft-delete guard:** an archetype can only be soft-deleted when it has **zero associated decks** (including non-public and retired decks). If any deck references the archetype, deletion is refused with an error message
 
 ### Relations
 
 | Relation       | Type      | Target    | Description |
 |----------------|-----------|-----------|-------------|
 | `decks`        | OneToMany | `Deck`    | Decks using this archetype |
+
+### Soft-Delete Rules
+
+Archetypes support soft-deletion via the `deletedAt` timestamp. When an archetype is soft-deleted:
+
+1. **Admin list** (`/admin/archetypes`): the archetype is **excluded** from the list — soft-deleted archetypes are not visible
+2. **Public queries**: all repository methods already filter `deletedAt IS NULL` — no change needed
+3. **Detail page** (`/archetypes/{slug}`): returns **404** for all users (including admins)
+4. **Deletion guard**: the delete button is only shown when the archetype has **zero associated decks** (all decks, regardless of status or visibility). If any deck references the archetype, the admin must reassign or remove those decks first. The admin list displays a **deck count** column to make this visible at a glance
 
 ### Sprite Display (F2.12)
 

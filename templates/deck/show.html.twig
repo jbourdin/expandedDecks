@@ -70,7 +70,7 @@
                 {% if deck.currentVersion %}
                     <span><strong>{{ 'app.deck.version'|trans }}</strong> v{{ deck.currentVersion.versionNumber }}</span>
                 {% endif %}
-                {% if deck.archetype %}
+                {% if deck.archetype and deck.archetype.deletedAt is null %}
                     <span><strong>{{ 'app.deck.archetype_label'|trans }}</strong> {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}</span>
                 {% endif %}
                 {% if deck.languages is not empty %}

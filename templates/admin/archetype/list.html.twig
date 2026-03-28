@@ -29,6 +29,7 @@
                             <th style="width: 120px">{{ 'app.archetype.table.pokemon'|trans }}</th>
                             <th>{{ 'app.archetype.table.playstyle'|trans }}</th>
                             <th style="width: 100px">{{ 'app.common.published'|trans }}</th>
+                            <th style="width: 80px">{{ 'app.archetype.table.decks'|trans }}</th>
                             <th style="width: 80px"></th>
                         </tr>
                     </thead>
@@ -56,6 +57,7 @@
                                         <span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>
                                     {% endif %}
                                 </td>
+                                <td>{{ deckCounts[archetype.id] }}</td>
                                 <td>
                                     <a href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}" class="btn btn-sm btn-outline-secondary">
                                         {{ 'app.common.edit'|trans }}
