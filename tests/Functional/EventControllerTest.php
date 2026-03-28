@@ -2654,4 +2654,78 @@ class EventControllerTest extends AbstractFunctionalTest
         self::assertNotNull($updated->getFinishedAt());
         self::assertNotNull($updated->getEndingPhaseAt());
     }
+
+    public function testEndingPhaseBannerVisibleForBorrowerWithLentBorrow(): void
+    {
+        // Admin starts ending phase
+        $this->loginAs('admin@example.com');
+        $event = $this->getFixtureEvent();
+        $eventId = $event->getId();
+
+        $this->client->request('GET', \sprintf('/event/%d', $eventId));
+        $this->client->submitForm('Start ending phase');
+        $this->client->followRedirect();
+
+        // Switch to borrower (has a lent borrow at this event)
+        $this->client->restart();
+        $this->loginAs('borrower@example.com');
+        $this->client->request('GET', \sprintf('/event/%d', $eventId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.alert-warning', 'return');
+    }
+
+    public function testEndingPhaseBannerVisibleForOrganizerWithReturnProgress(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+
+        // Start ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Start ending phase');
+        $crawler = $this->client->followRedirect();
+
+        // Organizer should see the return progress banner
+        $banners = $crawler->filter('.alert-info');
+        self::assertGreaterThan(0, $banners->count(), 'Organizer should see ending phase info banner.');
+    }
+
+    public function testEndingPhaseBannerNotVisibleBeforeEndingPhase(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $event = $this->getFixtureEvent();
+        $crawler = $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+
+        self::assertResponseIsSuccessful();
+        // No ending phase warning banner before ending phase starts
+        $endingBanners = $crawler->filter('.alert-warning:contains("return")');
+        self::assertSame(0, $endingBanners->count(), 'No ending phase banner before starting ending phase.');
+    }
+
+    public function testFinishWithoutEndingPhaseStillWorks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $event = $this->getFixtureEvent();
+        self::assertNull($event->getEndingPhaseAt());
+
+        // Finish directly without ending phase
+        $this->client->request('GET', \sprintf('/event/%d', $event->getId()));
+        $this->client->submitForm('Mark as Finished');
+
+        self::assertResponseRedirects(\sprintf('/event/%d', $event->getId()));
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.badge.bg-secondary', 'Finished');
+
+        /** @var EventRepository $repo */
+        $repo = static::getContainer()->get(EventRepository::class);
+        $updated = $repo->find($event->getId());
+
+        self::assertNotNull($updated);
+        self::assertNotNull($updated->getFinishedAt());
+        self::assertNull($updated->getEndingPhaseAt());
+    }
 }
