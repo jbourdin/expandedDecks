@@ -107,6 +107,36 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testDeletedArchetypeReturns404(): void
+    {
+        $entityManager = $this->getEntityManager();
+        $archetype = $entityManager->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+
+        $archetype->setDeletedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testDeletedArchetypeReturns404ForAdmin(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $entityManager = $this->getEntityManager();
+        $archetype = $entityManager->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+
+        $archetype->setDeletedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testMetaDescriptionRendered(): void
     {
         // Set a meta description on the EN translation for testing

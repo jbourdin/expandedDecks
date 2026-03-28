@@ -40,7 +40,7 @@ class ArchetypeDetailController extends AbstractController
     ): Response {
         $archetype = $archetypeRepository->findOneBy(['slug' => $slug]);
 
-        if (null === $archetype) {
+        if (null === $archetype || null !== $archetype->getDeletedAt()) {
             throw $this->createNotFoundException();
         }
 

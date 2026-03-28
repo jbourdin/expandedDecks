@@ -55,7 +55,31 @@ class SoftDeleteTest extends AbstractFunctionalTest
 
     // --- Archetype ---
 
-    public function testAdminCanSoftDeleteArchetype(): void
+    public function testAdminCanSoftDeleteArchetypeWithoutDecks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $entityManager = $this->getEntityManager();
+        /** @var Archetype $archetype */
+        $archetype = $entityManager->getRepository(Archetype::class)->findOneBy(['name' => 'Kyurem']);
+        self::assertNotNull($archetype);
+        $archetypeId = $archetype->getId();
+
+        $this->postDeleteWithCsrf(
+            '/admin/archetypes/'.$archetypeId,
+            '/admin/archetypes/'.$archetypeId.'/delete',
+            'form[action*="delete"] input[name="_token"]'
+        );
+
+        self::assertResponseRedirects();
+
+        $entityManager->clear();
+        /** @var Archetype $deleted */
+        $deleted = $entityManager->getRepository(Archetype::class)->find($archetypeId);
+        self::assertNotNull($deleted->getDeletedAt(), 'Archetype should have deletedAt set');
+    }
+
+    public function testAdminCannotDeleteArchetypeWithDecks(): void
     {
         $this->loginAs('admin@example.com');
 
@@ -74,9 +98,9 @@ class SoftDeleteTest extends AbstractFunctionalTest
         self::assertResponseRedirects();
 
         $entityManager->clear();
-        /** @var Archetype $deleted */
-        $deleted = $entityManager->getRepository(Archetype::class)->find($archetypeId);
-        self::assertNotNull($deleted->getDeletedAt(), 'Archetype should have deletedAt set');
+        /** @var Archetype $notDeleted */
+        $notDeleted = $entityManager->getRepository(Archetype::class)->find($archetypeId);
+        self::assertNull($notDeleted->getDeletedAt(), 'Archetype with decks should not be deleted');
     }
 
     public function testDeletedArchetypeFilteredFromPublicQueries(): void
@@ -334,7 +358,7 @@ class SoftDeleteTest extends AbstractFunctionalTest
 
     public function testDeckDeleteBlockedByActiveBorrows(): void
     {
-        $this->loginAs('organizer@example.com');
+        $this->loginAs('admin@example.com');
 
         $entityManager = $this->getEntityManager();
         /** @var \App\Repository\BorrowRepository $borrowRepository */
@@ -346,14 +370,14 @@ class SoftDeleteTest extends AbstractFunctionalTest
         $deckWithBorrows = null;
         foreach ($decks as $candidate) {
             if ($borrowRepository->countActiveBorrowsForDeck($candidate) > 0
-                && 'organizer@example.com' === $candidate->getOwner()->getEmail()) {
+                && 'admin@example.com' === $candidate->getOwner()->getEmail()) {
                 $deckWithBorrows = $candidate;
                 break;
             }
         }
 
         if (null === $deckWithBorrows) {
-            self::markTestSkipped('No deck with active borrows owned by organizer found in fixtures');
+            self::markTestSkipped('No deck with active borrows owned by admin found in fixtures');
         }
 
         $this->postDeleteWithCsrf(

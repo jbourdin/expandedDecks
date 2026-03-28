@@ -162,6 +162,7 @@ MARKDOWN;
         $manager->flush();
 
         $pendingBorrow = $this->createBorrowFixtures($manager, $todayEvent, $futureEvent, $borrower, $lender, $admin, $ironThorns, $ancientBox, $lenderDeck, $staff1);
+
         $this->createDeckRegistrations($manager, $todayEvent, $ironThorns, $ancientBox, $lenderDeck);
         $this->createFinishedEvent($manager, $admin, $borrower, $staff1, $ironThorns, $ancientBox, $lenderDeck);
 
