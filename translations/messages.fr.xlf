@@ -4008,6 +4008,146 @@
                 <target>Masquer les decks privés</target>
                 <note>Toggle button to hide private decks in event deck selection</note>
             </trans-unit>
+            <trans-unit id="app.event.start_ending_phase">
+                <source>app.event.start_ending_phase</source>
+                <target>Lancer la phase de clôture</target>
+                <note>Button to start the ending phase of an event</note>
+            </trans-unit>
+            <trans-unit id="app.event.ending_phase_confirm">
+                <source>app.event.ending_phase_confirm</source>
+                <target>Lancer la phase de clôture ? Cela annulera toutes les demandes d&apos;emprunt en attente et bloquera les nouveaux prêts. Cette action est irréversible.</target>
+                <note>JS confirmation for starting ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.event.badge_ending_phase">
+                <source>app.event.badge_ending_phase</source>
+                <target>Phase de clôture</target>
+                <note>Badge shown when event is in ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.ending_phase_started">
+                <source>app.flash.event.ending_phase_started</source>
+                <target>Phase de clôture lancée pour « %name% ». Les emprunts en attente ont été annulés et les nouveaux prêts sont bloqués.</target>
+                <note>Flash message after starting ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.already_ending_phase">
+                <source>app.flash.event.already_ending_phase</source>
+                <target>La phase de clôture a déjà été lancée pour cet événement.</target>
+                <note>Flash message when ending phase already started</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_ending_phase_cancelled">
+                <source>app.flash.event.cannot_ending_phase_cancelled</source>
+                <target>Impossible de lancer la phase de clôture pour un événement annulé.</target>
+                <note>Flash message when trying to start ending phase on cancelled event</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.cannot_ending_phase_finished">
+                <source>app.flash.event.cannot_ending_phase_finished</source>
+                <target>Impossible de lancer la phase de clôture pour un événement terminé.</target>
+                <note>Flash message when trying to start ending phase on finished event</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_subject">
+                <source>app.email.event.ending_phase_subject</source>
+                <target>Merci de rendre vos decks empruntés — « %event% » touche à sa fin</target>
+                <note>Email subject for ending phase borrower reminder</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_heading">
+                <source>app.email.event.ending_phase_heading</source>
+                <target>Retours de decks ouverts</target>
+                <note>Email heading for ending phase borrower reminder</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_body">
+                <source>app.email.event.ending_phase_body</source>
+                <target>La phase de clôture a commencé pour « %event% ». Merci de rendre les decks empruntés suivants :</target>
+                <note>Email body for ending phase borrower reminder</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_action">
+                <source>app.email.event.ending_phase_action</source>
+                <target>Merci de les rendre au propriétaire du deck ou à la table du staff dès que possible.</target>
+                <note>Email action text for ending phase borrower reminder</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_owner_subject">
+                <source>app.email.event.ending_phase_owner_subject</source>
+                <target>Phase de clôture lancée — « %event% »</target>
+                <note>Email subject for ending phase owner notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_owner_heading">
+                <source>app.email.event.ending_phase_owner_heading</source>
+                <target>Phase de clôture lancée</target>
+                <note>Email heading for ending phase owner notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.ending_phase_owner_body">
+                <source>app.email.event.ending_phase_owner_body</source>
+                <target>La phase de clôture a commencé pour « %event% ». %count% de vos decks sont encore en possession d&apos;emprunteurs.</target>
+                <note>Email body for ending phase owner notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.custody_pickup_subject">
+                <source>app.email.event.custody_pickup_subject</source>
+                <target>Vos decks sont prêts à être récupérés — « %event% »</target>
+                <note>Email subject for custody pickup notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.custody_pickup_heading">
+                <source>app.email.event.custody_pickup_heading</source>
+                <target>Decks prêts à récupérer</target>
+                <note>Email heading for custody pickup notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.custody_pickup_body">
+                <source>app.email.event.custody_pickup_body</source>
+                <target>Les decks suivants vous attendent à la custody de l&apos;organisateur pour « %event% » :</target>
+                <note>Email body for custody pickup notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.event.custody_pickup_action">
+                <source>app.email.event.custody_pickup_action</source>
+                <target>Merci de récupérer vos decks à la table du staff.</target>
+                <note>Email action text for custody pickup notification</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.ending_phase_title">
+                <source>app.notification.event.ending_phase_title</source>
+                <target>Retours de decks ouverts</target>
+                <note>In-app notification title for ending phase borrower</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.ending_phase_message">
+                <source>app.notification.event.ending_phase_message</source>
+                <target>La phase de clôture a commencé pour « %event% ». Merci de rendre vos %count% deck(s) empruntés.</target>
+                <note>In-app notification message for ending phase borrower</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.ending_phase_owner_title">
+                <source>app.notification.event.ending_phase_owner_title</source>
+                <target>Phase de clôture lancée</target>
+                <note>In-app notification title for ending phase owner</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.ending_phase_owner_message">
+                <source>app.notification.event.ending_phase_owner_message</source>
+                <target>La phase de clôture a commencé pour « %event% ». %count% de vos decks sont encore en prêt.</target>
+                <note>In-app notification message for ending phase owner</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.custody_pickup_title">
+                <source>app.notification.event.custody_pickup_title</source>
+                <target>Decks prêts à récupérer</target>
+                <note>In-app notification title for custody pickup</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.custody_pickup_message">
+                <source>app.notification.event.custody_pickup_message</source>
+                <target>%count% de vos decks vous attendent à la custody de l&apos;organisateur pour « %event% ».</target>
+                <note>In-app notification message for custody pickup</note>
+            </trans-unit>
+            <trans-unit id="app.event.banner.return_prompt">
+                <source>app.event.banner.return_prompt</source>
+                <target>Merci de rendre vos decks empruntés au propriétaire ou à la table du staff.</target>
+                <note>Banner for borrowers during ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.event.banner.owner_custody_status">
+                <source>app.event.banner.owner_custody_status</source>
+                <target>%inCustody% de vos decks sont disponibles à la custody de l&apos;organisateur, %stillOut% sont encore en attente de retour.</target>
+                <note>Banner for owners with delegated decks during ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.event.banner.owner_decks_out">
+                <source>app.event.banner.owner_decks_out</source>
+                <target>%stillOut% de vos decks sont encore en attente de retour par les emprunteurs.</target>
+                <note>Banner for owners with non-delegated decks during ending phase</note>
+            </trans-unit>
+            <trans-unit id="app.event.banner.organizer_return_progress">
+                <source>app.event.banner.organizer_return_progress</source>
+                <target>Phase de clôture — %returned% decks rendus, %stillOut% encore en prêt.</target>
+                <note>Banner for organizer/staff during ending phase</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

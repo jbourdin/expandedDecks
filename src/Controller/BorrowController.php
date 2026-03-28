@@ -50,11 +50,14 @@ class BorrowController extends AbstractAppController
         $isBorrower = $borrow->getBorrower()->getId() === $user->getId();
         $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($user);
 
+        $event = $borrow->getEvent();
+        $isLendingLocked = null !== $event->getEndingPhaseAt() || null !== $event->getFinishedAt();
+
         return $this->render('borrow/show.html.twig', [
             'borrow' => $borrow,
-            'canApprove' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
+            'canApprove' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus() && !$isLendingLocked,
             'canDeny' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Pending === $borrow->getStatus(),
-            'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus(),
+            'canHandOff' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Approved === $borrow->getStatus() && !$isLendingLocked,
             'canReturn' => ($isOwner || $isDelegatedStaff) && \in_array($borrow->getStatus(), [BorrowStatus::Lent, BorrowStatus::Overdue], true),
             'canCancel' => ($isBorrower || $isOwner || $isDelegatedStaff) && $borrow->isCancellable(),
             'canReturnToOwner' => ($isOwner || $isDelegatedStaff) && BorrowStatus::Returned === $borrow->getStatus() && $borrow->isDelegatedToStaff(),

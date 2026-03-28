@@ -13,11 +13,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Entity\Borrow;
+use App\Entity\Deck;
+use App\Entity\DeckVersion;
 use App\Entity\Event;
 use App\Entity\EventEngagement;
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Enum\BorrowStatus;
 use App\Enum\NotificationType;
+use App\Repository\BorrowRepository;
 use App\Service\EventNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -185,6 +190,183 @@ class EventNotificationServiceTest extends TestCase
         foreach ($locales as $locale) {
             self::assertSame('fr', $locale);
         }
+    }
+
+    /**
+     * @see docs/features.md F4.6 — Overdue tracking
+     */
+    public function testNotifyEndingPhaseSendsEmailAndNotificationToBorrowersAndOwners(): void
+    {
+        $event = $this->createEvent();
+        $borrower = $this->createUser(2, 'borrower@example.com');
+        $owner = $this->createUser(3, 'owner@example.com');
+
+        $borrow = $this->createBorrow($owner, $borrower, 'Test Deck', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findLentBorrowsByEvent')->willReturn([$borrow]);
+
+        // 2 emails (borrower + owner), 2 notifications persisted
+        $this->mailer->expects(self::exactly(2))->method('send');
+        $this->em->expects(self::exactly(2))
+            ->method('persist')
+            ->with(self::callback(static fn (Notification $notification): bool => NotificationType::EventEndingPhase === $notification->getType()));
+
+        $this->service->notifyEndingPhase($event, $borrowRepository);
+    }
+
+    public function testNotifyEndingPhaseGroupsBorrowsByBorrowerAndOwner(): void
+    {
+        $event = $this->createEvent();
+        $borrower = $this->createUser(2, 'borrower@example.com');
+        $owner = $this->createUser(3, 'owner@example.com');
+
+        // Same borrower, same owner, 2 borrows
+        $borrow1 = $this->createBorrow($owner, $borrower, 'Deck A', $event);
+        $borrow2 = $this->createBorrow($owner, $borrower, 'Deck B', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findLentBorrowsByEvent')->willReturn([$borrow1, $borrow2]);
+
+        // 1 email to borrower + 1 email to owner = 2 emails (grouped, not 4)
+        $this->mailer->expects(self::exactly(2))->method('send');
+        // 1 notification to borrower + 1 notification to owner = 2
+        $this->em->expects(self::exactly(2))->method('persist');
+
+        $this->service->notifyEndingPhase($event, $borrowRepository);
+    }
+
+    public function testNotifyEndingPhaseDoesNothingWithNoLentBorrows(): void
+    {
+        $event = $this->createEvent();
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findLentBorrowsByEvent')->willReturn([]);
+
+        $this->mailer->expects(self::never())->method('send');
+        $this->em->expects(self::never())->method('persist');
+
+        $this->service->notifyEndingPhase($event, $borrowRepository);
+    }
+
+    public function testNotifyEndingPhaseSkipsEmailWhenDisabled(): void
+    {
+        $event = $this->createEvent();
+        $borrower = $this->createUser(2, 'borrower@example.com');
+        $borrower->setNotificationPreference(NotificationType::EventEndingPhase, 'email', false);
+        $owner = $this->createUser(3, 'owner@example.com');
+        $owner->setNotificationPreference(NotificationType::EventEndingPhase, 'email', false);
+
+        $borrow = $this->createBorrow($owner, $borrower, 'Test Deck', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findLentBorrowsByEvent')->willReturn([$borrow]);
+
+        $this->mailer->expects(self::never())->method('send');
+        // In-app notifications still sent (2)
+        $this->em->expects(self::exactly(2))->method('persist');
+
+        $this->service->notifyEndingPhase($event, $borrowRepository);
+    }
+
+    /**
+     * @see docs/features.md F4.6 — Overdue tracking
+     */
+    public function testNotifyCustodyPickupSendsEmailAndNotificationToOwners(): void
+    {
+        $event = $this->createEvent();
+        $owner = $this->createUser(2, 'owner@example.com');
+        $borrower = $this->createUser(3, 'borrower@example.com');
+
+        $borrow = $this->createBorrow($owner, $borrower, 'Custody Deck', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findInCustodyBorrowsByEvent')->willReturn([$borrow]);
+
+        // 1 email + 1 notification to owner
+        $this->mailer->expects(self::once())->method('send');
+        $this->em->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static fn (Notification $notification): bool => NotificationType::EventCustodyPickup === $notification->getType()));
+
+        $this->service->notifyCustodyPickup($event, $borrowRepository);
+    }
+
+    public function testNotifyCustodyPickupGroupsByOwner(): void
+    {
+        $event = $this->createEvent();
+        $owner = $this->createUser(2, 'owner@example.com');
+        $borrower1 = $this->createUser(3, 'b1@example.com');
+        $borrower2 = $this->createUser(4, 'b2@example.com');
+
+        // Same owner, 2 custody borrows
+        $borrow1 = $this->createBorrow($owner, $borrower1, 'Deck A', $event);
+        $borrow2 = $this->createBorrow($owner, $borrower2, 'Deck B', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findInCustodyBorrowsByEvent')->willReturn([$borrow1, $borrow2]);
+
+        // Grouped: 1 email + 1 notification
+        $this->mailer->expects(self::once())->method('send');
+        $this->em->expects(self::once())->method('persist');
+
+        $this->service->notifyCustodyPickup($event, $borrowRepository);
+    }
+
+    public function testNotifyCustodyPickupDoesNothingWithNoCustodyBorrows(): void
+    {
+        $event = $this->createEvent();
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findInCustodyBorrowsByEvent')->willReturn([]);
+
+        $this->mailer->expects(self::never())->method('send');
+        $this->em->expects(self::never())->method('persist');
+
+        $this->service->notifyCustodyPickup($event, $borrowRepository);
+    }
+
+    public function testNotifyCustodyPickupSkipsEmailWhenDisabled(): void
+    {
+        $event = $this->createEvent();
+        $owner = $this->createUser(2, 'owner@example.com');
+        $owner->setNotificationPreference(NotificationType::EventCustodyPickup, 'email', false);
+        $borrower = $this->createUser(3, 'borrower@example.com');
+
+        $borrow = $this->createBorrow($owner, $borrower, 'Custody Deck', $event);
+
+        $borrowRepository = $this->createStub(BorrowRepository::class);
+        $borrowRepository->method('findInCustodyBorrowsByEvent')->willReturn([$borrow]);
+
+        $this->mailer->expects(self::never())->method('send');
+        // In-app notification still sent
+        $this->em->expects(self::once())->method('persist');
+
+        $this->service->notifyCustodyPickup($event, $borrowRepository);
+    }
+
+    private function createBorrow(User $owner, User $borrower, string $deckName, Event $event): Borrow
+    {
+        $deck = new Deck();
+        $deck->setName($deckName);
+        $deck->setOwner($owner);
+        $deckRef = new \ReflectionProperty(Deck::class, 'id');
+        $deckRef->setValue($deck, random_int(1, 9999));
+
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+
+        $borrow = new Borrow();
+        $borrow->setDeck($deck);
+        $borrow->setDeckVersion($version);
+        $borrow->setBorrower($borrower);
+        $borrow->setEvent($event);
+        $borrow->setStatus(BorrowStatus::Lent);
+
+        $ref = new \ReflectionProperty(Borrow::class, 'id');
+        $ref->setValue($borrow, random_int(1, 9999));
+
+        return $borrow;
     }
 
     private function createEvent(): Event
