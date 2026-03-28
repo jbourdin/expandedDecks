@@ -53,6 +53,7 @@ Encore
     .addEntry('notification_bell', './assets/notification-bell.tsx')
     .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
     .addEntry('archetype_form', './assets/archetype-form.tsx')
+    .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()

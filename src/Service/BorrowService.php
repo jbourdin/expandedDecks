@@ -55,6 +55,18 @@ class BorrowService
      */
     public function requestBorrow(Deck $deck, User $borrower, Event $event, ?string $notes = null): Borrow
     {
+        if (null !== $event->getCancelledAt()) {
+            throw new \DomainException('Cannot borrow decks for a cancelled event.');
+        }
+
+        if (null !== $event->getFinishedAt()) {
+            throw new \DomainException('Cannot borrow decks for a finished event.');
+        }
+
+        if (null !== $event->getEndingPhaseAt()) {
+            throw new \DomainException('Cannot borrow decks during the ending phase.');
+        }
+
         if ($deck->getOwner()->getId() === $borrower->getId()) {
             throw new \DomainException('You cannot borrow your own deck.');
         }
@@ -66,14 +78,6 @@ class BorrowService
 
         if (DeckStatus::Retired === $deck->getStatus()) {
             throw new \DomainException('This deck is retired and cannot be borrowed.');
-        }
-
-        if (null !== $event->getCancelledAt()) {
-            throw new \DomainException('Cannot borrow decks for a cancelled event.');
-        }
-
-        if (null !== $event->getFinishedAt()) {
-            throw new \DomainException('Cannot borrow decks for a finished event.');
         }
 
         if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
@@ -124,6 +128,11 @@ class BorrowService
     public function approve(Borrow $borrow, User $actor): void
     {
         $this->assertOwnerOrDelegatedStaff($borrow, $actor);
+
+        $event = $borrow->getEvent();
+        if (null !== $event->getEndingPhaseAt() || null !== $event->getFinishedAt()) {
+            throw new \DomainException('Cannot approve borrows during the ending phase or after the event is finished.');
+        }
 
         $this->borrowStateMachine->apply($borrow, 'approve');
 
@@ -178,6 +187,11 @@ class BorrowService
     {
         $this->assertOwnerOrDelegatedStaff($borrow, $actor);
         $this->assertStaffHasCustody($borrow, $actor);
+
+        $event = $borrow->getEvent();
+        if (null !== $event->getEndingPhaseAt() || null !== $event->getFinishedAt()) {
+            throw new \DomainException('Cannot hand off decks during the ending phase or after the event is finished.');
+        }
 
         $this->borrowStateMachine->apply($borrow, 'hand_off');
 
@@ -274,6 +288,10 @@ class BorrowService
 
         if (null !== $event->getFinishedAt()) {
             throw new \DomainException('Cannot lend decks at a finished event.');
+        }
+
+        if (null !== $event->getEndingPhaseAt()) {
+            throw new \DomainException('Cannot lend decks during the ending phase.');
         }
 
         if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
@@ -445,6 +463,50 @@ class BorrowService
                 \sprintf('The borrow of "%s" was cancelled because the deck was retired.', $deck->getName()),
                 $borrow,
             );
+
+            ++$count;
+        }
+
+        if ($count > 0) {
+            $this->em->flush();
+        }
+
+        return $count;
+    }
+
+    /**
+     * Transition all lent borrows for an event to overdue status.
+     *
+     * @see docs/features.md F4.6 — Overdue tracking
+     * @see docs/features.md F3.20 — Mark event as finished
+     *
+     * @return int Number of borrows marked as overdue
+     */
+    public function markOverdueForEvent(Event $event): int
+    {
+        $borrows = $this->borrowRepository->findLentBorrowsByEvent($event);
+        $count = 0;
+
+        foreach ($borrows as $borrow) {
+            $this->borrowStateMachine->apply($borrow, 'mark_overdue');
+
+            $this->createNotification(
+                $borrow->getBorrower(),
+                NotificationType::BorrowOverdue,
+                'Deck overdue',
+                \sprintf('"%s" is now overdue for return. Please return it immediately.', $borrow->getDeck()->getName()),
+                $borrow,
+            );
+
+            $this->createNotification(
+                $borrow->getDeck()->getOwner(),
+                NotificationType::BorrowOverdue,
+                'Deck overdue',
+                \sprintf('Your deck "%s" is overdue for return from %s.', $borrow->getDeck()->getName(), $borrow->getBorrower()->getScreenName()),
+                $borrow,
+            );
+
+            $this->emailService->sendBorrowOverdue($borrow);
 
             ++$count;
         }

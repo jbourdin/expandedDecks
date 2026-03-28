@@ -304,6 +304,12 @@ When creating new features or backlog items, create a GitHub issue with the feat
 - API client service: `App\Service\PrintNode\ApiClient`
 - Zebra printer runs a local PrintNode client; the app sends print jobs via the PrintNode REST API
 
+## Documentation Lookup
+
+When you need documentation about a library, framework, SDK, API, or CLI tool (including well-known ones like Symfony, React, Doctrine, PHPUnit, Mantine, Webpack Encore, etc.), **always use the `context7` MCP tools first** to fetch up-to-date docs. Prefer this over web searches — your training data may not reflect recent changes. Use `resolve-library-id` to find the library, then `query-docs` to retrieve relevant documentation sections.
+
+Only fall back to web search if context7 does not cover the tool or returns insufficient results.
+
 ## Async Messaging
 
 Symfony Messenger with domain-separated transports (see `config/packages/messenger.yaml`):
@@ -384,6 +390,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 
 | Command       | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|
+| `/read-bugs`  | Review open bug issues and triage them on the roadmap or handle immediately |
 | `/next`       | Recommend the next feature from the project board's "Next" column          |
 | `/pr`         | Commit, push, and create or update the Pull Request for the current branch  |
 | `/ci`         | Watch CI until green then merge, or investigate failures and propose fixes  |

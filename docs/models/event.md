@@ -15,7 +15,7 @@
 | `eventId`              | `string(50)`       | Yes      | Free text identifier. Recommended to use the official Pokemon sanctioned tournament ID when applicable. |
 | `format`               | `string(30)`       | No       | Play format. Default: `"Expanded"`. Could also be `"Standard"`, `"Unlimited"`, etc. |
 | `date`                 | `DateTimeImmutable` | No      | Event date (start). |
-| `endDate`              | `DateTimeImmutable` | Yes     | Event end date. Defaults to same as `date` for single-day events. Used for overdue tracking (F4.6). |
+| `endDate`              | `DateTimeImmutable` | Yes     | Event end date. Defaults to same as `date` for single-day events. Used for borrow conflict detection (F4.11). |
 | `timezone`             | `string(50)`       | No       | IANA timezone for the event's local time (e.g. `"Europe/Paris"`). Default: `"UTC"`. Event dates are stored in UTC and displayed in this timezone. See F9.4. |
 | `location`             | `string(255)`      | Yes      | Venue name and/or address. Nullable — can be derived from the league's address when a league is linked. |
 | `description`          | `text`             | Yes      | Optional free-text description or notes about the event. |
@@ -33,6 +33,7 @@
 | `isDecklistMandatory`  | `bool`             | No       | Whether submitting a decklist on this platform is mandatory for participants. Default: `false`. |
 | `createdAt`            | `DateTimeImmutable` | No      | Event creation timestamp. |
 | `cancelledAt`          | `DateTimeImmutable` | Yes     | When the event was cancelled. Null = active event. Set via F3.10. |
+| `endingPhaseAt`        | `DateTimeImmutable` | Yes     | When the organizer started the ending phase. Null = ending phase not started. Set via F4.6. Locks new lending while keeping returns and custody handovers open. |
 | `finishedAt`           | `DateTimeImmutable` | Yes     | When the event was marked as finished by the organizer. Null = event not yet finished. Set via F3.20. |
 
 ### Tournament Structure Enum: `App\Enum\TournamentStructure`
@@ -60,7 +61,8 @@
 - `topCutRoundDuration`: optional, >= 1, only valid when `tournamentStructure` is `swiss_top_cut`
 - `entryFeeAmount` and `entryFeeCurrency`: both null (free) or both set (paid). `entryFeeAmount` >= 0.
 - `cancelledAt`: once set, cannot be cleared (cancellation is irreversible). A cancelled event cannot be edited further (F3.10).
-- `finishedAt`: once set, cannot be cleared (finishment is irreversible). A finished event cannot be un-finished, cancelled, or edited further (F3.20). Mutually exclusive with `cancelledAt` — an event cannot be both cancelled and finished.
+- `endingPhaseAt`: once set, cannot be cleared (irreversible). Must be null when `cancelledAt` or `finishedAt` is set. When set: new borrow requests, approvals, and walk-up lends are blocked; returns and custody handovers remain open. All `pending` and `approved` borrows are auto-cancelled on transition.
+- `finishedAt`: once set, cannot be cleared (finishment is irreversible). A finished event cannot be un-finished, cancelled, or edited further (F3.20). Mutually exclusive with `cancelledAt` — an event cannot be both cancelled and finished. Finishing is allowed whether or not ending phase was started.
 - `timezone`: required, must be a valid IANA timezone identifier. Default: `"UTC"`.
 
 ### Cancellation Behavior
@@ -73,28 +75,46 @@ When an event is cancelled (F3.10):
 5. The event remains visible in listings for historical reference, but is clearly marked as cancelled
 6. No further edits, borrow requests, or participation changes are allowed
 
+### Ending Phase Behavior
+
+> **@see** docs/features.md F4.6 — Overdue tracking
+> **@see** [Overdue tracking spec](plans/overdue_tracking.md)
+
+When the organizer starts the ending phase (F4.6):
+1. `endingPhaseAt` is set to the current timestamp
+2. **Pre-handoff borrows cancelled:** all `pending` and `approved` borrows for this event are automatically cancelled (same logic as F3.10, scoped to pre-handoff borrows only)
+3. **Lending locked:** new borrow requests, approvals, and walk-up lends are blocked. Returns and custody handovers remain open
+4. **First reminder sent:** borrowers with `lent` borrows receive a return reminder; owners with unreturned decks receive a status notification
+5. **Banners appear** on the event page for borrowers (return prompt), owners (custody/return counts), and organizer/staff (global progress)
+6. The ending phase **cannot be undone** — this is an irreversible transition
+
 ### Finishment Behavior
 
 > **@see** docs/features.md F3.20 — Mark event as finished
 
 When an event is marked as finished (F3.20):
 1. `finishedAt` is set to the current timestamp
-2. **Overdue reminders triggered:** all borrows in `lent` status for this event are flagged — borrowers receive immediate overdue reminders (email + in-app per F8.3 preferences) for unreturned decks
-3. **Event closed:** no new borrows, registrations, engagement state changes, or edits are allowed
-4. **Tournament results unlocked:** organizer and staff can now enter final standings, match records, and placements (F3.17)
-5. The event remains visible in listings and is marked as finished (distinct from cancelled)
-6. A finished event **cannot be un-finished** — this is an irreversible terminal state
+2. **Overdue transition:** all remaining `lent` borrows transition to `overdue` status — borrowers and owners receive urgent overdue notifications (email + in-app per F8.3 preferences)
+3. **Custody pickup notification:** owners of delegated decks in staff custody are notified to pick up their decks
+4. **Event closed:** no new borrows, registrations, engagement state changes, or edits are allowed
+5. **Tournament results unlocked:** organizer and staff can now enter final standings, match records, and placements (F3.17)
+6. The event remains visible in listings and is marked as finished (distinct from cancelled)
+7. A finished event **cannot be un-finished** — this is an irreversible terminal state
 
-#### Finished vs Cancelled
+Finishing is allowed whether or not the ending phase was started. If finishing without ending phase, both sets of effects fire together (pre-handoff borrows cancelled + lending locked + lent → overdue + all notifications).
 
-| Aspect              | Finished (F3.20)                        | Cancelled (F3.10)                      |
-|---------------------|-----------------------------------------|----------------------------------------|
-| Meaning             | Event completed normally                | Event didn't happen                    |
-| Pre-handoff borrows | Unchanged (should already be lent)      | Automatically cancelled                |
-| Lent decks          | Flagged as overdue, reminders sent      | Remain active, owners notified         |
-| Tournament results  | Unlocked for entry                      | N/A                                    |
-| Further edits       | Blocked                                 | Blocked                                |
-| Reversible          | No                                      | No                                     |
+#### Ending Phase vs Finished vs Cancelled
+
+| Aspect              | Ending Phase (F4.6)                     | Finished (F3.20)                        | Cancelled (F3.10)                      |
+|---------------------|-----------------------------------------|-----------------------------------------|----------------------------------------|
+| Meaning             | Event winding down, returns in progress | Event completed normally                | Event didn't happen                    |
+| Pre-handoff borrows | Automatically cancelled                 | Automatically cancelled (if not already)| Automatically cancelled                |
+| New lending         | Blocked                                 | Blocked                                 | Blocked                                |
+| Returns & custody   | Open                                    | Open (overdue decks still need return)  | Open (lent decks still need return)    |
+| Lent decks          | Unchanged (still `lent`)               | Transition to `overdue`                 | Remain `lent`, owners notified         |
+| Tournament results  | Not yet                                 | Unlocked for entry                      | N/A                                    |
+| Further edits       | Blocked                                 | Blocked                                 | Blocked                                |
+| Reversible          | No                                      | No                                      | No                                     |
 
 ---
 

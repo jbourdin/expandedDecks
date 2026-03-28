@@ -62,6 +62,7 @@
 - [Initial Plan](initial_plan.md) — Original project skeleton plan
 - [Archetype Features Plan](plans/archetype_features.md) — Archetype ecosystem design and implementation plan
 - [Doctrine Entities Plan](plans/doctrine_entities.md) — Entity modeling decisions and schema design
+- [Overdue Tracking Spec](plans/overdue_tracking.md) — F4.6 two-phase deck return tracking (ending phase + finish)
 
 ## Other
 

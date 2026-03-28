@@ -130,6 +130,31 @@ class DeckListValidatorTest extends TestCase
         self::assertFalse($energyError, 'Basic energy should be exempt from the 4-copy limit.');
     }
 
+    public function testFrenchBasicEnergyExceeding4CopiesIsAllowed(): void
+    {
+        $cards = [
+            new ParsedCard(10, 'Énergie Combat', 'SVE', '6', 'energy'),
+        ];
+
+        // Add 50 more unique cards
+        for ($i = 1; $i <= 10; ++$i) {
+            $cards[] = new ParsedCard(5, 'Trainer '.$i, 'BRS', (string) $i, 'trainer');
+        }
+
+        $parseResult = new DeckListParseResult($cards, [], ['energy' => 10, 'trainer' => 50]);
+
+        $result = $this->validator->validate($parseResult);
+
+        $energyError = false;
+
+        foreach ($result->errors as $error) {
+            if (str_contains($error, 'Énergie Combat')) {
+                $energyError = true;
+            }
+        }
+        self::assertFalse($energyError, 'French basic energy names should be exempt from the 4-copy limit.');
+    }
+
     public function testSpecialEnergyIsNotExempt(): void
     {
         $cards = [

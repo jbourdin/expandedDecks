@@ -28,6 +28,8 @@ use App\Enum\EventVisibility;
 use App\Enum\ParticipationMode;
 use App\Form\EventFormType;
 use App\Message\CancelEventBorrowsMessage;
+use App\Message\FinishEventBorrowsMessage;
+use App\Message\StartEndingPhaseMessage;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
@@ -190,6 +192,41 @@ class EventController extends AbstractAppController
 
         $delegatedRegistrations = $isStaff ? $registrationRepository->findDelegatedByEvent($event) : [];
 
+        // Ending phase banner data
+        $endingPhaseLentBorrows = 0;
+        $endingPhaseOwnerStats = ['inCustody' => 0, 'stillOut' => 0];
+        $endingPhaseGlobalStats = ['returned' => 0, 'stillOut' => 0];
+
+        if (null !== $event->getEndingPhaseAt() && null === $event->getFinishedAt()) {
+            // Count user's lent borrows as borrower
+            $lentBorrows = $borrowRepository->findLentBorrowsByEvent($event);
+            foreach ($lentBorrows as $borrow) {
+                if ($borrow->getBorrower()->getId() === $user->getId()) {
+                    ++$endingPhaseLentBorrows;
+                }
+            }
+
+            // Owner stats: decks in custody vs still out
+            $userId = $user->getId();
+            foreach ($lentBorrows as $borrow) {
+                if ($borrow->getDeck()->getOwner()->getId() === $userId) {
+                    ++$endingPhaseOwnerStats['stillOut'];
+                }
+            }
+            $custodyBorrows = $borrowRepository->findInCustodyBorrowsByEvent($event);
+            foreach ($custodyBorrows as $borrow) {
+                if ($borrow->getDeck()->getOwner()->getId() === $userId) {
+                    ++$endingPhaseOwnerStats['inCustody'];
+                }
+            }
+
+            // Global stats for organizer/staff
+            if ($isStaff) {
+                $endingPhaseGlobalStats['stillOut'] = \count($lentBorrows);
+                $endingPhaseGlobalStats['returned'] = \count($custodyBorrows);
+            }
+        }
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
             'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
@@ -207,6 +244,9 @@ class EventController extends AbstractAppController
             'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
             'delegatedRegistrations' => $delegatedRegistrations,
             'hasResults' => null !== $event->getFinishedAt() ? $entryRepository->hasResults($event) : false,
+            'endingPhaseLentBorrows' => $endingPhaseLentBorrows,
+            'endingPhaseOwnerStats' => $endingPhaseOwnerStats,
+            'endingPhaseGlobalStats' => $endingPhaseGlobalStats,
         ]);
     }
 
@@ -221,7 +261,7 @@ class EventController extends AbstractAppController
         /** @var User $user */
         $user = $this->getUser();
 
-        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt() || null !== $event->getEndingPhaseAt()) {
             $this->addFlash('warning', 'app.flash.event.cannot_browse_cancelled');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -434,10 +474,11 @@ class EventController extends AbstractAppController
 
     /**
      * @see docs/features.md F3.20 — Mark event as finished
+     * @see docs/features.md F4.6 — Overdue tracking
      */
     #[Route('/{id}/finish', name: 'app_event_finish', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function finish(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function finish(Event $event, Request $request, EntityManagerInterface $em, MessageBusInterface $messageBus): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -459,10 +500,60 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
+        // If ending phase was not started, cancel pre-handoff borrows now
+        if (null === $event->getEndingPhaseAt()) {
+            $messageBus->dispatch(new CancelEventBorrowsMessage((int) $event->getId()));
+        }
+
         $event->setFinishedAt(new \DateTimeImmutable());
         $em->flush();
 
+        $messageBus->dispatch(new FinishEventBorrowsMessage((int) $event->getId()));
+
         $this->addFlash('success', 'app.flash.event.finished', ['%name%' => $event->getName()]);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F4.6 — Overdue tracking
+     */
+    #[Route('/{id}/ending-phase', name: 'app_event_ending_phase', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function startEndingPhase(Event $event, Request $request, EntityManagerInterface $em, MessageBusInterface $messageBus): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('ending-phase-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getCancelledAt()) {
+            $this->addFlash('warning', 'app.flash.event.cannot_ending_phase_cancelled');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getFinishedAt()) {
+            $this->addFlash('warning', 'app.flash.event.cannot_ending_phase_finished');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (null !== $event->getEndingPhaseAt()) {
+            $this->addFlash('warning', 'app.flash.event.already_ending_phase');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->setEndingPhaseAt(new \DateTimeImmutable());
+        $em->flush();
+
+        $messageBus->dispatch(new StartEndingPhaseMessage((int) $event->getId()));
+
+        $this->addFlash('success', 'app.flash.event.ending_phase_started', ['%name%' => $event->getName()]);
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
@@ -799,7 +890,7 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt() || null !== $event->getEndingPhaseAt()) {
             $this->addFlash('warning', 'app.flash.event.cannot_change_registration');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -874,7 +965,7 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt() || null !== $event->getEndingPhaseAt()) {
             $this->addFlash('warning', 'app.flash.event.cannot_change_delegation');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -1055,7 +1146,7 @@ class EventController extends AbstractAppController
             throw $this->createAccessDeniedException('Only organizers or staff can initiate walk-up lending.');
         }
 
-        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt()) {
+        if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt() || null !== $event->getEndingPhaseAt()) {
             $this->addFlash('warning', 'app.flash.event.walkup_not_available');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);

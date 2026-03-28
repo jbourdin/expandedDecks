@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.0.8] — 2026-03-28
+
+Overdue tracking with ending phase, private deck visibility fix, and multilingual basic energy support.
+
+### Features
+
+- **F4.6 — Overdue tracking with ending phase** — two-phase deck return tracking at events. The organizer starts the "ending phase" which cancels pending/approved borrows, locks new lending, and sends return reminders to borrowers and owners. Contextual banners appear on the event page for borrowers (return prompt), owners (custody/return counts), and organizer/staff (global progress). Finishing the event transitions all remaining lent borrows to overdue, sends urgent notifications, and notifies owners of delegated decks in staff custody to pick them up. Both actions are independent — finishing without ending phase fires all effects together.
+- **F4.17 — Borrow & custody dispute** *(spec only)* — added feature stub for three-party dispute threads (organizer, owner, borrower) on borrow or custody issues. Full implementation deferred.
+
+### Bug Fixes
+
+- **Private decks hidden in event selection** — the "Your Decks" (lending) and "Deck Selection" (play) lists on the event page now show only public decks by default, with a "Show private decks" toggle. Already-selected or registered private decks remain visible.
+- **Approve/hand-off buttons hidden during ending phase** — approve and hand-off actions are now hidden in the event view, borrow detail, and borrow inbox when the event is in ending phase or finished.
+- **Multilingual basic energy validation** — basic energy cards exported from PTCGL in French, German, Spanish, Italian, Portuguese, or Japanese are now correctly recognized and exempt from the 4-copy limit. Previously only English names were supported.
+
+### Documentation
+
+- **Overdue tracking specification** — `docs/plans/overdue_tracking.md` with full lifecycle, banners, notifications, and implementation notes.
+- **Updated event and borrow models** — new `endingPhaseAt` field, ending phase behavior section, enhanced finishment behavior, three-column comparison table (ending phase vs finished vs cancelled).
+- **Updated feature descriptions** — F3.20, F4.6, F4.8, F8.3, and notification matrices updated to reflect the two-phase approach.
+- **Context7 MCP documentation lookup** — added to CLAUDE.md as the preferred source for library/framework docs.
+
+### Testing & Quality
+
+- 35 new tests: unit tests for `StartEndingPhaseHandler`, `FinishEventBorrowsHandler`, `BorrowService` overdue/guards, `EventNotificationService` ending phase and custody pickup methods; functional tests for ending phase controller actions, banners, and lending locks; validator test for French basic energy.
+
+---
+
 ## [1.0.7] — 2026-03-28
 
 Archetype soft-delete hardening and custom Pokemon-themed error pages.

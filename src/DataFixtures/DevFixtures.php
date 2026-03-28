@@ -1285,6 +1285,28 @@ MARKDOWN;
 
         // Deck stays Available — approval no longer sets Reserved (per-event concern)
 
+        // --- Today's event: 1 lent borrow (borrower borrows "Lent Fixture Deck" from lender) ---
+        // Dedicated deck for ending phase / overdue transition testing.
+        $lentFixtureDeck = $this->createDeck($manager, $lender, 'Lent Fixture Deck', DeckStatus::Lent);
+        $lentFixtureVersion = new DeckVersion();
+        $lentFixtureVersion->setDeck($lentFixtureDeck);
+        $lentFixtureVersion->setVersionNumber(1);
+        $lentFixtureVersion->setRawList('');
+        $manager->persist($lentFixtureVersion);
+        $lentFixtureDeck->setCurrentVersion($lentFixtureVersion);
+
+        $lentBorrow = new Borrow();
+        $lentBorrow->setDeck($lentFixtureDeck);
+        $lentBorrow->setDeckVersion($lentFixtureVersion);
+        $lentBorrow->setBorrower($borrower);
+        $lentBorrow->setEvent($todayEvent);
+        $lentBorrow->setStatus(BorrowStatus::Lent);
+        $lentBorrow->setApprovedAt(new \DateTimeImmutable('-1 hour'));
+        $lentBorrow->setApprovedBy($lender);
+        $lentBorrow->setHandedOffAt(new \DateTimeImmutable('-30 minutes'));
+        $lentBorrow->setHandedOffBy($lender);
+        $manager->persist($lentBorrow);
+
         return $pendingBorrow;
     }
 

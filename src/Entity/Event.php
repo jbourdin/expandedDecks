@@ -127,6 +127,9 @@ class Event
     private ?\DateTimeImmutable $finishedAt = null;
 
     #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $endingPhaseAt = null;
+
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $deletedAt = null;
 
     /** @var Collection<int, EventEngagement> */
@@ -433,6 +436,18 @@ class Event
     public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
     {
         $this->finishedAt = $finishedAt;
+
+        return $this;
+    }
+
+    public function getEndingPhaseAt(): ?\DateTimeImmutable
+    {
+        return $this->endingPhaseAt;
+    }
+
+    public function setEndingPhaseAt(?\DateTimeImmutable $endingPhaseAt): static
+    {
+        $this->endingPhaseAt = $endingPhaseAt;
 
         return $this;
     }

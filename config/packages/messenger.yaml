@@ -60,3 +60,5 @@ framework:
             App\Message\GenerateMinifiedMosaicMessage: deck_enrichment
             App\Message\DeclineCompetingBorrowsMessage: borrow_lifecycle
             App\Message\CancelEventBorrowsMessage: borrow_lifecycle
+            App\Message\StartEndingPhaseMessage: borrow_lifecycle
+            App\Message\FinishEventBorrowsMessage: borrow_lifecycle
