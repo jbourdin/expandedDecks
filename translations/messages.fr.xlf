@@ -3998,6 +3998,16 @@
                 <target>Retour à l&apos;accueil</target>
                 <note>Error page button to return to homepage</note>
             </trans-unit>
+            <trans-unit id="app.event.show_private_decks">
+                <source>app.event.show_private_decks</source>
+                <target>Afficher les decks privés</target>
+                <note>Toggle button to reveal private decks in event deck selection</note>
+            </trans-unit>
+            <trans-unit id="app.event.hide_private_decks">
+                <source>app.event.hide_private_decks</source>
+                <target>Masquer les decks privés</target>
+                <note>Toggle button to hide private decks in event deck selection</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

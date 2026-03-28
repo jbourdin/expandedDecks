@@ -263,8 +263,18 @@
             <div class="card-header card-header-themed">
                 <h6 class="mb-0">{{ 'app.event.your_decks'|trans }}</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="your-decks-section">
                 <p class="text-muted mb-2">{{ 'app.event.your_decks_help'|trans }}</p>
+
+                {% set hasPrivateUnregisteredDecks = ownedDecksWithVersion|filter(deck => not deck.public and not (deckRegistrationMap[deck.id] ?? null))|length > 0 %}
+                {% if hasPrivateUnregisteredDecks %}
+                    <button type="button" class="btn btn-sm btn-outline-secondary mb-2 toggle-private-decks"
+                            data-target="#your-decks-section"
+                            data-label-show="{{ 'app.event.show_private_decks'|trans }}"
+                            data-label-hide="{{ 'app.event.hide_private_decks'|trans }}">
+                        {{ 'app.event.show_private_decks'|trans }}
+                    </button>
+                {% endif %}
 
                 {# Desktop table (md+) #}
                 <div class="table-responsive d-none d-md-block">
@@ -284,7 +294,7 @@
                                 {% set isRegistered = regInfo is not null and regInfo.registered %}
                                 {% set isDelegated = regInfo is not null and regInfo.delegated %}
                                 {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
-                                <tr>
+                                <tr{% if not deck.public and not isRegistered %} class="private-deck-row d-none"{% endif %}>
                                     <td><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}"><span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck_sprites(deck) }}{{ deck.name }}</a></td>
                                     <td>
                                         {% if isPlayed %}
@@ -355,7 +365,7 @@
                         {% set isRegistered = regInfo is not null and regInfo.registered %}
                         {% set isDelegated = regInfo is not null and regInfo.delegated %}
                         {% set isPlayed = currentDeckEntry is not null and currentDeckEntry.deckVersion.deck.id == deck.id %}
-                        <div class="borrow-mobile-card px-3 py-2 {{ not loop.last ? 'border-bottom' : '' }}">
+                        <div class="borrow-mobile-card px-3 py-2 {{ not loop.last ? 'border-bottom' : '' }}{% if not deck.public and not isRegistered %} private-deck-row d-none{% endif %}">
                             <div class="d-flex justify-content-between align-items-center">
                                 <a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">
                                     <span class="badge bg-dark badge-short-id me-1">{{ deck.shortTag }}</span>{{ deck_sprites(deck) }}{{ deck.name }}
@@ -651,8 +661,19 @@
                 <div class="card-header card-header-themed">
                     <h6 class="mb-0">{{ 'app.event.deck_selection'|trans }}</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="deck-selection-body">
                     {% set selectedDeckId = currentDeckEntry ? currentDeckEntry.deckVersion.deck.id : 0 %}
+
+                    {% set hasPrivatePlayableDecks = playableOwnDecks|filter(deck => not deck.public and deck.id != selectedDeckId)|length > 0 %}
+                    {% if hasPrivatePlayableDecks %}
+                        <button type="button" class="btn btn-sm btn-outline-secondary mb-2 toggle-private-decks"
+                                data-target="#deck-selection-body"
+                                data-label-show="{{ 'app.event.show_private_decks'|trans }}"
+                                data-label-hide="{{ 'app.event.hide_private_decks'|trans }}">
+                            {{ 'app.event.show_private_decks'|trans }}
+                        </button>
+                    {% endif %}
+
                     <form method="post" action="{{ path('app_event_select_deck', {id: event.id}) }}"
                           onsubmit="return (function(form) {
                               var selected = form.querySelector('input[name=deck_id]:checked');
@@ -692,7 +713,7 @@
                                     {% set hasBorrowBlock = deckBorrowBlockMap[deck.id] ?? false %}
                                     {% set pendingBorrowCount = deckPendingBorrowCountMap[deck.id] ?? 0 %}
                                     {% set isUnavailable = isWithStaff or isDeckLent or hasBorrowBlock %}
-                                    <tr>
+                                    <tr{% if not deck.public and deck.id != selectedDeckId %} class="private-deck-row d-none"{% endif %}>
                                         <td>
                                             <input type="radio" name="deck_id" value="{{ deck.id }}" class="form-check-input"
                                                 {{ selectedDeckId == deck.id ? 'checked' }}
@@ -848,4 +869,5 @@
     {% if isOrganizer and not event.cancelledAt %}
         {{ encore_entry_script_tags('staff_autocomplete') }}
     {% endif %}
+    {{ encore_entry_script_tags('toggle_private_decks') }}
 {% endblock %}
