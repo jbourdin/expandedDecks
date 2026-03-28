@@ -81,7 +81,7 @@ Walk-up lending also applies to staff-delegated decks: when a staff member initi
 #### Overdue (applies to both workflows)
 
 ```
-lent ──(event end + grace period)──→ overdue → returned
+lent ──(event finished)──→ overdue → returned
 ```
 
 ### Transition Rules
@@ -94,7 +94,7 @@ lent ──(event end + grace period)──→ overdue → returned
 | `approved`         | `cancelled`         | Borrower, owner, or staff | Before hand-off only |
 | *(walk-up)*        | `lent`              | Owner, organizer, or staff | Walk-up lend (F4.12). Deck must be `available`. No prior `Borrow` entity — created directly in `lent`. |
 | `lent`             | `returned`          | Owner or staff (if delegated) | Ideally confirmed by scanning deck label |
-| `lent`             | `overdue`           | System (automatic) | Event end date + grace period exceeded, or event marked as finished (F3.20) |
+| `lent`             | `overdue`           | System (automatic) | Event marked as finished (F3.20). All remaining `lent` borrows transition to `overdue` on finish. |
 | `overdue`          | `returned`          | Owner or staff (if delegated) | — |
 | `returned`         | `returned_to_owner` | Staff or owner | Staff-delegated only. Final step. |
 
