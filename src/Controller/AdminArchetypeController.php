@@ -18,6 +18,7 @@ use App\Entity\ArchetypeTranslation;
 use App\Form\ArchetypeFormType;
 use App\Form\ArchetypeTranslationFormType;
 use App\Repository\ArchetypeRepository;
+use App\Repository\DeckRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -46,12 +47,20 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_archetype_list', methods: ['GET'])]
-    public function list(ArchetypeRepository $archetypeRepository): Response
+    public function list(ArchetypeRepository $archetypeRepository, DeckRepository $deckRepository): Response
     {
-        $archetypes = $archetypeRepository->findBy([], ['name' => 'ASC']);
+        $archetypes = $archetypeRepository->findBy(['deletedAt' => null], ['name' => 'ASC']);
+
+        $deckCounts = [];
+        foreach ($archetypes as $archetype) {
+            /** @var int $id */
+            $id = $archetype->getId();
+            $deckCounts[$id] = $deckRepository->countAllByArchetype($archetype);
+        }
 
         return $this->render('admin/archetype/list.html.twig', [
             'archetypes' => $archetypes,
+            'deckCounts' => $deckCounts,
         ]);
     }
 
@@ -83,7 +92,7 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     #[Route('/{id}', name: 'app_admin_archetype_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Archetype $archetype, ArchetypeRepository $archetypeRepository): Response
+    public function edit(Request $request, Archetype $archetype, ArchetypeRepository $archetypeRepository, DeckRepository $deckRepository): Response
     {
         $form = $this->createForm(ArchetypeFormType::class, $archetype);
         $form->handleRequest($request);
@@ -106,14 +115,24 @@ class AdminArchetypeController extends AbstractAppController
             'existingTags' => $this->collectExistingTags($archetypeRepository),
             'translationForms' => $translationForms,
             'supportedLocales' => self::SUPPORTED_LOCALES,
+            'deckCount' => $deckRepository->countAllByArchetype($archetype),
         ]);
     }
 
+    /**
+     * @see docs/models/deck.md — Archetype soft-delete rules
+     */
     #[Route('/{id}/delete', name: 'app_admin_archetype_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function delete(Request $request, Archetype $archetype): Response
+    public function delete(Request $request, Archetype $archetype, DeckRepository $deckRepository): Response
     {
         if (!$this->isCsrfTokenValid('archetype-delete-'.$archetype->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        if ($deckRepository->countAllByArchetype($archetype) > 0) {
+            $this->addFlash('danger', 'app.admin.archetype.delete_has_decks');
 
             return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
         }
@@ -254,7 +273,7 @@ class AdminArchetypeController extends AbstractAppController
     private function collectExistingTags(ArchetypeRepository $archetypeRepository): array
     {
         $allTags = [];
-        foreach ($archetypeRepository->findAll() as $archetype) {
+        foreach ($archetypeRepository->findBy(['deletedAt' => null]) as $archetype) {
             foreach ($archetype->getPlaystyleTags() as $tag) {
                 $allTags[$tag] = true;
             }

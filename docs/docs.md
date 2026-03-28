@@ -55,6 +55,7 @@
 - [Cardmarket Export](technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
 - [Basic Energy Images](technicalities/basic_energy_images.md) — Image sources for basic energy cards (MEE, SVE, NRG, all eras)
 - [TCGdex Known Issues](technicalities/tcgdex_known_issues.md) — Data quality issues and workarounds
+- [Error Pages](technicalities/error_pages.md) — Custom error pages, Pokemon sprites, CDN integration, Sentry
 
 ## Planning
 

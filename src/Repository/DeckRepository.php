@@ -96,6 +96,25 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count all decks (regardless of status or visibility) assigned to an archetype.
+     *
+     * @see docs/models/deck.md — Archetype soft-delete rules
+     */
+    public function countAllByArchetype(Archetype $archetype): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.archetype = :archetype')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('archetype', $archetype)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     public function countPublicByArchetype(Archetype $archetype): int

@@ -81,7 +81,13 @@
         </div>
     </div>
 
-    {% if archetype.deletedAt is null %}
+    {% if archetype.deletedAt is not null %}
+        <div class="card shadow-sm border-warning mt-4">
+            <div class="card-body">
+                <span class="badge bg-danger">{{ 'app.common.deleted'|trans }}</span>
+            </div>
+        </div>
+    {% elseif deckCount == 0 %}
         <div class="card shadow-sm border-danger mt-4">
             <div class="card-body">
                 <h5 class="text-danger">{{ 'app.common.danger_zone'|trans }}</h5>
@@ -89,12 +95,6 @@
                     <input type="hidden" name="_token" value="{{ csrf_token('archetype-delete-' ~ archetype.id) }}">
                     <button type="submit" class="btn btn-outline-danger">{{ 'app.admin.archetype.delete_button'|trans }}</button>
                 </form>
-            </div>
-        </div>
-    {% else %}
-        <div class="card shadow-sm border-warning mt-4">
-            <div class="card-body">
-                <span class="badge bg-danger">{{ 'app.common.deleted'|trans }}</span>
             </div>
         </div>
     {% endif %}

@@ -3223,6 +3223,11 @@
                 <target>Delete archetype</target>
                 <note>Button to soft-delete an archetype</note>
             </trans-unit>
+            <trans-unit id="app.admin.archetype.delete_has_decks">
+                <source>app.admin.archetype.delete_has_decks</source>
+                <target>This archetype cannot be deleted because it still has decks assigned to it. Remove or reassign those decks first.</target>
+                <note>Error flash when trying to delete an archetype that has decks</note>
+            </trans-unit>
             <trans-unit id="app.flash.archetype.deleted">
                 <source>app.flash.archetype.deleted</source>
                 <target>Archetype deleted.</target>
@@ -3272,6 +3277,11 @@
                 <source>app.archetype.table.pokemon</source>
                 <target>Pokemon</target>
                 <note>Admin archetype table column header</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.table.decks">
+                <source>app.archetype.table.decks</source>
+                <target>Decks</target>
+                <note>Admin archetype table column header — number of decks using this archetype</note>
             </trans-unit>
 
             <!-- Archetype detail page (F2.10) -->
@@ -3955,6 +3965,38 @@
             <trans-unit id="app.deck.awaiting_mappings.message">
                 <source>app.deck.awaiting_mappings.message</source>
                 <target>Card set mappings have not been built yet. An administrator needs to trigger a rebuild from the technical dashboard.</target>
+            </trans-unit>
+
+            <!-- Error pages -->
+            <trans-unit id="app.error.403">
+                <source>app.error.403</source>
+                <target>This area is blocked by a Snorlax. You don't have permission to pass!</target>
+                <note>Error page message for 403 Forbidden</note>
+            </trans-unit>
+            <trans-unit id="app.error.404">
+                <source>app.error.404</source>
+                <target>Ditto tried to transform into this page, but it doesn't seem to exist!</target>
+                <note>Error page message for 404 Not Found</note>
+            </trans-unit>
+            <trans-unit id="app.error.429">
+                <source>app.error.429</source>
+                <target>Too many requests! The Maushold family keeps inviting themselves in. Please slow down and try again later.</target>
+                <note>Error page message for 429 Too Many Requests</note>
+            </trans-unit>
+            <trans-unit id="app.error.500">
+                <source>app.error.500</source>
+                <target>A wild bug appeared! Our team is working on catching it. Please try again later.</target>
+                <note>Error page message for 500 Internal Server Error</note>
+            </trans-unit>
+            <trans-unit id="app.error.generic">
+                <source>app.error.generic</source>
+                <target>Something unexpected happened. The attack missed! Please try again later.</target>
+                <note>Error page message for other error codes</note>
+            </trans-unit>
+            <trans-unit id="app.error.back_home">
+                <source>app.error.back_home</source>
+                <target>Back to home</target>
+                <note>Error page button to return to homepage</note>
             </trans-unit>
         </body>
     </file>

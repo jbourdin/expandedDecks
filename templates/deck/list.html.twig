@@ -112,7 +112,7 @@
                             <p class="card-text mb-1">
                                 {{ 'app.deck.owner'|trans }} <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
                             </p>
-                            {% if deck.archetype %}
+                            {% if deck.archetype and deck.archetype.deletedAt is null %}
                                 <p class="card-text mb-0">
                                     {{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}
                                 </p>
