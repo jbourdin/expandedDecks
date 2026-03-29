@@ -9,6 +9,13 @@
 
 import '@testing-library/jest-dom';
 
+// Mantine's FloatingIndicator (used by SegmentedControl) requires ResizeObserver.
+globalThis.ResizeObserver = class ResizeObserver {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+};
+
 // Mantine requires window.matchMedia which jsdom does not provide.
 Object.defineProperty(window, 'matchMedia', {
     writable: true,

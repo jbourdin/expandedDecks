@@ -52,9 +52,15 @@
         "@friendlycaptcha/sdk": "^0.2.0",
         "@mantine/core": "^8.3.15",
         "@mantine/hooks": "^8.3.15",
+        "@mantine/tiptap": "^8.3.18",
         "@popperjs/core": "^2.11.8",
         "@tabler/icons-react": "^3.40.0",
+        "@tiptap/extension-link": "^3.21.0",
+        "@tiptap/pm": "^3.21.0",
+        "@tiptap/react": "^3.21.0",
+        "@tiptap/starter-kit": "^3.21.0",
         "bootstrap": "^5.3.8",
-        "bootstrap-icons": "^1.13.1"
+        "bootstrap-icons": "^1.13.1",
+        "tiptap-markdown": "^0.9.0"
     }
 }
