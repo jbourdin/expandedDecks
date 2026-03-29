@@ -17,6 +17,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import ArchetypeReference from '../extensions/ArchetypeReference';
 import CardReference from '../extensions/CardReference';
+import DeckReference from '../extensions/DeckReference';
 
 /**
  * @see docs/features.md F17.1 — Rich text editor with Markdown
@@ -55,6 +56,7 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
             Link.configure({ openOnClick: false }),
             ArchetypeReference,
             CardReference,
+            DeckReference,
             markdownExtension,
         ],
         content: initialContent,

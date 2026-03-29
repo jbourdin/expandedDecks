@@ -305,7 +305,8 @@ footer {
 // rendered inside the Tiptap editor.
 // @see docs/features.md F17.2 — Custom Tiptap extension for [[card:SET-NUM]] tags
 .card-reference-badge,
-.archetype-reference-badge {
+.archetype-reference-badge,
+.deck-reference-badge {
     display: inline;
     padding: 0.1em 0.4em;
     font-size: 0.85em;
@@ -322,6 +323,10 @@ footer {
 
 .archetype-reference-badge {
     background-color: var(--bs-success);
+}
+
+.deck-reference-badge {
+    background-color: var(--bs-dark);
 }
 
 // --- Mobile touch target ---
