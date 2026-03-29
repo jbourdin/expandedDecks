@@ -4148,6 +4148,12 @@
                 <target>Phase de clôture — %returned% decks rendus, %stillOut% encore en prêt.</target>
                 <note>Banner for organizer/staff during ending phase</note>
             </trans-unit>
+            <!-- Captcha -->
+            <trans-unit id="app.captcha.verification_failed">
+                <source>app.captcha.verification_failed</source>
+                <target>La vérification anti-robot a échoué. Veuillez réessayer.</target>
+                <note>Error when Friendly Captcha server-side validation rejects the response</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

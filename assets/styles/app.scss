@@ -242,6 +242,10 @@ footer {
 
 .card-auth {
     border-top: 3px solid $ed-blue;
+
+    .frc-captcha {
+        width: 100% !important;
+    }
 }
 
 // --- Card image hover tooltip ---

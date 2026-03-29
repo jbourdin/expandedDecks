@@ -1,0 +1,18 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Reusable captcha widget for raw HTML forms (login, forgot-password).
+ # For Symfony Form types, use FriendlyCaptchaType instead.
+ #
+ # @see docs/features.md F12.4 — Bot protection with Friendly Captcha
+ #}
+{% if friendly_captcha_sitekey is not empty %}
+    <div class="mb-3">
+        <div class="frc-captcha" data-sitekey="{{ friendly_captcha_sitekey }}"></div>
+    </div>
+{% endif %}

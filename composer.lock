@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb8c5bec9d86c7a01ccb83082db1d68d",
+    "content-hash": "211b21d92ca93db8a71022614016b014",
     "packages": [
         {
             "name": "async-aws/core",
@@ -1954,6 +1954,50 @@
                 }
             ],
             "time": "2026-02-05T07:01:58+00:00"
+        },
+        {
+            "name": "friendlycaptcha/sdk",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FriendlyCaptcha/friendly-captcha-php.git",
+                "reference": "6d936d64b68110d7e0667f0c27e065757e681013"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FriendlyCaptcha/friendly-captcha-php/zipball/6d936d64b68110d7e0667f0c27e065757e681013",
+                "reference": "6d936d64b68110d7e0667f0c27e065757e681013",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=7"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Friendly Captcha GmbH",
+                    "email": "dev@friendlycaptcha.com",
+                    "homepage": "https://friendlycaptcha.com/"
+                }
+            ],
+            "description": "Serverside SDK for the Friendly Captcha API.",
+            "support": {
+                "issues": "https://github.com/FriendlyCaptcha/friendly-captcha-php/issues",
+                "source": "https://github.com/FriendlyCaptcha/friendly-captcha-php/tree/0.2.0"
+            },
+            "time": "2026-03-24T10:49:43+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

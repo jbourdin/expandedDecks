@@ -303,6 +303,10 @@ When creating new features or backlog items, create a GitHub issue with the feat
 - **PrintNode API** — cloud printing service to push ZPL payloads to Zebra printers
 - API client service: `App\Service\PrintNode\ApiClient`
 - Zebra printer runs a local PrintNode client; the app sends print jobs via the PrintNode REST API
+- **Friendly Captcha API** — EU-based (GDPR) bot protection via proof-of-work
+- PHP SDK: `friendlycaptcha/sdk` — wrapped by `App\Service\FriendlyCaptchaVerifier`
+- JS SDK: `@friendlycaptcha/sdk` — bundled via Webpack Encore (`friendly_captcha` entry)
+- Protects registration, login, and forgot-password forms (F12.4)
 
 ## Documentation Lookup
 

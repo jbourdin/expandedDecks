@@ -24,7 +24,7 @@ use App\Repository\EventDeckRegistrationRepository;
 use App\Service\BorrowNotificationEmailService;
 use App\Service\BorrowService;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Workflow\Marking;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -35,17 +35,17 @@ use Symfony\Component\Workflow\WorkflowInterface;
 class BorrowServiceOverdueTest extends TestCase
 {
     private BorrowService $service;
-    private WorkflowInterface&MockObject $workflow;
-    private EntityManagerInterface&MockObject $em;
-    private BorrowRepository&MockObject $borrowRepository;
-    private BorrowNotificationEmailService&MockObject $emailService;
+    private WorkflowInterface&Stub $workflow;
+    private EntityManagerInterface&Stub $em;
+    private BorrowRepository&Stub $borrowRepository;
+    private BorrowNotificationEmailService&Stub $emailService;
 
     protected function setUp(): void
     {
-        $this->workflow = $this->createMock(WorkflowInterface::class);
-        $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->borrowRepository = $this->createMock(BorrowRepository::class);
-        $this->emailService = $this->createMock(BorrowNotificationEmailService::class);
+        $this->workflow = $this->createStub(WorkflowInterface::class);
+        $this->em = $this->createStub(EntityManagerInterface::class);
+        $this->borrowRepository = $this->createStub(BorrowRepository::class);
+        $this->emailService = $this->createStub(BorrowNotificationEmailService::class);
         $registrationRepository = $this->createStub(EventDeckRegistrationRepository::class);
 
         $this->service = new BorrowService(
@@ -63,12 +63,14 @@ class BorrowServiceOverdueTest extends TestCase
         $borrow1 = $this->createBorrow(BorrowStatus::Lent, $event);
         $borrow2 = $this->createBorrow(BorrowStatus::Lent, $event);
 
-        $this->borrowRepository->expects(self::once())
+        $borrowRepository = $this->createMock(BorrowRepository::class);
+        $borrowRepository->expects(self::once())
             ->method('findLentBorrowsByEvent')
             ->with($event)
             ->willReturn([$borrow1, $borrow2]);
 
-        $this->workflow->expects(self::exactly(2))
+        $workflow = $this->createMock(WorkflowInterface::class);
+        $workflow->expects(self::exactly(2))
             ->method('apply')
             ->willReturnCallback(static function (Borrow $borrow, string $transition): Marking {
                 self::assertSame('mark_overdue', $transition);
@@ -76,12 +78,22 @@ class BorrowServiceOverdueTest extends TestCase
                 return new Marking();
             });
 
-        $this->emailService->expects(self::exactly(2))
+        $emailService = $this->createMock(BorrowNotificationEmailService::class);
+        $emailService->expects(self::exactly(2))
             ->method('sendBorrowOverdue');
 
-        $this->em->expects(self::atLeastOnce())->method('flush');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::atLeastOnce())->method('flush');
 
-        $count = $this->service->markOverdueForEvent($event);
+        $service = new BorrowService(
+            $workflow,
+            $entityManager,
+            $borrowRepository,
+            $emailService,
+            $this->createStub(EventDeckRegistrationRepository::class),
+        );
+
+        $count = $service->markOverdueForEvent($event);
 
         self::assertSame(2, $count);
     }
@@ -90,16 +102,30 @@ class BorrowServiceOverdueTest extends TestCase
     {
         $event = $this->createEvent();
 
-        $this->borrowRepository->expects(self::once())
+        $borrowRepository = $this->createMock(BorrowRepository::class);
+        $borrowRepository->expects(self::once())
             ->method('findLentBorrowsByEvent')
             ->with($event)
             ->willReturn([]);
 
-        $this->workflow->expects(self::never())->method('apply');
-        $this->emailService->expects(self::never())->method('sendBorrowOverdue');
-        $this->em->expects(self::never())->method('flush');
+        $workflow = $this->createMock(WorkflowInterface::class);
+        $workflow->expects(self::never())->method('apply');
 
-        $count = $this->service->markOverdueForEvent($event);
+        $emailService = $this->createMock(BorrowNotificationEmailService::class);
+        $emailService->expects(self::never())->method('sendBorrowOverdue');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
+
+        $service = new BorrowService(
+            $workflow,
+            $entityManager,
+            $borrowRepository,
+            $emailService,
+            $this->createStub(EventDeckRegistrationRepository::class),
+        );
+
+        $count = $service->markOverdueForEvent($event);
 
         self::assertSame(0, $count);
     }
