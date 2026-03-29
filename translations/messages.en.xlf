@@ -4154,6 +4154,136 @@
                 <target>Captcha verification failed. Please try again.</target>
                 <note>Error when Friendly Captcha server-side validation rejects the response</note>
             </trans-unit>
+            <!-- Discord username -->
+            <trans-unit id="app.form.label.discord_username">
+                <source>app.form.label.discord_username</source>
+                <target>Discord username</target>
+                <note>Profile form label</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.discord_username">
+                <source>app.form.help.discord_username</source>
+                <target>Your Discord username (e.g. player42). Shown to people who find your deck.</target>
+                <note>Profile form help text</note>
+            </trans-unit>
+            <!-- Deck limited view -->
+            <trans-unit id="app.deck.limited_view_notice">
+                <source>app.deck.limited_view_notice</source>
+                <target>This is a private deck. The card list is not visible.</target>
+                <note>Info alert shown on private deck limited view</note>
+            </trans-unit>
+            <trans-unit id="app.deck.owner_info">
+                <source>app.deck.owner_info</source>
+                <target>Owner</target>
+                <note>Card header on limited view</note>
+            </trans-unit>
+            <trans-unit id="app.deck.owner_name">
+                <source>app.deck.owner_name</source>
+                <target>Name</target>
+                <note>Owner full name label on limited view</note>
+            </trans-unit>
+            <!-- Deck found -->
+            <trans-unit id="app.deck.found_button">
+                <source>app.deck.found_button</source>
+                <target>I found this deck</target>
+                <note>Button to open found deck modal</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_modal_title">
+                <source>app.deck.found_modal_title</source>
+                <target>Report a found deck</target>
+                <note>Modal title</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_anonymous_label">
+                <source>app.deck.found_anonymous_label</source>
+                <target>Report anonymously</target>
+                <note>Checkbox label in found deck modal</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_message_label">
+                <source>app.deck.found_message_label</source>
+                <target>Message</target>
+                <note>Textarea label in found deck modal</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_message_placeholder">
+                <source>app.deck.found_message_placeholder</source>
+                <target>Where can the owner recover the deck? Or provide your contact info (e.g. "Table 5, ask for Julie" or "I left it at the registration desk").</target>
+                <note>Textarea placeholder in found deck modal</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_discord_copy">
+                <source>app.deck.found_discord_copy</source>
+                <target>Copy Discord username</target>
+                <note>Button to copy owner Discord username</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_discord_copied">
+                <source>app.deck.found_discord_copied</source>
+                <target>Copied!</target>
+                <note>Feedback after copying Discord username</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_submit">
+                <source>app.deck.found_submit</source>
+                <target>Send report</target>
+                <note>Submit button in found deck modal</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_success">
+                <source>app.deck.found_success</source>
+                <target>Report sent! The deck owner will be notified.</target>
+                <note>Success message after submitting found deck report</note>
+            </trans-unit>
+            <trans-unit id="app.deck.found_error">
+                <source>app.deck.found_error</source>
+                <target>Something went wrong. Please try again.</target>
+                <note>Error message if found deck report fails</note>
+            </trans-unit>
+            <!-- Deck found notifications -->
+            <trans-unit id="app.notification.deck_found_title">
+                <source>app.notification.deck_found_title</source>
+                <target>Someone found your deck "%deck%"</target>
+                <note>In-app notification title</note>
+            </trans-unit>
+            <trans-unit id="app.notification.deck_found_message">
+                <source>app.notification.deck_found_message</source>
+                <target>Your deck "%deck%" has been reported as found by %reporter%.</target>
+                <note>In-app notification message, followed by the reporter's message</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.deck">
+                <source>app.notification_preferences.group.deck</source>
+                <target>Deck</target>
+                <note>Notification preferences group heading</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.deck_found">
+                <source>app.notification_preferences.type.deck_found</source>
+                <target>Deck found</target>
+                <note>Notification preferences type label</note>
+            </trans-unit>
+            <!-- Deck found email -->
+            <trans-unit id="app.email.deck_found_subject">
+                <source>app.email.deck_found_subject</source>
+                <target>Someone found your deck "%deck%"</target>
+                <note>Email subject for deck found notification</note>
+            </trans-unit>
+            <trans-unit id="app.email.deck_found_heading">
+                <source>app.email.deck_found_heading</source>
+                <target>Your deck "%deck%" was found!</target>
+                <note>Email heading</note>
+            </trans-unit>
+            <trans-unit id="app.email.deck_found_body">
+                <source>app.email.deck_found_body</source>
+                <target>Someone reported that they found your deck "%deck%" (tag: %shortTag%).</target>
+                <note>Email body text</note>
+            </trans-unit>
+            <trans-unit id="app.email.deck_found_reporter">
+                <source>app.email.deck_found_reporter</source>
+                <target>Reported by:</target>
+                <note>Label before reporter name in email</note>
+            </trans-unit>
+            <trans-unit id="app.email.deck_found_anonymous">
+                <source>app.email.deck_found_anonymous</source>
+                <target>Anonymous</target>
+                <note>Shown when reporter is anonymous</note>
+            </trans-unit>
+            <trans-unit id="app.email.deck_found_view_deck">
+                <source>app.email.deck_found_view_deck</source>
+                <target>View deck</target>
+                <note>CTA button in email</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

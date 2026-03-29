@@ -1,0 +1,43 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # @see docs/features.md F4.16 — Lost & found deck alert
+ #}
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #2c3e50;">{{ 'app.email.deck_found_heading'|trans({'%deck%': deck.name}, 'messages', locale) }}</h1>
+
+    <p>{{ 'app.email.deck_found_body'|trans({'%deck%': deck.name, '%shortTag%': deck.shortTag}, 'messages', locale) }}</p>
+
+    {% if reporter %}
+        <p><strong>{{ 'app.email.deck_found_reporter'|trans({}, 'messages', locale) }}</strong> {{ reporter.screenName }} ({{ reporter.publicDisplayName }})</p>
+    {% else %}
+        <p><strong>{{ 'app.email.deck_found_reporter'|trans({}, 'messages', locale) }}</strong> {{ 'app.email.deck_found_anonymous'|trans({}, 'messages', locale) }}</p>
+    {% endif %}
+
+    {% if reporterMessage %}
+        <div style="background-color: #f8f9fa; border-left: 4px solid #0d6efd; padding: 12px 16px; margin: 20px 0;">
+            <p style="margin: 0; font-style: italic;">{{ reporterMessage|nl2br }}</p>
+        </div>
+    {% endif %}
+
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="{{ deckUrl }}"
+           style="background-color: #0d6efd; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            {{ 'app.email.deck_found_view_deck'|trans({}, 'messages', locale) }}
+        </a>
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    <p style="color: #999; font-size: 12px;">{{ 'app.email.footer'|trans({}, 'messages', locale) }}</p>
+</body>
+</html>

@@ -55,6 +55,7 @@ Encore
     .addEntry('archetype_form', './assets/archetype-form.tsx')
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
+    .addEntry('deck_found', './assets/deck-found.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
