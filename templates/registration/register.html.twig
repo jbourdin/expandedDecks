@@ -10,6 +10,11 @@
 
 {% block title %}{{ 'app.auth.register.title'|trans }} — Expanded Decks{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'form/_captcha_scripts.html.twig' %}
+{% endblock %}
+
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
@@ -26,6 +31,7 @@
                         {{ form_row(registrationForm.plainPassword.first) }}
                         {{ form_row(registrationForm.plainPassword.second) }}
                         {{ form_row(registrationForm.agreeTerms) }}
+                        {{ form_row(registrationForm.captcha) }}
 
                         <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.register.submit'|trans }}</button>
                     {{ form_end(registrationForm) }}

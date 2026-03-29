@@ -29,6 +29,7 @@
             <directory>tests/Security</directory>
             <directory>tests/Service</directory>
             <directory>tests/Twig</directory>
+            <directory>tests/Validator</directory>
         </testsuite>
         <testsuite name="functional">
             <directory>tests/Functional</directory>

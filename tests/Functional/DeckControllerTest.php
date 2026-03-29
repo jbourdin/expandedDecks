@@ -164,13 +164,14 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
-    public function testPrivateDeckRedirectsToLoginForAnonymous(): void
+    public function testPrivateDeckShowsLimitedViewForAnonymous(): void
     {
-        // Ancient Box is not public — anonymous users are redirected to login
+        // Ancient Box is not public — anonymous users see the limited view
         $shortTag = $this->getDeckShortTag('Ancient Box');
         $this->client->request('GET', '/deck/'.$shortTag);
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-info');
     }
 
     public function testPrivateDeckAccessibleByOwner(): void

@@ -15,6 +15,7 @@ namespace App\Controller;
 
 use App\Form\ResetPasswordFormType;
 use App\Repository\UserRepository;
+use App\Service\FriendlyCaptchaVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -37,10 +38,18 @@ class PasswordResetController extends AbstractAppController
         UserRepository $userRepository,
         EntityManagerInterface $entityManager,
         MailerInterface $mailer,
+        FriendlyCaptchaVerifier $captchaVerifier,
         #[Autowire('%app.reset_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
+        #[Autowire('%app.mail_sender_name%')] string $mailSenderName,
     ): Response {
         if ('POST' !== $request->getMethod()) {
+            return $this->render('password_reset/forgot.html.twig');
+        }
+
+        if (!$captchaVerifier->verify($request->request->getString('frc-captcha-response'))) {
+            $this->addFlash('danger', 'app.captcha.verification_failed');
+
             return $this->render('password_reset/forgot.html.twig');
         }
 
@@ -58,8 +67,8 @@ class PasswordResetController extends AbstractAppController
             $locale = $user->getPreferredLocale();
 
             $emailMessage = (new TemplatedEmail())
-                ->from(new Address($mailSender, 'Expanded Decks'))
-                ->to($user->getEmail())
+                ->from(new Address($mailSender, $mailSenderName))
+                ->to(new Address($user->getEmail(), $user->getScreenName()))
                 ->subject($this->translator->trans('app.email.password_reset_subject', [], null, $locale))
                 ->htmlTemplate('email/password_reset.html.twig')
                 ->context([

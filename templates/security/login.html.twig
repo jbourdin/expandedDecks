@@ -10,6 +10,11 @@
 
 {% block title %}{{ 'app.auth.login.title'|trans }} — Expanded Decks{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'form/_captcha_scripts.html.twig' %}
+{% endblock %}
+
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
@@ -38,6 +43,8 @@
                         </div>
 
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        {% include 'form/_captcha_widget.html.twig' %}
 
                         <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.login.submit'|trans }}</button>
                     </form>

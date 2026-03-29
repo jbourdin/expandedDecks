@@ -32,6 +32,7 @@ enum NotificationType: string
     case EventReminder = 'event_reminder';
     case EventEndingPhase = 'event_ending_phase';
     case EventCustodyPickup = 'event_custody_pickup';
+    case DeckFound = 'deck_found';
 
     public function isBorrowType(): bool
     {

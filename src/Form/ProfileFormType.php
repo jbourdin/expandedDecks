@@ -45,6 +45,11 @@ class ProfileFormType extends AbstractType
                 'label' => 'app.form.label.player_id',
                 'required' => false,
             ])
+            ->add('discordUsername', TextType::class, [
+                'label' => 'app.form.label.discord_username',
+                'required' => false,
+                'help' => 'app.form.help.discord_username',
+            ])
             ->add('preferredLocale', ChoiceType::class, [
                 'label' => 'app.form.label.preferred_locale',
                 'choices' => [

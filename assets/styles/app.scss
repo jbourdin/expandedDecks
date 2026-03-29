@@ -244,6 +244,13 @@ footer {
     border-top: 3px solid $ed-blue;
 }
 
+// --- Friendly Captcha widget — force full-width (SDK hardcodes 316px inline) ---
+
+.frc-captcha,
+.frc-captcha-container {
+    width: 100% !important;
+}
+
 // --- Card image hover tooltip ---
 
 .card-hover {

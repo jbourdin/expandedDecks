@@ -120,6 +120,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $notificationPreferences = null;
 
+    #[ORM\Column(length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
+    #[Assert\Regex(pattern: '/^[a-z0-9_.]{2,32}$/i', message: 'Invalid Discord username format.')]
+    private ?string $discordUsername = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $showCardmarketExport = false;
 
@@ -434,6 +439,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->firstName = 'Anonymous';
         $this->lastName = 'User';
         $this->playerId = null;
+        $this->discordUsername = null;
         $this->password = '';
         $this->roles = [];
         $this->verificationToken = null;
@@ -551,6 +557,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNotificationPreferences(?array $notificationPreferences): static
     {
         $this->notificationPreferences = $notificationPreferences;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F4.16 — Lost & found deck alert
+     */
+    public function getDiscordUsername(): ?string
+    {
+        return $this->discordUsername;
+    }
+
+    /**
+     * @see docs/features.md F4.16 — Lost & found deck alert
+     */
+    public function setDiscordUsername(?string $discordUsername): static
+    {
+        $this->discordUsername = $discordUsername;
 
         return $this;
     }

@@ -34,9 +34,9 @@ class DeckShowControllerCoverageTest extends AbstractFunctionalTest
 {
     /**
      * A logged-in user who is not the owner, admin, or event staff should
-     * get 403 for a private deck.
+     * see the limited view for a private deck.
      */
-    public function testPrivateDeckDeniedForNonOwnerNonAdmin(): void
+    public function testPrivateDeckShowsLimitedViewForNonOwnerNonAdmin(): void
     {
         // Ancient Box is owned by admin, not public
         // lender@example.com is not admin, not owner, not staff for the event where Ancient Box is registered
@@ -45,7 +45,8 @@ class DeckShowControllerCoverageTest extends AbstractFunctionalTest
         $shortTag = $this->getDeckShortTag('Ancient Box');
         $this->client->request('GET', '/deck/'.$shortTag);
 
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-info');
     }
 
     /**

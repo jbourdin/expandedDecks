@@ -1,8 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
-    form_themes: ['bootstrap_5_layout.html.twig']
+    form_themes: ['bootstrap_5_layout.html.twig', 'form/friendly_captcha.html.twig']
     globals:
         app_version: '%env(APP_VERSION)%'
+        friendly_captcha_sitekey: '%app.friendly_captcha_sitekey%'
 
 when@test:
     twig:

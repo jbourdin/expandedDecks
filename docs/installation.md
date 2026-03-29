@@ -66,6 +66,14 @@ Each transport has its own DSN. Default: `doctrine://default?auto_setup=0` (Doct
 | `SENTRY_TRACES_SAMPLE_RATE` | No | `0` | Performance tracing sample rate (`0.0`–`1.0`). |
 | `SENTRY_LOGS_ACTION_LEVEL` | No | `error` | Minimum log level that triggers the Sentry handler (`error`, `warning`, `info`, `debug`). |
 
+### Bot Protection (Friendly Captcha)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `FRIENDLY_CAPTCHA_SITEKEY` | **Yes** | (empty) | Sitekey from the [Friendly Captcha dashboard](https://app.friendlycaptcha.eu) (starts with `FC…`). |
+| `FRIENDLY_CAPTCHA_API_KEY` | **Yes** | (empty) | Secret API key for server-side verification. When empty, captcha verification is skipped. |
+| `FRIENDLY_CAPTCHA_ENDPOINT` | No | `eu` | API endpoint: `eu` (GDPR, recommended) or `global`. |
+
 ### Mosaic Image Storage (Flysystem)
 
 Generated deck mosaic images are stored via Flysystem. Two adapters are available.

@@ -37,6 +37,7 @@ class VerificationController extends AbstractAppController
         MailerInterface $mailer,
         #[Autowire('%app.verification_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
+        #[Autowire('%app.mail_sender_name%')] string $mailSenderName,
     ): Response {
         if ('POST' !== $request->getMethod()) {
             return $this->render('verification/resend.html.twig');
@@ -56,8 +57,8 @@ class VerificationController extends AbstractAppController
             $locale = $user->getPreferredLocale();
 
             $emailMessage = (new TemplatedEmail())
-                ->from(new Address($mailSender, 'Expanded Decks'))
-                ->to($user->getEmail())
+                ->from(new Address($mailSender, $mailSenderName))
+                ->to(new Address($user->getEmail(), $user->getScreenName()))
                 ->subject($this->translator->trans('app.email.verification_subject', [], null, $locale))
                 ->htmlTemplate('email/verification.html.twig')
                 ->context([
