@@ -125,7 +125,7 @@
              data-is-logged-in="{{ app.user ? '1' : '' }}"
              data-owner-discord="{{ deck.owner.discordUsername ?? '' }}"
              data-sitekey="{{ friendly_captcha_sitekey }}"
-             data-labels='{{ {
+             data-labels="{{ {
                  button: 'app.deck.found_button'|trans,
                  title: 'app.deck.found_modal_title'|trans,
                  anonymousLabel: 'app.deck.found_anonymous_label'|trans,
@@ -136,7 +136,7 @@
                  submit: 'app.deck.found_submit'|trans,
                  success: 'app.deck.found_success'|trans,
                  error: 'app.deck.found_error'|trans,
-             }|json_encode|raw }}'
+             }|json_encode|e('html_attr') }}"
         ></div>
     {% endif %}
 
