@@ -8,6 +8,9 @@ parameters:
     app.reset_token_ttl: 3600
     app.deletion_token_ttl: 86400
     app.mail_sender: '%env(MAIL_SENDER)%'
+    app.friendly_captcha_sitekey: '%env(FRIENDLY_CAPTCHA_SITEKEY)%'
+    app.friendly_captcha_api_key: '%env(FRIENDLY_CAPTCHA_API_KEY)%'
+    app.friendly_captcha_endpoint: '%env(FRIENDLY_CAPTCHA_ENDPOINT)%'
     app.mosaic_storage_adapter: '%env(MOSAIC_STORAGE_ADAPTER)%'
     app.mosaic_storage_local_dir: '%env(MOSAIC_STORAGE_LOCAL_DIR)%'
     app.mosaic_public_url: '%env(MOSAIC_PUBLIC_URL)%'
@@ -25,6 +28,9 @@ services:
         bind:
             string $mailSender: '%app.mail_sender%'
             string $webhookSecret: '%env(MESSENGER_WEBHOOK_SECRET)%'
+            string $friendlyCaptchaSitekey: '%app.friendly_captcha_sitekey%'
+            string $friendlyCaptchaApiKey: '%app.friendly_captcha_api_key%'
+            string $friendlyCaptchaEndpoint: '%app.friendly_captcha_endpoint%'
             string $mosaicStorageAdapter: '%app.mosaic_storage_adapter%'
             string $mosaicStorageLocalDir: '%app.mosaic_storage_local_dir%'
 

@@ -1,0 +1,15 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Friendly Captcha v2 entry — include inside {% block javascripts %}.
+ #
+ # @see docs/features.md F12.4 — Bot protection with Friendly Captcha
+ #}
+{% if friendly_captcha_sitekey is not empty %}
+    {{ encore_entry_script_tags('friendly_captcha') }}
+{% endif %}

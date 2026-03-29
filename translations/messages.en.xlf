@@ -4148,6 +4148,12 @@
                 <target>Ending phase — %returned% decks returned, %stillOut% still out with borrowers.</target>
                 <note>Banner for organizer/staff during ending phase</note>
             </trans-unit>
+            <!-- Captcha -->
+            <trans-unit id="app.captcha.verification_failed">
+                <source>app.captcha.verification_failed</source>
+                <target>Captcha verification failed. Please try again.</target>
+                <note>Error when Friendly Captcha server-side validation rejects the response</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

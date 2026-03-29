@@ -10,6 +10,11 @@
 
 {% block title %}{{ 'app.auth.forgot_password.title'|trans }} — Expanded Decks{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'form/_captcha_scripts.html.twig' %}
+{% endblock %}
+
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-md-5">
@@ -24,6 +29,8 @@
                             <label for="inputEmail" class="form-label">{{ 'app.auth.login.email'|trans }}</label>
                             <input type="email" name="email" id="inputEmail" class="form-control" required autofocus>
                         </div>
+
+                        {% include 'form/_captcha_widget.html.twig' %}
 
                         <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.forgot_password.submit'|trans }}</button>
                     </form>

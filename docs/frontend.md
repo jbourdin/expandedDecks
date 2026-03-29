@@ -48,6 +48,8 @@
 - **Walk-up autocomplete** (`walk_up_autocomplete` entry): uses two `AsyncAutocomplete` instances for deck and borrower search on the walk-up lending page.
 - **Catalog filters** (`catalog_filters` entry): mounts `AsyncAutocomplete` instances for archetype, event, and owner search fields in the public deck catalog filter bar (F2.4). Each autocomplete targets a public JSON search endpoint (`/api/archetype/search`, `/api/event/search`, `/api/deck-owner/search`) that does not require authentication.
 
+- **Friendly Captcha** (`friendly_captcha` entry): imports `@friendlycaptcha/sdk` and auto-attaches the proof-of-work widget to `.frc-captcha` elements. Used on login, registration, and forgot-password pages (F12.4).
+
 The `AsyncAutocomplete` component (`assets/components/AsyncAutocomplete.tsx`) is a generic Mantine `Combobox`-based search widget with debounced fetch, `AbortController` cancellation, and hidden input sync. It replaces the previous vanilla JS autocomplete widgets.
 
 Mantine styles are imported per entry point (scoped to pages that use Mantine, to avoid Bootstrap style conflicts).
