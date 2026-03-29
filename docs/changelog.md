@@ -16,6 +16,28 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.2.0] — 2026-03-30
+
+Rich text editor for archetype descriptions and CMS page content with custom tag support.
+
+### Features
+
+- **F17.1 — Mantine RichTextEditor with Markdown** — Replace plain textareas for archetype descriptions and CMS page content with a Tiptap-based rich text editor (`@mantine/tiptap` + `tiptap-markdown`). Supports headings, bold, italic, lists, links, code blocks, and blockquotes. Toggle between WYSIWYG and raw Markdown editing modes. Content stored as Markdown with no schema migration needed. Reusable `MarkdownEditor` React component with hidden textarea sync for standard Symfony form submission. New `page_form` Webpack Encore entry point.
+- **F17.2 — Custom `[[card:SET-NUM]]` tag extension** — Custom Tiptap inline node that parses `[[card:SET-NUM]]` from Markdown via a markdown-it rule, renders as a blue badge in the editor, and serializes back to the original syntax on save.
+- **F17.3 — Custom `[[archetype:slug]]` tag extension** — Custom Tiptap inline node for `[[archetype:slug]]` tags, rendered as a green badge in the editor with full Markdown round-trip.
+- **Custom `[[deck:SHORT_TAG]]` tag extension** — Custom Tiptap inline node for `[[deck:XXXXXX]]` 6-character short tags, rendered as a dark badge in the editor with full Markdown round-trip.
+- **F17.6 — Toolbar buttons for tag insertion** — Three popover buttons in the RTE toolbar let users insert `[[card:...]]`, `[[archetype:...]]`, and `[[deck:...]]` references with input validation, without switching to raw Markdown mode.
+
+### Testing & Quality
+
+- Unit tests for `MarkdownEditor` component (5 tests: render, toggle, mode switch, sync, empty content).
+- Unit tests for `CardReference` extension (3 tests: single badge, multiple badges, complex set codes).
+- Unit tests for `ArchetypeReference` extension (3 tests: single badge, multiple badges, mixed with card refs).
+- Unit tests for `DeckReference` extension (3 tests: badge rendering, mixed references, invalid tag rejection).
+- `ResizeObserver` mock added to Vitest setup for Mantine `SegmentedControl` compatibility.
+
+---
+
 ## [1.1.1] — 2026-03-29
 
 Hotfix for deck-found button not rendering in French locale.
