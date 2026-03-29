@@ -304,16 +304,24 @@ footer {
 // Styled inline badges for custom [[card:...]] and [[archetype:...]] tags
 // rendered inside the Tiptap editor.
 // @see docs/features.md F17.2 — Custom Tiptap extension for [[card:SET-NUM]] tags
-.card-reference-badge {
+.card-reference-badge,
+.archetype-reference-badge {
     display: inline;
     padding: 0.1em 0.4em;
     font-size: 0.85em;
     font-family: var(--bs-font-monospace);
     color: var(--bs-white);
-    background-color: var(--bs-primary);
     border-radius: 0.25rem;
     cursor: default;
     user-select: all;
+}
+
+.card-reference-badge {
+    background-color: var(--bs-primary);
+}
+
+.archetype-reference-badge {
+    background-color: var(--bs-success);
 }
 
 // --- Mobile touch target ---
