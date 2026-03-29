@@ -16,6 +16,31 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.1.0] — 2026-03-29
+
+Bot protection with Friendly Captcha, lost & found deck alert, and email sender improvements.
+
+### Features
+
+- **F12.4 — Bot protection with Friendly Captcha** — EU-based, GDPR-compliant proof-of-work captcha on registration, login, and forgot-password forms. Uses the official `friendlycaptcha/sdk` PHP SDK wrapped in `FriendlyCaptchaVerifier`, with a reusable `FriendlyCaptchaType` Symfony form type and `LoginCaptchaListener` for the login flow. JS widget loaded via `@friendlycaptcha/sdk` npm package bundled through Webpack Encore. Verification is skipped when `FRIENDLY_CAPTCHA_API_KEY` is empty (safe for tests and unconfigured dev).
+- **F4.16 — Lost & found deck alert** — private decks no longer return 403; instead, a limited view shows the deck name, owner identity (screenName, playerId, full name), and a "I found this deck" button. The button opens a Mantine modal with a required message field, optional anonymous toggle (for logged-in users), Friendly Captcha protection, and a "Copy Discord username" clipboard button when the owner has one. Submitting creates an in-app notification and sends an email to the deck owner with the reporter's message. New `DeckFound` notification type with preferences toggle.
+- **Discord username on User** — new optional profile field (`discordUsername`), editable in user profile settings. Shown to deck finders in the found-deck modal. Cleared on GDPR anonymization.
+
+### Infrastructure
+
+- **Email sender refactor** — all email senders now use `MAIL_SENDER_NAME` env var instead of hardcoded `'Expanded Decks'`. All `to` fields include the recipient's `screenName` via `Address` objects.
+- **Friendly Captcha CSS** — global `.frc-captcha` and `.frc-captcha-container` full-width override for the SDK's hardcoded 316px inline width.
+- **Notification list rendering** — `white-space: pre-line` for multi-line notification messages.
+
+### Testing & Quality
+
+- Unit tests for `FriendlyCaptchaVerifier`, `FriendlyCaptchaValidator`, `LoginCaptchaListener`, `DeckFoundNotificationService`, User `discordUsername` field, and `anonymize()`.
+- Functional tests for `DeckFoundController` (5 scenarios: success logged-in, anonymous, owner blocked, empty message, invalid CSRF).
+- Fixed pre-existing mock-vs-stub PHPUnit notices in `BorrowServiceOverdueTest`.
+- Added `tests/Validator/` to `phpunit.xml.dist` unit suite.
+
+---
+
 ## [1.0.8] — 2026-03-28
 
 Overdue tracking with ending phase, private deck visibility fix, and multilingual basic energy support.
