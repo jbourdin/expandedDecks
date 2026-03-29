@@ -117,6 +117,29 @@
         </div>
     </div>
 
+    {# "Found this deck" button — visible to non-owners #}
+    {% if not isOwner %}
+        <div id="deck-found-root"
+             data-api-url="{{ path('app_deck_found_report', {short_tag: deck.shortTag}) }}"
+             data-csrf-token="{{ csrf_token('deck-found-' ~ deck.shortTag) }}"
+             data-is-logged-in="{{ app.user ? '1' : '' }}"
+             data-owner-discord="{{ deck.owner.discordUsername ?? '' }}"
+             data-sitekey="{{ friendly_captcha_sitekey }}"
+             data-labels='{{ {
+                 button: 'app.deck.found_button'|trans,
+                 title: 'app.deck.found_modal_title'|trans,
+                 anonymousLabel: 'app.deck.found_anonymous_label'|trans,
+                 messageLabel: 'app.deck.found_message_label'|trans,
+                 messagePlaceholder: 'app.deck.found_message_placeholder'|trans,
+                 discordCopy: 'app.deck.found_discord_copy'|trans,
+                 discordCopied: 'app.deck.found_discord_copied'|trans,
+                 submit: 'app.deck.found_submit'|trans,
+                 success: 'app.deck.found_success'|trans,
+                 error: 'app.deck.found_error'|trans,
+             }|json_encode|raw }}'
+        ></div>
+    {% endif %}
+
     {# Borrow activity card #}
     {% if app.user %}
         {% if eligibleEvents is not empty or deckBorrows is not empty %}
@@ -350,9 +373,15 @@
 {% block stylesheets %}
     {{ parent() }}
     {{ encore_entry_link_tags('deck_card_list') }}
+    {% if not isOwner %}
+        {{ encore_entry_link_tags('deck_found') }}
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('deck_card_list') }}
+    {% if not isOwner %}
+        {{ encore_entry_script_tags('deck_found') }}
+    {% endif %}
 {% endblock %}

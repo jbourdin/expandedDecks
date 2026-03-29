@@ -269,6 +269,11 @@ class NotificationController extends AbstractAppController
             return $this->generateUrl('app_event_show', ['id' => $context['eventId']]);
         }
 
+        // Deck found → notification list (full message with reporter details)
+        if (NotificationType::DeckFound === $type) {
+            return $this->generateUrl('app_notification_list');
+        }
+
         return null;
     }
 }

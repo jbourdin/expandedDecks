@@ -66,6 +66,7 @@ function timeAgo(dateStr: string): string {
 }
 
 function typeIcon(type: string): string {
+    if (type === 'deck_found') return '🔍';
     if (type.startsWith('borrow_')) return '↔';
     if (type.startsWith('event_') || type.startsWith('staff_')) return '📅';
     return '🔔';
@@ -243,7 +244,7 @@ export default function NotificationBell({
                                                 {timeAgo(n.createdAt)}
                                             </Text>
                                         </Group>
-                                        <Text size="xs" c="dimmed" lineClamp={2}>
+                                        <Text size="xs" c="dimmed" lineClamp={2} style={{ whiteSpace: 'pre-line' }}>
                                             {n.message}
                                         </Text>
                                         {!n.isRead && (

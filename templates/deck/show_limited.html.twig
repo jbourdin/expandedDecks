@@ -1,0 +1,74 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # @see docs/features.md F4.16 — Lost & found deck alert
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ deck.name }} — Expanded Decks{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('deck_found') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('deck_found') }}
+{% endblock %}
+
+{% block body %}
+    {# Deck info — limited header (name only, no metadata) #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0"><span class="badge bg-dark badge-short-id me-2">{{ deck.shortTag }}</span>{{ deck_sprites(deck) }}{{ deck.name }}</h5>
+        </div>
+    </div>
+
+    {# Owner identity card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.deck.owner_info'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-3">
+                <span><strong>{{ 'app.form.label.screen_name'|trans }}</strong> {{ deck.owner.screenName }}</span>
+                <span><strong>{{ 'app.deck.owner_name'|trans }}</strong> {{ deck.owner.firstName }} {{ deck.owner.lastName }}</span>
+                {% if deck.owner.playerId %}
+                    <span><strong>{{ 'app.form.label.player_id'|trans }}</strong> {{ deck.owner.playerId }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Private deck notice #}
+    <div class="alert alert-info">
+        {{ 'app.deck.limited_view_notice'|trans }}
+    </div>
+
+    {# "Found this deck" button — React island mount point #}
+    <div id="deck-found-root"
+         data-api-url="{{ path('app_deck_found_report', {short_tag: deck.shortTag}) }}"
+         data-csrf-token="{{ csrf_token('deck-found-' ~ deck.shortTag) }}"
+         data-is-logged-in="{{ app.user ? '1' : '' }}"
+         data-owner-discord="{{ deck.owner.discordUsername ?? '' }}"
+         data-sitekey="{{ friendly_captcha_sitekey }}"
+         data-labels='{{ {
+             button: 'app.deck.found_button'|trans,
+             title: 'app.deck.found_modal_title'|trans,
+             anonymousLabel: 'app.deck.found_anonymous_label'|trans,
+             messageLabel: 'app.deck.found_message_label'|trans,
+             messagePlaceholder: 'app.deck.found_message_placeholder'|trans,
+             discordCopy: 'app.deck.found_discord_copy'|trans,
+             discordCopied: 'app.deck.found_discord_copied'|trans,
+             submit: 'app.deck.found_submit'|trans,
+             success: 'app.deck.found_success'|trans,
+             error: 'app.deck.found_error'|trans,
+         }|json_encode|raw }}'
+    ></div>
+{% endblock %}

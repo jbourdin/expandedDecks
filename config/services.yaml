@@ -8,6 +8,7 @@ parameters:
     app.reset_token_ttl: 3600
     app.deletion_token_ttl: 86400
     app.mail_sender: '%env(MAIL_SENDER)%'
+    app.mail_sender_name: '%env(MAIL_SENDER_NAME)%'
     app.friendly_captcha_sitekey: '%env(FRIENDLY_CAPTCHA_SITEKEY)%'
     app.friendly_captcha_api_key: '%env(FRIENDLY_CAPTCHA_API_KEY)%'
     app.friendly_captcha_endpoint: '%env(FRIENDLY_CAPTCHA_ENDPOINT)%'
@@ -27,6 +28,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             string $mailSender: '%app.mail_sender%'
+            string $mailSenderName: '%app.mail_sender_name%'
             string $webhookSecret: '%env(MESSENGER_WEBHOOK_SECRET)%'
             string $friendlyCaptchaSitekey: '%app.friendly_captcha_sitekey%'
             string $friendlyCaptchaApiKey: '%app.friendly_captcha_api_key%'

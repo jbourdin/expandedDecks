@@ -61,26 +61,26 @@ class DeckShowController extends AbstractController
 
         // Access control: public decks are visible to everyone
         if (!$deck->isPublic()) {
-            if (null === $user) {
-                throw $this->createAccessDeniedException();
-            }
+            $isOwnerOrAdmin = null !== $user
+                && ($deck->getOwner()->getId() === $user->getId()
+                    || $this->isGranted('ROLE_ADMIN'));
 
-            $isOwnerOrAdmin = $deck->getOwner()->getId() === $user->getId()
-                || $this->isGranted('ROLE_ADMIN');
-
-            if (!$isOwnerOrAdmin) {
-                // Check if user is organizer/staff of any event where this deck is registered
-                $hasStaffAccess = false;
+            $hasStaffAccess = false;
+            if (null !== $user && !$isOwnerOrAdmin) {
                 foreach ($deck->getEventRegistrations() as $registration) {
                     if ($registration->getEvent()->isOrganizerOrStaff($user)) {
                         $hasStaffAccess = true;
                         break;
                     }
                 }
+            }
 
-                if (!$hasStaffAccess) {
-                    throw $this->createAccessDeniedException();
-                }
+            if (!$isOwnerOrAdmin && !$hasStaffAccess) {
+                // Limited view: show deck header and owner info but hide card list
+                return $this->render('deck/show_limited.html.twig', [
+                    'deck' => $deck,
+                    'isOwner' => false,
+                ]);
             }
         }
 

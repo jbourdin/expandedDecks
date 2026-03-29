@@ -154,6 +154,9 @@ class ProfileController extends AbstractAppController
                 NotificationType::EventInvited,
                 NotificationType::EventReminder,
             ],
+            'deckTypes' => [
+                NotificationType::DeckFound,
+            ],
         ]);
     }
 
@@ -168,6 +171,7 @@ class ProfileController extends AbstractAppController
         BorrowRepository $borrowRepository,
         #[Autowire('%app.deletion_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
+        #[Autowire('%app.mail_sender_name%')] string $mailSenderName,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -193,8 +197,8 @@ class ProfileController extends AbstractAppController
         $locale = $user->getPreferredLocale();
 
         $emailMessage = (new TemplatedEmail())
-            ->from(new Address($mailSender, 'Expanded Decks'))
-            ->to($user->getEmail())
+            ->from(new Address($mailSender, $mailSenderName))
+            ->to(new Address($user->getEmail(), $user->getScreenName()))
             ->subject($this->translator->trans('app.email.deletion_subject', [], null, $locale))
             ->htmlTemplate('email/account_deletion.html.twig')
             ->context([
@@ -227,6 +231,7 @@ class ProfileController extends AbstractAppController
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
                 'playerId' => $user->getPlayerId(),
+                'discordUsername' => $user->getDiscordUsername(),
                 'preferredLocale' => $user->getPreferredLocale(),
                 'timezone' => $user->getTimezone(),
                 'createdAt' => $user->getCreatedAt()->format('c'),

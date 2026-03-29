@@ -47,6 +47,7 @@ class BorrowEmailPreferenceTest extends TestCase
             $urlGenerator,
             $translator,
             'noreply@test.com',
+            'Test App',
         );
     }
 

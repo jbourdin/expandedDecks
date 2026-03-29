@@ -22,6 +22,7 @@ use App\Repository\BorrowRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -36,6 +37,7 @@ class EventNotificationService
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TranslatorInterface $translator,
         private readonly string $mailSender,
+        private readonly string $mailSenderName,
     ) {
     }
 
@@ -275,8 +277,8 @@ class EventNotificationService
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $email = (new TemplatedEmail())
-            ->from($this->mailSender)
-            ->to($recipient->getEmail())
+            ->from(new Address($this->mailSender, $this->mailSenderName))
+            ->to(new Address($recipient->getEmail(), $recipient->getScreenName()))
             ->subject($subject)
             ->htmlTemplate($template)
             ->context(array_merge([
