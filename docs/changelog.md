@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.1.1] — 2026-03-29
+
+Hotfix for deck-found button not rendering in French locale.
+
+### Bug Fixes
+
+- **"I found this deck" button broken in French** — French translations containing apostrophes (e.g. "J'ai trouvé", "l'accueil") broke the `data-labels` HTML attribute, causing a JSON parse error that prevented the React island from mounting. Fixed by using `|e('html_attr')` escaping instead of `|raw`.
+
+---
+
 ## [1.1.0] — 2026-03-29
 
 Bot protection with Friendly Captcha, lost & found deck alert, and email sender improvements.
