@@ -12,13 +12,16 @@ import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import PlaystyleTagSelect from './components/PlaystyleTagSelect';
 import PokemonSpriteSelect from './components/PokemonSpriteSelect';
+import MarkdownEditor from './components/MarkdownEditor';
 
 import '@mantine/core/styles.css';
+import '@mantine/tiptap/styles.css';
 
 /**
  * @see docs/features.md F2.15 — Archetype playstyle tags
  * @see docs/features.md F2.18 — Admin archetype create/edit form
  * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+ * @see docs/features.md F17.1 — Rich text editor with Markdown
  */
 
 const spriteRoot = document.getElementById('pokemon-sprite-select-root');
@@ -79,3 +82,26 @@ if (playstyleRoot) {
         </MantineProvider>,
     );
 }
+
+const editorRoots = document.querySelectorAll<HTMLDivElement>('.rich-text-editor-root');
+editorRoots.forEach((root) => {
+    const textareaId = root.dataset.textareaId;
+    if (!textareaId) {
+        return;
+    }
+
+    const textarea = document.getElementById(textareaId) as HTMLTextAreaElement | null;
+    if (!textarea) {
+        return;
+    }
+
+    createRoot(root).render(
+        <MantineProvider>
+            <MarkdownEditor
+                textareaSelector={`#${textareaId}`}
+                initialContent={textarea.value}
+                placeholder={textarea.placeholder}
+            />
+        </MantineProvider>,
+    );
+});

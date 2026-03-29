@@ -1,0 +1,24 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+
+{#
+ # Renders a Symfony form field with a Rich Text Editor mount point.
+ # The original textarea is hidden; a React MarkdownEditor component
+ # takes over and syncs content back to the hidden field on every change.
+ #
+ # @see docs/features.md F17.1 — Rich text editor with Markdown
+ #}
+{% macro rich_text_editor(field) %}
+    <div class="mb-3">
+        {{ form_label(field) }}
+        {{ form_widget(field, {attr: {class: 'rich-text-editor-source', style: 'display:none'}}) }}
+        <div class="rich-text-editor-root" data-textarea-id="{{ field.vars.id }}"></div>
+        {{ form_errors(field) }}
+    </div>
+{% endmacro %}
