@@ -15,6 +15,7 @@ import StarterKit from '@tiptap/starter-kit';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — tiptap-markdown types conflict with tiptap v3 private class properties
 import { Markdown } from 'tiptap-markdown';
+import CardReference from '../extensions/CardReference';
 
 /**
  * @see docs/features.md F17.1 — Rich text editor with Markdown
@@ -51,6 +52,7 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
         extensions: [
             StarterKit,
             Link.configure({ openOnClick: false }),
+            CardReference,
             markdownExtension,
         ],
         content: initialContent,
