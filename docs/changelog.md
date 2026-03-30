@@ -16,6 +16,32 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.2.1] — 2026-03-31
+
+Image upload, resize, alignment, and Pandoc-style attributes for the rich text editor.
+
+### Features
+
+- **F17.4 — Image upload backend** — dedicated Flysystem storage (`editor_upload.storage`, separate from mosaics) with `POST /api/editor/upload-image` (ROLE_CMS_EDITOR, validates MIME type + 5 MB max) and `GET /api/editor/image/{filename}` (public, 30-day immutable cache). Supports local and S3 adapters.
+- **F17.5 — Image drag-and-drop in RTE** — drop or paste images into the editor for instant base64 preview, async upload to the backend, then replacement with the permanent URL. Uses `@tiptap/extension-image` and `@tiptap/extension-file-handler`.
+- **Pandoc-style attributes** — enable `league/commonmark` `AttributesExtension` in `MarkdownRenderer` for server-side rendering of `{style="max-width: Xpx" .class}` on images and `{#anchor-id}` on headings.
+- **Heading anchors** — custom `HeadingWithId` Tiptap extension that parses `{#id}` from heading text and serializes it back, enabling table-of-contents style anchors.
+- **F17.7 — Image float and alignment** — four toolbar buttons (float left, center, float right, none) set Bootstrap-compatible CSS classes on images. Serialized as Pandoc-style `{.float-start}` in Markdown. CSS `:has()` propagates float from `<img>` to the ResizableNodeView container in the editor.
+
+### Bug Fixes
+
+- **Duplicate link warning** — disable `link` from StarterKit (Tiptap v3 now bundles it) and use explicit `@tiptap/extension-link` import.
+- **Image resize handles** — add CSS for Tiptap `ResizableNodeView` handle elements (corner dots + edge bars with hover reveal).
+- **Image resize Markdown serialization** — let ResizableNodeView write `width`/`height` natively, translate to `max-width`/`max-height` CSS at render and serialization time.
+- **PHP image dimension rendering** — serialize dimensions as `style="max-width: Xpx"` instead of invalid `max-width` HTML attributes.
+- **Responsive image sizing** — add `width: 100%` on images with `max-width` constraint so they fill their container and scale down on narrow viewports.
+
+### Refactoring
+
+- Use `max-width`/`max-height` instead of `width`/`height` for resized images, enabling responsive scaling.
+
+---
+
 ## [1.2.0] — 2026-03-30
 
 Rich text editor for archetype descriptions and CMS page content with custom tag support.
