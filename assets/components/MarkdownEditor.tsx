@@ -9,7 +9,8 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import { SegmentedControl, Textarea } from '@mantine/core';
-import { RichTextEditor, Link } from '@mantine/tiptap';
+import { RichTextEditor } from '@mantine/tiptap';
+import TiptapLink from '@tiptap/extension-link';
 import { useEditor } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
 import { FileHandler } from '@tiptap/extension-file-handler';
@@ -131,11 +132,15 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
 
     const editor = useEditor({
         extensions: [
-            StarterKit.configure({ heading: false }),
+            StarterKit.configure({
+                heading: false,
+                link: false,
+            }),
             HeadingWithId.configure({ levels: [2, 3, 4] }),
-            Link.configure({ openOnClick: false }),
+            TiptapLink.configure({ openOnClick: false }),
             ResizableImage.configure({
                 inline: false,
+                allowBase64: true,
                 resize: {
                     enabled: true,
                     alwaysPreserveAspectRatio: true,

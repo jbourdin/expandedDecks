@@ -300,6 +300,60 @@ footer {
     }
 }
 
+// --- Rich text editor image resize handles ---
+// Tiptap's ResizableNodeView creates handle <div>s with data-resize-handle
+// but does not style them. These rules make them visible and interactive.
+// @see docs/features.md F17.5 — Image drag-and-drop in the editor
+[data-resize-container] {
+    display: inline-flex;
+    max-width: 100%;
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+[data-resize-handle] {
+    z-index: 10;
+    background-color: var(--bs-primary);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    // Corner handles
+    &[data-resize-handle="top-left"],
+    &[data-resize-handle="top-right"],
+    &[data-resize-handle="bottom-left"],
+    &[data-resize-handle="bottom-right"] {
+        width: 10px;
+        height: 10px;
+        margin: -5px;
+    }
+
+    // Edge handles
+    &[data-resize-handle="top"],
+    &[data-resize-handle="bottom"] {
+        height: 4px;
+        cursor: ns-resize;
+    }
+
+    &[data-resize-handle="left"],
+    &[data-resize-handle="right"] {
+        width: 4px;
+        cursor: ew-resize;
+    }
+
+    &[data-resize-handle="top-left"] { cursor: nwse-resize; }
+    &[data-resize-handle="top-right"] { cursor: nesw-resize; }
+    &[data-resize-handle="bottom-left"] { cursor: nesw-resize; }
+    &[data-resize-handle="bottom-right"] { cursor: nwse-resize; }
+}
+
+[data-resize-wrapper]:hover [data-resize-handle] {
+    opacity: 1;
+}
+
 // --- Rich text editor inline badges ---
 // Styled inline badges for custom [[card:...]] and [[archetype:...]] tags
 // rendered inside the Tiptap editor.
