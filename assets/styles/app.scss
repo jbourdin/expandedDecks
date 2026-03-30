@@ -362,27 +362,6 @@ footer {
 /* stylelint-disable-next-line selector-class-pattern */
 .mantine-RichTextEditor-content,
 .cms-content {
-    [data-resize-container].float-start {
-        float: left;
-        margin-right: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    [data-resize-container].float-end {
-        float: right;
-        margin-left: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    [data-resize-container].mx-auto {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    [data-resize-container].d-block {
-        display: block;
-    }
-
     // Clear float after content with floated images
     &::after {
         content: "";
@@ -390,6 +369,7 @@ footer {
         clear: both;
     }
 
+    // Public rendering: classes are directly on <img>
     img.float-start {
         float: left;
         margin-right: 1rem;
@@ -408,6 +388,29 @@ footer {
     }
 
     img.d-block {
+        display: block;
+    }
+
+    // Editor: ResizableNodeView wraps <img> in container divs.
+    // The class is on the <img> but float must apply to the container.
+    [data-resize-container]:has(img.float-start) {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container]:has(img.float-end) {
+        float: right;
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container]:has(img.mx-auto) {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [data-resize-container]:has(img.d-block) {
         display: block;
     }
 }
