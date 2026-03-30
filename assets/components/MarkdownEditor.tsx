@@ -12,7 +12,6 @@ import { SegmentedControl, Textarea } from '@mantine/core';
 import { RichTextEditor, Link } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
-import Image from '@tiptap/extension-image';
 import { FileHandler } from '@tiptap/extension-file-handler';
 import StarterKit from '@tiptap/starter-kit';
 import { IconCards, IconStack2, IconSword } from '@tabler/icons-react';
@@ -22,6 +21,8 @@ import { Markdown } from 'tiptap-markdown';
 import ArchetypeReference from '../extensions/ArchetypeReference';
 import CardReference from '../extensions/CardReference';
 import DeckReference from '../extensions/DeckReference';
+import HeadingWithId from '../extensions/HeadingWithId';
+import ResizableImage from '../extensions/ResizableImage';
 import InsertReferenceButton from './InsertReferenceButton';
 
 /**
@@ -130,9 +131,16 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({ heading: false }),
+            HeadingWithId.configure({ levels: [2, 3, 4] }),
             Link.configure({ openOnClick: false }),
-            Image.configure({ inline: false }),
+            ResizableImage.configure({
+                inline: false,
+                resize: {
+                    enabled: true,
+                    alwaysPreserveAspectRatio: true,
+                },
+            }),
             FileHandler.configure({
                 allowedMimeTypes: ALLOWED_IMAGE_TYPES,
                 onDrop: (currentEditor, files, position) => {
