@@ -20,6 +20,8 @@ parameters:
     app.scaleway_s3_endpoint: '%env(SCALEWAY_S3_ENDPOINT)%'
     app.scaleway_s3_access_key: '%env(SCALEWAY_S3_ACCESS_KEY)%'
     app.scaleway_s3_secret_key: '%env(SCALEWAY_S3_SECRET_KEY)%'
+    app.editor_upload_storage_adapter: '%env(EDITOR_UPLOAD_STORAGE_ADAPTER)%'
+    app.editor_upload_storage_local_dir: '%env(EDITOR_UPLOAD_STORAGE_LOCAL_DIR)%'
 
 services:
     # default configuration for services in *this* file
@@ -71,6 +73,26 @@ services:
     App\Controller\MosaicController:
         arguments:
             $mosaicStorage: '@mosaic.storage'
+
+    # Editor upload storage (Flysystem)
+    App\Service\EditorUpload\EditorUploadStorageFactory:
+        arguments:
+            $editorUploadStorageAdapter: '%app.editor_upload_storage_adapter%'
+            $editorUploadStorageLocalDir: '%app.editor_upload_storage_local_dir%'
+            $projectDir: '%kernel.project_dir%'
+            $scalewayS3Bucket: '%app.scaleway_s3_bucket%'
+            $scalewayS3Region: '%app.scaleway_s3_region%'
+            $scalewayS3Endpoint: '%app.scaleway_s3_endpoint%'
+            $scalewayS3AccessKey: '%app.scaleway_s3_access_key%'
+            $scalewayS3SecretKey: '%app.scaleway_s3_secret_key%'
+
+    editor_upload.storage:
+        class: League\Flysystem\FilesystemOperator
+        factory: ['@App\Service\EditorUpload\EditorUploadStorageFactory', 'create']
+
+    App\Controller\EditorUploadController:
+        arguments:
+            $editorUploadStorage: '@editor_upload.storage'
 
     App\Service\Label\PdfLabelGenerator:
         arguments:
