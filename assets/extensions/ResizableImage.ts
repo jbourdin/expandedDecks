@@ -11,7 +11,10 @@ import Image from '@tiptap/extension-image';
 
 /**
  * Extends the Tiptap Image extension with resize handles, float/alignment,
- * and Pandoc-style `{.class width=X height=Y}` Markdown serialization.
+ * and Pandoc-style `{.class max-width=Xpx max-height=Ypx}` Markdown serialization.
+ *
+ * Uses max-width/max-height instead of width/height so images scale down
+ * responsively on smaller viewports.
  *
  * @see docs/features.md F17.5 — Image drag-and-drop in the editor
  * @see docs/features.md F17.7 — Image float and alignment
@@ -21,7 +24,7 @@ const ATTRIBUTES_PATTERN = /\{([^}]+)\}$/;
 
 /**
  * Parse Pandoc-style attributes string into a key-value map.
- * Supports: `{width=400 height=300 #id .class .another-class}`
+ * Supports: `{max-width=400px max-height=300px #id .class .another-class}`
  */
 function parseAttributes(attributeString: string): Record<string, string> {
     const attributes: Record<string, string> = {};
@@ -33,8 +36,8 @@ function parseAttributes(attributeString: string): Record<string, string> {
             const existing = attributes.class ?? '';
             attributes.class = (existing ? `${existing} ` : '') + part.slice(1);
         } else if (part.includes('=')) {
-            const [key, value] = part.split('=', 2);
-            attributes[key] = value;
+            const [key, ...rest] = part.split('=');
+            attributes[key] = rest.join('=');
         }
     }
 
@@ -42,8 +45,24 @@ function parseAttributes(attributeString: string): Record<string, string> {
 }
 
 /**
+ * Build an inline style string from max-width and max-height values.
+ */
+function buildStyle(maxWidth: string | null, maxHeight: string | null): string {
+    const parts: string[] = [];
+
+    if (maxWidth) {
+        parts.push(`max-width: ${maxWidth}px`);
+    }
+    if (maxHeight) {
+        parts.push(`max-height: ${maxHeight}px`);
+    }
+
+    return parts.join('; ');
+}
+
+/**
  * markdown-it plugin that parses Pandoc-style `{key=value .class}` attributes
- * on image tokens and attaches width/height/class to the token attrs.
+ * on image tokens and attaches them to the rendered HTML.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function imageAttributesPlugin(markdownit: any): void {
@@ -62,12 +81,16 @@ function imageAttributesPlugin(markdownit: any): void {
             const match = ATTRIBUTES_PATTERN.exec(nextToken.content);
             if (match) {
                 const attributes = parseAttributes(match[1]);
+                const styleParts: string[] = [];
 
-                if (attributes.width) {
-                    token.attrSet('width', attributes.width);
+                if (attributes['max-width']) {
+                    styleParts.push(`max-width: ${attributes['max-width']}`);
                 }
-                if (attributes.height) {
-                    token.attrSet('height', attributes.height);
+                if (attributes['max-height']) {
+                    styleParts.push(`max-height: ${attributes['max-height']}`);
+                }
+                if (styleParts.length > 0) {
+                    token.attrSet('style', styleParts.join('; '));
                 }
                 if (attributes.class) {
                     token.attrSet('class', attributes.class);
@@ -88,25 +111,31 @@ const ResizableImage = Image.extend({
             ...this.parent?.(),
             width: {
                 default: null,
-                parseHTML: (element: HTMLElement) => element.getAttribute('width'),
-                renderHTML: (attributes: Record<string, string | null>) => {
-                    if (!attributes.width) {
-                        return {};
-                    }
-
-                    return { width: attributes.width };
-                },
+                renderHTML: () => ({}),
             },
             height: {
                 default: null,
-                parseHTML: (element: HTMLElement) => element.getAttribute('height'),
-                renderHTML: (attributes: Record<string, string | null>) => {
-                    if (!attributes.height) {
-                        return {};
-                    }
+                renderHTML: () => ({}),
+            },
+            maxWidth: {
+                default: null,
+                parseHTML: (element: HTMLElement) => {
+                    const style = element.getAttribute('style') ?? '';
+                    const match = /max-width:\s*(\d+)px/.exec(style);
 
-                    return { height: attributes.height };
+                    return match ? match[1] : null;
                 },
+                renderHTML: () => ({}),
+            },
+            maxHeight: {
+                default: null,
+                parseHTML: (element: HTMLElement) => {
+                    const style = element.getAttribute('style') ?? '';
+                    const match = /max-height:\s*(\d+)px/.exec(style);
+
+                    return match ? match[1] : null;
+                },
+                renderHTML: () => ({}),
             },
             cssClass: {
                 default: null,
@@ -119,6 +148,69 @@ const ResizableImage = Image.extend({
                     return { class: attributes.cssClass };
                 },
             },
+            style: {
+                default: null,
+                renderHTML: (attributes: Record<string, string | null>) => {
+                    const style = buildStyle(attributes.maxWidth, attributes.maxHeight);
+
+                    return style ? { style } : {};
+                },
+            },
+        };
+    },
+
+    /**
+     * Override the resize commit to store as maxWidth/maxHeight instead of width/height.
+     */
+    addNodeView() {
+        const parentNodeView = this.parent?.();
+
+        if (!parentNodeView) {
+            return null;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (props: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const nodeView = (parentNodeView as any)(props);
+
+            if (!nodeView || !nodeView.resizableNodeView) {
+                return nodeView;
+            }
+
+            nodeView.resizableNodeView.options.onCommit = (committedWidth: number, committedHeight: number) => {
+                const position = props.getPos();
+                if (position === undefined) {
+                    return;
+                }
+
+                props.editor
+                    .chain()
+                    .setNodeSelection(position)
+                    .updateAttributes('image', {
+                        width: null,
+                        height: null,
+                        maxWidth: String(Math.round(committedWidth)),
+                        maxHeight: String(Math.round(committedHeight)),
+                    })
+                    .run();
+            };
+
+            // If maxWidth/maxHeight exist, apply as initial inline style
+            const { maxWidth, maxHeight } = props.node.attrs;
+            if (maxWidth || maxHeight) {
+                const element = nodeView.dom?.querySelector?.('img') ?? nodeView.dom;
+                if (element instanceof HTMLElement) {
+                    if (maxWidth) {
+                        element.style.maxWidth = `${maxWidth}px`;
+                    }
+                    if (maxHeight) {
+                        element.style.maxHeight = `${maxHeight}px`;
+                    }
+                }
+            }
+
+            return nodeView;
         };
     },
 
@@ -143,11 +235,11 @@ const ResizableImage = Image.extend({
                         }
                     }
 
-                    if (node.attrs.width) {
-                        attributes.push(`width=${node.attrs.width}`);
+                    if (node.attrs.maxWidth) {
+                        attributes.push(`max-width=${node.attrs.maxWidth}px`);
                     }
-                    if (node.attrs.height) {
-                        attributes.push(`height=${node.attrs.height}`);
+                    if (node.attrs.maxHeight) {
+                        attributes.push(`max-height=${node.attrs.maxHeight}px`);
                     }
 
                     if (attributes.length > 0) {
