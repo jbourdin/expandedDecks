@@ -300,6 +300,128 @@ footer {
     }
 }
 
+// --- Rich text editor image resize handles ---
+// Tiptap's ResizableNodeView creates handle <div>s with data-resize-handle
+// but does not style them. These rules make them visible and interactive.
+// @see docs/features.md F17.5 — Image drag-and-drop in the editor
+[data-resize-container] {
+    display: inline-flex;
+    max-width: 100%;
+
+    img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+}
+
+[data-resize-handle] {
+    z-index: 10;
+    background-color: var(--bs-primary);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    // Corner handles
+    &[data-resize-handle="top-left"],
+    &[data-resize-handle="top-right"],
+    &[data-resize-handle="bottom-left"],
+    &[data-resize-handle="bottom-right"] {
+        width: 10px;
+        height: 10px;
+        margin: -5px;
+    }
+
+    // Edge handles
+    &[data-resize-handle="top"],
+    &[data-resize-handle="bottom"] {
+        height: 4px;
+        cursor: ns-resize;
+    }
+
+    &[data-resize-handle="left"],
+    &[data-resize-handle="right"] {
+        width: 4px;
+        cursor: ew-resize;
+    }
+
+    &[data-resize-handle="top-left"] { cursor: nwse-resize; }
+    &[data-resize-handle="top-right"] { cursor: nesw-resize; }
+    &[data-resize-handle="bottom-left"] { cursor: nesw-resize; }
+    &[data-resize-handle="bottom-right"] { cursor: nwse-resize; }
+}
+
+[data-resize-wrapper]:hover [data-resize-handle] {
+    opacity: 1;
+}
+
+// --- Rich text editor image alignment ---
+// Float and alignment classes for images inside the Tiptap editor.
+// Uses Bootstrap-compatible class names so public rendering works without
+// additional CSS. These rules ensure they also work inside the editor.
+// @see docs/features.md F17.7 — Image float and alignment
+/* stylelint-disable-next-line selector-class-pattern */
+.mantine-RichTextEditor-content,
+.cms-content {
+    // Clear float after content with floated images
+    &::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    // Responsive images: width 100% up to max-width constraint
+    img[style*="max-width"] {
+        width: 100%;
+        height: auto;
+    }
+
+    // Public rendering: classes are directly on <img>
+    img.float-start {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    img.float-end {
+        float: right;
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    img.mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    img.d-block {
+        display: block;
+    }
+
+    // Editor: ResizableNodeView wraps <img> in container divs.
+    // The class is on the <img> but float must apply to the container.
+    [data-resize-container]:has(img.float-start) {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container]:has(img.float-end) {
+        float: right;
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container]:has(img.mx-auto) {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [data-resize-container]:has(img.d-block) {
+        display: block;
+    }
+}
+
 // --- Rich text editor inline badges ---
 // Styled inline badges for custom [[card:...]] and [[archetype:...]] tags
 // rendered inside the Tiptap editor.
