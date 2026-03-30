@@ -25,20 +25,26 @@ const ATTRIBUTES_PATTERN = /\{([^}]+)\}$/;
 
 /**
  * Parse Pandoc-style attributes string into a key-value map.
- * Supports: `{max-width=400px max-height=300px #id .class}`
+ * Supports: `{style="max-width: 400px" #id .class}`
+ * Handles quoted values: `key="value with spaces"`.
  */
 function parseAttributes(attributeString: string): Record<string, string> {
     const attributes: Record<string, string> = {};
+    const tokenPattern = /([#.][a-zA-Z0-9_-]+)|([a-zA-Z-]+)="([^"]*)"|([a-zA-Z-]+)=(\S+)/g;
+    let token: RegExpExecArray | null;
 
-    for (const part of attributeString.split(/\s+/)) {
-        if (part.startsWith('#')) {
-            attributes.id = part.slice(1);
-        } else if (part.startsWith('.')) {
+    while ((token = tokenPattern.exec(attributeString)) !== null) {
+        if (token[1]?.startsWith('#')) {
+            attributes.id = token[1].slice(1);
+        } else if (token[1]?.startsWith('.')) {
             const existing = attributes.class ?? '';
-            attributes.class = (existing ? `${existing} ` : '') + part.slice(1);
-        } else if (part.includes('=')) {
-            const [key, ...rest] = part.split('=');
-            attributes[key] = rest.join('=');
+            attributes.class = (existing ? `${existing} ` : '') + token[1].slice(1);
+        } else if (token[2] && token[3] !== undefined) {
+            // key="quoted value"
+            attributes[token[2]] = token[3];
+        } else if (token[4] && token[5]) {
+            // key=unquoted-value
+            attributes[token[4]] = token[5];
         }
     }
 
@@ -65,16 +71,10 @@ function imageAttributesPlugin(markdownit: any): void {
             const match = ATTRIBUTES_PATTERN.exec(nextToken.content);
             if (match) {
                 const attributes = parseAttributes(match[1]);
-                const styleParts: string[] = [];
 
-                if (attributes['max-width']) {
-                    styleParts.push(`max-width: ${attributes['max-width']}`);
-                }
-                if (attributes['max-height']) {
-                    styleParts.push(`max-height: ${attributes['max-height']}`);
-                }
-                if (styleParts.length > 0) {
-                    token.attrSet('style', styleParts.join('; '));
+                // style="..." is passed through directly
+                if (attributes.style) {
+                    token.attrSet('style', attributes.style);
                 }
                 if (attributes.class) {
                     token.attrSet('class', attributes.class);
@@ -163,11 +163,15 @@ const ResizableImage = Image.extend({
                         }
                     }
 
+                    const styleParts: string[] = [];
                     if (node.attrs.width) {
-                        attributes.push(`max-width=${node.attrs.width}px`);
+                        styleParts.push(`max-width: ${node.attrs.width}px`);
                     }
                     if (node.attrs.height) {
-                        attributes.push(`max-height=${node.attrs.height}px`);
+                        styleParts.push(`max-height: ${node.attrs.height}px`);
+                    }
+                    if (styleParts.length > 0) {
+                        attributes.push(`style="${styleParts.join('; ')}"`);
                     }
 
                     if (attributes.length > 0) {
