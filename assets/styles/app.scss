@@ -354,6 +354,64 @@ footer {
     opacity: 1;
 }
 
+// --- Rich text editor image alignment ---
+// Float and alignment classes for images inside the Tiptap editor.
+// Uses Bootstrap-compatible class names so public rendering works without
+// additional CSS. These rules ensure they also work inside the editor.
+// @see docs/features.md F17.7 — Image float and alignment
+/* stylelint-disable-next-line selector-class-pattern */
+.mantine-RichTextEditor-content,
+.cms-content {
+    [data-resize-container].float-start {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container].float-end {
+        float: right;
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-resize-container].mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    [data-resize-container].d-block {
+        display: block;
+    }
+
+    // Clear float after content with floated images
+    &::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    img.float-start {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    img.float-end {
+        float: right;
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    img.mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    img.d-block {
+        display: block;
+    }
+}
+
 // --- Rich text editor inline badges ---
 // Styled inline badges for custom [[card:...]] and [[archetype:...]] tags
 // rendered inside the Tiptap editor.

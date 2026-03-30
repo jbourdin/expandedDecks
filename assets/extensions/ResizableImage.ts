@@ -10,17 +10,18 @@
 import Image from '@tiptap/extension-image';
 
 /**
- * Extends the Tiptap Image extension with resize handles and
- * Pandoc-style `{width=X height=Y}` Markdown serialization.
+ * Extends the Tiptap Image extension with resize handles, float/alignment,
+ * and Pandoc-style `{.class width=X height=Y}` Markdown serialization.
  *
  * @see docs/features.md F17.5 — Image drag-and-drop in the editor
+ * @see docs/features.md F17.7 — Image float and alignment
  */
 
 const ATTRIBUTES_PATTERN = /\{([^}]+)\}$/;
 
 /**
  * Parse Pandoc-style attributes string into a key-value map.
- * Supports: `{width=400 height=300 #id .class}`
+ * Supports: `{width=400 height=300 #id .class .another-class}`
  */
 function parseAttributes(attributeString: string): Record<string, string> {
     const attributes: Record<string, string> = {};
@@ -41,8 +42,8 @@ function parseAttributes(attributeString: string): Record<string, string> {
 }
 
 /**
- * markdown-it plugin that parses Pandoc-style `{key=value}` attributes
- * on image tokens and attaches width/height to the token attrs.
+ * markdown-it plugin that parses Pandoc-style `{key=value .class}` attributes
+ * on image tokens and attaches width/height/class to the token attrs.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function imageAttributesPlugin(markdownit: any): void {
@@ -67,6 +68,9 @@ function imageAttributesPlugin(markdownit: any): void {
                 }
                 if (attributes.height) {
                     token.attrSet('height', attributes.height);
+                }
+                if (attributes.class) {
+                    token.attrSet('class', attributes.class);
                 }
 
                 // Remove the {attributes} from the text token
@@ -104,6 +108,17 @@ const ResizableImage = Image.extend({
                     return { height: attributes.height };
                 },
             },
+            cssClass: {
+                default: null,
+                parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+                renderHTML: (attributes: Record<string, string | null>) => {
+                    if (!attributes.cssClass) {
+                        return {};
+                    }
+
+                    return { class: attributes.cssClass };
+                },
+            },
         };
     },
 
@@ -119,6 +134,15 @@ const ResizableImage = Image.extend({
                     state.write(`![${alt}](${source}${title})`);
 
                     const attributes: string[] = [];
+
+                    // Class attributes as .class-name
+                    if (node.attrs.cssClass) {
+                        const classes = (node.attrs.cssClass as string).split(/\s+/);
+                        for (const className of classes) {
+                            attributes.push(`.${className}`);
+                        }
+                    }
+
                     if (node.attrs.width) {
                         attributes.push(`width=${node.attrs.width}`);
                     }
