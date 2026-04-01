@@ -35,10 +35,10 @@ Priority: content attracts users, SEO makes it findable, search helps them navig
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| C     | PDF Labels & Camera Scanning        | [Phase C](https://github.com/jbourdin/expandedDecks/milestone/3) |
-| M     | Homepage                            | [Phase M](https://github.com/jbourdin/expandedDecks/milestone/14) |
-| O     | SEO & Indexability                  | [Phase O](https://github.com/jbourdin/expandedDecks/milestone/16) |
-| N     | Search                              | [Phase N](https://github.com/jbourdin/expandedDecks/milestone/15) |
+| 1     | PDF Labels & Camera Scanning        | [Phase 1](https://github.com/jbourdin/expandedDecks/milestone/3) |
+| 2     | Homepage                            | [Phase 2](https://github.com/jbourdin/expandedDecks/milestone/14) |
+| 3     | SEO & Indexability                  | [Phase 3](https://github.com/jbourdin/expandedDecks/milestone/16) |
+| 4     | Search                              | [Phase 4](https://github.com/jbourdin/expandedDecks/milestone/15) |
 
 ### Tier 2 — Gameplay & Event Experience
 
@@ -46,9 +46,9 @@ Priority: enrich events, physical label management, and freeplay matchmaking.
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| D     | Zebra Labels & HID Scanning         | [Phase D](https://github.com/jbourdin/expandedDecks/milestone/4) |
-| B     | Event Enrichment                    | [Phase B](https://github.com/jbourdin/expandedDecks/milestone/2) |
-| J     | Freeplay Matchmaking                | [Phase J](https://github.com/jbourdin/expandedDecks/milestone/10) |
+| 5     | Zebra Labels & HID Scanning         | [Phase 5](https://github.com/jbourdin/expandedDecks/milestone/4) |
+| 6     | Event Enrichment                    | [Phase 6](https://github.com/jbourdin/expandedDecks/milestone/2) |
+| 7     | Freeplay Matchmaking                | [Phase 7](https://github.com/jbourdin/expandedDecks/milestone/10) |
 
 ### Tier 3 — Ecosystem & Integration
 
@@ -56,7 +56,7 @@ Priority: REST API, MCP server, and LLM-friendly endpoints for third-party tools
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| K     | API Access                          | [Phase K](https://github.com/jbourdin/expandedDecks/milestone/11) |
+| 8     | API Access                          | [Phase 8](https://github.com/jbourdin/expandedDecks/milestone/11) |
 
 ### Tier 4 — Operational (defer until pain is felt)
 
@@ -64,19 +64,19 @@ Priority: these address edge cases and operational polish. The borrowing process
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| A     | UX Polish & Overdue Tracking        | [Phase A](https://github.com/jbourdin/expandedDecks/milestone/1) |
-| G     | Operational Excellence              | [Phase G](https://github.com/jbourdin/expandedDecks/milestone/7) |
-| E     | Auth Hardening & Delegation         | [Phase E](https://github.com/jbourdin/expandedDecks/milestone/5) |
-| I     | Multi-Organizer Events              | [Phase I](https://github.com/jbourdin/expandedDecks/milestone/9) |
-| H     | Lost & Found                        | [Phase H](https://github.com/jbourdin/expandedDecks/milestone/8) |
-| F     | Play Pokemon QR Integration         | [Phase F](https://github.com/jbourdin/expandedDecks/milestone/6) |
+| 9     | UX Polish & Overdue Tracking        | [Phase 9](https://github.com/jbourdin/expandedDecks/milestone/1) |
+| 10    | Operational Excellence              | [Phase 10](https://github.com/jbourdin/expandedDecks/milestone/7) |
+| 11    | Auth Hardening & Delegation         | [Phase 11](https://github.com/jbourdin/expandedDecks/milestone/5) |
+| 12    | Multi-Organizer Events              | [Phase 12](https://github.com/jbourdin/expandedDecks/milestone/9) |
+| 13    | Lost & Found                        | [Phase 13](https://github.com/jbourdin/expandedDecks/milestone/8) |
+| 14    | Play Pokemon QR Integration         | [Phase 14](https://github.com/jbourdin/expandedDecks/milestone/6) |
 
 ### Completed
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
 | 0     | Soft Deletion                       | [Phase 0](https://github.com/jbourdin/expandedDecks/milestone/12) |
-| L     | Content Editing Experience          | [Phase L](https://github.com/jbourdin/expandedDecks/milestone/13) |
+| —     | Content Editing Experience          | [Phase L](https://github.com/jbourdin/expandedDecks/milestone/13) |
 
 ## Feature Catalogue
 
