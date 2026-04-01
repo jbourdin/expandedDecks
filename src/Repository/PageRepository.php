@@ -113,16 +113,27 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Build a query builder for the admin page list with optional search.
+     * Build a query builder for the admin page list with optional search and category filter.
+     *
+     * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
      */
-    public function createAdminListQueryBuilder(?string $search = null): QueryBuilder
+    public function createAdminListQueryBuilder(?string $search = null, ?MenuCategory $category = null): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->leftJoin('p.menuCategory', 'c')
-            ->addSelect('c')
-            ->orderBy('p.createdAt', 'DESC');
+            ->addSelect('c');
+
+        if (null !== $category) {
+            $queryBuilder
+                ->andWhere('p.menuCategory = :category')
+                ->setParameter('category', $category)
+                ->orderBy('p.position', 'ASC')
+                ->addOrderBy('p.createdAt', 'DESC');
+        } else {
+            $queryBuilder->orderBy('p.createdAt', 'DESC');
+        }
 
         if (null !== $search && '' !== $search) {
             $queryBuilder
@@ -131,5 +142,26 @@ class PageRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    /**
+     * Update positions for pages within a category.
+     *
+     * @param list<int> $pageIds ordered list of page IDs (index = new position)
+     *
+     * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
+     */
+    public function reorderPages(array $pageIds): void
+    {
+        foreach ($pageIds as $position => $pageId) {
+            $this->createQueryBuilder('p')
+                ->update()
+                ->set('p.position', ':position')
+                ->where('p.id = :id')
+                ->setParameter('position', $position)
+                ->setParameter('id', $pageId)
+                ->getQuery()
+                ->execute();
+        }
     }
 }
