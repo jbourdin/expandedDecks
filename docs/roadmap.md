@@ -35,10 +35,10 @@ Priority: content attracts users, SEO makes it findable, search helps them navig
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| 1     | PDF Labels & Camera Scanning        | [Phase 1](https://github.com/jbourdin/expandedDecks/milestone/3) |
-| 2     | Homepage                            | [Phase 2](https://github.com/jbourdin/expandedDecks/milestone/14) |
-| 3     | SEO & Indexability                  | [Phase 3](https://github.com/jbourdin/expandedDecks/milestone/16) |
-| 4     | Search                              | [Phase 4](https://github.com/jbourdin/expandedDecks/milestone/15) |
+| 01    | PDF Labels & Camera Scanning        | [Phase 01](https://github.com/jbourdin/expandedDecks/milestone/3) |
+| 02    | Homepage                            | [Phase 02](https://github.com/jbourdin/expandedDecks/milestone/14) |
+| 03    | SEO & Indexability                  | [Phase 03](https://github.com/jbourdin/expandedDecks/milestone/16) |
+| 04    | Search                              | [Phase 04](https://github.com/jbourdin/expandedDecks/milestone/15) |
 
 ### Tier 2 — Gameplay & Event Experience
 
@@ -46,9 +46,9 @@ Priority: enrich events, physical label management, and freeplay matchmaking.
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| 5     | Zebra Labels & HID Scanning         | [Phase 5](https://github.com/jbourdin/expandedDecks/milestone/4) |
-| 6     | Event Enrichment                    | [Phase 6](https://github.com/jbourdin/expandedDecks/milestone/2) |
-| 7     | Freeplay Matchmaking                | [Phase 7](https://github.com/jbourdin/expandedDecks/milestone/10) |
+| 05    | Zebra Labels & HID Scanning         | [Phase 05](https://github.com/jbourdin/expandedDecks/milestone/4) |
+| 06    | Event Enrichment                    | [Phase 06](https://github.com/jbourdin/expandedDecks/milestone/2) |
+| 07    | Freeplay Matchmaking                | [Phase 07](https://github.com/jbourdin/expandedDecks/milestone/10) |
 
 ### Tier 3 — Ecosystem & Integration
 
@@ -56,7 +56,7 @@ Priority: REST API, MCP server, and LLM-friendly endpoints for third-party tools
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| 8     | API Access                          | [Phase 8](https://github.com/jbourdin/expandedDecks/milestone/11) |
+| 08    | API Access                          | [Phase 08](https://github.com/jbourdin/expandedDecks/milestone/11) |
 
 ### Tier 4 — Operational (defer until pain is felt)
 
@@ -64,7 +64,7 @@ Priority: these address edge cases and operational polish. The borrowing process
 
 | Phase | Name                                | Milestone link |
 |-------|-------------------------------------|----------------|
-| 9     | UX Polish & Overdue Tracking        | [Phase 9](https://github.com/jbourdin/expandedDecks/milestone/1) |
+| 09    | UX Polish & Overdue Tracking        | [Phase 09](https://github.com/jbourdin/expandedDecks/milestone/1) |
 | 10    | Operational Excellence              | [Phase 10](https://github.com/jbourdin/expandedDecks/milestone/7) |
 | 11    | Auth Hardening & Delegation         | [Phase 11](https://github.com/jbourdin/expandedDecks/milestone/5) |
 | 12    | Multi-Organizer Events              | [Phase 12](https://github.com/jbourdin/expandedDecks/milestone/9) |
