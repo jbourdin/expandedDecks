@@ -15,8 +15,8 @@
     {% set rowOpen = false %}
     {% set rowWidth = 0 %}
 
-    {% for block in blocks %}
-        {% set partial = '_' ~ block.type.value|replace({'R': '_r', 'P': '_p', 'D': '_d', 'E': '_e'}) %}
+    {% for homepageBlock in blocks %}
+        {% set partial = '_' ~ homepageBlock.type.value|replace({'R': '_r', 'P': '_p', 'D': '_d', 'E': '_e'}) %}
         {# Convert camelCase to snake_case for template name #}
         {% set templateMap = {
             'hero': '_hero',
@@ -26,9 +26,9 @@
             'featuredDeck': '_featured_deck',
             'featuredEvent': '_featured_event'
         } %}
-        {% set partial = templateMap[block.type.value] %}
+        {% set partial = templateMap[homepageBlock.type.value] %}
 
-        {% if block.columnWidth is not null %}
+        {% if homepageBlock.columnWidth is not null %}
             {# Grid block — check if we need to open a new row #}
             {% if not rowOpen %}
                 <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
@@ -36,17 +36,17 @@
                 {% set rowWidth = 0 %}
             {% endif %}
 
-            {% if rowWidth + block.columnWidth > 12 %}
+            {% if rowWidth + homepageBlock.columnWidth > 12 %}
                 {# Close current row and start a new one #}
                 </div>
                 <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
                 {% set rowWidth = 0 %}
             {% endif %}
 
-            <div class="col-md-{{ block.columnWidth }} {{ block.cssClasses }}">
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+            <div class="col-md-{{ homepageBlock.columnWidth }} {{ homepageBlock.cssClasses }}">
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
             </div>
-            {% set rowWidth = rowWidth + block.columnWidth %}
+            {% set rowWidth = rowWidth + homepageBlock.columnWidth %}
         {% else %}
             {# Full-width block — close any open row first #}
             {% if rowOpen %}
@@ -55,12 +55,12 @@
                 {% set rowWidth = 0 %}
             {% endif %}
 
-            {% if block.cssClasses is not null %}
-                <div class="{{ block.cssClasses }}">
-                    {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+            {% if homepageBlock.cssClasses is not null %}
+                <div class="{{ homepageBlock.cssClasses }}">
+                    {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
                 </div>
             {% else %}
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
             {% endif %}
         {% endif %}
     {% endfor %}
