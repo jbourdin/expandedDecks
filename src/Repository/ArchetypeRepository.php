@@ -131,6 +131,37 @@ class ArchetypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all unpublished (draft) archetypes with their deck counts, sorted by name.
+     *
+     * @see docs/features.md F7.11 — Draft state with preview
+     *
+     * @return list<array{archetype: Archetype, deckCount: int}>
+     */
+    public function findUnpublishedWithDeckCounts(): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->select('a AS archetype')
+            ->addSelect('(
+                SELECT COUNT(d.id) FROM App\Entity\Deck d
+                WHERE d.archetype = a
+                AND d.public = :public
+                AND d.status != :retired
+                AND d.deletedAt IS NULL
+            ) AS deckCount')
+            ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
+            ->setParameter('published', false)
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->orderBy('a.name', 'ASC');
+
+        /** @var list<array{archetype: Archetype, deckCount: int}> $results */
+        $results = $qb->getQuery()->getResult();
+
+        return $results;
+    }
+
+    /**
      * Collect all unique playstyle tags from published archetypes.
      *
      * @see docs/features.md F2.16 — Archetype catalog

@@ -26,27 +26,38 @@ class ArchetypeCatalogController extends AbstractController
 {
     /**
      * @see docs/features.md F2.16 — Archetype catalog
+     * @see docs/features.md F7.11 — Draft state with preview
      */
     #[Route('/archetypes', name: 'app_archetype_list', methods: ['GET'], priority: 10)]
     public function list(Request $request, ArchetypeRepository $archetypeRepository): Response
     {
-        /** @var list<string> $tags */
-        $tags = $request->query->all('tags');
-        $tags = array_values(array_filter($tags, static fn (string $tag): bool => '' !== $tag));
-        $sort = $request->query->getString('sort', 'name');
+        $showDrafts = $request->query->getBoolean('drafts') && $this->isGranted('ROLE_ARCHETYPE_EDITOR');
 
-        if (!\in_array($sort, ['name', 'decks'], true)) {
+        if ($showDrafts) {
+            $results = $archetypeRepository->findUnpublishedWithDeckCounts();
+            $allTags = [];
+            $tags = [];
             $sort = 'name';
-        }
+        } else {
+            /** @var list<string> $tags */
+            $tags = $request->query->all('tags');
+            $tags = array_values(array_filter($tags, static fn (string $tag): bool => '' !== $tag));
+            $sort = $request->query->getString('sort', 'name');
 
-        $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort);
-        $allTags = $archetypeRepository->findAllPublishedPlaystyleTags();
+            if (!\in_array($sort, ['name', 'decks'], true)) {
+                $sort = 'name';
+            }
+
+            $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort);
+            $allTags = $archetypeRepository->findAllPublishedPlaystyleTags();
+        }
 
         return $this->render('archetype/list.html.twig', [
             'results' => $results,
             'allTags' => $allTags,
             'currentTags' => $tags,
             'currentSort' => $sort,
+            'showDrafts' => $showDrafts,
         ]);
     }
 }

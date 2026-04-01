@@ -46,6 +46,9 @@ class Page
     #[ORM\Column]
     private bool $isPublished = false;
 
+    #[ORM\Column(options: ['default' => 0])]
+    private int $position = 0;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\Url(requireTld: true)]
@@ -110,6 +113,18 @@ class Page
     public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
+
+        return $this;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
 
         return $this;
     }

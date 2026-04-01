@@ -16,6 +16,33 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.2.2] — 2026-04-01
+
+Content editing experience improvements: card image insertion, inline CRUD menus, draft preview, and admin page management.
+
+### Features
+
+- **F17.8 — Insert card image from reference** — new RTE toolbar button that prompts for a card reference (e.g. `UPR-100`), resolves it to a TCGdex image URL via `GET /api/card/image-url` (local DB first, TCGdex API fallback), and inserts the image with a default `max-width: 180px`. Supports resize and alignment like any other editor image.
+- **F7.9 — Inline CRUD menu (three-dots)** — contextual ⋮ dropdown menus on public archetype show/list and CMS page show views, plus admin list views. Provides quick access to View/Preview and Edit actions. Hidden for users without the appropriate role.
+- **F7.11 — Draft state with preview** — require `?preview=true` query parameter to view unpublished archetypes and pages (prevents accidental access). Edit forms show a "Preview" button for drafts and "View" for published content. Draft preview pages display a warning banner with eye icon.
+- **Drafts filter on archetype catalog** — "Drafts" filter button visible to `ROLE_ARCHETYPE_EDITOR` users on the archetype catalog. Shows only unpublished archetypes with draft badge and preview links.
+- **F7.10 — Admin pages: category filter and drag-and-drop sorting** — category dropdown filter on admin page list. When a category is selected, pages are sorted by position and reorderable via SortableJS drag-and-drop (desktop) or up/down arrow buttons (mobile). Positions persisted immediately via AJAX. Drag-and-drop enabled on page 1 only (50 items/page for category view).
+- **View button on archetype edit form** — opens the public archetype page in a new tab, matching the existing pattern on page edit forms.
+
+### Bug Fixes
+
+- **Archetype role fix** — replace `ROLE_ADMIN` with `ROLE_ARCHETYPE_EDITOR` in `AdminArchetypeController`, `ArchetypeDetailController` preview check, public view menus, and navbar link. Users with just `ROLE_ARCHETYPE_EDITOR` can now manage archetypes without full admin.
+- **Category filter empty string** — fix `FILTER_NULL_ON_FAILURE` error when submitting the admin page list with "All" category selected (empty string to `getInt()`).
+
+### Infrastructure
+
+- Add `position` column to `page` table (migration `Version20260401085844`) for category-based ordering.
+- Install SortableJS (`sortablejs` + `@types/sortablejs`) for drag-and-drop page reordering.
+- New `admin_page_list` Webpack Encore entry for sortable page list JS.
+- CSS: `.no-caret` utility to hide Bootstrap dropdown caret on icon-only toggle buttons.
+
+---
+
 ## [1.2.1] — 2026-03-31
 
 Image upload, resize, alignment, and Pandoc-style attributes for the rich text editor.

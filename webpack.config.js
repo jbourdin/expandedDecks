@@ -54,6 +54,7 @@ Encore
     .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
     .addEntry('archetype_form', './assets/archetype-form.tsx')
     .addEntry('page_form', './assets/page-form.tsx')
+    .addEntry('admin_page_list', './assets/admin-page-list.ts')
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
     .addEntry('deck_found', './assets/deck-found.tsx')

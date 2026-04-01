@@ -65,6 +65,9 @@ class PageController extends AbstractController
         ]);
     }
 
+    /**
+     * @see docs/features.md F7.11 — Draft state with preview
+     */
     #[Route('/pages/{slug}', name: 'app_page_show', requirements: ['slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
@@ -78,7 +81,9 @@ class PageController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        if (!$page->isPublished() && !$this->isGranted('ROLE_CMS_EDITOR')) {
+        $isPreview = $request->query->getBoolean('preview');
+
+        if (!$page->isPublished() && !($isPreview && $this->isGranted('ROLE_CMS_EDITOR'))) {
             throw $this->createNotFoundException();
         }
 

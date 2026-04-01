@@ -17,9 +17,11 @@ use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Form\PageFormType;
 use App\Form\PageTranslationFormType;
+use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,6 +36,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminPageController extends AbstractAppController
 {
     private const int PER_PAGE = 20;
+    private const int PER_PAGE_CATEGORY = 50;
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
 
     public function __construct(
@@ -43,19 +46,37 @@ class AdminPageController extends AbstractAppController
         parent::__construct($translator);
     }
 
+    /**
+     * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
+     */
     #[Route('', name: 'app_admin_page_list', methods: ['GET'])]
-    public function list(Request $request, PageRepository $pageRepository): Response
-    {
+    public function list(
+        Request $request,
+        PageRepository $pageRepository,
+        MenuCategoryRepository $menuCategoryRepository,
+    ): Response {
         $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->getString('q');
+        $categoryRaw = $request->query->getString('category');
+        $categoryId = '' !== $categoryRaw ? (int) $categoryRaw : 0;
 
-        $queryBuilder = $pageRepository->createAdminListQueryBuilder($search);
-        $queryBuilder->setFirstResult(($page - 1) * self::PER_PAGE)
-            ->setMaxResults(self::PER_PAGE);
+        $category = null;
+        if ($categoryId > 0) {
+            $category = $menuCategoryRepository->find($categoryId);
+        }
+
+        $categories = $menuCategoryRepository->findAllOrdered();
+
+        $perPage = null !== $category ? self::PER_PAGE_CATEGORY : self::PER_PAGE;
+
+        $queryBuilder = $pageRepository->createAdminListQueryBuilder($search, $category);
+        $queryBuilder->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
 
         $paginator = new Paginator($queryBuilder, fetchJoinCollection: true);
         $totalItems = \count($paginator);
-        $totalPages = max(1, (int) ceil($totalItems / self::PER_PAGE));
+        $totalPages = max(1, (int) ceil($totalItems / $perPage));
+        $sortableEnabled = null !== $category && 1 === $page;
 
         return $this->render('admin/page/list.html.twig', [
             'contentPages' => $paginator,
@@ -64,7 +85,33 @@ class AdminPageController extends AbstractAppController
             'totalPages' => $totalPages,
             'search' => $search,
             'supportedLocales' => self::SUPPORTED_LOCALES,
+            'categories' => $categories,
+            'currentCategory' => $category,
+            'sortableEnabled' => $sortableEnabled,
         ]);
+    }
+
+    /**
+     * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
+     */
+    #[Route('/reorder', name: 'app_admin_page_reorder', methods: ['POST'])]
+    public function reorder(Request $request, PageRepository $pageRepository): JsonResponse
+    {
+        $payload = json_decode($request->getContent(), true);
+
+        if (!\is_array($payload)) {
+            return $this->json(['error' => 'Invalid payload.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $pageIds = [];
+        foreach ($payload as $id) {
+            if (is_numeric($id)) {
+                $pageIds[] = (int) $id;
+            }
+        }
+        $pageRepository->reorderPages($pageIds);
+
+        return $this->json(['ok' => true]);
     }
 
     #[Route('/new', name: 'app_admin_page_new', methods: ['GET', 'POST'])]

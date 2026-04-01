@@ -60,10 +60,20 @@
                 <target>View</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.preview">
+                <source>app.common.preview</source>
+                <target>Preview</target>
+                <note>Button label for previewing unpublished/draft content</note>
+            </trans-unit>
             <trans-unit id="app.common.edit">
                 <source>app.common.edit</source>
                 <target>Edit</target>
                 <note>Shared UI button or label, used across multiple pages</note>
+            </trans-unit>
+            <trans-unit id="app.common.actions">
+                <source>app.common.actions</source>
+                <target>Actions</target>
+                <note>Aria label for contextual action menus</note>
             </trans-unit>
             <trans-unit id="app.common.cancel">
                 <source>app.common.cancel</source>
@@ -3312,6 +3322,11 @@
                 <target>Tag</target>
                 <note>Label for tag filter on archetype catalog</note>
             </trans-unit>
+            <trans-unit id="app.archetype.filter_drafts">
+                <source>app.archetype.filter_drafts</source>
+                <target>Drafts</target>
+                <note>Filter button to show only unpublished archetypes (editors only)</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_by">
                 <source>app.archetype.sort_by</source>
                 <target>Sort by</target>
@@ -3568,6 +3583,21 @@
             <trans-unit id="app.cms.admin.no_pages">
                 <source>app.cms.admin.no_pages</source>
                 <target>No pages found.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.drag_to_reorder">
+                <source>app.cms.admin.drag_to_reorder</source>
+                <target>Drag to reorder</target>
+                <note>Aria label for drag handle in sortable page list</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.move_up">
+                <source>app.cms.admin.move_up</source>
+                <target>Move up</target>
+                <note>Aria label for accessible move-up button in sortable page list</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.move_down">
+                <source>app.cms.admin.move_down</source>
+                <target>Move down</target>
+                <note>Aria label for accessible move-down button in sortable page list</note>
             </trans-unit>
             <trans-unit id="app.cms.admin.categories_title">
                 <source>app.cms.admin.categories_title</source>
