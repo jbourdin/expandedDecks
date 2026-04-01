@@ -45,6 +45,11 @@ class HomepageBlockTypeTest extends TestCase
         self::assertTrue(HomepageBlockType::RichText->hasTranslatableContent());
     }
 
+    public function testPageEmbedHasNoTranslatableContent(): void
+    {
+        self::assertFalse(HomepageBlockType::PageEmbed->hasTranslatableContent());
+    }
+
     public function testCarouselHasNoTranslatableContent(): void
     {
         self::assertFalse(HomepageBlockType::Carousel->hasTranslatableContent());
@@ -69,6 +74,7 @@ class HomepageBlockTypeTest extends TestCase
     {
         self::assertSame(HomepageBlockType::Hero, HomepageBlockType::tryFrom('hero'));
         self::assertSame(HomepageBlockType::RichText, HomepageBlockType::tryFrom('richText'));
+        self::assertSame(HomepageBlockType::PageEmbed, HomepageBlockType::tryFrom('pageEmbed'));
         self::assertSame(HomepageBlockType::Carousel, HomepageBlockType::tryFrom('carousel'));
         self::assertSame(HomepageBlockType::LatestPages, HomepageBlockType::tryFrom('latestPages'));
         self::assertSame(HomepageBlockType::FeaturedDeck, HomepageBlockType::tryFrom('featuredDeck'));
@@ -84,6 +90,7 @@ class HomepageBlockTypeTest extends TestCase
     {
         self::assertSame('app.homepage.block_type.hero', HomepageBlockType::Hero->label());
         self::assertSame('app.homepage.block_type.rich_text', HomepageBlockType::RichText->label());
+        self::assertSame('app.homepage.block_type.page_embed', HomepageBlockType::PageEmbed->label());
         self::assertSame('app.homepage.block_type.carousel', HomepageBlockType::Carousel->label());
         self::assertSame('app.homepage.block_type.latest_pages', HomepageBlockType::LatestPages->label());
         self::assertSame('app.homepage.block_type.featured_deck', HomepageBlockType::FeaturedDeck->label());

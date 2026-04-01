@@ -168,7 +168,7 @@ export default function BlockEditModal({
                 />
 
                 {/* Type-specific non-translatable settings */}
-                {blockType === 'richText' && (
+                {blockType === 'pageEmbed' && (
                     <TextInput
                         label={label('pageSlug')}
                         value={(editedBlock.pageSlug as string) ?? ''}
