@@ -1,0 +1,74 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.homepage.admin.editor_title'|trans }} — Expanded Decks{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('homepage_editor') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.homepage.admin.editor_title'|trans }}</h1>
+    </div>
+
+    <div id="homepage-editor-root"
+         data-save-url="{{ path('app_admin_homepage_save') }}"
+         data-preview-url="{{ path('app_admin_homepage_preview') }}"
+         data-supported-locales="{{ supportedLocales|json_encode }}"
+         data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
+         data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
+         data-block-types="{{ [
+             {value: 'hero', label: 'app.homepage.block_type.hero'|trans, icon: 'bi-megaphone'},
+             {value: 'richText', label: 'app.homepage.block_type.rich_text'|trans, icon: 'bi-file-richtext'},
+             {value: 'carousel', label: 'app.homepage.block_type.carousel'|trans, icon: 'bi-images'},
+             {value: 'latestPages', label: 'app.homepage.block_type.latest_pages'|trans, icon: 'bi-newspaper'},
+             {value: 'featuredDeck', label: 'app.homepage.block_type.featured_deck'|trans, icon: 'bi-collection'},
+             {value: 'featuredEvent', label: 'app.homepage.block_type.featured_event'|trans, icon: 'bi-calendar-event'}
+         ]|json_encode }}"
+         data-labels="{{ {
+             addBlock: 'app.homepage.admin.add_block'|trans,
+             save: 'app.common.save'|trans,
+             saved: 'app.homepage.admin.saved'|trans,
+             delete: 'app.common.delete'|trans,
+             edit: 'app.common.edit'|trans,
+             cancel: 'app.common.cancel'|trans,
+             confirm: 'app.common.confirm'|trans,
+             columnWidth: 'app.homepage.admin.column_width'|trans,
+             fullWidth: 'app.homepage.admin.full_width'|trans,
+             cssClasses: 'app.homepage.admin.css_classes'|trans,
+             startAt: 'app.homepage.admin.start_at'|trans,
+             endAt: 'app.homepage.admin.end_at'|trans,
+             blockSettings: 'app.homepage.admin.block_settings'|trans,
+             translatableContent: 'app.homepage.admin.translatable_content'|trans,
+             title: 'app.cms.form.title'|trans,
+             subtitle: 'app.homepage.admin.subtitle'|trans,
+             content: 'app.cms.form.content'|trans,
+             description: 'app.homepage.admin.description'|trans,
+             pageSlug: 'app.homepage.admin.page_slug'|trans,
+             categorySlug: 'app.homepage.admin.category_slug'|trans,
+             limit: 'app.homepage.admin.limit'|trans,
+             ctaLabel: 'app.homepage.admin.cta_label'|trans,
+             ctaRoute: 'app.homepage.admin.cta_route'|trans,
+             ctaStyle: 'app.homepage.admin.cta_style'|trans,
+             addCta: 'app.homepage.admin.add_cta'|trans,
+             selectType: 'app.homepage.admin.select_type'|trans,
+             noBlocks: 'app.homepage.admin.no_blocks'|trans,
+             deleteConfirm: 'app.homepage.admin.delete_confirm'|trans,
+             gridPreview: 'app.homepage.admin.grid_preview'|trans
+         }|json_encode }}">
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('homepage_editor') }}
+{% endblock %}

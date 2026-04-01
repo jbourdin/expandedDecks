@@ -3835,6 +3835,104 @@
                 <target>Événement mis en avant</target>
             </trans-unit>
 
+            <!-- Homepage admin editor -->
+            <trans-unit id="app.homepage.admin.editor_title">
+                <source>app.homepage.admin.editor_title</source>
+                <target>Éditeur de page d'accueil</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_block">
+                <source>app.homepage.admin.add_block</source>
+                <target>Ajouter un bloc</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.saved">
+                <source>app.homepage.admin.saved</source>
+                <target>Enregistré !</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.column_width">
+                <source>app.homepage.admin.column_width</source>
+                <target>Largeur de colonne</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.full_width">
+                <source>app.homepage.admin.full_width</source>
+                <target>Pleine largeur</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.css_classes">
+                <source>app.homepage.admin.css_classes</source>
+                <target>Classes CSS</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.start_at">
+                <source>app.homepage.admin.start_at</source>
+                <target>Visible à partir de</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.end_at">
+                <source>app.homepage.admin.end_at</source>
+                <target>Visible jusqu'à</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.block_settings">
+                <source>app.homepage.admin.block_settings</source>
+                <target>Paramètres du bloc</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.translatable_content">
+                <source>app.homepage.admin.translatable_content</source>
+                <target>Contenu traduisible</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.subtitle">
+                <source>app.homepage.admin.subtitle</source>
+                <target>Sous-titre</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.description">
+                <source>app.homepage.admin.description</source>
+                <target>Description</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.page_slug">
+                <source>app.homepage.admin.page_slug</source>
+                <target>Slug de page</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.category_slug">
+                <source>app.homepage.admin.category_slug</source>
+                <target>Nom de catégorie</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.limit">
+                <source>app.homepage.admin.limit</source>
+                <target>Nombre max</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_label">
+                <source>app.homepage.admin.cta_label</source>
+                <target>Libellé du bouton</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_route">
+                <source>app.homepage.admin.cta_route</source>
+                <target>Nom de la route</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_style">
+                <source>app.homepage.admin.cta_style</source>
+                <target>Style du bouton</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_cta">
+                <source>app.homepage.admin.add_cta</source>
+                <target>Ajouter un bouton</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.select_type">
+                <source>app.homepage.admin.select_type</source>
+                <target>Choisir un type de bloc</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.no_blocks">
+                <source>app.homepage.admin.no_blocks</source>
+                <target>Aucun bloc. Ajoutez votre premier bloc pour commencer.</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.delete_confirm">
+                <source>app.homepage.admin.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer ce bloc ?</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.grid_preview">
+                <source>app.homepage.admin.grid_preview</source>
+                <target>Aperçu de la grille</target>
+            </trans-unit>
+            <trans-unit id="app.nav.homepage_editor">
+                <source>app.nav.homepage_editor</source>
+                <target>Page d'accueil</target>
+            </trans-unit>
+
             <!-- CMS: Category page -->
             <trans-unit id="app.cms.category_empty">
                 <source>app.cms.category_empty</source>

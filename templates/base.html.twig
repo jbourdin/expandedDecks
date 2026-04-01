@@ -103,6 +103,7 @@
                                         {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_ARCHETYPE_EDITOR') and not is_granted('ROLE_TECHNICAL_ADMIN') %}
                                             <li><hr class="dropdown-divider"></li>
                                         {% endif %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_homepage_editor') }}">{{ 'app.nav.homepage_editor'|trans }}</a></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_page_list') }}">{{ 'app.nav.cms_pages'|trans }}</a></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_menu_category_list') }}">{{ 'app.nav.cms_categories'|trans }}</a></li>
                                     {% endif %}
