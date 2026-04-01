@@ -7,10 +7,10 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
-{% if block.resolvedData.html is defined and block.resolvedData.html is not empty %}
+{% if entry.resolvedData.html is defined and entry.resolvedData.html is not empty %}
     <div class="card shadow-sm mb-4">
         <div class="card-body cms-content">
-            {{ block.resolvedData.html|raw }}
+            {{ entry.resolvedData.html|raw }}
         </div>
     </div>
 {% endif %}

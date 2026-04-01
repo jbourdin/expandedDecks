@@ -7,9 +7,9 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
-{% set count = block.resolvedData.count|default(0) %}
-{% set title = block.translations.title|default('app.home.upcoming_events'|trans({'%count%': count})) %}
-{% set description = block.translations.description|default('app.home.browse_events'|trans) %}
+{% set count = entry.resolvedData.count|default(0) %}
+{% set title = entry.translations.title|default('app.home.upcoming_events'|trans({'%count%': count})) %}
+{% set description = entry.translations.description|default('app.home.browse_events'|trans) %}
 
 <div class="card shadow-sm h-100 text-center">
     <div class="card-body d-flex flex-column justify-content-center py-5">

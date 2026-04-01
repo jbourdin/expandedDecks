@@ -7,11 +7,11 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
-{% set pages = block.resolvedData.pages|default([]) %}
-{% set totalCount = block.resolvedData.totalCount|default(0) %}
-{% set category = block.resolvedData.category|default(null) %}
-{% set locale = block.resolvedData.locale|default(app.request.locale) %}
-{% set limit = block.settings.limit|default(5) %}
+{% set pages = entry.resolvedData.pages|default([]) %}
+{% set totalCount = entry.resolvedData.totalCount|default(0) %}
+{% set category = entry.resolvedData.category|default(null) %}
+{% set locale = entry.resolvedData.locale|default(app.request.locale) %}
+{% set limit = entry.settings.limit|default(5) %}
 
 {% if pages is not empty %}
     <div class="card shadow-sm mb-4">

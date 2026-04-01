@@ -9,15 +9,15 @@
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
 <div class="hero-pokemon p-5 mb-4">
     <div class="container-fluid py-3">
-        {% if block.translations.title is defined %}
-            <h1 class="display-5 fw-bold hero-title">{{ block.translations.title }}</h1>
+        {% if entry.translations.title is defined %}
+            <h1 class="display-5 fw-bold hero-title">{{ entry.translations.title }}</h1>
         {% endif %}
-        {% if block.translations.subtitle is defined %}
-            <p class="col-md-8 fs-4 hero-text">{{ block.translations.subtitle }}</p>
+        {% if entry.translations.subtitle is defined %}
+            <p class="col-md-8 fs-4 hero-text">{{ entry.translations.subtitle }}</p>
         {% endif %}
-        {% if block.translations.ctaButtons is defined and block.translations.ctaButtons is not empty %}
+        {% if entry.translations.ctaButtons is defined and entry.translations.ctaButtons is not empty %}
             <div class="d-flex gap-2">
-                {% for button in block.translations.ctaButtons %}
+                {% for button in entry.translations.ctaButtons %}
                     {% set buttonClass = button.style == 'primary' ? 'btn-gold' : 'btn-outline-light-gold' %}
                     <a href="{{ path(button.route, {'_target_path': app.request.requestUri}) }}" class="btn {{ buttonClass }} btn-lg">{{ button.label }}</a>
                 {% endfor %}

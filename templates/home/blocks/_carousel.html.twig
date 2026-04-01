@@ -7,7 +7,7 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.7 — Carousel block with swipeable images #}
-{% set items = block.resolvedData.items|default([]) %}
+{% set items = entry.resolvedData.items|default([]) %}
 {% set carouselId = 'carousel-' ~ loop.index0 %}
 
 {% if items is not empty %}

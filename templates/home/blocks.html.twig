@@ -44,7 +44,7 @@
             {% endif %}
 
             <div class="col-md-{{ homepageBlock.columnWidth }} {{ homepageBlock.cssClasses }}">
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
             </div>
             {% set rowWidth = rowWidth + homepageBlock.columnWidth %}
         {% else %}
@@ -57,10 +57,10 @@
 
             {% if homepageBlock.cssClasses is not null %}
                 <div class="{{ homepageBlock.cssClasses }}">
-                    {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
+                    {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
                 </div>
             {% else %}
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {block: homepageBlock} %}
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
             {% endif %}
         {% endif %}
     {% endfor %}
