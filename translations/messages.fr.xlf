@@ -3322,6 +3322,11 @@
                 <target>Étiquette</target>
                 <note>Label for tag filter on archetype catalog</note>
             </trans-unit>
+            <trans-unit id="app.archetype.filter_drafts">
+                <source>app.archetype.filter_drafts</source>
+                <target>Brouillons</target>
+                <note>Filter button to show only unpublished archetypes (editors only)</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_by">
                 <source>app.archetype.sort_by</source>
                 <target>Trier par</target>
