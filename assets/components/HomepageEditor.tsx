@@ -71,9 +71,17 @@ export default function HomepageEditor({
             animation: 150,
             ghostClass: 'opacity-50',
             onEnd: (event) => {
-                const { oldIndex, newIndex } = event;
+                const { oldIndex, newIndex, item, from } = event;
                 if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
                     return;
+                }
+
+                // Revert SortableJS DOM manipulation — let React handle the re-render
+                from.removeChild(item);
+                if (from.children[oldIndex]) {
+                    from.insertBefore(item, from.children[oldIndex]);
+                } else {
+                    from.appendChild(item);
                 }
 
                 setBlocks((previous) => {
@@ -90,7 +98,6 @@ export default function HomepageEditor({
                         const localeTranslations = previous[locale] ?? {};
                         const reindexed: Record<string, Record<string, unknown>> = {};
 
-                        // Build old-to-new index mapping
                         const order = Array.from({ length: blocks.length }, (_, index) => index);
                         const [movedItem] = order.splice(oldIndex!, 1);
                         order.splice(newIndex!, 0, movedItem);
