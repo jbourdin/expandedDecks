@@ -149,6 +149,14 @@
                 <source>app.common.create</source>
                 <target>Créer</target>
             </trans-unit>
+            <trans-unit id="app.common.delete">
+                <source>app.common.delete</source>
+                <target>Supprimer</target>
+            </trans-unit>
+            <trans-unit id="app.common.confirm">
+                <source>app.common.confirm</source>
+                <target>Confirmer</target>
+            </trans-unit>
             <trans-unit id="app.common.yes">
                 <source>app.common.yes</source>
                 <target>Oui</target>
@@ -3927,6 +3935,26 @@
             <trans-unit id="app.homepage.admin.grid_preview">
                 <source>app.homepage.admin.grid_preview</source>
                 <target>Aperçu de la grille</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_items">
+                <source>app.homepage.admin.carousel_items</source>
+                <target>Éléments du carrousel</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.image">
+                <source>app.homepage.admin.image</source>
+                <target>URL de l'image</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.alt_text">
+                <source>app.homepage.admin.alt_text</source>
+                <target>Texte alternatif</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.link">
+                <source>app.homepage.admin.link</source>
+                <target>Lien</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_item">
+                <source>app.homepage.admin.add_item</source>
+                <target>Ajouter un élément</target>
             </trans-unit>
             <trans-unit id="app.nav.homepage_editor">
                 <source>app.nav.homepage_editor</source>

@@ -14,6 +14,7 @@
 import { useState, useCallback } from 'react';
 import {
     Modal,
+    Card,
     Tabs,
     TextInput,
     NumberInput,
@@ -45,6 +46,14 @@ interface CtaButton {
     label: string;
     route: string;
     style: string;
+}
+
+interface CarouselItem {
+    image: string;
+    alt: string;
+    link: string;
+    startAt: string | null;
+    endAt: string | null;
 }
 
 interface BlockEditModalProps {
@@ -184,6 +193,74 @@ export default function BlockEditModal({
                             max={20}
                         />
                     </Group>
+                )}
+
+                {/* Carousel items */}
+                {blockType === 'carousel' && (
+                    <>
+                        <Divider />
+                        <Text size="sm" fw={600}>{label('carouselItems')}</Text>
+                        {(Array.isArray(editedBlock.items) ? editedBlock.items as CarouselItem[] : []).map((carouselItem, itemIndex) => (
+                            <Card key={itemIndex} withBorder padding="xs">
+                                <Group grow align="end">
+                                    <TextInput
+                                        label={label('image')}
+                                        value={carouselItem.image ?? ''}
+                                        onChange={(event) => {
+                                            const items = [...(editedBlock.items as CarouselItem[])];
+                                            items[itemIndex] = { ...items[itemIndex], image: event.currentTarget.value };
+                                            updateBlock('items', items);
+                                        }}
+                                        placeholder="https://..."
+                                    />
+                                    <TextInput
+                                        label={label('altText')}
+                                        value={carouselItem.alt ?? ''}
+                                        onChange={(event) => {
+                                            const items = [...(editedBlock.items as CarouselItem[])];
+                                            items[itemIndex] = { ...items[itemIndex], alt: event.currentTarget.value };
+                                            updateBlock('items', items);
+                                        }}
+                                    />
+                                </Group>
+                                <Group grow align="end" mt="xs">
+                                    <TextInput
+                                        label={label('link')}
+                                        value={carouselItem.link ?? ''}
+                                        onChange={(event) => {
+                                            const items = [...(editedBlock.items as CarouselItem[])];
+                                            items[itemIndex] = { ...items[itemIndex], link: event.currentTarget.value };
+                                            updateBlock('items', items);
+                                        }}
+                                        placeholder="/events or https://..."
+                                    />
+                                    <ActionIcon
+                                        color="red"
+                                        variant="subtle"
+                                        mt="lg"
+                                        onClick={() => {
+                                            const items = (editedBlock.items as CarouselItem[]).filter((_, filterIndex) => filterIndex !== itemIndex);
+                                            updateBlock('items', items);
+                                        }}
+                                    >
+                                        <IconTrash size={14} />
+                                    </ActionIcon>
+                                </Group>
+                            </Card>
+                        ))}
+                        <Button
+                            variant="light"
+                            size="xs"
+                            leftSection={<IconPlus size={14} />}
+                            onClick={() => {
+                                const items = Array.isArray(editedBlock.items) ? [...(editedBlock.items as CarouselItem[])] : [];
+                                items.push({ image: '', alt: '', link: '', startAt: null, endAt: null });
+                                updateBlock('items', items);
+                            }}
+                        >
+                            {label('addItem')}
+                        </Button>
+                    </>
                 )}
 
                 {/* Translatable content */}
