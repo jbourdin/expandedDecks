@@ -1881,13 +1881,32 @@ MD);
         $legalNoticeEn->setTitle('Legal Notice');
         $legalNoticeEn->setSlug('legal-notice');
         $legalNoticeEn->setContent(<<<'MD'
-        ## Legal Notice
+        ## Site Owner
+
+        This website is operated by [Julien Bourdin](https://github.com/jbourdin) as a non-commercial, open-source project.
+
+        - **Source code:** [github.com/jbourdin/expandedDecks](https://github.com/jbourdin/expandedDecks)
+
+        ## Hosting
+
+        - **Hosting provider:** [Scaleway](https://www.scaleway.com/) — 8 rue de la Ville-l'Évêque, 75008 Paris, France
+        - **CDN:** [Bunny.net](https://bunny.net/)
+
+        ## Contact
+
+        For any question or request regarding this website, please [open an issue](https://github.com/jbourdin/expandedDecks/issues) on the GitHub project.
+
+        ## Intellectual Property
 
         **Expanded Decks** is a non-commercial, community-driven project.
 
         Pokémon and Pokémon TCG are trademarks of Nintendo, Creatures Inc., and GAME FREAK Inc. This project is not affiliated with, endorsed, or sponsored by any of these companies.
 
-        All card data is sourced from the [TCGdex API](https://tcgdex.dev/).
+        All card data is sourced from the [TCGdex API](https://tcgdex.dev/), an independent community project.
+
+        ## Liability
+
+        The information provided on this website is for informational purposes only. The site owner makes no warranty as to the accuracy, completeness, or reliability of the content. Use of this website is at your own risk.
         MD);
         $legalNoticePage->addTranslation($legalNoticeEn);
         $manager->persist($legalNoticeEn);
@@ -1898,13 +1917,32 @@ MD);
         $legalNoticeFr->setTitle('Mentions Légales');
         $legalNoticeFr->setSlug('mentions-legales');
         $legalNoticeFr->setContent(<<<'MD'
-        ## Mentions Légales
+        ## Éditeur du site
+
+        Ce site est édité par [Julien Bourdin](https://github.com/jbourdin) dans le cadre d'un projet open-source à but non lucratif.
+
+        - **Code source :** [github.com/jbourdin/expandedDecks](https://github.com/jbourdin/expandedDecks)
+
+        ## Hébergement
+
+        - **Hébergeur :** [Scaleway](https://www.scaleway.com/) — 8 rue de la Ville-l'Évêque, 75008 Paris, France
+        - **CDN :** [Bunny.net](https://bunny.net/)
+
+        ## Contact
+
+        Pour toute question ou demande concernant ce site, veuillez [ouvrir une issue](https://github.com/jbourdin/expandedDecks/issues) sur le projet GitHub.
+
+        ## Propriété intellectuelle
 
         **Expanded Decks** est un projet communautaire à but non lucratif.
 
         Pokémon et Pokémon JCC sont des marques déposées de Nintendo, Creatures Inc. et GAME FREAK Inc. Ce projet n'est ni affilié, ni approuvé, ni sponsorisé par aucune de ces sociétés.
 
-        Les données de cartes proviennent de l'[API TCGdex](https://tcgdex.dev/).
+        Les données de cartes proviennent de l'[API TCGdex](https://tcgdex.dev/), un projet communautaire indépendant.
+
+        ## Responsabilité
+
+        Les informations fournies sur ce site le sont à titre informatif uniquement. L'éditeur ne garantit pas l'exactitude, l'exhaustivité ou la fiabilité du contenu. L'utilisation de ce site se fait sous votre propre responsabilité.
         MD);
         $legalNoticePage->addTranslation($legalNoticeFr);
         $manager->persist($legalNoticeFr);
