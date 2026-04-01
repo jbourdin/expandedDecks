@@ -34,6 +34,9 @@ class MenuCategory
     private int $position = 0;
 
     #[ORM\Column]
+    private bool $isFooter = false;
+
+    #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
@@ -67,6 +70,18 @@ class MenuCategory
     public function setPosition(int $position): static
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    public function isFooter(): bool
+    {
+        return $this->isFooter;
+    }
+
+    public function setIsFooter(bool $isFooter): static
+    {
+        $this->isFooter = $isFooter;
 
         return $this;
     }

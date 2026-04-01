@@ -18,13 +18,15 @@ Admin-managed grouping for content pages. Displayed in site navigation or footer
 |--------------|--------------------|----------|-------------|
 | `id`         | `int` (auto)       | No       | Primary key |
 | `position`   | `int`              | No       | Display order (ascending). Default: `0`. |
+| `isFooter`   | `bool`             | No       | Whether to display this category in the site footer instead of the navigation bar. Default: `false`. |
 | `createdAt`  | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`  | `DateTimeImmutable` | No      | Last modification timestamp. |
 
 ### Constraints
 
 - `position`: required, >= 0. Unique values recommended but not enforced (ties sorted by `id`).
-- Categories without any published page are hidden from the navigation.
+- `isFooter`: when `true`, the category appears in the site footer instead of the top navigation bar.
+- Categories without any published page are hidden from both the navigation and the footer.
 
 ### Relations
 

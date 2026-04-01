@@ -5,7 +5,7 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.cms.admin.new_category'|trans }}</h1>
-        <a href="{{ path('app_admin_menu_category_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        <a href="{{ path('app_admin_menu_category_list', {view: isFooter ? 'footer' : 'menu'}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
     </div>
 
     <div class="card shadow-sm">

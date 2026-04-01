@@ -19,10 +19,12 @@ use App\Form\MenuCategoryFormType;
 use App\Form\MenuCategoryTranslationFormType;
 use App\Repository\MenuCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -42,21 +44,53 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_menu_category_list', methods: ['GET'])]
-    public function list(MenuCategoryRepository $repository): Response
+    public function list(Request $request, MenuCategoryRepository $repository): Response
     {
+        $view = $request->query->getString('view', 'menu');
+        if (!\in_array($view, ['menu', 'footer'], true)) {
+            $view = 'menu';
+        }
+
+        $categories = 'footer' === $view
+            ? $repository->findFooterOrdered()
+            : $repository->findMenuOrdered();
+
         return $this->render('admin/menu_category/list.html.twig', [
-            'categories' => $repository->findAllOrdered(),
+            'categories' => $categories,
+            'currentView' => $view,
         ]);
     }
 
-    #[Route('/new', name: 'app_admin_menu_category_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    #[Route('/reorder', name: 'app_admin_menu_category_reorder', methods: ['POST'])]
+    public function reorder(Request $request, MenuCategoryRepository $repository, CacheInterface $menuCategoriesCache): JsonResponse
     {
+        /** @var list<int> $categoryIds */
+        $categoryIds = json_decode((string) $request->getContent(), true);
+        $repository->reorderCategories($categoryIds);
+
+        $menuCategoriesCache->delete('menu_categories');
+        $menuCategoriesCache->delete('footer_categories');
+
+        return new JsonResponse(['ok' => true]);
+    }
+
+    #[Route('/new', name: 'app_admin_menu_category_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, MenuCategoryRepository $repository): Response
+    {
+        $isFooter = 'footer' === $request->query->getString('view');
+
         $category = new MenuCategory();
+        $category->setIsFooter($isFooter);
+
         $form = $this->createForm(MenuCategoryFormType::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $existingCategories = $isFooter
+                ? $repository->findFooterOrdered()
+                : $repository->findMenuOrdered();
+            $category->setPosition(\count($existingCategories));
+
             $this->em->persist($category);
             $this->em->flush();
 
@@ -67,23 +101,13 @@ class AdminMenuCategoryController extends AbstractAppController
 
         return $this->render('admin/menu_category/new.html.twig', [
             'form' => $form,
+            'isFooter' => $isFooter,
         ]);
     }
 
     #[Route('/{id}', name: 'app_admin_menu_category_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, MenuCategory $category): Response
     {
-        $form = $this->createForm(MenuCategoryFormType::class, $category);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->em->flush();
-
-            $this->addFlash('success', 'app.cms.category_updated');
-
-            return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
-        }
-
         $translationForms = [];
         foreach (self::SUPPORTED_LOCALES as $locale) {
             $translation = $category->getTranslation($locale);
@@ -105,7 +129,6 @@ class AdminMenuCategoryController extends AbstractAppController
 
         return $this->render('admin/menu_category/edit.html.twig', [
             'category' => $category,
-            'form' => $form,
             'translationForms' => $translationForms,
             'supportedLocales' => self::SUPPORTED_LOCALES,
         ]);

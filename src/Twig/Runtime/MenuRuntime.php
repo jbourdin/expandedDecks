@@ -47,8 +47,24 @@ class MenuRuntime implements RuntimeExtensionInterface
         return $categories;
     }
 
+    /**
+     * @return list<MenuCategory>
+     */
+    public function getFooterCategories(): array
+    {
+        /** @var list<MenuCategory> $categories */
+        $categories = $this->menuCategoriesCache->get('footer_categories', function (ItemInterface $item): array {
+            $item->expiresAfter(3600);
+
+            return $this->menuCategoryRepository->findFooterWithPublishedPages();
+        });
+
+        return $categories;
+    }
+
     public function invalidateCache(): void
     {
         $this->menuCategoriesCache->delete('menu_categories');
+        $this->menuCategoriesCache->delete('footer_categories');
     }
 }

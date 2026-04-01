@@ -41,7 +41,7 @@
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
                             {% for category in menu_categories() %}
-                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => b.createdAt <=> a.createdAt) %}
+                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                                 {% if pages|length == 1 %}
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ path('app_page_show', {slug: pages|first.slug}) }}">{{ category.getName(app.request.locale) }}</a>
@@ -121,7 +121,7 @@
                                 <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                             </li>
                             {% for category in menu_categories() %}
-                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => b.createdAt <=> a.createdAt) %}
+                                {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                                 {% if pages|length == 1 %}
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ path('app_page_show', {slug: pages|first.slug}) }}">{{ category.getName(app.request.locale) }}</a>
@@ -166,12 +166,33 @@
             {% block body %}{% endblock %}
         </main>
 
-        <footer class="footer-pokemon py-3 mt-auto">
-            <div class="container text-center">
-                &copy; {{ "now"|date("Y") }} {{ 'app.footer.copyright'|trans }}
-                <span class="ms-2" style="font-size: 0.75rem;">{{ app_version }}</span>
-                <span class="ms-2">·</span>
-                <a href="https://github.com/jbourdin/expandedDecks" class="ms-1" target="_blank" rel="noopener">GitHub</a>
+        <footer class="footer-pokemon py-4 mt-auto">
+            <div class="container">
+                {% set footerCategories = footer_categories() %}
+                {% if footerCategories is not empty %}
+                    <div class="row mb-3">
+                        {% for category in footerCategories %}
+                            {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
+                            {% if pages is not empty %}
+                                <div class="col-sm-4 col-md-3">
+                                    <h6 class="text-uppercase mb-2">{{ category.getName(app.request.locale) }}</h6>
+                                    <ul class="list-unstyled">
+                                        {% for page in pages %}
+                                            <li class="mb-1"><a href="{{ path('app_page_show', {slug: page.slug}) }}">{{ page.getTitle(app.request.locale) }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <hr class="my-2">
+                {% endif %}
+                <div class="text-center">
+                    &copy; {{ "now"|date("Y") }} {{ 'app.footer.copyright'|trans }}
+                    <span class="ms-2" style="font-size: 0.75rem;">{{ app_version }}</span>
+                    <span class="ms-2">·</span>
+                    <a href="https://github.com/jbourdin/expandedDecks" class="ms-1" target="_blank" rel="noopener">GitHub</a>
+                </div>
             </div>
         </footer>
 

@@ -15,7 +15,6 @@ namespace App\Form;
 
 use App\Entity\MenuCategory;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -28,10 +27,6 @@ class MenuCategoryFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('position', IntegerType::class, [
-                'label' => 'app.cms.form.position',
-            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

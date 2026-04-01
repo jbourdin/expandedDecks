@@ -85,13 +85,65 @@ class MenuRuntimeTest extends TestCase
         self::assertSame([], $result);
     }
 
-    public function testInvalidateCacheDeletesCacheKey(): void
+    public function testGetFooterCategoriesReturnsCachedResult(): void
     {
+        $category = new MenuCategory();
+        $category->setPosition(1);
+        $category->setIsFooter(true);
+
         $repository = $this->createStub(MenuCategoryRepository::class);
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects(self::once())
+            ->method('get')
+            ->with('footer_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->willReturn([$category]);
+
+        $runtime = new MenuRuntime($repository, $cache);
+        $result = $runtime->getFooterCategories();
+
+        self::assertCount(1, $result);
+        self::assertSame($category, $result[0]);
+    }
+
+    public function testGetFooterCategoriesCallsRepositoryOnCacheMiss(): void
+    {
+        $category = new MenuCategory();
+        $category->setPosition(1);
+        $category->setIsFooter(true);
+
+        $repository = $this->createMock(MenuCategoryRepository::class);
+        $repository->expects(self::once())
+            ->method('findFooterWithPublishedPages')
+            ->willReturn([$category]);
+
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects(self::once())
+            ->method('get')
+            ->with('footer_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->willReturnCallback(function (string $key, callable $callback) {
+                $item = $this->createStub(ItemInterface::class);
+
+                return $callback($item);
+            });
+
+        $runtime = new MenuRuntime($repository, $cache);
+        $result = $runtime->getFooterCategories();
+
+        self::assertCount(1, $result);
+        self::assertSame($category, $result[0]);
+    }
+
+    public function testInvalidateCacheDeletesBothCacheKeys(): void
+    {
+        $repository = $this->createStub(MenuCategoryRepository::class);
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects(self::exactly(2))
             ->method('delete')
-            ->with('menu_categories');
+            ->willReturnCallback(static function (string $key): bool {
+                self::assertContains($key, ['menu_categories', 'footer_categories']);
+
+                return true;
+            });
 
         $runtime = new MenuRuntime($repository, $cache);
         $runtime->invalidateCache();

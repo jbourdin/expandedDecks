@@ -13,20 +13,7 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.cms.admin.edit_category'|trans }}: {{ category.getName(app.request.locale) }}</h1>
-        <a href="{{ path('app_admin_menu_category_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
-    </div>
-
-    {# Category settings #}
-    <div class="card shadow-sm mb-4">
-        <div class="card-header card-header-themed">
-            <h5 class="mb-0">{{ 'app.cms.admin.category_settings'|trans }}</h5>
-        </div>
-        <div class="card-body">
-            {{ form_start(form) }}
-                {{ form_widget(form) }}
-                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
-            {{ form_end(form) }}
-        </div>
+        <a href="{{ path('app_admin_menu_category_list', {view: category.footer ? 'footer' : 'menu'}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
     </div>
 
     {# Translations — tabbed card #}

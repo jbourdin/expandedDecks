@@ -54,7 +54,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
         $this->listener->onFlush($onFlushArgs);
 
         // Trigger postFlush to verify the flag was set
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -66,7 +66,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -78,7 +78,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -90,7 +90,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -106,7 +106,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -118,7 +118,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -134,7 +134,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -146,7 +146,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
 
         $this->listener->onFlush($onFlushArgs);
 
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
     }
 
@@ -192,7 +192,7 @@ class MenuCacheInvalidationListenerTest extends TestCase
         $this->listener->onFlush($onFlushArgs);
 
         // First postFlush triggers invalidation
-        $this->cache->expects(self::once())->method('delete')->with('menu_categories');
+        $this->cache->expects(self::exactly(2))->method('delete');
         $this->listener->postFlush($this->createPostFlushArgs());
 
         // Second postFlush without a new onFlush should NOT invalidate
