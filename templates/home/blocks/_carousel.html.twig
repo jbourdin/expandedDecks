@@ -1,0 +1,46 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F10.7 — Carousel block with swipeable images #}
+{% set items = entry.resolvedData.items|default([]) %}
+{% set carouselId = 'carousel-' ~ loop.index0 %}
+
+{% if items is not empty %}
+    <div id="{{ carouselId }}" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-pause="hover">
+        {% if items|length > 1 %}
+            <div class="carousel-indicators">
+                {% for item in items %}
+                    <button type="button" data-bs-target="#{{ carouselId }}" data-bs-slide-to="{{ loop.index0 }}" {{ loop.first ? 'class="active" aria-current="true"' : '' }} aria-label="Slide {{ loop.index }}"></button>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="carousel-inner rounded">
+            {% for item in items %}
+                <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                    {% if item.link is defined and item.link is not empty %}
+                        <a href="{{ item.link }}">
+                            <img src="{{ item.image }}" class="d-block w-100" alt="{{ item.alt|default('') }}">
+                        </a>
+                    {% else %}
+                        <img src="{{ item.image }}" class="d-block w-100" alt="{{ item.alt|default('') }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% if items|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#{{ carouselId }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'app.common.previous'|trans }}</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#{{ carouselId }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'app.common.next'|trans }}</span>
+            </button>
+        {% endif %}
+    </div>
+{% endif %}

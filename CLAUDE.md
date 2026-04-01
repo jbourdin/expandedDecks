@@ -356,6 +356,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/models/borrow.md](docs/models/borrow.md) — Borrow entity and state machine
 - [docs/models/notification.md](docs/models/notification.md) — Notification entity and types
 - [docs/models/cms.md](docs/models/cms.md) — CMS pages and menu categories
+- [docs/models/homepage.md](docs/models/homepage.md) — Homepage layout blocks and translations
 
 **Standards** (detailed versions of rules in this file)
 - [docs/standards/coding.md](docs/standards/coding.md) — Coding standards

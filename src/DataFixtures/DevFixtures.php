@@ -24,6 +24,8 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\HomepageLayout;
+use App\Entity\HomepageLayoutTranslation;
 use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\Notification;
@@ -170,6 +172,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
+        $this->createHomepageFixtures($manager);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -2150,6 +2153,104 @@ PTCG;
                 $card['quantity'] = $overrides[$card['name']];
             }
         }
+    }
+
+    /**
+     * @see docs/features.md F10.3 — HomepageLayout entity and data model
+     */
+    private function createHomepageFixtures(ObjectManager $manager): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setIsPublished(true);
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'items' => [
+                    [
+                        'image' => 'https://placehold.co/1200x400/2c3e7c/f0c040?text=Expanded+Format+Season+2026',
+                        'alt' => 'Expanded Format Season 2026',
+                        'link' => '/event',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://placehold.co/1200x400/1a1a2e/e0e0e0?text=Browse+the+Deck+Library',
+                        'alt' => 'Browse the Deck Library',
+                        'link' => '/deck',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://placehold.co/1200x400/3d1f5c/f5c542?text=Borrow+a+Deck+for+Your+Next+Event',
+                        'alt' => 'Borrow a Deck for Your Next Event',
+                        'link' => '/event',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'latestPages',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'categorySlug' => 'news',
+                'limit' => 5,
+            ],
+            [
+                'type' => 'hero',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+            ],
+            [
+                'type' => 'richText',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'pageSlug' => 'welcome',
+            ],
+        ]);
+        $manager->persist($layout);
+
+        $translationEn = new HomepageLayoutTranslation();
+        $translationEn->setHomepageLayout($layout);
+        $translationEn->setLocale('en');
+        $translationEn->setBlockTranslations([
+            '2' => [
+                'title' => 'Share the Expanded Experience',
+                'subtitle' => 'Borrow real decks, play at events, discover the format together.',
+                'ctaButtons' => [
+                    ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+        ]);
+        $layout->addTranslation($translationEn);
+        $manager->persist($translationEn);
+
+        $translationFr = new HomepageLayoutTranslation();
+        $translationFr->setHomepageLayout($layout);
+        $translationFr->setLocale('fr');
+        $translationFr->setBlockTranslations([
+            '2' => [
+                'title' => "Partagez l'Expérience Expanded",
+                'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
+                'ctaButtons' => [
+                    ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+        ]);
+        $layout->addTranslation($translationFr);
+        $manager->persist($translationFr);
     }
 
     private function createTcgdexSetMappings(ObjectManager $manager): void

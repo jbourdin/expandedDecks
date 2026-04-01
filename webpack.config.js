@@ -56,6 +56,7 @@ Encore
     .addEntry('page_form', './assets/page-form.tsx')
     .addEntry('admin_page_list', './assets/admin-page-list.ts')
     .addEntry('admin_menu_category_list', './assets/admin-menu-category-list.ts')
+    .addEntry('homepage_editor', './assets/homepage-editor.tsx')
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
     .addEntry('deck_found', './assets/deck-found.tsx')
