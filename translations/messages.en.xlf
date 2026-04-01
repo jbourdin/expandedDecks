@@ -3584,6 +3584,21 @@
                 <source>app.cms.admin.no_pages</source>
                 <target>No pages found.</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.drag_to_reorder">
+                <source>app.cms.admin.drag_to_reorder</source>
+                <target>Drag to reorder</target>
+                <note>Aria label for drag handle in sortable page list</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.move_up">
+                <source>app.cms.admin.move_up</source>
+                <target>Move up</target>
+                <note>Aria label for accessible move-up button in sortable page list</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.move_down">
+                <source>app.cms.admin.move_down</source>
+                <target>Move down</target>
+                <note>Aria label for accessible move-down button in sortable page list</note>
+            </trans-unit>
             <trans-unit id="app.cms.admin.categories_title">
                 <source>app.cms.admin.categories_title</source>
                 <target>Menu categories</target>
