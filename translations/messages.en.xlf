@@ -3809,6 +3809,32 @@
                 <target>Latest news</target>
             </trans-unit>
 
+            <!-- Homepage block types -->
+            <trans-unit id="app.homepage.block_type.hero">
+                <source>app.homepage.block_type.hero</source>
+                <target>Hero Banner</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.rich_text">
+                <source>app.homepage.block_type.rich_text</source>
+                <target>Rich Text</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.carousel">
+                <source>app.homepage.block_type.carousel</source>
+                <target>Carousel</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.latest_pages">
+                <source>app.homepage.block_type.latest_pages</source>
+                <target>Latest Pages</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.featured_deck">
+                <source>app.homepage.block_type.featured_deck</source>
+                <target>Featured Deck</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.featured_event">
+                <source>app.homepage.block_type.featured_event</source>
+                <target>Featured Event</target>
+            </trans-unit>
+
             <!-- CMS: Category page -->
             <trans-unit id="app.cms.category_empty">
                 <source>app.cms.category_empty</source>

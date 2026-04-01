@@ -1,0 +1,72 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.home.title'|trans }}{% endblock %}
+
+{% block body %}
+    {% set rowOpen = false %}
+    {% set rowWidth = 0 %}
+
+    {% for block in blocks %}
+        {% set partial = '_' ~ block.type.value|replace({'R': '_r', 'P': '_p', 'D': '_d', 'E': '_e'}) %}
+        {# Convert camelCase to snake_case for template name #}
+        {% set templateMap = {
+            'hero': '_hero',
+            'richText': '_rich_text',
+            'carousel': '_carousel',
+            'latestPages': '_latest_pages',
+            'featuredDeck': '_featured_deck',
+            'featuredEvent': '_featured_event'
+        } %}
+        {% set partial = templateMap[block.type.value] %}
+
+        {% if block.columnWidth is not null %}
+            {# Grid block — check if we need to open a new row #}
+            {% if not rowOpen %}
+                <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+                {% set rowOpen = true %}
+                {% set rowWidth = 0 %}
+            {% endif %}
+
+            {% if rowWidth + block.columnWidth > 12 %}
+                {# Close current row and start a new one #}
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+                {% set rowWidth = 0 %}
+            {% endif %}
+
+            <div class="col-md-{{ block.columnWidth }} {{ block.cssClasses }}">
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+            </div>
+            {% set rowWidth = rowWidth + block.columnWidth %}
+        {% else %}
+            {# Full-width block — close any open row first #}
+            {% if rowOpen %}
+                </div>
+                {% set rowOpen = false %}
+                {% set rowWidth = 0 %}
+            {% endif %}
+
+            {% if block.cssClasses is not null %}
+                <div class="{{ block.cssClasses }}">
+                    {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+                </div>
+            {% else %}
+                {% include 'home/blocks/' ~ partial ~ '.html.twig' %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {# Close trailing row if needed #}
+    {% if rowOpen %}
+        </div>
+    {% endif %}
+{% endblock %}

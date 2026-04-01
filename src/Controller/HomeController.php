@@ -17,8 +17,10 @@ use App\Entity\User;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
+use App\Repository\HomepageLayoutRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Service\HomepageRenderer;
 use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +32,7 @@ class HomeController extends AbstractController
 {
     /**
      * @see docs/features.md F10.2 — Anonymous homepage
+     * @see docs/features.md F10.4 — Homepage rendering service and Twig block partials
      */
     #[Route('/', name: 'app_home')]
     public function index(
@@ -39,6 +42,8 @@ class HomeController extends AbstractController
         PageRepository $pageRepository,
         MenuCategoryRepository $menuCategoryRepository,
         MarkdownRenderer $markdownRenderer,
+        HomepageLayoutRepository $homepageLayoutRepository,
+        HomepageRenderer $homepageRenderer,
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
@@ -46,7 +51,17 @@ class HomeController extends AbstractController
 
         $locale = $request->getLocale();
 
-        // Welcome block: look for a published page with slug "welcome"
+        // Use published layout if available
+        $layout = $homepageLayoutRepository->findPublished();
+        if (null !== $layout) {
+            $blocks = $homepageRenderer->resolve($layout, $locale);
+
+            return $this->render('home/blocks.html.twig', [
+                'blocks' => $blocks,
+            ]);
+        }
+
+        // Fallback to hardcoded homepage when no layout exists
         $welcomePage = $pageRepository->findBySlug('welcome');
         $welcomeHtml = null;
         if (null !== $welcomePage && $welcomePage->isPublished()) {
@@ -56,7 +71,6 @@ class HomeController extends AbstractController
             }
         }
 
-        // Latest news: look for pages in "news" category
         $newsPages = [];
         $newsCategory = null;
         $newsTotalCount = 0;
