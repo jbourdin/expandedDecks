@@ -180,7 +180,11 @@ class AdminPageController extends AbstractAppController
             $isNew = true;
         }
 
-        $form = $this->createForm(PageTranslationFormType::class, $translation);
+        $form = $this->container->get('form.factory')->createNamed(
+            'page_translation_form_'.$locale,
+            PageTranslationFormType::class,
+            $translation,
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -232,12 +236,17 @@ class AdminPageController extends AbstractAppController
                 $translation->setLocale($locale);
             }
 
-            $form = $this->createForm(PageTranslationFormType::class, $translation, [
-                'action' => $this->generateUrl('app_admin_page_translation', [
-                    'id' => $page->getId(),
-                    'locale' => $locale,
-                ]),
-            ]);
+            $form = $this->container->get('form.factory')->createNamed(
+                'page_translation_form_'.$locale,
+                PageTranslationFormType::class,
+                $translation,
+                [
+                    'action' => $this->generateUrl('app_admin_page_translation', [
+                        'id' => $page->getId(),
+                        'locale' => $locale,
+                    ]),
+                ],
+            );
 
             // Handle submission for the current locale
             if ($request->isMethod('POST') && $request->getPayload()->getString('_locale') === $locale) {
