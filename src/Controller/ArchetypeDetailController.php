@@ -47,7 +47,7 @@ class ArchetypeDetailController extends AbstractController
 
         $isPreview = $request->query->getBoolean('preview');
 
-        if (!$archetype->isPublished() && !($isPreview && $this->isGranted('ROLE_ADMIN'))) {
+        if (!$archetype->isPublished() && !($isPreview && $this->isGranted('ROLE_ARCHETYPE_EDITOR'))) {
             throw $this->createNotFoundException();
         }
 

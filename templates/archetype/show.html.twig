@@ -34,7 +34,7 @@
                         <span class="badge bg-secondary ms-1 fs-6 align-middle">{{ tag }}</span>
                     {% endfor %}
                 </h1>
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-light-gold dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
                             <i class="bi bi-three-dots-vertical"></i>

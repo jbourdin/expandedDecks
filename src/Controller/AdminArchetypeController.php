@@ -34,7 +34,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @see docs/features.md F9.6 — Archetype localization
  */
 #[Route('/admin/archetypes')]
-#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_ARCHETYPE_EDITOR')]
 class AdminArchetypeController extends AbstractAppController
 {
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
