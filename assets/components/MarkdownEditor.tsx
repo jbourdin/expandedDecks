@@ -15,7 +15,7 @@ import { useEditor } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
 import { FileHandler } from '@tiptap/extension-file-handler';
 import StarterKit from '@tiptap/starter-kit';
-import { IconCards, IconFloatCenter, IconFloatLeft, IconFloatNone, IconFloatRight, IconStack2, IconSword } from '@tabler/icons-react';
+import { IconCards, IconFloatCenter, IconFloatLeft, IconFloatNone, IconFloatRight, IconPhoto, IconStack2, IconSword } from '@tabler/icons-react';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — tiptap-markdown types conflict with tiptap v3 private class properties
 import { Markdown } from 'tiptap-markdown';
@@ -25,6 +25,7 @@ import DeckReference from '../extensions/DeckReference';
 import HeadingWithId from '../extensions/HeadingWithId';
 import ResizableImage from '../extensions/ResizableImage';
 import ImageAlignButton from './ImageAlignButton';
+import InsertCardImageButton from './InsertCardImageButton';
 import InsertReferenceButton from './InsertReferenceButton';
 
 /**
@@ -252,6 +253,11 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
                             <ImageAlignButton editor={editor} icon={<IconFloatCenter size={16} />} label="Center" cssClass="mx-auto d-block" />
                             <ImageAlignButton editor={editor} icon={<IconFloatRight size={16} />} label="Float right" cssClass="float-end" />
                             <ImageAlignButton editor={editor} icon={<IconFloatNone size={16} />} label="No alignment" cssClass={null} />
+                            <InsertCardImageButton
+                                editor={editor}
+                                icon={<IconPhoto size={16} />}
+                                label="Insert card image"
+                            />
                         </RichTextEditor.ControlsGroup>
 
                         <RichTextEditor.ControlsGroup>

@@ -279,3 +279,20 @@ Public REST API for third-party integrations, mobile clients, and AI-powered too
 | F16.6   | CMS Pages API                                | Medium   |        | CRUD on pages (`/api/v1/pages`) with per-locale translations (title, slug, content in Markdown, SEO fields). `cms:read` returns published pages; `cms:write` requires `ROLE_CMS_EDITOR`. Depends on F16.1, F11.1. |
 | F16.7   | CMS Menu Categories API                      | Medium   |        | CRUD on menu categories (`/api/v1/categories`) with translations. Deletion fails if pages are still attached. Scope: `cms:read`, `cms:write` (requires `ROLE_CMS_EDITOR`). Depends on F16.1, F11.2. |
 | F16.8   | MCP Server for AI Integration                | Low      |        | Model Context Protocol server at `/mcp` (Streamable HTTP transport). Exposes event and CMS tools to AI agents (Claude Desktop, etc.). OAuth2 bearer auth — effective permissions are the intersection of token scopes and user roles (same model as REST API). Tools: `list_events`, `get_event`, `create_event`, `update_event`, `engage_event`, `list_attendees`, `list_pages`, `get_page`, `create_page`, `update_page`, `list_categories`. Depends on F16.1, F16.3–F16.7. |
+
+---
+
+## F17 — Content Editing Experience
+
+Rich text editing for Markdown fields (archetype descriptions, CMS pages) with a Tiptap-based editor, custom extensions for project-specific tags, and image management.
+
+| ID      | Feature                                      | Priority | Status | Description |
+|---------|----------------------------------------------|----------|--------|-------------|
+| F17.1   | Rich text editor with Markdown               | High     | Done   | Tiptap-based WYSIWYG editor for Markdown fields with a toggle between rich text and raw Markdown modes. Bidirectional Markdown serialization via `tiptap-markdown`. Used on archetype and CMS page edit forms. |
+| F17.2   | Card and deck reference tags                 | High     | Done   | Custom Tiptap node extensions for `[[card:SET-NUM]]` and `[[deck:SHORT_TAG]]` inline tags. Rendered as badges in the editor, serialized to/from Markdown as double-bracket syntax. |
+| F17.3   | Archetype reference tags                     | High     | Done   | Custom Tiptap node extension for `[[archetype:slug]]` inline tags. Same badge UX and Markdown serialization pattern as F17.2. |
+| F17.4   | Image upload backend (Flysystem)             | High     | Done   | Server-side image upload endpoint (`POST /api/editor/upload-image`) using Flysystem storage. Returns a URL for the uploaded image. Max 5 MB, JPEG/PNG/GIF/WebP. |
+| F17.5   | Image drag-and-drop in the editor            | High     | Done   | Drag-and-drop and paste support for images in the editor. Shows base64 preview immediately, uploads asynchronously, then replaces with server URL. Uses `@tiptap/extension-file-handler`. |
+| F17.6   | Toolbar buttons to insert reference tags     | Medium   | Done   | Reusable `InsertReferenceButton` component with popover input for inserting card, archetype, and deck reference tags from the toolbar. Validates input format before insertion. |
+| F17.7   | Image float and alignment                    | Medium   | Done   | `ResizableImage` extension with CSS class-based alignment (float left, center, float right, none). Dimensions serialized as style attributes. `ImageAlignButton` toolbar controls. |
+| F17.8   | Insert card image from reference             | Medium   |        | Toolbar button that prompts for a card reference (e.g. `UPR-100`), resolves it to a TCGdex image URL via a backend endpoint (`GET /api/card/image-url`), and inserts the image into the editor as a standard image node. Supports resize and alignment like any other image. Markdown output: `![SET-NUM](url)`. |
