@@ -18,7 +18,10 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.archetype.edit_title'|trans({'%name%': archetype.name}) }}</h1>
-        <a href="{{ path('app_admin_archetype_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" class="btn btn-outline-primary" target="_blank">{{ 'app.common.view'|trans }}</a>
+            <a href="{{ path('app_admin_archetype_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        </div>
     </div>
 
     <div class="card shadow-sm mb-4">

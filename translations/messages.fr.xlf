@@ -65,6 +65,11 @@
                 <target>Modifier</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.actions">
+                <source>app.common.actions</source>
+                <target>Actions</target>
+                <note>Aria label for contextual action menus</note>
+            </trans-unit>
             <trans-unit id="app.common.cancel">
                 <source>app.common.cancel</source>
                 <target>Annuler</target>
