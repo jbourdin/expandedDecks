@@ -29,6 +29,7 @@
 - [Borrow Model](models/borrow.md) — Deck lending and return workflow
 - [Notification Model](models/notification.md) — In-app notification system
 - [CMS Model](models/cms.md) — Content pages, menu categories, translations
+- [Homepage Model](models/homepage.md) — Homepage layout blocks, translations, block types
 
 ## API
 

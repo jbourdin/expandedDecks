@@ -24,6 +24,8 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\HomepageLayout;
+use App\Entity\HomepageLayoutTranslation;
 use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\Notification;
@@ -170,6 +172,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
+        $this->createHomepageFixtures($manager);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -2150,6 +2153,104 @@ PTCG;
                 $card['quantity'] = $overrides[$card['name']];
             }
         }
+    }
+
+    /**
+     * @see docs/features.md F10.3 — HomepageLayout entity and data model
+     */
+    private function createHomepageFixtures(ObjectManager $manager): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setIsPublished(true);
+        $layout->setBlocks([
+            [
+                'type' => 'hero',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+            ],
+            [
+                'type' => 'richText',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'pageSlug' => 'welcome',
+            ],
+            [
+                'type' => 'latestPages',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'categorySlug' => 'news',
+                'limit' => 5,
+            ],
+            [
+                'type' => 'featuredEvent',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+            ],
+            [
+                'type' => 'featuredDeck',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+            ],
+        ]);
+        $manager->persist($layout);
+
+        $translationEn = new HomepageLayoutTranslation();
+        $translationEn->setHomepageLayout($layout);
+        $translationEn->setLocale('en');
+        $translationEn->setBlockTranslations([
+            '0' => [
+                'title' => 'Share the Expanded Experience',
+                'subtitle' => 'Borrow real decks, play at events, discover the format together.',
+                'ctaButtons' => [
+                    ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+            '3' => [
+                'title' => 'Upcoming Events',
+                'description' => 'Browse events',
+            ],
+            '4' => [
+                'title' => 'Deck Library',
+                'description' => 'Browse the library',
+            ],
+        ]);
+        $layout->addTranslation($translationEn);
+        $manager->persist($translationEn);
+
+        $translationFr = new HomepageLayoutTranslation();
+        $translationFr->setHomepageLayout($layout);
+        $translationFr->setLocale('fr');
+        $translationFr->setBlockTranslations([
+            '0' => [
+                'title' => "Partagez l'Expérience Expanded",
+                'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
+                'ctaButtons' => [
+                    ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+            '3' => [
+                'title' => 'Événements à venir',
+                'description' => 'Parcourir les événements',
+            ],
+            '4' => [
+                'title' => 'Bibliothèque de decks',
+                'description' => 'Parcourir la bibliothèque',
+            ],
+        ]);
+        $layout->addTranslation($translationFr);
+        $manager->persist($translationFr);
     }
 
     private function createTcgdexSetMappings(ObjectManager $manager): void
