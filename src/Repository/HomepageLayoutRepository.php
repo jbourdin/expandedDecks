@@ -40,6 +40,7 @@ class HomepageLayoutRepository extends ServiceEntityRepository
             ->leftJoin('l.translations', 't')
             ->addSelect('t')
             ->where('l.isPublished = true')
+            ->orderBy('l.id', 'DESC')
             ->getQuery()
             ->getResult();
 
