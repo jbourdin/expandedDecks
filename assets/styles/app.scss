@@ -531,6 +531,13 @@ footer {
 
     a {
         color: rgba(#fff, .7);
+        text-decoration: none;
         &:hover { color: $ed-gold; }
+    }
+
+    h6 {
+        color: rgba(#fff, .85);
+        font-weight: 600;
+        letter-spacing: .05em;
     }
 }

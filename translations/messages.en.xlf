@@ -3627,6 +3627,18 @@
                 <source>app.cms.admin.no_categories</source>
                 <target>No categories found.</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.category_view">
+                <source>app.cms.admin.category_view</source>
+                <target>Category view</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.view_menu">
+                <source>app.cms.admin.view_menu</source>
+                <target>Menu</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.view_footer">
+                <source>app.cms.admin.view_footer</source>
+                <target>Footer</target>
+            </trans-unit>
             <trans-unit id="app.cms.admin.table.title">
                 <source>app.cms.admin.table.title</source>
                 <target>Title</target>
@@ -3646,6 +3658,10 @@
             <trans-unit id="app.cms.admin.table.pages_count">
                 <source>app.cms.admin.table.pages_count</source>
                 <target>Pages</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.footer">
+                <source>app.cms.admin.table.footer</source>
+                <target>Footer</target>
             </trans-unit>
 
             <!-- CMS: Form labels -->
@@ -3708,6 +3724,10 @@
             <trans-unit id="app.cms.form.position">
                 <source>app.cms.form.position</source>
                 <target>Position</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.is_footer">
+                <source>app.cms.form.is_footer</source>
+                <target>Display in footer</target>
             </trans-unit>
 
             <!-- CMS: Status badges -->

@@ -29,6 +29,7 @@ class MenuExtension extends AbstractExtension
     {
         return [
             new TwigFunction('menu_categories', [MenuRuntime::class, 'getCategories']),
+            new TwigFunction('footer_categories', [MenuRuntime::class, 'getFooterCategories']),
         ];
     }
 }
