@@ -60,6 +60,11 @@
                 <target>View</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.preview">
+                <source>app.common.preview</source>
+                <target>Preview</target>
+                <note>Button label for previewing unpublished/draft content</note>
+            </trans-unit>
             <trans-unit id="app.common.edit">
                 <source>app.common.edit</source>
                 <target>Edit</target>

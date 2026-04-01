@@ -28,6 +28,7 @@ class ArchetypeDetailController extends AbstractController
 {
     /**
      * @see docs/features.md F2.10 — Archetype detail page
+     * @see docs/features.md F7.11 — Draft state with preview
      * @see docs/features.md F9.6 — Archetype localization
      */
     #[Route('/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['slug' => '[a-z0-9-]+'])]
@@ -44,7 +45,9 @@ class ArchetypeDetailController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        if (!$archetype->isPublished() && !$this->isGranted('ROLE_ADMIN')) {
+        $isPreview = $request->query->getBoolean('preview');
+
+        if (!$archetype->isPublished() && !($isPreview && $this->isGranted('ROLE_ADMIN'))) {
             throw $this->createNotFoundException();
         }
 
