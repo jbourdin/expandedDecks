@@ -13,28 +13,37 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\MenuCategoryRepository;
+use App\Repository\HomepageLayoutRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @see docs/features.md F11.2 — Menu categories
+ * Stores the homepage block layout as a JSON structure.
+ * Only one layout should be published at a time (singleton pattern).
+ *
+ * @see docs/features.md F10.3 — HomepageLayout entity and data model
  */
-#[ORM\Entity(repositoryClass: MenuCategoryRepository::class)]
+#[ORM\Entity(repositoryClass: HomepageLayoutRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class MenuCategory
+class HomepageLayout
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private int $position = 0;
+    /**
+     * Ordered list of block definitions.
+     * Each block has: type, columnWidth, cssClasses, startAt, endAt, and type-specific settings.
+     *
+     * @var list<array<string, mixed>>
+     */
+    #[ORM\Column(type: 'json')]
+    private array $blocks = [];
 
     #[ORM\Column]
-    private bool $isFooter = false;
+    private bool $isPublished = false;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -42,19 +51,14 @@ class MenuCategory
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    /** @var Collection<int, MenuCategoryTranslation> */
-    #[ORM\OneToMany(targetEntity: MenuCategoryTranslation::class, mappedBy: 'menuCategory', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    /** @var Collection<int, HomepageLayoutTranslation> */
+    #[ORM\OneToMany(targetEntity: HomepageLayoutTranslation::class, mappedBy: 'homepageLayout', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $translations;
-
-    /** @var Collection<int, Page> */
-    #[ORM\OneToMany(targetEntity: Page::class, mappedBy: 'menuCategory')]
-    private Collection $pages;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->translations = new ArrayCollection();
-        $this->pages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,26 +66,32 @@ class MenuCategory
         return $this->id;
     }
 
-    public function getPosition(): int
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getBlocks(): array
     {
-        return $this->position;
+        return $this->blocks;
     }
 
-    public function setPosition(int $position): static
+    /**
+     * @param list<array<string, mixed>> $blocks
+     */
+    public function setBlocks(array $blocks): static
     {
-        $this->position = $position;
+        $this->blocks = $blocks;
 
         return $this;
     }
 
-    public function isFooter(): bool
+    public function isPublished(): bool
     {
-        return $this->isFooter;
+        return $this->isPublished;
     }
 
-    public function setIsFooter(bool $isFooter): static
+    public function setIsPublished(bool $isPublished): static
     {
-        $this->isFooter = $isFooter;
+        $this->isPublished = $isPublished;
 
         return $this;
     }
@@ -109,24 +119,24 @@ class MenuCategory
     }
 
     /**
-     * @return Collection<int, MenuCategoryTranslation>
+     * @return Collection<int, HomepageLayoutTranslation>
      */
     public function getTranslations(): Collection
     {
         return $this->translations;
     }
 
-    public function addTranslation(MenuCategoryTranslation $translation): static
+    public function addTranslation(HomepageLayoutTranslation $translation): static
     {
         if (!$this->translations->contains($translation)) {
             $this->translations->add($translation);
-            $translation->setMenuCategory($this);
+            $translation->setHomepageLayout($this);
         }
 
         return $this;
     }
 
-    public function removeTranslation(MenuCategoryTranslation $translation): static
+    public function removeTranslation(HomepageLayoutTranslation $translation): static
     {
         $this->translations->removeElement($translation);
 
@@ -136,7 +146,7 @@ class MenuCategory
     /**
      * Get the translation for a given locale, with fallback to 'en'.
      */
-    public function getTranslation(string $locale): ?MenuCategoryTranslation
+    public function getTranslation(string $locale): ?HomepageLayoutTranslation
     {
         foreach ($this->translations as $translation) {
             if ($translation->getLocale() === $locale) {
@@ -153,21 +163,5 @@ class MenuCategory
         }
 
         return null;
-    }
-
-    /**
-     * Convenience method to get the translated name for a locale.
-     */
-    public function getName(string $locale = 'en'): string
-    {
-        return $this->getTranslation($locale)?->getName() ?? '';
-    }
-
-    /**
-     * @return Collection<int, Page>
-     */
-    public function getPages(): Collection
-    {
-        return $this->pages;
     }
 }

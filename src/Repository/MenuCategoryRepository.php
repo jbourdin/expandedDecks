@@ -49,8 +49,67 @@ class MenuCategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find categories that have at least one published page, ordered by position.
-     * Eagerly loads published pages and their translations for menu rendering.
+     * Find menu (non-footer) categories ordered by position, with translations eagerly loaded.
+     *
+     * @return list<MenuCategory>
+     */
+    public function findMenuOrdered(): array
+    {
+        /** @var list<MenuCategory> $categories */
+        $categories = $this->createQueryBuilder('c')
+            ->leftJoin('c.translations', 't')
+            ->addSelect('t')
+            ->where('c.isFooter = false')
+            ->orderBy('c.position', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $categories;
+    }
+
+    /**
+     * Find footer categories ordered by position, with translations eagerly loaded.
+     *
+     * @return list<MenuCategory>
+     */
+    public function findFooterOrdered(): array
+    {
+        /** @var list<MenuCategory> $categories */
+        $categories = $this->createQueryBuilder('c')
+            ->leftJoin('c.translations', 't')
+            ->addSelect('t')
+            ->where('c.isFooter = true')
+            ->orderBy('c.position', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $categories;
+    }
+
+    /**
+     * Update positions for categories.
+     *
+     * @param list<int> $categoryIds ordered list of category IDs (index = new position)
+     */
+    public function reorderCategories(array $categoryIds): void
+    {
+        foreach ($categoryIds as $position => $categoryId) {
+            $this->createQueryBuilder('c')
+                ->update()
+                ->set('c.position', ':position')
+                ->where('c.id = :id')
+                ->setParameter('position', $position)
+                ->setParameter('id', $categoryId)
+                ->getQuery()
+                ->execute();
+        }
+    }
+
+    /**
+     * Find non-footer categories that have at least one published page, ordered by position.
+     * Eagerly loads published pages and their translations for navigation menu rendering.
      *
      * @return list<MenuCategory>
      */
@@ -65,6 +124,33 @@ class MenuCategoryRepository extends ServiceEntityRepository
             ->leftJoin('p.translations', 'pt')
             ->addSelect('pt')
             ->where('p.isPublished = true')
+            ->andWhere('c.isFooter = false')
+            ->orderBy('c.position', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $categories;
+    }
+
+    /**
+     * Find footer categories that have at least one published page, ordered by position.
+     * Eagerly loads published pages and their translations for footer rendering.
+     *
+     * @return list<MenuCategory>
+     */
+    public function findFooterWithPublishedPages(): array
+    {
+        /** @var list<MenuCategory> $categories */
+        $categories = $this->createQueryBuilder('c')
+            ->leftJoin('c.translations', 't')
+            ->addSelect('t')
+            ->innerJoin('c.pages', 'p')
+            ->addSelect('p')
+            ->leftJoin('p.translations', 'pt')
+            ->addSelect('pt')
+            ->where('p.isPublished = true')
+            ->andWhere('c.isFooter = true')
             ->orderBy('c.position', 'ASC')
             ->addOrderBy('c.id', 'ASC')
             ->getQuery()

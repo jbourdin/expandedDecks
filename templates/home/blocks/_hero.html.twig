@@ -1,0 +1,31 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
+<div class="hero-pokemon p-5 mb-4">
+    <div class="container-fluid py-3">
+        {% if entry.translations.title is defined %}
+            <h1 class="display-5 fw-bold hero-title">{{ entry.translations.title }}</h1>
+        {% endif %}
+        {% if entry.translations.subtitle is defined %}
+            <p class="col-md-8 fs-4 hero-text">{{ entry.translations.subtitle }}</p>
+        {% endif %}
+        {% if entry.translations.ctaButtons is defined and entry.translations.ctaButtons is not empty %}
+            <div class="d-flex gap-2">
+                {% for button in entry.translations.ctaButtons %}
+                    {# Hide auth-related CTAs for logged-in users #}
+                    {% if app.user and (button.route == 'app_register' or button.route == 'app_login') %}
+                    {% else %}
+                        {% set buttonClass = button.style == 'primary' ? 'btn-gold' : 'btn-outline-light-gold' %}
+                        <a href="{{ path(button.route, {'_target_path': app.request.requestUri}) }}" class="btn {{ buttonClass }} btn-lg">{{ button.label }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -149,6 +149,14 @@
                 <source>app.common.create</source>
                 <target>Create</target>
             </trans-unit>
+            <trans-unit id="app.common.delete">
+                <source>app.common.delete</source>
+                <target>Delete</target>
+            </trans-unit>
+            <trans-unit id="app.common.confirm">
+                <source>app.common.confirm</source>
+                <target>Confirm</target>
+            </trans-unit>
             <trans-unit id="app.common.yes">
                 <source>app.common.yes</source>
                 <target>Yes</target>
@@ -3627,6 +3635,18 @@
                 <source>app.cms.admin.no_categories</source>
                 <target>No categories found.</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.category_view">
+                <source>app.cms.admin.category_view</source>
+                <target>Category view</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.view_menu">
+                <source>app.cms.admin.view_menu</source>
+                <target>Menu</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.view_footer">
+                <source>app.cms.admin.view_footer</source>
+                <target>Footer</target>
+            </trans-unit>
             <trans-unit id="app.cms.admin.table.title">
                 <source>app.cms.admin.table.title</source>
                 <target>Title</target>
@@ -3646,6 +3666,10 @@
             <trans-unit id="app.cms.admin.table.pages_count">
                 <source>app.cms.admin.table.pages_count</source>
                 <target>Pages</target>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.table.footer">
+                <source>app.cms.admin.table.footer</source>
+                <target>Footer</target>
             </trans-unit>
 
             <!-- CMS: Form labels -->
@@ -3708,6 +3732,10 @@
             <trans-unit id="app.cms.form.position">
                 <source>app.cms.form.position</source>
                 <target>Position</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.is_footer">
+                <source>app.cms.form.is_footer</source>
+                <target>Display in footer</target>
             </trans-unit>
 
             <!-- CMS: Status badges -->
@@ -3787,6 +3815,150 @@
             <trans-unit id="app.home.latest_news">
                 <source>app.home.latest_news</source>
                 <target>Latest news</target>
+            </trans-unit>
+
+            <!-- Homepage block types -->
+            <trans-unit id="app.homepage.block_type.hero">
+                <source>app.homepage.block_type.hero</source>
+                <target>Hero Banner</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.rich_text">
+                <source>app.homepage.block_type.rich_text</source>
+                <target>Rich Text</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.carousel">
+                <source>app.homepage.block_type.carousel</source>
+                <target>Carousel</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.latest_pages">
+                <source>app.homepage.block_type.latest_pages</source>
+                <target>Latest Pages</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.featured_deck">
+                <source>app.homepage.block_type.featured_deck</source>
+                <target>Featured Deck</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.featured_event">
+                <source>app.homepage.block_type.featured_event</source>
+                <target>Featured Event</target>
+            </trans-unit>
+
+            <!-- Homepage admin editor -->
+            <trans-unit id="app.homepage.admin.editor_title">
+                <source>app.homepage.admin.editor_title</source>
+                <target>Homepage Editor</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_block">
+                <source>app.homepage.admin.add_block</source>
+                <target>Add block</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.saved">
+                <source>app.homepage.admin.saved</source>
+                <target>Saved!</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.column_width">
+                <source>app.homepage.admin.column_width</source>
+                <target>Column width</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.full_width">
+                <source>app.homepage.admin.full_width</source>
+                <target>Full width</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.css_classes">
+                <source>app.homepage.admin.css_classes</source>
+                <target>CSS classes</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.start_at">
+                <source>app.homepage.admin.start_at</source>
+                <target>Visible from</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.end_at">
+                <source>app.homepage.admin.end_at</source>
+                <target>Visible until</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.block_settings">
+                <source>app.homepage.admin.block_settings</source>
+                <target>Block settings</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.translatable_content">
+                <source>app.homepage.admin.translatable_content</source>
+                <target>Translatable content</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.subtitle">
+                <source>app.homepage.admin.subtitle</source>
+                <target>Subtitle</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.description">
+                <source>app.homepage.admin.description</source>
+                <target>Description</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.page_slug">
+                <source>app.homepage.admin.page_slug</source>
+                <target>Page slug</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.category_slug">
+                <source>app.homepage.admin.category_slug</source>
+                <target>Category name</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.limit">
+                <source>app.homepage.admin.limit</source>
+                <target>Max items</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_label">
+                <source>app.homepage.admin.cta_label</source>
+                <target>Button label</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_route">
+                <source>app.homepage.admin.cta_route</source>
+                <target>Route name</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.cta_style">
+                <source>app.homepage.admin.cta_style</source>
+                <target>Button style</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_cta">
+                <source>app.homepage.admin.add_cta</source>
+                <target>Add button</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.select_type">
+                <source>app.homepage.admin.select_type</source>
+                <target>Select block type</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.no_blocks">
+                <source>app.homepage.admin.no_blocks</source>
+                <target>No blocks yet. Add your first block to get started.</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.delete_confirm">
+                <source>app.homepage.admin.delete_confirm</source>
+                <target>Are you sure you want to delete this block?</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.grid_preview">
+                <source>app.homepage.admin.grid_preview</source>
+                <target>Grid preview</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_items">
+                <source>app.homepage.admin.carousel_items</source>
+                <target>Carousel items</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.image">
+                <source>app.homepage.admin.image</source>
+                <target>Image URL</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.alt_text">
+                <source>app.homepage.admin.alt_text</source>
+                <target>Alt text</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.link">
+                <source>app.homepage.admin.link</source>
+                <target>Link</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.add_item">
+                <source>app.homepage.admin.add_item</source>
+                <target>Add item</target>
+            </trans-unit>
+            <trans-unit id="app.nav.homepage_editor">
+                <source>app.nav.homepage_editor</source>
+                <target>Homepage</target>
             </trans-unit>
 
             <!-- CMS: Category page -->

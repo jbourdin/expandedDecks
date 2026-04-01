@@ -24,6 +24,8 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\HomepageLayout;
+use App\Entity\HomepageLayoutTranslation;
 use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\Notification;
@@ -170,6 +172,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
+        $this->createHomepageFixtures($manager);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -1750,6 +1753,161 @@ Stay tuned!
 MD);
         $draftPage->addTranslation($draftEn);
         $manager->persist($draftEn);
+
+        // --- Footer categories ---
+
+        $projectCategory = new MenuCategory();
+        $projectCategory->setPosition(1);
+        $projectCategory->setIsFooter(true);
+        $manager->persist($projectCategory);
+
+        $projectEn = new MenuCategoryTranslation();
+        $projectEn->setMenuCategory($projectCategory);
+        $projectEn->setLocale('en');
+        $projectEn->setName('The Project');
+        $projectCategory->addTranslation($projectEn);
+        $manager->persist($projectEn);
+
+        $projectFr = new MenuCategoryTranslation();
+        $projectFr->setMenuCategory($projectCategory);
+        $projectFr->setLocale('fr');
+        $projectFr->setName('Le Projet');
+        $projectCategory->addTranslation($projectFr);
+        $manager->persist($projectFr);
+
+        $philosophyPage = new Page();
+        $philosophyPage->setSlug('the-philosophy');
+        $philosophyPage->setMenuCategory($projectCategory);
+        $philosophyPage->setIsPublished(true);
+        $philosophyPage->setPosition(1);
+        $manager->persist($philosophyPage);
+
+        $philosophyEn = new PageTranslation();
+        $philosophyEn->setPage($philosophyPage);
+        $philosophyEn->setLocale('en');
+        $philosophyEn->setTitle('The Philosophy');
+        $philosophyEn->setSlug('the-philosophy');
+        $philosophyEn->setContent(<<<'MD'
+        ## Our Philosophy
+
+        Expanded Decks was born from a simple idea: **making the Expanded format accessible to everyone**.
+
+        We believe that sharing physical decks within a community is the best way to grow the format and let players discover new strategies without the barrier of building a full collection.
+        MD);
+        $philosophyPage->addTranslation($philosophyEn);
+        $manager->persist($philosophyEn);
+
+        $philosophyFr = new PageTranslation();
+        $philosophyFr->setPage($philosophyPage);
+        $philosophyFr->setLocale('fr');
+        $philosophyFr->setTitle('La Philosophie');
+        $philosophyFr->setSlug('la-philosophie');
+        $philosophyFr->setContent(<<<'MD'
+        ## Notre Philosophie
+
+        Expanded Decks est né d'une idée simple : **rendre le format Expanded accessible à tous**.
+
+        Nous croyons que le partage de decks physiques au sein d'une communauté est le meilleur moyen de faire grandir le format et de permettre aux joueurs de découvrir de nouvelles stratégies sans la contrainte de constituer une collection complète.
+        MD);
+        $philosophyPage->addTranslation($philosophyFr);
+        $manager->persist($philosophyFr);
+
+        $teamPage = new Page();
+        $teamPage->setSlug('the-team');
+        $teamPage->setMenuCategory($projectCategory);
+        $teamPage->setIsPublished(true);
+        $teamPage->setPosition(2);
+        $manager->persist($teamPage);
+
+        $teamEn = new PageTranslation();
+        $teamEn->setPage($teamPage);
+        $teamEn->setLocale('en');
+        $teamEn->setTitle('The Team');
+        $teamEn->setSlug('the-team');
+        $teamEn->setContent(<<<'MD'
+        ## The Team
+
+        Expanded Decks is maintained by a small group of passionate Pokémon TCG players who love the Expanded format.
+
+        Want to contribute? Check out our [GitHub repository](https://github.com/jbourdin/expandedDecks).
+        MD);
+        $teamPage->addTranslation($teamEn);
+        $manager->persist($teamEn);
+
+        $teamFr = new PageTranslation();
+        $teamFr->setPage($teamPage);
+        $teamFr->setLocale('fr');
+        $teamFr->setTitle("L'Équipe");
+        $teamFr->setSlug('l-equipe');
+        $teamFr->setContent(<<<'MD'
+        ## L'Équipe
+
+        Expanded Decks est maintenu par un petit groupe de joueurs passionnés du JCC Pokémon qui adorent le format Expanded.
+
+        Envie de contribuer ? Consultez notre [dépôt GitHub](https://github.com/jbourdin/expandedDecks).
+        MD);
+        $teamPage->addTranslation($teamFr);
+        $manager->persist($teamFr);
+
+        $legalCategory = new MenuCategory();
+        $legalCategory->setPosition(2);
+        $legalCategory->setIsFooter(true);
+        $manager->persist($legalCategory);
+
+        $legalEn = new MenuCategoryTranslation();
+        $legalEn->setMenuCategory($legalCategory);
+        $legalEn->setLocale('en');
+        $legalEn->setName('Legal');
+        $legalCategory->addTranslation($legalEn);
+        $manager->persist($legalEn);
+
+        $legalFr = new MenuCategoryTranslation();
+        $legalFr->setMenuCategory($legalCategory);
+        $legalFr->setLocale('fr');
+        $legalFr->setName('Légal');
+        $legalCategory->addTranslation($legalFr);
+        $manager->persist($legalFr);
+
+        $legalNoticePage = new Page();
+        $legalNoticePage->setSlug('legal-notice');
+        $legalNoticePage->setMenuCategory($legalCategory);
+        $legalNoticePage->setIsPublished(true);
+        $legalNoticePage->setPosition(1);
+        $manager->persist($legalNoticePage);
+
+        $legalNoticeEn = new PageTranslation();
+        $legalNoticeEn->setPage($legalNoticePage);
+        $legalNoticeEn->setLocale('en');
+        $legalNoticeEn->setTitle('Legal Notice');
+        $legalNoticeEn->setSlug('legal-notice');
+        $legalNoticeEn->setContent(<<<'MD'
+        ## Legal Notice
+
+        **Expanded Decks** is a non-commercial, community-driven project.
+
+        Pokémon and Pokémon TCG are trademarks of Nintendo, Creatures Inc., and GAME FREAK Inc. This project is not affiliated with, endorsed, or sponsored by any of these companies.
+
+        All card data is sourced from the [TCGdex API](https://tcgdex.dev/).
+        MD);
+        $legalNoticePage->addTranslation($legalNoticeEn);
+        $manager->persist($legalNoticeEn);
+
+        $legalNoticeFr = new PageTranslation();
+        $legalNoticeFr->setPage($legalNoticePage);
+        $legalNoticeFr->setLocale('fr');
+        $legalNoticeFr->setTitle('Mentions Légales');
+        $legalNoticeFr->setSlug('mentions-legales');
+        $legalNoticeFr->setContent(<<<'MD'
+        ## Mentions Légales
+
+        **Expanded Decks** est un projet communautaire à but non lucratif.
+
+        Pokémon et Pokémon JCC sont des marques déposées de Nintendo, Creatures Inc. et GAME FREAK Inc. Ce projet n'est ni affilié, ni approuvé, ni sponsorisé par aucune de ces sociétés.
+
+        Les données de cartes proviennent de l'[API TCGdex](https://tcgdex.dev/).
+        MD);
+        $legalNoticePage->addTranslation($legalNoticeFr);
+        $manager->persist($legalNoticeFr);
     }
 
     private function createCharizardFlareonDeckVersion(ObjectManager $manager, Deck $deck): void
@@ -1995,6 +2153,104 @@ PTCG;
                 $card['quantity'] = $overrides[$card['name']];
             }
         }
+    }
+
+    /**
+     * @see docs/features.md F10.3 — HomepageLayout entity and data model
+     */
+    private function createHomepageFixtures(ObjectManager $manager): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setIsPublished(true);
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'items' => [
+                    [
+                        'image' => 'https://placehold.co/1200x400/2c3e7c/f0c040?text=Expanded+Format+Season+2026',
+                        'alt' => 'Expanded Format Season 2026',
+                        'link' => '/event',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://placehold.co/1200x400/1a1a2e/e0e0e0?text=Browse+the+Deck+Library',
+                        'alt' => 'Browse the Deck Library',
+                        'link' => '/deck',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://placehold.co/1200x400/3d1f5c/f5c542?text=Borrow+a+Deck+for+Your+Next+Event',
+                        'alt' => 'Borrow a Deck for Your Next Event',
+                        'link' => '/event',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                ],
+            ],
+            [
+                'type' => 'latestPages',
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'categorySlug' => 'news',
+                'limit' => 5,
+            ],
+            [
+                'type' => 'hero',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+            ],
+            [
+                'type' => 'richText',
+                'columnWidth' => 6,
+                'cssClasses' => null,
+                'startAt' => null,
+                'endAt' => null,
+                'pageSlug' => 'welcome',
+            ],
+        ]);
+        $manager->persist($layout);
+
+        $translationEn = new HomepageLayoutTranslation();
+        $translationEn->setHomepageLayout($layout);
+        $translationEn->setLocale('en');
+        $translationEn->setBlockTranslations([
+            '2' => [
+                'title' => 'Share the Expanded Experience',
+                'subtitle' => 'Borrow real decks, play at events, discover the format together.',
+                'ctaButtons' => [
+                    ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+        ]);
+        $layout->addTranslation($translationEn);
+        $manager->persist($translationEn);
+
+        $translationFr = new HomepageLayoutTranslation();
+        $translationFr->setHomepageLayout($layout);
+        $translationFr->setLocale('fr');
+        $translationFr->setBlockTranslations([
+            '2' => [
+                'title' => "Partagez l'Expérience Expanded",
+                'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
+                'ctaButtons' => [
+                    ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
+                    ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
+                ],
+            ],
+        ]);
+        $layout->addTranslation($translationFr);
+        $manager->persist($translationFr);
     }
 
     private function createTcgdexSetMappings(ObjectManager $manager): void

@@ -5,7 +5,16 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.cms.admin.categories_title'|trans }}</h1>
-        <a href="{{ path('app_admin_menu_category_new') }}" class="btn btn-gold">{{ 'app.cms.admin.new_category'|trans }}</a>
+        <a href="{{ path('app_admin_menu_category_new', {view: currentView}) }}" class="btn btn-gold">{{ 'app.cms.admin.new_category'|trans }}</a>
+    </div>
+
+    <div class="btn-group mb-4" role="group" aria-label="{{ 'app.cms.admin.category_view'|trans }}">
+        <a href="{{ path('app_admin_menu_category_list', {view: 'menu'}) }}" class="btn {{ currentView == 'menu' ? 'btn-gold' : 'btn-outline-secondary' }}">
+            {{ 'app.cms.admin.view_menu'|trans }}
+        </a>
+        <a href="{{ path('app_admin_menu_category_list', {view: 'footer'}) }}" class="btn {{ currentView == 'footer' ? 'btn-gold' : 'btn-outline-secondary' }}">
+            {{ 'app.cms.admin.view_footer'|trans }}
+        </a>
     </div>
 
     {% if categories is not empty %}
@@ -14,16 +23,22 @@
                 <table class="table table-striped table-themed mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 80px">{{ 'app.cms.admin.table.position'|trans }}</th>
+                            <th style="width: 50px"></th>
                             <th>{{ 'app.common.name'|trans }}</th>
                             <th style="width: 100px">{{ 'app.cms.admin.table.pages_count'|trans }}</th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="sortable-categories" data-reorder-url="{{ path('app_admin_menu_category_reorder') }}">
                         {% for category in categories %}
-                            <tr>
-                                <td>{{ category.position }}</td>
+                            <tr data-category-id="{{ category.id }}">
+                                <td class="text-center align-middle">
+                                    <span class="sortable-handle d-none d-md-inline" style="cursor: grab" aria-label="{{ 'app.cms.admin.drag_to_reorder'|trans }}"><i class="bi bi-grip-vertical"></i></span>
+                                    <span class="d-inline d-md-none">
+                                        <button type="button" class="btn btn-sm btn-link p-0 move-up-btn" aria-label="{{ 'app.cms.admin.move_up'|trans }}"><i class="bi bi-chevron-up"></i></button>
+                                        <button type="button" class="btn btn-sm btn-link p-0 move-down-btn" aria-label="{{ 'app.cms.admin.move_down'|trans }}"><i class="bi bi-chevron-down"></i></button>
+                                    </span>
+                                </td>
                                 <td>{{ category.getName(app.request.locale) }}</td>
                                 <td>{{ category.pages|length }}</td>
                                 <td>
@@ -40,4 +55,9 @@
     {% else %}
         <div class="alert alert-info">{{ 'app.cms.admin.no_categories'|trans }}</div>
     {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_menu_category_list') }}
 {% endblock %}

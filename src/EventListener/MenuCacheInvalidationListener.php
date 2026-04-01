@@ -80,6 +80,7 @@ class MenuCacheInvalidationListener
         if ($this->shouldInvalidate) {
             $this->shouldInvalidate = false;
             $this->menuCategoriesCache->delete('menu_categories');
+            $this->menuCategoriesCache->delete('footer_categories');
         }
     }
 

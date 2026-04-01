@@ -24,6 +24,7 @@
             <directory>tests/Controller</directory>
             <directory>tests/DBAL</directory>
             <directory>tests/Entity</directory>
+            <directory>tests/Enum</directory>
             <directory>tests/EventListener</directory>
             <directory>tests/MessageHandler</directory>
             <directory>tests/Security</directory>
