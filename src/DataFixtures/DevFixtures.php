@@ -2164,19 +2164,34 @@ PTCG;
         $layout->setIsPublished(true);
         $layout->setBlocks([
             [
-                'type' => 'hero',
+                'type' => 'carousel',
                 'columnWidth' => null,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
-            ],
-            [
-                'type' => 'richText',
-                'columnWidth' => null,
-                'cssClasses' => null,
-                'startAt' => null,
-                'endAt' => null,
-                'pageSlug' => 'welcome',
+                'items' => [
+                    [
+                        'image' => 'https://images.pokemontcg.io/swsh12pt5gg/GG70_hires.png',
+                        'alt' => 'Regidrago VSTAR',
+                        'link' => '/decks',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://images.pokemontcg.io/sv4/228_hires.png',
+                        'alt' => 'Iron Thorns ex',
+                        'link' => '/decks',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                    [
+                        'image' => 'https://images.pokemontcg.io/sv3pt5/194_hires.png',
+                        'alt' => 'Ancient Roaring Moon ex',
+                        'link' => '/decks',
+                        'startAt' => null,
+                        'endAt' => null,
+                    ],
+                ],
             ],
             [
                 'type' => 'latestPages',
@@ -2188,18 +2203,19 @@ PTCG;
                 'limit' => 5,
             ],
             [
-                'type' => 'featuredEvent',
+                'type' => 'hero',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
             ],
             [
-                'type' => 'featuredDeck',
+                'type' => 'richText',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
+                'pageSlug' => 'welcome',
             ],
         ]);
         $manager->persist($layout);
@@ -2208,21 +2224,13 @@ PTCG;
         $translationEn->setHomepageLayout($layout);
         $translationEn->setLocale('en');
         $translationEn->setBlockTranslations([
-            '0' => [
+            '2' => [
                 'title' => 'Share the Expanded Experience',
                 'subtitle' => 'Borrow real decks, play at events, discover the format together.',
                 'ctaButtons' => [
                     ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
                     ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
                 ],
-            ],
-            '3' => [
-                'title' => 'Upcoming Events',
-                'description' => 'Browse events',
-            ],
-            '4' => [
-                'title' => 'Deck Library',
-                'description' => 'Browse the library',
             ],
         ]);
         $layout->addTranslation($translationEn);
@@ -2232,21 +2240,13 @@ PTCG;
         $translationFr->setHomepageLayout($layout);
         $translationFr->setLocale('fr');
         $translationFr->setBlockTranslations([
-            '0' => [
+            '2' => [
                 'title' => "Partagez l'Expérience Expanded",
                 'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
                 'ctaButtons' => [
                     ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
                     ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
                 ],
-            ],
-            '3' => [
-                'title' => 'Événements à venir',
-                'description' => 'Parcourir les événements',
-            ],
-            '4' => [
-                'title' => 'Bibliothèque de decks',
-                'description' => 'Parcourir la bibliothèque',
             ],
         ]);
         $layout->addTranslation($translationFr);
