@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -95,7 +96,7 @@ class AdminPageController extends AbstractAppController
      * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
      */
     #[Route('/reorder', name: 'app_admin_page_reorder', methods: ['POST'])]
-    public function reorder(Request $request, PageRepository $pageRepository): JsonResponse
+    public function reorder(Request $request, PageRepository $pageRepository, CacheInterface $menuCategoriesCache): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
 
@@ -110,6 +111,9 @@ class AdminPageController extends AbstractAppController
             }
         }
         $pageRepository->reorderPages($pageIds);
+
+        $menuCategoriesCache->delete('menu_categories');
+        $menuCategoriesCache->delete('footer_categories');
 
         return $this->json(['ok' => true]);
     }
