@@ -16,6 +16,42 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.3.0] — 2026-04-01
+
+Configurable homepage layout with admin block editor, footer category management, and universal homepage.
+
+### Features
+
+- **F11.2 — Footer menu categories** — add `isFooter` flag to `MenuCategory` entity. Admin category list with Menu/Footer toggle and SortableJS drag-and-drop reordering. New categories inherit type from the active view. Footer renders in the site footer with pages ordered by position. (#300)
+- **F10.3 — HomepageLayout entity and data model** — `HomepageLayout` and `HomepageLayoutTranslation` entities with JSON block storage. `HomepageBlockType` string-backed enum (hero, richText, carousel, latestPages, featuredDeck, featuredEvent) with metadata methods. Repository with `findPublished()`. (#285)
+- **F10.4 — Homepage rendering service and Twig block partials** — `HomepageRenderer` resolves layout into `ResolvedBlock` DTOs with startAt/endAt scheduling, dynamic data resolution (event/deck counts, latest pages, CMS content), and locale-aware translations. 6 Twig block partials with Bootstrap grid row grouping by `columnWidth`. Fallback to existing homepage when no layout published. (#286)
+- **F10.5 — Homepage block editor (admin UI)** — React island with Mantine: sortable block list (SortableJS), add block type picker, edit modal with column width selector, scheduling datetime pickers, locale tabs for translatable content (hero, richText, featured deck/event), carousel item management, and live grid preview. Admin nav link for `ROLE_CMS_EDITOR`. (#287)
+- **F10.7 — Carousel block** — Bootstrap 5 swipeable image carousel with per-item startAt/endAt scheduling, indicators, and prev/next controls. Admin editor for managing carousel items. (#289)
+- **F10.8 — Universal homepage** — homepage at `/` visible to all users (anonymous and authenticated). Dashboard moved to `/dashboard`. Hero block hides Register/Login CTAs for logged-in users. (#290)
+
+### Infrastructure
+
+- Add `is_footer` column to `menu_category` table (migration).
+- Create `homepage_layout` and `homepage_layout_translation` tables (migration).
+- Idempotent data migration seeding default homepage layout for production.
+- New Webpack Encore entries: `admin_menu_category_list`, `homepage_editor`.
+- Add `tests/Enum/` directory to phpunit.xml.dist unit suite.
+- Footer styling: no underline on links, brighter category headings.
+
+### Documentation
+
+- New `docs/models/homepage.md` — homepage layout entities, enum, and JSON block structure.
+- Update `docs/models/cms.md` with `isFooter` field on `MenuCategory`.
+- Roadmap milestone renumbering and zero-padding.
+
+### Testing & Quality
+
+- Unit tests for `HomepageBlockType`, `HomepageLayout`, `HomepageLayoutTranslation`.
+- Service tests for `HomepageRenderer` (scheduling, all block types, carousel filtering, translation fallback).
+- Functional tests for `AdminHomepageController` (auth, editor, save, preview).
+
+---
+
 ## [1.2.2] — 2026-04-01
 
 Content editing experience improvements: card image insertion, inline CRUD menus, draft preview, and admin page management.
