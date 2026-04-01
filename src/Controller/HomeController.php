@@ -45,10 +45,6 @@ class HomeController extends AbstractController
         HomepageLayoutRepository $homepageLayoutRepository,
         HomepageRenderer $homepageRenderer,
     ): Response {
-        if ($this->getUser()) {
-            return $this->redirectToRoute('app_dashboard');
-        }
-
         $locale = $request->getLocale();
 
         // Use published layout if available
@@ -62,6 +58,9 @@ class HomeController extends AbstractController
         }
 
         // Fallback to hardcoded homepage when no layout exists
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
         $welcomePage = $pageRepository->findBySlug('welcome');
         $welcomeHtml = null;
         if (null !== $welcomePage && $welcomePage->isPublished()) {

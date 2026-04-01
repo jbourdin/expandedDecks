@@ -215,15 +215,18 @@ class AuthControllerTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
-    // Homepage redirect
+    // Homepage for authenticated users
     // ---------------------------------------------------------------
 
-    public function testHomepageRedirectsWhenLoggedIn(): void
+    /**
+     * @see docs/features.md F10.8 — Universal homepage with separate dashboard route
+     */
+    public function testHomepageRendersForAuthenticatedUser(): void
     {
         $this->loginAs('admin@example.com');
 
         $this->client->request('GET', '/');
 
-        self::assertResponseRedirects('/dashboard');
+        self::assertResponseIsSuccessful();
     }
 }

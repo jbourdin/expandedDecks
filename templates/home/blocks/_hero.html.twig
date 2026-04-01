@@ -18,8 +18,12 @@
         {% if entry.translations.ctaButtons is defined and entry.translations.ctaButtons is not empty %}
             <div class="d-flex gap-2">
                 {% for button in entry.translations.ctaButtons %}
-                    {% set buttonClass = button.style == 'primary' ? 'btn-gold' : 'btn-outline-light-gold' %}
-                    <a href="{{ path(button.route, {'_target_path': app.request.requestUri}) }}" class="btn {{ buttonClass }} btn-lg">{{ button.label }}</a>
+                    {# Hide auth-related CTAs for logged-in users #}
+                    {% if app.user and (button.route == 'app_register' or button.route == 'app_login') %}
+                    {% else %}
+                        {% set buttonClass = button.style == 'primary' ? 'btn-gold' : 'btn-outline-light-gold' %}
+                        <a href="{{ path(button.route, {'_target_path': app.request.requestUri}) }}" class="btn {{ buttonClass }} btn-lg">{{ button.label }}</a>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% endif %}
