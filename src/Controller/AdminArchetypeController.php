@@ -165,7 +165,11 @@ class AdminArchetypeController extends AbstractAppController
             $isNew = true;
         }
 
-        $form = $this->createForm(ArchetypeTranslationFormType::class, $translation);
+        $form = $this->container->get('form.factory')->createNamed(
+            'archetype_translation_form_'.$locale,
+            ArchetypeTranslationFormType::class,
+            $translation,
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -252,12 +256,17 @@ class AdminArchetypeController extends AbstractAppController
                 $translation->setLocale($locale);
             }
 
-            $form = $this->createForm(ArchetypeTranslationFormType::class, $translation, [
-                'action' => $this->generateUrl('app_admin_archetype_translation', [
-                    'id' => $archetype->getId(),
-                    'locale' => $locale,
-                ]),
-            ]);
+            $form = $this->container->get('form.factory')->createNamed(
+                'archetype_translation_form_'.$locale,
+                ArchetypeTranslationFormType::class,
+                $translation,
+                [
+                    'action' => $this->generateUrl('app_admin_archetype_translation', [
+                        'id' => $archetype->getId(),
+                        'locale' => $locale,
+                    ]),
+                ],
+            );
 
             $forms[$locale] = $form->createView();
         }

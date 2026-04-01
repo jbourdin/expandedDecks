@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.3.1] — 2026-04-02
+
+Bug fixes for translation form editing and menu cache consistency.
+
+### Bug Fixes
+
+- **Per-locale translation form names** — both EN and FR translation forms for pages and archetypes shared the same form name, causing duplicate textarea IDs. The rich text editor for FR showed EN content. Fixed by using `createNamed()` with locale suffix for unique form names.
+- **Content textarea validation** — disable HTML `required` attribute on the content textarea hidden behind the rich text editor, preventing "not focusable" browser error. Server-side `@Assert\NotBlank` still enforces the constraint.
+- **Menu cache after page reorder** — page reorder uses raw DQL updates which bypass Doctrine lifecycle events, so the menu cache was stale until expiry. Explicitly flush `menu_categories` and `footer_categories` cache after reorder.
+
+### Infrastructure
+
+- Update legal notice fixture with real site owner, hosting (Scaleway Paris, Bunny CDN), contact (GitHub issues), intellectual property, liability, and deck lending/borrowing responsibility in EN and FR.
+
+---
+
 ## [1.3.0] — 2026-04-01
 
 Configurable homepage layout with admin block editor, footer category management, and universal homepage.

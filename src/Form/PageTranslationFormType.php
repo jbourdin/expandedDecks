@@ -40,6 +40,7 @@ class PageTranslationFormType extends AbstractType
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'app.cms.form.content',
+                'required' => false,
                 'attr' => [
                     'rows' => 15,
                     'placeholder' => 'app.cms.form.content_placeholder',
