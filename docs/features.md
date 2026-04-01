@@ -145,6 +145,7 @@ The frontend is built with **React.js** (via Symfony UX / Webpack Encore) for al
 | F7.3   | Audit log                            | Low      |        | Log significant actions (deck registered, borrow approved, return confirmed) for traceability. |
 | F7.4   | Dashboard action reminders           | Medium   | Done   | Dashboard widget showing upcoming actions due soon (borrows to return, pending requests to review, upcoming events requiring deck selection). Helps users stay on top of time-sensitive tasks. |
 | F7.5   | Registered decks aggregate view      | Low      |        | A page listing all decks registered across the user's upcoming events (organizer or staff), so the "Registered decks" dashboard stat card has a link target. Could be a deck catalog filter (`scope=managed`) or a dedicated view. |
+| F7.9   | Inline CRUD menu (three-dots)        | Medium   |        | Users with edit permissions see a contextual three-dots (⋮) dropdown menu on archetypes and CMS pages (public show/list views and admin list views). Provides quick access to Edit and View actions. Admin edit forms include a View button to open the public page in a new tab. Hidden for users without the appropriate role (`ROLE_ADMIN` for archetypes, `ROLE_CMS_EDITOR` for pages). |
 
 ## F8 — Notifications
 

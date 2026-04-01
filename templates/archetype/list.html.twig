@@ -60,8 +60,8 @@
                 {% set archetype = row.archetype %}
                 {% set deckCount = row.deckCount %}
                 <div class="col-sm-6 col-lg-4 mb-4">
-                    <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" class="text-decoration-none">
-                        <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm position-relative">
+                        <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" class="text-decoration-none stretched-link">
                             <div class="card-body">
                                 <h5 class="card-title mb-2">
                                     {{ archetype_sprites(archetype) }}
@@ -78,8 +78,18 @@
                                     {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
                                 </p>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <div class="dropdown position-absolute top-0 end-0 mt-2 me-2" style="z-index: 2">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         </div>

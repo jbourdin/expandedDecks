@@ -35,8 +35,18 @@
     {% endif %}
 
     <article class="card shadow-sm">
-        <div class="card-header card-header-themed">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h1 class="mb-0 h4">{{ translation.title }}</h1>
+            {% if is_granted('ROLE_CMS_EDITOR') %}
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light-gold dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ path('app_admin_page_edit', {id: page.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
         <div class="card-body cms-content">
             {{ htmlContent|raw }}

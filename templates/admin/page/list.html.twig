@@ -73,9 +73,17 @@
                                     </td>
                                     <td>{{ page.createdAt|date('Y-m-d') }}</td>
                                     <td>
-                                        <a href="{{ path('app_admin_page_edit', {id: page.id}) }}" class="btn btn-sm btn-outline-secondary">
-                                            {{ 'app.common.edit'|trans }}
-                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                {% if page.published %}
+                                                    <li><a class="dropdown-item" href="{{ path('app_page_show', {slug: page.slug}) }}" target="_blank"><i class="bi bi-eye me-2"></i>{{ 'app.common.view'|trans }}</a></li>
+                                                {% endif %}
+                                                <li><a class="dropdown-item" href="{{ path('app_admin_page_edit', {id: page.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}

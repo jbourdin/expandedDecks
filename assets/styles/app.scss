@@ -107,6 +107,11 @@ footer {
     box-shadow: 0 .25rem .75rem rgb(0 0 0 / 15%);
 }
 
+// Hide Bootstrap dropdown caret on icon-only toggle buttons (three-dots menus)
+.dropdown-toggle.no-caret::after {
+    display: none;
+}
+
 // --- Hero (anonymous homepage) ---
 
 .hero-pokemon {
