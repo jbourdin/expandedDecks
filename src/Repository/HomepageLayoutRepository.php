@@ -35,15 +35,14 @@ class HomepageLayoutRepository extends ServiceEntityRepository
      */
     public function findPublished(): ?HomepageLayout
     {
-        /** @var HomepageLayout|null $layout */
-        $layout = $this->createQueryBuilder('l')
+        /** @var list<HomepageLayout> $layouts */
+        $layouts = $this->createQueryBuilder('l')
             ->leftJoin('l.translations', 't')
             ->addSelect('t')
             ->where('l.isPublished = true')
-            ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
 
-        return $layout;
+        return $layouts[0] ?? null;
     }
 }
