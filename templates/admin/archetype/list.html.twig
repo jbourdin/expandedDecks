@@ -66,6 +66,8 @@
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             {% if archetype.published %}
                                                 <li><a class="dropdown-item" href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" target="_blank"><i class="bi bi-eye me-2"></i>{{ 'app.common.view'|trans }}</a></li>
+                                            {% else %}
+                                                <li><a class="dropdown-item" href="{{ path('app_archetype_show', {slug: archetype.slug}) }}?preview=true" target="_blank"><i class="bi bi-eye me-2"></i>{{ 'app.common.preview'|trans }}</a></li>
                                             {% endif %}
                                             <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
                                         </ul>

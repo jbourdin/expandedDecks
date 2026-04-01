@@ -31,7 +31,7 @@
 
 {% block body %}
     {% if not page.published %}
-        <div class="alert alert-warning">{{ 'app.cms.draft_notice'|trans }}</div>
+        <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.cms.draft_notice'|trans }}</div>
     {% endif %}
 
     <article class="card shadow-sm">

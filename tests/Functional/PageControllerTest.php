@@ -31,6 +31,30 @@ class PageControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testUnpublishedPageReturns404ForAnonymousWithPreview(): void
+    {
+        $this->client->request('GET', '/pages/upcoming-features?preview=true');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testUnpublishedPageAccessibleByEditorWithPreview(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/pages/upcoming-features?preview=true');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-warning');
+    }
+
+    public function testUnpublishedPageReturns404ForEditorWithoutPreview(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/pages/upcoming-features');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testCategoryPageIsAccessible(): void
     {
         /** @var MenuCategoryRepository $repository */

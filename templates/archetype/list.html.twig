@@ -20,7 +20,7 @@
                 <div class="col-md-6">
                     <label class="form-label">{{ 'app.archetype.filter_by_tag'|trans }}</label>
                     <div class="d-flex flex-wrap gap-1">
-                        <a href="{{ path('app_archetype_list', {sort: currentSort}) }}" class="btn btn-sm {{ currentTags|length == 0 ? 'btn-gold' : 'btn-outline-secondary' }}">
+                        <a href="{{ path('app_archetype_list', {sort: currentSort}) }}" class="btn btn-sm {{ not showDrafts and currentTags|length == 0 ? 'btn-gold' : 'btn-outline-secondary' }}">
                             {{ 'app.common.all'|trans }}
                         </a>
                         {% for tag in allTags %}
@@ -34,6 +34,11 @@
                                 {{ tag }}
                             </a>
                         {% endfor %}
+                        {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                            <a href="{{ path('app_archetype_list', {drafts: 1}) }}" class="btn btn-sm {{ showDrafts ? 'btn-warning' : 'btn-outline-warning' }}">
+                                <i class="bi bi-eye me-1"></i>{{ 'app.archetype.filter_drafts'|trans }}
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-md-3 ms-auto">
@@ -61,11 +66,14 @@
                 {% set deckCount = row.deckCount %}
                 <div class="col-sm-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm position-relative">
-                        <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}" class="text-decoration-none stretched-link">
+                        <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}{{ showDrafts ? '?preview=true' : '' }}" class="text-decoration-none stretched-link">
                             <div class="card-body">
                                 <h5 class="card-title mb-2">
                                     {{ archetype_sprites(archetype) }}
                                     {{ archetype.localizedName(app.request.locale) }}
+                                    {% if showDrafts %}
+                                        <span class="badge bg-warning text-dark ms-1">{{ 'app.cms.status.draft'|trans }}</span>
+                                    {% endif %}
                                 </h5>
                                 {% if archetype.playstyleTags|length > 0 %}
                                     <div class="mb-2">
@@ -79,7 +87,7 @@
                                 </p>
                             </div>
                         </a>
-                        {% if is_granted('ROLE_ADMIN') %}
+                        {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
                             <div class="dropdown position-absolute top-0 end-0 mt-2 me-2" style="z-index: 2">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
                                     <i class="bi bi-three-dots-vertical"></i>

@@ -60,6 +60,11 @@
                 <target>Voir</target>
                 <note>Shared UI button or label, used across multiple pages</note>
             </trans-unit>
+            <trans-unit id="app.common.preview">
+                <source>app.common.preview</source>
+                <target>Aperçu</target>
+                <note>Button label for previewing unpublished/draft content</note>
+            </trans-unit>
             <trans-unit id="app.common.edit">
                 <source>app.common.edit</source>
                 <target>Modifier</target>
@@ -3316,6 +3321,11 @@
                 <source>app.archetype.filter_by_tag</source>
                 <target>Étiquette</target>
                 <note>Label for tag filter on archetype catalog</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.filter_drafts">
+                <source>app.archetype.filter_drafts</source>
+                <target>Brouillons</target>
+                <note>Filter button to show only unpublished archetypes (editors only)</note>
             </trans-unit>
             <trans-unit id="app.archetype.sort_by">
                 <source>app.archetype.sort_by</source>

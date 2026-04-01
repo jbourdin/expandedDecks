@@ -91,13 +91,21 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testUnpublishedArchetypeAccessibleByAdmin(): void
+    public function testUnpublishedArchetypeAccessibleByAdminWithPreview(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/archetypes/lugia-archeops?preview=true');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-warning');
+    }
+
+    public function testUnpublishedArchetypeReturns404ForAdminWithoutPreview(): void
     {
         $this->loginAs('admin@example.com');
         $this->client->request('GET', '/archetypes/lugia-archeops');
 
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.alert-warning');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testNonExistentSlugReturns404(): void
