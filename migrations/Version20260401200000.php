@@ -51,7 +51,7 @@ final class Version20260401200000 extends AbstractMigration
             ],
         ], \JSON_THROW_ON_ERROR);
 
-        $this->addSql('INSERT INTO homepage_layout (blocks, is_published, created_at) VALUES (:blocks, 1, NOW())', [
+        $this->addSql('INSERT INTO homepage_layout (blocks, is_published, created_at) SELECT :blocks, 1, NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM homepage_layout LIMIT 1)', [
             'blocks' => $blocks,
         ]);
 
@@ -83,12 +83,12 @@ final class Version20260401200000 extends AbstractMigration
             ],
         ], \JSON_THROW_ON_ERROR);
 
-        $this->addSql('INSERT INTO homepage_layout_translation (homepage_layout_id, locale, block_translations) VALUES ((SELECT id FROM homepage_layout WHERE is_published = 1 LIMIT 1), :locale, :translations)', [
+        $this->addSql('INSERT INTO homepage_layout_translation (homepage_layout_id, locale, block_translations) SELECT id, :locale, :translations FROM homepage_layout WHERE is_published = 1 AND NOT EXISTS (SELECT 1 FROM homepage_layout_translation WHERE homepage_layout_id = homepage_layout.id AND locale = :locale) LIMIT 1', [
             'locale' => 'en',
             'translations' => $translationEn,
         ]);
 
-        $this->addSql('INSERT INTO homepage_layout_translation (homepage_layout_id, locale, block_translations) VALUES ((SELECT id FROM homepage_layout WHERE is_published = 1 LIMIT 1), :locale, :translations)', [
+        $this->addSql('INSERT INTO homepage_layout_translation (homepage_layout_id, locale, block_translations) SELECT id, :locale, :translations FROM homepage_layout WHERE is_published = 1 AND NOT EXISTS (SELECT 1 FROM homepage_layout_translation WHERE homepage_layout_id = homepage_layout.id AND locale = :locale) LIMIT 1', [
             'locale' => 'fr',
             'translations' => $translationFr,
         ]);
