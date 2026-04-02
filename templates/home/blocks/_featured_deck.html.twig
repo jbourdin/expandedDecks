@@ -14,18 +14,22 @@
 
 {% if deck is not null %}
     <div class="card shadow-sm mb-4">
-        {% if mosaicUrl %}
-            <a href="{{ url }}">
-                <img src="{{ mosaicUrl }}" class="card-img-top" alt="{{ deck.name }}" style="max-height: 200px; object-fit: cover;">
-            </a>
-        {% endif %}
         <div class="card-body">
-            <h5 class="card-title mb-1">{{ deck.name }}</h5>
-            {% if deck.archetype %}
-                <p class="text-muted mb-2 small">
-                    {{ archetype_sprites(deck.archetype) }}
-                    {{ deck.archetype.localizedName(app.request.locale) }}
-                </p>
+            <div class="d-flex align-items-center mb-2">
+                {% if deck.archetype %}
+                    <span class="me-2">{{ archetype_sprites(deck.archetype) }}</span>
+                {% endif %}
+                <div>
+                    <h5 class="card-title mb-0">{{ deck.name }}</h5>
+                    {% if deck.archetype %}
+                        <small class="text-muted">{{ deck.archetype.localizedName(app.request.locale) }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% if mosaicUrl %}
+                <a href="{{ url }}" class="d-block mb-2">
+                    <img src="{{ mosaicUrl }}" alt="{{ deck.name }}" class="img-fluid rounded" style="max-height: 160px;">
+                </a>
             {% endif %}
             {% if descriptionHtml %}
                 <div class="cms-content small">{{ descriptionHtml|raw }}</div>
