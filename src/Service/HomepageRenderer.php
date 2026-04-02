@@ -20,6 +20,7 @@ use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Resolves a HomepageLayout into an ordered list of ResolvedBlock DTOs,
@@ -35,6 +36,7 @@ class HomepageRenderer
         private readonly MenuCategoryRepository $menuCategoryRepository,
         private readonly EventRepository $eventRepository,
         private readonly DeckRepository $deckRepository,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -116,8 +118,8 @@ class HomepageRenderer
             HomepageBlockType::RichText => $this->resolveRichText($block, $locale, $translated),
             HomepageBlockType::PageEmbed => $this->resolvePageEmbed($block, $locale),
             HomepageBlockType::LatestPages => $this->resolveLatestPages($block, $locale),
-            HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent(),
-            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck(),
+            HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent($block, $translated),
+            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck($block),
             HomepageBlockType::Carousel => $this->resolveCarousel($block),
             default => [],
         };
@@ -209,22 +211,63 @@ class HomepageRenderer
     }
 
     /**
+     * Resolve a featured event block — fetches the event by ID.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
+     *
      * @return array<string, mixed>
      */
-    private function resolveFeaturedEvent(): array
+    private function resolveFeaturedEvent(array $block, array $translated): array
     {
+        $eventId = $block['eventId'] ?? null;
+        if (!\is_int($eventId)) {
+            return [];
+        }
+
+        $event = $this->eventRepository->find($eventId);
+        if (null === $event) {
+            return [];
+        }
+
+        $descriptionHtml = null;
+        $description = $translated['description'] ?? null;
+        if (\is_string($description) && '' !== $description) {
+            $descriptionHtml = $this->markdownRenderer->render($description);
+        }
+
         return [
-            'count' => $this->eventRepository->countUpcoming(),
+            'event' => $event,
+            'url' => $this->urlGenerator->generate('app_event_show', ['id' => $event->getId()]),
+            'descriptionHtml' => $descriptionHtml,
         ];
     }
 
     /**
+     * Resolve a featured deck block — fetches the deck by shortTag.
+     *
+     * @param array<string, mixed> $block
+     *
      * @return array<string, mixed>
      */
-    private function resolveFeaturedDeck(): array
+    private function resolveFeaturedDeck(array $block): array
     {
+        $shortTag = $block['shortTag'] ?? null;
+        if (!\is_string($shortTag) || '' === $shortTag) {
+            return [];
+        }
+
+        $deck = $this->deckRepository->findOneBy(['shortTag' => $shortTag]);
+        if (null === $deck) {
+            return [];
+        }
+
+        $mosaicUrl = $deck->getCurrentVersion()?->getMosaicImageUrl();
+
         return [
-            'count' => $this->deckRepository->countPublicDecks(),
+            'deck' => $deck,
+            'url' => $this->urlGenerator->generate('app_deck_show', ['short_tag' => $deck->getShortTag()]),
+            'mosaicUrl' => $mosaicUrl,
         ];
     }
 

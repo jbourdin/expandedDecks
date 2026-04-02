@@ -3964,6 +3964,22 @@
                 <source>app.homepage.admin.add_item</source>
                 <target>Add item</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.short_tag">
+                <source>app.homepage.admin.short_tag</source>
+                <target>Deck short tag</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.event_id">
+                <source>app.homepage.admin.event_id</source>
+                <target>Event ID</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.view_deck">
+                <source>app.homepage.view_deck</source>
+                <target>View deck</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.view_event">
+                <source>app.homepage.view_event</source>
+                <target>View event</target>
+            </trans-unit>
             <trans-unit id="app.nav.homepage_editor">
                 <source>app.nav.homepage_editor</source>
                 <target>Homepage</target>

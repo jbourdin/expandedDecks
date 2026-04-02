@@ -200,6 +200,32 @@ export default function BlockEditModal({
                     </Group>
                 )}
 
+                {blockType === 'featuredDeck' && (
+                    <TextInput
+                        label={label('shortTag')}
+                        value={(editedBlock.shortTag as string) ?? ''}
+                        onChange={(event) => updateBlock('shortTag', event.currentTarget.value || null)}
+                        placeholder="A1B2C3"
+                    />
+                )}
+
+                {blockType === 'featuredEvent' && (
+                    <>
+                        <NumberInput
+                            label={label('eventId')}
+                            value={(editedBlock.eventId as number) ?? ''}
+                            onChange={(value) => updateBlock('eventId', typeof value === 'number' ? value : null)}
+                            min={1}
+                        />
+                        <ImageUrlField
+                            label={label('image')}
+                            value={(editedBlock.image as string) ?? ''}
+                            onChange={(url) => updateBlock('image', url || null)}
+                            uploadUrl={uploadUrl}
+                        />
+                    </>
+                )}
+
                 {/* Carousel items */}
                 {blockType === 'carousel' && (
                     <>

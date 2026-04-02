@@ -28,6 +28,7 @@ use App\Service\HomepageRenderer;
 use App\Service\MarkdownRenderer;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @see docs/features.md F10.4 — Homepage rendering service and Twig block partials
@@ -39,6 +40,7 @@ class HomepageRendererTest extends TestCase
     private MenuCategoryRepository&Stub $menuCategoryRepository;
     private EventRepository&Stub $eventRepository;
     private DeckRepository&Stub $deckRepository;
+    private UrlGeneratorInterface&Stub $urlGenerator;
 
     protected function setUp(): void
     {
@@ -46,6 +48,8 @@ class HomepageRendererTest extends TestCase
         $this->menuCategoryRepository = $this->createStub(MenuCategoryRepository::class);
         $this->eventRepository = $this->createStub(EventRepository::class);
         $this->deckRepository = $this->createStub(DeckRepository::class);
+        $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $this->urlGenerator->method('generate')->willReturn('/test-url');
 
         $this->renderer = new HomepageRenderer(
             new MarkdownRenderer(),
@@ -53,6 +57,7 @@ class HomepageRendererTest extends TestCase
             $this->menuCategoryRepository,
             $this->eventRepository,
             $this->deckRepository,
+            $this->urlGenerator,
         );
     }
 
@@ -205,10 +210,25 @@ class HomepageRendererTest extends TestCase
         self::assertSame(1, $result[0]->resolvedData['totalCount']);
     }
 
-    public function testResolveFeaturedEventReturnsCount(): void
+    public function testResolveFeaturedEventWithValidId(): void
     {
-        $this->eventRepository->method('countUpcoming')->willReturn(7);
+        $event = new \App\Entity\Event();
+        $this->eventRepository->method('find')->willReturn($event);
 
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            ['type' => 'featuredEvent', 'startAt' => null, 'endAt' => null, 'columnWidth' => 6, 'cssClasses' => null, 'eventId' => 1],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertCount(1, $result);
+        self::assertSame($event, $result[0]->resolvedData['event']);
+        self::assertSame('/test-url', $result[0]->resolvedData['url']);
+    }
+
+    public function testResolveFeaturedEventWithMissingIdReturnsEmpty(): void
+    {
         $layout = new HomepageLayout();
         $layout->setBlocks([
             ['type' => 'featuredEvent', 'startAt' => null, 'endAt' => null, 'columnWidth' => 6, 'cssClasses' => null],
@@ -217,14 +237,28 @@ class HomepageRendererTest extends TestCase
         $result = $this->renderer->resolve($layout, 'en');
 
         self::assertCount(1, $result);
-        self::assertSame(7, $result[0]->resolvedData['count']);
-        self::assertSame(6, $result[0]->columnWidth);
+        self::assertSame([], $result[0]->resolvedData);
     }
 
-    public function testResolveFeaturedDeckReturnsCount(): void
+    public function testResolveFeaturedDeckWithValidShortTag(): void
     {
-        $this->deckRepository->method('countPublicDecks')->willReturn(12);
+        $deck = new \App\Entity\Deck();
+        $this->deckRepository->method('findOneBy')->willReturn($deck);
 
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            ['type' => 'featuredDeck', 'startAt' => null, 'endAt' => null, 'columnWidth' => 6, 'cssClasses' => null, 'shortTag' => 'ABC123'],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertCount(1, $result);
+        self::assertSame($deck, $result[0]->resolvedData['deck']);
+        self::assertSame('/test-url', $result[0]->resolvedData['url']);
+    }
+
+    public function testResolveFeaturedDeckWithMissingTagReturnsEmpty(): void
+    {
         $layout = new HomepageLayout();
         $layout->setBlocks([
             ['type' => 'featuredDeck', 'startAt' => null, 'endAt' => null, 'columnWidth' => 6, 'cssClasses' => null],
@@ -233,7 +267,7 @@ class HomepageRendererTest extends TestCase
         $result = $this->renderer->resolve($layout, 'en');
 
         self::assertCount(1, $result);
-        self::assertSame(12, $result[0]->resolvedData['count']);
+        self::assertSame([], $result[0]->resolvedData);
     }
 
     public function testBlockFilteredByStartAt(): void

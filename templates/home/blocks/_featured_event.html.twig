@@ -7,16 +7,30 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
-{% set count = entry.resolvedData.count|default(0) %}
-{% set title = entry.translations.title|default('app.home.upcoming_events'|trans({'%count%': count})) %}
-{% set description = entry.translations.description|default('app.home.browse_events'|trans) %}
+{% set event = entry.resolvedData.event|default(null) %}
+{% set url = entry.resolvedData.url|default(null) %}
+{% set descriptionHtml = entry.resolvedData.descriptionHtml|default(null) %}
+{% set image = entry.settings.image|default(null) %}
 
-<div class="card shadow-sm h-100 text-center">
-    <div class="card-body d-flex flex-column justify-content-center py-5">
-        <h2 class="display-6 fw-bold mb-1">{{ count }}</h2>
-        <p class="text-muted mb-3">{{ title }}</p>
-        <div>
-            <a href="{{ path('app_event_list') }}" class="btn btn-primary">{{ description }}</a>
+{% if event is not null %}
+    <div class="card shadow-sm h-100">
+        {% if image %}
+            <a href="{{ url }}">
+                <img src="{{ image }}" class="card-img-top" alt="{{ event.name }}">
+            </a>
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title">{{ event.name }}</h5>
+            <p class="text-muted mb-2">
+                <i class="bi bi-calendar-event me-1"></i>{{ event.date|date('Y-m-d') }}
+                {% if event.location %}
+                    <span class="ms-2"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</span>
+                {% endif %}
+            </p>
+            {% if descriptionHtml %}
+                <div class="cms-content">{{ descriptionHtml|raw }}</div>
+            {% endif %}
+            <a href="{{ url }}" class="btn btn-primary mt-2">{{ 'app.homepage.view_event'|trans }}</a>
         </div>
     </div>
-</div>
+{% endif %}
