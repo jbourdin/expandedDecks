@@ -98,9 +98,10 @@ async function uploadAndInsertImage(file: File, editor: Editor, position?: numbe
 }
 
 interface MarkdownEditorProps {
-    textareaSelector: string;
+    textareaSelector?: string;
     initialContent: string;
     placeholder?: string;
+    onChange?: (content: string) => void;
 }
 
 type EditorMode = 'rte' | 'markdown';
@@ -113,17 +114,20 @@ const validateCardReference = (value: string) => CARD_PATTERN.test(value);
 const validateArchetypeSlug = (value: string) => ARCHETYPE_PATTERN.test(value);
 const validateDeckShortTag = (value: string) => DECK_PATTERN.test(value);
 
-export default function MarkdownEditor({ textareaSelector, initialContent, placeholder }: MarkdownEditorProps) {
+export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange }: MarkdownEditorProps) {
     const [mode, setMode] = useState<EditorMode>('rte');
     const [rawMarkdown, setRawMarkdown] = useState(initialContent);
     const suppressSyncRef = useRef(false);
 
     const syncToTextarea = useCallback((value: string) => {
-        const textarea = document.querySelector<HTMLTextAreaElement>(textareaSelector);
-        if (textarea) {
-            textarea.value = value;
+        if (textareaSelector) {
+            const textarea = document.querySelector<HTMLTextAreaElement>(textareaSelector);
+            if (textarea) {
+                textarea.value = value;
+            }
         }
-    }, [textareaSelector]);
+        onChange?.(value);
+    }, [textareaSelector, onChange]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const markdownExtension = (Markdown as any).configure({
