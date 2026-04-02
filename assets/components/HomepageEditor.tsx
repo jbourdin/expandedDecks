@@ -34,6 +34,7 @@ type TranslationsMap = Record<string, Record<string, Record<string, unknown>>>;
 interface HomepageEditorProps {
     saveUrl: string;
     previewUrl: string;
+    uploadUrl: string;
     supportedLocales: string[];
     initialBlocks: BlockData[];
     initialTranslations: TranslationsMap;
@@ -43,6 +44,7 @@ interface HomepageEditorProps {
 
 export default function HomepageEditor({
     saveUrl,
+    uploadUrl,
     supportedLocales,
     initialBlocks,
     initialTranslations,
@@ -332,6 +334,7 @@ export default function HomepageEditor({
                     supportedLocales={supportedLocales}
                     labels={labels}
                     blockTypes={blockTypes}
+                    uploadUrl={uploadUrl}
                     onSave={(updatedBlock, updatedTranslations) => handleSaveBlock(editingIndex, updatedBlock, updatedTranslations)}
                     onClose={() => setEditingIndex(null)}
                 />

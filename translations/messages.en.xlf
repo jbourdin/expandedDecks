@@ -3806,6 +3806,10 @@
                 <source>app.cms.slug_format</source>
                 <target>Slug must only contain lowercase letters, numbers, and hyphens.</target>
             </trans-unit>
+            <trans-unit id="app.cms.og_image_url_format">
+                <source>app.cms.og_image_url_format</source>
+                <target>Must be a URL (starting with / or http).</target>
+            </trans-unit>
             <trans-unit id="app.cms.translation_locale_unique">
                 <source>app.cms.translation_locale_unique</source>
                 <target>A translation already exists for this locale.</target>

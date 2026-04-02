@@ -42,21 +42,10 @@ class PageRepositoryTest extends AbstractFunctionalTest
     }
 
     // ---------------------------------------------------------------
-    // findBySlug — localized slug
+    // findBySlug
     // ---------------------------------------------------------------
 
-    public function testFindBySlugFindsPageByLocalizedSlug(): void
-    {
-        $repository = $this->getRepository();
-
-        // "bienvenue" is the French translation slug for the "welcome" page
-        $page = $repository->findBySlug('bienvenue');
-
-        self::assertNotNull($page);
-        self::assertSame('welcome', $page->getSlug());
-    }
-
-    public function testFindBySlugFindsPageByCanonicalSlug(): void
+    public function testFindBySlugFindsPage(): void
     {
         $repository = $this->getRepository();
 
@@ -73,17 +62,6 @@ class PageRepositoryTest extends AbstractFunctionalTest
         $page = $repository->findBySlug('non-existent-slug-that-does-not-exist');
 
         self::assertNull($page);
-    }
-
-    public function testFindBySlugFallsBackToCanonicalWhenLocalizedNotFound(): void
-    {
-        $repository = $this->getRepository();
-
-        // "borrowing-guide" has no French translation slug, so canonical slug should work
-        $page = $repository->findBySlug('borrowing-guide');
-
-        self::assertNotNull($page);
-        self::assertSame('borrowing-guide', $page->getSlug());
     }
 
     public function testFindBySlugEagerLoadsTranslations(): void

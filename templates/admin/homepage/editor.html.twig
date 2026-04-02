@@ -23,6 +23,7 @@
     <div id="homepage-editor-root"
          data-save-url="{{ path('app_admin_homepage_save') }}"
          data-preview-url="{{ path('app_admin_homepage_preview') }}"
+         data-upload-url="{{ path('app_editor_upload_image') }}"
          data-supported-locales="{{ supportedLocales|json_encode }}"
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"

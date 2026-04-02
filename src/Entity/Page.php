@@ -51,8 +51,8 @@ class Page
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    #[Assert\Url(requireTld: true)]
-    private ?string $canonicalUrl = null;
+    #[Assert\Regex(pattern: '#^(/|https?://)#', message: 'app.cms.og_image_url_format')]
+    private ?string $ogImage = null;
 
     #[ORM\Column]
     private bool $noIndex = false;
@@ -129,14 +129,14 @@ class Page
         return $this;
     }
 
-    public function getCanonicalUrl(): ?string
+    public function getOgImage(): ?string
     {
-        return $this->canonicalUrl;
+        return $this->ogImage;
     }
 
-    public function setCanonicalUrl(?string $canonicalUrl): static
+    public function setOgImage(?string $ogImage): static
     {
-        $this->canonicalUrl = $canonicalUrl;
+        $this->ogImage = $ogImage;
 
         return $this;
     }
