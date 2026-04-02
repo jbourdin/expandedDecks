@@ -13,26 +13,24 @@
 {% set descriptionHtml = entry.resolvedData.descriptionHtml|default(null) %}
 
 {% if deck is not null %}
-    <div class="card shadow-sm h-100">
-        <div class="card-body d-flex gap-3 align-items-start">
-            {% if mosaicUrl %}
-                <a href="{{ url }}" class="flex-shrink-0">
-                    <img src="{{ mosaicUrl }}" alt="{{ deck.name }}" style="width: 120px; height: auto; border-radius: 4px;">
-                </a>
+    <div class="card shadow-sm mb-4">
+        {% if mosaicUrl %}
+            <a href="{{ url }}">
+                <img src="{{ mosaicUrl }}" class="card-img-top" alt="{{ deck.name }}" style="max-height: 200px; object-fit: cover;">
+            </a>
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title mb-1">{{ deck.name }}</h5>
+            {% if deck.archetype %}
+                <p class="text-muted mb-2 small">
+                    {{ archetype_sprites(deck.archetype) }}
+                    {{ deck.archetype.localizedName(app.request.locale) }}
+                </p>
             {% endif %}
-            <div>
-                <h5 class="card-title mb-1">{{ deck.name }}</h5>
-                {% if deck.archetype %}
-                    <p class="text-muted mb-2">
-                        {{ archetype_sprites(deck.archetype) }}
-                        {{ deck.archetype.localizedName(app.request.locale) }}
-                    </p>
-                {% endif %}
-                {% if descriptionHtml %}
-                    <div class="cms-content small">{{ descriptionHtml|raw }}</div>
-                {% endif %}
-                <a href="{{ url }}" class="btn btn-primary btn-sm mt-2">{{ 'app.homepage.view_deck'|trans }}</a>
-            </div>
+            {% if descriptionHtml %}
+                <div class="cms-content small">{{ descriptionHtml|raw }}</div>
+            {% endif %}
+            <a href="{{ url }}" class="btn btn-primary btn-sm mt-2">{{ 'app.homepage.view_deck'|trans }}</a>
         </div>
     </div>
 {% endif %}

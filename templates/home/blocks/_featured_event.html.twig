@@ -13,26 +13,24 @@
 {% set image = entry.settings.image|default(null) %}
 
 {% if event is not null %}
-    <div class="card shadow-sm h-100">
-        <div class="card-body d-flex gap-3 align-items-start">
-            {% if image %}
-                <a href="{{ url }}" class="flex-shrink-0">
-                    <img src="{{ image }}" alt="{{ event.name }}" style="width: 120px; height: auto; border-radius: 4px;">
-                </a>
-            {% endif %}
-            <div>
-                <h5 class="card-title mb-1">{{ event.name }}</h5>
-                <p class="text-muted mb-2">
-                    <i class="bi bi-calendar-event me-1"></i>{{ event.date|date('Y-m-d') }}
-                    {% if event.location %}
-                        <span class="ms-2"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</span>
-                    {% endif %}
-                </p>
-                {% if descriptionHtml %}
-                    <div class="cms-content small">{{ descriptionHtml|raw }}</div>
+    <div class="card shadow-sm mb-4">
+        {% if image %}
+            <a href="{{ url }}">
+                <img src="{{ image }}" class="card-img-top" alt="{{ event.name }}" style="max-height: 200px; object-fit: cover;">
+            </a>
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title mb-1">{{ event.name }}</h5>
+            <p class="text-muted mb-2 small">
+                <i class="bi bi-calendar-event me-1"></i>{{ event.date|date('Y-m-d') }}
+                {% if event.location %}
+                    <span class="ms-2"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</span>
                 {% endif %}
-                <a href="{{ url }}" class="btn btn-primary btn-sm mt-2">{{ 'app.homepage.view_event'|trans }}</a>
-            </div>
+            </p>
+            {% if descriptionHtml %}
+                <div class="cms-content small">{{ descriptionHtml|raw }}</div>
+            {% endif %}
+            <a href="{{ url }}" class="btn btn-primary btn-sm mt-2">{{ 'app.homepage.view_event'|trans }}</a>
         </div>
     </div>
 {% endif %}
