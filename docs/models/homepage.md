@@ -60,7 +60,8 @@ String-backed PHP enum defining the available block types.
 | Case            | Value            | Description |
 |-----------------|------------------|-------------|
 | `Hero`          | `hero`           | Full-width hero banner with title, subtitle, and CTA buttons. |
-| `RichText`      | `richText`       | Markdown content block (optionally sourced from a CMS page). |
+| `RichText`      | `richText`       | Inline Markdown content block with per-locale translatable content. |
+| `PageEmbed`     | `pageEmbed`      | Embeds a CMS page by slug, rendering its Markdown content. |
 | `Carousel`      | `carousel`       | Swipeable image slideshow with per-item links and scheduling. |
 | `LatestPages`   | `latestPages`    | Auto-populated list of recent published pages from a category. |
 | `FeaturedDeck`  | `featuredDeck`   | Highlighted deck card with description and image. |
@@ -92,7 +93,9 @@ Each entry in `HomepageLayout.blocks` is an object with common and type-specific
 
 **hero** — Translatable: `title`, `subtitle`, `ctaButtons[]` (each with `label`, `route`, `style`).
 
-**richText** — `pageSlug` (optional, source content from a CMS page). Translatable: `content` (Markdown, used when no `pageSlug`).
+**richText** — Translatable: `content` (Markdown, rendered to HTML). Inline content stored in `HomepageLayoutTranslation`.
+
+**pageEmbed** — `pageSlug` (CMS page slug to embed). Content comes from the referenced page's translation, not from `HomepageLayoutTranslation`.
 
 **carousel** — `items[]` (each with `image`, `alt`, `link`, `startAt`, `endAt`). Translatable: per-item `alt` text.
 

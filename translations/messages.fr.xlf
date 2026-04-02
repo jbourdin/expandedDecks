@@ -3826,6 +3826,10 @@
                 <source>app.homepage.block_type.rich_text</source>
                 <target>Texte enrichi</target>
             </trans-unit>
+            <trans-unit id="app.homepage.block_type.page_embed">
+                <source>app.homepage.block_type.page_embed</source>
+                <target>Page intégrée</target>
+            </trans-unit>
             <trans-unit id="app.homepage.block_type.carousel">
                 <source>app.homepage.block_type.carousel</source>
                 <target>Carrousel</target>

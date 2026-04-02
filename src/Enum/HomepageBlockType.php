@@ -22,6 +22,7 @@ enum HomepageBlockType: string
 {
     case Hero = 'hero';
     case RichText = 'richText';
+    case PageEmbed = 'pageEmbed';
     case Carousel = 'carousel';
     case LatestPages = 'latestPages';
     case FeaturedDeck = 'featuredDeck';
@@ -35,6 +36,7 @@ enum HomepageBlockType: string
         return match ($this) {
             self::Hero => 'app.homepage.block_type.hero',
             self::RichText => 'app.homepage.block_type.rich_text',
+            self::PageEmbed => 'app.homepage.block_type.page_embed',
             self::Carousel => 'app.homepage.block_type.carousel',
             self::LatestPages => 'app.homepage.block_type.latest_pages',
             self::FeaturedDeck => 'app.homepage.block_type.featured_deck',
@@ -50,6 +52,7 @@ enum HomepageBlockType: string
         return match ($this) {
             self::Hero => 'bi-megaphone',
             self::RichText => 'bi-file-richtext',
+            self::PageEmbed => 'bi-box-arrow-in-right',
             self::Carousel => 'bi-images',
             self::LatestPages => 'bi-newspaper',
             self::FeaturedDeck => 'bi-collection',
@@ -64,7 +67,7 @@ enum HomepageBlockType: string
     {
         return match ($this) {
             self::Hero, self::RichText, self::FeaturedDeck, self::FeaturedEvent => true,
-            self::Carousel, self::LatestPages => false,
+            self::Carousel, self::LatestPages, self::PageEmbed => false,
         };
     }
 }

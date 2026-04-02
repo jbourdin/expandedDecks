@@ -62,7 +62,7 @@ class HomepageRenderer
             }
 
             $translated = $blockTranslations[$index] ?? $blockTranslations[(string) $index] ?? [];
-            $resolvedData = $this->resolveBlockData($type, $block, $locale);
+            $resolvedData = $this->resolveBlockData($type, $block, $locale, $translated);
 
             $columnWidth = $block['columnWidth'] ?? null;
             $cssClasses = $block['cssClasses'] ?? null;
@@ -106,13 +106,15 @@ class HomepageRenderer
      * Resolve dynamic runtime data for a block.
      *
      * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
      *
      * @return array<string, mixed>
      */
-    private function resolveBlockData(HomepageBlockType $type, array $block, string $locale): array
+    private function resolveBlockData(HomepageBlockType $type, array $block, string $locale, array $translated = []): array
     {
         return match ($type) {
-            HomepageBlockType::RichText => $this->resolveRichText($block, $locale),
+            HomepageBlockType::RichText => $this->resolveRichText($block, $locale, $translated),
+            HomepageBlockType::PageEmbed => $this->resolvePageEmbed($block, $locale),
             HomepageBlockType::LatestPages => $this->resolveLatestPages($block, $locale),
             HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent(),
             HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck(),
@@ -122,11 +124,34 @@ class HomepageRenderer
     }
 
     /**
+     * Resolve inline rich text block — renders translatable Markdown content to HTML.
+     * The Markdown content comes from HomepageLayoutTranslation, not from a CMS page.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRichText(array $block, string $locale, array $translated = []): array
+    {
+        $content = $translated['content'] ?? null;
+        if (!\is_string($content) || '' === $content) {
+            return [];
+        }
+
+        return [
+            'html' => $this->markdownRenderer->render($content),
+        ];
+    }
+
+    /**
+     * Resolve page embed block — fetches a CMS page by slug and renders its Markdown content.
+     *
      * @param array<string, mixed> $block
      *
      * @return array<string, mixed>
      */
-    private function resolveRichText(array $block, string $locale): array
+    private function resolvePageEmbed(array $block, string $locale): array
     {
         $pageSlug = $block['pageSlug'] ?? null;
         if (!\is_string($pageSlug) || '' === $pageSlug) {

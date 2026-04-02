@@ -2248,7 +2248,7 @@ PTCG;
                 'endAt' => null,
             ],
             [
-                'type' => 'richText',
+                'type' => 'pageEmbed',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
