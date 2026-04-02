@@ -11,16 +11,20 @@
 {% set url = entry.resolvedData.url|default(null) %}
 {% set mosaicUrl = entry.resolvedData.mosaicUrl|default(null) %}
 {% set descriptionHtml = entry.resolvedData.descriptionHtml|default(null) %}
+{% set customTitle = entry.translations.title|default(null) %}
 
 {% if deck is not null %}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
+            {% if customTitle %}
+                <h5 class="card-title mb-2">{{ customTitle }}</h5>
+            {% endif %}
             <div class="d-flex align-items-center mb-2">
                 {% if deck.archetype %}
                     <span class="me-2">{{ archetype_sprites(deck.archetype) }}</span>
                 {% endif %}
                 <div>
-                    <h5 class="card-title mb-0">{{ deck.name }}</h5>
+                    <h6 class="mb-0">{{ deck.name }}</h6>
                     {% if deck.archetype %}
                         <small class="text-muted">{{ deck.archetype.localizedName(app.request.locale) }}</small>
                     {% endif %}
