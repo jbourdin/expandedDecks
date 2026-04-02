@@ -65,7 +65,6 @@ class PageTranslation
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    #[Assert\Url(requireTld: true)]
     private ?string $ogImage = null;
 
     public function getId(): ?int

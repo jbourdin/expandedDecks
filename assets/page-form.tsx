@@ -51,6 +51,7 @@ const imageUrlRoots = document.querySelectorAll<HTMLDivElement>('.image-url-fiel
 imageUrlRoots.forEach((root) => {
     const inputId = root.dataset.inputId;
     const uploadUrl = root.dataset.uploadUrl ?? '';
+    const serverError = root.dataset.error ?? '';
 
     if (!inputId) {
         return;
@@ -63,10 +64,12 @@ imageUrlRoots.forEach((root) => {
 
     const ImageUrlFieldWrapper = () => {
         const [value, setValue] = React.useState(hiddenInput.value);
+        const [error, setError] = React.useState(serverError || null);
 
         const handleChange = (url: string) => {
             setValue(url);
             hiddenInput.value = url;
+            setError(null);
         };
 
         return (
@@ -74,6 +77,7 @@ imageUrlRoots.forEach((root) => {
                 value={value}
                 onChange={handleChange}
                 uploadUrl={uploadUrl}
+                serverError={error}
             />
         );
     };

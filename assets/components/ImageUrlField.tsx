@@ -21,6 +21,7 @@ interface ImageUrlFieldProps {
     label?: string;
     placeholder?: string;
     uploadUrl: string;
+    serverError?: string | null;
     labels?: {
         dropHint?: string;
         uploading?: string;
@@ -37,6 +38,7 @@ export default function ImageUrlField({
     label,
     placeholder = 'https://...',
     uploadUrl,
+    serverError = null,
     labels = {},
 }: ImageUrlFieldProps) {
     const [uploading, setUploading] = useState(false);
@@ -113,7 +115,7 @@ export default function ImageUrlField({
                 value={value}
                 onChange={(event) => { setError(null); onChange(event.currentTarget.value); }}
                 placeholder={placeholder}
-                error={error}
+                error={error ?? serverError ?? undefined}
                 rightSection={
                     uploading ? (
                         <Loader size={16} />
