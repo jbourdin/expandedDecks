@@ -65,6 +65,7 @@ class PageTranslation
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '#^(/|https?://)#', message: 'app.cms.og_image_url_format')]
     private ?string $ogImage = null;
 
     public function getId(): ?int
