@@ -119,7 +119,7 @@ class HomepageRenderer
             HomepageBlockType::PageEmbed => $this->resolvePageEmbed($block, $locale),
             HomepageBlockType::LatestPages => $this->resolveLatestPages($block, $locale),
             HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent($block, $translated),
-            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck($block),
+            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck($block, $translated),
             HomepageBlockType::Carousel => $this->resolveCarousel($block),
             default => [],
         };
@@ -247,10 +247,11 @@ class HomepageRenderer
      * Resolve a featured deck block — fetches the deck by shortTag.
      *
      * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
      *
      * @return array<string, mixed>
      */
-    private function resolveFeaturedDeck(array $block): array
+    private function resolveFeaturedDeck(array $block, array $translated): array
     {
         $shortTag = $block['shortTag'] ?? null;
         if (!\is_string($shortTag) || '' === $shortTag) {
@@ -264,10 +265,17 @@ class HomepageRenderer
 
         $mosaicUrl = $deck->getCurrentVersion()?->getMosaicImageUrl();
 
+        $descriptionHtml = null;
+        $description = $translated['description'] ?? null;
+        if (\is_string($description) && '' !== $description) {
+            $descriptionHtml = $this->markdownRenderer->render($description);
+        }
+
         return [
             'deck' => $deck,
             'url' => $this->urlGenerator->generate('app_deck_show', ['short_tag' => $deck->getShortTag()]),
             'mosaicUrl' => $mosaicUrl,
+            'descriptionHtml' => $descriptionHtml,
         ];
     }
 

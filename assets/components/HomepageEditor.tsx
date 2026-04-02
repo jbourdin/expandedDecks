@@ -125,9 +125,10 @@ export default function HomepageEditor({
     }, [blocks.length, supportedLocales]);
 
     const handleAddBlock = (typeValue: string) => {
+        const defaultColumnWidth = (typeValue === 'featuredDeck' || typeValue === 'featuredEvent') ? 6 : null;
         const newBlock: BlockData = {
             type: typeValue,
-            columnWidth: null,
+            columnWidth: defaultColumnWidth,
             cssClasses: null,
             startAt: null,
             endAt: null,
