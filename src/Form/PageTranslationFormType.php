@@ -59,6 +59,7 @@ class PageTranslationFormType extends AbstractType
             ->add('ogImage', TextType::class, [
                 'label' => 'app.cms.form.og_image',
                 'required' => false,
+                'empty_data' => null,
             ]);
     }
 
