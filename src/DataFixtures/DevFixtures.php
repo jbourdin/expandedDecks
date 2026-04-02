@@ -172,7 +172,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
-        $this->createHomepageFixtures($manager);
+        $this->createHomepageFixtures($manager, $lenderDeck, $futureEvent);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -2182,7 +2182,7 @@ PTCG;
     /**
      * @see docs/features.md F10.3 — HomepageLayout entity and data model
      */
-    private function createHomepageFixtures(ObjectManager $manager): void
+    private function createHomepageFixtures(ObjectManager $manager, Deck $featuredDeck, Event $featuredEvent): void
     {
         $layout = new HomepageLayout();
         $layout->setIsPublished(true);
@@ -2227,19 +2227,20 @@ PTCG;
                 'limit' => 5,
             ],
             [
-                'type' => 'hero',
+                'type' => 'featuredDeck',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
+                'shortTag' => $featuredDeck->getShortTag(),
             ],
             [
-                'type' => 'pageEmbed',
+                'type' => 'featuredEvent',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
-                'pageSlug' => 'welcome',
+                'eventId' => $featuredEvent->getId(),
             ],
         ]);
         $manager->persist($layout);
@@ -2249,12 +2250,12 @@ PTCG;
         $translationEn->setLocale('en');
         $translationEn->setBlockTranslations([
             '2' => [
-                'title' => 'Share the Expanded Experience',
-                'subtitle' => 'Borrow real decks, play at events, discover the format together.',
-                'ctaButtons' => [
-                    ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
-                    ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
-                ],
+                'title' => 'Deck of the month',
+                'description' => 'The most played deck in the format right now.',
+            ],
+            '3' => [
+                'title' => 'Next event',
+                'description' => 'Join us for the next Expanded format event!',
             ],
         ]);
         $layout->addTranslation($translationEn);
@@ -2265,12 +2266,12 @@ PTCG;
         $translationFr->setLocale('fr');
         $translationFr->setBlockTranslations([
             '2' => [
-                'title' => "Partagez l'Expérience Expanded",
-                'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
-                'ctaButtons' => [
-                    ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
-                    ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
-                ],
+                'title' => 'Deck du mois',
+                'description' => 'Le deck le plus joué du format en ce moment.',
+            ],
+            '3' => [
+                'title' => 'Prochain événement',
+                'description' => 'Rejoignez-nous pour le prochain événement Expanded !',
             ],
         ]);
         $layout->addTranslation($translationFr);

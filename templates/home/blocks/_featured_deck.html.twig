@@ -7,16 +7,38 @@
  # file that was distributed with this source code.
  #}
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
-{% set count = entry.resolvedData.count|default(0) %}
-{% set title = entry.translations.title|default('app.home.decks_in_library'|trans({'%count%': count})) %}
-{% set description = entry.translations.description|default('app.home.browse_library'|trans) %}
+{% set deck = entry.resolvedData.deck|default(null) %}
+{% set url = entry.resolvedData.url|default(null) %}
+{% set mosaicUrl = entry.resolvedData.mosaicUrl|default(null) %}
+{% set descriptionHtml = entry.resolvedData.descriptionHtml|default(null) %}
+{% set customTitle = entry.translations.title|default(null) %}
 
-<div class="card shadow-sm h-100 text-center">
-    <div class="card-body d-flex flex-column justify-content-center py-5">
-        <h2 class="display-6 fw-bold mb-1">{{ count }}</h2>
-        <p class="text-muted mb-3">{{ title }}</p>
-        <div>
-            <a href="{{ path('app_deck_list') }}" class="btn btn-primary">{{ description }}</a>
+{% if deck is not null %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            {% if customTitle %}
+                <h5 class="card-title mb-2">{{ customTitle }}</h5>
+            {% endif %}
+            <div class="d-flex align-items-center mb-2">
+                {% if deck.archetype %}
+                    <span class="me-2">{{ archetype_sprites(deck.archetype) }}</span>
+                {% endif %}
+                <div>
+                    <h6 class="mb-0">{{ deck.name }}</h6>
+                    {% if deck.archetype %}
+                        <small class="text-muted">{{ deck.archetype.localizedName(app.request.locale) }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% if mosaicUrl %}
+                <a href="{{ url }}" class="d-block mb-2">
+                    <img src="{{ mosaicUrl }}" alt="{{ deck.name }}" class="img-fluid rounded w-100">
+                </a>
+            {% endif %}
+            {% if descriptionHtml %}
+                <div class="cms-content small">{{ descriptionHtml|raw }}</div>
+            {% endif %}
+            <a href="{{ url }}" class="btn btn-primary btn-sm mt-2">{{ 'app.homepage.view_deck'|trans }}</a>
         </div>
     </div>
-</div>
+{% endif %}
