@@ -20,6 +20,7 @@ use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Resolves a HomepageLayout into an ordered list of ResolvedBlock DTOs,
@@ -35,6 +36,7 @@ class HomepageRenderer
         private readonly MenuCategoryRepository $menuCategoryRepository,
         private readonly EventRepository $eventRepository,
         private readonly DeckRepository $deckRepository,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -62,7 +64,7 @@ class HomepageRenderer
             }
 
             $translated = $blockTranslations[$index] ?? $blockTranslations[(string) $index] ?? [];
-            $resolvedData = $this->resolveBlockData($type, $block, $locale);
+            $resolvedData = $this->resolveBlockData($type, $block, $locale, $translated);
 
             $columnWidth = $block['columnWidth'] ?? null;
             $cssClasses = $block['cssClasses'] ?? null;
@@ -106,27 +108,52 @@ class HomepageRenderer
      * Resolve dynamic runtime data for a block.
      *
      * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
      *
      * @return array<string, mixed>
      */
-    private function resolveBlockData(HomepageBlockType $type, array $block, string $locale): array
+    private function resolveBlockData(HomepageBlockType $type, array $block, string $locale, array $translated = []): array
     {
         return match ($type) {
-            HomepageBlockType::RichText => $this->resolveRichText($block, $locale),
+            HomepageBlockType::RichText => $this->resolveRichText($block, $locale, $translated),
+            HomepageBlockType::PageEmbed => $this->resolvePageEmbed($block, $locale),
             HomepageBlockType::LatestPages => $this->resolveLatestPages($block, $locale),
-            HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent(),
-            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck(),
+            HomepageBlockType::FeaturedEvent => $this->resolveFeaturedEvent($block, $translated),
+            HomepageBlockType::FeaturedDeck => $this->resolveFeaturedDeck($block, $translated),
             HomepageBlockType::Carousel => $this->resolveCarousel($block),
             default => [],
         };
     }
 
     /**
+     * Resolve inline rich text block — renders translatable Markdown content to HTML.
+     * The Markdown content comes from HomepageLayoutTranslation, not from a CMS page.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRichText(array $block, string $locale, array $translated = []): array
+    {
+        $content = $translated['content'] ?? null;
+        if (!\is_string($content) || '' === $content) {
+            return [];
+        }
+
+        return [
+            'html' => $this->markdownRenderer->render($content),
+        ];
+    }
+
+    /**
+     * Resolve page embed block — fetches a CMS page by slug and renders its Markdown content.
+     *
      * @param array<string, mixed> $block
      *
      * @return array<string, mixed>
      */
-    private function resolveRichText(array $block, string $locale): array
+    private function resolvePageEmbed(array $block, string $locale): array
     {
         $pageSlug = $block['pageSlug'] ?? null;
         if (!\is_string($pageSlug) || '' === $pageSlug) {
@@ -184,22 +211,71 @@ class HomepageRenderer
     }
 
     /**
+     * Resolve a featured event block — fetches the event by ID.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
+     *
      * @return array<string, mixed>
      */
-    private function resolveFeaturedEvent(): array
+    private function resolveFeaturedEvent(array $block, array $translated): array
     {
+        $eventId = $block['eventId'] ?? null;
+        if (!\is_int($eventId)) {
+            return [];
+        }
+
+        $event = $this->eventRepository->find($eventId);
+        if (null === $event) {
+            return [];
+        }
+
+        $descriptionHtml = null;
+        $description = $translated['description'] ?? null;
+        if (\is_string($description) && '' !== $description) {
+            $descriptionHtml = $this->markdownRenderer->render($description);
+        }
+
         return [
-            'count' => $this->eventRepository->countUpcoming(),
+            'event' => $event,
+            'url' => $this->urlGenerator->generate('app_event_show', ['id' => $event->getId()]),
+            'descriptionHtml' => $descriptionHtml,
         ];
     }
 
     /**
+     * Resolve a featured deck block — fetches the deck by shortTag.
+     *
+     * @param array<string, mixed> $block
+     * @param array<string, mixed> $translated
+     *
      * @return array<string, mixed>
      */
-    private function resolveFeaturedDeck(): array
+    private function resolveFeaturedDeck(array $block, array $translated): array
     {
+        $shortTag = $block['shortTag'] ?? null;
+        if (!\is_string($shortTag) || '' === $shortTag) {
+            return [];
+        }
+
+        $deck = $this->deckRepository->findOneBy(['shortTag' => $shortTag]);
+        if (null === $deck) {
+            return [];
+        }
+
+        $mosaicUrl = $deck->getCurrentVersion()?->getMosaicImageUrl();
+
+        $descriptionHtml = null;
+        $description = $translated['description'] ?? null;
+        if (\is_string($description) && '' !== $description) {
+            $descriptionHtml = $this->markdownRenderer->render($description);
+        }
+
         return [
-            'count' => $this->deckRepository->countPublicDecks(),
+            'deck' => $deck,
+            'url' => $this->urlGenerator->generate('app_deck_show', ['short_tag' => $deck->getShortTag()]),
+            'mosaicUrl' => $mosaicUrl,
+            'descriptionHtml' => $descriptionHtml,
         ];
     }
 

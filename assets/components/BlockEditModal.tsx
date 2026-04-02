@@ -23,11 +23,14 @@ import {
     Group,
     Button,
     Text,
-    Textarea,
     Divider,
     ActionIcon,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import ImageUrlField from './ImageUrlField';
+import MarkdownEditor from './MarkdownEditor';
+
+import '@mantine/tiptap/styles.css';
 
 type BlockData = Record<string, unknown>;
 type TranslationsMap = Record<string, Record<string, Record<string, unknown>>>;
@@ -63,6 +66,7 @@ interface BlockEditModalProps {
     supportedLocales: string[];
     labels: Labels;
     blockTypes: BlockTypeInfo[];
+    uploadUrl: string;
     onSave: (updatedBlock: BlockData, updatedTranslations: Record<string, Record<string, unknown>>) => void;
     onClose: () => void;
 }
@@ -74,6 +78,7 @@ export default function BlockEditModal({
     supportedLocales,
     labels,
     blockTypes,
+    uploadUrl,
     onSave,
     onClose,
 }: BlockEditModalProps) {
@@ -168,7 +173,7 @@ export default function BlockEditModal({
                 />
 
                 {/* Type-specific non-translatable settings */}
-                {blockType === 'richText' && (
+                {blockType === 'pageEmbed' && (
                     <TextInput
                         label={label('pageSlug')}
                         value={(editedBlock.pageSlug as string) ?? ''}
@@ -195,6 +200,32 @@ export default function BlockEditModal({
                     </Group>
                 )}
 
+                {blockType === 'featuredDeck' && (
+                    <TextInput
+                        label={label('shortTag')}
+                        value={(editedBlock.shortTag as string) ?? ''}
+                        onChange={(event) => updateBlock('shortTag', event.currentTarget.value || null)}
+                        placeholder="A1B2C3"
+                    />
+                )}
+
+                {blockType === 'featuredEvent' && (
+                    <>
+                        <NumberInput
+                            label={label('eventId')}
+                            value={(editedBlock.eventId as number) ?? ''}
+                            onChange={(value) => updateBlock('eventId', typeof value === 'number' ? value : null)}
+                            min={1}
+                        />
+                        <ImageUrlField
+                            label={label('image')}
+                            value={(editedBlock.image as string) ?? ''}
+                            onChange={(url) => updateBlock('image', url || null)}
+                            uploadUrl={uploadUrl}
+                        />
+                    </>
+                )}
+
                 {/* Carousel items */}
                 {blockType === 'carousel' && (
                     <>
@@ -203,15 +234,15 @@ export default function BlockEditModal({
                         {(Array.isArray(editedBlock.items) ? editedBlock.items as CarouselItem[] : []).map((carouselItem, itemIndex) => (
                             <Card key={itemIndex} withBorder padding="xs">
                                 <Group grow align="end">
-                                    <TextInput
+                                    <ImageUrlField
                                         label={label('image')}
                                         value={carouselItem.image ?? ''}
-                                        onChange={(event) => {
+                                        onChange={(url) => {
                                             const items = [...(editedBlock.items as CarouselItem[])];
-                                            items[itemIndex] = { ...items[itemIndex], image: event.currentTarget.value };
+                                            items[itemIndex] = { ...items[itemIndex], image: url };
                                             updateBlock('items', items);
                                         }}
-                                        placeholder="https://..."
+                                        uploadUrl={uploadUrl}
                                     />
                                     <TextInput
                                         label={label('altText')}
@@ -354,13 +385,13 @@ export default function BlockEditModal({
 
                                         {/* Rich text fields */}
                                         {blockType === 'richText' && (
-                                            <Textarea
-                                                label={label('content')}
-                                                value={(editedTranslations[locale]?.content as string) ?? ''}
-                                                onChange={(event) => updateTranslation(locale, 'content', event.currentTarget.value)}
-                                                minRows={6}
-                                                autosize
-                                            />
+                                            <div>
+                                                <Text size="sm" fw={500} mb={4}>{label('content')}</Text>
+                                                <MarkdownEditor
+                                                    initialContent={(editedTranslations[locale]?.content as string) ?? ''}
+                                                    onChange={(content) => updateTranslation(locale, 'content', content)}
+                                                />
+                                            </div>
                                         )}
 
                                         {/* Featured deck / event fields */}
@@ -371,13 +402,13 @@ export default function BlockEditModal({
                                                     value={(editedTranslations[locale]?.title as string) ?? ''}
                                                     onChange={(event) => updateTranslation(locale, 'title', event.currentTarget.value)}
                                                 />
-                                                <Textarea
-                                                    label={label('description')}
-                                                    value={(editedTranslations[locale]?.description as string) ?? ''}
-                                                    onChange={(event) => updateTranslation(locale, 'description', event.currentTarget.value)}
-                                                    minRows={3}
-                                                    autosize
-                                                />
+                                                <div>
+                                                    <Text size="sm" fw={500} mb={4}>{label('description')}</Text>
+                                                    <MarkdownEditor
+                                                        initialContent={(editedTranslations[locale]?.description as string) ?? ''}
+                                                        onChange={(content) => updateTranslation(locale, 'description', content)}
+                                                    />
+                                                </div>
                                             </>
                                         )}
                                     </Stack>

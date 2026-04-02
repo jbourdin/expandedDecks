@@ -34,8 +34,13 @@
             <h5 class="mb-0">{{ 'app.cms.admin.page_settings'|trans }}</h5>
         </div>
         <div class="card-body">
+            {% from 'admin/_image_url_field.html.twig' import image_url_field %}
             {{ form_start(form) }}
-                {{ form_widget(form) }}
+                {{ form_row(form.slug) }}
+                {{ form_row(form.menuCategory) }}
+                {{ form_row(form.isPublished) }}
+                {{ form_row(form.noIndex) }}
+                {{ image_url_field(form.ogImage) }}
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
             {{ form_end(form) }}
         </div>
@@ -68,11 +73,7 @@
                         {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
                         {{ form_start(translationForms[locale]) }}
                             {{ form_row(translationForms[locale].title) }}
-                            {{ form_row(translationForms[locale].slug) }}
                             {{ rich_text_editor(translationForms[locale].content) }}
-                            {{ form_row(translationForms[locale].metaTitle) }}
-                            {{ form_row(translationForms[locale].metaDescription) }}
-                            {{ form_row(translationForms[locale].ogImage) }}
                             <button type="submit" class="btn btn-gold mt-3">{{ 'app.cms.admin.save_translation'|trans({'%locale%': locale|upper}) }}</button>
                         {{ form_end(translationForms[locale]) }}
                     </div>

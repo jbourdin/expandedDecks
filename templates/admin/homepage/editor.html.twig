@@ -23,12 +23,14 @@
     <div id="homepage-editor-root"
          data-save-url="{{ path('app_admin_homepage_save') }}"
          data-preview-url="{{ path('app_admin_homepage_preview') }}"
+         data-upload-url="{{ path('app_editor_upload_image') }}"
          data-supported-locales="{{ supportedLocales|json_encode }}"
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
          data-block-types="{{ [
              {value: 'hero', label: 'app.homepage.block_type.hero'|trans, icon: 'bi-megaphone'},
              {value: 'richText', label: 'app.homepage.block_type.rich_text'|trans, icon: 'bi-file-richtext'},
+             {value: 'pageEmbed', label: 'app.homepage.block_type.page_embed'|trans, icon: 'bi-box-arrow-in-right'},
              {value: 'carousel', label: 'app.homepage.block_type.carousel'|trans, icon: 'bi-images'},
              {value: 'latestPages', label: 'app.homepage.block_type.latest_pages'|trans, icon: 'bi-newspaper'},
              {value: 'featuredDeck', label: 'app.homepage.block_type.featured_deck'|trans, icon: 'bi-collection'},
@@ -68,7 +70,9 @@
              image: 'app.homepage.admin.image'|trans,
              altText: 'app.homepage.admin.alt_text'|trans,
              link: 'app.homepage.admin.link'|trans,
-             addItem: 'app.homepage.admin.add_item'|trans
+             addItem: 'app.homepage.admin.add_item'|trans,
+             shortTag: 'app.homepage.admin.short_tag'|trans,
+             eventId: 'app.homepage.admin.event_id'|trans
          }|json_encode }}">
     </div>
 {% endblock %}

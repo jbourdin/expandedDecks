@@ -16,6 +16,37 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.3.2] — 2026-04-02
+
+Homepage block improvements, ImageUrlField component, CMS page model simplification, and entity-linked featured blocks.
+
+### Features
+
+- **F10.6 — ImageUrlField component** — reusable React component combining URL text input with drag-and-drop image upload to `/api/editor/upload-image`. Applied to ogImage field on CMS pages and carousel image fields in the homepage block editor. (#288)
+- **F10.3 — Split richText into richText and pageEmbed** — `richText` now stores inline translatable Markdown content; `pageEmbed` references a CMS page by slug. Separate block types with distinct admin editor fields. (#309)
+- **F10.9 — MarkdownEditor in block editor** — replace plain textareas with Tiptap rich text editor for richText content and featured block description fields. Extended MarkdownEditor to support onChange callback for React state. (#307)
+- **Reworked featuredDeck** — takes a deck shortTag, resolves the Deck entity, renders mosaic, archetype sprites, translatable title/description, and link to deck detail. Defaults to col-6.
+- **Reworked featuredEvent** — takes an event ID, resolves the Event entity, renders name, date, location, optional image, translatable title/description, and link to event detail. Defaults to col-6.
+
+### Bug Fixes
+
+- **ogImage validation** — accept relative URLs (`/api/editor/image/...`) alongside absolute URLs via `@Assert\Regex`.
+- **ogImage fallback** — EN ogImage used when locale translation has none (graphical fields only).
+- **Empty ogImage** — convert empty string to null with `empty_data` to pass URL validation.
+- **findPublished** — order by ID DESC to handle duplicate layouts after fixture reload.
+- **Featured block rendering** — translated title and description now properly resolved and displayed.
+
+### Refactoring
+
+- **Simplified CMS page model** — removed localized slugs, metaTitle, metaDescription, canonicalUrl from PageTranslation. Moved ogImage to Page (language-neutral). Translation tabs now only have title + content.
+
+### Infrastructure
+
+- Empty homepage seed migration (data seeded by fixtures in dev, admin editor in production).
+- `tests/Enum/` directory added to phpunit.xml.dist (from previous release).
+
+---
+
 ## [1.3.1] — 2026-04-02
 
 Bug fixes for translation form editing and menu cache consistency.

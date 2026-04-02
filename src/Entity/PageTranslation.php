@@ -23,7 +23,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity]
 #[ORM\UniqueConstraint(name: 'page_translation_unique', columns: ['page_id', 'locale'])]
-#[ORM\UniqueConstraint(name: 'page_translation_slug_unique', columns: ['slug'])]
 #[UniqueEntity(fields: ['page', 'locale'], message: 'app.cms.translation_locale_unique')]
 class PageTranslation
 {
@@ -46,27 +45,9 @@ class PageTranslation
     #[Assert\Length(min: 1, max: 200)]
     private string $title = '';
 
-    #[ORM\Column(length: 150, nullable: true)]
-    #[Assert\Length(max: 150)]
-    #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'app.cms.slug_format')]
-    private ?string $slug = null;
-
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
     private string $content = '';
-
-    #[ORM\Column(length: 70, nullable: true)]
-    #[Assert\Length(max: 70)]
-    private ?string $metaTitle = null;
-
-    #[ORM\Column(length: 160, nullable: true)]
-    #[Assert\Length(max: 160)]
-    private ?string $metaDescription = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    #[Assert\Url(requireTld: true)]
-    private ?string $ogImage = null;
 
     public function getId(): ?int
     {
@@ -109,18 +90,6 @@ class PageTranslation
         return $this;
     }
 
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(?string $slug): static
-    {
-        $this->slug = $slug;
-
-        return $this;
-    }
-
     public function getContent(): string
     {
         return $this->content;
@@ -129,42 +98,6 @@ class PageTranslation
     public function setContent(string $content): static
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-    public function getMetaTitle(): ?string
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaTitle(?string $metaTitle): static
-    {
-        $this->metaTitle = $metaTitle;
-
-        return $this;
-    }
-
-    public function getMetaDescription(): ?string
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaDescription(?string $metaDescription): static
-    {
-        $this->metaDescription = $metaDescription;
-
-        return $this;
-    }
-
-    public function getOgImage(): ?string
-    {
-        return $this->ogImage;
-    }
-
-    public function setOgImage(?string $ogImage): static
-    {
-        $this->ogImage = $ogImage;
 
         return $this;
     }

@@ -3806,6 +3806,10 @@
                 <source>app.cms.slug_format</source>
                 <target>Slug must only contain lowercase letters, numbers, and hyphens.</target>
             </trans-unit>
+            <trans-unit id="app.cms.og_image_url_format">
+                <source>app.cms.og_image_url_format</source>
+                <target>Must be a URL (starting with / or http).</target>
+            </trans-unit>
             <trans-unit id="app.cms.translation_locale_unique">
                 <source>app.cms.translation_locale_unique</source>
                 <target>A translation already exists for this locale.</target>
@@ -3825,6 +3829,10 @@
             <trans-unit id="app.homepage.block_type.rich_text">
                 <source>app.homepage.block_type.rich_text</source>
                 <target>Rich Text</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.block_type.page_embed">
+                <source>app.homepage.block_type.page_embed</source>
+                <target>Page Embed</target>
             </trans-unit>
             <trans-unit id="app.homepage.block_type.carousel">
                 <source>app.homepage.block_type.carousel</source>
@@ -3955,6 +3963,22 @@
             <trans-unit id="app.homepage.admin.add_item">
                 <source>app.homepage.admin.add_item</source>
                 <target>Add item</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.short_tag">
+                <source>app.homepage.admin.short_tag</source>
+                <target>Deck short tag</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.event_id">
+                <source>app.homepage.admin.event_id</source>
+                <target>Event ID</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.view_deck">
+                <source>app.homepage.view_deck</source>
+                <target>View deck</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.view_event">
+                <source>app.homepage.view_event</source>
+                <target>View event</target>
             </trans-unit>
             <trans-unit id="app.nav.homepage_editor">
                 <source>app.nav.homepage_editor</source>

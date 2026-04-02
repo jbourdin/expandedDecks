@@ -172,7 +172,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager);
-        $this->createHomepageFixtures($manager);
+        $this->createHomepageFixtures($manager, $lenderDeck, $futureEvent);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -1409,8 +1409,6 @@ Expanded Decks makes it easy to **manage a shared library of physical Pokemon TC
 
 Jump in and explore the library!
 MD);
-        $welcomeEn->setMetaTitle('Expanded Decks — Shared Pokemon TCG Deck Library');
-        $welcomeEn->setMetaDescription('Manage a shared library of physical Pokemon TCG decks for your local community. Lend decks for events and track borrowing.');
         $welcomePage->addTranslation($welcomeEn);
         $manager->persist($welcomeEn);
 
@@ -1418,7 +1416,6 @@ MD);
         $welcomeFr->setPage($welcomePage);
         $welcomeFr->setLocale('fr');
         $welcomeFr->setTitle('Bienvenue sur Expanded Decks');
-        $welcomeFr->setSlug('bienvenue');
         $welcomeFr->setContent(<<<'MD'
 ## Votre bibliothèque de decks partagée
 
@@ -1432,8 +1429,6 @@ Expanded Decks facilite la **gestion d'une bibliothèque partagée de decks phys
 
 Plongez et explorez la bibliothèque !
 MD);
-        $welcomeFr->setMetaTitle('Expanded Decks — Bibliothèque de decks Pokemon TCG partagée');
-        $welcomeFr->setMetaDescription('Gérez une bibliothèque partagée de decks physiques Pokemon TCG pour votre communauté. Prêtez des decks pour des événements.');
         $welcomePage->addTranslation($welcomeFr);
         $manager->persist($welcomeFr);
 
@@ -1471,7 +1466,6 @@ MD);
         $news1Fr->setPage($news1);
         $news1Fr->setLocale('fr');
         $news1Fr->setTitle('La saison 2026 est lancée !');
-        $news1Fr->setSlug('lancement-saison-2026');
         $news1Fr->setContent(<<<'MD'
 La nouvelle saison Pokemon TCG est là ! Voici les nouveautés pour la communauté Expanded :
 
@@ -1553,7 +1547,6 @@ MD);
         $news3Fr->setPage($news3);
         $news3Fr->setLocale('fr');
         $news3Fr->setTitle('Résumé du League Challenge de mars');
-        $news3Fr->setSlug('league-challenge-mars');
         $news3Fr->setContent(<<<'MD'
 Notre League Challenge de mars était génial ! 16 joueurs se sont affrontés en rondes suisses.
 
@@ -1712,7 +1705,6 @@ MD);
         $rulesPageFr->setPage($rulesPage);
         $rulesPageFr->setLocale('fr');
         $rulesPageFr->setTitle('Règles d\'emprunt');
-        $rulesPageFr->setSlug('regles-emprunt');
         $rulesPageFr->setContent(<<<'MD'
 Veuillez respecter ces règles lors de l'emprunt de decks de la bibliothèque partagée :
 
@@ -1786,7 +1778,6 @@ MD);
         $philosophyEn->setPage($philosophyPage);
         $philosophyEn->setLocale('en');
         $philosophyEn->setTitle('The Philosophy');
-        $philosophyEn->setSlug('the-philosophy');
         $philosophyEn->setContent(<<<'MD'
         ## Our Philosophy
 
@@ -1801,7 +1792,6 @@ MD);
         $philosophyFr->setPage($philosophyPage);
         $philosophyFr->setLocale('fr');
         $philosophyFr->setTitle('La Philosophie');
-        $philosophyFr->setSlug('la-philosophie');
         $philosophyFr->setContent(<<<'MD'
         ## Notre Philosophie
 
@@ -1823,7 +1813,6 @@ MD);
         $teamEn->setPage($teamPage);
         $teamEn->setLocale('en');
         $teamEn->setTitle('The Team');
-        $teamEn->setSlug('the-team');
         $teamEn->setContent(<<<'MD'
         ## The Team
 
@@ -1838,7 +1827,6 @@ MD);
         $teamFr->setPage($teamPage);
         $teamFr->setLocale('fr');
         $teamFr->setTitle("L'Équipe");
-        $teamFr->setSlug('l-equipe');
         $teamFr->setContent(<<<'MD'
         ## L'Équipe
 
@@ -1879,7 +1867,6 @@ MD);
         $legalNoticeEn->setPage($legalNoticePage);
         $legalNoticeEn->setLocale('en');
         $legalNoticeEn->setTitle('Legal Notice');
-        $legalNoticeEn->setSlug('legal-notice');
         $legalNoticeEn->setContent(<<<'MD'
         ## Site Owner
 
@@ -1915,7 +1902,6 @@ MD);
         $legalNoticeFr->setPage($legalNoticePage);
         $legalNoticeFr->setLocale('fr');
         $legalNoticeFr->setTitle('Mentions Légales');
-        $legalNoticeFr->setSlug('mentions-legales');
         $legalNoticeFr->setContent(<<<'MD'
         ## Éditeur du site
 
@@ -2196,7 +2182,7 @@ PTCG;
     /**
      * @see docs/features.md F10.3 — HomepageLayout entity and data model
      */
-    private function createHomepageFixtures(ObjectManager $manager): void
+    private function createHomepageFixtures(ObjectManager $manager, Deck $featuredDeck, Event $featuredEvent): void
     {
         $layout = new HomepageLayout();
         $layout->setIsPublished(true);
@@ -2241,19 +2227,20 @@ PTCG;
                 'limit' => 5,
             ],
             [
-                'type' => 'hero',
+                'type' => 'featuredDeck',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
+                'shortTag' => $featuredDeck->getShortTag(),
             ],
             [
-                'type' => 'richText',
+                'type' => 'featuredEvent',
                 'columnWidth' => 6,
                 'cssClasses' => null,
                 'startAt' => null,
                 'endAt' => null,
-                'pageSlug' => 'welcome',
+                'eventId' => $featuredEvent->getId(),
             ],
         ]);
         $manager->persist($layout);
@@ -2263,12 +2250,12 @@ PTCG;
         $translationEn->setLocale('en');
         $translationEn->setBlockTranslations([
             '2' => [
-                'title' => 'Share the Expanded Experience',
-                'subtitle' => 'Borrow real decks, play at events, discover the format together.',
-                'ctaButtons' => [
-                    ['label' => 'Register', 'route' => 'app_register', 'style' => 'primary'],
-                    ['label' => 'Login', 'route' => 'app_login', 'style' => 'outline'],
-                ],
+                'title' => 'Deck of the month',
+                'description' => 'The most played deck in the format right now.',
+            ],
+            '3' => [
+                'title' => 'Next event',
+                'description' => 'Join us for the next Expanded format event!',
             ],
         ]);
         $layout->addTranslation($translationEn);
@@ -2279,12 +2266,12 @@ PTCG;
         $translationFr->setLocale('fr');
         $translationFr->setBlockTranslations([
             '2' => [
-                'title' => "Partagez l'Expérience Expanded",
-                'subtitle' => 'Empruntez de vrais decks, jouez lors d\'événements, découvrez le format ensemble.',
-                'ctaButtons' => [
-                    ['label' => "S'inscrire", 'route' => 'app_register', 'style' => 'primary'],
-                    ['label' => 'Connexion', 'route' => 'app_login', 'style' => 'outline'],
-                ],
+                'title' => 'Deck du mois',
+                'description' => 'Le deck le plus joué du format en ce moment.',
+            ],
+            '3' => [
+                'title' => 'Prochain événement',
+                'description' => 'Rejoignez-nous pour le prochain événement Expanded !',
             ],
         ]);
         $layout->addTranslation($translationFr);

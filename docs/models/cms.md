@@ -58,17 +58,17 @@ Localized fields for `MenuCategory`. One row per locale per category.
 
 ## Entity: `App\Entity\Page`
 
-A CMS content page. Non-translatable fields live here; translatable fields (title, slug, content, SEO) live in `PageTranslation`.
+A CMS content page. Non-translatable fields live here; translatable fields (title, content) live in `PageTranslation`.
 
 ### Fields
 
 | Field          | Type               | Nullable | Description |
 |----------------|--------------------|----------|-------------|
 | `id`           | `int` (auto)       | No       | Primary key |
-| `slug`         | `string(150)`      | No       | Canonical URL slug (e.g. `"how-to-borrow"`). Used as fallback when no localized slug exists. |
+| `slug`         | `string(150)`      | No       | URL slug (e.g. `"how-to-borrow"`). |
 | `menuCategory` | `MenuCategory`     | Yes      | Optional grouping for navigation (F11.2). Null = page not in any menu. |
 | `isPublished`  | `bool`             | No       | Whether the page is publicly visible. Default: `false`. |
-| `canonicalUrl` | `string(255)`      | Yes      | Optional canonical URL override for SEO. When set, a `<link rel="canonical">` tag is rendered. |
+| `ogImage`      | `string(255)`      | Yes      | Open Graph image URL for social sharing. Accepts relative (`/api/editor/image/...`) or absolute URLs. |
 | `noIndex`      | `bool`             | No       | Whether to add `<meta name="robots" content="noindex">`. Default: `false`. |
 | `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
@@ -83,13 +83,13 @@ A CMS content page. Non-translatable fields live here; translatable fields (titl
 | Relation       | Type      | Target            | Description |
 |----------------|-----------|-------------------|-------------|
 | `menuCategory` | ManyToOne | `MenuCategory`    | Optional menu grouping |
-| `translations` | OneToMany | `PageTranslation` | Localized content and SEO |
+| `translations` | OneToMany | `PageTranslation` | Localized content |
 
 ---
 
 ## Entity: `App\Entity\PageTranslation`
 
-Localized fields for `Page`. One row per locale per page. Contains the page's title, content (Markdown), localized slug, and SEO metadata.
+Localized fields for `Page`. One row per locale per page. Contains the page's title and content (Markdown).
 
 ### Fields
 
@@ -98,20 +98,13 @@ Localized fields for `Page`. One row per locale per page. Contains the page's ti
 | `id`              | `int` (auto)  | No       | Primary key |
 | `locale`          | `string(5)`   | No       | ISO 639-1 locale code (e.g. `"en"`, `"fr"`). |
 | `title`           | `string(200)` | No       | Translated page title. |
-| `slug`            | `string(150)` | Yes      | Localized URL slug (e.g. `"comment-emprunter"`). Null = use the canonical `Page.slug`. |
 | `content`         | `text`        | No       | Page body in **Markdown** format. Rendered to HTML via `league/commonmark` on display. |
-| `metaTitle`       | `string(70)`  | Yes      | SEO `<title>` tag. Falls back to `title` when empty. Max 70 chars (SEO best practice). |
-| `metaDescription` | `string(160)` | Yes      | SEO `<meta name="description">`. Max 160 chars (SEO best practice). |
-| `ogImage`         | `string(255)` | Yes      | Open Graph image URL for social sharing (`<meta property="og:image">`). |
 
 ### Constraints
 
 - Unique constraint on (`translatable_id`, `locale`) — one translation per locale per page
 - `title`: required, 1–200 characters
-- `slug`: optional, unique across all `PageTranslation` rows when provided, URL-friendly (`[a-z0-9-]+`)
 - `content`: required, non-empty
-- `metaTitle`: max 70 characters when provided
-- `metaDescription`: max 160 characters when provided
 
 ### Locale Fallback
 
@@ -132,11 +125,7 @@ The same fallback chain applies to `MenuCategoryTranslation` for navigation rend
 Pages are served at:
 
 ```
-/{locale}/pages/{localizedSlug}
+/{locale}/pages/{slug}
 ```
 
-Where `{localizedSlug}` is resolved from `PageTranslation.slug` for the current locale, falling back to `Page.slug` (the canonical slug). Example:
-
-- English: `/en/pages/how-to-borrow`
-- French: `/fr/pages/comment-emprunter` (localized slug exists)
-- German: `/de/pages/how-to-borrow` (no German slug → canonical fallback)
+Where `{slug}` is the `Page.slug` field. Example: `/en/pages/how-to-borrow`, `/fr/pages/how-to-borrow`.

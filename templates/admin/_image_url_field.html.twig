@@ -1,0 +1,27 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+
+{#
+ # Renders a Symfony form field with an ImageUrlField React mount point.
+ # The original text input is hidden; the React component takes over
+ # and syncs the URL value back to the hidden field on every change.
+ #
+ # @see docs/features.md F10.6 — ImageUrlField component with drag-and-drop upload
+ #}
+{% macro image_url_field(field) %}
+    <div class="mb-3">
+        {{ form_label(field) }}
+        {{ form_widget(field, {attr: {class: 'image-url-field-source', style: 'display:none'}}) }}
+        <div class="image-url-field-root"
+             data-input-id="{{ field.vars.id }}"
+             data-upload-url="{{ path('app_editor_upload_image') }}"
+             data-label="{{ field.vars.label|trans }}"
+             data-error="{{ form_errors(field)|striptags|trim }}"></div>
+    </div>
+{% endmacro %}
