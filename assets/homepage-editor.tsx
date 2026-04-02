@@ -31,6 +31,7 @@ const root = document.getElementById('homepage-editor-root');
 if (root) {
     const saveUrl = root.dataset.saveUrl ?? '';
     const previewUrl = root.dataset.previewUrl ?? '';
+    const uploadUrl = root.dataset.uploadUrl ?? '';
 
     let supportedLocales: string[] = ['en', 'fr'];
     let initialBlocks: Record<string, unknown>[] = [];
@@ -63,6 +64,7 @@ if (root) {
             <HomepageEditor
                 saveUrl={saveUrl}
                 previewUrl={previewUrl}
+                uploadUrl={uploadUrl}
                 supportedLocales={supportedLocales}
                 initialBlocks={initialBlocks}
                 initialTranslations={initialTranslations}

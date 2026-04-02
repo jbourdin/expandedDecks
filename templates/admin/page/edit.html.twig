@@ -66,13 +66,14 @@
                 {% for locale in supportedLocales %}
                     <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" id="pane-{{ locale }}" role="tabpanel" aria-labelledby="tab-{{ locale }}">
                         {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
+                        {% from 'admin/_image_url_field.html.twig' import image_url_field %}
                         {{ form_start(translationForms[locale]) }}
                             {{ form_row(translationForms[locale].title) }}
                             {{ form_row(translationForms[locale].slug) }}
                             {{ rich_text_editor(translationForms[locale].content) }}
                             {{ form_row(translationForms[locale].metaTitle) }}
                             {{ form_row(translationForms[locale].metaDescription) }}
-                            {{ form_row(translationForms[locale].ogImage) }}
+                            {{ image_url_field(translationForms[locale].ogImage) }}
                             <button type="submit" class="btn btn-gold mt-3">{{ 'app.cms.admin.save_translation'|trans({'%locale%': locale|upper}) }}</button>
                         {{ form_end(translationForms[locale]) }}
                     </div>

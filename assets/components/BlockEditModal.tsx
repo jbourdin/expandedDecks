@@ -28,6 +28,7 @@ import {
     ActionIcon,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import ImageUrlField from './ImageUrlField';
 
 type BlockData = Record<string, unknown>;
 type TranslationsMap = Record<string, Record<string, Record<string, unknown>>>;
@@ -63,6 +64,7 @@ interface BlockEditModalProps {
     supportedLocales: string[];
     labels: Labels;
     blockTypes: BlockTypeInfo[];
+    uploadUrl: string;
     onSave: (updatedBlock: BlockData, updatedTranslations: Record<string, Record<string, unknown>>) => void;
     onClose: () => void;
 }
@@ -74,6 +76,7 @@ export default function BlockEditModal({
     supportedLocales,
     labels,
     blockTypes,
+    uploadUrl,
     onSave,
     onClose,
 }: BlockEditModalProps) {
@@ -203,15 +206,15 @@ export default function BlockEditModal({
                         {(Array.isArray(editedBlock.items) ? editedBlock.items as CarouselItem[] : []).map((carouselItem, itemIndex) => (
                             <Card key={itemIndex} withBorder padding="xs">
                                 <Group grow align="end">
-                                    <TextInput
+                                    <ImageUrlField
                                         label={label('image')}
                                         value={carouselItem.image ?? ''}
-                                        onChange={(event) => {
+                                        onChange={(url) => {
                                             const items = [...(editedBlock.items as CarouselItem[])];
-                                            items[itemIndex] = { ...items[itemIndex], image: event.currentTarget.value };
+                                            items[itemIndex] = { ...items[itemIndex], image: url };
                                             updateBlock('items', items);
                                         }}
-                                        placeholder="https://..."
+                                        uploadUrl={uploadUrl}
                                     />
                                     <TextInput
                                         label={label('altText')}
