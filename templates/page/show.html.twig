@@ -8,27 +8,16 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ translation.metaTitle ?? translation.title }} — Expanded Decks{% endblock %}
+{% block title %}{{ translation.title }} — Expanded Decks{% endblock %}
 
 {% block meta %}
-    {% set fallback = page.getTranslation('en') %}
-    {% set ogImage = translation.ogImage ?? fallback.ogImage ?? null %}
-    {% if translation.metaDescription %}
-        <meta name="description" content="{{ translation.metaDescription }}">
-    {% endif %}
     {% if page.noIndex %}
         <meta name="robots" content="noindex">
     {% endif %}
-    {% if page.canonicalUrl %}
-        <link rel="canonical" href="{{ page.canonicalUrl }}">
+    {% if page.ogImage %}
+        <meta property="og:image" content="{{ page.ogImage }}">
     {% endif %}
-    {% if ogImage %}
-        <meta property="og:image" content="{{ ogImage }}">
-    {% endif %}
-    <meta property="og:title" content="{{ translation.metaTitle ?? translation.title }}">
-    {% if translation.metaDescription %}
-        <meta property="og:description" content="{{ translation.metaDescription }}">
-    {% endif %}
+    <meta property="og:title" content="{{ translation.title }}">
 {% endblock %}
 
 {% block body %}

@@ -32,29 +32,12 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Resolve a page by slug: first try localized translation slug,
-     * then fall back to the canonical Page.slug.
+     * Find a page by its slug, with translations eagerly loaded.
      *
      * @see docs/features.md F11.3 — Page rendering & locale fallback
      */
     public function findBySlug(string $slug): ?Page
     {
-        // Try localized slug first
-        /** @var Page|null $page */
-        $page = $this->createQueryBuilder('p')
-            ->leftJoin('p.translations', 't')
-            ->addSelect('t')
-            ->where('t.slug = :slug')
-            ->andWhere('p.deletedAt IS NULL')
-            ->setParameter('slug', $slug)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if ($page instanceof Page) {
-            return $page;
-        }
-
-        // Fall back to canonical slug
         /** @var Page|null $page */
         $page = $this->createQueryBuilder('p')
             ->leftJoin('p.translations', 't')

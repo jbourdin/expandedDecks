@@ -31,7 +31,7 @@ class PageTest extends TestCase
         self::assertSame('', $page->getSlug());
         self::assertNull($page->getMenuCategory());
         self::assertFalse($page->isPublished());
-        self::assertNull($page->getCanonicalUrl());
+        self::assertNull($page->getOgImage());
         self::assertFalse($page->isNoIndex());
         self::assertInstanceOf(\DateTimeImmutable::class, $page->getCreatedAt());
         self::assertNull($page->getUpdatedAt());
@@ -87,22 +87,22 @@ class PageTest extends TestCase
         self::assertFalse($page->isPublished());
     }
 
-    public function testSetCanonicalUrl(): void
+    public function testSetOgImage(): void
     {
         $page = new Page();
-        $result = $page->setCanonicalUrl('https://example.com/about');
+        $result = $page->setOgImage('/api/editor/image/test.jpg');
 
-        self::assertSame('https://example.com/about', $page->getCanonicalUrl());
+        self::assertSame('/api/editor/image/test.jpg', $page->getOgImage());
         self::assertSame($page, $result);
     }
 
-    public function testSetCanonicalUrlToNull(): void
+    public function testSetOgImageToNull(): void
     {
         $page = new Page();
-        $page->setCanonicalUrl('https://example.com');
-        $page->setCanonicalUrl(null);
+        $page->setOgImage('https://example.com/image.jpg');
+        $page->setOgImage(null);
 
-        self::assertNull($page->getCanonicalUrl());
+        self::assertNull($page->getOgImage());
     }
 
     public function testSetNoIndex(): void

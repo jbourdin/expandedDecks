@@ -58,9 +58,10 @@ class PageFormType extends AbstractType
                 'label' => 'app.cms.form.no_index',
                 'required' => false,
             ])
-            ->add('canonicalUrl', TextType::class, [
-                'label' => 'app.cms.form.canonical_url',
+            ->add('ogImage', TextType::class, [
+                'label' => 'app.cms.form.og_image',
                 'required' => false,
+                'empty_data' => null,
             ]);
     }
 

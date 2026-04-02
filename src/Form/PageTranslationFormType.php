@@ -33,11 +33,6 @@ class PageTranslationFormType extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'app.cms.form.title',
             ])
-            ->add('slug', TextType::class, [
-                'label' => 'app.cms.form.localized_slug',
-                'required' => false,
-                'attr' => ['placeholder' => 'app.cms.form.localized_slug_placeholder'],
-            ])
             ->add('content', TextareaType::class, [
                 'label' => 'app.cms.form.content',
                 'required' => false,
@@ -45,21 +40,6 @@ class PageTranslationFormType extends AbstractType
                     'rows' => 15,
                     'placeholder' => 'app.cms.form.content_placeholder',
                 ],
-            ])
-            ->add('metaTitle', TextType::class, [
-                'label' => 'app.cms.form.meta_title',
-                'required' => false,
-                'attr' => ['maxlength' => 70],
-            ])
-            ->add('metaDescription', TextareaType::class, [
-                'label' => 'app.cms.form.meta_description',
-                'required' => false,
-                'attr' => ['rows' => 2, 'maxlength' => 160],
-            ])
-            ->add('ogImage', TextType::class, [
-                'label' => 'app.cms.form.og_image',
-                'required' => false,
-                'empty_data' => null,
             ]);
     }
 
