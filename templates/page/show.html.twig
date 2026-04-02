@@ -11,6 +11,8 @@
 {% block title %}{{ translation.metaTitle ?? translation.title }} — Expanded Decks{% endblock %}
 
 {% block meta %}
+    {% set fallback = page.getTranslation('en') %}
+    {% set ogImage = translation.ogImage ?? fallback.ogImage ?? null %}
     {% if translation.metaDescription %}
         <meta name="description" content="{{ translation.metaDescription }}">
     {% endif %}
@@ -20,8 +22,8 @@
     {% if page.canonicalUrl %}
         <link rel="canonical" href="{{ page.canonicalUrl }}">
     {% endif %}
-    {% if translation.ogImage %}
-        <meta property="og:image" content="{{ translation.ogImage }}">
+    {% if ogImage %}
+        <meta property="og:image" content="{{ ogImage }}">
     {% endif %}
     <meta property="og:title" content="{{ translation.metaTitle ?? translation.title }}">
     {% if translation.metaDescription %}
