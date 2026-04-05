@@ -68,9 +68,10 @@ final class MinifiedCardViewBuilderTest extends TestCase
         $extraPrinting->setCardIdentity($identity);
         $identity->addPrinting($extraPrinting);
 
+        $printing->setImageUrl('https://example.com/original.webp');
+
         $card = $this->createDeckCard('Arceus VSTAR', 'BRS', '123', 'pokemon', 1);
         $card->setCardPrinting($printing);
-        $card->setImageUrl('https://example.com/original.webp');
 
         $version = $this->createVersionWithCards([$card]);
 
@@ -209,9 +210,10 @@ final class MinifiedCardViewBuilderTest extends TestCase
         $bestPrinting->setCardNumber('135');
         $bestPrinting->setImageUrl('https://example.com/ultra-ball-common.webp');
 
+        $printing->setImageUrl('https://example.com/original.webp');
+
         $card = $this->createDeckCard('Ultra Ball', 'SV1', '196', 'trainer', 4);
         $card->setCardPrinting($printing);
-        $card->setImageUrl('https://example.com/original.webp');
 
         $version = $this->createVersionWithCards([$card]);
 

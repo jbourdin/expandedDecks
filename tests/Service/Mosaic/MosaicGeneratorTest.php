@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Mosaic;
 
+use App\Entity\CardIdentity;
+use App\Entity\CardPrinting;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
@@ -166,11 +168,25 @@ final class MosaicGeneratorTest extends TestCase
         $card = new DeckCard();
         $card->setCardName($name);
         $card->setCardType($type);
-        $card->setTrainerSubtype($trainerSubtype);
         $card->setQuantity($quantity);
         $card->setSetCode('TST');
         $card->setCardNumber('1');
-        $card->setImageUrl($imageUrl);
+
+        if (null !== $trainerSubtype || null !== $imageUrl) {
+            $identity = new CardIdentity();
+            $identity->setName($name);
+            $identity->setCategory($type);
+            $identity->setTrainerType($trainerSubtype);
+
+            $printing = new CardPrinting();
+            $printing->setTcgdexId('tst-'.mb_strtolower(str_replace(' ', '-', $name)));
+            $printing->setImageUrl($imageUrl);
+            $printing->setCardIdentity($identity);
+            $identity->addPrinting($printing);
+
+            $card->setCardPrinting($printing);
+        }
+
         $version->addCard($card);
     }
 }

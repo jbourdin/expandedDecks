@@ -140,7 +140,18 @@ final class MinifiedListGeneratorTest extends TestCase
     {
         $pokemonCard = $this->createDeckCard('Pikachu', 'BRS', '50', 'pokemon', 3);
         $trainerCard = $this->createDeckCard('Quick Ball', 'SSH', '179', 'trainer', 4);
-        $trainerCard->setTrainerSubtype('Item');
+
+        $trainerIdentity = new CardIdentity();
+        $trainerIdentity->setName('Quick Ball');
+        $trainerIdentity->setCategory('trainer');
+        $trainerIdentity->setTrainerType('Item');
+
+        $trainerPrinting = new CardPrinting();
+        $trainerPrinting->setTcgdexId('swsh1-179');
+        $trainerPrinting->setCardIdentity($trainerIdentity);
+        $trainerIdentity->addPrinting($trainerPrinting);
+
+        $trainerCard->setCardPrinting($trainerPrinting);
         $energyCard = $this->createDeckCard('Lightning Energy', 'SVE', '4', 'energy', 8);
 
         $version = $this->createVersionWithCards([$pokemonCard, $trainerCard, $energyCard]);
