@@ -154,6 +154,9 @@ async function main(): Promise<void> {
 
     if (!serieId) continue
 
+    // Skip Pokémon TCG Pocket — different card game, not relevant for Expanded format
+    if (serieId === 'tcgp') continue
+
     // Output serie
     process.stdout.write(JSON.stringify({
       type: 'serie',
