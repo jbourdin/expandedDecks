@@ -61,7 +61,11 @@ class MosaicGenerator
         $cards = $this->sortCards($version);
 
         if ([] === $cards) {
-            throw new \RuntimeException(\sprintf('DeckVersion #%d has no cards.', $version->getId()));
+            $this->logger->info('DeckVersion #{id} has no cards, skipping mosaic generation.', [
+                'id' => $version->getId(),
+            ]);
+
+            return '';
         }
 
         $totalCards = \count($cards);

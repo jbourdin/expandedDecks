@@ -43,14 +43,13 @@ final class MosaicGeneratorTest extends TestCase
         );
     }
 
-    public function testGenerateThrowsOnEmptyCards(): void
+    public function testGenerateReturnsEmptyStringOnEmptyCards(): void
     {
         $version = $this->createVersion(1, 1);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('has no cards');
+        $result = $this->generator->generate($version);
 
-        $this->generator->generate($version);
+        self::assertSame('', $result);
     }
 
     public function testGenerateWritesPngToStorage(): void
