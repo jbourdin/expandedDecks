@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +47,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
         $mapping = $client->getSetMapping();
 
         // Repository mappings
@@ -65,7 +66,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('getForwardMapping')->willReturn([]);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
         $mapping = $client->getSetMapping();
 
         // PTCGO short codes map to the same TCGdex IDs as the PR-XX codes
@@ -99,7 +100,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('SMP', '217');
 
         self::assertNotNull($card);
@@ -112,7 +113,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('getForwardMapping')->willReturn(['BRS' => 'swsh9']);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         $mapping = $client->getSetMapping();
 
@@ -134,7 +135,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -150,7 +151,7 @@ class TcgdexApiClientTest extends TestCase
     {
         $httpClient = $this->createCardMockClient(['swsh9-999' => ['status' => 404]]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '999');
 
         self::assertNull($card);
@@ -172,7 +173,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '79');
 
         self::assertNotNull($card);
@@ -183,7 +184,7 @@ class TcgdexApiClientTest extends TestCase
     {
         $httpClient = $this->createStub(HttpClientInterface::class);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('UNKNOWN', '1');
 
         self::assertNull($card);
@@ -206,7 +207,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-SV is a static override, no repository mapping needed
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SV', '67');
 
         self::assertNotNull($card);
@@ -231,7 +232,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-XY is a static override
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-XY', '177');
 
         self::assertNotNull($card);
@@ -257,7 +258,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-SW is a static override
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SW', '001');
 
         self::assertNotNull($card);
@@ -280,7 +281,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '132');
 
         self::assertNotNull($card);
@@ -309,7 +310,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '185');
 
         self::assertNotNull($card);
@@ -337,7 +338,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '113');
 
         self::assertNotNull($card);
@@ -361,7 +362,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '225');
 
         self::assertNotNull($card);
@@ -376,7 +377,7 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'sm3.5-69', 'name' => 'Double Colorless Energy', 'image' => 'https://assets.tcgdex.net/en/sm/sm35/069'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertSame('https://assets.tcgdex.net/en/sm/sm35/069/high.webp', $imageUrl);
@@ -389,7 +390,7 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'xy1-42', 'name' => 'Double Colorless Energy'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertNull($imageUrl);
@@ -411,7 +412,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['ASR' => 'swsh10']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['ASR' => 'swsh10']));
         $card = $client->findCard('ASR-TG', '30');
 
         self::assertNotNull($card);
@@ -435,7 +436,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '113a');
 
         self::assertNotNull($card);
@@ -449,7 +450,7 @@ class TcgdexApiClientTest extends TestCase
         $response->method('getStatusCode')->willReturn(500);
         $httpClient->method('request')->willReturn($response);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $result = $client->findAllPrintingsByName('NonexistentCard');
 
         self::assertSame([], $result);
@@ -476,7 +477,7 @@ class TcgdexApiClientTest extends TestCase
                 return $response;
             });
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $result = $client->findAllPrintingsByName('Test Card');
 
         self::assertSame([], $result);
@@ -500,7 +501,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -528,7 +529,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -559,7 +560,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -603,7 +604,7 @@ class TcgdexApiClientTest extends TestCase
                 return $response;
             });
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -625,7 +626,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -640,7 +641,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('isEmpty')->willReturn(true);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         self::assertFalse($client->hasMappings());
     }
@@ -651,9 +652,19 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('isEmpty')->willReturn(false);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         self::assertTrue($client->hasMappings());
+    }
+
+    private function createClient(HttpClientInterface $httpClient, TcgdexSetMappingRepository $repository): TcgdexApiClient
+    {
+        return new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $repository,
+            $this->createStub(TcgdexCardRepository::class),
+        );
     }
 
     /**
