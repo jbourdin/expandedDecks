@@ -80,6 +80,10 @@ fixtures: ## Load fixture data and dispatch enrichment
 	symfony console app:banned-cards:sync
 	symfony console app:enrich:retry
 
+.PHONY: tcgdex.import
+tcgdex.import: ## Import TCGdex card database from local git clone
+	symfony php -d memory_limit=1G bin/console app:tcgdex:import --clone --no-debug
+
 ## —— Assets ——————————————————————————————————————————————————————————
 
 POKESPRITE_DIR := assets/vendor/sprites/pokemon
