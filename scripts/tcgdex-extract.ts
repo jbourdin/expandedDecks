@@ -68,17 +68,6 @@ function isExpandedLegal(
 }
 
 /**
- * Build the image URL from TCGdex CDN convention.
- *
- * Note: Sets with dots in the ID (e.g. sm3.5, swsh12.5) have inconsistent CDN
- * behavior — some work with dots, some without, some neither. The PHP image
- * consumer handles fallbacks at download time (see MosaicGenerator).
- */
-function buildImageUrl(serieId: string, setId: string, localId: string): string {
-  return `https://assets.tcgdex.net/en/${serieId}/${setId}/${localId}/high.webp`
-}
-
-/**
  * Extract a multilingual name/text object, keeping only non-empty strings.
  */
 function extractLanguages(value: unknown): Languages | null {
@@ -256,7 +245,6 @@ async function main(): Promise<void> {
           trainerType: typeof card.trainerType === 'string' ? card.trainerType : null,
           energyType: typeof card.energyType === 'string' ? card.energyType : null,
           rarity: typeof card.rarity === 'string' ? card.rarity : null,
-          imageUrl: buildImageUrl(serieId, setId, localId),
           isExpandedLegal: isExpandedLegal(serieId, tcgdexId, legality),
           abilities: extractAbilities(card.abilities),
           attacks: extractAttacks(card.attacks),

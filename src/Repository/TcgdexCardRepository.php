@@ -59,18 +59,12 @@ class TcgdexCardRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find the first card with the given English name that has an image URL.
+     * Find the first card with the given English name.
      */
-    public function findFirstByNameEnWithImage(string $name): ?TcgdexCard
+    public function findFirstByNameEn(string $name): ?TcgdexCard
     {
         /** @var TcgdexCard|null $result */
-        $result = $this->createQueryBuilder('c')
-            ->where('c.nameEn = :name')
-            ->andWhere('c.imageUrl IS NOT NULL')
-            ->setParameter('name', $name)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $result = $this->findOneBy(['nameEn' => $name]);
 
         return $result;
     }

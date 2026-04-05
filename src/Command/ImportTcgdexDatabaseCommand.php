@@ -306,7 +306,6 @@ class ImportTcgdexDatabaseCommand extends Command
         $card->setTrainerType($this->extractString($record, 'trainerType'));
         $card->setEnergyType($this->extractString($record, 'energyType'));
         $card->setRarity($this->extractString($record, 'rarity'));
-        $card->setImageUrl($this->extractString($record, 'imageUrl'));
         $card->setIsExpandedLegal((bool) ($record['isExpandedLegal'] ?? false));
         $card->setAbilities($abilities);
         $card->setAttacks($attacks);

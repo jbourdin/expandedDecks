@@ -78,10 +78,6 @@ class TcgdexCard
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $rarity = null;
 
-    /** TCGdex CDN image URL (may be unreliable for dotted set IDs). */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $imageUrl = null;
-
     #[ORM\Column]
     private bool $isExpandedLegal = false;
 
@@ -265,16 +261,23 @@ class TcgdexCard
         return $this;
     }
 
-    public function getImageUrl(): ?string
+    /**
+     * Build the TCGdex CDN image URL for this card.
+     *
+     * The URL is derived from the card's position in the serie/set hierarchy.
+     * Note: some dotted set IDs (e.g. sm3.5) may return 404 — consumers should
+     * handle fallbacks (see CardImageResolver / MosaicGenerator).
+     */
+    public function getImageUrl(string $resolution = 'high', string $format = 'webp'): string
     {
-        return $this->imageUrl;
-    }
-
-    public function setImageUrl(?string $imageUrl): static
-    {
-        $this->imageUrl = $imageUrl;
-
-        return $this;
+        return \sprintf(
+            'https://assets.tcgdex.net/en/%s/%s/%s/%s.%s',
+            $this->set->getSerie()->getId(),
+            $this->set->getId(),
+            $this->localId,
+            $resolution,
+            $format,
+        );
     }
 
     public function isExpandedLegal(): bool
