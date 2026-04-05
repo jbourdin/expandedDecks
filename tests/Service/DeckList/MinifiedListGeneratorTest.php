@@ -76,7 +76,8 @@ final class MinifiedListGeneratorTest extends TestCase
         $card->setCardPrinting($printing);
 
         $this->printingRepository = $this->createStub(CardPrintingRepository::class);
-        $this->printingRepository->method('findLowestRarityForIdentity')->willReturn(null);
+        $this->printingRepository->method('findCanonicalForIdentity')->willReturn(null);
+        $this->printingRepository->method('computeCanonical')->willReturn(null);
 
         $version = $this->createVersionWithCards([$card]);
 
@@ -191,7 +192,7 @@ final class MinifiedListGeneratorTest extends TestCase
         $card->setCardPrinting($printing);
 
         $this->printingRepository = $this->createStub(CardPrintingRepository::class);
-        $this->printingRepository->method('findLowestRarityForIdentity')->willReturn($bestPrinting);
+        $this->printingRepository->method('findCanonicalForIdentity')->willReturn($bestPrinting);
 
         $version = $this->createVersionWithCards([$card]);
 

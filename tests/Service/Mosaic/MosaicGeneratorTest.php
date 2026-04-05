@@ -18,6 +18,7 @@ use App\Entity\CardPrinting;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\CardImageResolver;
 use App\Service\Mosaic\MosaicGenerator;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
@@ -37,6 +38,7 @@ final class MosaicGeneratorTest extends TestCase
         $this->generator = new MosaicGenerator(
             $this->storage,
             new NullLogger(),
+            $this->createStub(CardImageResolver::class),
             \dirname(__DIR__, 3), // project root
         );
     }
@@ -54,7 +56,7 @@ final class MosaicGeneratorTest extends TestCase
     public function testGenerateWritesPngToStorage(): void
     {
         $storage = $this->createMock(FilesystemOperator::class);
-        $generator = new MosaicGenerator($storage, new NullLogger(), \dirname(__DIR__, 3));
+        $generator = new MosaicGenerator($storage, new NullLogger(), $this->createStub(CardImageResolver::class), \dirname(__DIR__, 3));
 
         $version = $this->createVersion(1, 1);
         $this->addCard($version, 'Pikachu', 'pokemon', null, 4);

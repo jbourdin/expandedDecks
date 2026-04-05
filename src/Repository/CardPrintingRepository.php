@@ -16,6 +16,7 @@ namespace App\Repository;
 use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -38,6 +39,20 @@ class CardPrintingRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /**
+     * Find the canonical printing for an identity (already computed and flagged).
+     */
+    public function findCanonicalForIdentity(CardIdentity $identity): ?CardPrinting
+    {
+        /** @var CardPrinting|null $result */
+        $result = $this->findOneBy([
+            'cardIdentity' => $identity,
+            'isCanonical' => true,
+        ]);
+
+        return $result;
+    }
+
     /** Expanded era starts with Black & White (2011-04-25). */
     private const string EXPANDED_ERA_START = '2011-04-25';
 
@@ -52,44 +67,71 @@ class CardPrintingRepository extends ServiceEntityRepository
     private const array PREMIUM_CARD_NUMBER_PREFIXES = ['TG', 'GG'];
 
     /**
-     * Find the best Expanded-legal printing for minified export.
+     * Find the best Expanded-legal printing for minified export (price-free algorithm).
      *
-     * Three-pass strategy:
-     * 1. Look for a common non-premium printing (tier 1–3, no TG/GG prefix):
-     *    prefer most recent reprint, then cheapest.
-     * 2. If none, fall back to rare+ non-premium (tier 4+): prefer cheapest, then most recent.
-     * 3. If none, include premium printings (TG/GG) as last resort.
+     * Three-pass strategy using locally-available data only (no price dependency):
+     * 1. Common non-premium printing (tier 1–3): prefer standard number, then most recent.
+     * 2. Rare+ non-premium (tier 4+): prefer standard number, then most recent.
+     * 3. Any printing including premium: most recent.
+     *
+     * "Standard number" = numeric card number within the set's official count,
+     * not a TG/GG prefix, and not from an unreliable-rarity set.
      *
      * @see docs/technicalities/enrichment.md — Lowest-Rarity Printing Selection
      */
     public function findLowestRarityForIdentity(CardIdentity $identity): ?CardPrinting
     {
-        // Pass 1: common non-premium printings (tiers 1–3) — most recent first
-        $result = $this->findPrintingByTierRange($identity, 1, self::COMMON_TIER_THRESHOLD, 'date', true);
+        // Pass 1: common non-premium printings (tiers 1–3) — standard number first, then most recent
+        $result = $this->findPrintingByTierRange($identity, 1, self::COMMON_TIER_THRESHOLD, true);
 
         if (null !== $result) {
             return $result;
         }
 
-        // Pass 2: rare+ non-premium printings (tier 4+) — cheapest first
-        $result = $this->findPrintingByTierRange($identity, self::COMMON_TIER_THRESHOLD + 1, null, 'price', true);
+        // Pass 2: rare+ non-premium printings (tier 4+) — standard number first, then most recent
+        $result = $this->findPrintingByTierRange($identity, self::COMMON_TIER_THRESHOLD + 1, null, true);
 
         if (null !== $result) {
             return $result;
         }
 
-        // Pass 3: any printing including premium (TG/GG) — cheapest first
-        return $this->findPrintingByTierRange($identity, 1, null, 'price', false);
+        // Pass 3: any printing including premium — most recent
+        return $this->findPrintingByTierRange($identity, 1, null, false);
     }
 
     /**
-     * @param 'date'|'price' $primarySort
+     * Compute and persist the canonical printing for an identity.
+     *
+     * Clears any existing canonical flag on the identity's printings,
+     * then marks the best one as canonical.
      */
+    public function computeCanonical(CardIdentity $identity): ?CardPrinting
+    {
+        // Clear existing canonical flag
+        $this->createQueryBuilder('cp')
+            ->update()
+            ->set('cp.isCanonical', ':false')
+            ->where('cp.cardIdentity = :identity')
+            ->andWhere('cp.isCanonical = :true')
+            ->setParameter('identity', $identity)
+            ->setParameter('true', true)
+            ->setParameter('false', false)
+            ->getQuery()
+            ->execute();
+
+        $best = $this->findLowestRarityForIdentity($identity);
+
+        if (null !== $best) {
+            $best->setIsCanonical(true);
+        }
+
+        return $best;
+    }
+
     private function findPrintingByTierRange(
         CardIdentity $identity,
         int $minTier,
         ?int $maxTier,
-        string $primarySort,
         bool $excludePremiumNumbers,
     ): ?CardPrinting {
         $queryBuilder = $this->createQueryBuilder('cp')
@@ -111,26 +153,25 @@ class CardPrintingRepository extends ServiceEntityRepository
         }
 
         if ($excludePremiumNumbers) {
-            foreach (self::PREMIUM_CARD_NUMBER_PREFIXES as $index => $prefix) {
-                $queryBuilder
-                    ->andWhere(\sprintf('cp.cardNumber NOT LIKE :premiumPrefix%d', $index))
-                    ->setParameter(\sprintf('premiumPrefix%d', $index), $prefix.'%');
-            }
+            $this->excludePremiumNumbers($queryBuilder);
         }
 
+        // Sort: rarity tier ASC, then most recent release date
         $queryBuilder->addOrderBy('cp.rarityTier', 'ASC');
-
-        if ('date' === $primarySort) {
-            $queryBuilder->addOrderBy('cp.setReleaseDate', 'DESC');
-            $queryBuilder->addOrderBy('cp.priceInCents', 'ASC');
-        } else {
-            $queryBuilder->addOrderBy('cp.priceInCents', 'ASC');
-            $queryBuilder->addOrderBy('cp.setReleaseDate', 'DESC');
-        }
+        $queryBuilder->addOrderBy('cp.setReleaseDate', 'DESC');
 
         /** @var CardPrinting|null $result */
         $result = $queryBuilder->getQuery()->getOneOrNullResult();
 
         return $result;
+    }
+
+    private function excludePremiumNumbers(QueryBuilder $queryBuilder): void
+    {
+        foreach (self::PREMIUM_CARD_NUMBER_PREFIXES as $index => $prefix) {
+            $queryBuilder
+                ->andWhere(\sprintf('cp.cardNumber NOT LIKE :premiumPrefix%d', $index))
+                ->setParameter(\sprintf('premiumPrefix%d', $index), $prefix.'%');
+        }
     }
 }
