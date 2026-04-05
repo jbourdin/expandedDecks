@@ -16,6 +16,27 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.3.3] — 2026-04-05
+
+Local TCGdex card database — dedicated `tcgdex_*` tables mirroring the cards-database repository for offline card resolution.
+
+### Features
+
+- **Local TCGdex card database** — new `tcgdex_serie`, `tcgdex_set`, and `tcgdex_card` entities storing full multilingual card data (en, fr, es, it, pt, de) in JSON columns. MySQL generated columns (`name_en`, `name_fr`) provide indexed lookups. (#314, #317)
+- **Import CLI command** — `app:tcgdex:import --clone` clones the `tcgdex/cards-database` git repository and populates the local tables (20k+ cards, 191 sets, 20 series). Supports `--truncate` for full reload. Makefile target: `make tcgdex.import`.
+- **TypeScript extractor** — `scripts/tcgdex-extract.ts` reads the cards-database repo and outputs NDJSON with series, sets, and cards including expanded legality computed from `meta/legals.ts` rules.
+
+### Refactoring
+
+- **Computed image URLs** — `TcgdexCard::getImageUrl()` derives the CDN URL from the serie/set/card hierarchy with configurable resolution and format (default: `high.webp`), instead of storing redundant URLs.
+
+### Infrastructure
+
+- Increase CLI memory limit to 512M via `.symfony.local.yaml`.
+- Exclude Pokémon TCG Pocket serie from import (different card game, not relevant for Expanded format).
+
+---
+
 ## [1.3.2] — 2026-04-02
 
 Homepage block improvements, ImageUrlField component, CMS page model simplification, and entity-linked featured blocks.
