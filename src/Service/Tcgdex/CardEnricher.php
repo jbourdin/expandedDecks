@@ -89,6 +89,87 @@ class CardEnricher
         'MEE|8' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
     ];
 
+    /**
+     * Fallback image URLs for basic energy cards when no TCGdex printing exists.
+     *
+     * Uses MEE (Mega Evolution Energy) from pokemon.com CDN for the 8 standard types,
+     * and sm1 from pokemontcg.io for Fairy Energy.
+     *
+     * @see data/basic_energies.json — full catalogue of all basic energy printings
+     * @see docs/technicalities/basic_energy_images.md
+     */
+    private const array BASIC_ENERGY_IMAGES = [
+        // English
+        'Grass Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Fire Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Water Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Lightning Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Psychic Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Fighting Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Darkness Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Metal Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Fairy Energy' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // French
+        'Énergie Plante' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Énergie Feu' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Énergie Eau' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Énergie Électrique' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Énergie Psy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Énergie Combat' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Énergie Obscurité' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Énergie Métal' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Énergie Fée' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // German
+        'Pflanzenenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Feuerenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Wasserenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Elektroenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Psychoenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Kampfenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Finsternis-Energie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Metallenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Feen-Energie' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // Spanish
+        'Energía Planta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Energía Fuego' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Energía Agua' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Energía Rayo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Energía Psíquica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Energía Lucha' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Energía Oscura' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Energía Metálica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Energía Hada' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // Italian
+        'Energia Erba' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Energia Fuoco' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Energia Acqua' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Energia Lampo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Energia Psico' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Energia Lotta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Energia Oscurità' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Energia Metallo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Energia Folletto' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // Portuguese
+        'Energia de Grama' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        'Energia de Fogo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        'Energia de Água' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        'Energia de Raios' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        'Energia Psíquica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        'Energia de Luta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        'Energia Noturna' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        'Energia de Metal' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+        'Energia de Fada' => 'https://images.pokemontcg.io/sm1/172_hires.png',
+        // Japanese
+        '基本草エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+        '基本炎エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
+        '基本水エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
+        '基本雷エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
+        '基本超エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
+        '基本闘エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
+        '基本悪エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
+        '基本鋼エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
+    ];
+
     public function __construct(
         private readonly TcgdexApiClient $apiClient,
         private readonly CardIdentityResolver $identityResolver,
@@ -235,8 +316,22 @@ class CardEnricher
             return;
         }
 
-        // Final fallback: static image map — no CardPrinting available
-        // DeckCard.getImageUrl() will return null; template shows card name without image
+        // Final fallback: create a synthetic printing with a static image URL
+        $fallbackImageUrl = self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null;
+
+        if (null !== $fallbackImageUrl) {
+            $syntheticDto = new TcgdexCard(
+                id: \sprintf('energy-%s', strtolower(str_replace(' ', '-', $card->getCardName()))),
+                name: $card->getCardName(),
+                category: 'Energy',
+                trainerType: null,
+                imageUrl: $fallbackImageUrl,
+                isExpandedLegal: true,
+            );
+            $printing = $this->identityResolver->resolveFromTcgdexCard($syntheticDto);
+            $printing->setImageUrl($fallbackImageUrl);
+            $card->setCardPrinting($printing);
+        }
     }
 
     /**
