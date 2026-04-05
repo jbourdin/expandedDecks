@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Service\Tcgdex;
 
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Service\CardIdentity\CardIdentityResolver;
@@ -20,7 +21,7 @@ use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Enriches DeckCards with data from TCGdex (trainerSubtype, imageUrl, tcgdexId).
+ * Enriches DeckCards with card data, linking them to CardPrinting/CardIdentity.
  *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  * @see docs/features.md F6.9 — Improved energy card enrichment
@@ -88,85 +89,6 @@ class CardEnricher
         'MEE|8' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
     ];
 
-    /**
-     * Fallback image URLs for basic energy cards when TCGdex returns nothing.
-     * Uses MEE (Mega Evolution Energy) from pokemon.com CDN for the 8 standard types,
-     * and sm1 from pokemontcg.io for Fairy Energy.
-     *
-     * @see data/basic_energies.json — full catalogue of all basic energy printings
-     * @see docs/technicalities/basic_energy_images.md
-     */
-    private const array BASIC_ENERGY_IMAGES = [
-        'Grass Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Fire Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Water Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Lightning Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Psychic Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Fighting Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Darkness Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Metal Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Fairy Energy' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // French
-        'Énergie Plante' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Énergie Feu' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Énergie Eau' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Énergie Électrique' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Énergie Psy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Énergie Combat' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Énergie Obscurité' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Énergie Métal' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Énergie Fée' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // German
-        'Pflanzenenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Feuerenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Wasserenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Elektroenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Psychoenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Kampfenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Finsternis-Energie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Metallenergie' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Feen-Energie' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // Spanish
-        'Energía Planta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Energía Fuego' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Energía Agua' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Energía Rayo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Energía Psíquica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Energía Lucha' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Energía Oscura' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Energía Metálica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Energía Hada' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // Italian
-        'Energia Erba' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Energia Fuoco' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Energia Acqua' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Energia Lampo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Energia Psico' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Energia Lotta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Energia Oscurità' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Energia Metallo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Energia Folletto' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // Portuguese
-        'Energia de Grama' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        'Energia de Fogo' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        'Energia de Água' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        'Energia de Raios' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        'Energia Psíquica' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        'Energia de Luta' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        'Energia Noturna' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        'Energia de Metal' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-        'Energia de Fada' => 'https://images.pokemontcg.io/sm1/172_hires.png',
-        // Japanese
-        '基本草エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
-        '基本炎エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
-        '基本水エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
-        '基本雷エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_4.png',
-        '基本超エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_5.png',
-        '基本闘エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_6.png',
-        '基本悪エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_7.png',
-        '基本鋼エネルギー' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
-    ];
-
     public function __construct(
         private readonly TcgdexApiClient $apiClient,
         private readonly CardIdentityResolver $identityResolver,
@@ -202,17 +124,10 @@ class CardEnricher
                     $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
 
                     if (null !== $tcgdexCard) {
-                        $card->setTcgdexId($tcgdexCard->id);
-                        $card->setImageUrl($tcgdexCard->imageUrl);
-
-                        if (null !== $tcgdexCard->trainerType) {
-                            $card->setTrainerSubtype($tcgdexCard->trainerType);
-                        }
-
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
                         $this->resolveCardType($card, $tcgdexCard->category);
-                        $this->applyImageOverride($card);
+                        $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
 
                         $legalityWarnings[] = \sprintf(
                             '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
@@ -231,27 +146,11 @@ class CardEnricher
                     continue;
                 }
 
-                $card->setTcgdexId($tcgdexCard->id);
-
-                if (null === $tcgdexCard->imageUrl) {
-                    // TCGdex has no image for this card — try PokemonTCG.io CDN as exact fallback
-                    $card->setImageUrl(
-                        self::buildPokemontcgioUrl($tcgdexCard->id)
-                        ?? $this->apiClient->findImageByName($card->getCardName()),
-                    );
-                } else {
-                    $card->setImageUrl($tcgdexCard->imageUrl);
-                }
-
-                if (null !== $tcgdexCard->trainerType) {
-                    $card->setTrainerSubtype($tcgdexCard->trainerType);
-                }
-
-                // Link to CardIdentity/CardPrinting model
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
                 $this->resolveCardType($card, $tcgdexCard->category);
-                $this->applyImageOverride($card);
+                $this->resolveImageUrl($printing, $tcgdexCard, $card->getCardName());
+                $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
 
                 if (!$tcgdexCard->isExpandedLegal) {
                     $legalityWarnings[] = \sprintf(
@@ -301,7 +200,15 @@ class CardEnricher
         $energySetKey = $setCode.'|'.$normalizedNumber;
 
         if (isset(self::ENERGY_SET_IMAGES[$energySetKey])) {
-            $card->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+            // Static energy image — no CardPrinting (energy-only sets aren't in TCGdex)
+            // Try to find a printing anyway for enrichment completeness
+            $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
+
+            if (null !== $tcgdexCard) {
+                $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+                $printing->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+                $card->setCardPrinting($printing);
+            }
 
             return;
         }
@@ -311,8 +218,6 @@ class CardEnricher
             $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
 
             if (null !== $tcgdexCard) {
-                $card->setTcgdexId($tcgdexCard->id);
-                $card->setImageUrl($tcgdexCard->imageUrl);
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
 
@@ -324,31 +229,48 @@ class CardEnricher
         $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
 
         if (null !== $tcgdexCard) {
-            $card->setTcgdexId($tcgdexCard->id);
-            $card->setImageUrl($tcgdexCard->imageUrl);
             $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
             $card->setCardPrinting($printing);
 
             return;
         }
 
-        // Final fallback: static image map by energy name
-        $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
+        // Final fallback: static image map — no CardPrinting available
+        // DeckCard.getImageUrl() will return null; template shows card name without image
+    }
+
+    /**
+     * Ensures the CardPrinting has a working image URL, applying fallbacks if needed.
+     *
+     * If TCGdex provides no image, tries PokemonTCG.io CDN and name-based search.
+     */
+    private function resolveImageUrl(CardPrinting $printing, TcgdexCard $tcgdexCard, string $cardName): void
+    {
+        if (null !== $printing->getImageUrl()) {
+            return;
+        }
+
+        $fallbackUrl = self::buildPokemontcgioUrl($tcgdexCard->id)
+            ?? $this->apiClient->findImageByName($cardName);
+
+        if (null !== $fallbackUrl) {
+            $printing->setImageUrl($fallbackUrl);
+        }
     }
 
     /**
      * Applies a static image override for known TCGdex data issues.
      *
-     * Call after setting the card image URL from TCGdex. If the card's
-     * set code + number matches a known buggy entry, the image is replaced.
+     * Call after setting the CardPrinting. If the card's set code + number
+     * matches a known buggy entry, the printing's image is replaced.
      */
-    private function applyImageOverride(DeckCard $card): void
+    private function applyImageOverride(CardPrinting $printing, string $setCode, string $cardNumber): void
     {
-        $key = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $key = strtoupper($setCode).'|'.$cardNumber;
         $override = self::IMAGE_OVERRIDES[$key] ?? null;
 
         if (null !== $override) {
-            $card->setImageUrl($override);
+            $printing->setImageUrl($override);
         }
     }
 
