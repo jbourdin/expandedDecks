@@ -47,9 +47,23 @@
                                     <td>v{{ version.versionNumber }}</td>
                                     <td>{{ version.createdAt|user_date }}</td>
                                     <td>{{ version.cards|length }}</td>
-                                    <td>
-                                        {% if deck.currentVersion and version.versionNumber == deck.currentVersion.versionNumber %}
+                                    <td class="text-end">
+                                        {% set isCurrent = deck.currentVersion and version.versionNumber == deck.currentVersion.versionNumber %}
+                                        {% if isCurrent %}
                                             <span class="badge bg-success">{{ 'app.deck.version_history.current'|trans }}</span>
+                                        {% endif %}
+                                        {% if isOwner and version.rawList is not null %}
+                                            <a href="{{ path('app_deck_version_export', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.deck.version.export_list'|trans }}">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if isOwner and not isCurrent %}
+                                            <form method="post" action="{{ path('app_deck_version_delete', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ 'app.deck.version.delete'|trans }}" onclick="return confirm('{{ 'app.deck.version.delete_confirm'|trans({'%version%': version.versionNumber})|e('js') }}')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         {% endif %}
                                     </td>
                                 </tr>

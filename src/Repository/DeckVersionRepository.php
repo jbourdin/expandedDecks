@@ -55,12 +55,24 @@ class DeckVersionRepository extends ServiceEntityRepository
             ->leftJoin('dv.cards', 'c')
             ->addSelect('c')
             ->where('dv.deck = :deck')
+            ->andWhere('dv.deletedAt IS NULL')
             ->setParameter('deck', $deck)
             ->orderBy('dv.versionNumber', 'DESC')
             ->getQuery()
             ->getResult();
 
         return $results;
+    }
+
+    public function findOneByDeckAndVersion(Deck $deck, int $versionNumber): ?DeckVersion
+    {
+        /** @var DeckVersion|null $result */
+        $result = $this->findOneBy([
+            'deck' => $deck,
+            'versionNumber' => $versionNumber,
+        ]);
+
+        return $result;
     }
 
     /**

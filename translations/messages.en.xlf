@@ -876,6 +876,31 @@
                 <target>Current</target>
                 <note>Badge label for the current version</note>
             </trans-unit>
+            <trans-unit id="app.deck.version.export_list">
+                <source>app.deck.version.export_list</source>
+                <target>Export list</target>
+                <note>Button tooltip to download the version's raw deck list</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete">
+                <source>app.deck.version.delete</source>
+                <target>Delete version</target>
+                <note>Button tooltip to soft-delete a previous version</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete_confirm">
+                <source>app.deck.version.delete_confirm</source>
+                <target>Are you sure you want to delete version %version%?</target>
+                <note>Confirm dialog for version deletion</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.deleted">
+                <source>app.deck.version.deleted</source>
+                <target>Version deleted.</target>
+                <note>Flash message after version soft-deletion</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.cannot_delete_current">
+                <source>app.deck.version.cannot_delete_current</source>
+                <target>The current version cannot be deleted.</target>
+                <note>Flash message when trying to delete the current version</note>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>This deck has no version history yet.</target>

@@ -876,6 +876,26 @@
                 <target>Actuelle</target>
                 <note>Badge label for the current version</note>
             </trans-unit>
+            <trans-unit id="app.deck.version.export_list">
+                <source>app.deck.version.export_list</source>
+                <target>Exporter la liste</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete">
+                <source>app.deck.version.delete</source>
+                <target>Supprimer la version</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete_confirm">
+                <source>app.deck.version.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer la version %version% ?</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.deleted">
+                <source>app.deck.version.deleted</source>
+                <target>Version supprimée.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.cannot_delete_current">
+                <source>app.deck.version.cannot_delete_current</source>
+                <target>La version actuelle ne peut pas être supprimée.</target>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>Ce deck n'a pas encore d'historique de versions.</target>
