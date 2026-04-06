@@ -2178,6 +2178,10 @@
                 <source>app.deck.reenrich.no_version</source>
                 <target>Ce deck n'a pas de version actuelle à ré-enrichir.</target>
             </trans-unit>
+            <trans-unit id="app.deck.reenrich.no_raw_list">
+                <source>app.deck.reenrich.no_raw_list</source>
+                <target>Cette version de deck n'a pas de liste brute à ré-analyser.</target>
+            </trans-unit>
             <trans-unit id="app.deck.cannot_delete_active_borrows">
                 <source>app.deck.cannot_delete_active_borrows</source>
                 <target>Ce deck ne peut pas être supprimé car il a des emprunts en cours.</target>

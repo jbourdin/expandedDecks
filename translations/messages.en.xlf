@@ -2182,6 +2182,11 @@
                 <target>This deck has no current version to re-enrich.</target>
                 <note>Flash message when deck has no version</note>
             </trans-unit>
+            <trans-unit id="app.deck.reenrich.no_raw_list">
+                <source>app.deck.reenrich.no_raw_list</source>
+                <target>This deck version has no raw list to re-parse.</target>
+                <note>Flash message when version has no stored raw list</note>
+            </trans-unit>
             <trans-unit id="app.deck.cannot_delete_active_borrows">
                 <source>app.deck.cannot_delete_active_borrows</source>
                 <target>This deck cannot be deleted because it has active borrows.</target>

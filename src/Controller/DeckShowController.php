@@ -27,11 +27,11 @@ use App\Service\DeckList\CardmarketWishlistFormatter;
 use App\Service\DeckList\MinifiedCardView;
 use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\OriginalListFormatter;
+use App\Service\DeckListParser;
 use App\Service\Label\PdfLabelGenerator;
 use App\Service\Tcgdex\TcgdexApiClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,7 +46,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F5.7 — PDF label card (home printing)
  * @see docs/features.md F5.12 — Deck show activity pagination
  */
-class DeckShowController extends AbstractController
+class DeckShowController extends AbstractAppController
 {
     private const int ACTIVITY_PREVIEW_LIMIT = 5;
 
@@ -274,10 +274,10 @@ class DeckShowController extends AbstractController
     }
 
     /**
-     * Flush enrichment data for the current deck version and re-dispatch enrichment.
+     * Re-parse and re-enrich the current deck version from its raw list.
      *
-     * Resets all CardPrinting links on the version's cards, clears mosaics and minified data,
-     * then dispatches a new enrichment message.
+     * Deletes all existing cards, re-parses the original deck list text,
+     * creates fresh DeckCards, and dispatches enrichment.
      */
     #[Route('/deck/{short_tag}/re-enrich', name: 'app_deck_reenrich', methods: ['POST'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
     #[IsGranted('ROLE_TECHNICAL_ADMIN')]
@@ -285,6 +285,7 @@ class DeckShowController extends AbstractController
         #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
         Request $request,
         EntityManagerInterface $entityManager,
+        DeckListParser $parser,
         MessageBusInterface $messageBus,
     ): RedirectResponse {
         if (!$this->isCsrfTokenValid('deck-reenrich-'.$deck->getId(), $request->request->getString('_token'))) {
@@ -299,9 +300,31 @@ class DeckShowController extends AbstractController
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
-        // Reset enrichment fields on all cards
+        $rawList = $version->getRawList();
+
+        if (null === $rawList || '' === trim($rawList)) {
+            $this->addFlash('warning', 'app.deck.reenrich.no_raw_list');
+
+            return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
+        }
+
+        // Remove all existing cards
         foreach ($version->getCards() as $card) {
-            $card->setCardPrinting(null);
+            $version->removeCard($card);
+            $entityManager->remove($card);
+        }
+
+        // Re-parse from raw list
+        $result = $parser->parse($rawList);
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
         }
 
         // Reset version enrichment state
