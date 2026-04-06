@@ -46,6 +46,7 @@ Encore
     .addEntry('deck_form', './assets/deck-form.tsx')
     .addEntry('deck_card_list', './assets/deck-card-list.tsx')
     .addEntry('archetype_show', './assets/archetype-show.ts')
+    .addEntry('page_show', './assets/page-show.ts')
     .addEntry('staff_autocomplete', './assets/staff-autocomplete.tsx')
     .addEntry('walk_up_autocomplete', './assets/walk-up-autocomplete.tsx')
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
