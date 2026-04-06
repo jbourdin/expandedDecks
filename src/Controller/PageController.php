@@ -15,7 +15,7 @@ namespace App\Controller;
 
 use App\Entity\MenuCategory;
 use App\Repository\PageRepository;
-use App\Service\MarkdownRenderer;
+use App\Service\ArchetypeDescriptionRenderer;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,7 +73,7 @@ class PageController extends AbstractController
         string $slug,
         Request $request,
         PageRepository $pageRepository,
-        MarkdownRenderer $markdownRenderer,
+        ArchetypeDescriptionRenderer $contentRenderer,
     ): Response {
         $page = $pageRepository->findBySlug($slug);
 
@@ -94,7 +94,7 @@ class PageController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $htmlContent = $markdownRenderer->render($translation->getContent());
+        $htmlContent = $contentRenderer->render($translation->getContent(), $locale);
 
         return $this->render('page/show.html.twig', [
             'page' => $page,
