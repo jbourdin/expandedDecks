@@ -17,6 +17,7 @@ use App\Entity\TcgdexCard as TcgdexCardEntity;
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
 use App\Repository\TcgdexCardRepository;
+use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
@@ -1045,6 +1046,7 @@ class TcgdexApiClientTest extends TestCase
             new ArrayAdapter(),
             $repository,
             $this->createStub(TcgdexCardRepository::class),
+            $this->createStub(TcgdexSetAliasRepository::class),
         );
     }
 
@@ -1133,6 +1135,7 @@ class TcgdexApiClientTest extends TestCase
             new ArrayAdapter(),
             $setMappingRepository,
             $cardRepository,
+            $this->createStub(TcgdexSetAliasRepository::class),
         );
     }
 

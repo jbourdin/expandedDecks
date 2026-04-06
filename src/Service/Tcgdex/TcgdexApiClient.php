@@ -15,6 +15,7 @@ namespace App\Service\Tcgdex;
 
 use App\Entity\TcgdexCard as TcgdexCardEntity;
 use App\Repository\TcgdexCardRepository;
+use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -70,6 +71,7 @@ class TcgdexApiClient
         private readonly CacheInterface $cache,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
         private readonly TcgdexCardRepository $tcgdexCardRepository,
+        private readonly TcgdexSetAliasRepository $setAliasRepository,
     ) {
     }
 
@@ -127,6 +129,11 @@ class TcgdexApiClient
         // Resolve PTCG set code → TCGdex set ID
         $mapping = $this->getSetMapping();
         $setId = $mapping[$normalizedSetCode] ?? null;
+
+        // Fallback: check alias table (Japanese/legacy set codes → international equivalent)
+        if (null === $setId) {
+            $setId = $this->setAliasRepository->findTcgdexSetIdByAlias($normalizedSetCode);
+        }
 
         if (null === $setId) {
             return null;
