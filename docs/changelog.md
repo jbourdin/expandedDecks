@@ -16,6 +16,31 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.4.0] — 2026-04-06
+
+Local-first card model — enrichment resolves from local `tcgdex_*` tables instead of the TCGdex API, with automatic image fallback and precomputed canonical printings.
+
+### Features
+
+- **Local-first card resolution** — `TcgdexApiClient.findCard()` and `findAllPrintingsByName()` check local `tcgdex_*` tables before falling back to the HTTP API. Same candidate fallback chain (exact, letter-stripped, zero-padded) applied to local lookups. (#314)
+- **Canonical printing selection** — price-free algorithm using rarity tier + release date (no API dependency). Results cached via `is_canonical` flag on `CardPrinting`, computed lazily on first minified list request. (#314)
+- **Image fallback chain** — new `CardImageResolver` service: when TCGdex CDN fails (dotted set IDs like sm3.5), tries dot-removed URL then pokemontcg.io. Updates `CardPrinting.imageUrl` on success for subsequent requests. (#314, #316)
+
+### Refactoring
+
+- **Card model restructured** — `CardPrinting` is now a proxy to `TcgdexCard` with `tcgdexCard` FK and `isCanonical` flag. `CardIdentity` gains `trainerType` for deck display sorting. `DeckCard` simplified: `tcgdexId`, `imageUrl`, `trainerSubtype` columns removed and replaced by computed accessors via `cardPrinting`. New `cardLocale` field (default "en").
+- **CardEnricher** sets image URL and overrides on `CardPrinting` instead of `DeckCard`. `BASIC_ENERGY_IMAGES` restored as multilingual last-resort fallback (6 Western locales + Japanese) with synthetic `CardPrinting` creation.
+
+### Bug Fixes
+
+- **Mosaic generation** — skip gracefully for empty deck versions and empty tile lists instead of throwing (avoids messenger retry loop). (#319)
+
+### Testing & Quality
+
+- 31 new unit tests covering local-first resolution, image fallback URL generation, canonical selection, entity getters, trainerType backfill, and mosaic handler early returns. All codecov checks pass.
+
+---
+
 ## [1.3.3] — 2026-04-05
 
 Local TCGdex card database — dedicated `tcgdex_*` tables mirroring the cards-database repository for offline card resolution.
