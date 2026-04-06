@@ -31,15 +31,6 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
                             {% for category in menu_categories() %}
                                 {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                                 {% if pages|length == 1 %}
@@ -61,6 +52,15 @@
                                     </li>
                                 {% endif %}
                             {% endfor %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                            </li>
                             <li class="nav-item d-flex align-items-center me-2">
                                 <div id="notification-bell-root"
                                      data-api-url="{{ path('app_notification_api_list') }}"
@@ -112,15 +112,6 @@
                                 </ul>
                             </li>
                         {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
                             {% for category in menu_categories() %}
                                 {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                                 {% if pages|length == 1 %}
@@ -142,6 +133,15 @@
                                     </li>
                                 {% endif %}
                             {% endfor %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
