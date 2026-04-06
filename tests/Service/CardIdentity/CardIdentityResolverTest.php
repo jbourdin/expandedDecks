@@ -423,6 +423,100 @@ class CardIdentityResolverTest extends TestCase
     }
 
     /**
+     * Covers the trainerType backfill on an existing identity: when the existing identity
+     * has null trainerType but the new TcgdexCard provides one, it should be set.
+     *
+     * @see docs/features.md F6.10 — Card identity and printing model
+     */
+    public function testResolveFromTcgdexCardBackfillsTrainerTypeOnExistingIdentity(): void
+    {
+        $existingIdentity = new CardIdentity();
+        $existingIdentity->setName("Boss's Orders");
+        $existingIdentity->setCategory('trainer');
+        $existingIdentity->setTrainerType(null);
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $identityRepository->method('findBySignature')->willReturn($existingIdentity);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(3);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = new TcgdexCard(
+            id: 'swsh9-132',
+            name: "Boss's Orders",
+            category: 'Trainer',
+            trainerType: 'Supporter',
+            imageUrl: 'https://example.com/boss.webp',
+            isExpandedLegal: true,
+        );
+
+        $result = $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        self::assertSame($existingIdentity, $result->getCardIdentity());
+        self::assertSame('Supporter', $existingIdentity->getTrainerType());
+    }
+
+    /**
+     * Covers the trainerType backfill no-op: when the existing identity already has a trainerType,
+     * it should not be overwritten.
+     *
+     * @see docs/features.md F6.10 — Card identity and printing model
+     */
+    public function testResolveFromTcgdexCardDoesNotOverwriteExistingTrainerType(): void
+    {
+        $existingIdentity = new CardIdentity();
+        $existingIdentity->setName("Boss's Orders");
+        $existingIdentity->setCategory('trainer');
+        $existingIdentity->setTrainerType('Supporter');
+
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $printingRepository->method('findByTcgdexId')->willReturn(null);
+
+        $identityRepository = $this->createStub(CardIdentityRepository::class);
+        $identityRepository->method('findBySignature')->willReturn($existingIdentity);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $rarityTierMapper = $this->createStub(RarityTierMapper::class);
+        $rarityTierMapper->method('map')->willReturn(3);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $resolver = new CardIdentityResolver(
+            $identityRepository,
+            $printingRepository,
+            $apiClient,
+            $rarityTierMapper,
+            $entityManager,
+        );
+
+        $tcgdexCard = new TcgdexCard(
+            id: 'swsh9-132',
+            name: "Boss's Orders",
+            category: 'Trainer',
+            trainerType: 'Item',
+            imageUrl: 'https://example.com/boss.webp',
+            isExpandedLegal: true,
+        );
+
+        $resolver->resolveFromTcgdexCard($tcgdexCard);
+
+        // Should keep the original Supporter, not overwrite with Item
+        self::assertSame('Supporter', $existingIdentity->getTrainerType());
+    }
+
+    /**
      * Covers createPrinting with an invalid setReleaseDate format (ignored).
      */
     public function testResolveFromTcgdexCardHandlesInvalidReleaseDate(): void

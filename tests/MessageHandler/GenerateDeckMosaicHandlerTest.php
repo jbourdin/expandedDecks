@@ -106,6 +106,27 @@ final class GenerateDeckMosaicHandlerTest extends TestCase
         self::assertSame('/mosaic/AB3K7N/5.png', $version->getMosaicImageUrl());
     }
 
+    /**
+     * Covers the early return when generate() returns an empty string (no cards to mosaic).
+     *
+     * @see docs/features.md F6.6 — Visual deck list (card mosaic)
+     */
+    public function testEmptyStoragePathReturnsEarlyWithoutFlush(): void
+    {
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+        $this->versionRepo->method('find')->willReturn($version);
+
+        $this->generator->method('generate')->willReturn('');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
+
+        ($this->createHandler($entityManager))(new GenerateDeckMosaicMessage(5));
+
+        self::assertNull($version->getMosaicImageUrl());
+    }
+
     public function testGenerationFailureLogsErrorAndRethrows(): void
     {
         $version = new DeckVersion();

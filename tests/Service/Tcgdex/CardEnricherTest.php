@@ -747,6 +747,151 @@ class CardEnricherTest extends TestCase
     }
 
     /**
+     * Covers resolveImageUrl() fallback path: when TCGdex returns a card with null imageUrl
+     * and the tcgdexId contains a dash, the printing gets a pokemontcg.io fallback URL.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testResolveImageUrlTriesPokemontcgioFallbackWhenPrintingHasNoImage(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Rare Candy');
+        $card->setSetCode('SM3.5');
+        $card->setCardNumber('68');
+        $card->setCardType('trainer');
+        $card->setQuantity(4);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'sm35-68',
+                name: 'Rare Candy',
+                category: 'Trainer',
+                trainerType: 'Item',
+                imageUrl: null,
+                isExpandedLegal: true,
+            ));
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $report = $enricher->enrichVersion($version);
+
+        self::assertSame(1, $report->enrichedCount);
+        self::assertNotNull($card->getCardPrinting());
+        // Falls back to PokemonTCG.io CDN URL
+        self::assertSame('https://images.pokemontcg.io/sm35/68_hires.png', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers resolveImageUrl() second fallback: when TCGdex returns null imageUrl and
+     * the tcgdexId has no dash (pokemontcg.io URL cannot be built), falls back to findImageByName.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testResolveImageUrlFallsBackToFindImageByNameWhenNoDash(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Unknown Card');
+        $card->setSetCode('BRS');
+        $card->setCardNumber('1');
+        $card->setCardType('trainer');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'nodashid',
+                name: 'Unknown Card',
+                category: 'Trainer',
+                trainerType: null,
+                imageUrl: null,
+                isExpandedLegal: true,
+            ));
+        $apiClient->method('findImageByName')
+            ->willReturn('https://example.com/fallback-image.webp');
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $report = $enricher->enrichVersion($version);
+
+        self::assertSame(1, $report->enrichedCount);
+        self::assertNotNull($card->getCardPrinting());
+        self::assertSame('https://example.com/fallback-image.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers applyImageOverride(): verifies that a known IMAGE_OVERRIDES key
+     * replaces the printing's imageUrl.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testApplyImageOverrideUpdatesCardPrintingUrl(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Overridden Card');
+        $card->setSetCode('gen');
+        $card->setCardNumber('73');
+        $card->setCardType('trainer');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'g1-73',
+                name: 'Overridden Card',
+                category: 'Trainer',
+                trainerType: null,
+                imageUrl: 'https://assets.tcgdex.net/en/xy/g1/73/high.webp',
+                isExpandedLegal: true,
+            ));
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        // GEN|73 override should replace the TCGdex image
+        self::assertSame('https://assets.tcgdex.net/en/xy/xy1/129/high.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers enrichBasicEnergy() final fallback: when findSimplestBasicEnergyByName returns null,
+     * a synthetic CardPrinting is created from BASIC_ENERGY_IMAGES.
+     *
+     * @see docs/features.md F6.9 — Improved energy card enrichment
+     */
+    public function testEnrichBasicEnergyCreatesSyntheticPrintingFromStaticMap(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Grass Energy');
+        $card->setSetCode('SME');
+        $card->setCardNumber('99');
+        $card->setCardType('energy');
+        $card->setQuantity(4);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        // findAllPrintingsByName returns empty — no TCGdex printings at all
+        $apiClient->method('findAllPrintingsByName')->willReturn([]);
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $report = $enricher->enrichVersion($version);
+
+        self::assertSame(1, $report->enrichedCount);
+        self::assertNotNull($card->getCardPrinting());
+        // Should get the MEE fallback image from BASIC_ENERGY_IMAGES
+        self::assertSame(
+            'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+            $card->getCardPrinting()->getImageUrl(),
+        );
+        self::assertSame('energy', $card->getCardPrinting()->getCardIdentity()->getCategory());
+    }
+
+    /**
      * @param list<DeckCard> $cards
      */
     private function createVersionWithCards(array $cards): DeckVersion
