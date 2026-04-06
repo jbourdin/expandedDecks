@@ -15,6 +15,7 @@ namespace App\Service\Tcgdex;
 
 use App\Entity\TcgdexCard as TcgdexCardEntity;
 use App\Repository\TcgdexCardRepository;
+use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -70,6 +71,7 @@ class TcgdexApiClient
         private readonly CacheInterface $cache,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
         private readonly TcgdexCardRepository $tcgdexCardRepository,
+        private readonly TcgdexSetAliasRepository $setAliasRepository,
     ) {
     }
 
@@ -111,7 +113,10 @@ class TcgdexApiClient
     /**
      * Looks up a card by its PTCG set code and card number.
      *
-     * Resolution order: local tcgdex_* tables first, then HTTP API fallback.
+     * Resolution strategy:
+     * 1. PTCGL set code + card number (international, exact match)
+     * 2. If set code is unrecognized, returns null — the enricher handles
+     *    Asian alias resolution separately via findCardByNameInAliasedSet().
      */
     public function findCard(string $ptcgSetCode, string $cardNumber): ?TcgdexCard
     {
@@ -124,7 +129,7 @@ class TcgdexApiClient
             $normalizedNumber = 'TG'.$cardNumber;
         }
 
-        // Resolve PTCG set code → TCGdex set ID
+        // Resolve PTCG set code → TCGdex set ID (international codes only)
         $mapping = $this->getSetMapping();
         $setId = $mapping[$normalizedSetCode] ?? null;
 
@@ -168,6 +173,34 @@ class TcgdexApiClient
         }
 
         return null;
+    }
+
+    /**
+     * Resolve an Asian set code to its international equivalent and find a card by name within it.
+     *
+     * Asian deck lists use different set codes (SM8, S6K, SV1S) and card numbering
+     * from international releases. The card number is NOT used — only the name
+     * is matched within the resolved international set.
+     *
+     * @return TcgdexCard|null the matching card DTO, or null if the set code is not an Asian alias
+     *                         or no card with this name exists in the resolved set
+     */
+    public function findCardByNameInAliasedSet(string $setCode, string $cardName): ?TcgdexCard
+    {
+        $setId = $this->setAliasRepository->findTcgdexSetIdByAlias($setCode);
+
+        if (null === $setId) {
+            return null;
+        }
+
+        $entities = $this->tcgdexCardRepository->findByNameEnAndSetId($cardName, $setId);
+
+        if ([] === $entities) {
+            return null;
+        }
+
+        // If multiple matches in the same set (rare — different HP/abilities), return the first
+        return $this->buildDtoFromEntity($entities[0]);
     }
 
     /**

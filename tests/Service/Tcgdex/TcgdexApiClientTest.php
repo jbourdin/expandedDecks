@@ -17,6 +17,7 @@ use App\Entity\TcgdexCard as TcgdexCardEntity;
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
 use App\Repository\TcgdexCardRepository;
+use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
@@ -1038,6 +1039,86 @@ class TcgdexApiClientTest extends TestCase
         self::assertNull($card->setReleaseDate);
     }
 
+    public function testFindCardByNameInAliasedSetReturnsNullForUnknownAlias(): void
+    {
+        $aliasRepository = $this->createStub(TcgdexSetAliasRepository::class);
+        $aliasRepository->method('findTcgdexSetIdByAlias')->willReturn(null);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = $this->createClientWithAliasRepository($httpClient, $this->createRepositoryStub([]), $aliasRepository);
+
+        $result = $client->findCardByNameInAliasedSet('SM8', 'Pikachu');
+
+        self::assertNull($result);
+    }
+
+    public function testFindCardByNameInAliasedSetReturnsNullWhenNoCardMatchesInSet(): void
+    {
+        $aliasRepository = $this->createStub(TcgdexSetAliasRepository::class);
+        $aliasRepository->method('findTcgdexSetIdByAlias')->willReturn('swsh9');
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findByNameEnAndSetId')->willReturn([]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $this->createRepositoryStub([]),
+            $cardRepository,
+            $aliasRepository,
+        );
+
+        $result = $client->findCardByNameInAliasedSet('SM8', 'Nonexistent Card');
+
+        self::assertNull($result);
+    }
+
+    public function testFindCardByNameInAliasedSetReturnsDtoWhenCardFound(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-079',
+            localId: '079',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Comfey'],
+            category: 'Pokemon',
+            hp: 70,
+            isExpandedLegal: true,
+            ptcgCode: 'BRS',
+            releaseDate: new \DateTimeImmutable('2022-02-25'),
+            officialCardCount: 172,
+        );
+
+        $aliasRepository = $this->createStub(TcgdexSetAliasRepository::class);
+        $aliasRepository->method('findTcgdexSetIdByAlias')->willReturn('swsh9');
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findByNameEnAndSetId')->willReturn([$entity]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $client = new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $this->createRepositoryStub([]),
+            $cardRepository,
+            $aliasRepository,
+        );
+
+        $result = $client->findCardByNameInAliasedSet('S6K', 'Comfey');
+
+        self::assertNotNull($result);
+        self::assertSame('swsh9-079', $result->id);
+        self::assertSame('Comfey', $result->name);
+        self::assertSame('Pokemon', $result->category);
+        self::assertSame(70, $result->hp);
+        self::assertTrue($result->isExpandedLegal);
+        self::assertSame('2022-02-25', $result->setReleaseDate);
+        self::assertSame('BRS', $result->setCode);
+        self::assertSame('079', $result->cardNumber);
+        self::assertSame(172, $result->setOfficialCardCount);
+    }
+
     private function createClient(HttpClientInterface $httpClient, TcgdexSetMappingRepository $repository): TcgdexApiClient
     {
         return new TcgdexApiClient(
@@ -1045,6 +1126,7 @@ class TcgdexApiClientTest extends TestCase
             new ArrayAdapter(),
             $repository,
             $this->createStub(TcgdexCardRepository::class),
+            $this->createStub(TcgdexSetAliasRepository::class),
         );
     }
 
@@ -1133,6 +1215,21 @@ class TcgdexApiClientTest extends TestCase
             new ArrayAdapter(),
             $setMappingRepository,
             $cardRepository,
+            $this->createStub(TcgdexSetAliasRepository::class),
+        );
+    }
+
+    private function createClientWithAliasRepository(
+        HttpClientInterface $httpClient,
+        TcgdexSetMappingRepository $setMappingRepository,
+        TcgdexSetAliasRepository $aliasRepository,
+    ): TcgdexApiClient {
+        return new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $setMappingRepository,
+            $this->createStub(TcgdexCardRepository::class),
+            $aliasRepository,
         );
     }
 

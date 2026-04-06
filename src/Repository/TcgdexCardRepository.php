@@ -68,4 +68,27 @@ class TcgdexCardRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /**
+     * Find all cards with the given English name within a specific set.
+     *
+     * Used for Asian alias resolution: the set is known (via alias table)
+     * but the card number doesn't transfer between Japanese and international.
+     *
+     * @return list<TcgdexCard>
+     */
+    public function findByNameEnAndSetId(string $name, string $setId): array
+    {
+        /** @var list<TcgdexCard> $results */
+        $results = $this->createQueryBuilder('c')
+            ->join('c.set', 's')
+            ->where('c.nameEn = :name')
+            ->andWhere('s.id = :setId')
+            ->setParameter('name', $name)
+            ->setParameter('setId', $setId)
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
 }
