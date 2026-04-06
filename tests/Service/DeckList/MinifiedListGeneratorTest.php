@@ -76,7 +76,8 @@ final class MinifiedListGeneratorTest extends TestCase
         $card->setCardPrinting($printing);
 
         $this->printingRepository = $this->createStub(CardPrintingRepository::class);
-        $this->printingRepository->method('findLowestRarityForIdentity')->willReturn(null);
+        $this->printingRepository->method('findCanonicalForIdentity')->willReturn(null);
+        $this->printingRepository->method('computeCanonical')->willReturn(null);
 
         $version = $this->createVersionWithCards([$card]);
 
@@ -140,7 +141,18 @@ final class MinifiedListGeneratorTest extends TestCase
     {
         $pokemonCard = $this->createDeckCard('Pikachu', 'BRS', '50', 'pokemon', 3);
         $trainerCard = $this->createDeckCard('Quick Ball', 'SSH', '179', 'trainer', 4);
-        $trainerCard->setTrainerSubtype('Item');
+
+        $trainerIdentity = new CardIdentity();
+        $trainerIdentity->setName('Quick Ball');
+        $trainerIdentity->setCategory('trainer');
+        $trainerIdentity->setTrainerType('Item');
+
+        $trainerPrinting = new CardPrinting();
+        $trainerPrinting->setTcgdexId('swsh1-179');
+        $trainerPrinting->setCardIdentity($trainerIdentity);
+        $trainerIdentity->addPrinting($trainerPrinting);
+
+        $trainerCard->setCardPrinting($trainerPrinting);
         $energyCard = $this->createDeckCard('Lightning Energy', 'SVE', '4', 'energy', 8);
 
         $version = $this->createVersionWithCards([$pokemonCard, $trainerCard, $energyCard]);
@@ -180,7 +192,7 @@ final class MinifiedListGeneratorTest extends TestCase
         $card->setCardPrinting($printing);
 
         $this->printingRepository = $this->createStub(CardPrintingRepository::class);
-        $this->printingRepository->method('findLowestRarityForIdentity')->willReturn($bestPrinting);
+        $this->printingRepository->method('findCanonicalForIdentity')->willReturn($bestPrinting);
 
         $version = $this->createVersionWithCards([$card]);
 

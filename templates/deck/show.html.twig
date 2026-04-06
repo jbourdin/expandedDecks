@@ -287,7 +287,7 @@
         {% endfor %}
         {% set nameMatchedCards = [] %}
         {% for card in allCards %}
-            {% if card.imageUrl is not null and card.tcgdexId is null and card.cardType != 'energy' %}
+            {% if card.imageUrl is not null and card.cardPrinting is null and card.cardType != 'energy' %}
                 {% set nameMatchedCards = nameMatchedCards|merge([card]) %}
             {% endif %}
         {% endfor %}

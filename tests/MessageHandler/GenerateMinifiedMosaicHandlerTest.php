@@ -95,6 +95,46 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
     }
 
     /**
+     * Covers the early return when generateFromTiles() returns an empty string (no tiles).
+     *
+     * @see docs/features.md F6.6b — Minified mosaic
+     */
+    public function testEmptyStoragePathReturnsEarlyWithoutFlush(): void
+    {
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+
+        $versionRepository = $this->createStub(DeckVersionRepository::class);
+        $versionRepository->method('find')->willReturn($version);
+
+        $mosaicGenerator = $this->createStub(MosaicGenerator::class);
+        $mosaicGenerator->method('generateFromTiles')->willReturn('');
+
+        $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
+        $printingRepository = $this->createStub(CardPrintingRepository::class);
+        $identityResolver = $this->createStub(CardIdentityResolver::class);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
+
+        $logger = $this->createStub(LoggerInterface::class);
+
+        $handler = new GenerateMinifiedMosaicHandler(
+            $mosaicGenerator,
+            $mosaicUrlResolver,
+            $printingRepository,
+            $identityResolver,
+            $versionRepository,
+            $entityManager,
+            $logger,
+        );
+
+        $handler(new GenerateMinifiedMosaicMessage(1));
+
+        self::assertNull($version->getMinifiedMosaicImageUrl());
+    }
+
+    /**
      * Success path: version is enriched, mosaic is generated, URL is set.
      */
     public function testSuccessPathGeneratesMosaicAndSetsUrl(): void
@@ -114,7 +154,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $versionRepository->method('find')->willReturn($version);
 
         $mosaicGenerator = $this->createMock(MosaicGenerator::class);
-        $mosaicGenerator->expects(self::once())->method('generateFromTiles');
+        $mosaicGenerator->expects(self::once())->method('generateFromTiles')->willReturn('mosaics/1-minified.webp');
 
         $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
         $mosaicUrlResolver->method('resolveForVersion')->willReturn('https://example.com/mosaic/minified.webp');

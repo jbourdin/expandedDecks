@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
+use App\Entity\CardIdentity;
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use PHPUnit\Framework\TestCase;
@@ -33,9 +35,8 @@ class DeckCardTest extends TestCase
         self::assertSame('', $card->getCardNumber());
         self::assertSame(1, $card->getQuantity());
         self::assertSame('', $card->getCardType());
-        self::assertNull($card->getTrainerSubtype());
-        self::assertNull($card->getTcgdexId());
-        self::assertNull($card->getImageUrl());
+        self::assertSame('en', $card->getCardLocale());
+        self::assertNull($card->getCardPrinting());
     }
 
     public function testSetDeckVersion(): void
@@ -94,58 +95,40 @@ class DeckCardTest extends TestCase
         self::assertSame($card, $result);
     }
 
-    public function testSetTrainerSubtype(): void
+    public function testSetCardLocale(): void
     {
         $card = new DeckCard();
-        $result = $card->setTrainerSubtype('Supporter');
+        $result = $card->setCardLocale('fr');
 
-        self::assertSame('Supporter', $card->getTrainerSubtype());
+        self::assertSame('fr', $card->getCardLocale());
         self::assertSame($card, $result);
     }
 
-    public function testSetTrainerSubtypeToNull(): void
+    public function testComputedAccessorsReturnNullWithoutCardPrinting(): void
     {
         $card = new DeckCard();
-        $card->setTrainerSubtype('Supporter');
-        $card->setTrainerSubtype(null);
 
+        self::assertNull($card->getImageUrl());
         self::assertNull($card->getTrainerSubtype());
-    }
-
-    public function testSetTcgdexId(): void
-    {
-        $card = new DeckCard();
-        $result = $card->setTcgdexId('brs-43');
-
-        self::assertSame('brs-43', $card->getTcgdexId());
-        self::assertSame($card, $result);
-    }
-
-    public function testSetTcgdexIdToNull(): void
-    {
-        $card = new DeckCard();
-        $card->setTcgdexId('brs-43');
-        $card->setTcgdexId(null);
-
         self::assertNull($card->getTcgdexId());
     }
 
-    public function testSetImageUrl(): void
+    public function testComputedAccessorsDelegateToCardPrinting(): void
     {
+        $cardIdentity = $this->createStub(CardIdentity::class);
+        $cardIdentity->method('getTrainerType')->willReturn('Supporter');
+
+        $cardPrinting = $this->createStub(CardPrinting::class);
+        $cardPrinting->method('getImageUrl')->willReturn('https://assets.tcgdex.net/en/xy/xy9/107/high.webp');
+        $cardPrinting->method('getCardIdentity')->willReturn($cardIdentity);
+        $cardPrinting->method('getTcgdexId')->willReturn('bkp-107');
+
         $card = new DeckCard();
-        $result = $card->setImageUrl('https://assets.tcgdex.net/en/bw/bw1/1/high.webp');
+        $card->setCardPrinting($cardPrinting);
 
-        self::assertSame('https://assets.tcgdex.net/en/bw/bw1/1/high.webp', $card->getImageUrl());
-        self::assertSame($card, $result);
-    }
-
-    public function testSetImageUrlToNull(): void
-    {
-        $card = new DeckCard();
-        $card->setImageUrl('https://assets.tcgdex.net/en/bw/bw1/1/high.webp');
-        $card->setImageUrl(null);
-
-        self::assertNull($card->getImageUrl());
+        self::assertSame('https://assets.tcgdex.net/en/xy/xy9/107/high.webp', $card->getImageUrl());
+        self::assertSame('Supporter', $card->getTrainerSubtype());
+        self::assertSame('bkp-107', $card->getTcgdexId());
     }
 
     public function testFullCardSetup(): void
@@ -159,9 +142,7 @@ class DeckCardTest extends TestCase
             ->setCardNumber('107')
             ->setQuantity(4)
             ->setCardType('Trainer')
-            ->setTrainerSubtype('Supporter')
-            ->setTcgdexId('bkp-107')
-            ->setImageUrl('https://assets.tcgdex.net/en/xy/xy9/107/high.webp');
+            ->setCardLocale('fr');
 
         self::assertSame($version, $card->getDeckVersion());
         self::assertSame('Professor Sycamore', $card->getCardName());
@@ -169,8 +150,6 @@ class DeckCardTest extends TestCase
         self::assertSame('107', $card->getCardNumber());
         self::assertSame(4, $card->getQuantity());
         self::assertSame('Trainer', $card->getCardType());
-        self::assertSame('Supporter', $card->getTrainerSubtype());
-        self::assertSame('bkp-107', $card->getTcgdexId());
-        self::assertSame('https://assets.tcgdex.net/en/xy/xy9/107/high.webp', $card->getImageUrl());
+        self::assertSame('fr', $card->getCardLocale());
     }
 }

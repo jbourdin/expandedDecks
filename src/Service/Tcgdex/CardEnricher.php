@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Service\Tcgdex;
 
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Service\CardIdentity\CardIdentityResolver;
@@ -20,7 +21,7 @@ use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Enriches DeckCards with data from TCGdex (trainerSubtype, imageUrl, tcgdexId).
+ * Enriches DeckCards with card data, linking them to CardPrinting/CardIdentity.
  *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  * @see docs/features.md F6.9 — Improved energy card enrichment
@@ -89,7 +90,8 @@ class CardEnricher
     ];
 
     /**
-     * Fallback image URLs for basic energy cards when TCGdex returns nothing.
+     * Fallback image URLs for basic energy cards when no TCGdex printing exists.
+     *
      * Uses MEE (Mega Evolution Energy) from pokemon.com CDN for the 8 standard types,
      * and sm1 from pokemontcg.io for Fairy Energy.
      *
@@ -97,6 +99,7 @@ class CardEnricher
      * @see docs/technicalities/basic_energy_images.md
      */
     private const array BASIC_ENERGY_IMAGES = [
+        // English
         'Grass Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
         'Fire Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_2.png',
         'Water Energy' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_3.png',
@@ -202,17 +205,10 @@ class CardEnricher
                     $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
 
                     if (null !== $tcgdexCard) {
-                        $card->setTcgdexId($tcgdexCard->id);
-                        $card->setImageUrl($tcgdexCard->imageUrl);
-
-                        if (null !== $tcgdexCard->trainerType) {
-                            $card->setTrainerSubtype($tcgdexCard->trainerType);
-                        }
-
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
                         $this->resolveCardType($card, $tcgdexCard->category);
-                        $this->applyImageOverride($card);
+                        $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
 
                         $legalityWarnings[] = \sprintf(
                             '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
@@ -231,27 +227,11 @@ class CardEnricher
                     continue;
                 }
 
-                $card->setTcgdexId($tcgdexCard->id);
-
-                if (null === $tcgdexCard->imageUrl) {
-                    // TCGdex has no image for this card — try PokemonTCG.io CDN as exact fallback
-                    $card->setImageUrl(
-                        self::buildPokemontcgioUrl($tcgdexCard->id)
-                        ?? $this->apiClient->findImageByName($card->getCardName()),
-                    );
-                } else {
-                    $card->setImageUrl($tcgdexCard->imageUrl);
-                }
-
-                if (null !== $tcgdexCard->trainerType) {
-                    $card->setTrainerSubtype($tcgdexCard->trainerType);
-                }
-
-                // Link to CardIdentity/CardPrinting model
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
                 $this->resolveCardType($card, $tcgdexCard->category);
-                $this->applyImageOverride($card);
+                $this->resolveImageUrl($printing, $tcgdexCard, $card->getCardName());
+                $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
 
                 if (!$tcgdexCard->isExpandedLegal) {
                     $legalityWarnings[] = \sprintf(
@@ -301,7 +281,15 @@ class CardEnricher
         $energySetKey = $setCode.'|'.$normalizedNumber;
 
         if (isset(self::ENERGY_SET_IMAGES[$energySetKey])) {
-            $card->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+            // Static energy image — no CardPrinting (energy-only sets aren't in TCGdex)
+            // Try to find a printing anyway for enrichment completeness
+            $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
+
+            if (null !== $tcgdexCard) {
+                $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
+                $printing->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+                $card->setCardPrinting($printing);
+            }
 
             return;
         }
@@ -311,8 +299,6 @@ class CardEnricher
             $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
 
             if (null !== $tcgdexCard) {
-                $card->setTcgdexId($tcgdexCard->id);
-                $card->setImageUrl($tcgdexCard->imageUrl);
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
 
@@ -324,31 +310,62 @@ class CardEnricher
         $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
 
         if (null !== $tcgdexCard) {
-            $card->setTcgdexId($tcgdexCard->id);
-            $card->setImageUrl($tcgdexCard->imageUrl);
             $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
             $card->setCardPrinting($printing);
 
             return;
         }
 
-        // Final fallback: static image map by energy name
-        $card->setImageUrl(self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null);
+        // Final fallback: create a synthetic printing with a static image URL
+        $fallbackImageUrl = self::BASIC_ENERGY_IMAGES[$card->getCardName()] ?? null;
+
+        if (null !== $fallbackImageUrl) {
+            $syntheticDto = new TcgdexCard(
+                id: \sprintf('energy-%s', strtolower(str_replace(' ', '-', $card->getCardName()))),
+                name: $card->getCardName(),
+                category: 'Energy',
+                trainerType: null,
+                imageUrl: $fallbackImageUrl,
+                isExpandedLegal: true,
+            );
+            $printing = $this->identityResolver->resolveFromTcgdexCard($syntheticDto);
+            $printing->setImageUrl($fallbackImageUrl);
+            $card->setCardPrinting($printing);
+        }
+    }
+
+    /**
+     * Ensures the CardPrinting has a working image URL, applying fallbacks if needed.
+     *
+     * If TCGdex provides no image, tries PokemonTCG.io CDN and name-based search.
+     */
+    private function resolveImageUrl(CardPrinting $printing, TcgdexCard $tcgdexCard, string $cardName): void
+    {
+        if (null !== $printing->getImageUrl()) {
+            return;
+        }
+
+        $fallbackUrl = self::buildPokemontcgioUrl($tcgdexCard->id)
+            ?? $this->apiClient->findImageByName($cardName);
+
+        if (null !== $fallbackUrl) {
+            $printing->setImageUrl($fallbackUrl);
+        }
     }
 
     /**
      * Applies a static image override for known TCGdex data issues.
      *
-     * Call after setting the card image URL from TCGdex. If the card's
-     * set code + number matches a known buggy entry, the image is replaced.
+     * Call after setting the CardPrinting. If the card's set code + number
+     * matches a known buggy entry, the printing's image is replaced.
      */
-    private function applyImageOverride(DeckCard $card): void
+    private function applyImageOverride(CardPrinting $printing, string $setCode, string $cardNumber): void
     {
-        $key = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
+        $key = strtoupper($setCode).'|'.$cardNumber;
         $override = self::IMAGE_OVERRIDES[$key] ?? null;
 
         if (null !== $override) {
-            $card->setImageUrl($override);
+            $printing->setImageUrl($override);
         }
     }
 

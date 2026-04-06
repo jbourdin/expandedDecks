@@ -58,21 +58,13 @@ class DeckCard
     #[Assert\Length(max: 20)]
     private string $cardType = '';
 
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Length(max: 20)]
-    private ?string $trainerSubtype = null;
-
-    #[ORM\Column(length: 30, nullable: true)]
-    #[Assert\Length(max: 30)]
-    private ?string $tcgdexId = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    private ?string $imageUrl = null;
-
     #[ORM\ManyToOne(targetEntity: CardPrinting::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?CardPrinting $cardPrinting = null;
+
+    /** Locale of the original deck list input (e.g. "en", "fr"). */
+    #[ORM\Column(length: 5)]
+    private string $cardLocale = 'en';
 
     public function getId(): ?int
     {
@@ -151,42 +143,6 @@ class DeckCard
         return $this;
     }
 
-    public function getTrainerSubtype(): ?string
-    {
-        return $this->trainerSubtype;
-    }
-
-    public function setTrainerSubtype(?string $trainerSubtype): static
-    {
-        $this->trainerSubtype = $trainerSubtype;
-
-        return $this;
-    }
-
-    public function getTcgdexId(): ?string
-    {
-        return $this->tcgdexId;
-    }
-
-    public function setTcgdexId(?string $tcgdexId): static
-    {
-        $this->tcgdexId = $tcgdexId;
-
-        return $this;
-    }
-
-    public function getImageUrl(): ?string
-    {
-        return $this->imageUrl;
-    }
-
-    public function setImageUrl(?string $imageUrl): static
-    {
-        $this->imageUrl = $imageUrl;
-
-        return $this;
-    }
-
     public function getCardPrinting(): ?CardPrinting
     {
         return $this->cardPrinting;
@@ -197,5 +153,41 @@ class DeckCard
         $this->cardPrinting = $cardPrinting;
 
         return $this;
+    }
+
+    public function getCardLocale(): string
+    {
+        return $this->cardLocale;
+    }
+
+    public function setCardLocale(string $cardLocale): static
+    {
+        $this->cardLocale = $cardLocale;
+
+        return $this;
+    }
+
+    /**
+     * Computed accessor: image URL from the linked CardPrinting.
+     */
+    public function getImageUrl(): ?string
+    {
+        return $this->cardPrinting?->getImageUrl();
+    }
+
+    /**
+     * Computed accessor: trainer subtype from the CardIdentity via CardPrinting.
+     */
+    public function getTrainerSubtype(): ?string
+    {
+        return $this->cardPrinting?->getCardIdentity()->getTrainerType();
+    }
+
+    /**
+     * Computed accessor: TCGdex ID from the linked CardPrinting.
+     */
+    public function getTcgdexId(): ?string
+    {
+        return $this->cardPrinting?->getTcgdexId();
     }
 }

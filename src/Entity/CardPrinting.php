@@ -34,6 +34,11 @@ class CardPrinting
     #[ORM\JoinColumn(nullable: false)]
     private CardIdentity $cardIdentity;
 
+    /** Link to the local TCGdex card data mirror. Null for cards resolved via API before local import. */
+    #[ORM\ManyToOne(targetEntity: TcgdexCard::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?TcgdexCard $tcgdexCard = null;
+
     #[ORM\Column(length: 30)]
     private string $tcgdexId;
 
@@ -71,6 +76,10 @@ class CardPrinting
     #[ORM\Column(nullable: true)]
     private ?int $tcgplayerProductId = null;
 
+    /** Marks the preferred printing for minified/simplified lists within its CardIdentity. */
+    #[ORM\Column]
+    private bool $isCanonical = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -84,6 +93,18 @@ class CardPrinting
     public function setCardIdentity(CardIdentity $cardIdentity): static
     {
         $this->cardIdentity = $cardIdentity;
+
+        return $this;
+    }
+
+    public function getTcgdexCard(): ?TcgdexCard
+    {
+        return $this->tcgdexCard;
+    }
+
+    public function setTcgdexCard(?TcgdexCard $tcgdexCard): static
+    {
+        $this->tcgdexCard = $tcgdexCard;
 
         return $this;
     }
@@ -216,6 +237,18 @@ class CardPrinting
     public function setTcgplayerProductId(?int $tcgplayerProductId): static
     {
         $this->tcgplayerProductId = $tcgplayerProductId;
+
+        return $this;
+    }
+
+    public function isCanonical(): bool
+    {
+        return $this->isCanonical;
+    }
+
+    public function setIsCanonical(bool $isCanonical): static
+    {
+        $this->isCanonical = $isCanonical;
 
         return $this;
     }

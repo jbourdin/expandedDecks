@@ -13,14 +13,16 @@ declare(strict_types=1);
 
 namespace App\Service\Tcgdex;
 
+use App\Entity\TcgdexCard as TcgdexCardEntity;
+use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Client for the TCGdex REST API (v2).
+ * Client for TCGdex card data — local-first with HTTP API fallback.
  *
- * Translates PTCG set codes to TCGdex set IDs and fetches card data.
+ * Resolution order: local tcgdex_* tables → TCGdex REST API (v2).
  *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  */
@@ -67,6 +69,7 @@ class TcgdexApiClient
         private readonly HttpClientInterface $tcgdexClient,
         private readonly CacheInterface $cache,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
+        private readonly TcgdexCardRepository $tcgdexCardRepository,
     ) {
     }
 
@@ -107,11 +110,11 @@ class TcgdexApiClient
 
     /**
      * Looks up a card by its PTCG set code and card number.
+     *
+     * Resolution order: local tcgdex_* tables first, then HTTP API fallback.
      */
     public function findCard(string $ptcgSetCode, string $cardNumber): ?TcgdexCard
     {
-        $mapping = $this->getSetMapping();
-
         $normalizedSetCode = strtoupper($ptcgSetCode);
         $normalizedNumber = $cardNumber;
 
@@ -121,6 +124,8 @@ class TcgdexApiClient
             $normalizedNumber = 'TG'.$cardNumber;
         }
 
+        // Resolve PTCG set code → TCGdex set ID
+        $mapping = $this->getSetMapping();
         $setId = $mapping[$normalizedSetCode] ?? null;
 
         if (null === $setId) {
@@ -131,31 +136,38 @@ class TcgdexApiClient
         $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
         $lookupNumber = null !== $prefix ? $prefix.$normalizedNumber : $normalizedNumber;
 
-        // Try the exact card number first (preserving letter suffixes like "28a")
-        $card = $this->fetchCard($setId, $lookupNumber);
+        // Build candidate local IDs for the fallback chain
+        $candidates = [$lookupNumber];
 
-        if (null !== $card) {
-            return $card;
-        }
-
-        // If not found and number has a letter suffix, retry without it (e.g. "113a" → "113")
         $strippedNumber = preg_replace('/[a-z]+$/i', '', $lookupNumber) ?? $lookupNumber;
 
         if ($strippedNumber !== $lookupNumber) {
-            $card = $this->fetchCard($setId, $strippedNumber);
+            $candidates[] = $strippedNumber;
+        }
+
+        if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
+            $candidates[] = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
+        }
+
+        // Layer 1: Local database lookup
+        foreach ($candidates as $candidateLocalId) {
+            $entity = $this->tcgdexCardRepository->findBySetAndLocalId($setId, $candidateLocalId);
+
+            if (null !== $entity) {
+                return $this->buildDtoFromEntity($entity);
+            }
+        }
+
+        // Layer 2: HTTP API fallback
+        foreach ($candidates as $candidateLocalId) {
+            $card = $this->fetchCard($setId, $candidateLocalId);
 
             if (null !== $card) {
                 return $card;
             }
         }
 
-        // If not found and number is < 3 digits, retry with zero-padded
-        if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
-            $paddedNumber = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
-            $card = $this->fetchCard($setId, $paddedNumber);
-        }
-
-        return $card;
+        return null;
     }
 
     /**
@@ -191,13 +203,40 @@ class TcgdexApiClient
         return null;
     }
 
+    /**
+     * Build a TcgdexCard DTO from a local TcgdexCard entity.
+     */
+    private function buildDtoFromEntity(TcgdexCardEntity $entity): TcgdexCard
+    {
+        $set = $entity->getSet();
+
+        return new TcgdexCard(
+            id: $entity->getId(),
+            name: $entity->getLocalizedName('en') ?? '',
+            category: $entity->getCategory(),
+            trainerType: $entity->getTrainerType(),
+            imageUrl: $entity->getImageUrl(),
+            isExpandedLegal: $entity->isExpandedLegal(),
+            hp: $entity->getHp(),
+            abilities: $entity->getAbilityNamesEn(),
+            attacks: $entity->getAttackNamesEn(),
+            rarity: $entity->getRarity(),
+            setReleaseDate: $set->getReleaseDate()?->format('Y-m-d'),
+            setCode: $set->getPtcgCode(),
+            cardNumber: $entity->getLocalId(),
+            cardmarketProductId: $entity->getCardmarketProductId(),
+            tcgplayerProductId: $entity->getTcgplayerProductId(),
+            setOfficialCardCount: $set->getOfficialCardCount(),
+        );
+    }
+
     private function fetchCard(string $setId, string $cardNumber): ?TcgdexCard
     {
         return $this->fetchCardById(\sprintf('%s-%s', $setId, $cardNumber));
     }
 
     /**
-     * Fetches all printings of a card by name from TCGdex, returning full card details.
+     * Fetches all printings of a card by name, checking local database first.
      *
      * @see docs/features.md F6.10 — Card identity and printing model
      *
@@ -205,6 +244,14 @@ class TcgdexApiClient
      */
     public function findAllPrintingsByName(string $cardName): array
     {
+        // Layer 1: Local database
+        $localEntities = $this->tcgdexCardRepository->findAllByNameEn($cardName);
+
+        if ([] !== $localEntities) {
+            return array_map($this->buildDtoFromEntity(...), $localEntities);
+        }
+
+        // Layer 2: HTTP API fallback
         $url = self::BASE_URL.'/cards?name='.urlencode($cardName);
         $response = $this->tcgdexClient->request('GET', $url);
 

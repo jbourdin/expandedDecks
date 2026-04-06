@@ -613,7 +613,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -748,7 +747,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -793,7 +791,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -836,7 +833,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -860,7 +856,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -969,7 +964,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -1098,7 +1092,6 @@ MARKDOWN;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -1948,7 +1941,6 @@ MD);
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
@@ -2056,7 +2048,6 @@ DECK;
             $card->setCardNumber($cardData['number']);
             $card->setQuantity($cardData['quantity']);
             $card->setCardType($cardData['type']);
-            $card->setTrainerSubtype($cardData['subtype']);
 
             $version->addCard($card);
         }
