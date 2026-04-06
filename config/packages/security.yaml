@@ -36,7 +36,7 @@ security:
                 target: app_home
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800
+                lifetime: 2592000
 
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
