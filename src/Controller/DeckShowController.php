@@ -308,11 +308,14 @@ class DeckShowController extends AbstractAppController
             return $this->redirectToRoute('app_deck_show', ['short_tag' => $deck->getShortTag()]);
         }
 
-        // Remove all existing cards
+        // Remove all existing cards and flush before re-creating
+        // (unique constraint on deck_version_id + set_code + card_number)
         foreach ($version->getCards() as $card) {
             $version->removeCard($card);
             $entityManager->remove($card);
         }
+
+        $entityManager->flush();
 
         // Re-parse from raw list
         $result = $parser->parse($rawList);
