@@ -10,6 +10,8 @@ framework:
     # Both dev and prod use database-backed sessions (via DATABASE_URL).
     session:
         handler_id: '%env(DATABASE_URL)%'
+        cookie_lifetime: 86400
+        gc_maxlifetime: 86400
 
     http_client:
         scoped_clients:
