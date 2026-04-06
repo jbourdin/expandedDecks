@@ -16,6 +16,7 @@ namespace App\Controller;
 use App\Repository\DeckCardRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +37,7 @@ class CardImageUrlController extends AbstractController
     }
 
     #[Route('/api/card/image-url', name: 'app_card_image_url', methods: ['GET'])]
-    #[IsGranted('ROLE_CMS_EDITOR')]
+    #[IsGranted(new Expression("is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR')"))]
     public function __invoke(Request $request): JsonResponse
     {
         $reference = $request->query->getString('reference');

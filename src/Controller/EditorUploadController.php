@@ -16,6 +16,7 @@ namespace App\Controller;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +50,7 @@ class EditorUploadController extends AbstractController
     }
 
     #[Route('/api/editor/upload-image', name: 'app_editor_upload_image', methods: ['POST'])]
-    #[IsGranted('ROLE_CMS_EDITOR')]
+    #[IsGranted(new Expression("is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR')"))]
     public function upload(Request $request): JsonResponse
     {
         $file = $request->files->get('file');

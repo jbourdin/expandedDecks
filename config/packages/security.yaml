@@ -59,6 +59,10 @@ security:
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/webhook/messenger/, roles: PUBLIC_ACCESS }
         - { path: ^/admin/technical, roles: ROLE_TECHNICAL_ADMIN }
+        - { path: ^/admin/archetypes, roles: ROLE_ARCHETYPE_EDITOR }
+        - { path: ^/admin/pages, roles: ROLE_CMS_EDITOR }
+        - { path: ^/admin/homepage, roles: ROLE_CMS_EDITOR }
+        - { path: ^/admin/menu-categories, roles: ROLE_CMS_EDITOR }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
