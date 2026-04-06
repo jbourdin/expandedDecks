@@ -70,6 +70,9 @@ class DeckVersion
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletedAt = null;
+
     /** @var Collection<int, DeckCard> */
     #[ORM\OneToMany(targetEntity: DeckCard::class, mappedBy: 'deckVersion', cascade: ['persist', 'remove'])]
     private Collection $cards;
@@ -231,6 +234,18 @@ class DeckVersion
     public function removeCard(DeckCard $card): static
     {
         $this->cards->removeElement($card);
+
+        return $this;
+    }
+
+    public function getDeletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeImmutable $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
 
         return $this;
     }

@@ -435,15 +435,15 @@ class CardEnricherTest extends TestCase
     }
 
     /**
-     * Covers the name fallback path: findCard returns null, findFirstPrintingByName succeeds.
-     * Also covers the legality warning for name-only matching.
+     * Covers the Asian alias fallback: findCard returns null, findCardByNameInAliasedSet succeeds.
+     * Also covers the legality warning for alias-based matching.
      */
-    public function testEnrichVersionFallsBackToNameLookupWhenSetLookupFails(): void
+    public function testEnrichVersionFallsBackToAsianAliasWhenSetLookupFails(): void
     {
         $card = new DeckCard();
         $card->setCardName("Professor's Research");
-        $card->setSetCode('UNKNOWN');
-        $card->setCardNumber('1');
+        $card->setSetCode('S6K');
+        $card->setCardNumber('70');
         $card->setCardType('trainer');
         $card->setQuantity(2);
 
@@ -451,16 +451,17 @@ class CardEnricherTest extends TestCase
 
         $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
-        $apiClient->method('findAllPrintingsByName')->willReturn([
+        $apiClient->method('findCardByNameInAliasedSet')->willReturn(
             new TcgdexCard(
-                id: 'swsh4-178',
+                id: 'swsh6-178',
                 name: "Professor's Research",
                 category: 'Trainer',
                 trainerType: 'Supporter',
-                imageUrl: 'https://assets.tcgdex.net/en/swsh/swsh4/178/high.webp',
+                imageUrl: 'https://assets.tcgdex.net/en/swsh/swsh6/178/high.webp',
                 isExpandedLegal: true,
+                setCode: 'CRE',
             ),
-        ]);
+        );
 
         $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);
@@ -468,20 +469,18 @@ class CardEnricherTest extends TestCase
         self::assertSame(1, $report->enrichedCount);
         self::assertSame(0, $report->notFoundCount);
         self::assertNotNull($card->getCardPrinting());
-        self::assertSame('swsh4-178', $card->getCardPrinting()->getTcgdexId());
-        self::assertSame('https://assets.tcgdex.net/en/swsh/swsh4/178/high.webp', $card->getCardPrinting()->getImageUrl());
+        self::assertSame('swsh6-178', $card->getCardPrinting()->getTcgdexId());
         self::assertSame('Supporter', $card->getCardPrinting()->getCardIdentity()->getTrainerType());
 
-        // Should have a legality warning about name-only match
+        // Should have a legality warning about Asian alias match
         self::assertCount(1, $report->legalityWarnings);
-        self::assertStringContainsString('matched by name only', $report->legalityWarnings[0]);
+        self::assertStringContainsString('Asian set alias', $report->legalityWarnings[0]);
     }
 
     /**
-     * Covers name fallback when findAllPrintingsByName returns printings with non-matching names.
-     * The card should be counted as not found.
+     * When both findCard and findCardByNameInAliasedSet return null, the card is not found.
      */
-    public function testEnrichVersionNameFallbackSkipsNonMatchingNames(): void
+    public function testEnrichVersionCountsNotFoundWhenBothStrategiesFail(): void
     {
         $card = new DeckCard();
         $card->setCardName('Crobat V');
@@ -494,16 +493,7 @@ class CardEnricherTest extends TestCase
 
         $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
-        $apiClient->method('findAllPrintingsByName')->willReturn([
-            new TcgdexCard(
-                id: 'swsh3-104',
-                name: 'Crobat VMAX',
-                category: 'Pokemon',
-                trainerType: null,
-                imageUrl: 'https://assets.tcgdex.net/en/swsh/swsh3/104/high.webp',
-                isExpandedLegal: true,
-            ),
-        ]);
+        $apiClient->method('findCardByNameInAliasedSet')->willReturn(null);
 
         $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
         $report = $enricher->enrichVersion($version);

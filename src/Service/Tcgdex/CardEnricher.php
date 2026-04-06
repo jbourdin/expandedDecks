@@ -198,29 +198,35 @@ class CardEnricher
                     continue;
                 }
 
+                // Strategy 1: PTCGL set code + card number (international, exact match)
                 $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
 
-                // Fallback: if set+number lookup failed, try by card name
+                // Strategy 2: Asian alias — set code maps to international set, search by name within it
                 if (null === $tcgdexCard) {
-                    $tcgdexCard = $this->findFirstPrintingByName($card->getCardName());
+                    $tcgdexCard = $this->apiClient->findCardByNameInAliasedSet($card->getSetCode(), $card->getCardName());
 
                     if (null !== $tcgdexCard) {
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
                         $this->resolveCardType($card, $tcgdexCard->category);
+                        $this->resolveImageUrl($printing, $tcgdexCard, $card->getCardName());
                         $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
 
                         $legalityWarnings[] = \sprintf(
-                            '"%s" (%s %s): set code not recognized — matched by name only (image may not correspond to the exact card version).',
+                            '"%s" (%s %s): resolved via Asian set alias — matched by name within %s.',
                             $card->getCardName(),
                             $card->getSetCode(),
                             $card->getCardNumber(),
+                            $tcgdexCard->setCode ?? 'unknown set',
                         );
                         ++$enrichedCount;
 
                         continue;
                     }
+                }
 
+                // Both strategies failed — card cannot be resolved
+                if (null === $tcgdexCard) {
                     ++$notFoundCount;
                     $notFoundCards[] = \sprintf('%s (%s %s)', $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
 
@@ -461,24 +467,5 @@ class CardEnricher
         }
 
         return $best;
-    }
-
-    /**
-     * Find the first exact-name-matching printing from TCGdex, returning a full TcgdexCard.
-     *
-     * Unlike findImageByName() which only returns a URL, this returns the complete
-     * card data needed for CardIdentity resolution.
-     */
-    private function findFirstPrintingByName(string $cardName): ?TcgdexCard
-    {
-        $printings = $this->apiClient->findAllPrintingsByName($cardName);
-
-        foreach ($printings as $printing) {
-            if ($printing->name === $cardName && null !== $printing->imageUrl) {
-                return $printing;
-            }
-        }
-
-        return null;
     }
 }

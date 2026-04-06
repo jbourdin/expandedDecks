@@ -78,6 +78,7 @@ fixtures: ## Load fixture data and dispatch enrichment
 	symfony console doctrine:migrations:migrate --no-interaction
 	symfony console doctrine:fixtures:load --no-interaction --append
 	symfony console app:banned-cards:sync
+	$(MAKE) tcgdex.import
 	symfony console app:enrich:retry
 
 .PHONY: tcgdex.import

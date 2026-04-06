@@ -876,6 +876,26 @@
                 <target>Actuelle</target>
                 <note>Badge label for the current version</note>
             </trans-unit>
+            <trans-unit id="app.deck.version.export_list">
+                <source>app.deck.version.export_list</source>
+                <target>Exporter la liste</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete">
+                <source>app.deck.version.delete</source>
+                <target>Supprimer la version</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.delete_confirm">
+                <source>app.deck.version.delete_confirm</source>
+                <target>Êtes-vous sûr de vouloir supprimer la version %version% ?</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.deleted">
+                <source>app.deck.version.deleted</source>
+                <target>Version supprimée.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.cannot_delete_current">
+                <source>app.deck.version.cannot_delete_current</source>
+                <target>La version actuelle ne peut pas être supprimée.</target>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>Ce deck n'a pas encore d'historique de versions.</target>
@@ -2161,6 +2181,26 @@
                 <source>app.deck.delete_button</source>
                 <target>Supprimer le deck</target>
                 <note>Button to soft-delete a deck</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.button">
+                <source>app.deck.reenrich.button</source>
+                <target>Ré-enrichir</target>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.confirm">
+                <source>app.deck.reenrich.confirm</source>
+                <target>Cela réinitialisera toutes les données de cartes et images de ce deck et relancera l'enrichissement. Continuer ?</target>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.dispatched">
+                <source>app.deck.reenrich.dispatched</source>
+                <target>L'enrichissement a été réinitialisé et relancé. Les données seront mises à jour sous peu.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.no_version">
+                <source>app.deck.reenrich.no_version</source>
+                <target>Ce deck n'a pas de version actuelle à ré-enrichir.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.no_raw_list">
+                <source>app.deck.reenrich.no_raw_list</source>
+                <target>Cette version de deck n'a pas de liste brute à ré-analyser.</target>
             </trans-unit>
             <trans-unit id="app.deck.cannot_delete_active_borrows">
                 <source>app.deck.cannot_delete_active_borrows</source>

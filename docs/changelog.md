@@ -16,6 +16,32 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.5.0] — 2026-04-06
+
+Asian set alias resolution, deck re-enrichment, version management, and UX improvements.
+
+### Features
+
+- **Asian set code resolution** — new `tcgdex_asian_set_alias` table maps ~119 Japanese/Asian set codes (SM8, S6K, SV1S, etc.) to their international equivalents. Enrichment uses name-within-set matching when an alias is found (card numbers don't transfer between JP and international products). (#321)
+- **Deck re-enrich action** — technical admins can re-parse and re-enrich a deck from its raw list via the deck actions dropdown. Ensures new resolution strategies apply to previously imported decks. (#321)
+- **Deck actions dropdown** — action buttons on the deck show page converted from flat horizontal list to a Bootstrap "..." dropdown menu. Import List remains standalone as the primary action. (#321)
+- **Version history management** — export a version's deck list as `.txt` download; soft-delete previous versions (not current). `DeckVersion.deletedAt` column added. (#321)
+
+### Bug Fixes
+
+- Fix `DeckShowController` flash messages displaying translation keys instead of translated text (wrong base class).
+- Fix unique constraint violation when re-enriching a deck (flush card removals before re-creating).
+
+### Infrastructure
+
+- `make fixtures` now runs `make tcgdex.import` to populate local card data before enrichment.
+
+### Testing & Quality
+
+- 3 new tests covering Asian alias resolution in `TcgdexApiClient`.
+
+---
+
 ## [1.4.0] — 2026-04-06
 
 Local-first card model — enrichment resolves from local `tcgdex_*` tables instead of the TCGdex API, with automatic image fallback and precomputed canonical printings.
