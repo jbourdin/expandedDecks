@@ -2162,6 +2162,26 @@
                 <target>Delete deck</target>
                 <note>Button to soft-delete a deck</note>
             </trans-unit>
+            <trans-unit id="app.deck.reenrich.button">
+                <source>app.deck.reenrich.button</source>
+                <target>Re-enrich</target>
+                <note>Dropdown item to flush and re-enrich deck (technical admin only)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.confirm">
+                <source>app.deck.reenrich.confirm</source>
+                <target>This will reset all card data and images for this deck and re-process enrichment. Continue?</target>
+                <note>Confirm dialog for re-enrich action</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.dispatched">
+                <source>app.deck.reenrich.dispatched</source>
+                <target>Enrichment has been reset and re-dispatched. Card data will update shortly.</target>
+                <note>Flash message after re-enrich</note>
+            </trans-unit>
+            <trans-unit id="app.deck.reenrich.no_version">
+                <source>app.deck.reenrich.no_version</source>
+                <target>This deck has no current version to re-enrich.</target>
+                <note>Flash message when deck has no version</note>
+            </trans-unit>
             <trans-unit id="app.deck.cannot_delete_active_borrows">
                 <source>app.deck.cannot_delete_active_borrows</source>
                 <target>This deck cannot be deleted because it has active borrows.</target>

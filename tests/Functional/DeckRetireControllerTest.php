@@ -28,8 +28,8 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
 
         $deck = $this->getDeck('Iron Thorns');
         $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
-        $form = $crawler->filter('button.btn-outline-danger')->closest('form');
-        $this->client->submit($form->form());
+        $retireForm = $crawler->filter('form[action*="toggle-retired"]');
+        $this->client->submit($retireForm->form());
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
@@ -47,8 +47,8 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
         $this->getEntityManager()->flush();
 
         $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
-        $form = $crawler->filter('button.btn-outline-success')->closest('form');
-        $this->client->submit($form->form());
+        $reactivateForm = $crawler->filter('form[action*="toggle-retired"]');
+        $this->client->submit($reactivateForm->form());
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
@@ -108,7 +108,7 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck/'.$shortTag);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('button.btn-outline-danger');
+        self::assertSelectorExists('button.dropdown-item');
     }
 
     public function testReactivateButtonVisibleOnRetiredDeck(): void
@@ -122,7 +122,7 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck/'.$deck->getShortTag());
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('button.btn-outline-success');
+        self::assertSelectorExists('button.dropdown-item');
     }
 
     public function testRetireAutoCancelsPendingBorrows(): void
@@ -132,8 +132,8 @@ class DeckRetireControllerTest extends AbstractFunctionalTest
         // Iron Thorns has a pending borrow in fixtures
         $deck = $this->getDeck('Iron Thorns');
         $crawler = $this->client->request('GET', '/deck/'.$deck->getShortTag());
-        $form = $crawler->filter('button.btn-outline-danger')->closest('form');
-        $this->client->submit($form->form());
+        $retireForm = $crawler->filter('form[action*="toggle-retired"]');
+        $this->client->submit($retireForm->form());
 
         self::assertResponseRedirects();
         $this->client->followRedirect();

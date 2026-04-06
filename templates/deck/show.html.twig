@@ -81,36 +81,63 @@
                 {% endif %}
 
                 <span class="ms-auto d-flex gap-2">
-                    {% if versionCount > 1 %}
-                        <a href="{{ path('app_deck_versions', {short_tag: deck.shortTag}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.deck.version_history'|trans }}</a>
-                    {% endif %}
                     {% if isOwner %}
-                        <a href="{{ path('app_deck_edit', {id: deck.id}) }}" class="btn btn-sm btn-outline-primary">{{ 'app.common.edit'|trans }}</a>
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">{{ 'app.deck.import_list'|trans }}</a>
-                        <a href="{{ path('app_deck_label_pdf', {short_tag: deck.shortTag}) }}" class="btn btn-sm btn-outline-secondary" target="_blank">{{ 'app.deck.label_pdf'|trans }}</a>
-                        {% if deck.currentVersion %}
-                            <a href="{{ path('app_deck_label_foldable_pdf', {short_tag: deck.shortTag}) }}" class="btn btn-sm btn-outline-secondary" target="_blank">{{ 'app.deck.label_foldable_pdf'|trans }}</a>
-                        {% endif %}
-                        {% if deck.status.value != 'lent' %}
-                            <form method="post" action="{{ path('app_deck_toggle_retired', {id: deck.id}) }}" class="d-inline">
-                                <input type="hidden" name="_token" value="{{ csrf_token('deck-toggle-retired-' ~ deck.id) }}">
-                                {% if deck.status.value == 'retired' %}
-                                    <button type="submit" class="btn btn-sm btn-outline-success">{{ 'app.deck.reactivate'|trans }}</button>
-                                {% else %}
-                                    {% if activeBorrowCount > 0 %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('{{ 'app.deck.confirm_retire_with_borrows'|trans({'%count%': activeBorrowCount})|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
-                                    {% else %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('{{ 'app.deck.confirm_retire'|trans|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
+                    {% endif %}
+                    {% if isOwner or (versionCount > 1) or is_granted('ROLE_TECHNICAL_ADMIN') %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if versionCount > 1 %}
+                                    <li><a class="dropdown-item" href="{{ path('app_deck_versions', {short_tag: deck.shortTag}) }}">{{ 'app.deck.version_history'|trans }}</a></li>
+                                {% endif %}
+                                {% if isOwner %}
+                                    <li><a class="dropdown-item" href="{{ path('app_deck_edit', {id: deck.id}) }}">{{ 'app.common.edit'|trans }}</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_deck_label_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.label_pdf'|trans }}</a></li>
+                                    {% if deck.currentVersion %}
+                                        <li><a class="dropdown-item" href="{{ path('app_deck_label_foldable_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.label_foldable_pdf'|trans }}</a></li>
+                                    {% endif %}
+                                    {% if deck.status.value != 'lent' %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="post" action="{{ path('app_deck_toggle_retired', {id: deck.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-toggle-retired-' ~ deck.id) }}">
+                                                {% if deck.status.value == 'retired' %}
+                                                    <button type="submit" class="dropdown-item">{{ 'app.deck.reactivate'|trans }}</button>
+                                                {% else %}
+                                                    {% if activeBorrowCount > 0 %}
+                                                        <button type="submit" class="dropdown-item" onclick="return confirm('{{ 'app.deck.confirm_retire_with_borrows'|trans({'%count%': activeBorrowCount})|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
+                                                    {% else %}
+                                                        <button type="submit" class="dropdown-item" onclick="return confirm('{{ 'app.deck.confirm_retire'|trans|e('js') }}')">{{ 'app.deck.retire'|trans }}</button>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </form>
+                                        </li>
+                                    {% endif %}
+                                    {% if deck.deletedAt is null and activeBorrowCount == 0 %}
+                                        <li>
+                                            <form method="post" action="{{ path('app_deck_delete', {id: deck.id}) }}" onsubmit="return confirm('{{ 'app.deck.delete_confirm'|trans|e('js') }}')">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-delete-' ~ deck.id) }}">
+                                                <button type="submit" class="dropdown-item text-danger">{{ 'app.deck.delete_button'|trans }}</button>
+                                            </form>
+                                        </li>
                                     {% endif %}
                                 {% endif %}
-                            </form>
-                        {% endif %}
-                        {% if deck.deletedAt is null and activeBorrowCount == 0 %}
-                            <form method="post" action="{{ path('app_deck_delete', {id: deck.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.deck.delete_confirm'|trans|e('js') }}')">
-                                <input type="hidden" name="_token" value="{{ csrf_token('deck-delete-' ~ deck.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.deck.delete_button'|trans }}</button>
-                            </form>
-                        {% endif %}
+                                {% if is_granted('ROLE_TECHNICAL_ADMIN') and deck.currentVersion %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{{ path('app_deck_reenrich', {short_tag: deck.shortTag}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('deck-reenrich-' ~ deck.id) }}">
+                                            <button type="submit" class="dropdown-item" onclick="return confirm('{{ 'app.deck.reenrich.confirm'|trans|e('js') }}')">
+                                                {{ 'app.deck.reenrich.button'|trans }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     {% endif %}
                 </span>
             </div>
