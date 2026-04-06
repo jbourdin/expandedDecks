@@ -124,7 +124,11 @@ class MosaicGenerator
     public function generateFromTiles(DeckVersion $version, array $tiles, string $variant = ''): string
     {
         if ([] === $tiles) {
-            throw new \RuntimeException(\sprintf('DeckVersion #%d has no tiles.', $version->getId()));
+            $this->logger->info('DeckVersion #{id} has no tiles, skipping minified mosaic generation.', [
+                'id' => $version->getId(),
+            ]);
+
+            return '';
         }
 
         $totalCards = \count($tiles);

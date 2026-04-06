@@ -114,7 +114,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $versionRepository->method('find')->willReturn($version);
 
         $mosaicGenerator = $this->createMock(MosaicGenerator::class);
-        $mosaicGenerator->expects(self::once())->method('generateFromTiles');
+        $mosaicGenerator->expects(self::once())->method('generateFromTiles')->willReturn('mosaics/1-minified.webp');
 
         $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
         $mosaicUrlResolver->method('resolveForVersion')->willReturn('https://example.com/mosaic/minified.webp');
