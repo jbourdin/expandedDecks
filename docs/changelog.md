@@ -16,6 +16,17 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.5.1] — 2026-04-06
+
+Session and remember-me duration configuration.
+
+### Infrastructure
+
+- Extend session lifetime to 1 day (`cookie_lifetime` and `gc_maxlifetime` set to 86400s) so sessions survive browser restarts and idle periods. (#323)
+- Bump remember-me token lifetime from 7 days to 30 days. (#323)
+
+---
+
 ## [1.5.0] — 2026-04-06
 
 Asian set alias resolution, deck re-enrichment, version management, and UX improvements.
