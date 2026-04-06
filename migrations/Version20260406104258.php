@@ -20,18 +20,18 @@ final class Version20260406104258 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create tcgdex_set_alias table and seed with Japanese/legacy set code mappings.';
+        return 'Create tcgdex_asian_set_alias table and seed with Japanese/legacy set code mappings.';
     }
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE tcgdex_set_alias (alias_code VARCHAR(20) NOT NULL, tcgdex_set_id VARCHAR(20) NOT NULL, PRIMARY KEY (alias_code)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE tcgdex_asian_set_alias (alias_code VARCHAR(20) NOT NULL, tcgdex_set_id VARCHAR(20) NOT NULL, PRIMARY KEY (alias_code)) DEFAULT CHARACTER SET utf8mb4');
 
         // Seed: Japanese → international set mappings
         // Source: https://bulbapedia.bulbagarden.net/wiki/List_of_Japanese_Pokémon_Trading_Card_Game_expansions
 
         // --- XY era ---
-        $this->addSql("INSERT INTO tcgdex_set_alias (alias_code, tcgdex_set_id) VALUES
+        $this->addSql("INSERT INTO tcgdex_asian_set_alias (alias_code, tcgdex_set_id) VALUES
             ('XY1', 'xy1'),
             ('XY2', 'xy2'),
             ('XY3', 'xy3'),
@@ -47,7 +47,7 @@ final class Version20260406104258 extends AbstractMigration
         ");
 
         // --- Sun & Moon era ---
-        $this->addSql("INSERT INTO tcgdex_set_alias (alias_code, tcgdex_set_id) VALUES
+        $this->addSql("INSERT INTO tcgdex_asian_set_alias (alias_code, tcgdex_set_id) VALUES
             ('SM1', 'sm1'),
             ('SM1A', 'sm2'),
             ('SM2', 'sm2'),
@@ -86,7 +86,7 @@ final class Version20260406104258 extends AbstractMigration
         ");
 
         // --- Sword & Shield era (S series) ---
-        $this->addSql("INSERT INTO tcgdex_set_alias (alias_code, tcgdex_set_id) VALUES
+        $this->addSql("INSERT INTO tcgdex_asian_set_alias (alias_code, tcgdex_set_id) VALUES
             ('S1W', 'swsh1'),
             ('S1H', 'swsh1'),
             ('S1A', 'swsh2'),
@@ -121,7 +121,7 @@ final class Version20260406104258 extends AbstractMigration
         ");
 
         // --- Scarlet & Violet era (SV series) ---
-        $this->addSql("INSERT INTO tcgdex_set_alias (alias_code, tcgdex_set_id) VALUES
+        $this->addSql("INSERT INTO tcgdex_asian_set_alias (alias_code, tcgdex_set_id) VALUES
             ('SV1S', 'sv01'),
             ('SV1V', 'sv01'),
             ('SV1A', 'sv02'),
@@ -155,7 +155,7 @@ final class Version20260406104258 extends AbstractMigration
         ");
 
         // --- Black & White era ---
-        $this->addSql("INSERT INTO tcgdex_set_alias (alias_code, tcgdex_set_id) VALUES
+        $this->addSql("INSERT INTO tcgdex_asian_set_alias (alias_code, tcgdex_set_id) VALUES
             ('BW1', 'bw1'),
             ('BW2', 'bw2'),
             ('BW3', 'bw3'),
@@ -172,6 +172,6 @@ final class Version20260406104258 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE tcgdex_set_alias');
+        $this->addSql('DROP TABLE tcgdex_asian_set_alias');
     }
 }

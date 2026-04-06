@@ -17,16 +17,18 @@ use App\Repository\TcgdexSetAliasRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Maps alternative set codes (Japanese, PTCGO legacy, etc.) to international TCGdex set IDs.
+ * Maps Asian (Japanese, Korean, etc.) set codes to their international TCGdex set equivalent.
  *
- * Used to resolve deck list input that uses non-standard set codes (e.g. SM8, S6K)
- * to their international equivalent (e.g. sm8 → LOT, S6K → CRE).
+ * Japanese TCG products use different set codes and card numbering from international releases.
+ * When a deck list uses an Asian set code (e.g. SM8, S6K, SV1S), this table resolves
+ * it to the international set (e.g. sm8, swsh6, sv01). Card numbers do NOT transfer —
+ * the enricher must search by name within the resolved set.
  */
 #[ORM\Entity(repositoryClass: TcgdexSetAliasRepository::class)]
-#[ORM\Table(name: 'tcgdex_set_alias')]
+#[ORM\Table(name: 'tcgdex_asian_set_alias')]
 class TcgdexSetAlias
 {
-    /** The alternative set code (e.g. "SM8", "S6K", "SV1S"). Case-insensitive lookup. */
+    /** The Asian set code (e.g. "SM8", "S6K", "SV1S"). Stored uppercase. */
     #[ORM\Id]
     #[ORM\Column(length: 20)]
     private string $aliasCode;
