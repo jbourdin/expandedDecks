@@ -186,7 +186,9 @@ class MinifiedCardViewBuilder
 
         $identity = $printing->getCardIdentity();
 
-        $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
+        // Use cached canonical printing, or compute it lazily
+        $bestPrinting = $this->printingRepository->findCanonicalForIdentity($identity)
+            ?? $this->printingRepository->computeCanonical($identity);
 
         if (null === $bestPrinting) {
             return $default;

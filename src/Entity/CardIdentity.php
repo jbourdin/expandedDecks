@@ -61,6 +61,10 @@ class CardIdentity
     #[ORM\Column(length: 255)]
     private string $attackNames = '';
 
+    /** Trainer subtype (e.g. "Supporter", "Item", "Tool", "Stadium"). Null for non-Trainers. */
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $trainerType = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -159,6 +163,18 @@ class CardIdentity
     public function setAttackNames(string $attackNames): static
     {
         $this->attackNames = $attackNames;
+
+        return $this;
+    }
+
+    public function getTrainerType(): ?string
+    {
+        return $this->trainerType;
+    }
+
+    public function setTrainerType(?string $trainerType): static
+    {
+        $this->trainerType = $trainerType;
 
         return $this;
     }

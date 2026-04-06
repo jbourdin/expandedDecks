@@ -40,7 +40,7 @@ class DeckCardRepository extends ServiceEntityRepository
         $card = $this->createQueryBuilder('c')
             ->where('c.setCode = :setCode')
             ->andWhere('c.cardNumber = :cardNumber')
-            ->andWhere('c.imageUrl IS NOT NULL')
+            ->andWhere('c.cardPrinting IS NOT NULL')
             ->setParameter('setCode', $setCode)
             ->setParameter('cardNumber', $cardNumber)
             ->setMaxResults(1)

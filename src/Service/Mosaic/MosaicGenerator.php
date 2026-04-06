@@ -15,6 +15,7 @@ namespace App\Service\Mosaic;
 
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\CardImageResolver;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 
@@ -42,6 +43,7 @@ class MosaicGenerator
     public function __construct(
         private readonly FilesystemOperator $mosaicStorage,
         private readonly LoggerInterface $logger,
+        private readonly CardImageResolver $cardImageResolver,
         private readonly string $projectDir,
     ) {
     }
@@ -59,7 +61,11 @@ class MosaicGenerator
         $cards = $this->sortCards($version);
 
         if ([] === $cards) {
-            throw new \RuntimeException(\sprintf('DeckVersion #%d has no cards.', $version->getId()));
+            $this->logger->info('DeckVersion #{id} has no cards, skipping mosaic generation.', [
+                'id' => $version->getId(),
+            ]);
+
+            return '';
         }
 
         $totalCards = \count($cards);
@@ -118,7 +124,11 @@ class MosaicGenerator
     public function generateFromTiles(DeckVersion $version, array $tiles, string $variant = ''): string
     {
         if ([] === $tiles) {
-            throw new \RuntimeException(\sprintf('DeckVersion #%d has no tiles.', $version->getId()));
+            $this->logger->info('DeckVersion #{id} has no tiles, skipping minified mosaic generation.', [
+                'id' => $version->getId(),
+            ]);
+
+            return '';
         }
 
         $totalCards = \count($tiles);
@@ -172,7 +182,7 @@ class MosaicGenerator
         $imageUrl = $tile->imageUrl;
 
         if (null !== $imageUrl && '' !== $imageUrl) {
-            $this->drawCardImage($canvas, $imageUrl, $tile->cardName, $x, $y);
+            $this->drawCardImageFromUrl($canvas, $imageUrl, $tile->cardName, $x, $y);
         } else {
             $this->drawPlaceholder($canvas, $tile->cardName, $x, $y);
         }
@@ -315,12 +325,19 @@ class MosaicGenerator
     private function drawCard(\GdImage $canvas, DeckCard $card, int $x, int $y, ?array $imageUrlOverrides = null): void
     {
         $cardId = $card->getId();
-        $imageUrl = (null !== $imageUrlOverrides && null !== $cardId && isset($imageUrlOverrides[$cardId]))
-            ? $imageUrlOverrides[$cardId]
-            : $card->getImageUrl();
+        $printing = $card->getCardPrinting();
 
-        if (null !== $imageUrl && '' !== $imageUrl) {
-            $this->drawCardImage($canvas, $imageUrl, $card->getCardName(), $x, $y);
+        // Use override URL if provided, otherwise try fallback-aware download via CardImageResolver
+        if (null !== $imageUrlOverrides && null !== $cardId && isset($imageUrlOverrides[$cardId])) {
+            $imageData = @file_get_contents($imageUrlOverrides[$cardId]);
+        } elseif (null !== $printing) {
+            $imageData = $this->cardImageResolver->downloadImage($printing);
+        } else {
+            $imageData = false;
+        }
+
+        if (false !== $imageData) {
+            $this->drawCardImageFromData($canvas, $imageData, $card->getCardName(), $x, $y);
         } else {
             $this->drawPlaceholder($canvas, $card->getCardName(), $x, $y);
         }
@@ -328,7 +345,7 @@ class MosaicGenerator
         $this->drawQuantityBadge($canvas, $card->getQuantity(), $x, $y);
     }
 
-    private function drawCardImage(\GdImage $canvas, string $imageUrl, string $cardName, int $x, int $y): void
+    private function drawCardImageFromUrl(\GdImage $canvas, string $imageUrl, string $cardName, int $x, int $y): void
     {
         $imageData = @file_get_contents($imageUrl);
 
@@ -342,12 +359,16 @@ class MosaicGenerator
             return;
         }
 
+        $this->drawCardImageFromData($canvas, $imageData, $cardName, $x, $y);
+    }
+
+    private function drawCardImageFromData(\GdImage $canvas, string $imageData, string $cardName, int $x, int $y): void
+    {
         $source = @imagecreatefromstring($imageData);
 
         if (false === $source) {
-            $this->logger->warning('Failed to decode card image for "{card}": {url}', [
+            $this->logger->warning('Failed to decode card image for "{card}".', [
                 'card' => $cardName,
-                'url' => $imageUrl,
             ]);
             $this->drawPlaceholder($canvas, $cardName, $x, $y);
 

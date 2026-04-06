@@ -13,8 +13,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Tcgdex;
 
+use App\Entity\TcgdexCard as TcgdexCardEntity;
+use App\Entity\TcgdexSerie;
+use App\Entity\TcgdexSet;
+use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
+use App\Service\Tcgdex\TcgdexCard;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -46,7 +51,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
         $mapping = $client->getSetMapping();
 
         // Repository mappings
@@ -65,7 +70,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('getForwardMapping')->willReturn([]);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
         $mapping = $client->getSetMapping();
 
         // PTCGO short codes map to the same TCGdex IDs as the PR-XX codes
@@ -99,7 +104,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('SMP', '217');
 
         self::assertNotNull($card);
@@ -112,7 +117,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('getForwardMapping')->willReturn(['BRS' => 'swsh9']);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         $mapping = $client->getSetMapping();
 
@@ -134,7 +139,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -150,7 +155,7 @@ class TcgdexApiClientTest extends TestCase
     {
         $httpClient = $this->createCardMockClient(['swsh9-999' => ['status' => 404]]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '999');
 
         self::assertNull($card);
@@ -172,7 +177,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '79');
 
         self::assertNotNull($card);
@@ -183,7 +188,7 @@ class TcgdexApiClientTest extends TestCase
     {
         $httpClient = $this->createStub(HttpClientInterface::class);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('UNKNOWN', '1');
 
         self::assertNull($card);
@@ -206,7 +211,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-SV is a static override, no repository mapping needed
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SV', '67');
 
         self::assertNotNull($card);
@@ -231,7 +236,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-XY is a static override
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-XY', '177');
 
         self::assertNotNull($card);
@@ -257,7 +262,7 @@ class TcgdexApiClientTest extends TestCase
         ]);
 
         // PR-SW is a static override
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $card = $client->findCard('PR-SW', '001');
 
         self::assertNotNull($card);
@@ -280,7 +285,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '132');
 
         self::assertNotNull($card);
@@ -309,7 +314,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '185');
 
         self::assertNotNull($card);
@@ -337,7 +342,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '113');
 
         self::assertNotNull($card);
@@ -361,7 +366,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['FST' => 'swsh8']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
         $card = $client->findCard('FST', '225');
 
         self::assertNotNull($card);
@@ -376,7 +381,7 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'sm3.5-69', 'name' => 'Double Colorless Energy', 'image' => 'https://assets.tcgdex.net/en/sm/sm35/069'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertSame('https://assets.tcgdex.net/en/sm/sm35/069/high.webp', $imageUrl);
@@ -389,7 +394,7 @@ class TcgdexApiClientTest extends TestCase
             ['id' => 'xy1-42', 'name' => 'Double Colorless Energy'],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $imageUrl = $client->findImageByName('Double Colorless Energy');
 
         self::assertNull($imageUrl);
@@ -411,7 +416,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['ASR' => 'swsh10']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['ASR' => 'swsh10']));
         $card = $client->findCard('ASR-TG', '30');
 
         self::assertNotNull($card);
@@ -435,7 +440,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '113a');
 
         self::assertNotNull($card);
@@ -449,7 +454,7 @@ class TcgdexApiClientTest extends TestCase
         $response->method('getStatusCode')->willReturn(500);
         $httpClient->method('request')->willReturn($response);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $result = $client->findAllPrintingsByName('NonexistentCard');
 
         self::assertSame([], $result);
@@ -476,7 +481,7 @@ class TcgdexApiClientTest extends TestCase
                 return $response;
             });
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub([]));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub([]));
         $result = $client->findAllPrintingsByName('Test Card');
 
         self::assertSame([], $result);
@@ -500,7 +505,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -528,7 +533,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -559,7 +564,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -603,7 +608,7 @@ class TcgdexApiClientTest extends TestCase
                 return $response;
             });
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -625,7 +630,7 @@ class TcgdexApiClientTest extends TestCase
             ],
         ]);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $this->createRepositoryStub(['BRS' => 'swsh9']));
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']));
         $card = $client->findCard('BRS', '123');
 
         self::assertNotNull($card);
@@ -640,7 +645,7 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('isEmpty')->willReturn(true);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         self::assertFalse($client->hasMappings());
     }
@@ -651,9 +656,396 @@ class TcgdexApiClientTest extends TestCase
         $repository->method('isEmpty')->willReturn(false);
 
         $httpClient = $this->createStub(HttpClientInterface::class);
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository);
+        $client = $this->createClient($httpClient, $repository);
 
         self::assertTrue($client->hasMappings());
+    }
+
+    public function testFindCardReturnsLocalEntityWithoutCallingHttp(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-123',
+            localId: '123',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Arceus VSTAR'],
+            category: 'Pokemon',
+            hp: 280,
+            rarity: 'Ultra Rare',
+            isExpandedLegal: true,
+            ptcgCode: 'BRS',
+            releaseDate: new \DateTimeImmutable('2022-02-25'),
+            officialCardCount: 172,
+            cardmarketProductId: 12345,
+            tcgplayerProductId: 67890,
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('swsh9' === $setId && '123' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh9-123', $card->id);
+        self::assertSame('Arceus VSTAR', $card->name);
+        self::assertSame('Pokemon', $card->category);
+        self::assertSame(280, $card->hp);
+        self::assertSame('Ultra Rare', $card->rarity);
+        self::assertTrue($card->isExpandedLegal);
+        self::assertSame('2022-02-25', $card->setReleaseDate);
+        self::assertSame('BRS', $card->setCode);
+        self::assertSame('123', $card->cardNumber);
+        self::assertSame(172, $card->setOfficialCardCount);
+        self::assertSame(12345, $card->cardmarketProductId);
+        self::assertSame(67890, $card->tcgplayerProductId);
+    }
+
+    public function testFindCardLocalLookupTriesStrippedCandidate(): void
+    {
+        // Card "113a" should try "113a" first, then "113" (letter-stripped)
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-113',
+            localId: '113',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Mew V'],
+            category: 'Pokemon',
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                // "113a" not found, but "113" (stripped) is found
+                if ('swsh9' === $setId && '113' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '113a');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh9-113', $card->id);
+        self::assertSame('Mew V', $card->name);
+    }
+
+    public function testFindCardLocalLookupTriesZeroPaddedCandidate(): void
+    {
+        // Card "79" should try "79" first, then "079" (zero-padded)
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-079',
+            localId: '079',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Comfey'],
+            category: 'Pokemon',
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                // "79" not found, but "079" (zero-padded) is found
+                if ('swsh9' === $setId && '079' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '79');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh9-079', $card->id);
+        self::assertSame('Comfey', $card->name);
+    }
+
+    public function testFindCardFallsBackToHttpWhenLocalReturnsNull(): void
+    {
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')->willReturn(null);
+
+        $httpClient = $this->createCardMockClient([
+            'swsh9-123' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh9-123',
+                    'name' => 'Arceus VSTAR',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh9/123',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh9-123', $card->id);
+    }
+
+    public function testFindAllPrintingsByNameReturnsLocalEntitiesWithoutCallingHttp(): void
+    {
+        $entity1 = $this->createTcgdexCardEntity(
+            id: 'swsh9-079',
+            localId: '079',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Comfey'],
+            category: 'Pokemon',
+            hp: 70,
+            ptcgCode: 'BRS',
+        );
+
+        $entity2 = $this->createTcgdexCardEntity(
+            id: 'sv02-051',
+            localId: '051',
+            setId: 'sv02',
+            serieId: 'sv',
+            name: ['en' => 'Comfey'],
+            category: 'Pokemon',
+            hp: 60,
+            ptcgCode: 'PAL',
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findAllByNameEn')->willReturnCallback(
+            static function (string $name) use ($entity1, $entity2): array {
+                if ('Comfey' === $name) {
+                    return [$entity1, $entity2];
+                }
+
+                return [];
+            }
+        );
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub([]), $cardRepository);
+        $result = $client->findAllPrintingsByName('Comfey');
+
+        self::assertCount(2, $result);
+        self::assertSame('swsh9-079', $result[0]->id);
+        self::assertSame('sv02-051', $result[1]->id);
+        self::assertSame('Comfey', $result[0]->name);
+        self::assertSame('Comfey', $result[1]->name);
+    }
+
+    public function testFindAllPrintingsByNameFallsBackToHttpWhenLocalReturnsEmpty(): void
+    {
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findAllByNameEn')->willReturn([]);
+
+        $httpClient = $this->createStub(HttpClientInterface::class);
+        $httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url): ResponseInterface {
+                $response = $this->createStub(ResponseInterface::class);
+
+                if (str_contains($url, '/cards?name=')) {
+                    $response->method('getStatusCode')->willReturn(200);
+                    $response->method('toArray')->willReturn([
+                        ['id' => 'swsh9-079', 'name' => 'Comfey'],
+                    ]);
+
+                    return $response;
+                }
+
+                if (str_ends_with($url, '/cards/swsh9-079')) {
+                    $response->method('getStatusCode')->willReturn(200);
+                    $response->method('toArray')->willReturn([
+                        'id' => 'swsh9-079',
+                        'name' => 'Comfey',
+                        'category' => 'Pokemon',
+                        'legal' => ['expanded' => true],
+                    ]);
+
+                    return $response;
+                }
+
+                $response->method('getStatusCode')->willReturn(404);
+
+                return $response;
+            });
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub([]), $cardRepository);
+        $result = $client->findAllPrintingsByName('Comfey');
+
+        self::assertCount(1, $result);
+        self::assertSame('swsh9-079', $result[0]->id);
+    }
+
+    public function testBuildDtoFromEntityMapsTrainerFields(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-132',
+            localId: '132',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => "Boss's Orders"],
+            category: 'Trainer',
+            trainerType: 'Supporter',
+            isExpandedLegal: true,
+            ptcgCode: 'BRS',
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('swsh9' === $setId && '132' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '132');
+
+        self::assertNotNull($card);
+        self::assertSame('Trainer', $card->category);
+        self::assertSame('Supporter', $card->trainerType);
+        self::assertNull($card->hp);
+        self::assertSame([], $card->abilities);
+        self::assertSame([], $card->attacks);
+    }
+
+    public function testBuildDtoFromEntityMapsAbilitiesAndAttacks(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh8-185',
+            localId: '185',
+            setId: 'swsh8',
+            serieId: 'swsh',
+            name: ['en' => 'Genesect V'],
+            category: 'Pokemon',
+            hp: 190,
+            isExpandedLegal: true,
+            abilities: [
+                ['name' => ['en' => 'Fusion Strike System'], 'effect' => ['en' => 'Draw cards...'], 'type' => 'Ability'],
+            ],
+            attacks: [
+                ['name' => ['en' => 'Techno Blast'], 'damage' => 210],
+            ],
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('swsh8' === $setId && '185' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']), $cardRepository);
+        $card = $client->findCard('FST', '185');
+
+        self::assertNotNull($card);
+        self::assertSame(['Fusion Strike System'], $card->abilities);
+        self::assertSame(['Techno Blast'], $card->attacks);
+        self::assertSame(190, $card->hp);
+    }
+
+    public function testBuildDtoFromEntityMapsImageUrlFromEntity(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-123',
+            localId: '123',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Arceus VSTAR'],
+            category: 'Pokemon',
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('swsh9' === $setId && '123' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        // Image URL is built from entity: https://assets.tcgdex.net/en/{serieId}/{setId}/{localId}/high.webp
+        self::assertSame('https://assets.tcgdex.net/en/swsh/swsh9/123/high.webp', $card->imageUrl);
+    }
+
+    public function testBuildDtoFromEntityHandlesNullReleaseDate(): void
+    {
+        $entity = $this->createTcgdexCardEntity(
+            id: 'swsh9-123',
+            localId: '123',
+            setId: 'swsh9',
+            serieId: 'swsh',
+            name: ['en' => 'Arceus VSTAR'],
+            category: 'Pokemon',
+            releaseDate: null,
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('swsh9' === $setId && '123' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['BRS' => 'swsh9']), $cardRepository);
+        $card = $client->findCard('BRS', '123');
+
+        self::assertNotNull($card);
+        self::assertNull($card->setReleaseDate);
+    }
+
+    private function createClient(HttpClientInterface $httpClient, TcgdexSetMappingRepository $repository): TcgdexApiClient
+    {
+        return new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $repository,
+            $this->createStub(TcgdexCardRepository::class),
+        );
     }
 
     /**
@@ -729,5 +1121,65 @@ class TcgdexApiClientTest extends TestCase
             });
 
         return $httpClient;
+    }
+
+    private function createClientWithCardRepository(
+        HttpClientInterface $httpClient,
+        TcgdexSetMappingRepository $setMappingRepository,
+        TcgdexCardRepository $cardRepository,
+    ): TcgdexApiClient {
+        return new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $setMappingRepository,
+            $cardRepository,
+        );
+    }
+
+    /**
+     * Creates a real TcgdexCard entity with the given properties for local-first tests.
+     *
+     * @param array<string, mixed>       $name
+     * @param list<array<string, mixed>> $abilities
+     * @param list<array<string, mixed>> $attacks
+     */
+    private function createTcgdexCardEntity(
+        string $id,
+        string $localId,
+        string $setId,
+        string $serieId,
+        array $name = [],
+        string $category = '',
+        ?int $hp = null,
+        ?string $trainerType = null,
+        ?string $rarity = null,
+        bool $isExpandedLegal = false,
+        ?string $ptcgCode = null,
+        ?\DateTimeImmutable $releaseDate = null,
+        ?int $officialCardCount = null,
+        ?int $cardmarketProductId = null,
+        ?int $tcgplayerProductId = null,
+        array $abilities = [],
+        array $attacks = [],
+    ): TcgdexCardEntity {
+        $serie = new TcgdexSerie($serieId);
+        $set = new TcgdexSet($setId, $serie);
+        $set->setPtcgCode($ptcgCode);
+        $set->setReleaseDate($releaseDate);
+        $set->setOfficialCardCount($officialCardCount);
+
+        $entity = new TcgdexCardEntity($id, $set, $localId);
+        $entity->setName($name);
+        $entity->setCategory($category);
+        $entity->setHp($hp);
+        $entity->setTrainerType($trainerType);
+        $entity->setRarity($rarity);
+        $entity->setIsExpandedLegal($isExpandedLegal);
+        $entity->setCardmarketProductId($cardmarketProductId);
+        $entity->setTcgplayerProductId($tcgplayerProductId);
+        $entity->setAbilities($abilities);
+        $entity->setAttacks($attacks);
+
+        return $entity;
     }
 }

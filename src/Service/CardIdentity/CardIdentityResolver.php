@@ -133,6 +133,11 @@ class CardIdentityResolver
         );
 
         if (null !== $existing) {
+            // Backfill trainerType if missing on existing identity
+            if (null === $existing->getTrainerType() && null !== $tcgdexCard->trainerType) {
+                $existing->setTrainerType($tcgdexCard->trainerType);
+            }
+
             return $existing;
         }
 
@@ -144,6 +149,7 @@ class CardIdentityResolver
         $identity->setAbilityNames(implode(',', $tcgdexCard->abilities));
         $identity->setAttackSignature($attackSignature);
         $identity->setAttackNames(implode(',', $tcgdexCard->attacks));
+        $identity->setTrainerType($tcgdexCard->trainerType);
 
         $this->entityManager->persist($identity);
 
