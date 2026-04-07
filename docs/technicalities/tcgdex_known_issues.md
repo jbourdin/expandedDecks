@@ -56,7 +56,7 @@ Some cards exist in TCGdex's database but have no `image` field and no image on 
 | `smp-SM193` | Garchomp & Giratina GX | SM Promos (PR-SM) | `smp/SM193` exists |
 | `tk-dp-l-10` | Quick Ball | Trainer Kit (TK3L) | Missing everywhere |
 
-**Impact on original card display:** When a user imports e.g. `SLG 68` (Ultra Ball), the enricher finds the card in TCGdex (correct metadata, no image), then `findImageByName("Ultra Ball")` returns an image from another printing. The DeckCard gets an image, but it may not match the exact set artwork. A warning banner is shown.
+**Impact on original card display:** When a user imports e.g. `SLG 68` (Ultra Ball), the enricher finds the card in TCGdex (correct metadata, no image), then tries PokemonTCG.io CDN, then `findImageByName("Ultra Ball")` which returns an image from another printing. During enrichment, each fallback URL is verified with a HEAD request before being persisted. At mosaic generation time, `CardImageResolver` provides an additional fallback chain including sibling printings of the same card.
 
 **Impact on minified export:** None — `CardPrinting` records with null images are excluded by the query filter.
 

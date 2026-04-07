@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.5.2] — 2026-04-07
+
+Bug fixes for delegated admin roles, CMS content rendering, and card image fallback.
+
+### Bug Fixes
+
+- **Admin sub-role access** — `ROLE_ARCHETYPE_EDITOR` and `ROLE_CMS_EDITOR` can now access their respective `/admin/*` routes. Added route-specific `access_control` rules before the `ROLE_ADMIN` catch-all. RTE endpoints (image upload, card image URL) accept both editor roles via expression-based `#[IsGranted]`. (#327, #328)
+- **Custom RTE tags on content pages** — `[[card:...]]`, `[[archetype:...]]`, and `[[deck:...]]` tags now render on CMS content pages (previously only worked on archetype pages). `PageController` uses the tag-aware renderer; new `page_show` entry point initializes card hover and image modal. (#329)
+- **Card image fallback for broken URLs** — enrichment now validates image URLs with a HEAD request and replaces broken ones (404) with PokemonTCG.io or name-based fallbacks. Mosaic generation adds a sibling-printing fallback: when all CDN sources fail, another printing of the same card is used. Working URLs are persisted on `CardPrinting`. (#331)
+
+### Infrastructure
+
+- Move CMS content pages before app links (Archetypes, Decks, Events) in the navigation menu. (#326)
+
+---
+
 ## [1.5.1] — 2026-04-06
 
 Session and remember-me duration configuration.
