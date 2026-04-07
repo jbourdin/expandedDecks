@@ -36,6 +36,11 @@ class CardImageResolver
     /**
      * Download the card image, trying fallbacks on failure.
      *
+     * Fallback chain:
+     * 1. Primary URL from CardPrinting.imageUrl
+     * 2. Alternative CDN URLs (TCGdex variants, PokemonTCG.io)
+     * 3. Image from a sibling printing of the same CardIdentity
+     *
      * If a fallback URL succeeds, updates CardPrinting.imageUrl in the database
      * so subsequent calls use the working URL directly.
      *
@@ -44,22 +49,21 @@ class CardImageResolver
     public function downloadImage(CardPrinting $printing): string|false
     {
         $primaryUrl = $printing->getImageUrl();
-
-        if (null === $primaryUrl || '' === $primaryUrl) {
-            return false;
-        }
+        $cardName = $printing->getCardIdentity()->getName();
 
         // Try primary URL
-        $imageData = @file_get_contents($primaryUrl);
+        if (null !== $primaryUrl && '' !== $primaryUrl) {
+            $imageData = @file_get_contents($primaryUrl);
 
-        if (false !== $imageData) {
-            return $imageData;
+            if (false !== $imageData) {
+                return $imageData;
+            }
+
+            $this->logger->info('Primary image URL failed for "{card}", trying fallbacks.', [
+                'card' => $cardName,
+                'url' => $primaryUrl,
+            ]);
         }
-
-        $this->logger->info('Primary image URL failed for "{card}", trying fallbacks.', [
-            'card' => $printing->getCardIdentity()->getName(),
-            'url' => $primaryUrl,
-        ]);
 
         // Build fallback URLs from the TCGdex card link
         $fallbackUrls = $this->buildFallbackUrls($printing);
@@ -68,23 +72,72 @@ class CardImageResolver
             $imageData = @file_get_contents($fallbackUrl);
 
             if (false !== $imageData) {
-                // Update the stored URL so we don't retry next time
-                $printing->setImageUrl($fallbackUrl);
-                $this->entityManager->flush();
-
-                $this->logger->info('Fallback image URL succeeded for "{card}".', [
-                    'card' => $printing->getCardIdentity()->getName(),
-                    'url' => $fallbackUrl,
-                ]);
-
-                return $imageData;
+                return $this->persistFallbackUrl($printing, $fallbackUrl, $cardName, $imageData);
             }
         }
 
+        // Final fallback: try a sibling printing of the same card
+        $siblingImageData = $this->tryFromSiblingPrinting($printing);
+
+        if (false !== $siblingImageData) {
+            return $siblingImageData;
+        }
+
         $this->logger->warning('All image URLs failed for "{card}".', [
-            'card' => $printing->getCardIdentity()->getName(),
+            'card' => $cardName,
             'primaryUrl' => $primaryUrl,
         ]);
+
+        return false;
+    }
+
+    /**
+     * Persist a working fallback URL and return the image data.
+     */
+    private function persistFallbackUrl(CardPrinting $printing, string $url, string $cardName, string $imageData): string
+    {
+        $printing->setImageUrl($url);
+        $this->entityManager->flush();
+
+        $this->logger->info('Fallback image URL succeeded for "{card}".', [
+            'card' => $cardName,
+            'url' => $url,
+        ]);
+
+        return $imageData;
+    }
+
+    /**
+     * Try to download an image from a sibling printing of the same CardIdentity.
+     *
+     * When all CDN fallbacks fail for a specific printing, another printing of the
+     * same card (e.g. a different set release) may have a working image. If found,
+     * the working URL is persisted on the current printing.
+     *
+     * @return string|false the image data on success, false on failure
+     */
+    private function tryFromSiblingPrinting(CardPrinting $printing): string|false
+    {
+        $identity = $printing->getCardIdentity();
+        $cardName = $identity->getName();
+
+        foreach ($identity->getPrintings() as $sibling) {
+            if ($sibling === $printing) {
+                continue;
+            }
+
+            $siblingUrl = $sibling->getImageUrl();
+
+            if (null === $siblingUrl || '' === $siblingUrl) {
+                continue;
+            }
+
+            $imageData = @file_get_contents($siblingUrl);
+
+            if (false !== $imageData) {
+                return $this->persistFallbackUrl($printing, $siblingUrl, $cardName, $imageData);
+            }
+        }
 
         return false;
     }

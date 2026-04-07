@@ -343,20 +343,46 @@ class CardEnricher
     /**
      * Ensures the CardPrinting has a working image URL, applying fallbacks if needed.
      *
-     * If TCGdex provides no image, tries PokemonTCG.io CDN and name-based search.
+     * If the existing URL returns a 404, or if no URL is set, tries PokemonTCG.io
+     * CDN and name-based search as fallbacks.
      */
     private function resolveImageUrl(CardPrinting $printing, TcgdexCard $tcgdexCard, string $cardName): void
     {
-        if (null !== $printing->getImageUrl()) {
+        $currentUrl = $printing->getImageUrl();
+
+        if (null !== $currentUrl && $this->isImageReachable($currentUrl)) {
             return;
         }
 
-        $fallbackUrl = self::buildPokemontcgioUrl($tcgdexCard->id)
-            ?? $this->apiClient->findImageByName($cardName);
+        $fallbackUrl = self::buildPokemontcgioUrl($tcgdexCard->id);
 
-        if (null !== $fallbackUrl) {
+        if (null !== $fallbackUrl && $this->isImageReachable($fallbackUrl)) {
             $printing->setImageUrl($fallbackUrl);
+
+            return;
         }
+
+        $nameUrl = $this->apiClient->findImageByName($cardName);
+
+        if (null !== $nameUrl) {
+            $printing->setImageUrl($nameUrl);
+        }
+    }
+
+    /**
+     * Check if an image URL is reachable with a lightweight HEAD request.
+     */
+    private function isImageReachable(string $url): bool
+    {
+        $headers = @get_headers($url);
+
+        if (!\is_array($headers) || [] === $headers) {
+            return false;
+        }
+
+        $statusLine = $headers[0];
+
+        return \is_string($statusLine) && str_contains($statusLine, '200');
     }
 
     /**
