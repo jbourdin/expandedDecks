@@ -86,6 +86,7 @@
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_user_list') }}">{{ 'app.nav.admin_users'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_channel_list') }}">{{ 'app.nav.admin_channels'|trans }}</a></li>
                                     {% endif %}
                                     {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
                                         {% if not is_granted('ROLE_ADMIN') %}

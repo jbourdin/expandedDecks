@@ -1,0 +1,37 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.channel.new_title'|trans }} — Expanded Decks{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.channel.new_title'|trans }}</h1>
+        <a href="{{ path('app_admin_channel_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.channel.settings'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.domain) }}
+                <hr>
+                {{ form_row(form.enableDecks) }}
+                {{ form_row(form.enableRegister) }}
+                {{ form_row(form.enableEvents) }}
+                {{ form_row(form.enableBorrows) }}
+                {{ form_row(form.isArchetypeSource) }}
+                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.create'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
