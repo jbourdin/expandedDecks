@@ -12,6 +12,7 @@ help: ## Show this help
 install: ## Install project dependencies
 	symfony composer install
 	npm install
+	symfony proxy:domain:attach expandedDecks expanded-decks expandedtalks
 
 .PHONY: start
 start: ## Start dev server and Docker services
