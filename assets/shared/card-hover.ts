@@ -64,7 +64,11 @@ export function initCardHover(): void {
             if (isTouchDevice()) return;
 
             const rect = element.getBoundingClientRect();
-            const imgHeight = img.offsetHeight || img.getBoundingClientRect().height;
+
+            // Compute expected image height from its CSS width and card aspect ratio
+            // (Pokemon TCG cards are 63×88mm, ratio ≈ 1.4)
+            const imgWidth = img.offsetWidth || parseFloat(getComputedStyle(img).width) || 250;
+            const imgHeight = imgWidth * 1.4;
 
             // Vertical: show below when the image would overflow above the viewport
             if (rect.top < imgHeight + 8) {
