@@ -69,11 +69,25 @@ export function initCardHover(): void {
             const imgWidth = Math.min(Math.max(200, window.innerWidth * 0.2), 350);
             const imgHeight = imgWidth * 1.4;
 
-            if (rect.top < imgHeight + 8) {
-                img.classList.add('show-below');
+            // Position above the card name by default, below if not enough room
+            let top: number;
+            if (rect.top >= imgHeight + 8) {
+                top = rect.top - imgHeight;
             } else {
-                img.classList.remove('show-below');
+                top = rect.bottom + 4;
             }
+
+            // Clamp to viewport bounds
+            top = Math.max(4, Math.min(top, window.innerHeight - imgHeight - 4));
+
+            let left = rect.left;
+            if (left + imgWidth > window.innerWidth - 4) {
+                left = window.innerWidth - imgWidth - 4;
+            }
+            left = Math.max(4, left);
+
+            img.style.top = `${top}px`;
+            img.style.left = `${left}px`;
         });
 
         element.addEventListener('click', (event) => {

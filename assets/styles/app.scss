@@ -283,19 +283,12 @@ footer {
 
 .card-hover-img {
     display: none;
-    position: absolute;
+    position: fixed;
     z-index: 1000;
-    bottom: 100%;
-    left: 0;
     width: clamp(200px, 20vw, 350px);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     pointer-events: none;
-
-    &.show-below {
-        bottom: auto;
-        top: 100%;
-    }
 }
 
 // Hide hover behaviour on touch devices — tap opens a modal instead
