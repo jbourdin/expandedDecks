@@ -64,11 +64,30 @@ export function initCardHover(): void {
             if (isTouchDevice()) return;
 
             const rect = element.getBoundingClientRect();
-            if (rect.top < 360) {
-                img.classList.add('show-below');
+
+            // Mirror CSS clamp(200px, 20vw, 350px) × card aspect ratio (88/63 ≈ 1.4)
+            const imgHeight = Math.min(Math.max(280, window.innerHeight / 3), 672);
+            const imgWidth = imgHeight / 1.4;
+
+            // Position above the card name by default, below if not enough room
+            let top: number;
+            if (rect.top >= imgHeight + 8) {
+                top = rect.top - imgHeight;
             } else {
-                img.classList.remove('show-below');
+                top = rect.bottom + 4;
             }
+
+            // Clamp to viewport bounds
+            top = Math.max(4, Math.min(top, window.innerHeight - imgHeight - 4));
+
+            let left = rect.left;
+            if (left + imgWidth > window.innerWidth - 4) {
+                left = window.innerWidth - imgWidth - 4;
+            }
+            left = Math.max(4, left);
+
+            img.style.top = `${top}px`;
+            img.style.left = `${left}px`;
         });
 
         element.addEventListener('click', (event) => {

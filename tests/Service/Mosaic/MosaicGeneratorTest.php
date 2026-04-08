@@ -20,6 +20,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Service\CardImageResolver;
 use App\Service\Mosaic\MosaicGenerator;
+use App\Service\Mosaic\MosaicTile;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -142,6 +143,72 @@ final class MosaicGeneratorTest extends TestCase
         $this->generator->generate($version);
 
         self::assertTrue(str_starts_with($writtenData, "\x89PNG"));
+    }
+
+    public function testGenerateFromTilesUsesCardImageResolverWhenPrintingPresent(): void
+    {
+        $printing = new CardPrinting();
+        $printing->setTcgdexId('sm6-82');
+        $printing->setImageUrl('https://broken.example.com/404.webp');
+
+        $identity = new CardIdentity();
+        $identity->setName('Dialga GX');
+        $identity->setCategory('pokemon');
+        $printing->setCardIdentity($identity);
+        $identity->addPrinting($printing);
+
+        $tile = new MosaicTile(
+            'Dialga GX',
+            2,
+            'https://broken.example.com/404.webp',
+            'pokemon',
+            null,
+            $printing,
+        );
+
+        // Create a 1x1 PNG to return as "downloaded" image data
+        $image = imagecreatetruecolor(1, 1);
+        self::assertNotFalse($image);
+        ob_start();
+        imagepng($image);
+        $fakePngData = ob_get_clean();
+        self::assertNotFalse($fakePngData);
+
+        $resolver = $this->createMock(CardImageResolver::class);
+        $resolver->expects(self::once())
+            ->method('downloadImage')
+            ->with($printing)
+            ->willReturn($fakePngData);
+
+        $storage = $this->createStub(FilesystemOperator::class);
+        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver, \dirname(__DIR__, 3));
+
+        $version = $this->createVersion(10, 20);
+
+        $generator->generateFromTiles($version, [$tile], 'minified');
+    }
+
+    public function testGenerateFromTilesFallsBackToRawUrlWhenNoPrinting(): void
+    {
+        $tile = new MosaicTile(
+            'Static Override Card',
+            1,
+            null,
+            'pokemon',
+            null,
+            null,
+        );
+
+        $resolver = $this->createMock(CardImageResolver::class);
+        $resolver->expects(self::never())->method('downloadImage');
+
+        $storage = $this->createStub(FilesystemOperator::class);
+        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver, \dirname(__DIR__, 3));
+
+        $version = $this->createVersion(11, 21);
+
+        // Should not call resolver, should draw placeholder instead
+        $generator->generateFromTiles($version, [$tile], 'minified');
     }
 
     private function createVersion(int $deckId, int $versionId): DeckVersion

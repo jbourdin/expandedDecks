@@ -190,7 +190,38 @@ interface CardEntry {
  */
 const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card, onMobileTap }) => {
     const [showPreview, setShowPreview] = useState(false);
+    const spanRef = useRef<HTMLSpanElement>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
     const isMobile = useMediaQuery('(max-width: 767px)');
+
+    const handleMouseEnter = useCallback(() => {
+        if (!spanRef.current || !imgRef.current) return;
+
+        const rect = spanRef.current.getBoundingClientRect();
+        const imgHeight = Math.min(Math.max(280, window.innerHeight / 3), 672);
+        const imgWidth = imgHeight / 1.4;
+
+        let top: number;
+        if (rect.top >= imgHeight + 8) {
+            top = rect.top - imgHeight;
+        } else {
+            top = rect.bottom + 4;
+        }
+
+        top = Math.max(4, Math.min(top, window.innerHeight - imgHeight - 4));
+
+        let left = rect.left;
+        if (left + imgWidth > window.innerWidth - 4) {
+            left = window.innerWidth - imgWidth - 4;
+        }
+        left = Math.max(4, left);
+
+        // Set position imperatively before showing to avoid flicker
+        imgRef.current.style.top = `${top}px`;
+        imgRef.current.style.left = `${left}px`;
+
+        setShowPreview(true);
+    }, []);
 
     if (!card.imageUrl) {
         return <>{card.cardName}</>;
@@ -198,9 +229,10 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
 
     return (
         <span
+            ref={spanRef}
             className="card-hover"
             data-quantity={card.quantity}
-            onMouseEnter={() => setShowPreview(true)}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={() => setShowPreview(false)}
             onClick={(event) => {
                 if (isMobile && onMobileTap) {
@@ -211,6 +243,7 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
         >
             {card.cardName}
             <img
+                ref={imgRef}
                 className="card-hover-img"
                 src={card.imageUrl}
                 alt={card.cardName}

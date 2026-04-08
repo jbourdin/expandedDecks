@@ -179,10 +179,18 @@ class MosaicGenerator
 
     private function drawTile(\GdImage $canvas, MosaicTile $tile, int $x, int $y): void
     {
-        $imageUrl = $tile->imageUrl;
+        $imageData = false;
 
-        if (null !== $imageUrl && '' !== $imageUrl) {
-            $this->drawCardImageFromUrl($canvas, $imageUrl, $tile->cardName, $x, $y);
+        // When a CardPrinting is available, use the fallback-aware resolver
+        // which also persists working URLs on the printing entity.
+        if (null !== $tile->printing) {
+            $imageData = $this->cardImageResolver->downloadImage($tile->printing);
+        } elseif (null !== $tile->imageUrl && '' !== $tile->imageUrl) {
+            $imageData = @file_get_contents($tile->imageUrl);
+        }
+
+        if (false !== $imageData) {
+            $this->drawCardImageFromData($canvas, $imageData, $tile->cardName, $x, $y);
         } else {
             $this->drawPlaceholder($canvas, $tile->cardName, $x, $y);
         }
@@ -343,23 +351,6 @@ class MosaicGenerator
         }
 
         $this->drawQuantityBadge($canvas, $card->getQuantity(), $x, $y);
-    }
-
-    private function drawCardImageFromUrl(\GdImage $canvas, string $imageUrl, string $cardName, int $x, int $y): void
-    {
-        $imageData = @file_get_contents($imageUrl);
-
-        if (false === $imageData) {
-            $this->logger->warning('Failed to download card image for "{card}": {url}', [
-                'card' => $cardName,
-                'url' => $imageUrl,
-            ]);
-            $this->drawPlaceholder($canvas, $cardName, $x, $y);
-
-            return;
-        }
-
-        $this->drawCardImageFromData($canvas, $imageData, $cardName, $x, $y);
     }
 
     private function drawCardImageFromData(\GdImage $canvas, string $imageData, string $cardName, int $x, int $y): void

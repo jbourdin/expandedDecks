@@ -13,11 +13,14 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
+use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckListParser;
 use App\Service\Mosaic\MosaicGenerator;
 use App\Service\Mosaic\MosaicTile;
@@ -43,6 +46,7 @@ class GenerateMinifiedMosaicHandler
         private readonly DeckVersionRepository $versionRepo,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
+        private readonly MinifiedCardViewBuilder $cardViewBuilder,
     ) {
     }
 
@@ -74,6 +78,12 @@ class GenerateMinifiedMosaicHandler
             $publicUrl = $this->mosaicUrlResolver->resolveForVersion($version, 'minified');
 
             $version->setMinifiedMosaicImageUrl($publicUrl);
+
+            // Regenerate card views JSON: the mosaic fallback chain may have
+            // updated CardPrinting URLs that the earlier snapshot missed.
+            $groupedCardViews = $this->cardViewBuilder->buildGrouped($version);
+            $version->setMinifiedCardViews(MinifiedCardView::serializeGrouped($groupedCardViews));
+
             $this->entityManager->flush();
         } catch (\Throwable $exception) {
             $this->logger->error('Minified mosaic generation failed for DeckVersion #{id}: {error}', [
@@ -96,11 +106,11 @@ class GenerateMinifiedMosaicHandler
      */
     private function buildMergedTiles(array $cards): array
     {
-        /** @var array<string, array{name: string, quantity: int, imageUrl: ?string, cardType: string, trainerSubtype: ?string}> $merged */
+        /** @var array<string, array{name: string, quantity: int, imageUrl: ?string, cardType: string, trainerSubtype: ?string, printing: ?CardPrinting}> $merged */
         $merged = [];
 
         foreach ($cards as $card) {
-            $imageUrl = $this->resolveMinifiedImageUrl($card);
+            [$imageUrl, $printing] = $this->resolveMinifiedImage($card);
             $key = \sprintf('%s|%s', $card->getCardName(), $imageUrl ?? '');
 
             if (isset($merged[$key])) {
@@ -112,6 +122,7 @@ class GenerateMinifiedMosaicHandler
                     'imageUrl' => $imageUrl,
                     'cardType' => $card->getCardType(),
                     'trainerSubtype' => $card->getTrainerSubtype(),
+                    'printing' => $printing,
                 ];
             }
         }
@@ -125,6 +136,7 @@ class GenerateMinifiedMosaicHandler
                 $entry['imageUrl'],
                 $entry['cardType'],
                 $entry['trainerSubtype'],
+                $entry['printing'],
             );
         }
 
@@ -156,27 +168,36 @@ class GenerateMinifiedMosaicHandler
         return $tiles;
     }
 
-    private function resolveMinifiedImageUrl(DeckCard $card): ?string
+    /**
+     * Resolve the image URL and associated CardPrinting for minified mosaic tile.
+     *
+     * Returns a tuple of [imageUrl, printing]. The printing is passed through
+     * to MosaicTile so the mosaic generator can use the fallback-aware
+     * CardImageResolver instead of raw URL fetching.
+     *
+     * @return array{0: ?string, 1: ?CardPrinting}
+     */
+    private function resolveMinifiedImage(DeckCard $card): array
     {
-        // Static overrides for known TCGdex data issues
+        // Static overrides for known TCGdex data issues — no printing, raw URL
         $overrideKey = strtoupper($card->getSetCode()).'|'.$card->getCardNumber();
         $override = DeckListParser::MINIFIED_PRINTING_OVERRIDES[$overrideKey] ?? null;
 
         if (null !== $override) {
-            return $override['imageUrl'];
+            return [$override['imageUrl'], null];
         }
 
-        // Basic energies always use the default printing image
+        // Basic energies always use the default printing image — no printing
         $energyDefault = DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS[$card->getCardName()] ?? null;
 
         if (null !== $energyDefault) {
-            return $energyDefault['imageUrl'];
+            return [$energyDefault['imageUrl'], null];
         }
 
         $printing = $card->getCardPrinting();
 
         if (null === $printing) {
-            return $card->getImageUrl();
+            return [$card->getImageUrl(), null];
         }
 
         $identity = $printing->getCardIdentity();
@@ -187,6 +208,10 @@ class GenerateMinifiedMosaicHandler
 
         $bestPrinting = $this->printingRepository->findLowestRarityForIdentity($identity);
 
-        return $bestPrinting?->getImageUrl() ?? $card->getImageUrl();
+        if (null !== $bestPrinting) {
+            return [$bestPrinting->getImageUrl(), $bestPrinting];
+        }
+
+        return [$card->getImageUrl(), $printing];
     }
 }

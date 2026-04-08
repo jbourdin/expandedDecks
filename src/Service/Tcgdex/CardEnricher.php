@@ -39,6 +39,8 @@ class CardEnricher
     private const array IMAGE_OVERRIDES = [
         // g1-73 (GEN 73): TCGdex image shows the full-art 73a instead of the regular Uncommon
         'GEN|73' => 'https://assets.tcgdex.net/en/xy/xy1/129/high.webp',
+        // sm6-82 (FLI 82): TCGdex CDN returns 404 for Dialga GX
+        'FLI|82' => 'https://images.pokemontcg.io/sm6/82_hires.png',
     ];
 
     /** Maps TCGdex category names to internal card types. */
