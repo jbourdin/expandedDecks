@@ -41,12 +41,12 @@ class GenerateMinifiedMosaicHandler
     public function __construct(
         private readonly MosaicGenerator $mosaicGenerator,
         private readonly MosaicUrlResolver $mosaicUrlResolver,
-        private readonly MinifiedCardViewBuilder $cardViewBuilder,
         private readonly CardPrintingRepository $printingRepository,
         private readonly CardIdentityResolver $identityResolver,
         private readonly DeckVersionRepository $versionRepo,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
+        private readonly MinifiedCardViewBuilder $cardViewBuilder,
     ) {
     }
 

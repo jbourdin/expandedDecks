@@ -55,12 +55,12 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
-            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
             $entityManager,
             $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
         );
 
         $handler(new GenerateMinifiedMosaicMessage(999));
@@ -89,12 +89,12 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
-            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
             $entityManager,
             $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
         );
 
         $handler(new GenerateMinifiedMosaicMessage(1));
@@ -128,12 +128,12 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
-            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
             $entityManager,
             $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
         );
 
         $handler(new GenerateMinifiedMosaicMessage(1));
@@ -177,12 +177,12 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
-            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
             $entityManager,
             $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
         );
 
         $handler(new GenerateMinifiedMosaicMessage(1));
@@ -251,12 +251,12 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
-            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
             $entityManager,
             $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
         );
 
         $handler(new GenerateMinifiedMosaicMessage(1));
