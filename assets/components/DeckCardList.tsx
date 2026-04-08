@@ -198,7 +198,7 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
         if (!spanRef.current || !imgRef.current) return;
 
         const rect = spanRef.current.getBoundingClientRect();
-        const imgWidth = Math.min(Math.max(200, window.innerWidth * 0.2), 350);
+        const imgWidth = Math.min(Math.max(200, window.innerWidth / 3), 480);
         const imgHeight = imgWidth * 1.4;
 
         let top: number;

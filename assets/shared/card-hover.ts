@@ -66,7 +66,7 @@ export function initCardHover(): void {
             const rect = element.getBoundingClientRect();
 
             // Mirror CSS clamp(200px, 20vw, 350px) × card aspect ratio (88/63 ≈ 1.4)
-            const imgWidth = Math.min(Math.max(200, window.innerWidth * 0.2), 350);
+            const imgWidth = Math.min(Math.max(200, window.innerWidth / 3), 480);
             const imgHeight = imgWidth * 1.4;
 
             // Position above the card name by default, below if not enough room
