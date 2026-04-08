@@ -16,6 +16,7 @@ namespace App\Tests\EventListener;
 use App\Entity\Channel;
 use App\EventListener\ChannelResolverListener;
 use App\Repository\ChannelRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -36,7 +37,7 @@ final class ChannelResolverListenerTest extends TestCase
         $request = Request::create('/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
         $event = $this->createRequestEvent($request);
 
-        $listener = new ChannelResolverListener($repository);
+        $listener = new ChannelResolverListener($repository, $this->createStub(EntityManagerInterface::class));
         $listener($event);
 
         self::assertSame($channel, $request->attributes->get('_channel'));
@@ -53,27 +54,34 @@ final class ChannelResolverListenerTest extends TestCase
         $request = Request::create('/', server: ['HTTP_HOST' => 'unknown.example.com']);
         $event = $this->createRequestEvent($request);
 
-        $listener = new ChannelResolverListener($repository);
+        $listener = new ChannelResolverListener($repository, $this->createStub(EntityManagerInterface::class));
         $listener($event);
 
         self::assertSame($defaultChannel, $request->attributes->get('_channel'));
     }
 
-    public function testThrowsWhenNoChannelAndNoDefault(): void
+    public function testCreatesDefaultChannelWhenNoneExist(): void
     {
         $repository = $this->createStub(ChannelRepository::class);
         $repository->method('findByDomain')->willReturn(null);
         $repository->method('findByCode')->willReturn(null);
 
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')->with(self::isInstanceOf(Channel::class));
+        $entityManager->expects(self::once())->method('flush');
+
         $request = Request::create('/', server: ['HTTP_HOST' => 'unknown.example.com']);
         $event = $this->createRequestEvent($request);
 
-        $listener = new ChannelResolverListener($repository);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No channel found');
-
+        $listener = new ChannelResolverListener($repository, $entityManager);
         $listener($event);
+
+        $channel = $request->attributes->get('_channel');
+        self::assertInstanceOf(Channel::class, $channel);
+        self::assertSame('app', $channel->getCode());
+        self::assertSame('unknown.example.com', $channel->getDomain());
+        self::assertTrue($channel->isDecksEnabled());
+        self::assertTrue($channel->isRegisterEnabled());
     }
 
     public function testSubRequestIsIgnored(): void
@@ -83,7 +91,7 @@ final class ChannelResolverListenerTest extends TestCase
         $request = Request::create('/');
         $event = $this->createRequestEvent($request, HttpKernelInterface::SUB_REQUEST);
 
-        $listener = new ChannelResolverListener($repository);
+        $listener = new ChannelResolverListener($repository, $this->createStub(EntityManagerInterface::class));
         $listener($event);
 
         self::assertFalse($request->attributes->has('_channel'));

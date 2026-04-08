@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Entity\Channel;
 use App\Repository\ChannelRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -34,6 +36,7 @@ final readonly class ChannelResolverListener
 
     public function __construct(
         private ChannelRepository $channelRepository,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -51,9 +54,31 @@ final readonly class ChannelResolverListener
         }
 
         if (null === $channel) {
-            throw new \RuntimeException(\sprintf('No channel found for host "%s" and no default channel "%s" exists.', $host, self::DEFAULT_CHANNEL_CODE));
+            $channel = $this->createDefaultChannel($host);
         }
 
         $event->getRequest()->attributes->set('_channel', $channel);
+    }
+
+    /**
+     * Lazily creates a default channel when none exist in the database.
+     *
+     * This avoids a hard crash on fresh installs before fixtures have been loaded.
+     */
+    private function createDefaultChannel(string $host): Channel
+    {
+        $channel = (new Channel())
+            ->setCode(self::DEFAULT_CHANNEL_CODE)
+            ->setDomain($host)
+            ->setEnableDecks(true)
+            ->setEnableRegister(true)
+            ->setEnableEvents(true)
+            ->setEnableBorrows(true)
+            ->setIsArchetypeSource(true);
+
+        $this->entityManager->persist($channel);
+        $this->entityManager->flush();
+
+        return $channel;
     }
 }
