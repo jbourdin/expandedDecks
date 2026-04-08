@@ -16,6 +16,26 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.5.3] — 2026-04-08
+
+UX polish and image fallback improvements for the deck show page.
+
+### Bug Fixes
+
+- **"I found this deck" button** — moved to the bottom of the deck page and restyled as a discreet subtle gray button instead of a full-width outlined one. (#330)
+- **"Playstyle tags" label** — renamed to just "Tags" in both English and French translations. (#332)
+- **Borrow login CTA** — replaced the prominent card with a discreet inline text line for anonymous visitors, moved after the card list.
+- **Dialga GX FLI 82 broken image** — added image override for TCGdex CDN 404 (falls back to PokemonTCG.io).
+- **Minified mosaic image fallback** — the tile-based mosaic path now uses `CardImageResolver` with full fallback chain (CDN variants, PokemonTCG.io, sibling printings) and persists corrected URLs on `CardPrinting`. Previously it did raw URL fetching with no fallback.
+- **Minified card views stale URLs** — the mosaic handler now regenerates the card views JSON after mosaic generation, picking up URLs corrected by the fallback chain. Fixes broken hover images in the table view.
+- **Card hover preview** — switched to `position: fixed` with JS-computed viewport-aware positioning, eliminating cropping on all screen edges. Responsive sizing based on viewport height (`clamp(280px, 33vh, 672px)`). Fixed flicker by setting position imperatively before display.
+
+### Testing & Quality
+
+- 3 new unit tests covering tile fallback resolution in `MosaicGenerator` and printing passthrough in `GenerateMinifiedMosaicHandler`.
+
+---
+
 ## [1.5.2] — 2026-04-07
 
 Bug fixes for delegated admin roles, CMS content rendering, and card image fallback.
