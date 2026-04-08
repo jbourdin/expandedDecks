@@ -190,7 +190,36 @@ interface CardEntry {
  */
 const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card, onMobileTap }) => {
     const [showPreview, setShowPreview] = useState(false);
+    const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const spanRef = useRef<HTMLSpanElement>(null);
     const isMobile = useMediaQuery('(max-width: 767px)');
+
+    const handleMouseEnter = useCallback(() => {
+        setShowPreview(true);
+
+        if (!spanRef.current) return;
+
+        const rect = spanRef.current.getBoundingClientRect();
+        const imgWidth = Math.min(Math.max(200, window.innerWidth * 0.2), 350);
+        const imgHeight = imgWidth * 1.4;
+
+        let top: number;
+        if (rect.top >= imgHeight + 8) {
+            top = rect.top - imgHeight;
+        } else {
+            top = rect.bottom + 4;
+        }
+
+        top = Math.max(4, Math.min(top, window.innerHeight - imgHeight - 4));
+
+        let left = rect.left;
+        if (left + imgWidth > window.innerWidth - 4) {
+            left = window.innerWidth - imgWidth - 4;
+        }
+        left = Math.max(4, left);
+
+        setPosition({ top, left });
+    }, []);
 
     if (!card.imageUrl) {
         return <>{card.cardName}</>;
@@ -198,9 +227,10 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
 
     return (
         <span
+            ref={spanRef}
             className="card-hover"
             data-quantity={card.quantity}
-            onMouseEnter={() => setShowPreview(true)}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={() => setShowPreview(false)}
             onClick={(event) => {
                 if (isMobile && onMobileTap) {
@@ -214,7 +244,7 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
                 className="card-hover-img"
                 src={card.imageUrl}
                 alt={card.cardName}
-                style={{ display: showPreview ? 'block' : undefined }}
+                style={showPreview ? { display: 'block', top: position.top, left: position.left } : undefined}
             />
         </span>
     );
