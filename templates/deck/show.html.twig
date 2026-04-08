@@ -204,14 +204,6 @@
                 </div>
             </div>
         {% endif %}
-    {% else %}
-        <div class="card shadow-sm mb-3">
-            <div class="card-body text-center py-4">
-                <p class="mb-2">{{ 'app.deck.borrow_login_cta'|trans }}</p>
-                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">{{ 'app.deck.login_cta'|trans }}</a>
-                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">{{ 'app.deck.register_cta'|trans }}</a>
-            </div>
-        </div>
     {% endif %}
 
     {# Event status overview — owner only #}
@@ -370,6 +362,16 @@
                 {% endif %}
             </div>
         </div>
+    {% endif %}
+
+    {# Borrow login CTA — discreet prompt for anonymous visitors #}
+    {% if not app.user %}
+        <p class="text-center text-muted small mt-3">
+            {{ 'app.deck.borrow_login_cta'|trans }}
+            <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.login_cta'|trans }}</a>
+            /
+            <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.register_cta'|trans|lower }}</a>.
+        </p>
     {% endif %}
 
     {# "Found this deck" button — visible to non-owners, placed at bottom of page #}
