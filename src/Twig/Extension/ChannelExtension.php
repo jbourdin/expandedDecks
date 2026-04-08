@@ -30,6 +30,8 @@ class ChannelExtension extends AbstractExtension
         return [
             new TwigFunction('current_channel', [ChannelRuntime::class, 'getCurrentChannel']),
             new TwigFunction('is_channel', [ChannelRuntime::class, 'isChannel']),
+            new TwigFunction('channel_url', [ChannelRuntime::class, 'channelUrl']),
+            new TwigFunction('feature_url', [ChannelRuntime::class, 'featureUrl']),
         ];
     }
 }
