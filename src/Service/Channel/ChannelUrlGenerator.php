@@ -87,6 +87,13 @@ class ChannelUrlGenerator
         return $this->generateAbsoluteUrl($targetChannel, $routeName, $parameters);
     }
 
+    /**
+     * Whether a channel can serve pages for a given feature.
+     *
+     * The enable* flags mean the feature is truly disabled (pages would 404).
+     * isArchetypeSource is a preference flag — archetypes are accessible on
+     * all channels, so it's only used as a fallback for cross-channel resolution.
+     */
     private function channelHasFeature(Channel $channel, string $feature): bool
     {
         return match ($feature) {
@@ -94,7 +101,6 @@ class ChannelUrlGenerator
             'events' => $channel->getEnableEvents(),
             'borrows' => $channel->getEnableBorrows(),
             'register' => $channel->getEnableRegister(),
-            'archetypes' => $channel->isArchetypeSource(),
             default => true,
         };
     }
