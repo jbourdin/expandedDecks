@@ -285,7 +285,7 @@ footer {
     display: none;
     position: fixed;
     z-index: 1000;
-    width: clamp(200px, 33vw, 480px);
+    width: clamp(200px, 33vh, 480px);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
     pointer-events: none;
