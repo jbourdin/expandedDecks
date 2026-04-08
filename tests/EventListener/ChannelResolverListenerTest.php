@@ -80,8 +80,8 @@ final class ChannelResolverListenerTest extends TestCase
         self::assertInstanceOf(Channel::class, $channel);
         self::assertSame('app', $channel->getCode());
         self::assertSame('unknown.example.com', $channel->getDomain());
-        self::assertTrue($channel->isDecksEnabled());
-        self::assertTrue($channel->isRegisterEnabled());
+        self::assertTrue($channel->getEnableDecks());
+        self::assertTrue($channel->getEnableRegister());
     }
 
     public function testSubRequestIsIgnored(): void

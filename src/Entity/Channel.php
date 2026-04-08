@@ -98,7 +98,7 @@ class Channel
         return $this;
     }
 
-    public function isDecksEnabled(): bool
+    public function getEnableDecks(): bool
     {
         return $this->enableDecks;
     }
@@ -110,7 +110,7 @@ class Channel
         return $this;
     }
 
-    public function isRegisterEnabled(): bool
+    public function getEnableRegister(): bool
     {
         return $this->enableRegister;
     }
@@ -122,7 +122,7 @@ class Channel
         return $this;
     }
 
-    public function isEventsEnabled(): bool
+    public function getEnableEvents(): bool
     {
         return $this->enableEvents;
     }
@@ -134,7 +134,7 @@ class Channel
         return $this;
     }
 
-    public function isBorrowsEnabled(): bool
+    public function getEnableBorrows(): bool
     {
         return $this->enableBorrows;
     }
