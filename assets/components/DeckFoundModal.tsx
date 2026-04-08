@@ -121,8 +121,8 @@ export default function DeckFoundModal({ apiUrl, csrfToken, isLoggedIn, ownerDis
 
     return (
         <>
-            <div className="mb-3">
-                <Button onClick={() => setOpened(true)} variant="outline" color="blue" fullWidth>
+            <div className="text-center mt-3">
+                <Button onClick={() => setOpened(true)} variant="subtle" color="gray" size="xs">
                     {labels.button}
                 </Button>
             </div>
