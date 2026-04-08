@@ -3313,7 +3313,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.playstyle_tags_label">
                 <source>app.archetype.playstyle_tags_label</source>
-                <target>Tags de style de jeu</target>
+                <target>Tags</target>
                 <note>Admin archetype playstyle tags field label</note>
             </trans-unit>
             <trans-unit id="app.archetype.table.playstyle">
@@ -3323,7 +3323,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.playstyle_tags_placeholder">
                 <source>app.archetype.playstyle_tags_placeholder</source>
-                <target>Sélectionner des tags de style de jeu...</target>
+                <target>Sélectionner des tags...</target>
                 <note>Admin archetype playstyle tags placeholder</note>
             </trans-unit>
             <trans-unit id="app.archetype.no_archetypes">

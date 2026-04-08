@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Service\Mosaic;
 
+use App\Entity\CardPrinting;
+
 /**
  * Lightweight DTO representing a single tile in a mosaic grid.
  *
@@ -29,6 +31,7 @@ readonly class MosaicTile
         public ?string $imageUrl,
         public string $cardType,
         public ?string $trainerSubtype,
+        public ?CardPrinting $printing = null,
     ) {
     }
 }

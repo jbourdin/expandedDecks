@@ -144,29 +144,6 @@
         </div>
     </div>
 
-    {# "Found this deck" button — visible to non-owners #}
-    {% if not isOwner %}
-        <div id="deck-found-root"
-             data-api-url="{{ path('app_deck_found_report', {short_tag: deck.shortTag}) }}"
-             data-csrf-token="{{ csrf_token('deck-found-' ~ deck.shortTag) }}"
-             data-is-logged-in="{{ app.user ? '1' : '' }}"
-             data-owner-discord="{{ deck.owner.discordUsername ?? '' }}"
-             data-sitekey="{{ friendly_captcha_sitekey }}"
-             data-labels="{{ {
-                 button: 'app.deck.found_button'|trans,
-                 title: 'app.deck.found_modal_title'|trans,
-                 anonymousLabel: 'app.deck.found_anonymous_label'|trans,
-                 messageLabel: 'app.deck.found_message_label'|trans,
-                 messagePlaceholder: 'app.deck.found_message_placeholder'|trans,
-                 discordCopy: 'app.deck.found_discord_copy'|trans,
-                 discordCopied: 'app.deck.found_discord_copied'|trans,
-                 submit: 'app.deck.found_submit'|trans,
-                 success: 'app.deck.found_success'|trans,
-                 error: 'app.deck.found_error'|trans,
-             }|json_encode|e('html_attr') }}"
-        ></div>
-    {% endif %}
-
     {# Borrow activity card #}
     {% if app.user %}
         {% if eligibleEvents is not empty or deckBorrows is not empty %}
@@ -227,14 +204,6 @@
                 </div>
             </div>
         {% endif %}
-    {% else %}
-        <div class="card shadow-sm mb-3">
-            <div class="card-body text-center py-4">
-                <p class="mb-2">{{ 'app.deck.borrow_login_cta'|trans }}</p>
-                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-primary me-2">{{ 'app.deck.login_cta'|trans }}</a>
-                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-secondary">{{ 'app.deck.register_cta'|trans }}</a>
-            </div>
-        </div>
     {% endif %}
 
     {# Event status overview — owner only #}
@@ -393,6 +362,39 @@
                 {% endif %}
             </div>
         </div>
+    {% endif %}
+
+    {# Borrow login CTA — discreet prompt for anonymous visitors #}
+    {% if not app.user %}
+        <p class="text-center text-muted small mt-3">
+            {{ 'app.deck.borrow_login_cta'|trans }}
+            <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.login_cta'|trans }}</a>
+            /
+            <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.register_cta'|trans|lower }}</a>.
+        </p>
+    {% endif %}
+
+    {# "Found this deck" button — visible to non-owners, placed at bottom of page #}
+    {% if not isOwner %}
+        <div id="deck-found-root"
+             data-api-url="{{ path('app_deck_found_report', {short_tag: deck.shortTag}) }}"
+             data-csrf-token="{{ csrf_token('deck-found-' ~ deck.shortTag) }}"
+             data-is-logged-in="{{ app.user ? '1' : '' }}"
+             data-owner-discord="{{ deck.owner.discordUsername ?? '' }}"
+             data-sitekey="{{ friendly_captcha_sitekey }}"
+             data-labels="{{ {
+                 button: 'app.deck.found_button'|trans,
+                 title: 'app.deck.found_modal_title'|trans,
+                 anonymousLabel: 'app.deck.found_anonymous_label'|trans,
+                 messageLabel: 'app.deck.found_message_label'|trans,
+                 messagePlaceholder: 'app.deck.found_message_placeholder'|trans,
+                 discordCopy: 'app.deck.found_discord_copy'|trans,
+                 discordCopied: 'app.deck.found_discord_copied'|trans,
+                 submit: 'app.deck.found_submit'|trans,
+                 success: 'app.deck.found_success'|trans,
+                 error: 'app.deck.found_error'|trans,
+             }|json_encode|e('html_attr') }}"
+        ></div>
     {% endif %}
 
 {% endblock %}
