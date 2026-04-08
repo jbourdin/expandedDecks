@@ -19,6 +19,8 @@ use App\Message\GenerateMinifiedMosaicMessage;
 use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckList\MinifiedCardView;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckListParser;
 use App\Service\Mosaic\MosaicGenerator;
 use App\Service\Mosaic\MosaicTile;
@@ -39,6 +41,7 @@ class GenerateMinifiedMosaicHandler
     public function __construct(
         private readonly MosaicGenerator $mosaicGenerator,
         private readonly MosaicUrlResolver $mosaicUrlResolver,
+        private readonly MinifiedCardViewBuilder $cardViewBuilder,
         private readonly CardPrintingRepository $printingRepository,
         private readonly CardIdentityResolver $identityResolver,
         private readonly DeckVersionRepository $versionRepo,
@@ -75,6 +78,12 @@ class GenerateMinifiedMosaicHandler
             $publicUrl = $this->mosaicUrlResolver->resolveForVersion($version, 'minified');
 
             $version->setMinifiedMosaicImageUrl($publicUrl);
+
+            // Regenerate card views JSON: the mosaic fallback chain may have
+            // updated CardPrinting URLs that the earlier snapshot missed.
+            $groupedCardViews = $this->cardViewBuilder->buildGrouped($version);
+            $version->setMinifiedCardViews(MinifiedCardView::serializeGrouped($groupedCardViews));
+
             $this->entityManager->flush();
         } catch (\Throwable $exception) {
             $this->logger->error('Minified mosaic generation failed for DeckVersion #{id}: {error}', [

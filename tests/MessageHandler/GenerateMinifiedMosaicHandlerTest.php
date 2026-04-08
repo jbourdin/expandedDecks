@@ -22,6 +22,7 @@ use App\MessageHandler\GenerateMinifiedMosaicHandler;
 use App\Repository\CardPrintingRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
+use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\Mosaic\MosaicGenerator;
 use App\Service\Mosaic\MosaicTile;
 use App\Service\Mosaic\MosaicUrlResolver;
@@ -54,6 +55,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
+            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
@@ -87,6 +89,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
+            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
@@ -125,6 +128,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
+            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
@@ -173,6 +177,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
+            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
@@ -246,6 +251,7 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         $handler = new GenerateMinifiedMosaicHandler(
             $mosaicGenerator,
             $mosaicUrlResolver,
+            $this->createStub(MinifiedCardViewBuilder::class),
             $printingRepository,
             $identityResolver,
             $versionRepository,
