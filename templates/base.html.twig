@@ -56,14 +56,18 @@
                                 {% endif %}
                             {% endfor %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('archetypes', 'app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
+                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('decks', 'app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('events', 'app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
+                            {% if channel.enableDecks %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableEvents %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                                </li>
+                            {% endif %}
                             <li class="nav-item d-flex align-items-center me-2">
                                 <div id="notification-bell-root"
                                      data-api-url="{{ path('app_notification_api_list') }}"
@@ -138,14 +142,18 @@
                                 {% endif %}
                             {% endfor %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('archetypes', 'app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
+                                <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('decks', 'app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ feature_url('events', 'app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
+                            {% if channel.enableDecks %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableEvents %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                                </li>
+                            {% endif %}
                             {% if channel.enableRegister %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
