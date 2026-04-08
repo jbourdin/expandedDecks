@@ -74,7 +74,7 @@ final readonly class ChannelResolverListener
             ->setEnableRegister(true)
             ->setEnableEvents(true)
             ->setEnableBorrows(true)
-            ->setIsArchetypeSource(true);
+            ->setEnableArchetypes(true);
 
         $this->entityManager->persist($channel);
         $this->entityManager->flush();

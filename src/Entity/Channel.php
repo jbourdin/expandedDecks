@@ -56,7 +56,7 @@ class Channel
     private bool $enableBorrows = false;
 
     #[ORM\Column]
-    private bool $isArchetypeSource = false;
+    private bool $enableArchetypes = false;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -146,14 +146,14 @@ class Channel
         return $this;
     }
 
-    public function isArchetypeSource(): bool
+    public function getEnableArchetypes(): bool
     {
-        return $this->isArchetypeSource;
+        return $this->enableArchetypes;
     }
 
-    public function setIsArchetypeSource(bool $isArchetypeSource): static
+    public function setEnableArchetypes(bool $enableArchetypes): static
     {
-        $this->isArchetypeSource = $isArchetypeSource;
+        $this->enableArchetypes = $enableArchetypes;
 
         return $this;
     }

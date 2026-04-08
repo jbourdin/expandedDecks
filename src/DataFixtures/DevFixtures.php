@@ -2294,7 +2294,7 @@ PTCG;
             ->setEnableRegister(true)
             ->setEnableEvents(true)
             ->setEnableBorrows(true)
-            ->setIsArchetypeSource(false);
+            ->setEnableArchetypes(false);
 
         $contentChannel = (new Channel())
             ->setCode('content')
@@ -2303,7 +2303,7 @@ PTCG;
             ->setEnableRegister(false)
             ->setEnableEvents(false)
             ->setEnableBorrows(false)
-            ->setIsArchetypeSource(true);
+            ->setEnableArchetypes(true);
 
         $manager->persist($appChannel);
         $manager->persist($contentChannel);

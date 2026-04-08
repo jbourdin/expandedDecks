@@ -30,7 +30,7 @@ final class Version20260408204751 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE channel (id INT AUTO_INCREMENT NOT NULL, code VARCHAR(30) NOT NULL, domain VARCHAR(255) NOT NULL, enable_decks TINYINT NOT NULL, enable_register TINYINT NOT NULL, enable_events TINYINT NOT NULL, enable_borrows TINYINT NOT NULL, is_archetype_source TINYINT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, UNIQUE INDEX uniq_channel_code (code), UNIQUE INDEX uniq_channel_domain (domain), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE channel (id INT AUTO_INCREMENT NOT NULL, code VARCHAR(30) NOT NULL, domain VARCHAR(255) NOT NULL, enable_decks TINYINT NOT NULL, enable_register TINYINT NOT NULL, enable_events TINYINT NOT NULL, enable_borrows TINYINT NOT NULL, enable_archetypes TINYINT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, UNIQUE INDEX uniq_channel_code (code), UNIQUE INDEX uniq_channel_domain (domain), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
     }
 
     public function down(Schema $schema): void

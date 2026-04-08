@@ -30,7 +30,7 @@
                             <th style="width: 80px">{{ 'app.channel.enable_register'|trans }}</th>
                             <th style="width: 80px">{{ 'app.channel.enable_events'|trans }}</th>
                             <th style="width: 80px">{{ 'app.channel.enable_borrows'|trans }}</th>
-                            <th style="width: 80px">{{ 'app.channel.is_archetype_source'|trans }}</th>
+                            <th style="width: 80px">{{ 'app.channel.enable_archetypes'|trans }}</th>
                             <th style="width: 60px"></th>
                         </tr>
                     </thead>
@@ -43,7 +43,7 @@
                                 <td>{% if channel.enableRegister %}<span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>{% else %}<span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>{% endif %}</td>
                                 <td>{% if channel.enableEvents %}<span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>{% else %}<span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>{% endif %}</td>
                                 <td>{% if channel.enableBorrows %}<span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>{% else %}<span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>{% endif %}</td>
-                                <td>{% if channel.archetypeSource %}<span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>{% else %}<span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>{% endif %}</td>
+                                <td>{% if channel.enableArchetypes %}<span class="badge bg-success">{{ 'app.common.yes'|trans }}</span>{% else %}<span class="badge bg-secondary">{{ 'app.common.no'|trans }}</span>{% endif %}</td>
                                 <td>
                                     <a href="{{ path('app_admin_channel_edit', {id: channel.id}) }}" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-pencil"></i>

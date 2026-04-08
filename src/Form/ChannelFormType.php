@@ -57,8 +57,8 @@ class ChannelFormType extends AbstractType
                 'label' => 'app.channel.enable_borrows',
                 'required' => false,
             ])
-            ->add('isArchetypeSource', CheckboxType::class, [
-                'label' => 'app.channel.is_archetype_source',
+            ->add('enableArchetypes', CheckboxType::class, [
+                'label' => 'app.channel.enable_archetypes',
                 'required' => false,
             ]);
     }

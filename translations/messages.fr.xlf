@@ -3281,9 +3281,9 @@
                 <target>Emprunts</target>
                 <note>Channel feature flag label</note>
             </trans-unit>
-            <trans-unit id="app.channel.is_archetype_source">
-                <source>app.channel.is_archetype_source</source>
-                <target>Source des archétypes</target>
+            <trans-unit id="app.channel.enable_archetypes">
+                <source>app.channel.enable_archetypes</source>
+                <target>Archétypes</target>
                 <note>Channel feature flag label</note>
             </trans-unit>
             <trans-unit id="app.channel.no_channels">
