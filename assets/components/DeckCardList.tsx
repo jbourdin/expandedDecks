@@ -198,8 +198,8 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
         if (!spanRef.current || !imgRef.current) return;
 
         const rect = spanRef.current.getBoundingClientRect();
-        const imgWidth = Math.min(Math.max(200, window.innerHeight / 3), 480);
-        const imgHeight = imgWidth * 1.4;
+        const imgHeight = Math.min(Math.max(280, window.innerHeight / 3), 672);
+        const imgWidth = imgHeight / 1.4;
 
         let top: number;
         if (rect.top >= imgHeight + 8) {
