@@ -27,10 +27,13 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto align-items-end align-items-lg-center">
+                        {% set channel = current_channel() %}
                         {% if app.user %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
-                            </li>
+                            {% if channel.enableRegister %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
+                                </li>
+                            {% endif %}
                             {% for category in menu_categories() %}
                                 {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                                 {% if pages|length == 1 %}
@@ -55,12 +58,16 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
+                            {% if channel.enableDecks %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableEvents %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                                </li>
+                            {% endif %}
                             <li class="nav-item d-flex align-items-center me-2">
                                 <div id="notification-bell-root"
                                      data-api-url="{{ path('app_notification_api_list') }}"
@@ -137,18 +144,24 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
-                            </li>
+                            {% if channel.enableDecks %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableEvents %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableRegister %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
+                                </li>
+                            {% endif %}
                         {% endif %}
                     </ul>
                 </div>
