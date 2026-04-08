@@ -190,14 +190,12 @@ interface CardEntry {
  */
 const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card, onMobileTap }) => {
     const [showPreview, setShowPreview] = useState(false);
-    const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const spanRef = useRef<HTMLSpanElement>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
     const isMobile = useMediaQuery('(max-width: 767px)');
 
     const handleMouseEnter = useCallback(() => {
-        setShowPreview(true);
-
-        if (!spanRef.current) return;
+        if (!spanRef.current || !imgRef.current) return;
 
         const rect = spanRef.current.getBoundingClientRect();
         const imgWidth = Math.min(Math.max(200, window.innerWidth * 0.2), 350);
@@ -218,7 +216,11 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
         }
         left = Math.max(4, left);
 
-        setPosition({ top, left });
+        // Set position imperatively before showing to avoid flicker
+        imgRef.current.style.top = `${top}px`;
+        imgRef.current.style.left = `${left}px`;
+
+        setShowPreview(true);
     }, []);
 
     if (!card.imageUrl) {
@@ -241,10 +243,11 @@ const CardName: React.FC<{ card: CardData; onMobileTap?: () => void }> = ({ card
         >
             {card.cardName}
             <img
+                ref={imgRef}
                 className="card-hover-img"
                 src={card.imageUrl}
                 alt={card.cardName}
-                style={showPreview ? { display: 'block', top: position.top, left: position.left } : undefined}
+                style={{ display: showPreview ? 'block' : undefined }}
             />
         </span>
     );
