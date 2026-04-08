@@ -64,25 +64,13 @@ export function initCardHover(): void {
             if (isTouchDevice()) return;
 
             const rect = element.getBoundingClientRect();
-            const imgWidth = img.offsetWidth || img.getBoundingClientRect().width || 250;
+            const imgHeight = img.offsetHeight || img.getBoundingClientRect().height;
 
-            // Vertical: show below when too close to the top
-            if (rect.top < 360) {
+            // Vertical: show below when the image would overflow above the viewport
+            if (rect.top < imgHeight + 8) {
                 img.classList.add('show-below');
             } else {
                 img.classList.remove('show-below');
-            }
-
-            // Horizontal: keep the image within the viewport
-            const overflowLeft = rect.left;
-            const overflowRight = rect.left + imgWidth - window.innerWidth;
-
-            if (overflowRight > 0) {
-                img.style.left = `${-overflowRight - 8}px`;
-            } else if (overflowLeft < 0) {
-                img.style.left = `${-overflowLeft + 8}px`;
-            } else {
-                img.style.left = '0';
             }
         });
 
