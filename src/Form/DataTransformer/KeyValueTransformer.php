@@ -19,7 +19,7 @@ use Symfony\Component\Form\DataTransformerInterface;
  * Transforms a flat key-value map into an indexed list of {key, value} pairs
  * for use with CollectionType, and back.
  *
- * @implements DataTransformerInterface<array<string, string>, list<array{key: string, value: string}>>
+ * @implements DataTransformerInterface<array<string, string>, list<mixed>>
  */
 class KeyValueTransformer implements DataTransformerInterface
 {
@@ -45,18 +45,24 @@ class KeyValueTransformer implements DataTransformerInterface
     /**
      * Form → Entity: [{key: "brand_name", value: "X"}] → {brand_name: "X"}.
      *
-     * @param list<array{key: string, value: string}> $value
-     *
      * @return array<string, string>
      */
     public function reverseTransform(mixed $value): array
     {
+        if (!\is_array($value)) {
+            return [];
+        }
+
         $map = [];
 
-        /** @var list<array{key: string, value: string}> $value */
         foreach ($value as $pair) {
-            $key = trim($pair['key']);
-            $val = $pair['value'];
+            if (!\is_array($pair)) {
+                continue;
+            }
+
+            /** @var array<string, mixed> $pair */
+            $key = \is_string($pair['key'] ?? null) ? trim($pair['key']) : '';
+            $val = \is_string($pair['value'] ?? null) ? $pair['value'] : '';
 
             if ('' !== $key) {
                 $map[$key] = $val;

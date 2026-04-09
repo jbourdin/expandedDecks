@@ -28,12 +28,12 @@ class KeyValuePairType extends AbstractType
     {
         $builder
             ->add('key', TextType::class, [
-                'label' => 'app.channel.param_key',
-                'attr' => ['placeholder' => 'brand_name'],
+                'label' => false,
+                'attr' => ['placeholder' => 'app.channel.param_key'],
             ])
             ->add('value', TextType::class, [
-                'label' => 'app.channel.param_value',
-                'attr' => ['placeholder' => 'Expanded Decks'],
+                'label' => false,
+                'attr' => ['placeholder' => 'app.channel.param_value'],
             ]);
     }
 }
