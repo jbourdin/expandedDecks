@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Channel;
 use App\Entity\User;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
@@ -102,24 +101,16 @@ class HomeController extends AbstractController
     /**
      * @see docs/features.md F7.1 — Dashboard
      * @see docs/features.md F7.4 — Dashboard action reminders
-     * @see docs/features.md F18.4 — Security: disable features per channel
      */
     #[Route('/dashboard', name: 'app_dashboard')]
     #[IsGranted('ROLE_USER')]
     public function dashboard(
-        Request $request,
         DeckRepository $deckRepository,
         EventRepository $eventRepository,
         BorrowRepository $borrowRepository,
         PageRepository $pageRepository,
         MenuCategoryRepository $menuCategoryRepository,
     ): Response {
-        $channel = $request->attributes->get('_channel');
-
-        if ($channel instanceof Channel && !$channel->getEnableDecks()) {
-            throw $this->createNotFoundException();
-        }
-
         /** @var User $user */
         $user = $this->getUser();
 
