@@ -21,6 +21,7 @@ use App\Repository\TcgdexSetMappingRepository;
 use App\Service\BannedCardsSyncService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
+use App\Twig\Runtime\MenuRuntime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -169,6 +170,21 @@ class AdminTechnicalController extends AbstractAppController
         } else {
             $this->addFlash('danger', 'app.admin.technical.banned_cards.failed');
         }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/clear-cache', name: 'app_admin_technical_clear_cache', methods: ['POST'])]
+    public function clearCache(Request $request, MenuRuntime $menuRuntime): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-clear-cache', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $menuRuntime->invalidateCache();
+        $this->addFlash('success', 'app.admin.technical.clear_cache.done');
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

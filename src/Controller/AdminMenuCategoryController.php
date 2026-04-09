@@ -20,13 +20,13 @@ use App\Form\MenuCategoryTranslationFormType;
 use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Service\Channel\ChannelContext;
+use App\Twig\Runtime\MenuRuntime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -41,6 +41,7 @@ class AdminMenuCategoryController extends AbstractAppController
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
+        private readonly MenuRuntime $menuRuntime,
     ) {
         parent::__construct($translator);
     }
@@ -75,14 +76,13 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('/reorder', name: 'app_admin_menu_category_reorder', methods: ['POST'])]
-    public function reorder(Request $request, MenuCategoryRepository $repository, CacheInterface $menuCategoriesCache): JsonResponse
+    public function reorder(Request $request, MenuCategoryRepository $repository): JsonResponse
     {
         /** @var list<int> $categoryIds */
         $categoryIds = json_decode((string) $request->getContent(), true);
         $repository->reorderCategories($categoryIds);
 
-        $menuCategoriesCache->delete('menu_categories');
-        $menuCategoriesCache->delete('footer_categories');
+        $this->menuRuntime->invalidateCache();
 
         return new JsonResponse(['ok' => true]);
     }
@@ -106,6 +106,7 @@ class AdminMenuCategoryController extends AbstractAppController
 
             $this->em->persist($category);
             $this->em->flush();
+            $this->menuRuntime->invalidateCache();
 
             $this->addFlash('success', 'app.cms.category_created');
 
@@ -126,6 +127,7 @@ class AdminMenuCategoryController extends AbstractAppController
 
         if ($channelForm->isSubmitted() && $channelForm->isValid()) {
             $this->em->flush();
+            $this->menuRuntime->invalidateCache();
             $this->addFlash('success', 'app.cms.category_updated');
 
             return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
@@ -184,6 +186,7 @@ class AdminMenuCategoryController extends AbstractAppController
                 $this->em->persist($translation);
             }
             $this->em->flush();
+            $this->menuRuntime->invalidateCache();
 
             $this->addFlash('success', 'app.cms.translation_saved', ['%locale%' => strtoupper($locale)]);
         } else {
