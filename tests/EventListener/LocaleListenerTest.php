@@ -279,7 +279,7 @@ class LocaleListenerTest extends TestCase
         $localeSwitcher = $this->createMock(LocaleSwitcher::class);
         $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
 
-        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip')->setLocales(['en', 'fr']);
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip')->setLocales(['en', 'fr']);
 
         $request = $this->createRequestWithSession();
         $request->attributes->set('_channel', $channel);

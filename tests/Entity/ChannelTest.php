@@ -50,7 +50,7 @@ class ChannelTest extends TestCase
 
         $result = $channel
             ->setCode('app')
-            ->setDomain('expanded-decks.wip')
+            ->setDomain('expandeddecks.wip')
             ->setEnableDecks(true)
             ->setEnableRegister(true)
             ->setEnableEvents(true)
@@ -59,7 +59,7 @@ class ChannelTest extends TestCase
 
         self::assertSame($channel, $result);
         self::assertSame('app', $channel->getCode());
-        self::assertSame('expanded-decks.wip', $channel->getDomain());
+        self::assertSame('expandeddecks.wip', $channel->getDomain());
         self::assertTrue($channel->getEnableDecks());
         self::assertTrue($channel->getEnableRegister());
         self::assertTrue($channel->getEnableEvents());

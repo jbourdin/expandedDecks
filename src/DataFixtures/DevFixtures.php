@@ -2310,7 +2310,7 @@ PTCG;
     {
         $appChannel = (new Channel())
             ->setCode('app')
-            ->setDomain('expanded-decks.wip')
+            ->setDomain('expandeddecks.wip')
             ->setEnableDecks(true)
             ->setEnableRegister(true)
             ->setEnableEvents(true)

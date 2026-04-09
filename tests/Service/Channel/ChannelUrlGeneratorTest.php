@@ -35,7 +35,7 @@ final class ChannelUrlGeneratorTest extends TestCase
     {
         $this->appChannel = (new Channel())
             ->setCode('app')
-            ->setDomain('expanded-decks.wip')
+            ->setDomain('expandeddecks.wip')
             ->setEnableDecks(true)
             ->setEnableRegister(true)
             ->setEnableEvents(true)
@@ -94,7 +94,7 @@ final class ChannelUrlGeneratorTest extends TestCase
 
         $result = $generator->forFeature('decks', 'app_deck_show', ['short_tag' => 'AB3K7N']);
 
-        self::assertSame('https://expanded-decks.wip/deck/AB3K7N', $result);
+        self::assertSame('https://expandeddecks.wip/deck/AB3K7N', $result);
     }
 
     public function testForFeatureArchetypesCrossDomainFromAppChannel(): void
@@ -121,7 +121,7 @@ final class ChannelUrlGeneratorTest extends TestCase
 
         $result = $generator->forFeature('register', 'app_login', []);
 
-        self::assertSame('https://expanded-decks.wip/login', $result);
+        self::assertSame('https://expandeddecks.wip/login', $result);
     }
 
     public function testForFeatureFallsBackToPathWhenNoChannelHasFeature(): void

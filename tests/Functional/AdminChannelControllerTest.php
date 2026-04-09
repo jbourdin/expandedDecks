@@ -105,7 +105,7 @@ class AdminChannelControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/admin/channels/'.$channel->getId());
 
         $form = $crawler->selectButton('Save')->form();
-        $form['channel_form[domain]'] = 'updated.expanded-decks.wip';
+        $form['channel_form[domain]'] = 'updated.expandeddecks.wip';
         $this->client->submit($form);
 
         self::assertResponseRedirects();

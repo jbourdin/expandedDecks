@@ -46,7 +46,7 @@ final class ThemeRequestListenerTest extends TestCase
         $loader = new FilesystemLoader($projectDir.'/templates');
         $originalPaths = $loader->getPaths();
 
-        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
 
         $listener = new ThemeRequestListener($loader, $projectDir);
         $listener($this->createEvent($channel));
