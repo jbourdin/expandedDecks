@@ -8,7 +8,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ archetype.localizedName(app.request.locale) }} — {% include '_brand.html.twig' %}{% endblock %}
+{% block title %}{{ archetype.localizedName(app.request.locale) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block meta %}
     {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}

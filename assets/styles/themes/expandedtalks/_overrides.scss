@@ -116,7 +116,19 @@ a {
 }
 
 // Footer
-footer {
+.footer-pokemon {
     background-color: $cs-slate;
-    border-top: 2px solid $cs-sand;
+    border-top: 3px solid $cs-sand;
+
+    a {
+        color: rgba(#fff, .7);
+
+        &:hover {
+            color: $cs-sand;
+        }
+    }
+
+    h6 {
+        color: rgba(#fff, .85);
+    }
 }

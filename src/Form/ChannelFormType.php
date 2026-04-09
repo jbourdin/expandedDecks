@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Channel;
+use App\Form\DataTransformer\KeyValueTransformer;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -76,7 +78,18 @@ class ChannelFormType extends AbstractType
             ->add('enableArchetypes', CheckboxType::class, [
                 'label' => 'app.channel.enable_archetypes',
                 'required' => false,
+            ])
+            ->add('parameters', CollectionType::class, [
+                'label' => 'app.channel.parameters',
+                'entry_type' => KeyValuePairType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'prototype' => true,
+                'required' => false,
+                'by_reference' => false,
             ]);
+
+        $builder->get('parameters')->addModelTransformer(new KeyValueTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver): void

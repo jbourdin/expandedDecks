@@ -64,6 +64,14 @@ class Channel
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $themeName = null;
 
+    /**
+     * Arbitrary key-value parameters for template rendering (brand name, footer text, etc.).
+     *
+     * @var array<string, string>
+     */
+    #[ORM\Column(type: 'json')]
+    private array $parameters = [];
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -174,6 +182,29 @@ class Channel
         $this->themeName = $themeName;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
+    public function setParameters(array $parameters): static
+    {
+        $this->parameters = $parameters;
+
+        return $this;
+    }
+
+    public function getParameter(string $key, string $default = ''): string
+    {
+        return $this->parameters[$key] ?? $default;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

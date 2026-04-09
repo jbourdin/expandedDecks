@@ -8,7 +8,7 @@
  #}
 {% extends 'base_error.html.twig' %}
 
-{% block title %}{{ status_code }} {{ status_text }} — {% include '_brand.html.twig' %}{% endblock %}
+{% block title %}{{ status_code }} {{ status_text }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block body %}
     <div class="text-center mb-4">

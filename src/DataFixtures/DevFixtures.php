@@ -2325,7 +2325,8 @@ PTCG;
             ->setEnableEvents(false)
             ->setEnableBorrows(false)
             ->setEnableArchetypes(true)
-            ->setThemeName('expandedtalks');
+            ->setThemeName('expandedtalks')
+            ->setParameters(['brand_name' => 'Expanded Talks']);
 
         $manager->persist($appChannel);
         $manager->persist($contentChannel);
