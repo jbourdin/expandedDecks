@@ -16,6 +16,38 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.6.4] — 2026-04-10
+
+CMS editor table support, page creation improvements, multi-channel locale handling, and content typography.
+
+### Features
+
+- **Table support in CMS editor** — Tiptap table extension with toolbar controls (insert, add/remove rows & columns, toggle header, delete). Table CSS for editor and public pages with navy-themed headers and striped rows.
+- **Table rendering on public pages** — GFM `TableExtension` added to `league/commonmark` so markdown pipe tables render as HTML.
+- **Page creation title field** — new title input on the page creation form with auto-generated slug.
+- **Per-channel locale configuration** — channels define their available locales; locale resolution is constrained to the channel's configured set.
+- **Page prefill from channel** — new page form auto-fills channel and menu category from the current admin context.
+- **Display translation fallback** — `Page::getDisplayTranslation()` skips translations with empty content, falling back to the next available locale.
+
+### Bug Fixes
+
+- **H1 stripping** — editor automatically downgrades `# ` (h1) to `## ` (h2) on save; h1 is reserved for page titles.
+- **Notification bell on non-deck channels** — hidden for channels that don't use deck features.
+- **PHPStan type annotations** — added missing type hints on event listener data arrays.
+- **Brand name footer default** — uses `brand_name` channel parameter in copyright footer.
+- **Channel parameters transformer** — replaced model transformer with event listeners for channel parameter injection.
+
+### Infrastructure
+
+- **Dev domain rename** — `expanded-decks.wip` → `expandeddecks.wip` and added `expandedtalks` domain to Symfony proxy config.
+
+### CMS Content Typography
+
+- **Heading sizes** — h2/h3/h4 in `.cms-content` scaled to match Mantine editor proportions (1.5em / 1.25em / 1.1em).
+- **Blockquote styling** — left border, light navy background, and comfortable padding on public pages.
+
+---
+
 ## [1.6.3] — 2026-04-09
 
 Channel parameters, theme refinements, and footer customization.
