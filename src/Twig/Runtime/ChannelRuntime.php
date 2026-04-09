@@ -60,4 +60,12 @@ class ChannelRuntime implements RuntimeExtensionInterface
     {
         return $this->channelUrlGenerator->forFeature($feature, $routeName, $parameters);
     }
+
+    /**
+     * Read a parameter from the current channel with a fallback default.
+     */
+    public function channelParam(string $key, string $default = ''): string
+    {
+        return $this->channelContext->getChannel()->getParameter($key, $default);
+    }
 }

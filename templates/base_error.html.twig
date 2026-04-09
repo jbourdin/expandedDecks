@@ -15,7 +15,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Error — {% include '_brand.html.twig' %}{% endblock %}</title>
+        <title>{% block title %}Error — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}

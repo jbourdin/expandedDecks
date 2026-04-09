@@ -11,7 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}{% include '_brand.html.twig' %}{% endblock %}</title>
+        <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block meta %}{% endblock %}
         {% block stylesheets %}
@@ -25,7 +25,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">{% include '_brand.html.twig' %}</a>
+                <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">{{ channel_param('brand_name', 'Expanded Decks') }}</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -213,7 +213,7 @@
                     <hr class="my-2">
                 {% endif %}
                 <div class="text-center">
-                    &copy; {{ "now"|date("Y") }} {% include '_brand.html.twig' %}
+                    &copy; {{ "now"|date("Y") }} {{ channel_param('brand_name', 'Expanded Decks') }}
                     <span class="ms-2" style="font-size: 0.75rem;">{{ app_version }}</span>
                     <span class="ms-2">·</span>
                     <a href="https://github.com/jbourdin/expandedDecks" class="ms-1" target="_blank" rel="noopener">GitHub</a>

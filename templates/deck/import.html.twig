@@ -8,7 +8,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.deck.import_title'|trans({'%name%': deck.name}) }} — {% include '_brand.html.twig' %}{% endblock %}
+{% block title %}{{ 'app.deck.import_title'|trans({'%name%': deck.name}) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block body %}
     <div class="row justify-content-center">

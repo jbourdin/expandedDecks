@@ -10,7 +10,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ deck.name }} — {% include '_brand.html.twig' %}{% endblock %}
+{% block title %}{{ deck.name }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
