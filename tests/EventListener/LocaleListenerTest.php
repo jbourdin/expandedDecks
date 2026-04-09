@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\EventListener;
 
+use App\Entity\Channel;
 use App\Entity\User;
 use App\EventListener\LocaleListener;
 use PHPUnit\Framework\TestCase;
@@ -200,6 +201,94 @@ class LocaleListenerTest extends TestCase
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
+    }
+
+    public function testUserLocaleConstrainedToChannelLocales(): void
+    {
+        $user = new User();
+        $user->setPreferredLocale('fr');
+
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn($user);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $channel = (new Channel())->setCode('content')->setDomain('expandedtalks.wip')->setLocales(['en']);
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_channel', $channel);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
+    public function testSessionLocaleConstrainedToChannelLocales(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $channel = (new Channel())->setCode('content')->setDomain('expandedtalks.wip')->setLocales(['en']);
+
+        $request = $this->createRequestWithSession();
+        $request->getSession()->set('_locale', 'fr');
+        $request->attributes->set('_channel', $channel);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
+    public function testAcceptLanguageConstrainedToChannelLocales(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $channel = (new Channel())->setCode('content')->setDomain('expandedtalks.wip')->setLocales(['en']);
+
+        $request = $this->createRequestWithSession();
+        $request->headers->set('Accept-Language', 'fr-FR,fr;q=0.9,en;q=0.8');
+        $request->attributes->set('_channel', $channel);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
+    public function testUserLocaleAllowedWhenChannelSupportsIt(): void
+    {
+        $user = new User();
+        $user->setPreferredLocale('fr');
+
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn($user);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
+
+        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip')->setLocales(['en', 'fr']);
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_channel', $channel);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('fr', $request->getLocale());
     }
 
     private function createRequestWithSession(): Request
