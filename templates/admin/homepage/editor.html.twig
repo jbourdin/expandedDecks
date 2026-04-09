@@ -18,9 +18,17 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.homepage.admin.editor_title'|trans }}</h1>
+        <div class="btn-group" role="group" aria-label="{{ 'app.cms.admin.channel_filter'|trans }}">
+            {% for channel in channels %}
+                <a href="{{ path('app_admin_homepage_editor', {channel: channel.code}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
+                    {{ channel.domain }}
+                </a>
+            {% endfor %}
+        </div>
     </div>
 
     <div id="homepage-editor-root"
+         data-channel-code="{{ currentChannel ? currentChannel.code : '' }}"
          data-save-url="{{ path('app_admin_homepage_save') }}"
          data-preview-url="{{ path('app_admin_homepage_preview') }}"
          data-upload-url="{{ path('app_editor_upload_image') }}"

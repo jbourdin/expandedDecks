@@ -3219,6 +3219,98 @@
                 <target>Gérer les archétypes</target>
                 <note>Admin dropdown link to archetype management</note>
             </trans-unit>
+            <trans-unit id="app.nav.admin_channels">
+                <source>app.nav.admin_channels</source>
+                <target>Gérer les canaux</target>
+                <note>Admin dropdown link to channel management</note>
+            </trans-unit>
+
+            <!-- Admin: Channel management -->
+            <trans-unit id="app.channel.admin_list_title">
+                <source>app.channel.admin_list_title</source>
+                <target>Gestion des canaux</target>
+                <note>Admin channel list page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.create_button">
+                <source>app.channel.create_button</source>
+                <target>Nouveau canal</target>
+                <note>Button to create a new channel</note>
+            </trans-unit>
+            <trans-unit id="app.channel.new_title">
+                <source>app.channel.new_title</source>
+                <target>Créer un canal</target>
+                <note>New channel page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.edit_title">
+                <source>app.channel.edit_title</source>
+                <target>Modifier le canal : %code%</target>
+                <note>Edit channel page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.settings">
+                <source>app.channel.settings</source>
+                <target>Paramètres du canal</target>
+                <note>Card header for channel form</note>
+            </trans-unit>
+            <trans-unit id="app.channel.code">
+                <source>app.channel.code</source>
+                <target>Code</target>
+                <note>Channel code field label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.domain">
+                <source>app.channel.domain</source>
+                <target>Domaine</target>
+                <note>Channel domain field label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_decks">
+                <source>app.channel.enable_decks</source>
+                <target>Decks</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_register">
+                <source>app.channel.enable_register</source>
+                <target>Inscription</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_events">
+                <source>app.channel.enable_events</source>
+                <target>Événements</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_borrows">
+                <source>app.channel.enable_borrows</source>
+                <target>Emprunts</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_archetypes">
+                <source>app.channel.enable_archetypes</source>
+                <target>Archétypes</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.theme_name">
+                <source>app.channel.theme_name</source>
+                <target>Thème</target>
+                <note>Channel theme selector label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.theme_default">
+                <source>app.channel.theme_default</source>
+                <target>Par défaut (aucun remplacement)</target>
+                <note>Placeholder for no theme selected</note>
+            </trans-unit>
+            <trans-unit id="app.channel.no_channels">
+                <source>app.channel.no_channels</source>
+                <target>Aucun canal configuré.</target>
+                <note>Empty state for channel list</note>
+            </trans-unit>
+            <trans-unit id="app.channel.created">
+                <source>app.channel.created</source>
+                <target>Canal « %code% » créé.</target>
+                <note>Flash message after channel creation</note>
+            </trans-unit>
+            <trans-unit id="app.channel.updated">
+                <source>app.channel.updated</source>
+                <target>Canal « %code% » mis à jour.</target>
+                <note>Flash message after channel update</note>
+            </trans-unit>
 
             <!-- Admin: Archetype management -->
             <trans-unit id="app.archetype.admin_list_title">
@@ -3769,6 +3861,16 @@
                 <source>app.cms.form.category_name</source>
                 <target>Nom de la catégorie</target>
             </trans-unit>
+            <trans-unit id="app.cms.form.channel">
+                <source>app.cms.form.channel</source>
+                <target>Canal</target>
+                <note>Channel selector label in admin forms</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.channel_filter">
+                <source>app.cms.admin.channel_filter</source>
+                <target>Filtrer par canal</target>
+                <note>Channel toggle group label in admin lists</note>
+            </trans-unit>
             <trans-unit id="app.cms.form.position">
                 <source>app.cms.form.position</source>
                 <target>Position</target>
@@ -3804,6 +3906,16 @@
             <trans-unit id="app.cms.page_deleted">
                 <source>app.cms.page_deleted</source>
                 <target>Page supprimée.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.page_duplicated">
+                <source>app.cms.page_duplicated</source>
+                <target>Page dupliquée avec succès.</target>
+                <note>Flash message after page duplication</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.duplicate_page">
+                <source>app.cms.admin.duplicate_page</source>
+                <target>Dupliquer</target>
+                <note>Dropdown action to duplicate a page</note>
             </trans-unit>
             <trans-unit id="app.flash.page.deleted">
                 <source>app.flash.page.deleted</source>

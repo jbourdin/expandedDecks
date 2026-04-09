@@ -60,6 +60,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
                     '0' => ['title' => 'Héros test', 'subtitle' => 'Sous-titre test'],
                 ],
             ],
+            'channelCode' => 'app',
         ]);
 
         $this->client->request('POST', '/admin/homepage/save', [], [], [

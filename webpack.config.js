@@ -43,6 +43,7 @@ Encore
     .setPublicPath('/build')
 
     .addEntry('app', './assets/app.tsx')
+    .addStyleEntry('theme_expandedtalks', './assets/styles/themes/expandedtalks/theme.scss')
     .addEntry('deck_form', './assets/deck-form.tsx')
     .addEntry('deck_card_list', './assets/deck-card-list.tsx')
     .addEntry('archetype_show', './assets/archetype-show.ts')

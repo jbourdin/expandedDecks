@@ -47,7 +47,7 @@
                                     <td>{{ entry.matchRecord ?? '—' }}</td>
                                     <td>
                                         {% if entry.deckVersion.deck.archetype and entry.deckVersion.deck.archetype.deletedAt is null %}
-                                            {% if entry.deckVersion.deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: entry.deckVersion.deck.archetype.slug}) }}">{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}{% endif %}
+                                            {% if entry.deckVersion.deck.archetype.published %}<a href="{{ feature_url('archetypes', 'app_archetype_show', {slug: entry.deckVersion.deck.archetype.slug}) }}"{{ not current_channel().enableArchetypes ? ' target="_blank" rel="noopener"' }}>{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ archetype_sprites(entry.deckVersion.deck.archetype) }} {{ entry.deckVersion.deck.archetype.localizedName(app.request.locale) }}{% endif %}
                                         {% else %}
                                             —
                                         {% endif %}

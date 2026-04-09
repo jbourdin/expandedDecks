@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
+use App\Entity\Channel;
 use App\Entity\HomepageLayout;
 use App\Entity\HomepageLayoutTranslation;
 use PHPUnit\Framework\TestCase;
@@ -31,6 +32,7 @@ class HomepageLayoutTest extends TestCase
         self::assertFalse($layout->isPublished());
         self::assertInstanceOf(\DateTimeImmutable::class, $layout->getCreatedAt());
         self::assertNull($layout->getUpdatedAt());
+        self::assertNull($layout->getChannel());
         self::assertCount(0, $layout->getTranslations());
     }
 
@@ -130,6 +132,17 @@ class HomepageLayoutTest extends TestCase
         $layout->addTranslation($translationFr);
 
         self::assertNull($layout->getTranslation('en'));
+    }
+
+    public function testSetChannel(): void
+    {
+        $layout = new HomepageLayout();
+        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+
+        $result = $layout->setChannel($channel);
+
+        self::assertSame($channel, $layout->getChannel());
+        self::assertSame($layout, $result);
     }
 
     public function testLifecycleCallbacks(): void

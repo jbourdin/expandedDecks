@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Entity\Channel;
 use App\Entity\HomepageLayout;
 use App\Entity\HomepageLayoutTranslation;
 use App\Entity\MenuCategory;
@@ -24,10 +25,13 @@ use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Service\Channel\ChannelContext;
 use App\Service\HomepageRenderer;
 use App\Service\MarkdownRenderer;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -51,6 +55,12 @@ class HomepageRendererTest extends TestCase
         $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $this->urlGenerator->method('generate')->willReturn('/test-url');
 
+        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $request = new Request();
+        $request->attributes->set('_channel', $channel);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
         $this->renderer = new HomepageRenderer(
             new MarkdownRenderer(),
             $this->pageRepository,
@@ -58,6 +68,7 @@ class HomepageRendererTest extends TestCase
             $this->eventRepository,
             $this->deckRepository,
             $this->urlGenerator,
+            new ChannelContext($requestStack),
         );
     }
 

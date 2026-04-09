@@ -114,7 +114,7 @@
                             </p>
                             {% if deck.archetype and deck.archetype.deletedAt is null %}
                                 <p class="card-text mb-0">
-                                    {{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ path('app_archetype_show', {slug: deck.archetype.slug}) }}">{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}
+                                    {{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ feature_url('archetypes', 'app_archetype_show', {slug: deck.archetype.slug}) }}"{{ not current_channel().enableArchetypes ? ' target="_blank" rel="noopener"' }}>{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}
                                 </p>
                             {% endif %}
                         </div>

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Repository\PageRepository;
 use App\Service\ArchetypeDescriptionRenderer;
@@ -75,7 +76,8 @@ class PageController extends AbstractController
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
     ): Response {
-        $page = $pageRepository->findBySlug($slug);
+        $channel = $request->attributes->get('_channel');
+        $page = $pageRepository->findBySlug($slug, $channel instanceof Channel ? $channel : null);
 
         if (null === $page) {
             throw $this->createNotFoundException();

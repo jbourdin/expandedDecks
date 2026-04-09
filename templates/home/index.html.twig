@@ -58,7 +58,7 @@
                     <h2 class="display-6 fw-bold mb-1">{{ upcomingEventCount }}</h2>
                     <p class="text-muted mb-3">{{ 'app.home.upcoming_events'|trans({'%count%': upcomingEventCount}) }}</p>
                     <div>
-                        <a href="{{ path('app_event_list') }}" class="btn btn-primary">{{ 'app.home.browse_events'|trans }}</a>
+                        <a href="{{ feature_url('events', 'app_event_list') }}" class="btn btn-primary">{{ 'app.home.browse_events'|trans }}</a>
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@
                     <h2 class="display-6 fw-bold mb-1">{{ publicDeckCount }}</h2>
                     <p class="text-muted mb-3">{{ 'app.home.decks_in_library'|trans({'%count%': publicDeckCount}) }}</p>
                     <div>
-                        <a href="{{ path('app_deck_list') }}" class="btn btn-primary">{{ 'app.home.browse_library'|trans }}</a>
+                        <a href="{{ feature_url('decks', 'app_deck_list') }}" class="btn btn-primary">{{ 'app.home.browse_library'|trans }}</a>
                     </div>
                 </div>
             </div>

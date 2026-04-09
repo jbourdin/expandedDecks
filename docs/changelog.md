@@ -16,6 +16,45 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.6.0] — 2026-04-09
+
+Multi-domain channel system — serve different feature sets and content from different domains, with per-channel theming.
+
+### Features
+
+- **Channel entity and resolver (F18.1, F18.2)** — `Channel` entity with code, domain, and feature flags. `ChannelResolverListener` resolves the current channel from the Host header on every request. `ChannelContext` provides the channel to any service via RequestStack. Lazy default channel creation on fresh installs.
+- **Twig channel context (F18.3)** — `current_channel()` and `is_channel(code)` functions. Navigation conditionally rendered based on channel feature flags.
+- **Feature-gate middleware (F18.4, F18.7)** — `ChannelFeatureGateListener` returns 404 for routes disabled on the current channel (decks, events, borrows, register). Login, profile, and admin always accessible.
+- **Channel-aware URL generation (F18.5)** — `ChannelUrlGenerator` with `feature_url()` Twig function. Returns relative paths for same-channel links, absolute URLs for cross-domain. Cross-domain links open in new tab with `target="_blank"`.
+- **Admin channel CRUD (F18.6)** — List, create, edit channels with feature toggles. Domain names displayed in admin toggles.
+- **Channel on MenuCategory (F18.8)** — Per-channel navigation and footer. Admin category list with channel toggle, category selector on edit form.
+- **Channel on Page** — Per-channel page scoping with composite `(slug, channel_id)` unique constraint. Page form with channel selector and channel-filtered categories. Admin page list with channel toggle and category button groups. Page duplicate action.
+- **Channel on HomepageLayout (F18.10)** — Per-channel homepages. Admin editor with channel toggle.
+- **Cross-channel linking (F18.19–F18.22)** — Archetype links from app channel open content channel in new tab. Deck links from content channel open app channel. Archetype catalog hides deck counts and sort-by-decks on content channel. Archetype detail hides "Latest decks" section on content channel.
+- **Per-channel theme system (F18.28)** — `Channel.themeName` selects a theme. `ThemeRequestListener` prepends `templates/themes/{name}/` to Twig's loader paths. Per-theme SCSS via Webpack Encore entries. Theme dropdown in admin (scans theme directories). "Chaotic Swell" theme for the content channel with desert/storm color palette.
+- **Brand name per theme** — `_brand.html.twig` partial overridden per theme ("Expanded Talks" on content channel).
+
+### Bug Fixes
+
+- Login, profile, forgot/reset-password always accessible on all channels (only register gated).
+- Empty page list when channel has no categories.
+- Admin view/preview links respect page channel domain.
+- Migration backfills for existing pages, categories, and homepage layouts.
+
+### Infrastructure
+
+- Register `expandedtalks.wip` domain in `make install`.
+
+### Testing & Quality
+
+- 50+ new unit and functional tests covering Channel entity, context, resolver, URL generator, feature gate, theme listener, Twig runtime, admin CRUD, and channel resolution.
+
+### Refactoring
+
+- Renamed `isArchetypeSource` to `enableArchetypes` for consistency with other feature flags.
+
+---
+
 ## [1.5.3] — 2026-04-08
 
 UX polish and image fallback improvements for the deck show page.
