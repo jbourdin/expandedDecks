@@ -66,6 +66,19 @@ class ChannelRuntime implements RuntimeExtensionInterface
      *
      * Returns the default if no channel is resolved (CLI, error pages, etc.).
      */
+    /**
+     * Returns the current channel's theme name, or null if unavailable.
+     * Safe to call on error pages and CLI.
+     */
+    public function channelTheme(): ?string
+    {
+        try {
+            return $this->channelContext->getChannel()->getThemeName();
+        } catch (\LogicException) {
+            return null;
+        }
+    }
+
     public function channelParam(string $key, string $default = ''): string
     {
         try {
