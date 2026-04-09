@@ -23,6 +23,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -89,7 +91,17 @@ class ChannelFormType extends AbstractType
                 'by_reference' => false,
             ]);
 
-        $builder->get('parameters')->addModelTransformer(new KeyValueTransformer());
+        $transformer = new KeyValueTransformer();
+
+        // Transform before ResizeFormListener (priority > 0) so CollectionType
+        // sees the indexed list of pairs, not the raw associative array.
+        $builder->get('parameters')->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($transformer): void {
+            $event->setData($transformer->transform($event->getData() ?? []));
+        }, 1);
+
+        $builder->get('parameters')->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($transformer): void {
+            $event->setData($transformer->reverseTransform($event->getData()));
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
