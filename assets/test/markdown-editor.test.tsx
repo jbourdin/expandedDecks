@@ -78,6 +78,12 @@ describe('MarkdownEditor', () => {
         expect(textarea.value).toBe('');
     });
 
+    it('renders table toolbar button', () => {
+        renderEditor();
+
+        expect(screen.getByLabelText('Insert table')).toBeInTheDocument();
+    });
+
     it('renders with empty initial content', () => {
         renderEditor({ initialContent: '' });
 

@@ -15,6 +15,7 @@ import { useEditor } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
 import { FileHandler } from '@tiptap/extension-file-handler';
 import StarterKit from '@tiptap/starter-kit';
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import { IconCards, IconFloatCenter, IconFloatLeft, IconFloatNone, IconFloatRight, IconPhoto, IconStack2, IconSword } from '@tabler/icons-react';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — tiptap-markdown types conflict with tiptap v3 private class properties
@@ -25,6 +26,7 @@ import DeckReference from '../extensions/DeckReference';
 import HeadingWithId from '../extensions/HeadingWithId';
 import ResizableImage from '../extensions/ResizableImage';
 import ImageAlignButton from './ImageAlignButton';
+import TableToolbarControls from './TableToolbarControls';
 import InsertCardImageButton from './InsertCardImageButton';
 import InsertReferenceButton from './InsertReferenceButton';
 
@@ -114,19 +116,28 @@ const validateCardReference = (value: string) => CARD_PATTERN.test(value);
 const validateArchetypeSlug = (value: string) => ARCHETYPE_PATTERN.test(value);
 const validateDeckShortTag = (value: string) => DECK_PATTERN.test(value);
 
+/**
+ * Downgrade h1 (`# `) to h2 (`## `) in markdown content.
+ * H1 is reserved for the page title and must not appear in body content.
+ */
+function downgradeHeadingOne(markdown: string): string {
+    return markdown.replace(/^# (?!#)/gm, '## ');
+}
+
 export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange }: MarkdownEditorProps) {
     const [mode, setMode] = useState<EditorMode>('rte');
     const [rawMarkdown, setRawMarkdown] = useState(initialContent);
     const suppressSyncRef = useRef(false);
 
     const syncToTextarea = useCallback((value: string) => {
+        const sanitized = downgradeHeadingOne(value);
         if (textareaSelector) {
             const textarea = document.querySelector<HTMLTextAreaElement>(textareaSelector);
             if (textarea) {
-                textarea.value = value;
+                textarea.value = sanitized;
             }
         }
-        onChange?.(value);
+        onChange?.(sanitized);
     }, [textareaSelector, onChange]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -168,6 +179,10 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
             ArchetypeReference,
             CardReference,
             DeckReference,
+            Table.configure({ resizable: false }),
+            TableRow,
+            TableHeader,
+            TableCell,
             markdownExtension,
         ],
         content: initialContent,
@@ -251,6 +266,8 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
                         <RichTextEditor.ControlsGroup>
                             <RichTextEditor.CodeBlock />
                         </RichTextEditor.ControlsGroup>
+
+                        <TableToolbarControls editor={editor} />
 
                         <RichTextEditor.ControlsGroup>
                             <ImageAlignButton editor={editor} icon={<IconFloatLeft size={16} />} label="Float left" cssClass="float-start" />

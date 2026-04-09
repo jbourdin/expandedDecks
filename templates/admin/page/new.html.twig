@@ -11,9 +11,41 @@
     <div class="card shadow-sm">
         <div class="card-body">
             {{ form_start(form) }}
-                {{ form_widget(form) }}
+                {{ form_row(form.title) }}
+                {{ form_row(form.slug) }}
+                {{ form_row(form.channel) }}
+                {{ form_row(form.menuCategory) }}
+                {{ form_row(form.isPublished) }}
+                {{ form_row(form.noIndex) }}
+                {{ form_row(form.ogImage) }}
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.create'|trans }}</button>
             {{ form_end(form) }}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function() {
+            const titleInput = document.getElementById('{{ form.title.vars.id }}');
+            const slugInput = document.getElementById('{{ form.slug.vars.id }}');
+            let slugManuallyEdited = false;
+
+            slugInput.addEventListener('input', function() {
+                slugManuallyEdited = true;
+            });
+
+            titleInput.addEventListener('input', function() {
+                if (slugManuallyEdited) {
+                    return;
+                }
+                slugInput.value = titleInput.value
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            });
+        })();
+    </script>
 {% endblock %}

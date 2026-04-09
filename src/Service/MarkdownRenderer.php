@@ -17,6 +17,7 @@ use League\CommonMark\Environment\Environment;
 use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\Extension\Attributes\AttributesExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
 
 /**
@@ -34,6 +35,7 @@ class MarkdownRenderer
             'allow_unsafe_links' => false,
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
+        $environment->addExtension(new TableExtension());
         $environment->addExtension(new AttributesExtension());
 
         $this->converter = new MarkdownConverter($environment);

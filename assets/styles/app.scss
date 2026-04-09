@@ -354,6 +354,40 @@ footer {
     opacity: 1;
 }
 
+// --- CMS content typography ---
+// Override Bootstrap's heading sizes and add blockquote styling
+// to match the Mantine rich text editor appearance.
+// H1 is not used in content (reserved for the page title).
+.cms-content {
+    h2 {
+        font-size: 1.5em;
+        margin-top: 1.5rem;
+        margin-bottom: .75rem;
+    }
+
+    h3 {
+        font-size: 1.25em;
+        margin-top: 1.25rem;
+        margin-bottom: .5rem;
+    }
+
+    h4 {
+        font-size: 1.1em;
+        margin-top: 1rem;
+        margin-bottom: .5rem;
+    }
+
+    blockquote {
+        font-size: 1.1em;
+        line-height: 1.6;
+        margin: 1rem 0;
+        padding: .75rem 1rem;
+        border-radius: .25rem;
+        border-left: 3px solid rgba($ed-navy, .3);
+        background-color: rgba($ed-navy, .03);
+    }
+}
+
 // --- Rich text editor image alignment ---
 // Float and alignment classes for images inside the Tiptap editor.
 // Uses Bootstrap-compatible class names so public rendering works without
@@ -418,6 +452,45 @@ footer {
 
     [data-resize-container]:has(img.d-block) {
         display: block;
+    }
+}
+
+// --- Rich text editor table styles ---
+// Styles for markdown tables rendered via the Tiptap Table extension.
+// @see docs/features.md F17.8 — Table support in rich text editor
+/* stylelint-disable-next-line selector-class-pattern */
+.mantine-RichTextEditor-content,
+.cms-content {
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+    }
+
+    th {
+        background-color: rgba($ed-navy, .88);
+        color: #fff;
+        font-weight: 600;
+    }
+
+    tr:nth-child(even) td {
+        background-color: $table-striped-bg;
+    }
+}
+
+// Selected cell highlight (editor only)
+/* stylelint-disable-next-line selector-class-pattern */
+.mantine-RichTextEditor-content {
+    /* stylelint-disable-next-line selector-class-pattern */
+    .selectedCell {
+        background-color: rgba($ed-navy, .08);
     }
 }
 
