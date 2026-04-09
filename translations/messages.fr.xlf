@@ -4280,6 +4280,22 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.title">
+                <source>app.admin.technical.clear_cache.title</source>
+                <target>Vider le cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.description">
+                <source>app.admin.technical.clear_cache.description</source>
+                <target>Vider le cache de navigation (menus et pieds de page) pour tous les canaux.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.button">
+                <source>app.admin.technical.clear_cache.button</source>
+                <target>Vider le cache de navigation</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.done">
+                <source>app.admin.technical.clear_cache.done</source>
+                <target>Cache de navigation vidé.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.title">
                 <source>app.admin.technical.flush_reenrich.title</source>
                 <target>Purger et ré-enrichir tout</target>
