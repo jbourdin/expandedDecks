@@ -36,6 +36,13 @@ class MenuCategory
     #[ORM\Column]
     private bool $isFooter = false;
 
+    /**
+     * @see docs/features.md F18.8 — Add channel association to MenuCategory
+     */
+    #[ORM\ManyToOne(targetEntity: Channel::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Channel $channel = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -161,6 +168,18 @@ class MenuCategory
     public function getName(string $locale = 'en'): string
     {
         return $this->getTranslation($locale)?->getName() ?? '';
+    }
+
+    public function getChannel(): ?Channel
+    {
+        return $this->channel;
+    }
+
+    public function setChannel(?Channel $channel): static
+    {
+        $this->channel = $channel;
+
+        return $this;
     }
 
     /**

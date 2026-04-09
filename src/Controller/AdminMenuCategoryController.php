@@ -17,6 +17,7 @@ use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslation;
 use App\Form\MenuCategoryFormType;
 use App\Form\MenuCategoryTranslationFormType;
+use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,20 +45,26 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_menu_category_list', methods: ['GET'])]
-    public function list(Request $request, MenuCategoryRepository $repository): Response
+    public function list(Request $request, MenuCategoryRepository $repository, ChannelRepository $channelRepository): Response
     {
         $view = $request->query->getString('view', 'menu');
         if (!\in_array($view, ['menu', 'footer'], true)) {
             $view = 'menu';
         }
 
+        $channelCode = $request->query->getString('channel', '');
+        $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+        $channels = $channelRepository->findAll();
+
         $categories = 'footer' === $view
-            ? $repository->findFooterOrdered()
-            : $repository->findMenuOrdered();
+            ? $repository->findFooterOrdered($channel)
+            : $repository->findMenuOrdered($channel);
 
         return $this->render('admin/menu_category/list.html.twig', [
             'categories' => $categories,
             'currentView' => $view,
+            'channels' => $channels,
+            'currentChannel' => $channel,
         ]);
     }
 
