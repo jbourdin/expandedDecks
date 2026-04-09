@@ -34,6 +34,10 @@ final class Version20260409090219 extends AbstractMigration
         $this->addSql('ALTER TABLE page ADD channel_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE page ADD CONSTRAINT FK_140AB62072F5A1AA FOREIGN KEY (channel_id) REFERENCES channel (id)');
         $this->addSql('CREATE INDEX IDX_140AB62072F5A1AA ON page (channel_id)');
+
+        // Backfill: assign all existing pages to the 'content' channel
+        $this->addSql("UPDATE page SET channel_id = (SELECT id FROM channel WHERE code = 'content') WHERE channel_id IS NULL");
+
         $this->addSql('CREATE UNIQUE INDEX uniq_page_slug_channel ON page (slug, channel_id)');
     }
 
