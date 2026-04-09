@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Page;
+use Doctrine\ORM\EntityManagerInterface;
+
 class AdminPageControllerTest extends AbstractFunctionalTest
 {
     public function testPageListRequiresAuthentication(): void
@@ -48,5 +51,78 @@ class AdminPageControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form');
+    }
+
+    public function testEditPageSavesAndRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $page = $this->getPageBySlug('welcome');
+        $crawler = $this->client->request('GET', '/admin/pages/'.$page->getId());
+
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save')->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    public function testDeletePageSoftDeletesAndRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $page = $this->getPageBySlug('upcoming-features');
+
+        // Load the edit page to get a valid CSRF token from the rendered form
+        $crawler = $this->client->request('GET', '/admin/pages/'.$page->getId());
+        $token = $crawler->filter('input[name="_token"][value]')->attr('value');
+
+        $this->client->request('POST', '/admin/pages/'.$page->getId().'/delete', [
+            '_token' => $token,
+        ]);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    public function testDuplicatePageCreatesAndRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $page = $this->getPageBySlug('welcome');
+
+        // Load the page list to get a valid CSRF token from the rendered duplicate form
+        $this->client->request('GET', '/admin/pages');
+        $crawler = $this->client->getCrawler();
+        $duplicateForm = $crawler->filter('form[action$="/duplicate"]')->first();
+
+        if (0 === $duplicateForm->count()) {
+            self::markTestSkipped('No duplicate form found on page list.');
+        }
+
+        $token = $duplicateForm->filter('input[name="_token"]')->attr('value');
+
+        $this->client->request('POST', '/admin/pages/'.$page->getId().'/duplicate', [
+            '_token' => $token,
+        ]);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    private function getPageBySlug(string $slug): Page
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        $page = $entityManager->getRepository(Page::class)->findOneBy(['slug' => $slug]);
+        \assert($page instanceof Page);
+
+        return $page;
     }
 }

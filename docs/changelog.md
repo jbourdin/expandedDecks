@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.6.2] — 2026-04-09
+
+Theme path isolation, page cache invalidation, and per-channel brand in page titles.
+
+### Bug Fixes
+
+- **Theme path leak across PHP-FPM workers** — `ThemeRequestListener` now filters out previously prepended theme paths from the Twig `FilesystemLoader` on each request, preventing brand name and template bleed between channels served by the same worker process.
+- **Page admin cache invalidation** — publishing, editing, deleting, duplicating, or saving a translation for a page now invalidates the menu navigation cache. Previously, changing a page's published status didn't refresh the navigation.
+- **Brand name in page titles** — all `{% block title %}` suffixes now use `{% include '_brand.html.twig' %}` instead of hardcoded "Expanded Decks", so the browser tab shows the correct brand per channel.
+
+### Testing & Quality
+
+- Added functional tests for page edit, delete, and duplicate actions covering the `invalidateCache()` calls.
+
+---
+
 ## [1.6.1] — 2026-04-09
 
 Bug fixes for the channel system: homepage rendering, cache invalidation, and admin tooling.

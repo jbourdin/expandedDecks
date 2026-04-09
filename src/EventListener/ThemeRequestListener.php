@@ -46,6 +46,21 @@ final readonly class ThemeRequestListener
             return;
         }
 
+        // Remove any previously prepended theme path from the loader.
+        // prependPath() is permanent on the shared FilesystemLoader — without this
+        // cleanup, a theme path set for one channel leaks to subsequent requests
+        // handled by the same PHP-FPM worker process.
+        $themesPrefix = $this->projectDir.'/templates/themes/';
+        $currentPaths = $this->twigLoader->getPaths();
+        $cleanedPaths = array_values(array_filter(
+            $currentPaths,
+            static fn (string $path): bool => !str_starts_with($path, $themesPrefix),
+        ));
+
+        if ($cleanedPaths !== $currentPaths) {
+            $this->twigLoader->setPaths($cleanedPaths);
+        }
+
         $channel = $event->getRequest()->attributes->get('_channel');
 
         if (!$channel instanceof Channel) {

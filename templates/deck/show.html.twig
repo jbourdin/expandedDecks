@@ -48,7 +48,7 @@
     </div>
 {% endmacro %}
 
-{% block title %}{{ deck.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ deck.name }} — {% include '_brand.html.twig' %}{% endblock %}
 
 {% block body %}
     {# Deck info — compact header #}

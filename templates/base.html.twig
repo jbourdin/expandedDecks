@@ -11,7 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Expanded Decks{% endblock %}</title>
+        <title>{% block title %}{% include '_brand.html.twig' %}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block meta %}{% endblock %}
         {% block stylesheets %}
