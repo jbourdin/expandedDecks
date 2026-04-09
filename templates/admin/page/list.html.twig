@@ -16,40 +16,38 @@
         <a href="{{ path('app_admin_page_new') }}" class="btn btn-gold">{{ 'app.cms.admin.new_page'|trans }}</a>
     </div>
 
-    <div class="btn-group mb-4" role="group" aria-label="{{ 'app.cms.admin.channel_filter'|trans }}">
-        <a href="{{ path('app_admin_page_list', {q: search, category: currentCategory ? currentCategory.id : ''}) }}" class="btn {{ currentChannel is null ? 'btn-gold' : 'btn-outline-secondary' }}">
-            {{ 'app.common.all'|trans }}
-        </a>
-        {% for channel in channels %}
-            <a href="{{ path('app_admin_page_list', {channel: channel.code, q: search, category: currentCategory ? currentCategory.id : ''}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
-                {{ channel.domain }}
-            </a>
-        {% endfor %}
+    <div class="d-flex flex-wrap gap-3 mb-4">
+        <div class="btn-group" role="group" aria-label="{{ 'app.cms.admin.channel_filter'|trans }}">
+            {% for channel in channels %}
+                <a href="{{ path('app_admin_page_list', {channel: channel.code, q: search}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
+                    {{ channel.domain }}
+                </a>
+            {% endfor %}
+        </div>
+        {% if categories is not empty %}
+            <div class="btn-group" role="group" aria-label="{{ 'app.cms.admin.table.category'|trans }}">
+                {% for category in categories %}
+                    <a href="{{ path('app_admin_page_list', {channel: currentChannel ? currentChannel.code : '', category: category.id, q: search}) }}" class="btn {{ currentCategory and currentCategory.id == category.id ? 'btn-gold' : 'btn-outline-secondary' }}">
+                        {{ category.getName(app.request.locale) }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <form method="get" action="{{ path('app_admin_page_list') }}" class="card shadow-sm mb-4">
         {% if currentChannel %}<input type="hidden" name="channel" value="{{ currentChannel.code }}">{% endif %}
+        {% if currentCategory %}<input type="hidden" name="category" value="{{ currentCategory.id }}">{% endif %}
         <div class="card-body">
             <div class="row g-2 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-9">
                     <label for="q" class="form-label">{{ 'app.common.search'|trans }}</label>
                     <input type="text" id="q" name="q" class="form-control" value="{{ search }}" placeholder="{{ 'app.cms.admin.search_placeholder'|trans }}">
                 </div>
-                <div class="col-md-4">
-                    <label for="category" class="form-label">{{ 'app.cms.admin.table.category'|trans }}</label>
-                    <select id="category" name="category" class="form-select">
-                        <option value="">{{ 'app.common.all'|trans }}</option>
-                        {% for category in categories %}
-                            <option value="{{ category.id }}" {{ currentCategory and currentCategory.id == category.id ? 'selected' }}>
-                                {{ category.getName(app.request.locale) }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-gold flex-fill">{{ 'app.common.filter'|trans }}</button>
-                    {% if search is not empty or currentCategory %}
-                        <a href="{{ path('app_admin_page_list') }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
+                    {% if search is not empty %}
+                        <a href="{{ path('app_admin_page_list', {channel: currentChannel ? currentChannel.code : '', category: currentCategory ? currentCategory.id : ''}) }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
                     {% endif %}
                 </div>
             </div>

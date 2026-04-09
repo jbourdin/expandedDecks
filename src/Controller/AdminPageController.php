@@ -20,6 +20,7 @@ use App\Form\PageTranslationFormType;
 use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Service\Channel\ChannelContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -61,6 +62,7 @@ class AdminPageController extends AbstractAppController
         PageRepository $pageRepository,
         MenuCategoryRepository $menuCategoryRepository,
         ChannelRepository $channelRepository,
+        ChannelContext $channelContext,
     ): Response {
         $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->getString('q');
@@ -69,14 +71,24 @@ class AdminPageController extends AbstractAppController
 
         $channelCode = $request->query->getString('channel', '');
         $currentChannel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+
+        if (null === $currentChannel) {
+            $currentChannel = $channelContext->getChannel();
+        }
+
         $channels = $channelRepository->findAll();
+
+        $categories = $menuCategoryRepository->findAllOrdered($currentChannel);
 
         $category = null;
         if ($categoryId > 0) {
             $category = $menuCategoryRepository->find($categoryId);
         }
 
-        $categories = $menuCategoryRepository->findAllOrdered($currentChannel);
+        // Default to first category if none selected and categories exist
+        if (null === $category && [] !== $categories) {
+            $category = $categories[0];
+        }
 
         $perPage = null !== $category ? self::PER_PAGE_CATEGORY : self::PER_PAGE;
 
