@@ -45,7 +45,8 @@ class HomepageLayoutRepository extends ServiceEntityRepository
             ->orderBy('l.id', 'DESC');
 
         if (null !== $channel) {
-            $queryBuilder->andWhere('l.channel = :channel')->setParameter('channel', $channel);
+            $queryBuilder->andWhere('l.channel = :channel OR l.channel IS NULL')
+                ->setParameter('channel', $channel);
         }
 
         /** @var list<HomepageLayout> $layouts */

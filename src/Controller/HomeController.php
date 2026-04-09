@@ -60,7 +60,8 @@ class HomeController extends AbstractController
         }
 
         // Fallback to hardcoded homepage when no layout exists
-        if ($this->getUser()) {
+        // Only redirect to dashboard on channels with decks enabled
+        if ($this->getUser() && $channel instanceof Channel && $channel->getEnableDecks()) {
             return $this->redirectToRoute('app_dashboard');
         }
         $welcomePage = $pageRepository->findBySlug('welcome');
