@@ -81,6 +81,15 @@ class ChannelFormType extends AbstractType
                 'label' => 'app.channel.enable_archetypes',
                 'required' => false,
             ])
+            ->add('locales', ChoiceType::class, [
+                'label' => 'app.channel.locales',
+                'choices' => [
+                    'English' => 'en',
+                    'Français' => 'fr',
+                ],
+                'multiple' => true,
+                'expanded' => true,
+            ])
             ->add('parameters', CollectionType::class, [
                 'label' => 'app.channel.parameters',
                 'entry_type' => KeyValuePairType::class,

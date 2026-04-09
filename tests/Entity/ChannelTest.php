@@ -41,6 +41,7 @@ class ChannelTest extends TestCase
         self::assertFalse($channel->getEnableEvents());
         self::assertFalse($channel->getEnableBorrows());
         self::assertFalse($channel->getEnableArchetypes());
+        self::assertSame(['en'], $channel->getLocales());
     }
 
     public function testFluentSetters(): void
@@ -64,6 +65,25 @@ class ChannelTest extends TestCase
         self::assertTrue($channel->getEnableEvents());
         self::assertTrue($channel->getEnableBorrows());
         self::assertFalse($channel->getEnableArchetypes());
+    }
+
+    public function testSetLocales(): void
+    {
+        $channel = new Channel();
+
+        $result = $channel->setLocales(['en', 'fr']);
+
+        self::assertSame($channel, $result);
+        self::assertSame(['en', 'fr'], $channel->getLocales());
+    }
+
+    public function testSetLocalesSingleLocale(): void
+    {
+        $channel = new Channel();
+
+        $channel->setLocales(['en']);
+
+        self::assertSame(['en'], $channel->getLocales());
     }
 
     public function testOnPreUpdateSetsUpdatedAt(): void

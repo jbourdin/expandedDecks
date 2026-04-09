@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Form\PageFormType;
@@ -39,7 +40,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminPageController extends AbstractAppController
 {
     private const int PER_PAGE_CATEGORY = 50;
-    private const array SUPPORTED_LOCALES = ['en', 'fr'];
 
     public function __construct(
         TranslatorInterface $translator,
@@ -89,6 +89,8 @@ class AdminPageController extends AbstractAppController
             $category = $categories[0];
         }
 
+        $supportedLocales = $currentChannel->getLocales();
+
         // No categories on this channel → no pages to show
         if ([] === $categories) {
             return $this->render('admin/page/list.html.twig', [
@@ -97,7 +99,7 @@ class AdminPageController extends AbstractAppController
                 'currentPage' => 1,
                 'totalPages' => 1,
                 'search' => $search,
-                'supportedLocales' => self::SUPPORTED_LOCALES,
+                'supportedLocales' => $supportedLocales,
                 'categories' => [],
                 'currentCategory' => null,
                 'sortableEnabled' => false,
@@ -123,7 +125,7 @@ class AdminPageController extends AbstractAppController
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'search' => $search,
-            'supportedLocales' => self::SUPPORTED_LOCALES,
+            'supportedLocales' => $supportedLocales,
             'categories' => $categories,
             'currentCategory' => $category,
             'sortableEnabled' => $sortableEnabled,
@@ -158,9 +160,31 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/new', name: 'app_admin_page_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, MenuRuntime $menuRuntime): Response
-    {
+    public function new(
+        Request $request,
+        MenuRuntime $menuRuntime,
+        ChannelRepository $channelRepository,
+        MenuCategoryRepository $menuCategoryRepository,
+    ): Response {
         $page = new Page();
+
+        $channelCode = $request->query->getString('channel');
+        if ('' !== $channelCode) {
+            $channel = $channelRepository->findByCode($channelCode);
+            if ($channel instanceof Channel) {
+                $page->setChannel($channel);
+            }
+        }
+
+        $categoryRaw = $request->query->getString('category');
+        $categoryId = '' !== $categoryRaw ? (int) $categoryRaw : 0;
+        if ($categoryId > 0) {
+            $category = $menuCategoryRepository->find($categoryId);
+            if (null !== $category) {
+                $page->setMenuCategory($category);
+            }
+        }
+
         $form = $this->createForm(PageFormType::class, $page, [
             'locale' => $request->getLocale(),
         ]);
@@ -182,7 +206,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/{id}', name: 'app_admin_page_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Page $page, MenuRuntime $menuRuntime): Response
+    public function edit(Request $request, Page $page, MenuRuntime $menuRuntime, ChannelContext $channelContext): Response
     {
         $form = $this->createForm(PageFormType::class, $page, [
             'locale' => $request->getLocale(),
@@ -198,20 +222,24 @@ class AdminPageController extends AbstractAppController
             return $this->redirectToRoute('app_admin_page_edit', ['id' => $page->getId()]);
         }
 
-        $translationForms = $this->buildTranslationForms($page, $request);
+        $channel = $page->getChannel() ?? $channelContext->getChannel();
+        $supportedLocales = $channel->getLocales();
+
+        $translationForms = $this->buildTranslationForms($page, $request, $supportedLocales);
 
         return $this->render('admin/page/edit.html.twig', [
             'page' => $page,
             'form' => $form,
             'translationForms' => $translationForms,
-            'supportedLocales' => self::SUPPORTED_LOCALES,
+            'supportedLocales' => $supportedLocales,
         ]);
     }
 
     #[Route('/{id}/translation/{locale}', name: 'app_admin_page_translation', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function saveTranslation(Request $request, Page $page, string $locale, MenuRuntime $menuRuntime): Response
+    public function saveTranslation(Request $request, Page $page, string $locale, MenuRuntime $menuRuntime, ChannelContext $channelContext): Response
     {
-        if (!\in_array($locale, self::SUPPORTED_LOCALES, true)) {
+        $channel = $page->getChannel() ?? $channelContext->getChannel();
+        if (!\in_array($locale, $channel->getLocales(), true)) {
             throw $this->createNotFoundException();
         }
 
@@ -303,13 +331,15 @@ class AdminPageController extends AbstractAppController
     }
 
     /**
+     * @param list<string> $locales
+     *
      * @return array<string, \Symfony\Component\Form\FormView>
      */
-    private function buildTranslationForms(Page $page, Request $request): array
+    private function buildTranslationForms(Page $page, Request $request, array $locales): array
     {
         $forms = [];
 
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($locales as $locale) {
             $translation = $page->getTranslation($locale);
 
             if (!$translation instanceof PageTranslation || $translation->getLocale() !== $locale) {

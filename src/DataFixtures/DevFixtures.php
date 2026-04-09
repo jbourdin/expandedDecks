@@ -2315,7 +2315,8 @@ PTCG;
             ->setEnableRegister(true)
             ->setEnableEvents(true)
             ->setEnableBorrows(true)
-            ->setEnableArchetypes(false);
+            ->setEnableArchetypes(false)
+            ->setLocales(['en', 'fr']);
 
         $contentChannel = (new Channel())
             ->setCode('content')
