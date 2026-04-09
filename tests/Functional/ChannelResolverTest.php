@@ -54,33 +54,33 @@ class ChannelResolverTest extends AbstractFunctionalTest
         self::assertSame('app', $channel->getCode());
     }
 
-    public function testAppChannelShowsDeckNavLink(): void
+    public function testAppChannelNavbarContainsDeckLink(): void
     {
         $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertGreaterThan(0, $crawler->filter('.navbar a')->reduce(
-            static fn ($node) => str_contains($node->attr('href') ?? '', '/decks'),
-        )->count(), 'Deck nav link should be present on the app channel');
+
+        $navHtml = $crawler->filter('.navbar')->html();
+        self::assertStringContainsString('/decks', $navHtml, 'App channel navbar should contain a link to /decks');
     }
 
-    public function testContentChannelHidesDeckNavLink(): void
+    public function testContentChannelNavbarOmitsDeckLink(): void
     {
         $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertSame(0, $crawler->filter('.navbar a')->reduce(
-            static fn ($node) => str_contains($node->attr('href') ?? '', '/decks'),
-        )->count(), 'Deck nav link should be absent on the content channel');
+
+        $navHtml = $crawler->filter('.navbar')->html();
+        self::assertStringNotContainsString('/decks', $navHtml, 'Content channel navbar should not contain a link to /decks');
     }
 
-    public function testContentChannelHidesLoginLink(): void
+    public function testContentChannelNavbarOmitsLoginLink(): void
     {
         $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertSame(0, $crawler->filter('.navbar a')->reduce(
-            static fn ($node) => str_contains($node->attr('href') ?? '', '/login'),
-        )->count(), 'Login link should be absent on the content channel');
+
+        $navHtml = $crawler->filter('.navbar')->html();
+        self::assertStringNotContainsString('/login', $navHtml, 'Content channel navbar should not contain a link to /login');
     }
 }
