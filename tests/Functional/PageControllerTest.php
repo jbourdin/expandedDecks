@@ -43,7 +43,11 @@ class PageControllerTest extends AbstractFunctionalTest
 
     public function testUnpublishedPageAccessibleByEditorWithPreview(): void
     {
-        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/login', server: self::CONTENT_HOST);
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
         $this->client->request('GET', '/pages/upcoming-features?preview=true', server: self::CONTENT_HOST);
 
         self::assertResponseIsSuccessful();
@@ -52,7 +56,11 @@ class PageControllerTest extends AbstractFunctionalTest
 
     public function testUnpublishedPageReturns404ForEditorWithoutPreview(): void
     {
-        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/login', server: self::CONTENT_HOST);
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
         $this->client->request('GET', '/pages/upcoming-features', server: self::CONTENT_HOST);
 
         self::assertResponseStatusCodeSame(404);
