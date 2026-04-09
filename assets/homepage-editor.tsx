@@ -32,6 +32,7 @@ if (root) {
     const saveUrl = root.dataset.saveUrl ?? '';
     const previewUrl = root.dataset.previewUrl ?? '';
     const uploadUrl = root.dataset.uploadUrl ?? '';
+    const channelCode = root.dataset.channelCode ?? '';
 
     let supportedLocales: string[] = ['en', 'fr'];
     let initialBlocks: Record<string, unknown>[] = [];
@@ -65,6 +66,7 @@ if (root) {
                 saveUrl={saveUrl}
                 previewUrl={previewUrl}
                 uploadUrl={uploadUrl}
+                channelCode={channelCode}
                 supportedLocales={supportedLocales}
                 initialBlocks={initialBlocks}
                 initialTranslations={initialTranslations}

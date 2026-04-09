@@ -35,6 +35,7 @@ interface HomepageEditorProps {
     saveUrl: string;
     previewUrl: string;
     uploadUrl: string;
+    channelCode: string;
     supportedLocales: string[];
     initialBlocks: BlockData[];
     initialTranslations: TranslationsMap;
@@ -45,6 +46,7 @@ interface HomepageEditorProps {
 export default function HomepageEditor({
     saveUrl,
     uploadUrl,
+    channelCode,
     supportedLocales,
     initialBlocks,
     initialTranslations,
@@ -188,7 +190,7 @@ export default function HomepageEditor({
             const response = await fetch(saveUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ blocks, translations }),
+                body: JSON.stringify({ blocks, translations, channelCode }),
             });
             if (response.ok) {
                 setSaved(true);
