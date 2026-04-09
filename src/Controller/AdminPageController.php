@@ -38,7 +38,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminPageController extends AbstractAppController
 {
-    private const int PER_PAGE = 20;
     private const int PER_PAGE_CATEGORY = 50;
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
 
@@ -90,7 +89,24 @@ class AdminPageController extends AbstractAppController
             $category = $categories[0];
         }
 
-        $perPage = null !== $category ? self::PER_PAGE_CATEGORY : self::PER_PAGE;
+        // No categories on this channel → no pages to show
+        if ([] === $categories) {
+            return $this->render('admin/page/list.html.twig', [
+                'contentPages' => [],
+                'totalItems' => 0,
+                'currentPage' => 1,
+                'totalPages' => 1,
+                'search' => $search,
+                'supportedLocales' => self::SUPPORTED_LOCALES,
+                'categories' => [],
+                'currentCategory' => null,
+                'sortableEnabled' => false,
+                'channels' => $channels,
+                'currentChannel' => $currentChannel,
+            ]);
+        }
+
+        $perPage = self::PER_PAGE_CATEGORY;
 
         $queryBuilder = $pageRepository->createAdminListQueryBuilder($search, $category);
         $queryBuilder->setFirstResult(($page - 1) * $perPage)
