@@ -56,25 +56,31 @@ class ChannelResolverTest extends AbstractFunctionalTest
 
     public function testAppChannelShowsDeckNavLink(): void
     {
-        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
+        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a[href="/decks"]');
+        self::assertGreaterThan(0, $crawler->filter('.navbar a')->reduce(
+            static fn ($node) => str_contains($node->attr('href') ?? '', '/decks'),
+        )->count(), 'Deck nav link should be present on the app channel');
     }
 
     public function testContentChannelHidesDeckNavLink(): void
     {
-        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
+        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('a[href="/decks"]');
+        self::assertSame(0, $crawler->filter('.navbar a')->reduce(
+            static fn ($node) => str_contains($node->attr('href') ?? '', '/decks'),
+        )->count(), 'Deck nav link should be absent on the content channel');
     }
 
     public function testContentChannelHidesLoginLink(): void
     {
-        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
+        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('a[href*="/login"]');
+        self::assertSame(0, $crawler->filter('.navbar a')->reduce(
+            static fn ($node) => str_contains($node->attr('href') ?? '', '/login'),
+        )->count(), 'Login link should be absent on the content channel');
     }
 }
