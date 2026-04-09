@@ -265,6 +265,39 @@ class AdminPageController extends AbstractAppController
         return $this->redirectToRoute('app_admin_page_list');
     }
 
+    #[Route('/{id}/duplicate', name: 'app_admin_page_duplicate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function duplicate(Request $request, Page $page): Response
+    {
+        if (!$this->isCsrfTokenValid('page-duplicate-'.$page->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_page_list');
+        }
+
+        $duplicate = new Page();
+        $duplicate->setSlug($page->getSlug().'-copy-'.bin2hex(random_bytes(3)));
+        $duplicate->setMenuCategory($page->getMenuCategory());
+        $duplicate->setIsPublished(false);
+        $duplicate->setOgImage($page->getOgImage());
+        $duplicate->setNoIndex($page->isNoIndex());
+
+        foreach ($page->getTranslations() as $translation) {
+            $duplicateTranslation = new PageTranslation();
+            $duplicateTranslation->setPage($duplicate);
+            $duplicateTranslation->setLocale($translation->getLocale());
+            $duplicateTranslation->setTitle($translation->getTitle().' (copy)');
+            $duplicateTranslation->setContent($translation->getContent());
+            $duplicate->addTranslation($duplicateTranslation);
+        }
+
+        $this->em->persist($duplicate);
+        $this->em->flush();
+
+        $this->addFlash('success', 'app.cms.page_duplicated');
+
+        return $this->redirectToRoute('app_admin_page_edit', ['id' => $duplicate->getId()]);
+    }
+
     /**
      * @return array<string, \Symfony\Component\Form\FormView>
      */

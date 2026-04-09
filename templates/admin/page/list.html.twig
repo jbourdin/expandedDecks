@@ -129,6 +129,12 @@
                                                     <li><a class="dropdown-item" href="{{ path('app_page_show', {slug: page.slug}) }}?preview=true" target="_blank"><i class="bi bi-eye me-2"></i>{{ 'app.common.preview'|trans }}</a></li>
                                                 {% endif %}
                                                 <li><a class="dropdown-item" href="{{ path('app_admin_page_edit', {id: page.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                                <li>
+                                                    <form method="post" action="{{ path('app_admin_page_duplicate', {id: page.id}) }}" class="d-inline">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('page-duplicate-' ~ page.id) }}">
+                                                        <button type="submit" class="dropdown-item"><i class="bi bi-copy me-2"></i>{{ 'app.cms.admin.duplicate_page'|trans }}</button>
+                                                    </form>
+                                                </li>
                                             </ul>
                                         </div>
                                     </td>

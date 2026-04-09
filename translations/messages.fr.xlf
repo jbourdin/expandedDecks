@@ -3897,6 +3897,16 @@
                 <source>app.cms.page_deleted</source>
                 <target>Page supprimée.</target>
             </trans-unit>
+            <trans-unit id="app.cms.page_duplicated">
+                <source>app.cms.page_duplicated</source>
+                <target>Page dupliquée avec succès.</target>
+                <note>Flash message after page duplication</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.duplicate_page">
+                <source>app.cms.admin.duplicate_page</source>
+                <target>Dupliquer</target>
+                <note>Dropdown action to duplicate a page</note>
+            </trans-unit>
             <trans-unit id="app.flash.page.deleted">
                 <source>app.flash.page.deleted</source>
                 <target>Page supprimée.</target>
