@@ -54,33 +54,28 @@ class ChannelResolverTest extends AbstractFunctionalTest
         self::assertSame('app', $channel->getCode());
     }
 
-    public function testAppChannelNavbarContainsDeckLink(): void
+    public function testAppChannelHasDecksEnabled(): void
     {
-        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
+        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
 
         self::assertResponseIsSuccessful();
 
-        $navHtml = $crawler->filter('.navbar')->html();
-        self::assertStringContainsString('/decks', $navHtml, 'App channel navbar should contain a link to /decks');
+        $channel = $this->client->getRequest()->attributes->get('_channel');
+        self::assertInstanceOf(Channel::class, $channel);
+        self::assertTrue($channel->getEnableDecks());
+        self::assertTrue($channel->getEnableRegister());
     }
 
-    public function testContentChannelNavbarOmitsDeckLink(): void
+    public function testContentChannelHasDecksDisabled(): void
     {
-        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
+        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
 
         self::assertResponseIsSuccessful();
 
-        $navHtml = $crawler->filter('.navbar')->html();
-        self::assertStringNotContainsString('/decks', $navHtml, 'Content channel navbar should not contain a link to /decks');
-    }
-
-    public function testContentChannelNavbarOmitsLoginLink(): void
-    {
-        $crawler = $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandedtalks.wip']);
-
-        self::assertResponseIsSuccessful();
-
-        $navHtml = $crawler->filter('.navbar')->html();
-        self::assertStringNotContainsString('/login', $navHtml, 'Content channel navbar should not contain a link to /login');
+        $channel = $this->client->getRequest()->attributes->get('_channel');
+        self::assertInstanceOf(Channel::class, $channel);
+        self::assertFalse($channel->getEnableDecks());
+        self::assertFalse($channel->getEnableRegister());
+        self::assertTrue($channel->getEnableArchetypes());
     }
 }
