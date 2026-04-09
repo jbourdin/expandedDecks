@@ -90,7 +90,7 @@ class PageController extends AbstractController
         }
 
         $locale = $request->getLocale();
-        $translation = $page->getTranslation($locale);
+        $translation = $page->getDisplayTranslation($locale);
 
         if (null === $translation) {
             throw $this->createNotFoundException();

@@ -55,7 +55,7 @@ class HomepageRendererTest extends TestCase
         $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $this->urlGenerator->method('generate')->willReturn('/test-url');
 
-        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
         $request = new Request();
         $request->attributes->set('_channel', $channel);
         $requestStack = new RequestStack();

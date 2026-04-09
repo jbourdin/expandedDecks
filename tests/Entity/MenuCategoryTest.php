@@ -150,6 +150,70 @@ class MenuCategoryTest extends TestCase
         self::assertSame($englishTranslation, $category->getTranslation('de'));
     }
 
+    public function testGetDisplayTranslationReturnsExactLocaleMatch(): void
+    {
+        $category = new MenuCategory();
+
+        $englishTranslation = new MenuCategoryTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setName('Decks');
+        $category->addTranslation($englishTranslation);
+
+        $frenchTranslation = new MenuCategoryTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setName('Decks FR');
+        $category->addTranslation($frenchTranslation);
+
+        self::assertSame($frenchTranslation, $category->getDisplayTranslation('fr'));
+        self::assertSame($englishTranslation, $category->getDisplayTranslation('en'));
+    }
+
+    public function testGetDisplayTranslationFallsBackToEnglishWhenNameIsEmpty(): void
+    {
+        $category = new MenuCategory();
+
+        $englishTranslation = new MenuCategoryTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setName('Decks');
+        $category->addTranslation($englishTranslation);
+
+        $frenchTranslation = new MenuCategoryTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setName('');
+        $category->addTranslation($frenchTranslation);
+
+        self::assertSame($englishTranslation, $category->getDisplayTranslation('fr'));
+    }
+
+    public function testGetDisplayTranslationFallsBackToEnglishWhenLocaleNotFound(): void
+    {
+        $category = new MenuCategory();
+
+        $englishTranslation = new MenuCategoryTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setName('Decks');
+        $category->addTranslation($englishTranslation);
+
+        self::assertSame($englishTranslation, $category->getDisplayTranslation('de'));
+    }
+
+    public function testGetNameFallsBackToEnglishWhenNameIsEmpty(): void
+    {
+        $category = new MenuCategory();
+
+        $englishTranslation = new MenuCategoryTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setName('Events');
+        $category->addTranslation($englishTranslation);
+
+        $frenchTranslation = new MenuCategoryTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setName('');
+        $category->addTranslation($frenchTranslation);
+
+        self::assertSame('Events', $category->getName('fr'));
+    }
+
     public function testGetTranslationReturnsNullWhenNoTranslations(): void
     {
         $category = new MenuCategory();

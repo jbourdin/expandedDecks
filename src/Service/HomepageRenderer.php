@@ -167,7 +167,7 @@ class HomepageRenderer
             return [];
         }
 
-        $translation = $page->getTranslation($locale);
+        $translation = $page->getDisplayTranslation($locale);
         if (null === $translation) {
             return [];
         }

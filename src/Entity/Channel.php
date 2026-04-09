@@ -65,6 +65,14 @@ class Channel
     private ?string $themeName = null;
 
     /**
+     * Locales available for CMS content on this channel.
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: 'json')]
+    private array $locales = ['en'];
+
+    /**
      * Arbitrary key-value parameters for template rendering (brand name, footer text, etc.).
      *
      * @var array<string, string>
@@ -180,6 +188,24 @@ class Channel
     public function setThemeName(?string $themeName): static
     {
         $this->themeName = $themeName;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getLocales(): array
+    {
+        return $this->locales;
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    public function setLocales(array $locales): static
+    {
+        $this->locales = $locales;
 
         return $this;
     }

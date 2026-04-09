@@ -253,6 +253,58 @@ class PageTest extends TestCase
         self::assertNull($page->getTranslation('en'));
     }
 
+    public function testGetDisplayTranslationReturnsExactLocaleMatch(): void
+    {
+        $page = new Page();
+
+        $englishTranslation = new PageTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setTitle('About');
+        $englishTranslation->setContent('English content.');
+        $page->addTranslation($englishTranslation);
+
+        $frenchTranslation = new PageTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setTitle('A propos');
+        $frenchTranslation->setContent('Contenu français.');
+        $page->addTranslation($frenchTranslation);
+
+        self::assertSame($frenchTranslation, $page->getDisplayTranslation('fr'));
+        self::assertSame($englishTranslation, $page->getDisplayTranslation('en'));
+    }
+
+    public function testGetDisplayTranslationFallsBackToEnglishWhenContentIsEmpty(): void
+    {
+        $page = new Page();
+
+        $englishTranslation = new PageTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setTitle('About');
+        $englishTranslation->setContent('English content.');
+        $page->addTranslation($englishTranslation);
+
+        $frenchTranslation = new PageTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setTitle('A propos');
+        $frenchTranslation->setContent('');
+        $page->addTranslation($frenchTranslation);
+
+        self::assertSame($englishTranslation, $page->getDisplayTranslation('fr'));
+    }
+
+    public function testGetDisplayTranslationFallsBackToEnglishWhenLocaleNotFound(): void
+    {
+        $page = new Page();
+
+        $englishTranslation = new PageTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setTitle('About');
+        $englishTranslation->setContent('English content.');
+        $page->addTranslation($englishTranslation);
+
+        self::assertSame($englishTranslation, $page->getDisplayTranslation('de'));
+    }
+
     public function testGetTitleReturnsTranslatedTitle(): void
     {
         $page = new Page();
@@ -260,6 +312,7 @@ class PageTest extends TestCase
         $translation = new PageTranslation();
         $translation->setLocale('en');
         $translation->setTitle('Privacy Policy');
+        $translation->setContent('Content.');
         $page->addTranslation($translation);
 
         self::assertSame('Privacy Policy', $page->getTitle('en'));
@@ -273,6 +326,25 @@ class PageTest extends TestCase
         self::assertSame('', $page->getTitle('fr'));
     }
 
+    public function testGetTitleFallsBackToEnglishWhenContentIsEmpty(): void
+    {
+        $page = new Page();
+
+        $englishTranslation = new PageTranslation();
+        $englishTranslation->setLocale('en');
+        $englishTranslation->setTitle('Terms of Service');
+        $englishTranslation->setContent('English content.');
+        $page->addTranslation($englishTranslation);
+
+        $frenchTranslation = new PageTranslation();
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setTitle('Conditions');
+        $frenchTranslation->setContent('');
+        $page->addTranslation($frenchTranslation);
+
+        self::assertSame('Terms of Service', $page->getTitle('fr'));
+    }
+
     public function testGetTitleUsesLocaleFallback(): void
     {
         $page = new Page();
@@ -280,6 +352,7 @@ class PageTest extends TestCase
         $translation = new PageTranslation();
         $translation->setLocale('en');
         $translation->setTitle('Terms of Service');
+        $translation->setContent('Content.');
         $page->addTranslation($translation);
 
         self::assertSame('Terms of Service', $page->getTitle('de'));
@@ -292,6 +365,7 @@ class PageTest extends TestCase
         $translation = new PageTranslation();
         $translation->setLocale('en');
         $translation->setTitle('Contact');
+        $translation->setContent('Content.');
         $page->addTranslation($translation);
 
         self::assertSame('Contact', $page->getTitle());

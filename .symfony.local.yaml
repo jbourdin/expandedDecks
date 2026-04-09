@@ -1,6 +1,7 @@
 proxy:
     domains:
-        - expanded-decks
+        - expandeddecks
+        - expandedtalks
 http:
     port: 8742
 php:

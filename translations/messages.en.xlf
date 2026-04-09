@@ -3306,6 +3306,11 @@
                 <target>Default (no override)</target>
                 <note>Placeholder for no theme selected</note>
             </trans-unit>
+            <trans-unit id="app.channel.locales">
+                <source>app.channel.locales</source>
+                <target>Available locales</target>
+                <note>Multiselect for CMS content locales on a channel</note>
+            </trans-unit>
             <trans-unit id="app.channel.parameters">
                 <source>app.channel.parameters</source>
                 <target>Parameters</target>
@@ -3831,6 +3836,10 @@
             </trans-unit>
 
             <!-- CMS: Form labels -->
+            <trans-unit id="app.cms.form.title_placeholder">
+                <source>app.cms.form.title_placeholder</source>
+                <target>Page title</target>
+            </trans-unit>
             <trans-unit id="app.cms.form.slug_placeholder">
                 <source>app.cms.form.slug_placeholder</source>
                 <target>my-page-slug</target>

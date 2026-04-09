@@ -41,6 +41,7 @@ class ChannelTest extends TestCase
         self::assertFalse($channel->getEnableEvents());
         self::assertFalse($channel->getEnableBorrows());
         self::assertFalse($channel->getEnableArchetypes());
+        self::assertSame(['en'], $channel->getLocales());
     }
 
     public function testFluentSetters(): void
@@ -49,7 +50,7 @@ class ChannelTest extends TestCase
 
         $result = $channel
             ->setCode('app')
-            ->setDomain('expanded-decks.wip')
+            ->setDomain('expandeddecks.wip')
             ->setEnableDecks(true)
             ->setEnableRegister(true)
             ->setEnableEvents(true)
@@ -58,12 +59,31 @@ class ChannelTest extends TestCase
 
         self::assertSame($channel, $result);
         self::assertSame('app', $channel->getCode());
-        self::assertSame('expanded-decks.wip', $channel->getDomain());
+        self::assertSame('expandeddecks.wip', $channel->getDomain());
         self::assertTrue($channel->getEnableDecks());
         self::assertTrue($channel->getEnableRegister());
         self::assertTrue($channel->getEnableEvents());
         self::assertTrue($channel->getEnableBorrows());
         self::assertFalse($channel->getEnableArchetypes());
+    }
+
+    public function testSetLocales(): void
+    {
+        $channel = new Channel();
+
+        $result = $channel->setLocales(['en', 'fr']);
+
+        self::assertSame($channel, $result);
+        self::assertSame(['en', 'fr'], $channel->getLocales());
+    }
+
+    public function testSetLocalesSingleLocale(): void
+    {
+        $channel = new Channel();
+
+        $channel->setLocales(['en']);
+
+        self::assertSame(['en'], $channel->getLocales());
     }
 
     public function testOnPreUpdateSetsUpdatedAt(): void

@@ -163,11 +163,36 @@ class MenuCategory
     }
 
     /**
+     * Get the translation for display, skipping translations with empty name
+     * and falling back to 'en'.
+     *
+     * @see docs/features.md F11.2 — Menu categories
+     */
+    public function getDisplayTranslation(string $locale): ?MenuCategoryTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale && '' !== $translation->getName()) {
+                return $translation;
+            }
+        }
+
+        if ('en' !== $locale) {
+            foreach ($this->translations as $translation) {
+                if ('en' === $translation->getLocale()) {
+                    return $translation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Convenience method to get the translated name for a locale.
      */
     public function getName(string $locale = 'en'): string
     {
-        return $this->getTranslation($locale)?->getName() ?? '';
+        return $this->getDisplayTranslation($locale)?->getName() ?? '';
     }
 
     public function getChannel(): ?Channel

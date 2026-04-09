@@ -40,6 +40,17 @@ class PageFormType extends AbstractType
         /** @var string $locale */
         $locale = $options['locale'];
 
+        /** @var bool $isCreation */
+        $isCreation = $options['is_creation'];
+
+        if ($isCreation) {
+            $builder->add('title', TextType::class, [
+                'label' => 'app.cms.form.title',
+                'mapped' => false,
+                'attr' => ['placeholder' => 'app.cms.form.title_placeholder'],
+            ]);
+        }
+
         $builder
             ->add('slug', TextType::class, [
                 'label' => 'app.common.slug',
@@ -104,8 +115,10 @@ class PageFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Page::class,
             'locale' => 'en',
+            'is_creation' => false,
         ]);
 
         $resolver->setAllowedTypes('locale', 'string');
+        $resolver->setAllowedTypes('is_creation', 'bool');
     }
 }

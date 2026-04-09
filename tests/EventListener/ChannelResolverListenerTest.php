@@ -29,12 +29,12 @@ final class ChannelResolverListenerTest extends TestCase
 {
     public function testChannelResolvedFromHostHeader(): void
     {
-        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
 
         $repository = $this->createStub(ChannelRepository::class);
         $repository->method('findByDomain')->willReturn($channel);
 
-        $request = Request::create('/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
+        $request = Request::create('/', server: ['HTTP_HOST' => 'expandeddecks.wip']);
         $event = $this->createRequestEvent($request);
 
         $listener = new ChannelResolverListener($repository, $this->createStub(EntityManagerInterface::class));
@@ -45,7 +45,7 @@ final class ChannelResolverListenerTest extends TestCase
 
     public function testFallsBackToDefaultChannelWhenHostNotFound(): void
     {
-        $defaultChannel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $defaultChannel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
 
         $repository = $this->createStub(ChannelRepository::class);
         $repository->method('findByDomain')->willReturn(null);
