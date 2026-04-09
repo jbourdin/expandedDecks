@@ -3826,6 +3826,10 @@
             </trans-unit>
 
             <!-- CMS: Form labels -->
+            <trans-unit id="app.cms.form.title_placeholder">
+                <source>app.cms.form.title_placeholder</source>
+                <target>Titre de la page</target>
+            </trans-unit>
             <trans-unit id="app.cms.form.slug_placeholder">
                 <source>app.cms.form.slug_placeholder</source>
                 <target>mon-slug-de-page</target>

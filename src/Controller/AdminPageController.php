@@ -187,10 +187,20 @@ class AdminPageController extends AbstractAppController
 
         $form = $this->createForm(PageFormType::class, $page, [
             'locale' => $request->getLocale(),
+            'is_creation' => true,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var string $title */
+            $title = $form->get('title')->getData();
+
+            $translation = new PageTranslation();
+            $translation->setLocale('en');
+            $translation->setTitle($title);
+            $translation->setPage($page);
+            $page->addTranslation($translation);
+
             $this->em->persist($page);
             $this->em->flush();
             $menuRuntime->invalidateCache();
