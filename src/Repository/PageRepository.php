@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Entity\Page;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -36,17 +37,21 @@ class PageRepository extends ServiceEntityRepository
      *
      * @see docs/features.md F11.3 — Page rendering & locale fallback
      */
-    public function findBySlug(string $slug): ?Page
+    public function findBySlug(string $slug, ?Channel $channel = null): ?Page
     {
-        /** @var Page|null $page */
-        $page = $this->createQueryBuilder('p')
+        $queryBuilder = $this->createQueryBuilder('p')
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->where('p.slug = :slug')
             ->andWhere('p.deletedAt IS NULL')
-            ->setParameter('slug', $slug)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->setParameter('slug', $slug);
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('p.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var Page|null $page */
+        $page = $queryBuilder->getQuery()->getOneOrNullResult();
 
         return $page;
     }

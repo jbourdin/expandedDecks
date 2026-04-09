@@ -1386,6 +1386,7 @@ MARKDOWN;
         // --- Welcome page (shown on homepage) ---
 
         $welcomePage = new Page();
+        $welcomePage->setChannel($contentChannel);
         $welcomePage->setSlug('welcome');
         $welcomePage->setIsPublished(true);
         $manager->persist($welcomePage);
@@ -1433,6 +1434,7 @@ MD);
         // --- News articles ---
 
         $news1 = new Page();
+        $news1->setChannel($contentChannel);
         $news1->setSlug('season-2026-kickoff');
         $news1->setMenuCategory($newsCategory);
         $news1->setIsPublished(true);
@@ -1483,6 +1485,7 @@ MD);
         $manager->persist($news1Fr);
 
         $news2 = new Page();
+        $news2->setChannel($contentChannel);
         $news2->setSlug('borrowing-guide');
         $news2->setMenuCategory($newsCategory);
         $news2->setIsPublished(true);
@@ -1517,6 +1520,7 @@ MD);
         $manager->persist($news2En);
 
         $news3 = new Page();
+        $news3->setChannel($contentChannel);
         $news3->setSlug('march-league-challenge');
         $news3->setMenuCategory($newsCategory);
         $news3->setIsPublished(true);
@@ -1561,6 +1565,7 @@ MD);
         $manager->persist($news3Fr);
 
         $news4 = new Page();
+        $news4->setChannel($contentChannel);
         $news4->setSlug('new-decks-february');
         $news4->setMenuCategory($newsCategory);
         $news4->setIsPublished(true);
@@ -1585,6 +1590,7 @@ MD);
         $manager->persist($news4En);
 
         $news5 = new Page();
+        $news5->setChannel($contentChannel);
         $news5->setSlug('label-printing-live');
         $news5->setMenuCategory($newsCategory);
         $news5->setIsPublished(true);
@@ -1607,6 +1613,7 @@ MD);
         $manager->persist($news5En);
 
         $news6 = new Page();
+        $news6->setChannel($contentChannel);
         $news6->setSlug('community-guidelines');
         $news6->setMenuCategory($newsCategory);
         $news6->setIsPublished(true);
@@ -1630,6 +1637,7 @@ MD);
         $manager->persist($news6En);
 
         $news7 = new Page();
+        $news7->setChannel($contentChannel);
         $news7->setSlug('spring-tournament-series');
         $news7->setMenuCategory($newsCategory);
         $news7->setIsPublished(true);
@@ -1654,6 +1662,7 @@ MD);
         $manager->persist($news7En);
 
         $news8 = new Page();
+        $news8->setChannel($contentChannel);
         $news8->setSlug('deck-enrichment-update');
         $news8->setMenuCategory($newsCategory);
         $news8->setIsPublished(true);
@@ -1676,6 +1685,7 @@ MD);
         // --- Rules page (in Rules & Info category) ---
 
         $rulesPage = new Page();
+        $rulesPage->setChannel($contentChannel);
         $rulesPage->setSlug('borrowing-rules');
         $rulesPage->setMenuCategory($rulesCategory);
         $rulesPage->setIsPublished(true);
@@ -1720,6 +1730,7 @@ MD);
         // --- Draft page (unpublished, for testing editor preview) ---
 
         $draftPage = new Page();
+        $draftPage->setChannel($contentChannel);
         $draftPage->setSlug('upcoming-features');
         $draftPage->setIsPublished(false);
         $draftPage->setNoIndex(true);
@@ -1767,6 +1778,7 @@ MD);
         $manager->persist($projectFr);
 
         $philosophyPage = new Page();
+        $philosophyPage->setChannel($contentChannel);
         $philosophyPage->setSlug('the-philosophy');
         $philosophyPage->setMenuCategory($projectCategory);
         $philosophyPage->setIsPublished(true);
@@ -1802,6 +1814,7 @@ MD);
         $manager->persist($philosophyFr);
 
         $teamPage = new Page();
+        $teamPage->setChannel($contentChannel);
         $teamPage->setSlug('the-team');
         $teamPage->setMenuCategory($projectCategory);
         $teamPage->setIsPublished(true);
@@ -1857,6 +1870,7 @@ MD);
         $manager->persist($legalFr);
 
         $legalNoticePage = new Page();
+        $legalNoticePage->setChannel($contentChannel);
         $legalNoticePage->setSlug('legal-notice');
         $legalNoticePage->setMenuCategory($legalCategory);
         $legalNoticePage->setIsPublished(true);
