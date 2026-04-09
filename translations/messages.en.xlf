@@ -4290,6 +4290,22 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.title">
+                <source>app.admin.technical.clear_cache.title</source>
+                <target>Clear Cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.description">
+                <source>app.admin.technical.clear_cache.description</source>
+                <target>Clear the menu and footer navigation cache for all channels.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.button">
+                <source>app.admin.technical.clear_cache.button</source>
+                <target>Clear navigation cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache.done">
+                <source>app.admin.technical.clear_cache.done</source>
+                <target>Navigation cache cleared.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.title">
                 <source>app.admin.technical.flush_reenrich.title</source>
                 <target>Flush &amp; Re-enrich All</target>

@@ -170,4 +170,20 @@
             </form>
         </div>
     </div>
+
+    {# Clear cache card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.clear_cache.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.clear_cache.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_clear_cache') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-clear-cache') }}">
+                <button type="submit" class="btn btn-outline-secondary">
+                    {{ 'app.admin.technical.clear_cache.button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
 {% endblock %}
