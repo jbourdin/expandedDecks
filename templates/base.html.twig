@@ -29,7 +29,7 @@
                     <ul class="navbar-nav ms-auto align-items-end align-items-lg-center">
                         {% set channel = current_channel() %}
                         {% if app.user %}
-                            {% if channel.enableRegister %}
+                            {% if channel.enableDecks %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
                                 </li>
@@ -88,8 +88,10 @@
                                     {{ app.user.screenName }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a></li>
-                                    <li><a class="dropdown-item" href="{{ path('app_deck_list', {owner: app.user.id}) }}">{{ 'app.nav.my_decks'|trans }}</a></li>
+                                    {% if channel.enableDecks %}
+                                        <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_deck_list', {owner: app.user.id}) }}">{{ 'app.nav.my_decks'|trans }}</a></li>
+                                    {% endif %}
                                     <li><a class="dropdown-item" href="{{ path('app_profile_edit') }}">{{ 'app.nav.profile'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_profile_notifications') }}">{{ 'app.nav.notifications'|trans }}</a></li>
                                     {% if is_granted('ROLE_ADMIN') %}
