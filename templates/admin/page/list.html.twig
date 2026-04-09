@@ -22,7 +22,7 @@
         </a>
         {% for channel in channels %}
             <a href="{{ path('app_admin_page_list', {channel: channel.code, q: search, category: currentCategory ? currentCategory.id : ''}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
-                {{ channel.code }}
+                {{ channel.domain }}
             </a>
         {% endfor %}
     </div>

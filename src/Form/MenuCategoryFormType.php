@@ -33,7 +33,7 @@ class MenuCategoryFormType extends AbstractType
         $builder
             ->add('channel', EntityType::class, [
                 'class' => Channel::class,
-                'choice_label' => 'code',
+                'choice_label' => 'domain',
                 'label' => 'app.cms.form.channel',
                 'placeholder' => '',
             ]);
