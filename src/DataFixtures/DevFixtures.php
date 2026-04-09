@@ -2324,7 +2324,8 @@ PTCG;
             ->setEnableRegister(false)
             ->setEnableEvents(false)
             ->setEnableBorrows(false)
-            ->setEnableArchetypes(true);
+            ->setEnableArchetypes(true)
+            ->setThemeName('expandedtalks');
 
         $manager->persist($appChannel);
         $manager->persist($contentChannel);

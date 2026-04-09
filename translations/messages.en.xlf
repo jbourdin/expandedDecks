@@ -3296,6 +3296,16 @@
                 <target>Archetypes</target>
                 <note>Channel feature flag label</note>
             </trans-unit>
+            <trans-unit id="app.channel.theme_name">
+                <source>app.channel.theme_name</source>
+                <target>Theme</target>
+                <note>Channel theme selector label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.theme_default">
+                <source>app.channel.theme_default</source>
+                <target>Default (no override)</target>
+                <note>Placeholder for no theme selected</note>
+            </trans-unit>
             <trans-unit id="app.channel.no_channels">
                 <source>app.channel.no_channels</source>
                 <target>No channels configured yet.</target>

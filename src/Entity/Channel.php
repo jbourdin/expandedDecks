@@ -58,6 +58,12 @@ class Channel
     #[ORM\Column]
     private bool $enableArchetypes = false;
 
+    /**
+     * @see docs/features.md F18.28 — Per-channel theme system
+     */
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $themeName = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -154,6 +160,18 @@ class Channel
     public function setEnableArchetypes(bool $enableArchetypes): static
     {
         $this->enableArchetypes = $enableArchetypes;
+
+        return $this;
+    }
+
+    public function getThemeName(): ?string
+    {
+        return $this->themeName;
+    }
+
+    public function setThemeName(?string $themeName): static
+    {
+        $this->themeName = $themeName;
 
         return $this;
     }

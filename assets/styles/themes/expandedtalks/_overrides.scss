@@ -1,0 +1,122 @@
+/*
+ * This file is part of the Expanded Decks project.
+ *
+ * (c) Expanded Decks contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+// Expanded Talks — "Chaotic Swell" theme
+// Inspired by the Stadium card sm12-187: storm vortex, cracked desert, steel.
+// Palette: deep slate, desert sand, sage green, warm beige.
+
+@use "sass:color";
+
+// --- Color overrides ---
+
+$cs-slate: #3a3f47;       // Deep slate (navbar, headings)
+$cs-sand: #c4a96a;        // Desert sand (accents, highlights)
+$cs-sage: #7a9a5a;        // Sage green (links, success)
+$cs-storm: #6b7280;       // Storm gray (secondary)
+$cs-beige: #f0ebe0;       // Warm beige (background)
+$cs-earth: #8b7355;       // Earth brown (danger/warm accent)
+
+// --- Component overrides ---
+
+body {
+    background-color: $cs-beige;
+    background-image: none;
+}
+
+a {
+    color: $cs-sage;
+
+    &:hover {
+        color: color.adjust($cs-sage, $lightness: -12%);
+    }
+}
+
+// Navbar
+.navbar-pokemon {
+    background-color: $cs-slate;
+    border-bottom: 3px solid $cs-sand;
+}
+
+.navbar-pokemon .nav-link:hover,
+.navbar-pokemon .nav-link.active {
+    color: $cs-sand !important;
+}
+
+.navbar-pokemon .nav-link-user {
+    color: $cs-sand !important;
+}
+
+.navbar-pokemon .navbar-brand:hover {
+    color: $cs-sand !important;
+}
+
+// Hero
+.hero-pokemon {
+    background: linear-gradient(135deg, $cs-slate 0%, color.adjust($cs-slate, $lightness: 10%) 100%);
+    border-bottom: 3px solid $cs-sand;
+}
+
+.hero-pokemon .hero-title {
+    color: $cs-sand;
+}
+
+// Cards
+.card-header-themed {
+    background: linear-gradient(135deg, $cs-slate 0%, color.adjust($cs-slate, $lightness: 8%) 100%);
+    border-bottom: 2px solid $cs-sand;
+}
+
+// Buttons
+.btn-gold {
+    background-color: $cs-sand;
+    border-color: color.adjust($cs-sand, $lightness: -5%);
+    color: $cs-slate;
+
+    &:hover, &:focus {
+        background-color: color.adjust($cs-sand, $lightness: -8%);
+        border-color: color.adjust($cs-sand, $lightness: -12%);
+        color: $cs-slate;
+    }
+}
+
+.btn-primary {
+    background-color: $cs-sage;
+    border-color: color.adjust($cs-sage, $lightness: -5%);
+
+    &:hover, &:focus {
+        background-color: color.adjust($cs-sage, $lightness: -10%);
+        border-color: color.adjust($cs-sage, $lightness: -15%);
+    }
+}
+
+.btn-outline-primary {
+    color: $cs-sage;
+    border-color: $cs-sage;
+
+    &:hover, &:focus {
+        background-color: $cs-sage;
+        border-color: $cs-sage;
+        color: #fff;
+    }
+}
+
+// Badges
+.badge-short-id {
+    background-color: $cs-slate !important;
+}
+
+.badge-lent {
+    background-color: $cs-earth !important;
+}
+
+// Footer
+footer {
+    background-color: $cs-slate;
+    border-top: 2px solid $cs-sand;
+}

@@ -15,13 +15,17 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block meta %}{% endblock %}
         {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
+            {% if current_channel().themeName %}
+                {{ encore_entry_link_tags('theme_' ~ current_channel().themeName) }}
+            {% else %}
+                {{ encore_entry_link_tags('app') }}
+            {% endif %}
         {% endblock %}
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">Expanded Decks</a>
+                <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">{% include '_brand.html.twig' %}</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
