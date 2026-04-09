@@ -45,6 +45,13 @@ class HomepageLayout
     #[ORM\Column]
     private bool $isPublished = false;
 
+    /**
+     * @see docs/features.md F18.10 — Add channel association to HomepageLayout
+     */
+    #[ORM\ManyToOne(targetEntity: Channel::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Channel $channel = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -92,6 +99,18 @@ class HomepageLayout
     public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
+
+        return $this;
+    }
+
+    public function getChannel(): ?Channel
+    {
+        return $this->channel;
+    }
+
+    public function setChannel(?Channel $channel): static
+    {
+        $this->channel = $channel;
 
         return $this;
     }

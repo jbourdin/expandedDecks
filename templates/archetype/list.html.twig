@@ -47,9 +47,11 @@
                         <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>
-                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
-                            {{ 'app.archetype.sort_decks'|trans }}
-                        </option>
+                        {% if current_channel().enableDecks %}
+                            <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
+                                {{ 'app.archetype.sort_decks'|trans }}
+                            </option>
+                        {% endif %}
                     </select>
                 </div>
             </div>
@@ -82,9 +84,11 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
-                                <p class="card-text text-muted mb-0">
-                                    {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
-                                </p>
+                                {% if current_channel().enableDecks %}
+                                    <p class="card-text text-muted mb-0">
+                                        {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
+                                    </p>
+                                {% endif %}
                             </div>
                         </a>
                         {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}

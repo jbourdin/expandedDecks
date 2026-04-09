@@ -175,7 +175,7 @@ MARKDOWN;
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
         $this->createCmsFixtures($manager, $contentChannel);
-        $this->createHomepageFixtures($manager, $lenderDeck, $futureEvent);
+        $this->createHomepageFixtures($manager, $lenderDeck, $futureEvent, $appChannel);
         $this->createTcgdexSetMappings($manager);
 
         $manager->flush();
@@ -2194,10 +2194,11 @@ PTCG;
     /**
      * @see docs/features.md F10.3 — HomepageLayout entity and data model
      */
-    private function createHomepageFixtures(ObjectManager $manager, Deck $featuredDeck, Event $featuredEvent): void
+    private function createHomepageFixtures(ObjectManager $manager, Deck $featuredDeck, Event $featuredEvent, Channel $appChannel): void
     {
         $layout = new HomepageLayout();
         $layout->setIsPublished(true);
+        $layout->setChannel($appChannel);
         $layout->setBlocks([
             [
                 'type' => 'carousel',
