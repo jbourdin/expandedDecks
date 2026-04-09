@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.6.1] — 2026-04-09
+
+Bug fixes for the channel system: homepage rendering, cache invalidation, and admin tooling.
+
+### Features
+
+- **Clear navigation cache** — new button on the technical admin dashboard (`/admin/technical`) to manually clear all channel-scoped menu and footer cache.
+
+### Bug Fixes
+
+- **Homepage fallback for unassigned layouts** — `findPublished()` now matches layouts with `channel_id = NULL` as fallback, so existing layouts still render after migration. Dashboard redirect only triggers on channels with `enableDecks = true`.
+- **Homepage editor sends channelCode** — the React editor includes `channelCode` in the save payload, so each channel gets its own layout instead of overwriting a single unassigned one.
+- **Menu cache invalidation on all admin actions** — create, edit (channel change), save translation, reorder categories, and page reorder now call `MenuRuntime::invalidateCache()` with correct channel-scoped cache keys. Previously, reorder methods cleared non-existent old keys.
+
+---
+
 ## [1.6.0] — 2026-04-09
 
 Multi-domain channel system — serve different feature sets and content from different domains, with per-channel theming.
