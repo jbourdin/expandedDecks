@@ -13,7 +13,9 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.cms.admin.pages_title'|trans }}</h1>
-        <a href="{{ path('app_admin_page_new') }}" class="btn btn-gold">{{ 'app.cms.admin.new_page'|trans }}</a>
+        {% if categories is not empty %}
+            <a href="{{ path('app_admin_page_new', {channel: currentChannel ? currentChannel.code : '', category: currentCategory ? currentCategory.id : ''}) }}" class="btn btn-gold">{{ 'app.cms.admin.new_page'|trans }}</a>
+        {% endif %}
     </div>
 
     <div class="d-flex flex-wrap gap-3 mb-4">
@@ -33,6 +35,9 @@
                 {% endfor %}
             </div>
         {% endif %}
+        <a href="{{ path('app_admin_menu_category_new', {channel: currentChannel ? currentChannel.code : ''}) }}" class="btn btn-outline-secondary btn-sm align-self-center">
+            <i class="bi bi-plus-lg me-1"></i>{{ 'app.cms.admin.new_category'|trans }}
+        </a>
     </div>
 
     <form method="get" action="{{ path('app_admin_page_list') }}" class="card shadow-sm mb-4">

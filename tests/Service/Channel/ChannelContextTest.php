@@ -26,7 +26,7 @@ final class ChannelContextTest extends TestCase
 {
     public function testGetChannelReturnsChannelFromRequestAttribute(): void
     {
-        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
 
         $request = new Request();
         $request->attributes->set('_channel', $channel);

@@ -23,7 +23,7 @@ class ChannelResolverTest extends AbstractFunctionalTest
 {
     public function testAppChannelResolvesFromHostHeader(): void
     {
-        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
+        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandeddecks.wip']);
 
         self::assertResponseIsSuccessful();
 
@@ -56,7 +56,7 @@ class ChannelResolverTest extends AbstractFunctionalTest
 
     public function testAppChannelHasDecksEnabled(): void
     {
-        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expanded-decks.wip']);
+        $this->client->request('GET', '/', server: ['HTTP_HOST' => 'expandeddecks.wip']);
 
         self::assertResponseIsSuccessful();
 

@@ -3296,6 +3296,11 @@
                 <target>Par défaut (aucun remplacement)</target>
                 <note>Placeholder for no theme selected</note>
             </trans-unit>
+            <trans-unit id="app.channel.locales">
+                <source>app.channel.locales</source>
+                <target>Langues disponibles</target>
+                <note>Multiselect for CMS content locales on a channel</note>
+            </trans-unit>
             <trans-unit id="app.channel.parameters">
                 <source>app.channel.parameters</source>
                 <target>Paramètres</target>

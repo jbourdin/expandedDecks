@@ -63,7 +63,7 @@ The card-sized label contains: deck name, archetype sprites, QR code (linking to
 |   First Last (smaller)  |
 |                         |
 |  ———————————————————————|
-|  expanded-decks.wip     |
+|  expandeddecks.wip     |
 |                         |
 +-------------------------+
    63.5 mm x 88.9 mm
@@ -107,7 +107,7 @@ Two card-sized panels placed **side by side on landscape A4** (book layout):
 |  4 Ancient Booster...   |   |     Screen Name         |
 |  1 Exp. Share SVI 174   |   |   First Last (smaller)  |
 |                         |   |  ———————————————————————|
-|  7 Darkness Energy SVE  |   |  expanded-decks.wip     |
+|  7 Darkness Energy SVE  |   |  expandeddecks.wip     |
 |                         |   |                         |
 +-------------------------+---+-------------------------+
        BACK (deck list)    ↕         FRONT (label)
@@ -147,7 +147,7 @@ Uses **`endroid/qr-code` v6** PHP library to generate QR codes server-side.
 
 | Parameter          | Value      | Notes                                              |
 |--------------------|------------|----------------------------------------------------|
-| Content            | Public deck URL (e.g. `https://expanded-decks.wip/deck/JXFBT7`) | Anyone can scan to find the owner |
+| Content            | Public deck URL (e.g. `https://expandeddecks.wip/deck/JXFBT7`) | Anyone can scan to find the owner |
 | Error correction   | M (15%)    | Balances data density with damage tolerance         |
 | Rendered size      | 18 mm (CSS), 300 px (generated) | Scaled down via CSS for sharpness |
 | Output format      | PNG (base64-encoded) | Embedded directly in the HTML template    |

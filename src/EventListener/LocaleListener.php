@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Entity\Channel;
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -55,10 +56,13 @@ class LocaleListener
             return;
         }
 
+        $channel = $request->attributes->get('_channel');
+        $channelLocales = $channel instanceof Channel ? $channel->getLocales() : self::SUPPORTED_LOCALES;
+
         $user = $this->security->getUser();
 
         if ($user instanceof User) {
-            $locale = $user->getPreferredLocale();
+            $locale = $this->constrainToChannel($user->getPreferredLocale(), $channelLocales);
             $this->applyLocale($request, $locale);
 
             return;
@@ -66,13 +70,31 @@ class LocaleListener
 
         $sessionLocale = $request->getSession()->get('_locale');
         if (\is_string($sessionLocale) && \in_array($sessionLocale, self::SUPPORTED_LOCALES, true)) {
-            $this->applyLocale($request, $sessionLocale);
+            $locale = $this->constrainToChannel($sessionLocale, $channelLocales);
+            $this->applyLocale($request, $locale);
 
             return;
         }
 
-        $locale = $this->detectFromAcceptLanguage($request->headers->get('Accept-Language', ''));
+        $locale = $this->constrainToChannel(
+            $this->detectFromAcceptLanguage($request->headers->get('Accept-Language', '')),
+            $channelLocales,
+        );
         $this->applyLocale($request, $locale);
+    }
+
+    /**
+     * Return the locale if the channel supports it, otherwise the channel's first locale.
+     *
+     * @param list<string> $channelLocales
+     */
+    private function constrainToChannel(string $locale, array $channelLocales): string
+    {
+        if (\in_array($locale, $channelLocales, true)) {
+            return $locale;
+        }
+
+        return $channelLocales[0] ?? self::DEFAULT_LOCALE;
     }
 
     private function applyLocale(Request $request, string $locale): void

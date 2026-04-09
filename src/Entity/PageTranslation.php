@@ -46,7 +46,6 @@ class PageTranslation
     private string $title = '';
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank]
     private string $content = '';
 
     public function getId(): ?int

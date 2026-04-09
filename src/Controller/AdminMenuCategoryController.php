@@ -36,8 +36,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminMenuCategoryController extends AbstractAppController
 {
-    private const array SUPPORTED_LOCALES = ['en', 'fr'];
-
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
@@ -88,12 +86,20 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('/new', name: 'app_admin_menu_category_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, MenuCategoryRepository $repository): Response
+    public function new(Request $request, MenuCategoryRepository $repository, ChannelRepository $channelRepository): Response
     {
         $isFooter = 'footer' === $request->query->getString('view');
 
         $category = new MenuCategory();
         $category->setIsFooter($isFooter);
+
+        $channelCode = $request->query->getString('channel');
+        if ('' !== $channelCode) {
+            $channel = $channelRepository->findByCode($channelCode);
+            if (null !== $channel) {
+                $category->setChannel($channel);
+            }
+        }
 
         $form = $this->createForm(MenuCategoryFormType::class, $category);
         $form->handleRequest($request);
@@ -120,7 +126,7 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('/{id}', name: 'app_admin_menu_category_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, MenuCategory $category): Response
+    public function edit(Request $request, MenuCategory $category, ChannelContext $channelContext): Response
     {
         $channelForm = $this->createForm(MenuCategoryFormType::class, $category);
         $channelForm->handleRequest($request);
@@ -133,8 +139,11 @@ class AdminMenuCategoryController extends AbstractAppController
             return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
         }
 
+        $channel = $category->getChannel() ?? $channelContext->getChannel();
+        $supportedLocales = $channel->getLocales();
+
         $translationForms = [];
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($supportedLocales as $locale) {
             $translation = $category->getTranslation($locale);
 
             if (!$translation instanceof MenuCategoryTranslation || $translation->getLocale() !== $locale) {
@@ -156,14 +165,15 @@ class AdminMenuCategoryController extends AbstractAppController
             'category' => $category,
             'channelForm' => $channelForm,
             'translationForms' => $translationForms,
-            'supportedLocales' => self::SUPPORTED_LOCALES,
+            'supportedLocales' => $supportedLocales,
         ]);
     }
 
     #[Route('/{id}/translation/{locale}', name: 'app_admin_menu_category_translation', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function saveTranslation(Request $request, MenuCategory $category, string $locale): Response
+    public function saveTranslation(Request $request, MenuCategory $category, string $locale, ChannelContext $channelContext): Response
     {
-        if (!\in_array($locale, self::SUPPORTED_LOCALES, true)) {
+        $channel = $category->getChannel() ?? $channelContext->getChannel();
+        if (!\in_array($locale, $channel->getLocales(), true)) {
             throw $this->createNotFoundException();
         }
 
