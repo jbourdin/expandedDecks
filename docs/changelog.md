@@ -16,6 +16,25 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.6.3] — 2026-04-09
+
+Channel parameters, theme refinements, and footer customization.
+
+### Features
+
+- **Channel parameters JSON field** — flexible key-value store on Channel entity. `channel_param('key', 'default')` Twig function reads values with graceful fallback (safe on error pages and CLI). Admin form with add/remove key-value pairs.
+- **Theme CSS on error pages** — `channel_theme()` Twig function loads the channel's theme CSS on error pages when a channel is resolved, falling back to default.
+
+### Bug Fixes
+
+- **Footer theme** — Chaotic Swell overrides now use `.footer-pokemon` class (not generic `footer`) with correct colors for background, border, links, and headings.
+- **Brand name from parameters** — all templates use `channel_param('brand_name', 'Expanded Decks')` instead of file-based `_brand.html.twig` partials. Removed theme override files.
+- **Footer copyright from parameters** — `channel_param('copyright_footer', ...)` allows per-channel footer text.
+- **Key-value form robustness** — transformer handles null/empty form values without 500. Remove button uses `×` symbol.
+- **Migration fix** — JSON column uses nullable add → backfill → NOT NULL (MySQL 8 doesn't support DEFAULT on JSON).
+
+---
+
 ## [1.6.2] — 2026-04-09
 
 Theme path isolation, page cache invalidation, and per-channel brand in page titles.
