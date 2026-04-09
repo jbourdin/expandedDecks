@@ -28,7 +28,9 @@ final class Version20260409183347 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE channel ADD parameters JSON NOT NULL DEFAULT \'{}\'');
+        $this->addSql('ALTER TABLE channel ADD parameters JSON DEFAULT NULL');
+        $this->addSql("UPDATE channel SET parameters = '{}' WHERE parameters IS NULL");
+        $this->addSql('ALTER TABLE channel CHANGE parameters parameters JSON NOT NULL');
     }
 
     public function down(Schema $schema): void

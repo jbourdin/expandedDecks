@@ -63,9 +63,15 @@ class ChannelRuntime implements RuntimeExtensionInterface
 
     /**
      * Read a parameter from the current channel with a fallback default.
+     *
+     * Returns the default if no channel is resolved (CLI, error pages, etc.).
      */
     public function channelParam(string $key, string $default = ''): string
     {
-        return $this->channelContext->getChannel()->getParameter($key, $default);
+        try {
+            return $this->channelContext->getChannel()->getParameter($key, $default);
+        } catch (\LogicException) {
+            return $default;
+        }
     }
 }
