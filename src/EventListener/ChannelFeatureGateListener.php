@@ -38,15 +38,15 @@ final readonly class ChannelFeatureGateListener
         ['prefix' => '/event', 'feature' => 'enableEvents'],
         ['prefix' => '/dashboard', 'feature' => 'enableDecks'],
         ['prefix' => '/register', 'feature' => 'enableRegister'],
-        ['prefix' => '/forgot-password', 'feature' => 'enableRegister'],
-        ['prefix' => '/reset-password', 'feature' => 'enableRegister'],
-        ['prefix' => '/profile', 'feature' => 'enableRegister'],
     ];
 
     /** @var list<string> */
     private const array EXEMPT_PREFIXES = [
         '/admin',
         '/login',
+        '/profile',
+        '/forgot-password',
+        '/reset-password',
         '/_',
     ];
 

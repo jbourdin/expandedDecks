@@ -115,6 +115,16 @@ class AdminMenuCategoryController extends AbstractAppController
     #[Route('/{id}', name: 'app_admin_menu_category_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, MenuCategory $category): Response
     {
+        $channelForm = $this->createForm(MenuCategoryFormType::class, $category);
+        $channelForm->handleRequest($request);
+
+        if ($channelForm->isSubmitted() && $channelForm->isValid()) {
+            $this->em->flush();
+            $this->addFlash('success', 'app.cms.category_updated');
+
+            return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
+        }
+
         $translationForms = [];
         foreach (self::SUPPORTED_LOCALES as $locale) {
             $translation = $category->getTranslation($locale);
@@ -136,6 +146,7 @@ class AdminMenuCategoryController extends AbstractAppController
 
         return $this->render('admin/menu_category/edit.html.twig', [
             'category' => $category,
+            'channelForm' => $channelForm,
             'translationForms' => $translationForms,
             'supportedLocales' => self::SUPPORTED_LOCALES,
         ]);
