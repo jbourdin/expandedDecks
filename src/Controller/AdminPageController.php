@@ -17,6 +17,7 @@ use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Form\PageFormType;
 use App\Form\PageTranslationFormType;
+use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,23 +51,32 @@ class AdminPageController extends AbstractAppController
     /**
      * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
      */
+    /**
+     * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
+     * @see docs/features.md F18.8 — Add channel association to MenuCategory
+     */
     #[Route('', name: 'app_admin_page_list', methods: ['GET'])]
     public function list(
         Request $request,
         PageRepository $pageRepository,
         MenuCategoryRepository $menuCategoryRepository,
+        ChannelRepository $channelRepository,
     ): Response {
         $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->getString('q');
         $categoryRaw = $request->query->getString('category');
         $categoryId = '' !== $categoryRaw ? (int) $categoryRaw : 0;
 
+        $channelCode = $request->query->getString('channel', '');
+        $currentChannel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+        $channels = $channelRepository->findAll();
+
         $category = null;
         if ($categoryId > 0) {
             $category = $menuCategoryRepository->find($categoryId);
         }
 
-        $categories = $menuCategoryRepository->findAllOrdered();
+        $categories = $menuCategoryRepository->findAllOrdered($currentChannel);
 
         $perPage = null !== $category ? self::PER_PAGE_CATEGORY : self::PER_PAGE;
 
@@ -89,6 +99,8 @@ class AdminPageController extends AbstractAppController
             'categories' => $categories,
             'currentCategory' => $category,
             'sortableEnabled' => $sortableEnabled,
+            'channels' => $channels,
+            'currentChannel' => $currentChannel,
         ]);
     }
 

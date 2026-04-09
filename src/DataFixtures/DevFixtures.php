@@ -54,7 +54,7 @@ class DevFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $this->createChannels($manager);
+        $appChannel = $this->createChannels($manager);
 
         $admin = $this->createAdmin($manager);
         $organizer = $this->createOrganizer($manager);
@@ -174,7 +174,7 @@ MARKDOWN;
         $manager->flush();
 
         $this->createAdminNotifications($manager, $admin, $borrower, $todayEvent, $pendingBorrow);
-        $this->createCmsFixtures($manager);
+        $this->createCmsFixtures($manager, $appChannel);
         $this->createHomepageFixtures($manager, $lenderDeck, $futureEvent);
         $this->createTcgdexSetMappings($manager);
 
@@ -1341,12 +1341,13 @@ MARKDOWN;
         $manager->persist($n3);
     }
 
-    private function createCmsFixtures(ObjectManager $manager): void
+    private function createCmsFixtures(ObjectManager $manager, Channel $appChannel): void
     {
         // --- Menu categories ---
 
         $newsCategory = new MenuCategory();
         $newsCategory->setPosition(1);
+        $newsCategory->setChannel($appChannel);
         $manager->persist($newsCategory);
 
         $newsEn = new MenuCategoryTranslation();
@@ -1365,6 +1366,7 @@ MARKDOWN;
 
         $rulesCategory = new MenuCategory();
         $rulesCategory->setPosition(2);
+        $rulesCategory->setChannel($appChannel);
         $manager->persist($rulesCategory);
 
         $rulesEn = new MenuCategoryTranslation();
@@ -1747,6 +1749,7 @@ MD);
         $projectCategory = new MenuCategory();
         $projectCategory->setPosition(1);
         $projectCategory->setIsFooter(true);
+        $projectCategory->setChannel($appChannel);
         $manager->persist($projectCategory);
 
         $projectEn = new MenuCategoryTranslation();
@@ -1836,6 +1839,7 @@ MD);
         $legalCategory = new MenuCategory();
         $legalCategory->setPosition(2);
         $legalCategory->setIsFooter(true);
+        $legalCategory->setChannel($appChannel);
         $manager->persist($legalCategory);
 
         $legalEn = new MenuCategoryTranslation();
@@ -2285,7 +2289,7 @@ PTCG;
     /**
      * @see docs/features.md F18.1 — Channel entity and database schema
      */
-    private function createChannels(ObjectManager $manager): void
+    private function createChannels(ObjectManager $manager): Channel
     {
         $appChannel = (new Channel())
             ->setCode('app')
@@ -2308,5 +2312,7 @@ PTCG;
         $manager->persist($appChannel);
         $manager->persist($contentChannel);
         $manager->flush();
+
+        return $appChannel;
     }
 }

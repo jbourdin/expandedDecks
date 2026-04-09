@@ -13,15 +13,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Twig;
 
+use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Repository\MenuCategoryRepository;
+use App\Service\Channel\ChannelContext;
 use App\Twig\Runtime\MenuRuntime;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @see docs/features.md F11.2 — Menu categories
+ * @see docs/features.md F18.8 — Add channel association to MenuCategory
  */
 class MenuRuntimeTest extends TestCase
 {
@@ -34,10 +39,10 @@ class MenuRuntimeTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects(self::once())
             ->method('get')
-            ->with('menu_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->with('menu_categories_app', self::callback(static fn (mixed $value): bool => \is_callable($value)))
             ->willReturn([$category]);
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $result = $runtime->getCategories();
 
         self::assertCount(1, $result);
@@ -57,14 +62,14 @@ class MenuRuntimeTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects(self::once())
             ->method('get')
-            ->with('menu_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->with('menu_categories_app', self::callback(static fn (mixed $value): bool => \is_callable($value)))
             ->willReturnCallback(function (string $key, callable $callback) {
                 $item = $this->createStub(ItemInterface::class);
 
                 return $callback($item);
             });
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $result = $runtime->getCategories();
 
         self::assertCount(1, $result);
@@ -79,7 +84,7 @@ class MenuRuntimeTest extends TestCase
             ->method('get')
             ->willReturn([]);
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $result = $runtime->getCategories();
 
         self::assertSame([], $result);
@@ -95,10 +100,10 @@ class MenuRuntimeTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects(self::once())
             ->method('get')
-            ->with('footer_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->with('footer_categories_app', self::callback(static fn (mixed $value): bool => \is_callable($value)))
             ->willReturn([$category]);
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $result = $runtime->getFooterCategories();
 
         self::assertCount(1, $result);
@@ -119,33 +124,51 @@ class MenuRuntimeTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects(self::once())
             ->method('get')
-            ->with('footer_categories', self::callback(static fn (mixed $value): bool => \is_callable($value)))
+            ->with('footer_categories_app', self::callback(static fn (mixed $value): bool => \is_callable($value)))
             ->willReturnCallback(function (string $key, callable $callback) {
                 $item = $this->createStub(ItemInterface::class);
 
                 return $callback($item);
             });
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $result = $runtime->getFooterCategories();
 
         self::assertCount(1, $result);
         self::assertSame($category, $result[0]);
     }
 
-    public function testInvalidateCacheDeletesBothCacheKeys(): void
+    public function testInvalidateCacheDeletesAllChannelKeys(): void
     {
         $repository = $this->createStub(MenuCategoryRepository::class);
         $cache = $this->createMock(CacheInterface::class);
-        $cache->expects(self::exactly(2))
+        $cache->expects(self::exactly(4))
             ->method('delete')
             ->willReturnCallback(static function (string $key): bool {
-                self::assertContains($key, ['menu_categories', 'footer_categories']);
+                self::assertContains($key, [
+                    'menu_categories_app',
+                    'menu_categories_content',
+                    'footer_categories_app',
+                    'footer_categories_content',
+                ]);
 
                 return true;
             });
 
-        $runtime = new MenuRuntime($repository, $cache);
+        $runtime = new MenuRuntime($repository, $this->createChannelContext(), $cache);
         $runtime->invalidateCache();
+    }
+
+    private function createChannelContext(): ChannelContext
+    {
+        $channel = (new Channel())->setCode('app')->setDomain('expanded-decks.wip');
+
+        $request = new Request();
+        $request->attributes->set('_channel', $channel);
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        return new ChannelContext($requestStack);
     }
 }

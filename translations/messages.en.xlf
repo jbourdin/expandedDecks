@@ -3861,6 +3861,16 @@
                 <source>app.cms.form.category_name</source>
                 <target>Category name</target>
             </trans-unit>
+            <trans-unit id="app.cms.form.channel">
+                <source>app.cms.form.channel</source>
+                <target>Channel</target>
+                <note>Channel selector label in admin forms</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.channel_filter">
+                <source>app.cms.admin.channel_filter</source>
+                <target>Filter by channel</target>
+                <note>Channel toggle group label in admin lists</note>
+            </trans-unit>
             <trans-unit id="app.cms.form.position">
                 <source>app.cms.form.position</source>
                 <target>Position</target>

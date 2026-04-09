@@ -8,13 +8,25 @@
         <a href="{{ path('app_admin_menu_category_new', {view: currentView}) }}" class="btn btn-gold">{{ 'app.cms.admin.new_category'|trans }}</a>
     </div>
 
-    <div class="btn-group mb-4" role="group" aria-label="{{ 'app.cms.admin.category_view'|trans }}">
-        <a href="{{ path('app_admin_menu_category_list', {view: 'menu'}) }}" class="btn {{ currentView == 'menu' ? 'btn-gold' : 'btn-outline-secondary' }}">
-            {{ 'app.cms.admin.view_menu'|trans }}
-        </a>
-        <a href="{{ path('app_admin_menu_category_list', {view: 'footer'}) }}" class="btn {{ currentView == 'footer' ? 'btn-gold' : 'btn-outline-secondary' }}">
-            {{ 'app.cms.admin.view_footer'|trans }}
-        </a>
+    <div class="d-flex flex-wrap gap-3 mb-4">
+        <div class="btn-group" role="group" aria-label="{{ 'app.cms.admin.category_view'|trans }}">
+            <a href="{{ path('app_admin_menu_category_list', {view: 'menu', channel: currentChannel ? currentChannel.code : ''}) }}" class="btn {{ currentView == 'menu' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                {{ 'app.cms.admin.view_menu'|trans }}
+            </a>
+            <a href="{{ path('app_admin_menu_category_list', {view: 'footer', channel: currentChannel ? currentChannel.code : ''}) }}" class="btn {{ currentView == 'footer' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                {{ 'app.cms.admin.view_footer'|trans }}
+            </a>
+        </div>
+        <div class="btn-group" role="group" aria-label="{{ 'app.cms.admin.channel_filter'|trans }}">
+            <a href="{{ path('app_admin_menu_category_list', {view: currentView}) }}" class="btn {{ currentChannel is null ? 'btn-gold' : 'btn-outline-secondary' }}">
+                {{ 'app.common.all'|trans }}
+            </a>
+            {% for channel in channels %}
+                <a href="{{ path('app_admin_menu_category_list', {view: currentView, channel: channel.code}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
+                    {{ channel.code }}
+                </a>
+            {% endfor %}
+        </div>
     </div>
 
     {% if categories is not empty %}
@@ -25,6 +37,7 @@
                         <tr>
                             <th style="width: 50px"></th>
                             <th>{{ 'app.common.name'|trans }}</th>
+                            <th style="width: 100px">{{ 'app.cms.form.channel'|trans }}</th>
                             <th style="width: 100px">{{ 'app.cms.admin.table.pages_count'|trans }}</th>
                             <th></th>
                         </tr>
@@ -40,6 +53,7 @@
                                     </span>
                                 </td>
                                 <td>{{ category.getName(app.request.locale) }}</td>
+                                <td>{% if category.channel %}<code>{{ category.channel.code }}</code>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                                 <td>{{ category.pages|length }}</td>
                                 <td>
                                     <a href="{{ path('app_admin_menu_category_edit', {id: category.id}) }}" class="btn btn-sm btn-outline-secondary">

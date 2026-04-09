@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,6 +22,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @extends ServiceEntityRepository<MenuCategory>
  *
  * @see docs/features.md F11.2 — Menu categories
+ * @see docs/features.md F18.8 — Add channel association to MenuCategory
  */
 class MenuCategoryRepository extends ServiceEntityRepository
 {
@@ -31,59 +33,74 @@ class MenuCategoryRepository extends ServiceEntityRepository
 
     /**
      * Find all categories ordered by position, with their translations eagerly loaded.
+     * Optionally filtered by channel.
      *
      * @return list<MenuCategory>
      */
-    public function findAllOrdered(): array
+    public function findAllOrdered(?Channel $channel = null): array
     {
-        /** @var list<MenuCategory> $categories */
-        $categories = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createQueryBuilder('c')
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->orderBy('c.position', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('c.id', 'ASC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('c.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<MenuCategory> $categories */
+        $categories = $queryBuilder->getQuery()->getResult();
 
         return $categories;
     }
 
     /**
      * Find menu (non-footer) categories ordered by position, with translations eagerly loaded.
+     * Optionally filtered by channel.
      *
      * @return list<MenuCategory>
      */
-    public function findMenuOrdered(): array
+    public function findMenuOrdered(?Channel $channel = null): array
     {
-        /** @var list<MenuCategory> $categories */
-        $categories = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createQueryBuilder('c')
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->where('c.isFooter = false')
             ->orderBy('c.position', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('c.id', 'ASC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('c.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<MenuCategory> $categories */
+        $categories = $queryBuilder->getQuery()->getResult();
 
         return $categories;
     }
 
     /**
      * Find footer categories ordered by position, with translations eagerly loaded.
+     * Optionally filtered by channel.
      *
      * @return list<MenuCategory>
      */
-    public function findFooterOrdered(): array
+    public function findFooterOrdered(?Channel $channel = null): array
     {
-        /** @var list<MenuCategory> $categories */
-        $categories = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createQueryBuilder('c')
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->where('c.isFooter = true')
             ->orderBy('c.position', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('c.id', 'ASC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('c.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<MenuCategory> $categories */
+        $categories = $queryBuilder->getQuery()->getResult();
 
         return $categories;
     }
@@ -109,14 +126,13 @@ class MenuCategoryRepository extends ServiceEntityRepository
 
     /**
      * Find non-footer categories that have at least one published page, ordered by position.
-     * Eagerly loads published pages and their translations for navigation menu rendering.
+     * Filtered by channel for navigation menu rendering.
      *
      * @return list<MenuCategory>
      */
-    public function findWithPublishedPages(): array
+    public function findWithPublishedPages(?Channel $channel = null): array
     {
-        /** @var list<MenuCategory> $categories */
-        $categories = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createQueryBuilder('c')
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->innerJoin('c.pages', 'p')
@@ -126,23 +142,27 @@ class MenuCategoryRepository extends ServiceEntityRepository
             ->where('p.isPublished = true')
             ->andWhere('c.isFooter = false')
             ->orderBy('c.position', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('c.id', 'ASC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('c.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<MenuCategory> $categories */
+        $categories = $queryBuilder->getQuery()->getResult();
 
         return $categories;
     }
 
     /**
      * Find footer categories that have at least one published page, ordered by position.
-     * Eagerly loads published pages and their translations for footer rendering.
+     * Filtered by channel for footer rendering.
      *
      * @return list<MenuCategory>
      */
-    public function findFooterWithPublishedPages(): array
+    public function findFooterWithPublishedPages(?Channel $channel = null): array
     {
-        /** @var list<MenuCategory> $categories */
-        $categories = $this->createQueryBuilder('c')
+        $queryBuilder = $this->createQueryBuilder('c')
             ->leftJoin('c.translations', 't')
             ->addSelect('t')
             ->innerJoin('c.pages', 'p')
@@ -152,9 +172,14 @@ class MenuCategoryRepository extends ServiceEntityRepository
             ->where('p.isPublished = true')
             ->andWhere('c.isFooter = true')
             ->orderBy('c.position', 'ASC')
-            ->addOrderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('c.id', 'ASC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('c.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<MenuCategory> $categories */
+        $categories = $queryBuilder->getQuery()->getResult();
 
         return $categories;
     }

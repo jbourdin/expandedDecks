@@ -16,7 +16,19 @@
         <a href="{{ path('app_admin_page_new') }}" class="btn btn-gold">{{ 'app.cms.admin.new_page'|trans }}</a>
     </div>
 
+    <div class="btn-group mb-4" role="group" aria-label="{{ 'app.cms.admin.channel_filter'|trans }}">
+        <a href="{{ path('app_admin_page_list', {q: search, category: currentCategory ? currentCategory.id : ''}) }}" class="btn {{ currentChannel is null ? 'btn-gold' : 'btn-outline-secondary' }}">
+            {{ 'app.common.all'|trans }}
+        </a>
+        {% for channel in channels %}
+            <a href="{{ path('app_admin_page_list', {channel: channel.code, q: search, category: currentCategory ? currentCategory.id : ''}) }}" class="btn {{ currentChannel and currentChannel.code == channel.code ? 'btn-gold' : 'btn-outline-secondary' }}">
+                {{ channel.code }}
+            </a>
+        {% endfor %}
+    </div>
+
     <form method="get" action="{{ path('app_admin_page_list') }}" class="card shadow-sm mb-4">
+        {% if currentChannel %}<input type="hidden" name="channel" value="{{ currentChannel.code }}">{% endif %}
         <div class="card-body">
             <div class="row g-2 align-items-end">
                 <div class="col-md-5">
