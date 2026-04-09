@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Entity\User;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
@@ -47,8 +48,9 @@ class HomeController extends AbstractController
     ): Response {
         $locale = $request->getLocale();
 
-        // Use published layout if available
-        $layout = $homepageLayoutRepository->findPublished();
+        // Use published layout for the current channel if available
+        $channel = $request->attributes->get('_channel');
+        $layout = $homepageLayoutRepository->findPublished($channel instanceof Channel ? $channel : null);
         if (null !== $layout) {
             $blocks = $homepageRenderer->resolve($layout, $locale);
 

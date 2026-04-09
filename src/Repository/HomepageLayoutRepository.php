@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Channel;
 use App\Entity\HomepageLayout;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -30,19 +31,25 @@ class HomepageLayoutRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find the currently published homepage layout with its translations eagerly loaded.
-     * Returns null if no layout is published.
+     * Find the currently published homepage layout for a channel.
+     * Returns null if no layout is published for the given channel.
+     *
+     * @see docs/features.md F18.10 — Add channel association to HomepageLayout
      */
-    public function findPublished(): ?HomepageLayout
+    public function findPublished(?Channel $channel = null): ?HomepageLayout
     {
-        /** @var list<HomepageLayout> $layouts */
-        $layouts = $this->createQueryBuilder('l')
+        $queryBuilder = $this->createQueryBuilder('l')
             ->leftJoin('l.translations', 't')
             ->addSelect('t')
             ->where('l.isPublished = true')
-            ->orderBy('l.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('l.id', 'DESC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('l.channel = :channel')->setParameter('channel', $channel);
+        }
+
+        /** @var list<HomepageLayout> $layouts */
+        $layouts = $queryBuilder->getQuery()->getResult();
 
         return $layouts[0] ?? null;
     }

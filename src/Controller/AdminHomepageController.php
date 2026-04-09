@@ -15,7 +15,9 @@ namespace App\Controller;
 
 use App\Entity\HomepageLayout;
 use App\Entity\HomepageLayoutTranslation;
+use App\Repository\ChannelRepository;
 use App\Repository\HomepageLayoutRepository;
+use App\Service\Channel\ChannelContext;
 use App\Service\HomepageRenderer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,30 +45,43 @@ class AdminHomepageController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_homepage_editor', methods: ['GET'])]
-    public function editor(): Response
+    public function editor(Request $request, ChannelRepository $channelRepository, ChannelContext $channelContext): Response
     {
-        $layout = $this->layoutRepository->findPublished();
+        $channelCode = $request->query->getString('channel', '');
+        $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+
+        if (null === $channel) {
+            $channel = $channelContext->getChannel();
+        }
+
+        $channels = $channelRepository->findAll();
+        $layout = $this->layoutRepository->findPublished($channel);
 
         return $this->render('admin/homepage/editor.html.twig', [
             'layout' => $layout,
             'supportedLocales' => self::SUPPORTED_LOCALES,
+            'channels' => $channels,
+            'currentChannel' => $channel,
         ]);
     }
 
     #[Route('/save', name: 'app_admin_homepage_save', methods: ['POST'])]
-    public function save(Request $request): JsonResponse
+    public function save(Request $request, ChannelRepository $channelRepository): JsonResponse
     {
-        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>} $payload */
+        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string} $payload */
         $payload = json_decode((string) $request->getContent(), true);
 
         $blocks = $payload['blocks'];
         $translations = $payload['translations'];
+        $channelCode = $payload['channelCode'] ?? '';
+        $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
 
-        $layout = $this->layoutRepository->findPublished();
+        $layout = $this->layoutRepository->findPublished($channel);
 
         if (null === $layout) {
             $layout = new HomepageLayout();
             $layout->setIsPublished(true);
+            $layout->setChannel($channel);
             $this->entityManager->persist($layout);
         }
 
