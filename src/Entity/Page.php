@@ -24,8 +24,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @see docs/features.md F11.1 — Content pages
  */
 #[ORM\Entity(repositoryClass: PageRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniq_page_slug_channel', columns: ['slug', 'channel_id'])]
 #[ORM\HasLifecycleCallbacks]
-#[UniqueEntity(fields: ['slug'], message: 'app.cms.slug_unique')]
+#[UniqueEntity(fields: ['slug', 'channel'], message: 'app.cms.slug_unique')]
 class Page
 {
     #[ORM\Id]
@@ -33,11 +34,15 @@ class Page
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 150, unique: true)]
+    #[ORM\Column(length: 150)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 1, max: 150)]
     #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'app.cms.slug_format')]
     private string $slug = '';
+
+    #[ORM\ManyToOne(targetEntity: Channel::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Channel $channel = null;
 
     #[ORM\ManyToOne(targetEntity: MenuCategory::class, inversedBy: 'pages')]
     #[ORM\JoinColumn(nullable: true)]
@@ -89,6 +94,18 @@ class Page
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getChannel(): ?Channel
+    {
+        return $this->channel;
+    }
+
+    public function setChannel(?Channel $channel): static
+    {
+        $this->channel = $channel;
 
         return $this;
     }

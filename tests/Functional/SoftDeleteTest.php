@@ -183,7 +183,7 @@ class SoftDeleteTest extends AbstractFunctionalTest
 
         /** @var PageRepository $repository */
         $repository = static::getContainer()->get(PageRepository::class);
-        $found = $repository->findBySlug($slug, 'en');
+        $found = $repository->findBySlug($slug);
         self::assertNull($found, 'Deleted page should not appear in public queries');
     }
 

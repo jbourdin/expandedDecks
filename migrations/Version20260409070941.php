@@ -33,6 +33,9 @@ final class Version20260409070941 extends AbstractMigration
         $this->addSql('ALTER TABLE menu_category ADD channel_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE menu_category ADD CONSTRAINT FK_2A1D5C5772F5A1AA FOREIGN KEY (channel_id) REFERENCES channel (id)');
         $this->addSql('CREATE INDEX IDX_2A1D5C5772F5A1AA ON menu_category (channel_id)');
+
+        // Backfill: assign all existing categories to the 'content' channel
+        $this->addSql("UPDATE menu_category SET channel_id = (SELECT id FROM channel WHERE code = 'content') WHERE channel_id IS NULL");
     }
 
     public function down(Schema $schema): void

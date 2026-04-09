@@ -19,6 +19,7 @@ use App\Form\MenuCategoryFormType;
 use App\Form\MenuCategoryTranslationFormType;
 use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
+use App\Service\Channel\ChannelContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +46,7 @@ class AdminMenuCategoryController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_menu_category_list', methods: ['GET'])]
-    public function list(Request $request, MenuCategoryRepository $repository, ChannelRepository $channelRepository): Response
+    public function list(Request $request, MenuCategoryRepository $repository, ChannelRepository $channelRepository, ChannelContext $channelContext): Response
     {
         $view = $request->query->getString('view', 'menu');
         if (!\in_array($view, ['menu', 'footer'], true)) {
@@ -54,6 +55,11 @@ class AdminMenuCategoryController extends AbstractAppController
 
         $channelCode = $request->query->getString('channel', '');
         $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+
+        if (null === $channel) {
+            $channel = $channelContext->getChannel();
+        }
+
         $channels = $channelRepository->findAll();
 
         $categories = 'footer' === $view
@@ -115,6 +121,16 @@ class AdminMenuCategoryController extends AbstractAppController
     #[Route('/{id}', name: 'app_admin_menu_category_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, MenuCategory $category): Response
     {
+        $channelForm = $this->createForm(MenuCategoryFormType::class, $category);
+        $channelForm->handleRequest($request);
+
+        if ($channelForm->isSubmitted() && $channelForm->isValid()) {
+            $this->em->flush();
+            $this->addFlash('success', 'app.cms.category_updated');
+
+            return $this->redirectToRoute('app_admin_menu_category_edit', ['id' => $category->getId()]);
+        }
+
         $translationForms = [];
         foreach (self::SUPPORTED_LOCALES as $locale) {
             $translation = $category->getTranslation($locale);
@@ -136,6 +152,7 @@ class AdminMenuCategoryController extends AbstractAppController
 
         return $this->render('admin/menu_category/edit.html.twig', [
             'category' => $category,
+            'channelForm' => $channelForm,
             'translationForms' => $translationForms,
             'supportedLocales' => self::SUPPORTED_LOCALES,
         ]);

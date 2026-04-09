@@ -20,6 +20,7 @@ use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Service\Channel\ChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -37,6 +38,7 @@ class HomepageRenderer
         private readonly EventRepository $eventRepository,
         private readonly DeckRepository $deckRepository,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ChannelContext $channelContext,
     ) {
     }
 
@@ -190,8 +192,10 @@ class HomepageRenderer
             return ['pages' => [], 'totalCount' => 0, 'category' => null, 'locale' => $locale];
         }
 
+        $channel = $this->channelContext->getChannel();
+
         $category = null;
-        foreach ($this->menuCategoryRepository->findAllOrdered() as $menuCategory) {
+        foreach ($this->menuCategoryRepository->findAllOrdered($channel) as $menuCategory) {
             if (strtolower($menuCategory->getName('en')) === strtolower($categorySlug)) {
                 $category = $menuCategory;
                 break;

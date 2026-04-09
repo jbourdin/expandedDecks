@@ -20,6 +20,7 @@ use App\Form\PageTranslationFormType;
 use App\Repository\ChannelRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Service\Channel\ChannelContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +38,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminPageController extends AbstractAppController
 {
-    private const int PER_PAGE = 20;
     private const int PER_PAGE_CATEGORY = 50;
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
 
@@ -61,6 +61,7 @@ class AdminPageController extends AbstractAppController
         PageRepository $pageRepository,
         MenuCategoryRepository $menuCategoryRepository,
         ChannelRepository $channelRepository,
+        ChannelContext $channelContext,
     ): Response {
         $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->getString('q');
@@ -69,16 +70,43 @@ class AdminPageController extends AbstractAppController
 
         $channelCode = $request->query->getString('channel', '');
         $currentChannel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+
+        if (null === $currentChannel) {
+            $currentChannel = $channelContext->getChannel();
+        }
+
         $channels = $channelRepository->findAll();
+
+        $categories = $menuCategoryRepository->findAllOrdered($currentChannel);
 
         $category = null;
         if ($categoryId > 0) {
             $category = $menuCategoryRepository->find($categoryId);
         }
 
-        $categories = $menuCategoryRepository->findAllOrdered($currentChannel);
+        // Default to first category if none selected and categories exist
+        if (null === $category && [] !== $categories) {
+            $category = $categories[0];
+        }
 
-        $perPage = null !== $category ? self::PER_PAGE_CATEGORY : self::PER_PAGE;
+        // No categories on this channel → no pages to show
+        if ([] === $categories) {
+            return $this->render('admin/page/list.html.twig', [
+                'contentPages' => [],
+                'totalItems' => 0,
+                'currentPage' => 1,
+                'totalPages' => 1,
+                'search' => $search,
+                'supportedLocales' => self::SUPPORTED_LOCALES,
+                'categories' => [],
+                'currentCategory' => null,
+                'sortableEnabled' => false,
+                'channels' => $channels,
+                'currentChannel' => $currentChannel,
+            ]);
+        }
+
+        $perPage = self::PER_PAGE_CATEGORY;
 
         $queryBuilder = $pageRepository->createAdminListQueryBuilder($search, $category);
         $queryBuilder->setFirstResult(($page - 1) * $perPage)
@@ -235,6 +263,39 @@ class AdminPageController extends AbstractAppController
         $this->addFlash('success', 'app.flash.page.deleted');
 
         return $this->redirectToRoute('app_admin_page_list');
+    }
+
+    #[Route('/{id}/duplicate', name: 'app_admin_page_duplicate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function duplicate(Request $request, Page $page): Response
+    {
+        if (!$this->isCsrfTokenValid('page-duplicate-'.$page->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_page_list');
+        }
+
+        $duplicate = new Page();
+        $duplicate->setSlug($page->getSlug().'-copy-'.bin2hex(random_bytes(3)));
+        $duplicate->setMenuCategory($page->getMenuCategory());
+        $duplicate->setIsPublished(false);
+        $duplicate->setOgImage($page->getOgImage());
+        $duplicate->setNoIndex($page->isNoIndex());
+
+        foreach ($page->getTranslations() as $translation) {
+            $duplicateTranslation = new PageTranslation();
+            $duplicateTranslation->setPage($duplicate);
+            $duplicateTranslation->setLocale($translation->getLocale());
+            $duplicateTranslation->setTitle($translation->getTitle().' (copy)');
+            $duplicateTranslation->setContent($translation->getContent());
+            $duplicate->addTranslation($duplicateTranslation);
+        }
+
+        $this->em->persist($duplicate);
+        $this->em->flush();
+
+        $this->addFlash('success', 'app.cms.page_duplicated');
+
+        return $this->redirectToRoute('app_admin_page_edit', ['id' => $duplicate->getId()]);
     }
 
     /**

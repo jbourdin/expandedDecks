@@ -82,12 +82,20 @@ final class ChannelFeatureGateListenerTest extends TestCase
         $listener($this->createEvent('/register', $this->createContentChannel()));
     }
 
-    public function testProfileBlockedWhenRegisterDisabled(): void
+    public function testProfileAlwaysAllowed(): void
     {
-        $this->expectException(NotFoundHttpException::class);
-
         $listener = new ChannelFeatureGateListener();
         $listener($this->createEvent('/profile', $this->createContentChannel()));
+
+        self::assertTrue(true);
+    }
+
+    public function testForgotPasswordAlwaysAllowed(): void
+    {
+        $listener = new ChannelFeatureGateListener();
+        $listener($this->createEvent('/forgot-password', $this->createContentChannel()));
+
+        self::assertTrue(true);
     }
 
     public function testLoginAlwaysAllowed(): void
