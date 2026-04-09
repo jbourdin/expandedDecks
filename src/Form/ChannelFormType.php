@@ -96,11 +96,15 @@ class ChannelFormType extends AbstractType
         // Transform before ResizeFormListener (priority > 0) so CollectionType
         // sees the indexed list of pairs, not the raw associative array.
         $builder->get('parameters')->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($transformer): void {
-            $event->setData($transformer->transform($event->getData() ?? []));
+            /** @var array<string, string> $data */
+            $data = $event->getData() ?? [];
+            $event->setData($transformer->transform($data));
         }, 1);
 
         $builder->get('parameters')->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($transformer): void {
-            $event->setData($transformer->reverseTransform($event->getData()));
+            /** @var list<mixed>|null $data */
+            $data = $event->getData();
+            $event->setData($transformer->reverseTransform($data));
         });
     }
 
