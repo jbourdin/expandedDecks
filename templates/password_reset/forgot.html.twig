@@ -8,7 +8,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.auth.forgot_password.title'|trans }} — Expanded Decks{% endblock %}
+{% block title %}{{ 'app.auth.forgot_password.title'|trans }} — {% include '_brand.html.twig' %}{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}

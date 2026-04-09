@@ -9,7 +9,7 @@
 {% extends 'base.html.twig' %}
 {% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
-{% block title %}{{ event.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ event.name }} — {% include '_brand.html.twig' %}{% endblock %}
 
 {% block body %}
     <div class="card shadow-sm mb-3">
