@@ -60,4 +60,31 @@ class ChannelRuntime implements RuntimeExtensionInterface
     {
         return $this->channelUrlGenerator->forFeature($feature, $routeName, $parameters);
     }
+
+    /**
+     * Read a parameter from the current channel with a fallback default.
+     *
+     * Returns the default if no channel is resolved (CLI, error pages, etc.).
+     */
+    /**
+     * Returns the current channel's theme name, or null if unavailable.
+     * Safe to call on error pages and CLI.
+     */
+    public function channelTheme(): ?string
+    {
+        try {
+            return $this->channelContext->getChannel()->getThemeName();
+        } catch (\LogicException) {
+            return null;
+        }
+    }
+
+    public function channelParam(string $key, string $default = ''): string
+    {
+        try {
+            return $this->channelContext->getChannel()->getParameter($key, $default);
+        } catch (\LogicException) {
+            return $default;
+        }
+    }
 }

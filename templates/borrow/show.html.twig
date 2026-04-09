@@ -9,7 +9,7 @@
 {% extends 'base.html.twig' %}
 {% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
-{% block title %}Borrow — {{ borrow.deck.name }} — {% include '_brand.html.twig' %}{% endblock %}
+{% block title %}Borrow — {{ borrow.deck.name }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow-sm mb-3">

@@ -3296,6 +3296,22 @@
                 <target>Par défaut (aucun remplacement)</target>
                 <note>Placeholder for no theme selected</note>
             </trans-unit>
+            <trans-unit id="app.channel.parameters">
+                <source>app.channel.parameters</source>
+                <target>Paramètres</target>
+            </trans-unit>
+            <trans-unit id="app.channel.param_key">
+                <source>app.channel.param_key</source>
+                <target>Clé</target>
+            </trans-unit>
+            <trans-unit id="app.channel.param_value">
+                <source>app.channel.param_value</source>
+                <target>Valeur</target>
+            </trans-unit>
+            <trans-unit id="app.channel.add_parameter">
+                <source>app.channel.add_parameter</source>
+                <target>Ajouter un paramètre</target>
+            </trans-unit>
             <trans-unit id="app.channel.no_channels">
                 <source>app.channel.no_channels</source>
                 <target>Aucun canal configuré.</target>
