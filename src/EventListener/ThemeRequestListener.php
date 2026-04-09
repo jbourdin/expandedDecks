@@ -46,6 +46,13 @@ final readonly class ThemeRequestListener
             return;
         }
 
+        // Reset loader paths to the default templates directory on every request.
+        // prependPath() is permanent on the shared FilesystemLoader — without this
+        // reset, a theme path prepended for one channel leaks to subsequent requests
+        // handled by the same PHP-FPM worker process.
+        $defaultPath = $this->projectDir.'/templates';
+        $this->twigLoader->setPaths([$defaultPath]);
+
         $channel = $event->getRequest()->attributes->get('_channel');
 
         if (!$channel instanceof Channel) {

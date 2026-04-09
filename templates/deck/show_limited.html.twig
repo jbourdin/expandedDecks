@@ -10,7 +10,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ deck.name }} — Expanded Decks{% endblock %}
+{% block title %}{{ deck.name }} — {% include '_brand.html.twig' %}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
