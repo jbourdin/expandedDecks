@@ -158,7 +158,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/new', name: 'app_admin_page_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, MenuRuntime $menuRuntime): Response
     {
         $page = new Page();
         $form = $this->createForm(PageFormType::class, $page, [
@@ -169,6 +169,7 @@ class AdminPageController extends AbstractAppController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->persist($page);
             $this->em->flush();
+            $menuRuntime->invalidateCache();
 
             $this->addFlash('success', 'app.cms.page_created');
 
@@ -181,7 +182,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/{id}', name: 'app_admin_page_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Page $page): Response
+    public function edit(Request $request, Page $page, MenuRuntime $menuRuntime): Response
     {
         $form = $this->createForm(PageFormType::class, $page, [
             'locale' => $request->getLocale(),
@@ -190,6 +191,7 @@ class AdminPageController extends AbstractAppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
+            $menuRuntime->invalidateCache();
 
             $this->addFlash('success', 'app.cms.page_updated');
 
@@ -207,7 +209,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/{id}/translation/{locale}', name: 'app_admin_page_translation', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function saveTranslation(Request $request, Page $page, string $locale): Response
+    public function saveTranslation(Request $request, Page $page, string $locale, MenuRuntime $menuRuntime): Response
     {
         if (!\in_array($locale, self::SUPPORTED_LOCALES, true)) {
             throw $this->createNotFoundException();
@@ -236,6 +238,7 @@ class AdminPageController extends AbstractAppController
                 $this->em->persist($translation);
             }
             $this->em->flush();
+            $menuRuntime->invalidateCache();
 
             $this->addFlash('success', 'app.cms.translation_saved', ['%locale%' => strtoupper($locale)]);
         } else {
@@ -248,7 +251,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/{id}/delete', name: 'app_admin_page_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function delete(Request $request, Page $page): Response
+    public function delete(Request $request, Page $page, MenuRuntime $menuRuntime): Response
     {
         if (!$this->isCsrfTokenValid('page-delete-'.$page->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
@@ -258,6 +261,7 @@ class AdminPageController extends AbstractAppController
 
         $page->setDeletedAt(new \DateTimeImmutable());
         $this->em->flush();
+        $menuRuntime->invalidateCache();
 
         $this->addFlash('success', 'app.flash.page.deleted');
 
@@ -265,7 +269,7 @@ class AdminPageController extends AbstractAppController
     }
 
     #[Route('/{id}/duplicate', name: 'app_admin_page_duplicate', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function duplicate(Request $request, Page $page): Response
+    public function duplicate(Request $request, Page $page, MenuRuntime $menuRuntime): Response
     {
         if (!$this->isCsrfTokenValid('page-duplicate-'.$page->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
@@ -291,6 +295,7 @@ class AdminPageController extends AbstractAppController
 
         $this->em->persist($duplicate);
         $this->em->flush();
+        $menuRuntime->invalidateCache();
 
         $this->addFlash('success', 'app.cms.page_duplicated');
 
