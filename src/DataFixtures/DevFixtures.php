@@ -16,6 +16,7 @@ namespace App\DataFixtures;
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
 use App\Entity\Borrow;
+use App\Entity\Channel;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
@@ -53,6 +54,8 @@ class DevFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $this->createChannels($manager);
+
         $admin = $this->createAdmin($manager);
         $organizer = $this->createOrganizer($manager);
         $borrower = $this->createBorrower($manager);
@@ -2277,5 +2280,33 @@ PTCG;
         foreach ($mappings as $tcgdexSetId => $ptcgCode) {
             $manager->persist(new TcgdexSetMapping($tcgdexSetId, $ptcgCode));
         }
+    }
+
+    /**
+     * @see docs/features.md F18.1 — Channel entity and database schema
+     */
+    private function createChannels(ObjectManager $manager): void
+    {
+        $appChannel = (new Channel())
+            ->setCode('app')
+            ->setDomain('expanded-decks.wip')
+            ->setEnableDecks(true)
+            ->setEnableRegister(true)
+            ->setEnableEvents(true)
+            ->setEnableBorrows(true)
+            ->setEnableArchetypes(false);
+
+        $contentChannel = (new Channel())
+            ->setCode('content')
+            ->setDomain('expandedtalks.wip')
+            ->setEnableDecks(false)
+            ->setEnableRegister(false)
+            ->setEnableEvents(false)
+            ->setEnableBorrows(false)
+            ->setEnableArchetypes(true);
+
+        $manager->persist($appChannel);
+        $manager->persist($contentChannel);
+        $manager->flush();
     }
 }

@@ -3229,6 +3229,88 @@
                 <target>Manage archetypes</target>
                 <note>Admin dropdown link to archetype management</note>
             </trans-unit>
+            <trans-unit id="app.nav.admin_channels">
+                <source>app.nav.admin_channels</source>
+                <target>Manage channels</target>
+                <note>Admin dropdown link to channel management</note>
+            </trans-unit>
+
+            <!-- Admin: Channel management -->
+            <trans-unit id="app.channel.admin_list_title">
+                <source>app.channel.admin_list_title</source>
+                <target>Channel management</target>
+                <note>Admin channel list page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.create_button">
+                <source>app.channel.create_button</source>
+                <target>New channel</target>
+                <note>Button to create a new channel</note>
+            </trans-unit>
+            <trans-unit id="app.channel.new_title">
+                <source>app.channel.new_title</source>
+                <target>Create channel</target>
+                <note>New channel page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.edit_title">
+                <source>app.channel.edit_title</source>
+                <target>Edit channel: %code%</target>
+                <note>Edit channel page title</note>
+            </trans-unit>
+            <trans-unit id="app.channel.settings">
+                <source>app.channel.settings</source>
+                <target>Channel settings</target>
+                <note>Card header for channel form</note>
+            </trans-unit>
+            <trans-unit id="app.channel.code">
+                <source>app.channel.code</source>
+                <target>Code</target>
+                <note>Channel code field label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.domain">
+                <source>app.channel.domain</source>
+                <target>Domain</target>
+                <note>Channel domain field label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_decks">
+                <source>app.channel.enable_decks</source>
+                <target>Decks</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_register">
+                <source>app.channel.enable_register</source>
+                <target>Registration</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_events">
+                <source>app.channel.enable_events</source>
+                <target>Events</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_borrows">
+                <source>app.channel.enable_borrows</source>
+                <target>Borrows</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_archetypes">
+                <source>app.channel.enable_archetypes</source>
+                <target>Archetypes</target>
+                <note>Channel feature flag label</note>
+            </trans-unit>
+            <trans-unit id="app.channel.no_channels">
+                <source>app.channel.no_channels</source>
+                <target>No channels configured yet.</target>
+                <note>Empty state for channel list</note>
+            </trans-unit>
+            <trans-unit id="app.channel.created">
+                <source>app.channel.created</source>
+                <target>Channel "%code%" created.</target>
+                <note>Flash message after channel creation</note>
+            </trans-unit>
+            <trans-unit id="app.channel.updated">
+                <source>app.channel.updated</source>
+                <target>Channel "%code%" updated.</target>
+                <note>Flash message after channel update</note>
+            </trans-unit>
 
             <!-- Admin: Archetype management -->
             <trans-unit id="app.archetype.admin_list_title">
