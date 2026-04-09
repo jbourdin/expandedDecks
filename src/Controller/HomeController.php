@@ -67,7 +67,7 @@ class HomeController extends AbstractController
         $welcomePage = $pageRepository->findBySlug('welcome');
         $welcomeHtml = null;
         if (null !== $welcomePage && $welcomePage->isPublished()) {
-            $translation = $welcomePage->getTranslation($locale);
+            $translation = $welcomePage->getDisplayTranslation($locale);
             if (null !== $translation) {
                 $welcomeHtml = $markdownRenderer->render($translation->getContent());
             }

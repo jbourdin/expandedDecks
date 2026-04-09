@@ -254,10 +254,35 @@ class Page
     }
 
     /**
+     * Get the translation for display, skipping translations with empty content
+     * and falling back to 'en'.
+     *
+     * @see docs/features.md F11.3 — Page rendering & locale fallback
+     */
+    public function getDisplayTranslation(string $locale): ?PageTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale && '' !== $translation->getContent()) {
+                return $translation;
+            }
+        }
+
+        if ('en' !== $locale) {
+            foreach ($this->translations as $translation) {
+                if ('en' === $translation->getLocale()) {
+                    return $translation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Convenience: get the title for a locale.
      */
     public function getTitle(string $locale = 'en'): string
     {
-        return $this->getTranslation($locale)?->getTitle() ?? '';
+        return $this->getDisplayTranslation($locale)?->getTitle() ?? '';
     }
 }
