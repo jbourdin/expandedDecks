@@ -229,4 +229,96 @@ class DeckRepositoryCoverageTest extends AbstractFunctionalTest
         // currentVersion can be null for some decks, but the join is a leftJoin
         // so this just verifies the query does not error
     }
+
+    // ---------------------------------------------------------------
+    // findVariantsByArchetype
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testFindVariantsByArchetypeReturnsOnlyOwnerlessDecks(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $entityManager = $this->getEntityManager();
+
+        $archetype = $entityManager->getRepository(\App\Entity\Archetype::class)->findOneBy(['name' => 'Regidrago']);
+        self::assertNotNull($archetype);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        self::assertNotEmpty($variants, 'Regidrago archetype should have variant decks from fixtures.');
+
+        foreach ($variants as $variant) {
+            self::assertNull($variant->getOwner(), 'Variant decks must have no owner.');
+            self::assertTrue($variant->isArchetypeVariant());
+        }
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testFindVariantsByArchetypeOrdersCanonicalFirst(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $entityManager = $this->getEntityManager();
+
+        $archetype = $entityManager->getRepository(\App\Entity\Archetype::class)->findOneBy(['name' => 'Regidrago']);
+        self::assertNotNull($archetype);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+        self::assertGreaterThanOrEqual(2, \count($variants));
+
+        $firstVariant = $variants[0];
+        self::assertTrue($firstVariant->isCanonical(), 'First variant should be the canonical one.');
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testFindVariantsByArchetypeExcludesOwnedDecks(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $entityManager = $this->getEntityManager();
+
+        $archetype = $entityManager->getRepository(\App\Entity\Archetype::class)->findOneBy(['name' => 'Regidrago']);
+        self::assertNotNull($archetype);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        // None of the returned decks should have an owner
+        foreach ($variants as $variant) {
+            self::assertNull($variant->getOwner(), 'User-owned decks must be excluded from variants.');
+        }
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testFindVariantsByArchetypeReturnsEmptyForArchetypeWithoutVariants(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $entityManager = $this->getEntityManager();
+
+        $archetype = $entityManager->getRepository(\App\Entity\Archetype::class)->findOneBy(['name' => 'Iron Thorns ex']);
+        self::assertNotNull($archetype);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        self::assertEmpty($variants, 'Iron Thorns should have no variant decks.');
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testFindAvailableDecksExcludesVariants(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+
+        $decks = $deckRepository->findAvailableDecks();
+
+        foreach ($decks as $deck) {
+            self::assertNotNull($deck->getOwner(), 'findAvailableDecks must never return ownerless (variant) decks.');
+        }
+    }
 }

@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Archetype;
+use App\Entity\Deck;
+use App\Repository\DeckRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -230,6 +232,149 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertContains('Control', $refreshed->getPlaystyleTags());
     }
 
+    // ---------------------------------------------------------------
+    // Archetype variant management (F18.15)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditPageDisplaysVariantsSection(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href*="variants/new"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditPageListsExistingVariants(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        self::assertResponseIsSuccessful();
+
+        // Fixture creates 3 Regidrago variants
+        $variantRows = $crawler->filter('table tbody tr');
+        self::assertGreaterThanOrEqual(3, $variantRows->count());
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testNewVariantFormAccessible(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="archetype_variant_form"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testCreateVariant(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[name]'] = 'Test Variant';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditVariantFormAccessible(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="archetype_variant_form"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditVariantUpdates(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[name]'] = 'Updated Regidrago';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testDeleteVariant(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Third Regidrago', $archetype);
+
+        // Load the edit page first to get a valid session for CSRF
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        // Find the delete form for this variant and submit it
+        $deleteForm = $crawler->filter('form[action*="variants/'.$variant->getId().'/delete"]');
+        self::assertGreaterThan(0, $deleteForm->count(), 'Delete form for variant should exist.');
+
+        $form = $deleteForm->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testVariantRequiresAdmin(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     private function getArchetype(string $name): Archetype
     {
         /** @var EntityManagerInterface $em */
@@ -239,5 +384,21 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $archetype = $em->getRepository(Archetype::class)->findOneBy(['name' => $name]);
 
         return $archetype;
+    }
+
+    private function getVariantByName(string $name, Archetype $archetype): Deck
+    {
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        foreach ($variants as $variant) {
+            if ($variant->getName() === $name) {
+                return $variant;
+            }
+        }
+
+        self::fail(\sprintf('Variant "%s" not found for archetype "%s".', $name, $archetype->getName()));
     }
 }

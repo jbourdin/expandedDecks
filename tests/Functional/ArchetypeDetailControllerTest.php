@@ -172,6 +172,87 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         self::assertSelectorExists('img.archetype-sprite[title="Flutter Mane"]');
     }
 
+    // ---------------------------------------------------------------
+    // Archetype variant selector (F18.16)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.16 — Archetype detail: variant selector
+     */
+    public function testArchetypeWithVariantsShowsVariantSelector(): void
+    {
+        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#archetype-variant-selector-root');
+
+        $selectorRoot = $crawler->filter('#archetype-variant-selector-root');
+        $variantsJson = $selectorRoot->attr('data-variants');
+        self::assertNotNull($variantsJson);
+
+        /** @var list<array{id: int, name: string, canonical: bool}> $variants */
+        $variants = json_decode($variantsJson, true);
+        self::assertIsArray($variants);
+        self::assertGreaterThanOrEqual(2, \count($variants));
+
+        // Canonical variant should be first
+        self::assertTrue($variants[0]['canonical']);
+    }
+
+    /**
+     * @see docs/features.md F18.16 — Archetype detail: variant selector
+     */
+    public function testVariantDataContainsExpectedFields(): void
+    {
+        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseIsSuccessful();
+
+        $selectorRoot = $crawler->filter('#archetype-variant-selector-root');
+
+        /** @var list<array{id: int, name: string, canonical: bool, sprites: list<string>, groupedCards: array<string, mixed>}> $variants */
+        $variants = json_decode((string) $selectorRoot->attr('data-variants'), true);
+
+        $canonical = $variants[0];
+        self::assertArrayHasKey('id', $canonical);
+        self::assertArrayHasKey('name', $canonical);
+        self::assertArrayHasKey('canonical', $canonical);
+        self::assertArrayHasKey('sprites', $canonical);
+        self::assertArrayHasKey('groupedCards', $canonical);
+        self::assertArrayHasKey('mosaicUrl', $canonical);
+        self::assertArrayHasKey('description', $canonical);
+    }
+
+    /**
+     * @see docs/features.md F18.16 — Archetype detail: variant selector
+     */
+    public function testVariantDataContainsDescription(): void
+    {
+        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+
+        self::assertResponseIsSuccessful();
+
+        $selectorRoot = $crawler->filter('#archetype-variant-selector-root');
+
+        /** @var list<array{description: string|null}> $variants */
+        $variants = json_decode((string) $selectorRoot->attr('data-variants'), true);
+
+        // Canonical variant has a markdown description rendered to HTML
+        self::assertNotNull($variants[0]['description']);
+        self::assertStringContainsString('Strategy', $variants[0]['description']);
+    }
+
+    /**
+     * @see docs/features.md F18.16 — Archetype detail: variant selector
+     */
+    public function testArchetypeWithoutVariantsHasNoSelector(): void
+    {
+        $this->client->request('GET', '/archetypes/iron-thorns-ex');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('#archetype-variant-selector-root');
+    }
+
     private function getEntityManager(): EntityManagerInterface
     {
         /** @var EntityManagerInterface $entityManager */

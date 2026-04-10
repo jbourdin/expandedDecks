@@ -36,11 +36,13 @@ if (spriteRoot) {
         // Invalid JSON — use empty array
     }
 
+    const hiddenInputName = spriteRoot.dataset.hiddenInputName ?? 'archetype_form[pokemonSlugs]';
+
     createRoot(spriteRoot).render(
         <MantineProvider>
             <PokemonSpriteSelect
                 initialValues={initialSlugs}
-                hiddenInputName="archetype_form[pokemonSlugs]"
+                hiddenInputName={hiddenInputName}
             />
         </MantineProvider>,
     );
