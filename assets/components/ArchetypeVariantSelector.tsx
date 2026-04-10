@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { initCardHover } from '../shared/card-hover';
 
 /**
@@ -29,6 +30,7 @@ interface VariantData {
     id: number;
     name: string;
     canonical: boolean;
+    sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
     groupedCards: Record<string, CardData[]>;
@@ -61,6 +63,21 @@ const SECTION_LABELS: Record<string, keyof Labels> = {
 };
 
 const MAX_BUTTONS = 5;
+
+function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }) {
+    return (
+        <>
+            {slugs.slice(0, 3).map((slug) => (
+                <img
+                    key={slug}
+                    src={`/build/sprites/pokemon/${slug}.png`}
+                    alt={slug}
+                    style={{ height, width: 'auto', marginRight: 2, verticalAlign: 'middle', imageRendering: 'pixelated' }}
+                />
+            ))}
+        </>
+    );
+}
 
 function CardSection({ title, cards, labels }: { title: string; cards: CardData[]; labels: Labels }) {
     return (
@@ -111,7 +128,6 @@ function CardTable({ groupedCards, labels }: { groupedCards: Record<string, Card
         return null;
     }
 
-    // Split into two columns for wider layouts
     const midpoint = Math.ceil(sections.length / 2);
     const leftSections = sections.slice(0, midpoint);
     const rightSections = sections.slice(midpoint);
@@ -132,13 +148,91 @@ function CardTable({ groupedCards, labels }: { groupedCards: Record<string, Card
     );
 }
 
+/**
+ * Desktop variant selector: compact pill buttons with sprites.
+ */
+function DesktopSelector({ variants, selectedIndex, onSelect }: {
+    variants: VariantData[];
+    selectedIndex: number;
+    onSelect: (index: number) => void;
+}) {
+    const buttonVariants = variants.slice(0, MAX_BUTTONS);
+    const dropdownVariants = variants.slice(MAX_BUTTONS);
+
+    return (
+        <Group gap={4} wrap="wrap">
+            {buttonVariants.map((variant, index) => (
+                <Button
+                    key={variant.id}
+                    variant={index === selectedIndex ? 'filled' : 'outline'}
+                    size="compact-sm"
+                    radius="xl"
+                    onClick={() => onSelect(index)}
+                    leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={18} /> : undefined}
+                >
+                    {variant.name}
+                </Button>
+            ))}
+            {dropdownVariants.length > 0 && (
+                <Select
+                    data={dropdownVariants.map((variant, index) => ({
+                        value: String(MAX_BUTTONS + index),
+                        label: variant.name,
+                    }))}
+                    value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
+                    onChange={(value) => {
+                        if (value) {
+                            onSelect(Number(value));
+                        }
+                    }}
+                    size="xs"
+                    clearable
+                    style={{ minWidth: 200 }}
+                />
+            )}
+        </Group>
+    );
+}
+
+/**
+ * Mobile variant selector: dropdown with sprites and name.
+ */
+function MobileSelector({ variants, selectedIndex, onSelect }: {
+    variants: VariantData[];
+    selectedIndex: number;
+    onSelect: (index: number) => void;
+}) {
+    return (
+        <Select
+            data={variants.map((variant, index) => ({
+                value: String(index),
+                label: variant.name,
+            }))}
+            value={String(selectedIndex)}
+            onChange={(value) => {
+                if (value) {
+                    onSelect(Number(value));
+                }
+            }}
+            size="sm"
+            leftSection={
+                variants[selectedIndex].sprites.length > 0
+                    ? <SpriteList slugs={variants[selectedIndex].sprites} height={20} />
+                    : undefined
+            }
+            leftSectionWidth={variants[selectedIndex].sprites.length * 22 + 8}
+            styles={{ input: { fontWeight: 600 } }}
+        />
+    );
+}
+
 export default function ArchetypeVariantSelector({ variants, labels }: ArchetypeVariantSelectorProps) {
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
     const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const containerRef = useRef<HTMLDivElement>(null);
+    const isMobile = useMediaQuery('(max-width: 767.98px)');
 
-    // Re-initialize card hover after variant switch or view mode change
     useEffect(() => {
         if (viewMode === 'table') {
             initCardHover();
@@ -152,47 +246,16 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const selectedVariant = variants[selectedIndex];
     const hasCards = Object.keys(selectedVariant.groupedCards).length > 0;
 
-    // Split variants: first MAX_BUTTONS as buttons, rest in dropdown
-    const buttonVariants = variants.slice(0, MAX_BUTTONS);
-    const dropdownVariants = variants.slice(MAX_BUTTONS);
-
     return (
         <div ref={containerRef}>
             {/* Variant selector */}
             {variants.length > 1 && (
                 <div className="mb-3">
-                    <Group gap={4} wrap="wrap">
-                        {buttonVariants.map((variant, index) => (
-                            <Button
-                                key={variant.id}
-                                variant={index === selectedIndex ? 'filled' : 'outline'}
-                                size="compact-sm"
-                                radius="xl"
-                                onClick={() => setSelectedIndex(index)}
-                            >
-                                {variant.name}
-                                {variant.canonical && ' \u2605'}
-                            </Button>
-                        ))}
-                        {dropdownVariants.length > 0 && (
-                            <Select
-                                placeholder={labels.moreVariants}
-                                data={dropdownVariants.map((variant, index) => ({
-                                    value: String(MAX_BUTTONS + index),
-                                    label: variant.name,
-                                }))}
-                                value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
-                                onChange={(value) => {
-                                    if (value) {
-                                        setSelectedIndex(Number(value));
-                                    }
-                                }}
-                                size="sm"
-                                clearable
-                                style={{ minWidth: 200 }}
-                            />
-                        )}
-                    </Group>
+                    {isMobile ? (
+                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+                    ) : (
+                        <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+                    )}
                 </div>
             )}
 
