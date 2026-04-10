@@ -65,6 +65,14 @@ class Archetype
     #[ORM\Column]
     private bool $isPublished = false;
 
+    /**
+     * Display order in the archetype catalog (lower = first).
+     *
+     * @see docs/features.md F18.11 — Archetype relevance ordering
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    private int $position = 0;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -180,6 +188,24 @@ class Archetype
     public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.11 — Archetype relevance ordering
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @see docs/features.md F18.11 — Archetype relevance ordering
+     */
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
 
         return $this;
     }

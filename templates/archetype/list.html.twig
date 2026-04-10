@@ -44,6 +44,9 @@
                 <div class="col-md-3 ms-auto">
                     <label class="form-label">{{ 'app.archetype.sort_by'|trans }}</label>
                     <select class="form-select form-select-sm" onchange="window.location.href=this.value">
+                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'position'}) }}" {{ currentSort == 'position' ? 'selected' }}>
+                            {{ 'app.archetype.sort_relevance'|trans }}
+                        </option>
                         <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>

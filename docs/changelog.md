@@ -16,6 +16,33 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.0] — 2026-04-10
+
+Archetype variant system: editorial decklists per archetype with admin management, public variant selector, copy-to-clipboard, and drag-and-drop ordering.
+
+### Features
+
+- **Archetype variant decks** — reuse the Deck entity with nullable owner and canonical boolean to represent editorial decklists attached to archetypes. `getOwnerOrFail()` for borrow/event contexts, `isArchetypeVariant()` convenience method.
+- **Admin variant management** — create, edit, delete variant decks from the archetype edit page via a `+` button. Variant form with name, canonical toggle, sprite selector, decklist paste (reuses DeckVersion enrichment pipeline), and Markdown description via rich text editor.
+- **Public variant selector** — client-side variant switcher on the archetype detail page. Desktop: pill buttons with sprites. Mobile: Mantine Select dropdown with sprites in options. Table/mosaic view toggle, defaults to mosaic on desktop and table on mobile.
+- **Copy-to-clipboard** — "Copy list" button copies the variant's raw decklist (PTCG format) to clipboard with 2-second "Copied!" feedback via Mantine CopyButton.
+- **Drag-and-drop ordering** — reusable SortableJS table helper for both archetype catalog ordering and variant ordering within an archetype. Accessible up/down buttons on mobile. AJAX endpoints persist positions.
+- **Relevance sort** — archetype catalog defaults to position-based "Relevance" sort instead of alphabetical.
+
+### Bug Fixes
+
+- **Card hover sweep groups** — `initCardHover()` supports `data-card-hover-group` scoping so decklist cards sweep together while `[[card:...]]` references in descriptions open standalone without prev/next arrows.
+- **Card modal title** — always shows "N × Card Name" for decklist cards; just "Card Name" for standalone references.
+- **Sprite selector fix** — `archetype-form.tsx` reads `data-hidden-input-name` so the sprite selector works on both archetype and variant forms.
+- **Canonical always first** — variant query orders by `canonical DESC, position ASC`; reorder endpoint pins canonical at position 0.
+
+### Testing & Quality
+
+- 30+ new tests: entity unit tests (canonical, variant detection, position), functional tests for admin variant CRUD, reorder endpoints, detail page variant selector, and repository queries.
+- Regidrago archetype variant fixtures with parsed decklists for reproducible testing.
+
+---
+
 ## [1.6.4] — 2026-04-10
 
 CMS editor table support, page creation improvements, multi-channel locale handling, and content typography.

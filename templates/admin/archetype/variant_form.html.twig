@@ -1,0 +1,78 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if isNew %}
+        {{ 'app.archetype.variant.new_title'|trans({'%archetype%': archetype.name}) }} — {{ channel_param('brand_name', 'Expanded Decks') }}
+    {% else %}
+        {{ 'app.archetype.variant.edit_title'|trans({'%name%': deck.name, '%archetype%': archetype.name}) }} — {{ channel_param('brand_name', 'Expanded Decks') }}
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('archetype_form') }}
+    {{ encore_entry_link_tags('page_form') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            {% if isNew %}
+                {{ 'app.archetype.variant.new_title'|trans({'%archetype%': archetype.name}) }}
+            {% else %}
+                {{ 'app.archetype.variant.edit_title'|trans({'%name%': deck.name, '%archetype%': archetype.name}) }}
+            {% endif %}
+        </h1>
+        <a href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.archetype.variant.details'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_row(form.name) }}
+                {{ form_row(form.canonical) }}
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'app.archetype.pokemon_slugs_label'|trans }}</label>
+                    <div id="pokemon-sprite-select-root"
+                         data-values="{{ deck.pokemonSlugs|json_encode }}"
+                         data-hidden-input-name="archetype_variant_form[pokemonSlugs]"></div>
+                    {{ form_widget(form.pokemonSlugs) }}
+                </div>
+
+                {{ form_row(form.rawList) }}
+
+                {% if not isNew and deck.currentVersion %}
+                    <div class="alert alert-info mb-3">
+                        <strong>{{ 'app.archetype.variant.current_version'|trans }}:</strong>
+                        v{{ deck.currentVersion.versionNumber }}
+                        ({{ deck.currentVersion.enrichmentStatus }})
+                        — {{ 'app.archetype.variant.paste_to_replace'|trans }}
+                    </div>
+                {% endif %}
+
+                {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
+                {{ rich_text_editor(form.notes) }}
+
+                <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('archetype_form') }}
+    {{ encore_entry_script_tags('page_form') }}
+{% endblock %}

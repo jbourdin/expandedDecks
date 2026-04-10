@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Archetype;
+use App\Entity\Deck;
+use App\Repository\DeckRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -230,6 +232,149 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertContains('Control', $refreshed->getPlaystyleTags());
     }
 
+    // ---------------------------------------------------------------
+    // Archetype variant management (F18.15)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditPageDisplaysVariantsSection(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href*="variants/new"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditPageListsExistingVariants(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        self::assertResponseIsSuccessful();
+
+        // Fixture creates 3 Regidrago variants
+        $variantRows = $crawler->filter('table tbody tr');
+        self::assertGreaterThanOrEqual(3, $variantRows->count());
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testNewVariantFormAccessible(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="archetype_variant_form"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testCreateVariant(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[name]'] = 'Test Variant';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditVariantFormAccessible(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="archetype_variant_form"]');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testEditVariantUpdates(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[name]'] = 'Updated Regidrago';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testDeleteVariant(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Third Regidrago', $archetype);
+
+        // Load the edit page first to get a valid session for CSRF
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        // Find the delete form for this variant and submit it
+        $deleteForm = $crawler->filter('form[action*="variants/'.$variant->getId().'/delete"]');
+        self::assertGreaterThan(0, $deleteForm->count(), 'Delete form for variant should exist.');
+
+        $form = $deleteForm->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    public function testVariantRequiresAdmin(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     private function getArchetype(string $name): Archetype
     {
         /** @var EntityManagerInterface $em */
@@ -239,5 +384,146 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         $archetype = $em->getRepository(Archetype::class)->findOneBy(['name' => $name]);
 
         return $archetype;
+    }
+
+    // ---------------------------------------------------------------
+    // Reorder endpoints (F18.12, F18.19)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.12 — Admin drag-and-drop archetype ordering
+     */
+    public function testReorderArchetypes(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $archetypes = $entityManager->getRepository(Archetype::class)->findBy(['deletedAt' => null], ['position' => 'ASC']);
+
+        // Reverse the order
+        $ids = array_map(static fn (Archetype $archetype): int => (int) $archetype->getId(), $archetypes);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        /** @var string $content */
+        $content = $this->client->getResponse()->getContent();
+        /** @var array{ok: bool} $data */
+        $data = json_decode($content, true);
+        self::assertTrue($data['ok']);
+
+        // Verify first archetype now has position 0
+        $entityManager->clear();
+        $first = $entityManager->getRepository(Archetype::class)->find($reversed[0]);
+        self::assertNotNull($first);
+        self::assertSame(0, $first->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testReorderVariants(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+        self::assertGreaterThanOrEqual(2, \count($variants));
+
+        // Reverse the order
+        $ids = array_map(static fn (Deck $deck): int => (int) $deck->getId(), $variants);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        /** @var string $content */
+        $content = $this->client->getResponse()->getContent();
+        /** @var array{ok: bool} $data */
+        $data = json_decode($content, true);
+        self::assertTrue($data['ok']);
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testReorderVariantsKeepsCanonicalAtPositionZero(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        // Send reversed order
+        $ids = array_map(static fn (Deck $deck): int => (int) $deck->getId(), $variants);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        // Verify canonical variant has position 0
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager->clear();
+
+        $refreshedVariants = $deckRepository->findVariantsByArchetype($archetype);
+        $canonical = null;
+        foreach ($refreshedVariants as $variant) {
+            if ($variant->isCanonical()) {
+                $canonical = $variant;
+
+                break;
+            }
+        }
+
+        self::assertNotNull($canonical);
+        self::assertSame(0, $canonical->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.12 — Admin drag-and-drop archetype ordering
+     */
+    public function testReorderRequiresAdmin(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], '[1,2,3]');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    private function getVariantByName(string $name, Archetype $archetype): Deck
+    {
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        foreach ($variants as $variant) {
+            if ($variant->getName() === $name) {
+                return $variant;
+            }
+        }
+
+        self::fail(\sprintf('Variant "%s" not found for archetype "%s".', $name, $archetype->getName()));
     }
 }

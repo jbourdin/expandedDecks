@@ -41,6 +41,7 @@ use App\Enum\EventVisibility;
 use App\Enum\NotificationType;
 use App\Enum\ParticipationMode;
 use App\Enum\TournamentStructure;
+use App\Service\DeckListParser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -49,6 +50,7 @@ class DevFixtures extends Fixture
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly DeckListParser $deckListParser,
     ) {
     }
 
@@ -69,10 +71,10 @@ class DevFixtures extends Fixture
         $this->createDraftEvent($manager, $organizer, $admin);
 
         // Create archetypes (descriptions are now stored as EN translations)
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], true, ['Aggressive', 'Spread']);
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], true, ['Aggressive', 'Spread'], 2);
         $this->addArchetypeTranslation($manager, $archetypeIronThorns, 'en', 'Iron Thorns ex', 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.');
 
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], true, ['Toolbox', 'Aggressive']);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], true, ['Toolbox', 'Aggressive'], 7);
         $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'en', 'Ancient Box', 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.');
         $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'fr', 'Box Anciens', "L'archétype **Box Anciens** combine plusieurs Pokémon Anciens pour tirer parti des cartes de support Anciennes dans une stratégie d'attaque polyvalente.");
 
@@ -83,7 +85,7 @@ Although Regidrago has been a top tier deck for a long time, it has gained many 
 
 It's gotten to the point where many lists are trying unconventional techs to try to get an edge in the mirror match.
 MARKDOWN;
-        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], true, ['Combo', 'Lock', 'Toolbox']);
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], true, ['Combo', 'Lock', 'Toolbox'], 0);
         $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'en', 'Regidrago', $regidragoDescription);
         $regidragoDescriptionFr = <<<'MARKDOWN'
 **Regidrago VSTAR** est généralement considéré comme le meilleur deck du format. Il dispose de toutes les options possibles, et même plus. Il peut verrouiller l'adversaire de multiples façons (blocage d'Objets, blocage de Talents, blocage d'Énergies spéciales...), décimer les bancs de Bases avec [[archetype:kyurem]], mettre KO n'importe quoi avec [[archetype:salamence-ex]], et même prendre un tour supplémentaire avec [[card:UPR-100]].
@@ -94,15 +96,15 @@ On en est au point où de nombreuses listes essaient des techs non conventionnel
 MARKDOWN;
         $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'fr', 'Regidrago', $regidragoDescriptionFr);
 
-        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], true, ['Spread']);
+        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], true, ['Spread'], 5);
         $this->addArchetypeTranslation($manager, $archetypeKyurem, 'en', 'Kyurem', 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.');
 
-        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], true, ['Aggressive']);
+        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], true, ['Aggressive'], 4);
         $this->addArchetypeTranslation($manager, $archetypeSalamence, 'en', 'Salamence ex', 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.');
 
-        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], false);
+        $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], false, [], 3);
 
-        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], true, ['Aggressive', 'Combo']);
+        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], true, ['Aggressive', 'Combo'], 6);
         $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'en', 'Charizard Flareon', 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.');
         $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'fr', 'Dracaufeu Pyroli', "Un deck **Dracaufeu & Pyroli** qui fait évoluer Évoli en Pyroli pour l'accélération d'énergie, alimentant les attaques de feu massives de Dracaufeu.");
 
@@ -126,6 +128,9 @@ MARKDOWN;
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
         $this->createRegidragoDeckVersionTwo($manager, $lenderDeck);
 
+        // Archetype variant decks (no owner)
+        $this->createRegidragoVariants($manager, $archetypeRegidrago);
+
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
         $borrowerDeck->setArchetype($archetypeLugia);
         $borrowerDeck->setLanguages(['en']);
@@ -137,7 +142,7 @@ MARKDOWN;
         $charizardFlareon->setPublic(true);
         $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
-        $archetypeShadowRider = $this->createArchetype($manager, 'Shadow Rider Calyrex', ['calyrex-shadow-rider'], true, ['Control']);
+        $archetypeShadowRider = $this->createArchetype($manager, 'Shadow Rider Calyrex', ['calyrex-shadow-rider'], true, ['Control'], 1);
         $this->addArchetypeTranslation($manager, $archetypeShadowRider, 'en', 'Shadow Rider Calyrex', 'A **Shadow Rider Calyrex VMAX** control deck that uses hand disruption and item lock to starve the opponent of resources.');
         $shadowRider = $this->createDeck($manager, $admin, 'Shadow Rider Calyrex');
         $shadowRider->setArchetype($archetypeShadowRider);
@@ -558,12 +563,13 @@ MARKDOWN;
      * @param list<string> $pokemonSlugs
      * @param list<string> $playstyleTags
      */
-    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], bool $isPublished = false, array $playstyleTags = []): Archetype
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], bool $isPublished = false, array $playstyleTags = [], int $position = 0): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
         $archetype->setPokemonSlugs($pokemonSlugs);
         $archetype->setIsPublished($isPublished);
+        $archetype->setPosition($position);
         $archetype->setPlaystyleTags(array_map(
             static fn (string $tag): string => mb_convert_case(trim($tag), \MB_CASE_TITLE),
             $playstyleTags,
@@ -587,6 +593,153 @@ MARKDOWN;
         $archetype->addTranslation($translation);
 
         $manager->persist($translation);
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    private function createRegidragoVariants(ObjectManager $manager, Archetype $archetype): void
+    {
+        $rawList = <<<'LIST'
+Pokémon: 19
+4 Regidrago V SIT 135
+3 Regidrago VSTAR SIT 136
+1 Budew PRE 4
+1 Crobat V DAA 104
+1 Dedenne-GX UNB 57
+1 Dialga-GX UPR 100
+1 Dragapult ex TWM 130
+1 Giratina VSTAR LOR 131
+1 Kyurem SFA 47
+1 Latias ex SSP 76
+1 Noivern ex PAL 153
+1 Noivern-GX BUS 99
+1 Salamence ex JTG 114
+1 Tapu Lele-GX GRI 60
+
+Trainer: 31
+4 Mysterious Treasure FLI 113
+4 Professor's Research JTG 155
+4 Quick Ball FST 237
+3 VS Seeker PHF 109
+2 Battle Compressor PHF 92
+1 Crispin SCR 133
+1 Faba LOT 173
+1 Float Stone PLF 99
+1 Guzma BUS 115
+1 Hisuian Heavy Ball ASR 146
+1 Iono PAL 185
+1 Marnie SSH 169
+1 Megaton Blower SSP 182
+1 Muscle Band XY 121
+1 N FCO 105
+1 Parallel City BKT 145
+1 Path to the Peak CRE 148
+1 Raihan EVS 152
+1 Super Rod PAL 188
+
+Energy: 10
+4 Double Dragon Energy ROS 97
+4 Grass Energy SVE 1
+2 Fire Energy SVE 2
+
+Total Cards: 60
+LIST;
+
+        // Canonical variant: Regidrago
+        $canonical = new Deck();
+        $canonical->setName('Regidrago');
+        $canonical->setArchetype($archetype);
+        $canonical->setFormat('Expanded');
+        $canonical->setCanonical(true);
+        $canonical->setPosition(0);
+        $canonical->setPokemonSlugs(['dialga']);
+        $canonical->setNotes(<<<'MARKDOWN'
+## Strategy
+
+Regidrago VSTAR leverages its **Apex Dragon** VSTAR Power to copy any attack from a Dragon-type Pokemon in the discard pile. The core engine uses [[card:SIT-136]] as the sole attacker, discarding Dragon-type Pokemon with powerful attacks early — then copying them for a single energy cost via **Double Turbo Energy**.
+
+## Key Combos
+
+- **Giratina VSTAR** in discard → copy **Lost Impact** (280 damage) for just one Double Turbo
+- **Dragonite V** in discard → copy **Dragon Gale** for spread damage + snipe
+- **Kyurem VMAX** in discard → copy **Max Frost** for scaling damage based on energy
+
+## Setup
+
+Turn 1 priority: use **Battle VIP Pass** and **Nest Ball** to bench two Regidrago V. **Battle Compressor** and **Ultra Ball** discard Dragon attackers early. **Professor Juniper** fuels the discard while refreshing your hand.
+
+## Matchup Notes
+
+Strong against single-prize decks thanks to VSTAR bulk (270 HP) and one-shot potential. Weak to **Path to the Peak** (shuts off VSTAR Power) — run 2–3 **Chaotic Swell** or **Field Blower** to counter.
+MARKDOWN);
+        $manager->persist($canonical);
+        $this->createParsedDeckVersion($manager, $canonical, $rawList);
+
+        // Alternate variant: Regidrago / Cinccino
+        $alternate = new Deck();
+        $alternate->setName('Alternate Regidrago');
+        $alternate->setArchetype($archetype);
+        $alternate->setFormat('Expanded');
+        $alternate->setPosition(1);
+        $alternate->setPokemonSlugs(['dragonite']);
+        $alternate->setNotes(<<<'MARKDOWN'
+## Strategy
+
+The **Regidrago / Cinccino** variant trades raw power for consistency. Instead of relying solely on [[card:SIT-136]], this build pairs it with a **Cinccino** draw engine — **Make Do** lets you discard a card and draw two, simultaneously fueling the discard pile with Dragon attackers and keeping your hand stocked.
+
+## Key Differences from Canonical
+
+- **Cinccino line** (Minccino + Cinccino) replaces heavy Supporter reliance — less dependent on turn 1 Professor Juniper
+- Thinner Dragon target lineup (3–4 instead of 5–6) to make room for the draw engine
+- More resilient to **N** and **Marnie** hand disruption thanks to bench-based draw
+
+## Setup
+
+Turn 1: bench Regidrago V + Minccino. Turn 2: evolve both — Cinccino starts drawing while Regidrago VSTAR charges. Use **Level Ball** to search Minccino and Cinccino (both under 90 HP).
+
+## Weaknesses
+
+Bigger bench means more liability against **Sky Seal Stone** + Boss's Orders snipes. The Cinccino line gives up easy two-prize KOs if dragged active.
+MARKDOWN);
+        $manager->persist($alternate);
+        $this->createParsedDeckVersion($manager, $alternate, $rawList);
+
+        // Third variant: minimal placeholder
+        $third = new Deck();
+        $third->setName('Third Regidrago');
+        $third->setArchetype($archetype);
+        $third->setFormat('Expanded');
+        $third->setPosition(2);
+        $third->setPokemonSlugs(['dragapult']);
+        $third->setNotes('A lightweight Regidrago build focused on speed.');
+        $manager->persist($third);
+    }
+
+    /**
+     * Parse a raw decklist and create a DeckVersion with DeckCard entities.
+     */
+    private function createParsedDeckVersion(ObjectManager $manager, Deck $deck, string $rawList): void
+    {
+        $result = $this->deckListParser->parse($rawList);
+
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setRawList($rawList);
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+        $deck->setCurrentVersion($version);
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck

@@ -75,6 +75,11 @@
                 <target>Actions</target>
                 <note>Aria label for contextual action menus</note>
             </trans-unit>
+            <trans-unit id="app.common.created_at">
+                <source>app.common.created_at</source>
+                <target>Created</target>
+                <note>Table header for creation date column</note>
+            </trans-unit>
             <trans-unit id="app.common.cancel">
                 <source>app.common.cancel</source>
                 <target>Cancel</target>
@@ -3503,6 +3508,11 @@
                 <target>Sort by</target>
                 <note>Label for sort dropdown on archetype catalog</note>
             </trans-unit>
+            <trans-unit id="app.archetype.sort_relevance">
+                <source>app.archetype.sort_relevance</source>
+                <target>Relevance</target>
+                <note>Sort option: by admin-defined position (most relevant first)</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_decks">
                 <source>app.archetype.sort_decks</source>
                 <target>Most decks</target>
@@ -3522,6 +3532,103 @@
                 <source>app.archetype.no_results</source>
                 <target>No archetypes match your filter.</target>
                 <note>Empty state on archetype catalog when filters yield no results</note>
+            </trans-unit>
+
+            <!-- Archetype variants (F18.15) -->
+            <trans-unit id="app.archetype.variant.section_title">
+                <source>app.archetype.variant.section_title</source>
+                <target>Variants</target>
+                <note>Card header for variant section on archetype edit page</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.add">
+                <source>app.archetype.variant.add</source>
+                <target>Add variant</target>
+                <note>Button to add a new archetype variant deck</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.none">
+                <source>app.archetype.variant.none</source>
+                <target>No variants yet. Add one to display editorial decklists on the archetype page.</target>
+                <note>Empty state when archetype has no variant decks</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.name">
+                <source>app.archetype.variant.name</source>
+                <target>Variant name</target>
+                <note>Label for variant deck name field</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.canonical">
+                <source>app.archetype.variant.canonical</source>
+                <target>Canonical</target>
+                <note>Label for canonical variant toggle</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.decklist">
+                <source>app.archetype.variant.decklist</source>
+                <target>Decklist</target>
+                <note>Table header for decklist column in variant list</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.raw_list">
+                <source>app.archetype.variant.raw_list</source>
+                <target>Decklist (PTCG text format)</target>
+                <note>Label for raw list paste field on variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.raw_list_placeholder">
+                <source>app.archetype.variant.raw_list_placeholder</source>
+                <target>Paste a PTCG text format decklist here…</target>
+                <note>Placeholder for raw list field</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.description">
+                <source>app.archetype.variant.description</source>
+                <target>Description</target>
+                <note>Label for variant description field (Markdown, rendered with RTE)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.new_title">
+                <source>app.archetype.variant.new_title</source>
+                <target>New variant for %archetype%</target>
+                <note>Page title for new variant form. %archetype% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.edit_title">
+                <source>app.archetype.variant.edit_title</source>
+                <target>Edit variant: %name% (%archetype%)</target>
+                <note>Page title for edit variant form. %name% = variant name, %archetype% = archetype name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.details">
+                <source>app.archetype.variant.details</source>
+                <target>Variant details</target>
+                <note>Card header for variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.current_version">
+                <source>app.archetype.variant.current_version</source>
+                <target>Current version</target>
+                <note>Label showing existing decklist version on edit form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.paste_to_replace">
+                <source>app.archetype.variant.paste_to_replace</source>
+                <target>Paste a new list above to create a new version</target>
+                <note>Help text for replacing existing decklist</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.created">
+                <source>app.archetype.variant.created</source>
+                <target>Variant "%name%" created.</target>
+                <note>Flash message after creating variant. %name% = variant name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.updated">
+                <source>app.archetype.variant.updated</source>
+                <target>Variant "%name%" updated.</target>
+                <note>Flash message after updating variant. %name% = variant name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.deleted">
+                <source>app.archetype.variant.deleted</source>
+                <target>Variant "%name%" deleted.</target>
+                <note>Flash message after deleting variant. %name% = variant name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.more">
+                <source>app.archetype.variant.more</source>
+                <target>More variants…</target>
+                <note>Dropdown label when archetype has more than 5 variants</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.delete_confirm">
+                <source>app.archetype.variant.delete_confirm</source>
+                <target>Are you sure you want to delete this variant?</target>
+                <note>Confirmation dialog for variant deletion</note>
             </trans-unit>
 
             <!-- Admin: User management -->

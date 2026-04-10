@@ -38,7 +38,7 @@ class BorrowNotificationEmailService
 
     public function sendBorrowRequested(Borrow $borrow): void
     {
-        $recipient = $borrow->getDeck()->getOwner();
+        $recipient = $borrow->getDeck()->getOwnerOrFail();
 
         if (!$recipient->isNotificationEnabled(NotificationType::BorrowRequested, 'email')) {
             return;
@@ -95,7 +95,7 @@ class BorrowNotificationEmailService
         $deckName = $borrow->getDeck()->getName();
 
         // Notify both owner and borrower
-        $owner = $borrow->getDeck()->getOwner();
+        $owner = $borrow->getDeck()->getOwnerOrFail();
         if ($owner->isNotificationEnabled(NotificationType::BorrowOverdue, 'email')) {
             $this->sendEmail(
                 $owner,
@@ -119,7 +119,7 @@ class BorrowNotificationEmailService
     public function sendBorrowCancelled(Borrow $borrow, User $actor): void
     {
         $recipient = $actor->getId() === $borrow->getBorrower()->getId()
-            ? $borrow->getDeck()->getOwner()
+            ? $borrow->getDeck()->getOwnerOrFail()
             : $borrow->getBorrower();
 
         if (!$recipient->isNotificationEnabled(NotificationType::BorrowCancelled, 'email')) {

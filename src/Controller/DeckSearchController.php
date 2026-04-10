@@ -64,7 +64,7 @@ class DeckSearchController extends AbstractController
             'id' => $deck->getId(),
             'name' => $deck->getName(),
             'shortTag' => $deck->getShortTag(),
-            'ownerName' => $deck->getOwner()->getScreenName(),
+            'ownerName' => $deck->getOwner()?->getScreenName() ?? '',
             'status' => $deck->getStatus()->value,
         ], $decks);
 

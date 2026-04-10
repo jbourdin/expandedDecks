@@ -96,6 +96,84 @@
         </div>
     </div>
 
+    {# Variants — archetype editorial decklists #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ 'app.archetype.variant.section_title'|trans }}</h5>
+            <a href="{{ path('app_admin_archetype_variant_new', {id: archetype.id}) }}" class="btn btn-sm btn-gold">
+                <i class="bi bi-plus-lg me-1"></i>{{ 'app.archetype.variant.add'|trans }}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if variants is empty %}
+                <p class="text-muted mb-0">{{ 'app.archetype.variant.none'|trans }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px"></th>
+                                <th>{{ 'app.common.name'|trans }}</th>
+                                <th>{{ 'app.archetype.variant.canonical'|trans }}</th>
+                                <th>{{ 'app.archetype.variant.decklist'|trans }}</th>
+                                <th>{{ 'app.common.created_at'|trans }}</th>
+                                <th class="text-end">{{ 'app.common.actions'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sortable-variants" data-reorder-url="{{ path('app_admin_archetype_variant_reorder', {id: archetype.id}) }}">
+                            {% for variant in variants %}
+                                <tr data-variant-id="{{ variant.id }}">
+                                    <td class="text-center align-middle">
+                                        <span class="sortable-handle d-none d-md-inline" style="cursor: grab" aria-label="{{ 'app.cms.admin.drag_to_reorder'|trans }}"><i class="bi bi-grip-vertical"></i></span>
+                                        <span class="d-inline d-md-none">
+                                            <button type="button" class="btn btn-sm btn-link p-0 move-up-btn" aria-label="{{ 'app.cms.admin.move_up'|trans }}"><i class="bi bi-chevron-up"></i></button>
+                                            <button type="button" class="btn btn-sm btn-link p-0 move-down-btn" aria-label="{{ 'app.cms.admin.move_down'|trans }}"><i class="bi bi-chevron-down"></i></button>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% for slug in variant.effectivePokemonSlugs[:3] %}
+                                            <img src="{{ asset('build/sprites/pokemon/' ~ slug ~ '.png') }}" alt="{{ slug }}" class="archetype-sprite" style="height: 24px;">
+                                        {% endfor %}
+                                        {{ variant.name }}
+                                    </td>
+                                    <td>
+                                        {% if variant.canonical %}
+                                            <span class="badge bg-success">{{ 'app.archetype.variant.canonical'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if variant.currentVersion %}
+                                            <span class="badge bg-primary">v{{ variant.currentVersion.versionNumber }}</span>
+                                            {% if variant.currentVersion.enrichmentStatus == 'done' %}
+                                                <span class="badge bg-success">{{ 'app.deck.enriched'|trans }}</span>
+                                            {% elseif variant.currentVersion.enrichmentStatus == 'pending' %}
+                                                <span class="badge bg-warning text-dark">{{ 'app.deck.pending'|trans }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ variant.createdAt|date('Y-m-d') }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ path('app_admin_archetype_variant_edit', {id: archetype.id, deckId: variant.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('app_admin_archetype_variant_delete', {id: archetype.id, deckId: variant.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.archetype.variant.delete_confirm'|trans|e('js') }}')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('variant-delete-' ~ variant.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
     {% if archetype.deletedAt is not null %}
         <div class="card shadow-sm border-warning mt-4">
             <div class="card-body">
@@ -118,6 +196,7 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_form') }}
+    {{ encore_entry_script_tags('admin_archetype_edit') }}
     <script>
         {# Activate the correct translation tab based on URL hash #}
         (function() {

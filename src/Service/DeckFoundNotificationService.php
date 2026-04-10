@@ -46,7 +46,7 @@ class DeckFoundNotificationService
      */
     public function notify(Deck $deck, ?User $reporter, ?string $message): void
     {
-        $owner = $deck->getOwner();
+        $owner = $deck->getOwnerOrFail();
         $locale = $owner->getPreferredLocale();
         $deckName = $deck->getName();
         $reporterName = $reporter?->getScreenName();

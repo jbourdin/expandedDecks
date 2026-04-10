@@ -42,7 +42,7 @@ class DeckVersionHistoryController extends AbstractAppController
 
         /** @var User|null $user */
         $user = $this->getUser();
-        $isOwner = null !== $user && $deck->getOwner()->getId() === $user->getId();
+        $isOwner = null !== $user && $deck->getOwnerOrFail()->getId() === $user->getId();
 
         return $this->render('deck/versions.html.twig', [
             'deck' => $deck,
@@ -153,7 +153,7 @@ class DeckVersionHistoryController extends AbstractAppController
         /** @var User|null $user */
         $user = $this->getUser();
 
-        if (null === $user || $deck->getOwner()->getId() !== $user->getId()) {
+        if (null === $user || $deck->getOwnerOrFail()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
     }
@@ -171,7 +171,7 @@ class DeckVersionHistoryController extends AbstractAppController
             throw $this->createAccessDeniedException();
         }
 
-        if ($deck->getOwner()->getId() === $user->getId() || $this->isGranted('ROLE_ADMIN')) {
+        if ($deck->getOwnerOrFail()->getId() === $user->getId() || $this->isGranted('ROLE_ADMIN')) {
             return;
         }
 

@@ -44,7 +44,7 @@ class DeclineCompetingBorrowsHandler
             return;
         }
 
-        $owner = $approvedBorrow->getDeck()->getOwner();
+        $owner = $approvedBorrow->getDeck()->getOwnerOrFail();
 
         $competitors = $this->borrowRepository->findPendingBorrowsForDeckAtEvent(
             $approvedBorrow->getDeck(),
