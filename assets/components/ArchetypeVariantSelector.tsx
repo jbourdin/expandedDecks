@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { initCardHover } from '../shared/card-hover';
 
@@ -33,6 +33,7 @@ interface VariantData {
     sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
+    rawList: string | null;
     groupedCards: Record<string, CardData[]>;
 }
 
@@ -47,6 +48,8 @@ interface Labels {
     tableCard: string;
     tableSet: string;
     moreVariants: string;
+    copyList: string;
+    copied: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -98,7 +101,7 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
                             <td>{card.quantity}</td>
                             <td>
                                 {card.imageUrl ? (
-                                    <span className="card-hover" data-quantity={card.quantity}>
+                                    <span className="card-hover" data-quantity={card.quantity} data-card-hover-group="variant-decklist">
                                         {card.cardName}
                                         <img
                                             className="card-hover-img"
@@ -239,14 +242,20 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
 export default function ArchetypeVariantSelector({ variants, labels }: ArchetypeVariantSelectorProps) {
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
-    const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
+    const [viewMode, setViewMode] = useState<ViewMode>(
+        () => window.matchMedia('(max-width: 767.98px)').matches ? 'table' : 'mosaic',
+    );
 
+    // Re-initialize card hover after every render — description HTML contains
+    // .card-hover elements from [[card:...]] tags, and they get recreated on
+    // variant switch via dangerouslySetInnerHTML. Use requestAnimationFrame
+    // to ensure the DOM is fully committed before scanning for elements.
     useEffect(() => {
-        if (viewMode === 'table') {
+        requestAnimationFrame(() => {
             initCardHover();
-        }
+        });
     }, [selectedIndex, viewMode]);
 
     if (variants.length === 0) {
@@ -274,18 +283,34 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                 <div className="cms-content mb-3" dangerouslySetInnerHTML={{ __html: selectedVariant.description }} />
             )}
 
-            {/* View mode toggle + card display */}
+            {/* View mode toggle + copy button + card display */}
             {hasCards && (
                 <Stack gap="sm">
-                    <SegmentedControl
-                        value={viewMode}
-                        onChange={(value) => setViewMode(value as ViewMode)}
-                        data={[
-                            { label: labels.viewTable, value: 'table' },
-                            { label: labels.viewMosaic, value: 'mosaic' },
-                        ]}
-                        size="xs"
-                    />
+                    <Group justify="space-between" align="center">
+                        <SegmentedControl
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value as ViewMode)}
+                            data={[
+                                { label: labels.viewTable, value: 'table' },
+                                { label: labels.viewMosaic, value: 'mosaic' },
+                            ]}
+                            size="xs"
+                        />
+                        {selectedVariant.rawList && (
+                            <CopyButton value={selectedVariant.rawList} timeout={2000}>
+                                {({ copied, copy }) => (
+                                    <Button
+                                        variant={copied ? 'filled' : 'outline'}
+                                        color={copied ? 'teal' : 'gray'}
+                                        size="compact-sm"
+                                        onClick={copy}
+                                    >
+                                        {copied ? labels.copied : labels.copyList}
+                                    </Button>
+                                )}
+                            </CopyButton>
+                        )}
+                    </Group>
 
                     {viewMode === 'table' && (
                         <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} />
