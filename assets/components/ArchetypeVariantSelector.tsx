@@ -242,9 +242,11 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
 export default function ArchetypeVariantSelector({ variants, labels }: ArchetypeVariantSelectorProps) {
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
-    const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
+    const [viewMode, setViewMode] = useState<ViewMode>(
+        () => window.matchMedia('(max-width: 767.98px)').matches ? 'table' : 'mosaic',
+    );
 
     useEffect(() => {
         if (viewMode === 'table') {
