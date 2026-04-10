@@ -638,6 +638,16 @@
                 <source>app.deck.mosaic_alt</source>
                 <target>Card mosaic for %name%</target>
             </trans-unit>
+            <trans-unit id="app.deck.enriched">
+                <source>app.deck.enriched</source>
+                <target>Enriched</target>
+                <note>Badge label for a deck version that has been enriched with card data</note>
+            </trans-unit>
+            <trans-unit id="app.deck.pending">
+                <source>app.deck.pending</source>
+                <target>Pending</target>
+                <note>Badge label for a deck version awaiting enrichment</note>
+            </trans-unit>
             <trans-unit id="app.deck.no_list">
                 <source>app.deck.no_list</source>
                 <target>No deck list imported yet.</target>
