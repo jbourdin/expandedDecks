@@ -162,6 +162,31 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find archetype variant decks (no owner), ordered canonical first, then by creation date.
+     *
+     * @see docs/features.md F18.13 — Archetype variant decks
+     *
+     * @return list<Deck>
+     */
+    public function findVariantsByArchetype(Archetype $archetype): array
+    {
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->leftJoin('d.currentVersion', 'cv')
+            ->addSelect('cv')
+            ->where('d.archetype = :archetype')
+            ->andWhere('d.owner IS NULL')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('archetype', $archetype)
+            ->orderBy('d.canonical', 'DESC')
+            ->addOrderBy('d.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
      *
      * @return list<Deck>

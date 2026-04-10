@@ -15,15 +15,23 @@ namespace App\Controller;
 
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
+use App\Entity\Deck;
+use App\Entity\DeckCard;
+use App\Entity\DeckVersion;
 use App\Form\ArchetypeFormType;
 use App\Form\ArchetypeTranslationFormType;
+use App\Form\ArchetypeVariantFormType;
+use App\Message\EnrichDeckVersionMessage;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
+use App\Repository\DeckVersionRepository;
+use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -108,6 +116,7 @@ class AdminArchetypeController extends AbstractAppController
         }
 
         $translationForms = $this->buildTranslationForms($archetype, $request);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
 
         return $this->render('admin/archetype/edit.html.twig', [
             'archetype' => $archetype,
@@ -116,6 +125,7 @@ class AdminArchetypeController extends AbstractAppController
             'translationForms' => $translationForms,
             'supportedLocales' => self::SUPPORTED_LOCALES,
             'deckCount' => $deckRepository->countAllByArchetype($archetype),
+            'variants' => $variants,
         ]);
     }
 
@@ -187,6 +197,209 @@ class AdminArchetypeController extends AbstractAppController
         return $this->redirect(
             $this->generateUrl('app_admin_archetype_edit', ['id' => $archetype->getId()]).'#pane-'.$locale
         );
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    #[Route('/{id}/variants/new', name: 'app_admin_archetype_variant_new', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    public function newVariant(
+        Request $request,
+        Archetype $archetype,
+        DeckListParser $parser,
+        DeckVersionRepository $versionRepository,
+        MessageBusInterface $messageBus,
+    ): Response {
+        $deck = new Deck();
+        $deck->setArchetype($archetype);
+        $deck->setFormat('Expanded');
+
+        $form = $this->createForm(ArchetypeVariantFormType::class, $deck, [
+            'action' => $this->generateUrl('app_admin_archetype_variant_new', ['id' => $archetype->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleVariantPokemonSlugs($form, $deck);
+            $this->handleCanonicalToggle($deck, $archetype);
+            $this->em->persist($deck);
+            $this->em->flush();
+
+            $this->handleVariantRawList($form, $deck, $parser, $versionRepository, $messageBus);
+
+            $this->addFlash('success', 'app.archetype.variant.created', ['%name%' => $deck->getName()]);
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        return $this->render('admin/archetype/variant_form.html.twig', [
+            'archetype' => $archetype,
+            'form' => $form,
+            'deck' => $deck,
+            'isNew' => true,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    #[Route('/{id}/variants/{deckId}', name: 'app_admin_archetype_variant_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    public function editVariant(
+        Request $request,
+        Archetype $archetype,
+        int $deckId,
+        DeckRepository $deckRepository,
+        DeckListParser $parser,
+        DeckVersionRepository $versionRepository,
+        MessageBusInterface $messageBus,
+    ): Response {
+        $deck = $deckRepository->find($deckId);
+        if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(ArchetypeVariantFormType::class, $deck, [
+            'action' => $this->generateUrl('app_admin_archetype_variant_edit', [
+                'id' => $archetype->getId(),
+                'deckId' => $deckId,
+            ]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleVariantPokemonSlugs($form, $deck);
+            $this->handleCanonicalToggle($deck, $archetype);
+            $this->em->flush();
+
+            $this->handleVariantRawList($form, $deck, $parser, $versionRepository, $messageBus);
+
+            $this->addFlash('success', 'app.archetype.variant.updated', ['%name%' => $deck->getName()]);
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        return $this->render('admin/archetype/variant_form.html.twig', [
+            'archetype' => $archetype,
+            'form' => $form,
+            'deck' => $deck,
+            'isNew' => false,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F18.15 — Admin archetype variant management
+     */
+    #[Route('/{id}/variants/{deckId}/delete', name: 'app_admin_archetype_variant_delete', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    public function deleteVariant(Request $request, Archetype $archetype, int $deckId, DeckRepository $deckRepository): Response
+    {
+        $deck = $deckRepository->find($deckId);
+        if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('variant-delete-'.$deckId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        $deck->setDeletedAt(new \DateTimeImmutable());
+        $this->em->flush();
+
+        $this->addFlash('success', 'app.archetype.variant.deleted', ['%name%' => $deck->getName()]);
+
+        return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+    }
+
+    /**
+     * @param FormInterface<Deck> $form
+     */
+    private function handleVariantPokemonSlugs(FormInterface $form, Deck $deck): void
+    {
+        /** @var string|null $slugsJson */
+        $slugsJson = $form->get('pokemonSlugs')->getData();
+
+        if (null !== $slugsJson && '' !== $slugsJson) {
+            /** @var list<string> $slugs */
+            $slugs = json_decode($slugsJson, true);
+            $deck->setPokemonSlugs($slugs);
+        } else {
+            $deck->setPokemonSlugs([]);
+        }
+    }
+
+    /**
+     * If this variant is set as canonical, unset any other canonical variant for the same archetype.
+     */
+    private function handleCanonicalToggle(Deck $deck, Archetype $archetype): void
+    {
+        if (!$deck->isCanonical()) {
+            return;
+        }
+
+        $queryBuilder = $this->em->createQueryBuilder();
+        $queryBuilder
+            ->update(Deck::class, 'd')
+            ->set('d.canonical', ':false')
+            ->where('d.archetype = :archetype')
+            ->andWhere('d.owner IS NULL')
+            ->andWhere('d.canonical = :true')
+            ->setParameter('false', false)
+            ->setParameter('archetype', $archetype)
+            ->setParameter('true', true);
+
+        if (null !== $deck->getId()) {
+            $queryBuilder
+                ->andWhere('d.id != :currentId')
+                ->setParameter('currentId', $deck->getId());
+        }
+
+        $queryBuilder->getQuery()->execute();
+    }
+
+    /**
+     * Create a DeckVersion from rawList if provided, and dispatch enrichment.
+     *
+     * @param FormInterface<Deck> $form
+     */
+    private function handleVariantRawList(
+        FormInterface $form,
+        Deck $deck,
+        DeckListParser $parser,
+        DeckVersionRepository $versionRepository,
+        MessageBusInterface $messageBus,
+    ): void {
+        /** @var string|null $rawList */
+        $rawList = $form->get('rawList')->getData();
+        if (null === $rawList || '' === trim($rawList)) {
+            return;
+        }
+
+        $nextVersion = $versionRepository->findMaxVersionNumber($deck) + 1;
+        $result = $parser->parse($rawList);
+
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber($nextVersion);
+        $version->setRawList($rawList);
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $this->em->persist($version);
+        $deck->setCurrentVersion($version);
+        $this->em->flush();
+
+        /** @var int $versionId */
+        $versionId = $version->getId();
+        $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
     }
 
     /**
