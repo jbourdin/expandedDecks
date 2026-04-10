@@ -29,6 +29,7 @@ use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -57,7 +58,7 @@ class AdminArchetypeController extends AbstractAppController
     #[Route('', name: 'app_admin_archetype_list', methods: ['GET'])]
     public function list(ArchetypeRepository $archetypeRepository, DeckRepository $deckRepository): Response
     {
-        $archetypes = $archetypeRepository->findBy(['deletedAt' => null], ['name' => 'ASC']);
+        $archetypes = $archetypeRepository->findBy(['deletedAt' => null], ['position' => 'ASC', 'name' => 'ASC']);
 
         $deckCounts = [];
         foreach ($archetypes as $archetype) {
@@ -153,6 +154,52 @@ class AdminArchetypeController extends AbstractAppController
         $this->addFlash('success', 'app.flash.archetype.deleted');
 
         return $this->redirectToRoute('app_admin_archetype_list');
+    }
+
+    /**
+     * Persist archetype ordering from drag-and-drop.
+     * Expects a JSON array of archetype IDs in display order.
+     *
+     * @see docs/features.md F18.12 — Admin drag-and-drop archetype ordering
+     */
+    #[Route('/reorder', name: 'app_admin_archetype_reorder', methods: ['POST'])]
+    public function reorder(Request $request, ArchetypeRepository $archetypeRepository): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = json_decode($request->getContent(), true) ?? [];
+
+        foreach ($ids as $position => $id) {
+            $archetype = $archetypeRepository->find($id);
+            if ($archetype instanceof Archetype) {
+                $archetype->setPosition($position);
+            }
+        }
+        $this->em->flush();
+
+        return new JsonResponse(['ok' => true]);
+    }
+
+    /**
+     * Persist variant ordering from drag-and-drop within an archetype.
+     * Expects a JSON array of deck IDs in display order.
+     *
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    #[Route('/{id}/variants/reorder', name: 'app_admin_archetype_variant_reorder', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function reorderVariants(Request $request, Archetype $archetype, DeckRepository $deckRepository): JsonResponse
+    {
+        /** @var list<int> $ids */
+        $ids = json_decode($request->getContent(), true) ?? [];
+
+        foreach ($ids as $position => $id) {
+            $deck = $deckRepository->find($id);
+            if ($deck instanceof Deck && $deck->isArchetypeVariant() && $deck->getArchetype()?->getId() === $archetype->getId()) {
+                $deck->setPosition($position);
+            }
+        }
+        $this->em->flush();
+
+        return new JsonResponse(['ok' => true]);
     }
 
     /**

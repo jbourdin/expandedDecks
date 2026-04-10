@@ -112,6 +112,7 @@
                     <table class="table table-sm table-hover align-middle mb-0">
                         <thead>
                             <tr>
+                                <th style="width: 40px"></th>
                                 <th>{{ 'app.common.name'|trans }}</th>
                                 <th>{{ 'app.archetype.variant.canonical'|trans }}</th>
                                 <th>{{ 'app.archetype.variant.decklist'|trans }}</th>
@@ -119,9 +120,16 @@
                                 <th class="text-end">{{ 'app.common.actions'|trans }}</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortable-variants" data-reorder-url="{{ path('app_admin_archetype_variant_reorder', {id: archetype.id}) }}">
                             {% for variant in variants %}
-                                <tr>
+                                <tr data-variant-id="{{ variant.id }}">
+                                    <td class="text-center align-middle">
+                                        <span class="sortable-handle d-none d-md-inline" style="cursor: grab" aria-label="{{ 'app.cms.admin.drag_to_reorder'|trans }}"><i class="bi bi-grip-vertical"></i></span>
+                                        <span class="d-inline d-md-none">
+                                            <button type="button" class="btn btn-sm btn-link p-0 move-up-btn" aria-label="{{ 'app.cms.admin.move_up'|trans }}"><i class="bi bi-chevron-up"></i></button>
+                                            <button type="button" class="btn btn-sm btn-link p-0 move-down-btn" aria-label="{{ 'app.cms.admin.move_down'|trans }}"><i class="bi bi-chevron-down"></i></button>
+                                        </span>
+                                    </td>
                                     <td>
                                         {% for slug in variant.effectivePokemonSlugs[:3] %}
                                             <img src="{{ asset('build/sprites/pokemon/' ~ slug ~ '.png') }}" alt="{{ slug }}" class="archetype-sprite" style="height: 24px;">
@@ -188,6 +196,7 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_form') }}
+    {{ encore_entry_script_tags('admin_archetype_edit') }}
     <script>
         {# Activate the correct translation tab based on URL hash #}
         (function() {

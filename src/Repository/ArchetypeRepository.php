@@ -120,6 +120,9 @@ class ArchetypeRepository extends ServiceEntityRepository
         if ('decks' === $sort) {
             $qb->orderBy('deckCount', 'DESC')
                 ->addOrderBy('a.name', 'ASC');
+        } elseif ('position' === $sort) {
+            $qb->orderBy('a.position', 'ASC')
+                ->addOrderBy('a.name', 'ASC');
         } else {
             $qb->orderBy('a.name', 'ASC');
         }
