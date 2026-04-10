@@ -22,11 +22,13 @@ use App\Service\BannedCardsSyncService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
 use App\Twig\Runtime\MenuRuntime;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/admin/technical')]
@@ -185,6 +187,50 @@ class AdminTechnicalController extends AbstractAppController
 
         $menuRuntime->invalidateCache();
         $this->addFlash('success', 'app.admin.technical.clear_cache.done');
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * Clear the entire application cache pool.
+     */
+    #[Route('/clear-app-cache', name: 'app_admin_technical_clear_app_cache', methods: ['POST'])]
+    public function clearAppCache(Request $request, CacheItemPoolInterface $cache): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-clear-app-cache', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $cache->clear();
+        $this->addFlash('success', 'app.admin.technical.clear_app_cache.done');
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * Delete a specific key from the application cache pool.
+     */
+    #[Route('/clear-cache-key', name: 'app_admin_technical_clear_cache_key', methods: ['POST'])]
+    public function clearCacheKey(Request $request, CacheInterface $cache): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-clear-cache-key', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $key = trim($request->getPayload()->getString('cache_key'));
+
+        if ('' === $key) {
+            $this->addFlash('warning', 'app.admin.technical.clear_cache_key.empty');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $cache->delete($key);
+        $this->addFlash('success', 'app.admin.technical.clear_cache_key.done', ['%key%' => $key]);
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

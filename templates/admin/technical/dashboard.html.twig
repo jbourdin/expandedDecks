@@ -171,17 +171,40 @@
         </div>
     </div>
 
-    {# Clear cache card #}
+    {# Cache management card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">
-            <h5 class="mb-0">{{ 'app.admin.technical.clear_cache.title'|trans }}</h5>
+            <h5 class="mb-0">{{ 'app.admin.technical.cache.title'|trans }}</h5>
         </div>
         <div class="card-body">
-            <p>{{ 'app.admin.technical.clear_cache.description'|trans }}</p>
-            <form method="post" action="{{ path('app_admin_technical_clear_cache') }}">
+            <h6>{{ 'app.admin.technical.clear_cache.title'|trans }}</h6>
+            <p class="text-muted small">{{ 'app.admin.technical.clear_cache.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_clear_cache') }}" class="mb-4">
                 <input type="hidden" name="_token" value="{{ csrf_token('technical-clear-cache') }}">
-                <button type="submit" class="btn btn-outline-secondary">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
                     {{ 'app.admin.technical.clear_cache.button'|trans }}
+                </button>
+            </form>
+
+            <h6>{{ 'app.admin.technical.clear_app_cache.title'|trans }}</h6>
+            <p class="text-muted small">{{ 'app.admin.technical.clear_app_cache.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_clear_app_cache') }}" class="mb-4"
+                  onsubmit="return confirm('{{ 'app.admin.technical.clear_app_cache.confirm'|trans|e('js') }}')">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-clear-app-cache') }}">
+                <button type="submit" class="btn btn-outline-warning btn-sm">
+                    {{ 'app.admin.technical.clear_app_cache.button'|trans }}
+                </button>
+            </form>
+
+            <h6>{{ 'app.admin.technical.clear_cache_key.title'|trans }}</h6>
+            <p class="text-muted small">{{ 'app.admin.technical.clear_cache_key.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_clear_cache_key') }}" class="d-flex gap-2 align-items-end">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-clear-cache-key') }}">
+                <div class="flex-grow-1">
+                    <input type="text" name="cache_key" class="form-control form-control-sm" placeholder="{{ 'app.admin.technical.clear_cache_key.placeholder'|trans }}" required>
+                </div>
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    {{ 'app.admin.technical.clear_cache_key.button'|trans }}
                 </button>
             </form>
         </div>
