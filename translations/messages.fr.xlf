@@ -3498,6 +3498,11 @@
                 <target>Trier par</target>
                 <note>Label for sort dropdown on archetype catalog</note>
             </trans-unit>
+            <trans-unit id="app.archetype.sort_relevance">
+                <source>app.archetype.sort_relevance</source>
+                <target>Pertinence</target>
+                <note>Sort option: by admin-defined position (most relevant first)</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_decks">
                 <source>app.archetype.sort_decks</source>
                 <target>Plus de decks</target>
