@@ -250,9 +250,12 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
 
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
-    // variant switch via dangerouslySetInnerHTML.
+    // variant switch via dangerouslySetInnerHTML. Use requestAnimationFrame
+    // to ensure the DOM is fully committed before scanning for elements.
     useEffect(() => {
-        initCardHover();
+        requestAnimationFrame(() => {
+            initCardHover();
+        });
     }, [selectedIndex, viewMode]);
 
     if (variants.length === 0) {
