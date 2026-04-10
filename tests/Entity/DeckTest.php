@@ -323,4 +323,25 @@ class DeckTest extends TestCase
         $this->expectException(\LogicException::class);
         $deck->getOwnerOrFail();
     }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testPositionDefaultsToZero(): void
+    {
+        $deck = new Deck();
+
+        self::assertSame(0, $deck->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testSetPosition(): void
+    {
+        $deck = new Deck();
+        $deck->setPosition(3);
+
+        self::assertSame(3, $deck->getPosition());
+    }
 }

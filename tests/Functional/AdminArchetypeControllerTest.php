@@ -386,6 +386,131 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         return $archetype;
     }
 
+    // ---------------------------------------------------------------
+    // Reorder endpoints (F18.12, F18.19)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F18.12 — Admin drag-and-drop archetype ordering
+     */
+    public function testReorderArchetypes(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $archetypes = $entityManager->getRepository(Archetype::class)->findBy(['deletedAt' => null], ['position' => 'ASC']);
+
+        // Reverse the order
+        $ids = array_map(static fn (Archetype $archetype): int => (int) $archetype->getId(), $archetypes);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        /** @var string $content */
+        $content = $this->client->getResponse()->getContent();
+        /** @var array{ok: bool} $data */
+        $data = json_decode($content, true);
+        self::assertTrue($data['ok']);
+
+        // Verify first archetype now has position 0
+        $entityManager->clear();
+        $first = $entityManager->getRepository(Archetype::class)->find($reversed[0]);
+        self::assertNotNull($first);
+        self::assertSame(0, $first->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testReorderVariants(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+        self::assertGreaterThanOrEqual(2, \count($variants));
+
+        // Reverse the order
+        $ids = array_map(static fn (Deck $deck): int => (int) $deck->getId(), $variants);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        /** @var string $content */
+        $content = $this->client->getResponse()->getContent();
+        /** @var array{ok: bool} $data */
+        $data = json_decode($content, true);
+        self::assertTrue($data['ok']);
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testReorderVariantsKeepsCanonicalAtPositionZero(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+
+        // Send reversed order
+        $ids = array_map(static fn (Deck $deck): int => (int) $deck->getId(), $variants);
+        $reversed = array_reverse($ids);
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode($reversed));
+
+        self::assertResponseIsSuccessful();
+
+        // Verify canonical variant has position 0
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager->clear();
+
+        $refreshedVariants = $deckRepository->findVariantsByArchetype($archetype);
+        $canonical = null;
+        foreach ($refreshedVariants as $variant) {
+            if ($variant->isCanonical()) {
+                $canonical = $variant;
+
+                break;
+            }
+        }
+
+        self::assertNotNull($canonical);
+        self::assertSame(0, $canonical->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.12 — Admin drag-and-drop archetype ordering
+     */
+    public function testReorderRequiresAdmin(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], '[1,2,3]');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     private function getVariantByName(string $name, Archetype $archetype): Deck
     {
         /** @var DeckRepository $deckRepository */
