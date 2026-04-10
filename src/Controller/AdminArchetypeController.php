@@ -191,10 +191,18 @@ class AdminArchetypeController extends AbstractAppController
         /** @var list<int> $ids */
         $ids = json_decode($request->getContent(), true) ?? [];
 
-        foreach ($ids as $position => $id) {
+        $nonCanonicalPosition = 1;
+        foreach ($ids as $id) {
             $deck = $deckRepository->find($id);
-            if ($deck instanceof Deck && $deck->isArchetypeVariant() && $deck->getArchetype()?->getId() === $archetype->getId()) {
-                $deck->setPosition($position);
+            if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+                continue;
+            }
+
+            if ($deck->isCanonical()) {
+                $deck->setPosition(0);
+            } else {
+                $deck->setPosition($nonCanonicalPosition);
+                ++$nonCanonicalPosition;
             }
         }
         $this->em->flush();
