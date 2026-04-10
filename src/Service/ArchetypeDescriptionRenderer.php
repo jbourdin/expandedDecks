@@ -160,10 +160,10 @@ class ArchetypeDescriptionRenderer
     {
         /** @var array{name: string, imageUrl: string|null}|null $data */
         $data = $this->cache->get('archetype_desc.card.'.strtoupper($reference), function (ItemInterface $item) use ($reference): ?array {
-            $item->expiresAfter(86400);
-
             $lastHyphen = strrpos($reference, '-');
             if (false === $lastHyphen) {
+                $item->expiresAfter(300);
+
                 return null;
             }
 
@@ -173,6 +173,8 @@ class ArchetypeDescriptionRenderer
             // Try local DB first (enriched cards)
             $deckCard = $this->deckCardRepository->findOneBySetCodeAndCardNumber($setCode, $cardNumber);
             if (null !== $deckCard) {
+                $item->expiresAfter(null !== $deckCard->getImageUrl() ? 86400 : 300);
+
                 return [
                     'name' => $deckCard->getCardName(),
                     'imageUrl' => $deckCard->getImageUrl(),
@@ -182,11 +184,16 @@ class ArchetypeDescriptionRenderer
             // Fall back to TCGdex API
             $tcgdexCard = $this->tcgdexApiClient->findCard($setCode, $cardNumber);
             if (null !== $tcgdexCard) {
+                $item->expiresAfter(null !== $tcgdexCard->imageUrl ? 86400 : 300);
+
                 return [
                     'name' => $tcgdexCard->name,
                     'imageUrl' => $tcgdexCard->imageUrl,
                 ];
             }
+
+            // Card not found — cache briefly so we retry soon
+            $item->expiresAfter(300);
 
             return null;
         });

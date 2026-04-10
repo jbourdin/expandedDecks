@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.1] — 2026-04-10
+
+Cache management tooling and card reference rendering fixes.
+
+### Features
+
+- **Admin cache management** — technical dashboard now has "Clear all app cache" button and "Delete specific cache key" input field, enabling cache invalidation on serverless deployments without console access.
+
+### Bug Fixes
+
+- **Smart cache TTL** — card data is cached for 24h only when both name and image URL are present. Unresolved or imageless cards use 5-minute TTL so they are retried quickly instead of being stuck for a full day.
+- **Missing translations** — added `app.deck.enriched` and `app.deck.pending` keys (EN/FR) for variant list enrichment status badges.
+
+---
+
 ## [1.7.0] — 2026-04-10
 
 Archetype variant system: editorial decklists per archetype with admin management, public variant selector, copy-to-clipboard, and drag-and-drop ordering.
