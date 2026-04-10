@@ -248,10 +248,11 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
         () => window.matchMedia('(max-width: 767.98px)').matches ? 'table' : 'mosaic',
     );
 
+    // Re-initialize card hover after every render — description HTML contains
+    // .card-hover elements from [[card:...]] tags, and they get recreated on
+    // variant switch via dangerouslySetInnerHTML.
     useEffect(() => {
-        if (viewMode === 'table') {
-            initCardHover();
-        }
+        initCardHover();
     }, [selectedIndex, viewMode]);
 
     if (variants.length === 0) {
