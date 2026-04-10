@@ -135,7 +135,7 @@ function CardTable({ groupedCards, labels }: { groupedCards: Record<string, Card
 export default function ArchetypeVariantSelector({ variants, labels }: ArchetypeVariantSelectorProps) {
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
-    const [viewMode, setViewMode] = useState<ViewMode>('table');
+    const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Re-initialize card hover after variant switch or view mode change
@@ -161,12 +161,13 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
             {/* Variant selector */}
             {variants.length > 1 && (
                 <div className="mb-3">
-                    <Group gap="xs" wrap="wrap">
+                    <Group gap={4} wrap="wrap">
                         {buttonVariants.map((variant, index) => (
                             <Button
                                 key={variant.id}
                                 variant={index === selectedIndex ? 'filled' : 'outline'}
-                                size="sm"
+                                size="compact-sm"
+                                radius="xl"
                                 onClick={() => setSelectedIndex(index)}
                             >
                                 {variant.name}
