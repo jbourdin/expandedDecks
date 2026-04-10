@@ -4438,6 +4438,66 @@
                 <source>app.admin.technical.clear_cache.done</source>
                 <target>Navigation cache cleared.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.cache.title">
+                <source>app.admin.technical.cache.title</source>
+                <target>Cache Management</target>
+                <note>Card header for the cache management section on technical dashboard</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.title">
+                <source>app.admin.technical.clear_app_cache.title</source>
+                <target>Clear all application cache</target>
+                <note>Subtitle for clearing the entire cache.app pool</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.description">
+                <source>app.admin.technical.clear_app_cache.description</source>
+                <target>Clears the entire application cache pool (card data, rendered descriptions, etc.).</target>
+                <note>Description for the clear all app cache action</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.button">
+                <source>app.admin.technical.clear_app_cache.button</source>
+                <target>Clear all app cache</target>
+                <note>Button label for clearing all app cache</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.confirm">
+                <source>app.admin.technical.clear_app_cache.confirm</source>
+                <target>This will clear all cached data (card images, descriptions, etc.). Continue?</target>
+                <note>Confirmation dialog for clearing all app cache</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.done">
+                <source>app.admin.technical.clear_app_cache.done</source>
+                <target>Application cache cleared.</target>
+                <note>Flash message after clearing all app cache</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.title">
+                <source>app.admin.technical.clear_cache_key.title</source>
+                <target>Clear specific cache key</target>
+                <note>Subtitle for clearing a specific cache key</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.description">
+                <source>app.admin.technical.clear_cache_key.description</source>
+                <target>Delete a specific entry from the cache by its key (e.g. archetype_desc.card.UNM-205).</target>
+                <note>Description for the clear cache key action</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.placeholder">
+                <source>app.admin.technical.clear_cache_key.placeholder</source>
+                <target>Cache key…</target>
+                <note>Placeholder for the cache key input field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.button">
+                <source>app.admin.technical.clear_cache_key.button</source>
+                <target>Delete key</target>
+                <note>Button label for deleting a specific cache key</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.done">
+                <source>app.admin.technical.clear_cache_key.done</source>
+                <target>Cache key "%key%" deleted.</target>
+                <note>Flash message after deleting a cache key. %key% = the cache key</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.empty">
+                <source>app.admin.technical.clear_cache_key.empty</source>
+                <target>Please enter a cache key.</target>
+                <note>Warning when no cache key is provided</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.title">
                 <source>app.admin.technical.flush_reenrich.title</source>
                 <target>Flush &amp; Re-enrich All</target>

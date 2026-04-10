@@ -4428,6 +4428,54 @@
                 <source>app.admin.technical.clear_cache.done</source>
                 <target>Cache de navigation vidé.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.cache.title">
+                <source>app.admin.technical.cache.title</source>
+                <target>Gestion du cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.title">
+                <source>app.admin.technical.clear_app_cache.title</source>
+                <target>Vider tout le cache applicatif</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.description">
+                <source>app.admin.technical.clear_app_cache.description</source>
+                <target>Vide l'intégralité du cache applicatif (données de cartes, descriptions rendues, etc.).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.button">
+                <source>app.admin.technical.clear_app_cache.button</source>
+                <target>Vider tout le cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.confirm">
+                <source>app.admin.technical.clear_app_cache.confirm</source>
+                <target>Cela va vider toutes les données en cache (images de cartes, descriptions, etc.). Continuer ?</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_app_cache.done">
+                <source>app.admin.technical.clear_app_cache.done</source>
+                <target>Cache applicatif vidé.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.title">
+                <source>app.admin.technical.clear_cache_key.title</source>
+                <target>Supprimer une clé de cache</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.description">
+                <source>app.admin.technical.clear_cache_key.description</source>
+                <target>Supprime une entrée spécifique du cache par sa clé (ex. archetype_desc.card.UNM-205).</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.placeholder">
+                <source>app.admin.technical.clear_cache_key.placeholder</source>
+                <target>Clé de cache…</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.button">
+                <source>app.admin.technical.clear_cache_key.button</source>
+                <target>Supprimer la clé</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.done">
+                <source>app.admin.technical.clear_cache_key.done</source>
+                <target>Clé de cache « %key% » supprimée.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.clear_cache_key.empty">
+                <source>app.admin.technical.clear_cache_key.empty</source>
+                <target>Veuillez saisir une clé de cache.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.title">
                 <source>app.admin.technical.flush_reenrich.title</source>
                 <target>Purger et ré-enrichir tout</target>
