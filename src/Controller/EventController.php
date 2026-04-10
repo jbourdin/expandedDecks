@@ -209,13 +209,13 @@ class EventController extends AbstractAppController
             // Owner stats: decks in custody vs still out
             $userId = $user->getId();
             foreach ($lentBorrows as $borrow) {
-                if ($borrow->getDeck()->getOwner()->getId() === $userId) {
+                if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
                     ++$endingPhaseOwnerStats['stillOut'];
                 }
             }
             $custodyBorrows = $borrowRepository->findInCustodyBorrowsByEvent($event);
             foreach ($custodyBorrows as $borrow) {
-                if ($borrow->getDeck()->getOwner()->getId() === $userId) {
+                if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
                     ++$endingPhaseOwnerStats['inCustody'];
                 }
             }
@@ -353,7 +353,7 @@ class EventController extends AbstractAppController
         }
 
         // Cancel pending borrows for own deck when owner selects it for themselves
-        if ($deck->getOwner()->getId() === $user->getId()) {
+        if ($deck->getOwnerOrFail()->getId() === $user->getId()) {
             $pendingBorrows = $borrowRepository->findAllPendingBorrowsForDeckAtEvent($deck, $event);
 
             if ([] !== $pendingBorrows && '1' !== $request->getPayload()->getString('confirm_cancel_borrows')) {
@@ -908,7 +908,7 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        if ($deck->getOwner()->getId() !== $user->getId()) {
+        if ($deck->getOwnerOrFail()->getId() !== $user->getId()) {
             $this->addFlash('danger', 'app.flash.event.own_decks_only_registration');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -983,7 +983,7 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        if ($deck->getOwner()->getId() !== $user->getId()) {
+        if ($deck->getOwnerOrFail()->getId() !== $user->getId()) {
             $this->addFlash('danger', 'app.flash.event.own_decks_only_delegation');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -1218,7 +1218,7 @@ class EventController extends AbstractAppController
         BorrowRepository $borrowRepository,
     ): ?DeckVersion {
         // Own deck: must not be lent, retired, or committed to a borrower at this event
-        if ($deck->getOwner()->getId() === $user->getId()) {
+        if ($deck->getOwnerOrFail()->getId() === $user->getId()) {
             if (DeckStatus::Lent === $deck->getStatus() || DeckStatus::Retired === $deck->getStatus()) {
                 return null;
             }

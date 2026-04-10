@@ -235,4 +235,92 @@ class DeckTest extends TestCase
 
         self::assertNull($deck->getCurrentVersion());
     }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testOwnerIsNullableForArchetypeVariants(): void
+    {
+        $deck = new Deck();
+
+        self::assertNull($deck->getOwner());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testCanonicalDefaultsToFalse(): void
+    {
+        $deck = new Deck();
+
+        self::assertFalse($deck->isCanonical());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testSetCanonical(): void
+    {
+        $deck = new Deck();
+        $deck->setCanonical(true);
+
+        self::assertTrue($deck->isCanonical());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testIsArchetypeVariantWhenOwnerlessWithArchetype(): void
+    {
+        $deck = new Deck();
+        $archetype = new Archetype();
+        $deck->setArchetype($archetype);
+
+        self::assertTrue($deck->isArchetypeVariant());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testIsNotArchetypeVariantWhenOwned(): void
+    {
+        $deck = new Deck();
+        $deck->setOwner(new User());
+        $deck->setArchetype(new Archetype());
+
+        self::assertFalse($deck->isArchetypeVariant());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testIsNotArchetypeVariantWithoutArchetype(): void
+    {
+        $deck = new Deck();
+
+        self::assertFalse($deck->isArchetypeVariant());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testGetOwnerOrFailReturnsOwner(): void
+    {
+        $deck = new Deck();
+        $user = new User();
+        $deck->setOwner($user);
+
+        self::assertSame($user, $deck->getOwnerOrFail());
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function testGetOwnerOrFailThrowsForVariant(): void
+    {
+        $deck = new Deck();
+
+        $this->expectException(\LogicException::class);
+        $deck->getOwnerOrFail();
+    }
 }

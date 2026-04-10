@@ -406,7 +406,7 @@ class DeckController extends AbstractAppController
         /** @var User $user */
         $user = $this->getUser();
 
-        if ($deck->getOwner()->getId() !== $user->getId()) {
+        if ($deck->getOwnerOrFail()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You are not the owner of this deck.');
         }
     }

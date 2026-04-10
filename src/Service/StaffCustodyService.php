@@ -54,7 +54,7 @@ class StaffCustodyService
             throw new \DomainException('This deck has already been handed over to staff.');
         }
 
-        $deckOwner = $registration->getDeck()->getOwner();
+        $deckOwner = $registration->getDeck()->getOwnerOrFail();
         if ($deckOwner->getId() !== $actor->getId()) {
             throw new AccessDeniedHttpException('Only the deck owner can confirm the handover to staff.');
         }
@@ -118,7 +118,7 @@ class StaffCustodyService
      */
     public function ownerReclaimDeck(EventDeckRegistration $registration, User $actor): void
     {
-        $deckOwner = $registration->getDeck()->getOwner();
+        $deckOwner = $registration->getDeck()->getOwnerOrFail();
         if ($deckOwner->getId() !== $actor->getId()) {
             throw new AccessDeniedHttpException('Only the deck owner can reclaim this deck.');
         }

@@ -68,7 +68,7 @@ class DeckBorrowHistoryController extends AbstractController
             return;
         }
 
-        if ($deck->getOwner()->getId() === $user->getId() || $this->isGranted('ROLE_ADMIN')) {
+        if ($deck->getOwner()?->getId() === $user->getId() || $this->isGranted('ROLE_ADMIN')) {
             return;
         }
 

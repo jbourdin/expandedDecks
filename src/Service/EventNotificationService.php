@@ -153,9 +153,9 @@ class EventNotificationService
             $byBorrower[$borrowerId][] = $borrow;
             $borrowerMap[$borrowerId] = $borrow->getBorrower();
 
-            $ownerId = (int) $borrow->getDeck()->getOwner()->getId();
+            $ownerId = (int) $borrow->getDeck()->getOwnerOrFail()->getId();
             $byOwner[$ownerId][] = $borrow;
-            $ownerMap[$ownerId] = $borrow->getDeck()->getOwner();
+            $ownerMap[$ownerId] = $borrow->getDeck()->getOwnerOrFail();
         }
 
         foreach ($byBorrower as $borrowerId => $borrows) {
@@ -227,9 +227,9 @@ class EventNotificationService
         $ownerMap = [];
 
         foreach ($custodyBorrows as $borrow) {
-            $ownerId = (int) $borrow->getDeck()->getOwner()->getId();
+            $ownerId = (int) $borrow->getDeck()->getOwnerOrFail()->getId();
             $byOwner[$ownerId][] = $borrow;
-            $ownerMap[$ownerId] = $borrow->getDeck()->getOwner();
+            $ownerMap[$ownerId] = $borrow->getDeck()->getOwnerOrFail();
         }
 
         foreach ($byOwner as $ownerId => $borrows) {

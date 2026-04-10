@@ -68,7 +68,7 @@ class DeckShowController extends AbstractAppController
         // Access control: public decks are visible to everyone
         if (!$deck->isPublic()) {
             $isOwnerOrAdmin = null !== $user
-                && ($deck->getOwner()->getId() === $user->getId()
+                && ($deck->getOwner()?->getId() === $user->getId()
                     || $this->isGranted('ROLE_ADMIN'));
 
             $hasStaffAccess = false;
@@ -137,7 +137,7 @@ class DeckShowController extends AbstractAppController
             }
         }
 
-        $isOwner = null !== $user && $deck->getOwner()->getId() === $user->getId();
+        $isOwner = null !== $user && $deck->getOwner()?->getId() === $user->getId();
 
         // Anonymous users get empty borrow data
         $deckBorrows = [];
@@ -237,7 +237,7 @@ class DeckShowController extends AbstractAppController
         /** @var User $user */
         $user = $this->getUser();
 
-        if ($deck->getOwner()->getId() !== $user->getId()) {
+        if ($deck->getOwner()?->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -261,7 +261,7 @@ class DeckShowController extends AbstractAppController
         /** @var User $user */
         $user = $this->getUser();
 
-        if ($deck->getOwner()->getId() !== $user->getId()) {
+        if ($deck->getOwner()?->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
 
