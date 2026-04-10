@@ -3605,6 +3605,11 @@
                 <target>Variante « %name% » supprimée.</target>
                 <note>Flash message after deleting variant. %name% = variant name</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.more">
+                <source>app.archetype.variant.more</source>
+                <target>Plus de variantes…</target>
+                <note>Dropdown label when archetype has more than 5 variants</note>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.delete_confirm">
                 <source>app.archetype.variant.delete_confirm</source>
                 <target>Voulez-vous vraiment supprimer cette variante ?</target>

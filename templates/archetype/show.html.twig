@@ -19,6 +19,13 @@
     <meta property="og:title" content="{{ archetype.localizedName(app.request.locale) }} — Expanded Decks">
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {% if variants is not empty %}
+        {{ encore_entry_link_tags('archetype_variants') }}
+    {% endif %}
+{% endblock %}
+
 {% block body %}
     {% if not archetype.published %}
         <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.archetype.draft_notice'|trans }}</div>
@@ -52,6 +59,29 @@
             {% endif %}
         </div>
 
+        {% if variants is not empty %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header card-header-themed">
+                    <h5 class="mb-0">{{ 'app.archetype.variant.section_title'|trans }}</h5>
+                </div>
+                <div class="card-body">
+                    <div id="archetype-variant-selector-root"
+                         data-variants="{{ variantsData|json_encode|e('html_attr') }}"
+                         data-label-view-table="{{ 'app.deck.view_table'|trans }}"
+                         data-label-view-mosaic="{{ 'app.deck.view_mosaic'|trans }}"
+                         data-label-mosaic-alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': archetype.localizedName(app.request.locale)}) }}"
+                         data-label-section-pokemon="{{ 'app.deck.section_pokemon'|trans }}"
+                         data-label-section-trainer="{{ 'app.deck.section_trainer'|trans }}"
+                         data-label-section-energy="{{ 'app.deck.section_energy'|trans }}"
+                         data-label-table-qty="{{ 'app.deck.table_qty'|trans }}"
+                         data-label-table-card="{{ 'app.deck.table_card'|trans }}"
+                         data-label-table-set="{{ 'app.deck.table_set'|trans }}"
+                         data-label-more-variants="{{ 'app.archetype.variant.more'|trans }}">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         {% set channel = current_channel() %}
         {% if channel.enableDecks and latestDecks is not empty %}
             <div class="card shadow-sm">
@@ -64,7 +94,7 @@
                             <span class="badge bg-dark badge-short-id me-2">{{ deck.shortTag }}</span>
                             {{ archetype_sprites(archetype) }}
                             <span class="ms-1">{{ deck.name }}</span>
-                            <span class="text-muted ms-auto small">{{ deck.owner.screenName }}</span>
+                            <span class="text-muted ms-auto small">{{ deck.owner ? deck.owner.screenName : '' }}</span>
                         </a>
                     {% endfor %}
                 </div>
@@ -100,4 +130,7 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_show') }}
+    {% if variants is not empty %}
+        {{ encore_entry_script_tags('archetype_variants') }}
+    {% endif %}
 {% endblock %}
