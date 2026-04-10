@@ -153,7 +153,7 @@ class ArchetypeDetailController extends AbstractController
                 'id' => $variantId,
                 'name' => $variant->getName(),
                 'canonical' => $variant->isCanonical(),
-                'sprites' => $variant->getEffectivePokemonSlugs(),
+                'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
                 'mosaicUrl' => $mosaicUrl,
                 'groupedCards' => $orderedGroups,
