@@ -195,7 +195,7 @@ function DesktopSelector({ variants, selectedIndex, onSelect }: {
 }
 
 /**
- * Mobile variant selector: dropdown with sprites and name.
+ * Mobile variant selector: dropdown with sprites in both the input and options.
  */
 function MobileSelector({ variants, selectedIndex, onSelect }: {
     variants: VariantData[];
@@ -220,8 +220,18 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
                     ? <SpriteList slugs={variants[selectedIndex].sprites} height={20} />
                     : undefined
             }
-            leftSectionWidth={variants[selectedIndex].sprites.length * 22 + 8}
+            leftSectionWidth={variants[selectedIndex].sprites.length > 0 ? variants[selectedIndex].sprites.length * 22 + 8 : undefined}
             styles={{ input: { fontWeight: 600 } }}
+            renderOption={({ option }) => {
+                const variant = variants[Number(option.value)];
+
+                return (
+                    <Group gap={6} wrap="nowrap">
+                        {variant.sprites.length > 0 && <SpriteList slugs={variant.sprites} height={20} />}
+                        <span>{variant.name}</span>
+                    </Group>
+                );
+            }}
         />
     );
 }
