@@ -50,7 +50,7 @@ function showCard(index: number): void {
     modalImg.src = card.src;
     modalImg.alt = card.name;
     if (modalLabel) {
-        modalLabel.textContent = card.quantity > 1 ? `${card.quantity} \u00d7 ${card.name}` : card.name;
+        modalLabel.textContent = `${card.quantity} \u00d7 ${card.name}`;
     }
 }
 
