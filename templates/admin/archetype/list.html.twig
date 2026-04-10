@@ -24,6 +24,7 @@
                 <table class="table table-striped table-themed mb-0">
                     <thead>
                         <tr>
+                            <th style="width: 40px"></th>
                             <th>{{ 'app.common.name'|trans }}</th>
                             <th style="width: 120px">{{ 'app.common.slug'|trans }}</th>
                             <th style="width: 120px">{{ 'app.archetype.table.pokemon'|trans }}</th>
@@ -33,9 +34,16 @@
                             <th style="width: 80px"></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="sortable-archetypes" data-reorder-url="{{ path('app_admin_archetype_reorder') }}">
                         {% for archetype in archetypes %}
-                            <tr>
+                            <tr data-archetype-id="{{ archetype.id }}">
+                                <td class="text-center align-middle">
+                                    <span class="sortable-handle d-none d-md-inline" style="cursor: grab" aria-label="{{ 'app.cms.admin.drag_to_reorder'|trans }}"><i class="bi bi-grip-vertical"></i></span>
+                                    <span class="d-inline d-md-none">
+                                        <button type="button" class="btn btn-sm btn-link p-0 move-up-btn" aria-label="{{ 'app.cms.admin.move_up'|trans }}"><i class="bi bi-chevron-up"></i></button>
+                                        <button type="button" class="btn btn-sm btn-link p-0 move-down-btn" aria-label="{{ 'app.cms.admin.move_down'|trans }}"><i class="bi bi-chevron-down"></i></button>
+                                    </span>
+                                </td>
                                 <td>
                                     {{ archetype_sprites(archetype) }}
                                     <a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.name }}</a>
@@ -82,4 +90,9 @@
     {% else %}
         <div class="alert alert-info">{{ 'app.archetype.no_archetypes'|trans }}</div>
     {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_archetype_list') }}
 {% endblock %}

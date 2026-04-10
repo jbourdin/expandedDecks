@@ -179,6 +179,7 @@ class DeckRepository extends ServiceEntityRepository
             ->andWhere('d.deletedAt IS NULL')
             ->setParameter('archetype', $archetype)
             ->orderBy('d.canonical', 'DESC')
+            ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.createdAt', 'DESC')
             ->getQuery()
             ->getResult();

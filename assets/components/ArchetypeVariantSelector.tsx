@@ -163,15 +163,15 @@ function DesktopSelector({ variants, selectedIndex, onSelect }: {
     const dropdownVariants = variants.slice(MAX_BUTTONS);
 
     return (
-        <Group gap={4} wrap="wrap">
+        <Group gap="xs" wrap="wrap">
             {buttonVariants.map((variant, index) => (
                 <Button
                     key={variant.id}
                     variant={index === selectedIndex ? 'filled' : 'outline'}
-                    size="compact-sm"
+                    size="sm"
                     radius="xl"
                     onClick={() => onSelect(index)}
-                    leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={18} /> : undefined}
+                    leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={22} /> : undefined}
                 >
                     {variant.name}
                 </Button>
@@ -302,7 +302,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                                     <Button
                                         variant={copied ? 'filled' : 'outline'}
                                         color={copied ? 'teal' : 'gray'}
-                                        size="compact-sm"
+                                        size="sm"
                                         onClick={copy}
                                     >
                                         {copied ? labels.copied : labels.copyList}

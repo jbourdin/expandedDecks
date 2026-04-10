@@ -224,4 +224,25 @@ class ArchetypeTest extends TestCase
         $archetype->removeTranslation($translation);
         self::assertCount(0, $archetype->getTranslations());
     }
+
+    /**
+     * @see docs/features.md F18.11 — Archetype relevance ordering
+     */
+    public function testPositionDefaultsToZero(): void
+    {
+        $archetype = new Archetype();
+
+        self::assertSame(0, $archetype->getPosition());
+    }
+
+    /**
+     * @see docs/features.md F18.11 — Archetype relevance ordering
+     */
+    public function testSetPosition(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPosition(5);
+
+        self::assertSame(5, $archetype->getPosition());
+    }
 }

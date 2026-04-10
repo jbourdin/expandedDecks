@@ -42,10 +42,10 @@ class ArchetypeCatalogController extends AbstractController
             /** @var list<string> $tags */
             $tags = $request->query->all('tags');
             $tags = array_values(array_filter($tags, static fn (string $tag): bool => '' !== $tag));
-            $sort = $request->query->getString('sort', 'name');
+            $sort = $request->query->getString('sort', 'position');
 
-            if (!\in_array($sort, ['name', 'decks'], true)) {
-                $sort = 'name';
+            if (!\in_array($sort, ['name', 'decks', 'position'], true)) {
+                $sort = 'position';
             }
 
             $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort);

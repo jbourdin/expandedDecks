@@ -74,6 +74,15 @@ class Deck
     #[ORM\Column(options: ['default' => false])]
     private bool $canonical = false;
 
+    /**
+     * Display order within an archetype's variant list (lower = first).
+     * Only meaningful for archetype variant decks (owner = null).
+     *
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    private int $position = 0;
+
     /** @var list<string> */
     #[ORM\Column(type: Types::JSON)]
     private array $languages = [];
@@ -187,6 +196,24 @@ class Deck
     public function setCanonical(bool $canonical): static
     {
         $this->canonical = $canonical;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
 
         return $this;
     }
