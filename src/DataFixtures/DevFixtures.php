@@ -126,6 +126,9 @@ MARKDOWN;
         $this->createRegidragoDeckVersion($manager, $lenderDeck);
         $this->createRegidragoDeckVersionTwo($manager, $lenderDeck);
 
+        // Archetype variant decks (no owner)
+        $this->createRegidragoVariants($manager, $archetypeRegidrago);
+
         $borrowerDeck = $this->createDeck($manager, $borrower, 'Lugia Archeops');
         $borrowerDeck->setArchetype($archetypeLugia);
         $borrowerDeck->setLanguages(['en']);
@@ -587,6 +590,134 @@ MARKDOWN;
         $archetype->addTranslation($translation);
 
         $manager->persist($translation);
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    private function createRegidragoVariants(ObjectManager $manager, Archetype $archetype): void
+    {
+        $rawList = <<<'LIST'
+Pokémon: 19
+4 Regidrago V SIT 135
+3 Regidrago VSTAR SIT 136
+1 Budew PRE 4
+1 Crobat V DAA 104
+1 Dedenne-GX UNB 57
+1 Dialga-GX UPR 100
+1 Dragapult ex TWM 130
+1 Giratina VSTAR LOR 131
+1 Kyurem SFA 47
+1 Latias ex SSP 76
+1 Noivern ex PAL 153
+1 Noivern-GX BUS 99
+1 Salamence ex JTG 114
+1 Tapu Lele-GX GRI 60
+
+Trainer: 31
+4 Mysterious Treasure FLI 113
+4 Professor's Research JTG 155
+4 Quick Ball FST 237
+3 VS Seeker PHF 109
+2 Battle Compressor PHF 92
+1 Crispin SCR 133
+1 Faba LOT 173
+1 Float Stone PLF 99
+1 Guzma BUS 115
+1 Hisuian Heavy Ball ASR 146
+1 Iono PAL 185
+1 Marnie SSH 169
+1 Megaton Blower SSP 182
+1 Muscle Band XY 121
+1 N FCO 105
+1 Parallel City BKT 145
+1 Path to the Peak CRE 148
+1 Raihan EVS 152
+1 Super Rod PAL 188
+
+Energy: 10
+4 Double Dragon Energy ROS 97
+4 Grass Energy SVE 1
+2 Fire Energy SVE 2
+
+Total Cards: 60
+LIST;
+
+        // Canonical variant: Regidrago
+        $canonical = new Deck();
+        $canonical->setName('Regidrago');
+        $canonical->setArchetype($archetype);
+        $canonical->setFormat('Expanded');
+        $canonical->setCanonical(true);
+        $canonical->setPokemonSlugs(['dialga']);
+        $canonical->setNotes(<<<'MARKDOWN'
+## Strategy
+
+Regidrago VSTAR leverages its **Apex Dragon** VSTAR Power to copy any attack from a Dragon-type Pokemon in the discard pile. The core engine uses [[card:SIT-136]] as the sole attacker, discarding Dragon-type Pokemon with powerful attacks early — then copying them for a single energy cost via **Double Turbo Energy**.
+
+## Key Combos
+
+- **Giratina VSTAR** in discard → copy **Lost Impact** (280 damage) for just one Double Turbo
+- **Dragonite V** in discard → copy **Dragon Gale** for spread damage + snipe
+- **Kyurem VMAX** in discard → copy **Max Frost** for scaling damage based on energy
+
+## Setup
+
+Turn 1 priority: use **Battle VIP Pass** and **Nest Ball** to bench two Regidrago V. **Battle Compressor** and **Ultra Ball** discard Dragon attackers early. **Professor Juniper** fuels the discard while refreshing your hand.
+
+## Matchup Notes
+
+Strong against single-prize decks thanks to VSTAR bulk (270 HP) and one-shot potential. Weak to **Path to the Peak** (shuts off VSTAR Power) — run 2–3 **Chaotic Swell** or **Field Blower** to counter.
+MARKDOWN);
+        $canonicalVersion = new DeckVersion();
+        $canonicalVersion->setDeck($canonical);
+        $canonicalVersion->setVersionNumber(1);
+        $canonicalVersion->setRawList($rawList);
+        $manager->persist($canonical);
+        $manager->persist($canonicalVersion);
+        $canonical->setCurrentVersion($canonicalVersion);
+
+        // Alternate variant: Regidrago / Cinccino
+        $alternate = new Deck();
+        $alternate->setName('Alternate Regidrago');
+        $alternate->setArchetype($archetype);
+        $alternate->setFormat('Expanded');
+        $alternate->setPokemonSlugs(['dragonite']);
+        $alternate->setNotes(<<<'MARKDOWN'
+## Strategy
+
+The **Regidrago / Cinccino** variant trades raw power for consistency. Instead of relying solely on [[card:SIT-136]], this build pairs it with a **Cinccino** draw engine — **Make Do** lets you discard a card and draw two, simultaneously fueling the discard pile with Dragon attackers and keeping your hand stocked.
+
+## Key Differences from Canonical
+
+- **Cinccino line** (Minccino + Cinccino) replaces heavy Supporter reliance — less dependent on turn 1 Professor Juniper
+- Thinner Dragon target lineup (3–4 instead of 5–6) to make room for the draw engine
+- More resilient to **N** and **Marnie** hand disruption thanks to bench-based draw
+
+## Setup
+
+Turn 1: bench Regidrago V + Minccino. Turn 2: evolve both — Cinccino starts drawing while Regidrago VSTAR charges. Use **Level Ball** to search Minccino and Cinccino (both under 90 HP).
+
+## Weaknesses
+
+Bigger bench means more liability against **Sky Seal Stone** + Boss's Orders snipes. The Cinccino line gives up easy two-prize KOs if dragged active.
+MARKDOWN);
+        $alternateVersion = new DeckVersion();
+        $alternateVersion->setDeck($alternate);
+        $alternateVersion->setVersionNumber(1);
+        $alternateVersion->setRawList($rawList);
+        $manager->persist($alternate);
+        $manager->persist($alternateVersion);
+        $alternate->setCurrentVersion($alternateVersion);
+
+        // Third variant: minimal placeholder
+        $third = new Deck();
+        $third->setName('Third Regidrago');
+        $third->setArchetype($archetype);
+        $third->setFormat('Expanded');
+        $third->setPokemonSlugs(['dragapult']);
+        $third->setNotes('A lightweight Regidrago build focused on speed.');
+        $manager->persist($third);
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
