@@ -98,10 +98,10 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
                 <tbody>
                     {cards.map((card, index) => (
                         <tr key={index}>
-                            <td>{card.quantity}</td>
+                            <td>{card.quantity} &times;</td>
                             <td>
                                 {card.imageUrl ? (
-                                    <span className="card-hover" data-quantity={card.quantity}>
+                                    <span className="card-hover" data-quantity={card.quantity} data-card-hover-group="variant-decklist">
                                         {card.cardName}
                                         <img
                                             className="card-hover-img"

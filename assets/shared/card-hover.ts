@@ -16,7 +16,11 @@ import { Modal } from 'bootstrap';
  * On touch devices (< md), hover is disabled via CSS. Instead, tapping
  * a card name opens a centered Bootstrap modal with the card image.
  * The modal is swipeable: prev/next buttons and touch swipe navigate
- * through all card images in list order.
+ * through all card images in the same sweep group.
+ *
+ * Sweep groups: elements with `data-card-hover-group="name"` are grouped
+ * together for prev/next navigation. Elements without a group open the
+ * modal but do not participate in sweep navigation (standalone).
  *
  * @see docs/features.md F6.2 — TCGdex card data enrichment
  */
@@ -25,6 +29,8 @@ interface CardEntry {
     src: string;
     name: string;
     quantity: number;
+    group: string | null;
+    globalIndex: number;
 }
 
 const isTouchDevice = (): boolean => window.matchMedia('(max-width: 767.98px)').matches;
@@ -44,12 +50,28 @@ function showCard(index: number): void {
     modalImg.src = card.src;
     modalImg.alt = card.name;
     if (modalLabel) {
-        modalLabel.textContent = card.quantity > 1 ? `${card.quantity} x ${card.name}` : card.name;
+        modalLabel.textContent = card.quantity > 1 ? `${card.quantity} \u00d7 ${card.name}` : card.name;
     }
 }
 
+function getGroupIndices(index: number): number[] {
+    const card = cards[index];
+    if (!card.group) {
+        return [index];
+    }
+
+    return cards
+        .filter((entry) => entry.group === card.group)
+        .map((entry) => entry.globalIndex);
+}
+
 function navigate(direction: number): void {
-    currentIndex = (currentIndex + direction + cards.length) % cards.length;
+    const groupIndices = getGroupIndices(currentIndex);
+    if (groupIndices.length <= 1) return;
+
+    const positionInGroup = groupIndices.indexOf(currentIndex);
+    const nextPosition = (positionInGroup + direction + groupIndices.length) % groupIndices.length;
+    currentIndex = groupIndices[nextPosition];
     showCard(currentIndex);
 }
 
@@ -65,9 +87,10 @@ export function initCardHover(): void {
         const img = element.querySelector<HTMLImageElement>('.card-hover-img');
         if (!img) return;
 
-        const index = cards.length;
+        const globalIndex = cards.length;
         const quantity = parseInt(element.dataset.quantity || '1', 10);
-        cards.push({ src: img.src, name: img.alt, quantity });
+        const group = element.dataset.cardHoverGroup ?? null;
+        cards.push({ src: img.src, name: img.alt, quantity, group, globalIndex });
 
         element.addEventListener('mouseenter', () => {
             if (isTouchDevice()) return;
@@ -103,11 +126,18 @@ export function initCardHover(): void {
             if (!isTouchDevice()) return;
 
             event.preventDefault();
-            currentIndex = index;
+            currentIndex = globalIndex;
             showCard(currentIndex);
 
             const modalElement = document.getElementById('cardImageModal');
             if (!modalElement) return;
+
+            // Hide prev/next for standalone cards (no sweep group)
+            const prevButton = document.getElementById('cardImageModalPrev');
+            const nextButton = document.getElementById('cardImageModalNext');
+            const groupSize = getGroupIndices(globalIndex).length;
+            if (prevButton) prevButton.style.display = groupSize > 1 ? '' : 'none';
+            if (nextButton) nextButton.style.display = groupSize > 1 ? '' : 'none';
 
             const bsModal = Modal.getOrCreateInstance(modalElement);
             bsModal.show();
