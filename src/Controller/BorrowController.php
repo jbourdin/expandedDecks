@@ -46,7 +46,7 @@ class BorrowController extends AbstractAppController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $isOwner = $borrow->getDeck()->getOwner()->getId() === $user->getId();
+        $isOwner = $borrow->getDeck()->getOwnerOrFail()->getId() === $user->getId();
         $isBorrower = $borrow->getBorrower()->getId() === $user->getId();
         $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($user);
 

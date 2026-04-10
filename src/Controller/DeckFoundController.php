@@ -40,7 +40,7 @@ class DeckFoundController extends AbstractController
         $user = $this->getUser();
 
         // Owner cannot report their own deck
-        if ($user instanceof User && $deck->getOwner()->getId() === $user->getId()) {
+        if ($user instanceof User && $deck->getOwnerOrFail()->getId() === $user->getId()) {
             return new JsonResponse(['error' => 'Cannot report your own deck.'], Response::HTTP_FORBIDDEN);
         }
 

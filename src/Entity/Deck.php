@@ -44,9 +44,14 @@ class Deck
     #[Assert\Length(min: 2, max: 100)]
     private string $name = '';
 
+    /**
+     * Null for archetype variant decks (editorial decklists with no user owner).
+     *
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'ownedDecks')]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $owner;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $owner = null;
 
     #[ORM\Column(length: 30)]
     #[Assert\NotBlank]
@@ -59,6 +64,15 @@ class Deck
     #[ORM\ManyToOne(targetEntity: Archetype::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Archetype $archetype = null;
+
+    /**
+     * Marks the primary/reference variant for an archetype.
+     * Only meaningful for archetype variant decks (owner = null).
+     *
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $canonical = false;
 
     /** @var list<string> */
     #[ORM\Column(type: Types::JSON)]
@@ -136,16 +150,55 @@ class Deck
         return $this;
     }
 
-    public function getOwner(): User
+    public function getOwner(): ?User
     {
         return $this->owner;
     }
 
-    public function setOwner(User $owner): static
+    /**
+     * Return the owner, throwing if this is an archetype variant deck.
+     * Use in contexts where an owner is guaranteed (borrow, event, notification).
+     *
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function getOwnerOrFail(): User
+    {
+        return $this->owner ?? throw new \LogicException(\sprintf('Deck #%d has no owner (archetype variant).', $this->id ?? 0));
+    }
+
+    public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
 
         return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function isCanonical(): bool
+    {
+        return $this->canonical;
+    }
+
+    /**
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function setCanonical(bool $canonical): static
+    {
+        $this->canonical = $canonical;
+
+        return $this;
+    }
+
+    /**
+     * Whether this deck is an archetype variant (no user owner).
+     *
+     * @see docs/features.md F18.13 — Archetype variant decks
+     */
+    public function isArchetypeVariant(): bool
+    {
+        return null === $this->owner && null !== $this->archetype;
     }
 
     public function getFormat(): string

@@ -67,7 +67,7 @@ class BorrowService
             throw new \DomainException('Cannot borrow decks during the ending phase.');
         }
 
-        if ($deck->getOwner()->getId() === $borrower->getId()) {
+        if ($deck->getOwnerOrFail()->getId() === $borrower->getId()) {
             throw new \DomainException('You cannot borrow your own deck.');
         }
 
@@ -109,7 +109,7 @@ class BorrowService
         $this->em->flush();
 
         $this->createNotification(
-            $deck->getOwner(),
+            $deck->getOwnerOrFail(),
             NotificationType::BorrowRequested,
             'New borrow request',
             \sprintf('%s wants to borrow "%s" for %s.', $borrower->getScreenName(), $deck->getName(), $event->getName()),
@@ -230,7 +230,7 @@ class BorrowService
         $this->em->flush();
 
         $this->createNotification(
-            $borrow->getDeck()->getOwner(),
+            $borrow->getDeck()->getOwnerOrFail(),
             NotificationType::BorrowReturned,
             'Deck returned',
             \sprintf('"%s" has been returned by %s.', $borrow->getDeck()->getName(), $borrow->getBorrower()->getScreenName()),
@@ -254,7 +254,7 @@ class BorrowService
         $this->em->flush();
 
         $notifyUser = $actor->getId() === $borrow->getBorrower()->getId()
-            ? $borrow->getDeck()->getOwner()
+            ? $borrow->getDeck()->getOwnerOrFail()
             : $borrow->getBorrower();
 
         $this->createNotification(
@@ -274,7 +274,7 @@ class BorrowService
      */
     public function createWalkUpBorrow(Deck $deck, User $borrower, Event $event, User $initiator): Borrow
     {
-        if ($deck->getOwner()->getId() === $borrower->getId()) {
+        if ($deck->getOwnerOrFail()->getId() === $borrower->getId()) {
             throw new \DomainException('The borrower cannot be the deck owner.');
         }
 
@@ -307,7 +307,7 @@ class BorrowService
             throw new \DomainException('This deck has no version and cannot be lent.');
         }
 
-        $isOwner = $deck->getOwner()->getId() === $initiator->getId();
+        $isOwner = $deck->getOwnerOrFail()->getId() === $initiator->getId();
         if (!$isOwner && !$event->isOrganizerOrStaff($initiator)) {
             throw new AccessDeniedHttpException('Only the deck owner or event staff can initiate a walk-up lend.');
         }
@@ -357,7 +357,7 @@ class BorrowService
         // Notify owner if initiator is staff (not the owner)
         if (!$isOwner) {
             $this->createNotification(
-                $deck->getOwner(),
+                $deck->getOwnerOrFail(),
                 NotificationType::BorrowHandedOff,
                 'Walk-up lend initiated',
                 \sprintf('"%s" was lent to %s by event staff at %s.', $deck->getName(), $borrower->getScreenName(), $event->getName()),
@@ -392,7 +392,7 @@ class BorrowService
         $this->em->flush();
 
         $this->createNotification(
-            $borrow->getDeck()->getOwner(),
+            $borrow->getDeck()->getOwnerOrFail(),
             NotificationType::BorrowReturned,
             'Deck returned to owner',
             \sprintf('"%s" has been returned to your custody by %s.', $borrow->getDeck()->getName(), $actor->getScreenName()),
@@ -499,7 +499,7 @@ class BorrowService
             );
 
             $this->createNotification(
-                $borrow->getDeck()->getOwner(),
+                $borrow->getDeck()->getOwnerOrFail(),
                 NotificationType::BorrowOverdue,
                 'Deck overdue',
                 \sprintf('Your deck "%s" is overdue for return from %s.', $borrow->getDeck()->getName(), $borrow->getBorrower()->getScreenName()),
@@ -523,7 +523,7 @@ class BorrowService
      */
     private function assertOwnerOrDelegatedStaff(Borrow $borrow, User $actor): void
     {
-        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actor->getId();
+        $isOwner = $borrow->getDeck()->getOwnerOrFail()->getId() === $actor->getId();
         $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($actor);
 
         if (!$isOwner && !$isDelegatedStaff) {
@@ -535,7 +535,7 @@ class BorrowService
     {
         $actorId = $actor->getId();
         $isBorrower = $borrow->getBorrower()->getId() === $actorId;
-        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actorId;
+        $isOwner = $borrow->getDeck()->getOwnerOrFail()->getId() === $actorId;
         $isDelegatedStaff = $borrow->isDelegatedToStaff() && $borrow->getEvent()->isOrganizerOrStaff($actor);
 
         if (!$isBorrower && !$isOwner && !$isDelegatedStaff) {
@@ -555,7 +555,7 @@ class BorrowService
             return;
         }
 
-        $isOwner = $borrow->getDeck()->getOwner()->getId() === $actor->getId();
+        $isOwner = $borrow->getDeck()->getOwnerOrFail()->getId() === $actor->getId();
         if ($isOwner) {
             return;
         }
