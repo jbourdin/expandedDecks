@@ -7,8 +7,9 @@
  * file that was distributed with this source code.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import { initCardHover } from '../shared/card-hover';
 
 /**
  * @see docs/features.md F18.16 — Archetype detail: variant selector
@@ -76,12 +77,23 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
                 </thead>
                 <tbody>
                     {cards.map((card, index) => (
-                        <tr key={index}
-                            data-card-hover-url={card.imageUrl ?? undefined}
-                            data-card-hover-name={card.cardName}
-                            style={{ cursor: card.imageUrl ? 'pointer' : 'default' }}>
+                        <tr key={index}>
                             <td>{card.quantity}</td>
-                            <td>{card.cardName}</td>
+                            <td>
+                                {card.imageUrl ? (
+                                    <span className="card-hover" data-quantity={card.quantity}>
+                                        {card.cardName}
+                                        <img
+                                            className="card-hover-img"
+                                            src={card.imageUrl}
+                                            alt={card.cardName}
+                                            loading="lazy"
+                                        />
+                                    </span>
+                                ) : (
+                                    card.cardName
+                                )}
+                            </td>
                             <td><span className="badge bg-secondary">{card.setCode}</span></td>
                             <td>{card.cardNumber}</td>
                         </tr>
@@ -124,6 +136,14 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
     const [viewMode, setViewMode] = useState<ViewMode>('table');
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Re-initialize card hover after variant switch or view mode change
+    useEffect(() => {
+        if (viewMode === 'table') {
+            initCardHover();
+        }
+    }, [selectedIndex, viewMode]);
 
     if (variants.length === 0) {
         return null;
@@ -137,7 +157,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const dropdownVariants = variants.slice(MAX_BUTTONS);
 
     return (
-        <div>
+        <div ref={containerRef}>
             {/* Variant selector */}
             {variants.length > 1 && (
                 <div className="mb-3">
@@ -150,7 +170,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                                 onClick={() => setSelectedIndex(index)}
                             >
                                 {variant.name}
-                                {variant.canonical && ' ★'}
+                                {variant.canonical && ' \u2605'}
                             </Button>
                         ))}
                         {dropdownVariants.length > 0 && (
@@ -201,7 +221,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                         <div className="text-center">
                             <img
                                 src={selectedVariant.mosaicUrl}
-                                alt={`${labels.mosaicAlt} — ${selectedVariant.name}`}
+                                alt={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
                                 className="img-fluid rounded shadow-sm"
                             />
                         </div>

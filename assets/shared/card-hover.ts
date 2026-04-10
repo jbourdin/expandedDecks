@@ -29,30 +29,39 @@ interface CardEntry {
 
 const isTouchDevice = (): boolean => window.matchMedia('(max-width: 767.98px)').matches;
 
+// Module-level state shared across multiple initCardHover() calls
+const cards: CardEntry[] = [];
+let currentIndex = 0;
+let modalInitialized = false;
+
+function showCard(index: number): void {
+    const modalImg = document.getElementById('cardImageModalImg') as HTMLImageElement | null;
+    const modalLabel = document.getElementById('cardImageModalLabel');
+
+    if (!modalImg || index < 0 || index >= cards.length) return;
+
+    const card = cards[index];
+    modalImg.src = card.src;
+    modalImg.alt = card.name;
+    if (modalLabel) {
+        modalLabel.textContent = card.quantity > 1 ? `${card.quantity} x ${card.name}` : card.name;
+    }
+}
+
+function navigate(direction: number): void {
+    currentIndex = (currentIndex + direction + cards.length) % cards.length;
+    showCard(currentIndex);
+}
+
+/**
+ * Initialize card hover for all `.card-hover` elements not yet initialized.
+ * Safe to call multiple times (e.g. after React re-renders).
+ */
 export function initCardHover(): void {
-    const cards: CardEntry[] = [];
-    let currentIndex = 0;
-
-    function showCard(index: number): void {
-        const modalImg = document.getElementById('cardImageModalImg') as HTMLImageElement | null;
-        const modalLabel = document.getElementById('cardImageModalLabel');
-
-        if (!modalImg || index < 0 || index >= cards.length) return;
-
-        const card = cards[index];
-        modalImg.src = card.src;
-        modalImg.alt = card.name;
-        if (modalLabel) {
-            modalLabel.textContent = card.quantity > 1 ? `${card.quantity} x ${card.name}` : card.name;
-        }
-    }
-
-    function navigate(direction: number): void {
-        currentIndex = (currentIndex + direction + cards.length) % cards.length;
-        showCard(currentIndex);
-    }
-
     document.querySelectorAll<HTMLElement>('.card-hover').forEach((element) => {
+        if (element.dataset.cardHoverInit) return;
+        element.dataset.cardHoverInit = '1';
+
         const img = element.querySelector<HTMLImageElement>('.card-hover-img');
         if (!img) return;
 
@@ -104,6 +113,10 @@ export function initCardHover(): void {
             bsModal.show();
         });
     });
+
+    // Only set up modal navigation handlers once
+    if (modalInitialized) return;
+    modalInitialized = true;
 
     // Prev/next button handlers
     document.getElementById('cardImageModalPrev')?.addEventListener('click', () => navigate(-1));
