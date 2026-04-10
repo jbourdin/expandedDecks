@@ -156,6 +156,7 @@ class ArchetypeDetailController extends AbstractController
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
                 'mosaicUrl' => $mosaicUrl,
+                'rawList' => $version?->getRawList(),
                 'groupedCards' => $orderedGroups,
             ];
         }

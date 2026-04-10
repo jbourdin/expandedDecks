@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { initCardHover } from '../shared/card-hover';
 
@@ -33,6 +33,7 @@ interface VariantData {
     sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
+    rawList: string | null;
     groupedCards: Record<string, CardData[]>;
 }
 
@@ -47,6 +48,8 @@ interface Labels {
     tableCard: string;
     tableSet: string;
     moreVariants: string;
+    copyList: string;
+    copied: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -274,18 +277,34 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                 <div className="cms-content mb-3" dangerouslySetInnerHTML={{ __html: selectedVariant.description }} />
             )}
 
-            {/* View mode toggle + card display */}
+            {/* View mode toggle + copy button + card display */}
             {hasCards && (
                 <Stack gap="sm">
-                    <SegmentedControl
-                        value={viewMode}
-                        onChange={(value) => setViewMode(value as ViewMode)}
-                        data={[
-                            { label: labels.viewTable, value: 'table' },
-                            { label: labels.viewMosaic, value: 'mosaic' },
-                        ]}
-                        size="xs"
-                    />
+                    <Group justify="space-between" align="center">
+                        <SegmentedControl
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value as ViewMode)}
+                            data={[
+                                { label: labels.viewTable, value: 'table' },
+                                { label: labels.viewMosaic, value: 'mosaic' },
+                            ]}
+                            size="xs"
+                        />
+                        {selectedVariant.rawList && (
+                            <CopyButton value={selectedVariant.rawList} timeout={2000}>
+                                {({ copied, copy }) => (
+                                    <Button
+                                        variant={copied ? 'filled' : 'outline'}
+                                        color={copied ? 'teal' : 'gray'}
+                                        size="compact-sm"
+                                        onClick={copy}
+                                    >
+                                        {copied ? labels.copied : labels.copyList}
+                                    </Button>
+                                )}
+                            </CopyButton>
+                        )}
+                    </Group>
 
                     {viewMode === 'table' && (
                         <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} />
