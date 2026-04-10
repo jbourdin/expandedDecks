@@ -41,6 +41,7 @@ use App\Enum\EventVisibility;
 use App\Enum\NotificationType;
 use App\Enum\ParticipationMode;
 use App\Enum\TournamentStructure;
+use App\Service\DeckListParser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -49,6 +50,7 @@ class DevFixtures extends Fixture
 {
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly DeckListParser $deckListParser,
     ) {
     }
 
@@ -671,13 +673,8 @@ Turn 1 priority: use **Battle VIP Pass** and **Nest Ball** to bench two Regidrag
 
 Strong against single-prize decks thanks to VSTAR bulk (270 HP) and one-shot potential. Weak to **Path to the Peak** (shuts off VSTAR Power) — run 2–3 **Chaotic Swell** or **Field Blower** to counter.
 MARKDOWN);
-        $canonicalVersion = new DeckVersion();
-        $canonicalVersion->setDeck($canonical);
-        $canonicalVersion->setVersionNumber(1);
-        $canonicalVersion->setRawList($rawList);
         $manager->persist($canonical);
-        $manager->persist($canonicalVersion);
-        $canonical->setCurrentVersion($canonicalVersion);
+        $this->createParsedDeckVersion($manager, $canonical, $rawList);
 
         // Alternate variant: Regidrago / Cinccino
         $alternate = new Deck();
@@ -705,13 +702,8 @@ Turn 1: bench Regidrago V + Minccino. Turn 2: evolve both — Cinccino starts dr
 
 Bigger bench means more liability against **Sky Seal Stone** + Boss's Orders snipes. The Cinccino line gives up easy two-prize KOs if dragged active.
 MARKDOWN);
-        $alternateVersion = new DeckVersion();
-        $alternateVersion->setDeck($alternate);
-        $alternateVersion->setVersionNumber(1);
-        $alternateVersion->setRawList($rawList);
         $manager->persist($alternate);
-        $manager->persist($alternateVersion);
-        $alternate->setCurrentVersion($alternateVersion);
+        $this->createParsedDeckVersion($manager, $alternate, $rawList);
 
         // Third variant: minimal placeholder
         $third = new Deck();
@@ -722,6 +714,32 @@ MARKDOWN);
         $third->setPokemonSlugs(['dragapult']);
         $third->setNotes('A lightweight Regidrago build focused on speed.');
         $manager->persist($third);
+    }
+
+    /**
+     * Parse a raw decklist and create a DeckVersion with DeckCard entities.
+     */
+    private function createParsedDeckVersion(ObjectManager $manager, Deck $deck, string $rawList): void
+    {
+        $result = $this->deckListParser->parse($rawList);
+
+        $version = new DeckVersion();
+        $version->setDeck($deck);
+        $version->setVersionNumber(1);
+        $version->setRawList($rawList);
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $manager->persist($version);
+        $deck->setCurrentVersion($version);
     }
 
     private function createDeck(ObjectManager $manager, User $owner, string $name, DeckStatus $status = DeckStatus::Available): Deck
