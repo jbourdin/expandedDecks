@@ -882,6 +882,280 @@ class CardEnricherTest extends TestCase
     }
 
     /**
+     * Covers resolveImageUrl() sibling fallback: when a Pokemon card has no image and no
+     * PokemonTCG.io fallback, a sibling printing from the same CardIdentity is used.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testResolveImageUrlUsesSiblingPrintingImageForPokemon(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Psyduck');
+        $card->setSetCode('MEP');
+        $card->setCardNumber('7');
+        $card->setCardType('pokemon');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        // Pre-create a CardIdentity with a sibling printing that has an image
+        $identity = new CardIdentity();
+        $identity->setName('Psyduck');
+        $identity->setCategory('pokemon');
+        $identity->setHp(70);
+        $identity->setAbilitySignature('Damp');
+        $identity->setAttackSignature('Collision');
+
+        $siblingPrinting = new CardPrinting();
+        $siblingPrinting->setCardIdentity($identity);
+        $siblingPrinting->setTcgdexId('me02.5-039');
+        $siblingPrinting->setImageUrl('https://assets.tcgdex.net/en/me/me02.5/039/high.webp');
+        $siblingPrinting->setSetReleaseDate(new \DateTimeImmutable('2026-01-15'));
+        $identity->addPrinting($siblingPrinting);
+
+        // The enriched printing has no image (mimics mep-007 with no TCGdex image)
+        $identityResolver = $this->createStub(CardIdentityResolver::class);
+        $identityResolver->method('resolveFromTcgdexCard')->willReturnCallback(
+            static function () use ($identity): CardPrinting {
+                $printing = new CardPrinting();
+                $printing->setCardIdentity($identity);
+                $printing->setTcgdexId('mep-007');
+                $printing->setImageUrl(null);
+                $identity->addPrinting($printing);
+
+                return $printing;
+            },
+        );
+
+        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'mep-007',
+                name: 'Psyduck',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: null,
+                isExpandedLegal: false,
+            ));
+        $apiClient->expects(self::never())->method('findImageByName');
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        self::assertSame('https://assets.tcgdex.net/en/me/me02.5/039/high.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers resolveImageUrl(): Pokemon card with no image and no siblings gets no image —
+     * findImageByName is NOT called for Pokemon (too many false positives across eras).
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testResolveImageUrlDoesNotCallFindImageByNameForPokemon(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Psyduck');
+        $card->setSetCode('MEP');
+        $card->setCardNumber('7');
+        $card->setCardType('pokemon');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'nodashid',
+                name: 'Psyduck',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: null,
+                isExpandedLegal: false,
+            ));
+        // findImageByName must NOT be called for Pokemon cards
+        $apiClient->expects(self::never())->method('findImageByName');
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        self::assertNull($card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers resolveImageUrl(): Trainer card with no image and no siblings still
+     * falls back to findImageByName (trainer names are unique across eras).
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testResolveImageUrlStillCallsFindImageByNameForTrainer(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Judge');
+        $card->setSetCode('MEP');
+        $card->setCardNumber('10');
+        $card->setCardType('trainer');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'nodashid',
+                name: 'Judge',
+                category: 'Trainer',
+                trainerType: 'Supporter',
+                imageUrl: null,
+                isExpandedLegal: true,
+            ));
+        $apiClient->method('findImageByName')
+            ->willReturn('https://example.com/judge-fallback.webp');
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        self::assertSame('https://example.com/judge-fallback.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers findSiblingPrintingImage(): when multiple siblings have images,
+     * the most recently released one is preferred.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testSiblingImageFallbackPrefersMostRecentPrinting(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Psyduck');
+        $card->setSetCode('MEP');
+        $card->setCardNumber('7');
+        $card->setCardType('pokemon');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $identity = new CardIdentity();
+        $identity->setName('Psyduck');
+        $identity->setCategory('pokemon');
+
+        $olderSibling = new CardPrinting();
+        $olderSibling->setCardIdentity($identity);
+        $olderSibling->setTcgdexId('old-set-039');
+        $olderSibling->setImageUrl('https://example.com/old-psyduck.webp');
+        $olderSibling->setSetReleaseDate(new \DateTimeImmutable('2020-01-01'));
+        $identity->addPrinting($olderSibling);
+
+        $newerSibling = new CardPrinting();
+        $newerSibling->setCardIdentity($identity);
+        $newerSibling->setTcgdexId('me02.5-039');
+        $newerSibling->setImageUrl('https://example.com/new-psyduck.webp');
+        $newerSibling->setSetReleaseDate(new \DateTimeImmutable('2026-01-15'));
+        $identity->addPrinting($newerSibling);
+
+        $identityResolver = $this->createStub(CardIdentityResolver::class);
+        $identityResolver->method('resolveFromTcgdexCard')->willReturnCallback(
+            static function () use ($identity): CardPrinting {
+                $printing = new CardPrinting();
+                $printing->setCardIdentity($identity);
+                $printing->setTcgdexId('mep-007');
+                $printing->setImageUrl(null);
+                $identity->addPrinting($printing);
+
+                return $printing;
+            },
+        );
+
+        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'mep-007',
+                name: 'Psyduck',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: null,
+                isExpandedLegal: false,
+            ));
+        $apiClient->expects(self::never())->method('findImageByName');
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        // Should pick the newer sibling's image
+        self::assertSame('https://example.com/new-psyduck.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers findSiblingPrintingImage() expand path: no existing sibling has an image,
+     * so expandPrintings() is called to discover printings from the tcgdex_card table,
+     * and the newly created sibling's image is used.
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testSiblingImageFallbackExpandsPrintingsWhenNoExistingSiblingHasImage(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Psyduck');
+        $card->setSetCode('MEP');
+        $card->setCardNumber('7');
+        $card->setCardType('pokemon');
+        $card->setQuantity(1);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        // Identity starts with no siblings — expandPrintings will add one
+        $identity = new CardIdentity();
+        $identity->setName('Psyduck');
+        $identity->setCategory('pokemon');
+
+        $identityResolver = $this->createStub(CardIdentityResolver::class);
+        $identityResolver->method('resolveFromTcgdexCard')->willReturnCallback(
+            static function () use ($identity): CardPrinting {
+                $printing = new CardPrinting();
+                $printing->setCardIdentity($identity);
+                $printing->setTcgdexId('mep-007');
+                $printing->setImageUrl(null);
+                $identity->addPrinting($printing);
+
+                return $printing;
+            },
+        );
+
+        // expandPrintings simulates discovering a sibling in the tcgdex_card table
+        $identityResolver->method('expandPrintings')->willReturnCallback(
+            static function () use ($identity): void {
+                $sibling = new CardPrinting();
+                $sibling->setCardIdentity($identity);
+                $sibling->setTcgdexId('me02.5-039');
+                $sibling->setImageUrl('https://assets.tcgdex.net/en/me/me02.5/039/high.webp');
+                $sibling->setSetReleaseDate(new \DateTimeImmutable('2026-01-15'));
+                $identity->addPrinting($sibling);
+            },
+        );
+
+        $apiClient = $this->createMock(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'mep-007',
+                name: 'Psyduck',
+                category: 'Pokemon',
+                trainerType: null,
+                imageUrl: null,
+                isExpandedLegal: false,
+            ));
+        $apiClient->expects(self::never())->method('findImageByName');
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        self::assertNotNull($card->getCardPrinting());
+        self::assertSame('https://assets.tcgdex.net/en/me/me02.5/039/high.webp', $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
      * @param list<DeckCard> $cards
      */
     private function createVersionWithCards(array $cards): DeckVersion

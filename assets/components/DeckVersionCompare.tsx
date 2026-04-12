@@ -9,6 +9,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Badge, Loader, NativeSelect, Table, Text, UnstyledButton } from '@mantine/core';
+import { initCardHover } from '../shared/card-hover';
 
 /**
  * @see docs/features.md F2.9 — Deck version history
@@ -108,6 +109,13 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
     useEffect(() => {
         void fetchDiff();
     }, [fetchDiff]);
+
+    // Initialize card hover positioning after React renders new card elements
+    useEffect(() => {
+        if (diff) {
+            initCardHover();
+        }
+    }, [diff, showUnchanged]);
 
     const versionOptions = versions.map((version) => ({
         value: String(version.versionNumber),

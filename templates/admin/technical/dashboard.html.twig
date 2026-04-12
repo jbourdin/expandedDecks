@@ -61,6 +61,30 @@
         </div>
     </div>
 
+    {# Re-enrich single card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.reenrich_card.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.reenrich_card.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_reenrich_card') }}" class="d-flex gap-2 align-items-end">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-reenrich-card') }}">
+                <div>
+                    <label class="form-label small" for="reenrich-set-code">{{ 'app.admin.technical.reenrich_card.set_code'|trans }}</label>
+                    <input type="text" name="set_code" id="reenrich-set-code" class="form-control form-control-sm" placeholder="POR" required style="width: 100px">
+                </div>
+                <div>
+                    <label class="form-label small" for="reenrich-card-number">{{ 'app.admin.technical.reenrich_card.card_number'|trans }}</label>
+                    <input type="text" name="card_number" id="reenrich-card-number" class="form-control form-control-sm" placeholder="62" required style="width: 80px">
+                </div>
+                <button type="submit" class="btn btn-gold btn-sm">
+                    {{ 'app.admin.technical.reenrich_card.button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+
     {# Mosaic generation card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">

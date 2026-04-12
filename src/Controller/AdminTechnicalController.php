@@ -19,6 +19,7 @@ use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\BannedCardsSyncService;
+use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
 use App\Twig\Runtime\MenuRuntime;
@@ -44,6 +45,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly MosaicRedispatchService $mosaicRedispatchService,
         private readonly EnrichmentFlushService $enrichmentFlushService,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
+        private readonly CardReenrichService $cardReenrichService,
     ) {
         parent::__construct($translator);
     }
@@ -88,6 +90,42 @@ class AdminTechnicalController extends AbstractAppController
         }
 
         $this->addFlash('success', 'app.admin.technical.enrich.dispatched', ['%count%' => \count($versions)]);
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/reenrich-card', name: 'app_admin_technical_reenrich_card', methods: ['POST'])]
+    public function reenrichCard(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-reenrich-card', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $setCode = trim($request->getPayload()->getString('set_code'));
+        $cardNumber = trim($request->getPayload()->getString('card_number'));
+
+        if ('' === $setCode || '' === $cardNumber) {
+            $this->addFlash('warning', 'app.admin.technical.reenrich_card.empty');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $count = $this->cardReenrichService->reenrich($setCode, $cardNumber);
+
+        if (0 === $count) {
+            $this->addFlash('info', 'app.admin.technical.reenrich_card.no_match', [
+                '%set_code%' => $setCode,
+                '%card_number%' => $cardNumber,
+            ]);
+        } else {
+            $this->addFlash('success', 'app.admin.technical.reenrich_card.dispatched', [
+                '%set_code%' => $setCode,
+                '%card_number%' => $cardNumber,
+                '%count%' => $count,
+            ]);
+        }
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }
