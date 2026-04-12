@@ -15,6 +15,29 @@ namespace App\Tests\Functional;
 
 class AdminTechnicalControllerTest extends AbstractFunctionalTest
 {
+    private function getCsrfToken(string $tokenId): string
+    {
+        $session = $this->client->getSession();
+        self::assertNotNull($session, 'Session must exist — make a GET request first.');
+        $session->start();
+
+        /** @var \Symfony\Component\HttpFoundation\RequestStack $requestStack */
+        $requestStack = static::getContainer()->get('request_stack');
+
+        $syntheticRequest = new \Symfony\Component\HttpFoundation\Request();
+        $syntheticRequest->setSession($session);
+        $requestStack->push($syntheticRequest);
+
+        try {
+            /** @var \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $tokenManager */
+            $tokenManager = static::getContainer()->get('security.csrf.token_manager');
+
+            return $tokenManager->getToken($tokenId)->getValue();
+        } finally {
+            $requestStack->pop();
+        }
+    }
+
     public function testDashboardRequiresAuthentication(): void
     {
         $this->client->request('GET', '/admin/technical');
@@ -74,5 +97,74 @@ class AdminTechnicalControllerTest extends AbstractFunctionalTest
         $this->client->request('POST', '/admin/technical/flush-reenrich');
 
         self::assertResponseRedirects('/login');
+    }
+
+    public function testReenrichCardRequiresAuthentication(): void
+    {
+        $this->client->request('POST', '/admin/technical/reenrich-card');
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testReenrichCardRequiresCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/technical/reenrich-card', [
+            '_token' => 'invalid-token',
+            'set_code' => 'TWM',
+            'card_number' => '77',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+    }
+
+    public function testReenrichCardRejectsEmptyInputs(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/admin/technical');
+        $csrfToken = $this->getCsrfToken('technical-reenrich-card');
+
+        $this->client->request('POST', '/admin/technical/reenrich-card', [
+            '_token' => $csrfToken,
+            'set_code' => '',
+            'card_number' => '',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+    }
+
+    public function testReenrichCardShowsNoMatchForUnknownCard(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/admin/technical');
+        $csrfToken = $this->getCsrfToken('technical-reenrich-card');
+
+        $this->client->request('POST', '/admin/technical/reenrich-card', [
+            '_token' => $csrfToken,
+            'set_code' => 'NONEXISTENT',
+            'card_number' => '999',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+    }
+
+    public function testReenrichCardDispatchesForMatchingCard(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/admin/technical');
+        $csrfToken = $this->getCsrfToken('technical-reenrich-card');
+
+        // TWM 77 = Iron Thorns ex — exists in fixture data
+        $this->client->request('POST', '/admin/technical/reenrich-card', [
+            '_token' => $csrfToken,
+            'set_code' => 'TWM',
+            'card_number' => '77',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
     }
 }
