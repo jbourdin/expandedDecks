@@ -16,6 +16,27 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.2] — 2026-04-12
+
+Card enrichment image fallback improvements and targeted re-enrich tooling.
+
+### Features
+
+- **Re-enrich single card** — new form in the technical dashboard to re-enrich a specific card by set code and card number. Detaches old printings, resets affected deck versions, and dispatches enrichment + mosaic/minified regeneration.
+
+### Bug Fixes
+
+- **Sibling-printing image fallback** — when a card has no image in TCGdex (e.g. new MEP promos), the enricher now checks sibling printings of the same CardIdentity before resorting to name search. Calls `expandPrintings()` to discover siblings from the local tcgdex_card table when none exist yet.
+- **Skip name-based image search for Pokemon** — `findImageByName()` is no longer called for Pokemon cards, preventing false-positive matches across eras (e.g. Detective Pikachu Psyduck showing up for a Mega Evolution promo).
+- **Card hover on version compare page** — `initCardHover()` was not called after React rendered the diff table, causing card image overlays to appear at the default fixed position instead of near the hovered row.
+
+### Testing & Quality
+
+- 5 new unit tests for the image fallback chain (sibling fallback, Pokemon gating, trainer fallback, most-recent preference, expand path).
+- 10 new functional tests: controller (auth, CSRF, empty inputs, no match, dispatch), service (zero for unknown, count, detach), repository (match and no-match).
+
+---
+
 ## [1.7.1] — 2026-04-10
 
 Cache management tooling and card reference rendering fixes.
