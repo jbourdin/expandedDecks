@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Service\Tcgdex;
 
+use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
@@ -345,8 +346,12 @@ class CardEnricher
     /**
      * Ensures the CardPrinting has a working image URL, applying fallbacks if needed.
      *
-     * If the existing URL returns a 404, or if no URL is set, tries PokemonTCG.io
-     * CDN and name-based search as fallbacks.
+     * Fallback chain:
+     * 1. Current URL reachable → keep it
+     * 2. PokemonTCG.io CDN URL reachable → use it
+     * 3. Sibling printing from same CardIdentity with image → use most recent
+     * 4. Name-based API search (Trainer/Energy only — skipped for Pokemon to avoid
+     *    false positives across eras, e.g. "Psyduck" matching Detective Pikachu)
      */
     private function resolveImageUrl(CardPrinting $printing, TcgdexCard $tcgdexCard, string $cardName): void
     {
@@ -364,11 +369,82 @@ class CardEnricher
             return;
         }
 
-        $nameUrl = $this->apiClient->findImageByName($cardName);
+        // Sibling printing from the same CardIdentity (most recent release first)
+        $siblingUrl = $this->findSiblingPrintingImage($printing);
 
-        if (null !== $nameUrl) {
-            $printing->setImageUrl($nameUrl);
+        if (null !== $siblingUrl) {
+            $printing->setImageUrl($siblingUrl);
+
+            return;
         }
+
+        // Name-based search: only for Trainer/Energy cards.
+        // Pokemon names are reused across eras with different cards (e.g. "Psyduck"),
+        // so name search would match unrelated printings.
+        if ('pokemon' !== strtolower($tcgdexCard->category)) {
+            $nameUrl = $this->apiClient->findImageByName($cardName);
+
+            if (null !== $nameUrl) {
+                $printing->setImageUrl($nameUrl);
+            }
+        }
+    }
+
+    /**
+     * Finds an image URL from a sibling printing of the same CardIdentity.
+     *
+     * Siblings share the same functional card (HP, abilities, attacks) so their
+     * image is a valid fallback. Prefers the most recently released printing.
+     *
+     * If no existing sibling has an image, expands printings from TCGdex data
+     * (local DB + API) to discover printings that haven't been created yet,
+     * then checks again.
+     */
+    private function findSiblingPrintingImage(CardPrinting $printing): ?string
+    {
+        $identity = $printing->getCardIdentity();
+
+        $url = $this->findBestSiblingImageUrl($identity, $printing);
+
+        if (null !== $url) {
+            return $url;
+        }
+
+        // No existing sibling has an image — expand printings from TCGdex to
+        // discover cards in the tcgdex_card table that share this identity
+        $this->identityResolver->expandPrintings($identity);
+
+        return $this->findBestSiblingImageUrl($identity, $printing);
+    }
+
+    /**
+     * Picks the best image URL among sibling printings, preferring the most recent release.
+     */
+    private function findBestSiblingImageUrl(CardIdentity $identity, CardPrinting $exclude): ?string
+    {
+        $bestUrl = null;
+        $bestDate = null;
+
+        foreach ($identity->getPrintings() as $sibling) {
+            if ($sibling === $exclude) {
+                continue;
+            }
+
+            $url = $sibling->getImageUrl();
+
+            if (null === $url) {
+                continue;
+            }
+
+            $date = $sibling->getSetReleaseDate();
+
+            if (null === $bestUrl || (null !== $date && (null === $bestDate || $date > $bestDate))) {
+                $bestUrl = $url;
+                $bestDate = $date;
+            }
+        }
+
+        return $bestUrl;
     }
 
     /**
