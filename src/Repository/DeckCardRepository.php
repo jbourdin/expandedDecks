@@ -28,6 +28,25 @@ class DeckCardRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all DeckCards matching a set code and card number.
+     *
+     * @return list<DeckCard>
+     */
+    public function findBySetCodeAndCardNumber(string $setCode, string $cardNumber): array
+    {
+        /** @var list<DeckCard> $result */
+        $result = $this->createQueryBuilder('c')
+            ->where('c.setCode = :setCode')
+            ->andWhere('c.cardNumber = :cardNumber')
+            ->setParameter('setCode', $setCode)
+            ->setParameter('cardNumber', $cardNumber)
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    /**
      * Find an enriched card by set code and card number (for custom tag rendering).
      *
      * Returns the first matching card that has an image URL, or any match otherwise.

@@ -4338,6 +4338,38 @@
                 <source>app.admin.technical.enrich.dispatched</source>
                 <target>%count% message(s) d'enrichissement envoyé(s).</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.title">
+                <source>app.admin.technical.reenrich_card.title</source>
+                <target>Ré-enrichir une carte</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.description">
+                <source>app.admin.technical.reenrich_card.description</source>
+                <target>Ré-enrichir une carte spécifique par code de set et numéro de carte. L'enrichissement existant sera supprimé pour toutes les cartes correspondantes, puis les versions de deck seront ré-enrichies et les mosaïques et listes minifiées regénérées.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.set_code">
+                <source>app.admin.technical.reenrich_card.set_code</source>
+                <target>Code du set</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.card_number">
+                <source>app.admin.technical.reenrich_card.card_number</source>
+                <target>Numéro de carte</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.button">
+                <source>app.admin.technical.reenrich_card.button</source>
+                <target>Ré-enrichir la carte</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.empty">
+                <source>app.admin.technical.reenrich_card.empty</source>
+                <target>Veuillez saisir un code de set et un numéro de carte.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.no_match">
+                <source>app.admin.technical.reenrich_card.no_match</source>
+                <target>Aucune carte trouvée pour %set_code% %card_number%.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.reenrich_card.dispatched">
+                <source>app.admin.technical.reenrich_card.dispatched</source>
+                <target>Ré-enrichissement lancé pour %set_code% %card_number% — %count% version(s) de deck affectée(s).</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.mosaic.title">
                 <source>app.admin.technical.mosaic.title</source>
                 <target>Génération des mosaïques</target>
