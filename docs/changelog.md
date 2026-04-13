@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.3] — 2026-04-13
+
+Localized deck list support and canonical card name display.
+
+### Bug Fixes
+
+- **Localized basic energy enrichment** — French energy names like "Énergie Obscurité" now resolve to their English equivalent ("Darkness Energy") for TCGdex lookup. When TCGdex has no printing at all, the synthetic fallback uses the English name for a consistent `CardIdentity`.
+- **Canonical card name display** — after enrichment, `DeckCard.cardName` is updated with the matched name from `CardIdentity` so tables and exports show "Boss's Orders" instead of the player's raw localized input (e.g. "Ordres du Boss").
+
+### Testing & Quality
+
+- 3 new unit tests: French energy resolution, synthetic fallback with English name, and canonical name update after enrichment.
+
+---
+
 ## [1.7.2] — 2026-04-12
 
 Card enrichment image fallback improvements and targeted re-enrich tooling.
