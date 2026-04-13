@@ -1156,6 +1156,121 @@ class CardEnricherTest extends TestCase
     }
 
     /**
+     * Covers enrichBasicEnergy() with a French energy name: "Énergie Obscurité"
+     * is not in TCGdex but should resolve to "Darkness Energy" via English fallback.
+     *
+     * @see docs/features.md F6.9 — Improved energy card enrichment
+     */
+    public function testEnrichBasicEnergyResolvesLocalizedFrenchName(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Énergie Obscurité');
+        $card->setSetCode('MEE');
+        $card->setCardNumber('7');
+        $card->setCardType('energy');
+        $card->setQuantity(8);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        // French name returns empty, English name returns a printing
+        $apiClient->method('findAllPrintingsByName')->willReturnCallback(
+            static function (string $name): array {
+                if ('Darkness Energy' === $name) {
+                    return [
+                        new TcgdexCard(
+                            id: 'sm1-darkness',
+                            name: 'Darkness Energy',
+                            category: 'Energy',
+                            trainerType: null,
+                            imageUrl: 'https://example.com/darkness.webp',
+                            isExpandedLegal: true,
+                            rarity: 'Common',
+                        ),
+                    ];
+                }
+
+                return [];
+            },
+        );
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $report = $enricher->enrichVersion($version);
+
+        self::assertSame(1, $report->enrichedCount);
+        self::assertNotNull($card->getCardPrinting());
+        // Image should come from the static MEE|7 energy set image
+        self::assertStringContainsString('MEE_EN_7', (string) $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers enrichBasicEnergy() synthetic fallback: when TCGdex has no printing
+     * for the English energy name either, a synthetic printing is created with
+     * the English name (not the localized name) for a consistent CardIdentity.
+     *
+     * @see docs/features.md F6.9 — Improved energy card enrichment
+     */
+    public function testEnrichBasicEnergySyntheticFallbackUsesEnglishName(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Énergie Obscurité');
+        $card->setSetCode('MEE');
+        $card->setCardNumber('7');
+        $card->setCardType('energy');
+        $card->setQuantity(4);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        // All name lookups return empty — force synthetic fallback
+        $apiClient->method('findAllPrintingsByName')->willReturn([]);
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $report = $enricher->enrichVersion($version);
+
+        self::assertSame(1, $report->enrichedCount);
+        self::assertNotNull($card->getCardPrinting());
+        // CardIdentity should use English name, not French
+        self::assertSame('Darkness Energy', $card->getCardPrinting()->getCardIdentity()->getName());
+        self::assertStringContainsString('MEE_EN_7', (string) $card->getCardPrinting()->getImageUrl());
+    }
+
+    /**
+     * Covers resolveDisplayName(): after enrichment, the card name should be updated
+     * to the canonical name from CardIdentity (not the player's raw input).
+     *
+     * @see docs/features.md F6.2 — TCGdex card data enrichment
+     */
+    public function testEnrichVersionUpdatesCardNameToCanonicalName(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Ordres du Boss');
+        $card->setSetCode('MEG');
+        $card->setCardNumber('114');
+        $card->setCardType('trainer');
+        $card->setQuantity(2);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $apiClient = $this->createStub(TcgdexApiClient::class);
+        $apiClient->method('findCard')
+            ->willReturn(new TcgdexCard(
+                id: 'me01-114',
+                name: "Boss's Orders",
+                category: 'Trainer',
+                trainerType: 'Supporter',
+                imageUrl: 'https://assets.tcgdex.net/en/me/me01/114/high.webp',
+                isExpandedLegal: true,
+            ));
+
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher->enrichVersion($version);
+
+        // Card name should be updated to the canonical English name from TCGdex
+        self::assertSame("Boss's Orders", $card->getCardName());
+    }
+
+    /**
      * @param list<DeckCard> $cards
      */
     private function createVersionWithCards(array $cards): DeckVersion

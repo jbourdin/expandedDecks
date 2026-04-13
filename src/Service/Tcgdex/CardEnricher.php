@@ -92,6 +92,19 @@ class CardEnricher
         'MEE|8' => 'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_8.png',
     ];
 
+    /** English basic energy names — canonical names used by TCGdex. */
+    private const array ENGLISH_ENERGY_NAMES = [
+        'Grass Energy',
+        'Fire Energy',
+        'Water Energy',
+        'Lightning Energy',
+        'Psychic Energy',
+        'Fighting Energy',
+        'Darkness Energy',
+        'Metal Energy',
+        'Fairy Energy',
+    ];
+
     /**
      * Fallback image URLs for basic energy cards when no TCGdex printing exists.
      *
@@ -195,6 +208,7 @@ class CardEnricher
                 // Basic energy: detect by name (regardless of set code)
                 if ($this->isBasicEnergy($card)) {
                     $this->enrichBasicEnergy($card);
+                    $this->resolveDisplayName($card);
                     $this->resolveCardType($card, 'Energy');
                     ++$enrichedCount;
 
@@ -211,6 +225,7 @@ class CardEnricher
                     if (null !== $tcgdexCard) {
                         $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                         $card->setCardPrinting($printing);
+                        $this->resolveDisplayName($card);
                         $this->resolveCardType($card, $tcgdexCard->category);
                         $this->resolveImageUrl($printing, $tcgdexCard, $card->getCardName());
                         $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
@@ -238,6 +253,7 @@ class CardEnricher
 
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $card->setCardPrinting($printing);
+                $this->resolveDisplayName($card);
                 $this->resolveCardType($card, $tcgdexCard->category);
                 $this->resolveImageUrl($printing, $tcgdexCard, $card->getCardName());
                 $this->applyImageOverride($printing, $card->getSetCode(), $card->getCardNumber());
@@ -290,15 +306,40 @@ class CardEnricher
         $energySetKey = $setCode.'|'.$normalizedNumber;
 
         if (isset(self::ENERGY_SET_IMAGES[$energySetKey])) {
-            // Static energy image — no CardPrinting (energy-only sets aren't in TCGdex)
-            // Try to find a printing anyway for enrichment completeness
+            // Static energy image — energy-only sets aren't in TCGdex.
+            // Try to find a printing for enrichment completeness.
+            // Localized names (e.g. "Énergie Obscurité") won't match TCGdex — try English fallback.
             $tcgdexCard = $this->findSimplestBasicEnergyByName($card->getCardName());
+
+            if (null === $tcgdexCard) {
+                $englishName = self::resolveEnglishEnergyName($card->getCardName());
+
+                if (null !== $englishName) {
+                    $tcgdexCard = $this->findSimplestBasicEnergyByName($englishName);
+                }
+            }
 
             if (null !== $tcgdexCard) {
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);
                 $printing->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
                 $card->setCardPrinting($printing);
+
+                return;
             }
+
+            // Synthetic fallback with English name for a consistent CardIdentity
+            $englishName = self::resolveEnglishEnergyName($card->getCardName()) ?? $card->getCardName();
+            $syntheticDto = new TcgdexCard(
+                id: \sprintf('energy-%s', strtolower(str_replace(' ', '-', $englishName))),
+                name: $englishName,
+                category: 'Energy',
+                trainerType: null,
+                imageUrl: self::ENERGY_SET_IMAGES[$energySetKey],
+                isExpandedLegal: true,
+            );
+            $printing = $this->identityResolver->resolveFromTcgdexCard($syntheticDto);
+            $printing->setImageUrl(self::ENERGY_SET_IMAGES[$energySetKey]);
+            $card->setCardPrinting($printing);
 
             return;
         }
@@ -503,6 +544,52 @@ class CardEnricher
         $pokemontcgSetId = str_replace('.', '', $setId);
 
         return \sprintf('https://images.pokemontcg.io/%s/%s_hires.png', $pokemontcgSetId, $localId);
+    }
+
+    /**
+     * Updates DeckCard.cardName with the canonical name from CardIdentity.
+     *
+     * When the deck list is pasted in a non-English locale (e.g. "Ordres du Boss"),
+     * this replaces the player input with the matched English name ("Boss's Orders")
+     * so all display contexts (table, mosaic, export) show the canonical name.
+     */
+    private function resolveDisplayName(DeckCard $card): void
+    {
+        $printing = $card->getCardPrinting();
+
+        if (null === $printing) {
+            return;
+        }
+
+        $canonicalName = $printing->getCardIdentity()->getName();
+
+        if ('' !== $canonicalName) {
+            $card->setCardName($canonicalName);
+        }
+    }
+
+    /**
+     * Resolves the English basic energy name from a localized name.
+     *
+     * Uses BASIC_ENERGY_IMAGES as the authority: all localized names that share the
+     * same image URL correspond to the same energy type. Returns null if the name
+     * is not a known localized energy name, or the name itself if already English.
+     */
+    private static function resolveEnglishEnergyName(string $localizedName): ?string
+    {
+        $targetUrl = self::BASIC_ENERGY_IMAGES[$localizedName] ?? null;
+
+        if (null === $targetUrl) {
+            return null;
+        }
+
+        foreach (self::ENGLISH_ENERGY_NAMES as $englishName) {
+            if (self::BASIC_ENERGY_IMAGES[$englishName] === $targetUrl) {
+                return $englishName;
+            }
+        }
+
+        return null;
     }
 
     /**
