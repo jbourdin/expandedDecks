@@ -22,4 +22,12 @@ enum DeckStatus: string
     case Reserved = 'reserved';
     case Lent = 'lent';
     case Retired = 'retired';
+
+    /**
+     * Marks an archetype variant as outdated (format rotation).
+     * Only applicable to archetype variants (decks with no owner).
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    case Outdated = 'outdated';
 }

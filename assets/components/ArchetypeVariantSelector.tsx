@@ -7,9 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActionIcon, Button, CopyButton, Group, Select, SegmentedControl, Stack, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
 import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
@@ -32,6 +33,9 @@ interface VariantData {
     id: number;
     name: string;
     canonical: boolean;
+    outdated: boolean;
+    latestSetCode: string | null;
+    latestSetName: string | null;
     sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
@@ -52,6 +56,8 @@ interface Labels {
     moreVariants: string;
     copyList: string;
     copied: string;
+    outdatedBadge: string;
+    shareMosaic: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -182,15 +188,21 @@ function DesktopSelector({ variants, selectedIndex, onSelect }: {
                     radius="xl"
                     onClick={() => onSelect(index)}
                     leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={22} /> : undefined}
+                    opacity={variant.outdated && index !== selectedIndex ? 0.5 : 1}
                 >
-                    {variant.name}
+                    {variant.outdated && variant.latestSetCode && (
+                        <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
+                    )}
+                    <span style={variant.outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
                 </Button>
             ))}
             {dropdownVariants.length > 0 && (
                 <Select
                     data={dropdownVariants.map((variant, index) => ({
                         value: String(MAX_BUTTONS + index),
-                        label: variant.name,
+                        label: variant.outdated && variant.latestSetCode
+                            ? `${variant.latestSetCode} ${variant.name}`
+                            : variant.name,
                     }))}
                     value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
                     onChange={(value) => {
@@ -219,7 +231,9 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
         <Select
             data={variants.map((variant, index) => ({
                 value: String(index),
-                label: variant.name,
+                label: variant.outdated && variant.latestSetCode
+                    ? `${variant.latestSetCode} ${variant.name}`
+                    : variant.name,
             }))}
             value={String(selectedIndex)}
             onChange={(value) => {
@@ -284,6 +298,34 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
         }
     };
 
+    const handleShareMosaic = useCallback(async () => {
+        const mosaicUrl = selectedVariant?.mosaicUrl;
+        if (!mosaicUrl) return;
+
+        if (navigator.share) {
+            try {
+                const response = await fetch(mosaicUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'deck-mosaic.png', { type: 'image/png' });
+                await navigator.share({ files: [file] });
+
+                return;
+            } catch {
+                // Share cancelled or not supported with files
+            }
+
+            try {
+                await navigator.share({ title: labels.mosaicAlt, url: mosaicUrl });
+
+                return;
+            } catch {
+                // Share cancelled — fall back to clipboard
+            }
+        }
+
+        await navigator.clipboard.writeText(window.location.origin + mosaicUrl);
+    }, [selectedVariant?.mosaicUrl, labels.mosaicAlt]);
+
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
     // variant switch via dangerouslySetInnerHTML. Use requestAnimationFrame
@@ -313,6 +355,17 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                 </div>
             )}
 
+            {/* Outdated badge */}
+            {selectedVariant.outdated && selectedVariant.latestSetCode && (
+                <div className="alert alert-secondary py-2 px-3 mb-3 d-flex align-items-center gap-2" role="status">
+                    <span className="badge bg-secondary">{selectedVariant.latestSetCode}</span>
+                    <span className="text-muted small">
+                        {selectedVariant.latestSetName && <>{selectedVariant.latestSetName} — </>}
+                        {labels.outdatedBadge}
+                    </span>
+                </div>
+            )}
+
             {/* Description */}
             {selectedVariant.description && (
                 <div className="cms-content mb-3" dangerouslySetInnerHTML={{ __html: selectedVariant.description }} />
@@ -331,20 +384,29 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                             ]}
                             size="xs"
                         />
-                        {selectedVariant.rawList && (
-                            <CopyButton value={selectedVariant.rawList} timeout={2000}>
-                                {({ copied, copy }) => (
-                                    <Button
-                                        variant={copied ? 'filled' : 'outline'}
-                                        color={copied ? 'teal' : 'gray'}
-                                        size="sm"
-                                        onClick={copy}
-                                    >
-                                        {copied ? labels.copied : labels.copyList}
-                                    </Button>
-                                )}
-                            </CopyButton>
-                        )}
+                        <Group gap="xs">
+                            {selectedVariant.rawList && (
+                                <CopyButton value={selectedVariant.rawList} timeout={2000}>
+                                    {({ copied, copy }) => (
+                                        <Button
+                                            variant={copied ? 'filled' : 'outline'}
+                                            color={copied ? 'teal' : 'gray'}
+                                            size="sm"
+                                            onClick={copy}
+                                        >
+                                            {copied ? labels.copied : labels.copyList}
+                                        </Button>
+                                    )}
+                                </CopyButton>
+                            )}
+                            {selectedVariant.mosaicUrl && (
+                                <Tooltip label={labels.shareMosaic}>
+                                    <ActionIcon variant="subtle" color="gray" size="lg" onClick={handleShareMosaic}>
+                                        <IconShare size={18} />
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
+                        </Group>
                     </Group>
 
                     {viewMode === 'table' && (

@@ -51,6 +51,9 @@
                     {{ form_widget(form.pokemonSlugs) }}
                 </div>
 
+                {{ form_row(form.latestSet) }}
+                {{ form_row(form.outdated) }}
+
                 {{ form_row(form.rawList) }}
 
                 {% if not isNew and deck.currentVersion %}

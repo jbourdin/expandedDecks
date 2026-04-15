@@ -149,10 +149,15 @@ class ArchetypeDetailController extends AbstractController
             /** @var int $variantId */
             $variantId = $variant->getId();
 
+            $latestSet = $variant->getLatestSet();
+
             $data[] = [
                 'id' => $variantId,
                 'name' => $variant->getName(),
                 'canonical' => $variant->isCanonical(),
+                'outdated' => $variant->isOutdated(),
+                'latestSetCode' => $latestSet?->getPtcgCode(),
+                'latestSetName' => $latestSet?->getLocalizedName($locale),
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
                 'mosaicUrl' => $mosaicUrl,
@@ -160,6 +165,9 @@ class ArchetypeDetailController extends AbstractController
                 'groupedCards' => $orderedGroups,
             ];
         }
+
+        // Sort outdated variants after current ones, preserving relative order within each group.
+        usort($data, static fn (array $variantA, array $variantB): int => (int) $variantA['outdated'] <=> (int) $variantB['outdated']);
 
         return $data;
     }
