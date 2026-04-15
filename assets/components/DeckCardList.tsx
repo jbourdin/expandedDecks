@@ -13,6 +13,7 @@
  * @see docs/features.md F6.8 — Minified deck list export
  * @see docs/features.md F6.6b — Minified mosaic
  * @see docs/features.md F6.11 — Export deck list for Cardmarket wishlist
+ * @see docs/features.md F2.23 — Interactive card mosaic with responsive grid
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,6 +31,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconCopy, IconCheck, IconShare, IconShoppingCart, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import CardMosaicGrid from './CardMosaicGrid';
 
 interface CardData {
     cardName: string;
@@ -359,15 +361,12 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
     labels,
 }) => {
     const hasMinifiedData = Object.keys(minifiedCards).length > 0 || minifiedList !== null;
-    const hasMosaic = mosaicUrl !== null;
     const hasMinifiedMosaic = minifiedMosaicUrl !== null;
-    const isMobile = useMediaQuery('(max-width: 767px)');
 
     const [variant, setVariant] = useState<Variant>(hasMinifiedData ? 'minified' : 'original');
-    const [viewMode, setViewMode] = useState<ViewMode>(hasMosaic ? 'mosaic' : 'table');
+    const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const [copied, setCopied] = useState(false);
     const [cardmarketCopied, setCardmarketCopied] = useState(false);
-    const [mosaicModalOpen, setMosaicModalOpen] = useState(false);
     const [cardModalOpen, setCardModalOpen] = useState(false);
     const [cardModalIndex, setCardModalIndex] = useState(0);
     const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -387,7 +386,9 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
         return mosaicUrl;
     }, [variant, mosaicUrl, minifiedMosaicUrl, hasMinifiedMosaic]);
 
-    const isMosaicPending = viewMode === 'mosaic' && activeMosaicUrl === null;
+    const hasInteractiveCards = Object.values(activeCards).some(
+        (cards) => cards.some((card) => card.imageUrl !== null),
+    );
 
     const activeList = variant === 'minified' && minifiedList !== null
         ? minifiedList
@@ -488,14 +489,6 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
         copyTimeout.current = setTimeout(() => setCopied(false), 2000);
     }, [activeMosaicUrl, labels.mosaicAlt]);
 
-    const handleMosaicClick = useCallback(() => {
-        if (isMobile) {
-            setMosaicModalOpen(true);
-        } else {
-            setViewMode('mosaic');
-        }
-    }, [isMobile]);
-
     return (
         <>
             {/* Top bar: Variant toggle (left) + Copy (center) + View toggle (right) */}
@@ -556,14 +549,8 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
 
                 <SegmentedControl
                     size="xs"
-                    value={isMobile ? 'table' : viewMode}
-                    onChange={(value) => {
-                        if (value === 'mosaic') {
-                            handleMosaicClick();
-                        } else {
-                            setViewMode('table');
-                        }
-                    }}
+                    value={viewMode}
+                    onChange={(value) => setViewMode(value as ViewMode)}
                     data={[
                         { label: labels.viewTable, value: 'table' },
                         { label: labels.viewMosaic, value: 'mosaic' },
@@ -577,27 +564,21 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
             )}
 
             {/* Table view */}
-            {!isMinifiedPending && (viewMode === 'table' || isMobile) && (
+            {!isMinifiedPending && viewMode === 'table' && (
                 <CardTable groupedCards={activeCards} labels={labels} onCardTap={handleCardTap} />
             )}
 
-            {/* Mosaic view (desktop inline) */}
-            {viewMode === 'mosaic' && !isMobile && activeMosaicUrl && (
-                <div className="text-center">
-                    <img
-                        src={activeMosaicUrl}
-                        alt={labels.mosaicAlt}
-                        className="img-fluid rounded shadow-sm"
-                    />
-                </div>
+            {/* Interactive mosaic grid view */}
+            {viewMode === 'mosaic' && !isMinifiedPending && hasInteractiveCards && (
+                <CardMosaicGrid groupedCards={activeCards} mosaicAltLabel={labels.mosaicAlt} />
             )}
 
-            {/* Mosaic view pending (desktop inline) */}
-            {isMosaicPending && !isMobile && !isMinifiedPending && (
+            {/* Mosaic view pending (no card data yet) */}
+            {viewMode === 'mosaic' && !hasInteractiveCards && !isMinifiedPending && (
                 <GeneratingPlaceholder message={labels.mosaicGenerating} />
             )}
 
-            {/* Card image gallery modal (mobile tap-to-view with swipe) */}
+            {/* Card image gallery modal (mobile tap-to-view from table) */}
             <CardImageModal
                 opened={cardModalOpen}
                 cards={flatCards}
@@ -605,39 +586,6 @@ export const DeckCardList: React.FC<DeckCardListProps> = ({
                 onClose={() => setCardModalOpen(false)}
                 onNavigate={setCardModalIndex}
             />
-
-            {/* Mosaic fullscreen modal (mobile) */}
-            <Modal
-                opened={mosaicModalOpen}
-                onClose={() => setMosaicModalOpen(false)}
-                fullScreen
-                title={labels.mosaicAlt}
-                styles={{
-                    body: {
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 8,
-                        overflow: 'auto',
-                    },
-                    header: { backgroundColor: '#213568', color: 'white' },
-                    content: { backgroundColor: '#213568' },
-                }}
-            >
-                {activeMosaicUrl ? (
-                    <img
-                        src={activeMosaicUrl}
-                        alt={labels.mosaicAlt}
-                        className="img-fluid"
-                        style={{ maxHeight: '90vh' }}
-                    />
-                ) : (
-                    <div className="text-center py-5">
-                        <Loader size="sm" className="mb-2" color="white" />
-                        <Text size="sm" c="white">{labels.mosaicGenerating}</Text>
-                    </div>
-                )}
-            </Modal>
         </>
     );
 };

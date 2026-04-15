@@ -11,6 +11,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { initCardHover } from '../shared/card-hover';
+import CardMosaicGrid from './CardMosaicGrid';
 
 /**
  * @see docs/features.md F18.16 — Archetype detail: variant selector
@@ -244,9 +245,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
-    const [viewMode, setViewMode] = useState<ViewMode>(
-        () => window.matchMedia('(max-width: 767.98px)').matches ? 'table' : 'mosaic',
-    );
+    const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
 
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
@@ -316,18 +315,11 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                         <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} />
                     )}
 
-                    {viewMode === 'mosaic' && selectedVariant.mosaicUrl && (
-                        <div className="text-center">
-                            <img
-                                src={selectedVariant.mosaicUrl}
-                                alt={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
-                                className="img-fluid rounded shadow-sm"
-                            />
-                        </div>
-                    )}
-
-                    {viewMode === 'mosaic' && !selectedVariant.mosaicUrl && (
-                        <p className="text-muted text-center">Mosaic not yet generated.</p>
+                    {viewMode === 'mosaic' && (
+                        <CardMosaicGrid
+                            groupedCards={selectedVariant.groupedCards}
+                            mosaicAltLabel={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
+                        />
                     )}
                 </Stack>
             )}
