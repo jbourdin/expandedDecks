@@ -15,6 +15,7 @@ namespace App\Tests\Functional;
 
 use App\Entity\Archetype;
 use App\Entity\Deck;
+use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -509,6 +510,170 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         ], '[1,2,3]');
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    // ---------------------------------------------------------------
+    // Expansion set boundary & outdated variant (F2.24)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testOutdatedToggleSetsStatus(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[outdated]']->tick();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $em->clear();
+
+        $refreshed = $this->getVariantByName('Regidrago', $archetype);
+        self::assertSame(DeckStatus::Outdated, $refreshed->getStatus());
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testUntickOutdatedRevertsToAvailable(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        // First set outdated
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[outdated]']->tick();
+        $this->client->submit($form);
+
+        // Now untick it
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[outdated]']->untick();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $em->clear();
+
+        $refreshed = $this->getVariantByName('Regidrago', $archetype);
+        self::assertSame(DeckStatus::Available, $refreshed->getStatus());
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testDuplicateVariantCreatesNewDeck(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        // Load the edit page to get a valid CSRF session
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        $duplicateForm = $crawler->filter('form[action*="variants/'.$variant->getId().'/duplicate"]');
+        self::assertGreaterThan(0, $duplicateForm->count(), 'Duplicate form for variant should exist.');
+
+        $form = $duplicateForm->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        // Verify the copy exists
+        /** @var DeckRepository $deckRepository */
+        $deckRepository = static::getContainer()->get(DeckRepository::class);
+        $variants = $deckRepository->findVariantsByArchetype($archetype);
+        $copyNames = array_map(static fn (Deck $deck): string => $deck->getName(), $variants);
+        self::assertContains('Copy of Regidrago', $copyNames);
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testDuplicateVariantWithInvalidCsrfFails(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId().'/duplicate', [
+            '_token' => 'invalid-token',
+        ]);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testReenrichVariantRedirectsOnSuccess(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        // Load the edit page to establish session + get CSRF
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        $reenrichForm = $crawler->filter('form[action*="reenrich"]');
+        self::assertGreaterThan(0, $reenrichForm->count(), 'Re-enrich form should exist for technical admin.');
+
+        $form = $reenrichForm->form();
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testVariantFormShowsLatestSetField(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="archetype_variant_form[latestSet]"]');
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testVariantFormShowsOutdatedCheckbox(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name="archetype_variant_form[outdated]"]');
     }
 
     private function getVariantByName(string $name, Archetype $archetype): Deck
