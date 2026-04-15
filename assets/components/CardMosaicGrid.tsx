@@ -203,7 +203,9 @@ export default function CardMosaicGrid({ groupedCards, mosaicAltLabel }: CardMos
                             alt={card.cardName}
                             loading="lazy"
                         />
-                        <span className="card-mosaic-qty">{card.quantity}</span>
+                        <span className="card-mosaic-qty">
+                            <span className="card-mosaic-qty-inner">{card.quantity}</span>
+                        </span>
                     </button>
                 ))}
             </div>
