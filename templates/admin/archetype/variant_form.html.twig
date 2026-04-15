@@ -67,7 +67,7 @@
                         {% if is_granted('ROLE_TECHNICAL_ADMIN') %}
                             <form method="post" action="{{ path('app_admin_archetype_variant_reenrich', {id: archetype.id, deckId: deck.id}) }}" class="d-inline ms-2">
                                 <input type="hidden" name="_token" value="{{ csrf_token('variant-reenrich-' ~ deck.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ 'app.deck.reenrich.button'|trans }}">
+                                <button type="submit" class="btn btn-sm btn-outline-dark" title="{{ 'app.deck.reenrich.button'|trans }}">
                                     <i class="bi bi-arrow-repeat"></i> {{ 'app.deck.reenrich.button'|trans }}
                                 </button>
                             </form>
