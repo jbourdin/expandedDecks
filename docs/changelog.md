@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.5] — 2026-04-16
+
+Expansion set boundary, outdated variant flag, and card interaction refinements.
+
+### Features
+
+- **Expansion set boundary & outdated variant flag** — new `latestSet` field on Deck (ManyToOne → TcgdexSet) to characterize the format boundary. New `Outdated` status in `DeckStatus` enum for archetype variants. Expansion set dropdown (Expanded era only: BW onward) on both deck edit and variant forms. Outdated variants sort after current ones with faded badge + italic title styling, and a description banner showing the expansion name. ([F2.24](https://github.com/jbourdin/expandedDecks/issues/401))
+- **Duplicate variant** — admin action to clone a variant with "Copy of" prefix, same list, description, sprites, and latest set. Redirects to the copy's edit page.
+- **Re-enrich variant** — admin action (ROLE_TECHNICAL_ADMIN) to re-parse and re-enrich a variant's deck version from the variant edit form.
+- **Enrichment pending state** — spinner placeholder on archetype variant view when card enrichment is still in progress.
+- **Share mosaic on archetype variants** — Web Share API button (with clipboard fallback) for sharing the server-generated mosaic image.
+- **Low-res mosaic generation** — server-generated mosaic now downloads `low.webp` instead of `high.webp` for faster async generation. Mosaic grid reduced to 6 cards per row to match the interactive grid.
+
+### Refactoring
+
+- **Click-to-modal for card names** — replaced desktop hover image preview with click-to-open-modal on card names in both deck and archetype table views. Extracted `CardImageModal` to a shared component. Responsive modal sizing capped at TCGdex native resolution (600×825px).
+
+### Bug Fixes
+
+- **Flush-reenrich SQL** — removed references to `tcgdex_id`, `image_url`, `trainer_subtype` columns that no longer exist on `deck_card` after the card identity refactor.
+- **Nested form fix** — moved re-enrich form outside the main variant edit form to avoid invalid nested HTML forms.
+
+### Testing & Quality
+
+- 10 new tests: outdated toggle, duplicate variant, re-enrich, form fields, entity methods, and flush service SQL update.
+
+---
+
 ## [1.7.4] — 2026-04-15
 
 Interactive card mosaic replacing the static server-generated image.
