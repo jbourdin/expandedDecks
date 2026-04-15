@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.6] — 2026-04-16
+
+Mobile variant dropdown outdated styling.
+
+### Bug Fixes
+
+- **Mobile variant dropdown** — outdated variants in the mobile Select dropdown now show the same visual treatment (expansion badge, italic name, faded opacity) as the desktop pill buttons.
+
+---
+
 ## [1.7.5] — 2026-04-16
 
 Expansion set boundary, outdated variant flag, and card interaction refinements.

@@ -255,9 +255,12 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
                 const variant = variants[Number(option.value)];
 
                 return (
-                    <Group gap={6} wrap="nowrap">
+                    <Group gap={6} wrap="nowrap" style={variant.outdated ? { opacity: 0.5 } : undefined}>
                         {variant.sprites.length > 0 && <SpriteList slugs={variant.sprites} height={20} />}
-                        <span>{variant.name}</span>
+                        {variant.outdated && variant.latestSetCode && (
+                            <span className="badge bg-secondary" style={{ fontSize: '0.65em' }}>{variant.latestSetCode}</span>
+                        )}
+                        <span style={variant.outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
                     </Group>
                 );
             }}
