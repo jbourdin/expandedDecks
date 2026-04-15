@@ -7,10 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { initCardHover } from '../shared/card-hover';
+import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
 
 /**
@@ -83,7 +84,12 @@ function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }
     );
 }
 
-function CardSection({ title, cards, labels }: { title: string; cards: CardData[]; labels: Labels }) {
+function CardSection({ title, cards, labels, onCardClick }: {
+    title: string;
+    cards: CardData[];
+    labels: Labels;
+    onCardClick?: (card: CardData) => void;
+}) {
     return (
         <div className="mb-3">
             <h6 className="text-muted text-uppercase small fw-bold">{title}</h6>
@@ -101,15 +107,14 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
                         <tr key={index}>
                             <td>{card.quantity}</td>
                             <td>
-                                {card.imageUrl ? (
-                                    <span className="card-hover" data-quantity={card.quantity} data-card-hover-group="variant-decklist">
+                                {card.imageUrl && onCardClick ? (
+                                    <span className="card-name-link" role="button" tabIndex={0} onClick={() => onCardClick(card)} onKeyDown={(event) => {
+                                        if (event.key === 'Enter' || event.key === ' ') {
+                                            event.preventDefault();
+                                            onCardClick(card);
+                                        }
+                                    }}>
                                         {card.cardName}
-                                        <img
-                                            className="card-hover-img"
-                                            src={card.imageUrl}
-                                            alt={card.cardName}
-                                            loading="lazy"
-                                        />
                                     </span>
                                 ) : (
                                     card.cardName
@@ -125,7 +130,11 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
     );
 }
 
-function CardTable({ groupedCards, labels }: { groupedCards: Record<string, CardData[]>; labels: Labels }) {
+function CardTable({ groupedCards, labels, onCardClick }: {
+    groupedCards: Record<string, CardData[]>;
+    labels: Labels;
+    onCardClick?: (card: CardData) => void;
+}) {
     const sections = Object.entries(groupedCards);
 
     if (sections.length === 0) {
@@ -140,12 +149,12 @@ function CardTable({ groupedCards, labels }: { groupedCards: Record<string, Card
         <div className="row">
             <div className="col-md-6">
                 {leftSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
                 ))}
             </div>
             <div className="col-md-6">
                 {rightSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
                 ))}
             </div>
         </div>
@@ -246,6 +255,34 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
     const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [cardModalIndex, setCardModalIndex] = useState(0);
+
+    const selectedVariant = variants[selectedIndex];
+    const groupedCards = selectedVariant?.groupedCards;
+
+    const flatCards: FlatCard[] = useMemo(() => {
+        const entries: FlatCard[] = [];
+        const order = ['pokemon', 'trainer', 'energy'];
+
+        for (const section of order) {
+            for (const card of groupedCards?.[section] ?? []) {
+                if (card.imageUrl) {
+                    entries.push({ imageUrl: card.imageUrl, cardName: card.cardName, quantity: card.quantity });
+                }
+            }
+        }
+
+        return entries;
+    }, [groupedCards]);
+
+    const handleCardClick = (card: CardData): void => {
+        const index = flatCards.findIndex((entry) => entry.imageUrl === card.imageUrl && entry.cardName === card.cardName);
+        if (index >= 0) {
+            setCardModalIndex(index);
+            setCardModalOpen(true);
+        }
+    };
 
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
@@ -261,8 +298,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
         return null;
     }
 
-    const selectedVariant = variants[selectedIndex];
-    const hasCards = Object.keys(selectedVariant.groupedCards).length > 0;
+    const hasCards = Object.keys(selectedVariant?.groupedCards ?? {}).length > 0;
 
     return (
         <div ref={containerRef}>
@@ -312,7 +348,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                     </Group>
 
                     {viewMode === 'table' && (
-                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} />
+                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} onCardClick={handleCardClick} />
                     )}
 
                     {viewMode === 'mosaic' && (
@@ -323,6 +359,14 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                     )}
                 </Stack>
             )}
+
+            <CardImageModal
+                opened={cardModalOpen}
+                cards={flatCards}
+                currentIndex={cardModalIndex}
+                onClose={() => setCardModalOpen(false)}
+                onNavigate={setCardModalIndex}
+            />
         </div>
     );
 }
