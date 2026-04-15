@@ -51,6 +51,9 @@
                     {{ form_widget(form.pokemonSlugs) }}
                 </div>
 
+                {{ form_row(form.latestSet) }}
+                {{ form_row(form.outdated) }}
+
                 {{ form_row(form.rawList) }}
 
                 {% if not isNew and deck.currentVersion %}
@@ -67,6 +70,16 @@
 
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
             {{ form_end(form) }}
+
+            {% if not isNew and deck.currentVersion and is_granted('ROLE_TECHNICAL_ADMIN') %}
+                <hr>
+                <form method="post" action="{{ path('app_admin_archetype_variant_reenrich', {id: archetype.id, deckId: deck.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('variant-reenrich-' ~ deck.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-dark">
+                        <i class="bi bi-arrow-repeat"></i> {{ 'app.deck.reenrich.button'|trans }}
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

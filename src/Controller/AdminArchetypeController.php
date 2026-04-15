@@ -18,6 +18,7 @@ use App\Entity\ArchetypeTranslation;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Enum\DeckStatus;
 use App\Form\ArchetypeFormType;
 use App\Form\ArchetypeTranslationFormType;
 use App\Form\ArchetypeVariantFormType;
@@ -277,6 +278,7 @@ class AdminArchetypeController extends AbstractAppController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handleVariantPokemonSlugs($form, $deck);
             $this->handleCanonicalToggle($deck, $archetype);
+            $this->handleOutdatedToggle($form, $deck);
             $this->em->persist($deck);
             $this->em->flush();
 
@@ -319,11 +321,16 @@ class AdminArchetypeController extends AbstractAppController
                 'deckId' => $deckId,
             ]),
         ]);
+
+        // Pre-fill the unmapped outdated checkbox from the entity status
+        $form->get('outdated')->setData($deck->isOutdated());
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handleVariantPokemonSlugs($form, $deck);
             $this->handleCanonicalToggle($deck, $archetype);
+            $this->handleOutdatedToggle($form, $deck);
             $this->em->flush();
 
             $this->handleVariantRawList($form, $deck, $parser, $versionRepository, $messageBus);
@@ -364,6 +371,149 @@ class AdminArchetypeController extends AbstractAppController
         $this->addFlash('success', 'app.archetype.variant.deleted', ['%name%' => $deck->getName()]);
 
         return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+    }
+
+    /**
+     * Re-parse and re-enrich a variant's current deck version.
+     */
+    #[Route('/{id}/variants/{deckId}/reenrich', name: 'app_admin_archetype_variant_reenrich', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    #[IsGranted('ROLE_TECHNICAL_ADMIN')]
+    public function reenrichVariant(
+        Request $request,
+        Archetype $archetype,
+        int $deckId,
+        DeckRepository $deckRepository,
+        DeckListParser $parser,
+        MessageBusInterface $messageBus,
+    ): Response {
+        $deck = $deckRepository->find($deckId);
+        if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('variant-reenrich-'.$deckId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        $version = $deck->getCurrentVersion();
+        if (null === $version || null === $version->getRawList() || '' === trim($version->getRawList())) {
+            $this->addFlash('warning', 'app.deck.reenrich.no_raw_list');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        foreach ($version->getCards() as $card) {
+            $version->removeCard($card);
+            $this->em->remove($card);
+        }
+
+        $this->em->flush();
+
+        $result = $parser->parse($version->getRawList());
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $version->setEnrichmentStatus('pending');
+        $version->setMosaicImageUrl(null);
+        $version->setMinifiedList(null);
+        $version->setMinifiedCardViews(null);
+        $version->setMinifiedMosaicImageUrl(null);
+
+        $this->em->flush();
+
+        /** @var int $versionId */
+        $versionId = $version->getId();
+        $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+
+        $this->addFlash('success', 'app.deck.reenrich.dispatched');
+
+        return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+    }
+
+    /**
+     * Duplicate an archetype variant: copies name (prefixed), notes, sprites,
+     * latest set, and re-parses the raw list to create a fresh DeckVersion.
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    #[Route('/{id}/variants/{deckId}/duplicate', name: 'app_admin_archetype_variant_duplicate', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    public function duplicateVariant(
+        Request $request,
+        Archetype $archetype,
+        int $deckId,
+        DeckRepository $deckRepository,
+        DeckListParser $parser,
+        DeckVersionRepository $versionRepository,
+        MessageBusInterface $messageBus,
+    ): Response {
+        $source = $deckRepository->find($deckId);
+        if (!$source instanceof Deck || !$source->isArchetypeVariant() || $source->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('variant-duplicate-'.$deckId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_edit', ['id' => $archetype->getId()]);
+        }
+
+        $copy = new Deck();
+        $copy->setArchetype($archetype);
+        $copy->setFormat($source->getFormat());
+        $copy->setName($this->translator->trans('app.archetype.variant.copy_prefix', ['%name%' => $source->getName()]));
+        $copy->setNotes($source->getNotes());
+        $copy->setPokemonSlugs($source->getPokemonSlugs());
+        $copy->setLatestSet($source->getLatestSet());
+
+        $this->em->persist($copy);
+        $this->em->flush();
+
+        // Re-parse the raw list to create a fresh DeckVersion with enrichment
+        $rawList = $source->getCurrentVersion()?->getRawList();
+        if (null !== $rawList && '' !== trim($rawList)) {
+            $nextVersion = $versionRepository->findMaxVersionNumber($copy) + 1;
+            $result = $parser->parse($rawList);
+
+            $version = new DeckVersion();
+            $version->setDeck($copy);
+            $version->setVersionNumber($nextVersion);
+            $version->setRawList($rawList);
+
+            foreach ($result->cards as $parsedCard) {
+                $card = new DeckCard();
+                $card->setCardName($parsedCard->cardName);
+                $card->setSetCode($parsedCard->setCode);
+                $card->setCardNumber($parsedCard->cardNumber);
+                $card->setQuantity($parsedCard->quantity);
+                $card->setCardType($parsedCard->cardType);
+                $version->addCard($card);
+            }
+
+            $this->em->persist($version);
+            $copy->setCurrentVersion($version);
+            $this->em->flush();
+
+            /** @var int $versionId */
+            $versionId = $version->getId();
+            $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+        }
+
+        $this->addFlash('success', 'app.archetype.variant.duplicated', ['%name%' => $copy->getName()]);
+
+        return $this->redirectToRoute('app_admin_archetype_variant_edit', [
+            'id' => $archetype->getId(),
+            'deckId' => $copy->getId(),
+        ]);
     }
 
     /**
@@ -410,6 +560,24 @@ class AdminArchetypeController extends AbstractAppController
         }
 
         $queryBuilder->getQuery()->execute();
+    }
+
+    /**
+     * Sync the unmapped "outdated" checkbox with DeckStatus.
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     *
+     * @param FormInterface<Deck> $form
+     */
+    private function handleOutdatedToggle(FormInterface $form, Deck $deck): void
+    {
+        $isOutdated = (bool) $form->get('outdated')->getData();
+
+        if ($isOutdated) {
+            $deck->setStatus(DeckStatus::Outdated);
+        } elseif ($deck->isOutdated()) {
+            $deck->setStatus(DeckStatus::Available);
+        }
     }
 
     /**

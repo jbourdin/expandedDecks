@@ -35,9 +35,9 @@ class EnrichmentFlushService
 
     public function flush(): void
     {
-        // 1. Clear DeckCard enrichment fields and CardPrinting FK
+        // 1. Clear DeckCard → CardPrinting FK (enrichment data lives on CardPrinting)
         $this->connection->executeStatement(
-            'UPDATE deck_card SET tcgdex_id = NULL, image_url = NULL, trainer_subtype = NULL, card_printing_id = NULL',
+            'UPDATE deck_card SET card_printing_id = NULL',
         );
 
         // 2. Reset DeckVersion generated fields

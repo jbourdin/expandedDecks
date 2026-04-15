@@ -2339,6 +2339,16 @@
                 <target>Notes (optionnel)</target>
                 <note>Form label for notes textarea</note>
             </trans-unit>
+            <trans-unit id="app.form.label.latest_set">
+                <source>app.form.label.latest_set</source>
+                <target>Extension la plus récente</target>
+                <note>Form label for expansion set selector on deck edit form</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.latest_set">
+                <source>app.form.placeholder.latest_set</source>
+                <target>Choisir une extension…</target>
+                <note>Placeholder for expansion set selector on deck edit form</note>
+            </trans-unit>
             <trans-unit id="app.form.label.public">
                 <source>app.form.label.public</source>
                 <target>Public (visible dans le catalogue de decks)</target>
@@ -3604,6 +3614,41 @@
                 <source>app.archetype.variant.paste_to_replace</source>
                 <target>Collez une nouvelle liste ci-dessus pour créer une nouvelle version</target>
                 <note>Help text for replacing existing decklist</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.latest_set">
+                <source>app.archetype.variant.latest_set</source>
+                <target>Extension la plus récente</target>
+                <note>Label for expansion set selector on variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.latest_set_placeholder">
+                <source>app.archetype.variant.latest_set_placeholder</source>
+                <target>Choisir une extension…</target>
+                <note>Placeholder for expansion set selector</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.outdated">
+                <source>app.archetype.variant.outdated</source>
+                <target>Obsolète</target>
+                <note>Label for outdated checkbox on variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.outdated_badge">
+                <source>app.archetype.variant.outdated_badge</source>
+                <target>Variante obsolète</target>
+                <note>Badge text shown above the description for outdated variants</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.duplicate">
+                <source>app.archetype.variant.duplicate</source>
+                <target>Dupliquer</target>
+                <note>Tooltip for duplicate variant button in admin</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.duplicated">
+                <source>app.archetype.variant.duplicated</source>
+                <target>Variante « %name% » dupliquée.</target>
+                <note>Flash message after duplicating variant. %name% = new variant name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.copy_prefix">
+                <source>app.archetype.variant.copy_prefix</source>
+                <target>Copie de %name%</target>
+                <note>Name prefix for duplicated variant. %name% = source variant name</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.created">
                 <source>app.archetype.variant.created</source>

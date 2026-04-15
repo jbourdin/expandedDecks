@@ -2349,6 +2349,16 @@
                 <target>Notes (optional)</target>
                 <note>Form label for notes textarea</note>
             </trans-unit>
+            <trans-unit id="app.form.label.latest_set">
+                <source>app.form.label.latest_set</source>
+                <target>Latest expansion set</target>
+                <note>Form label for expansion set selector on deck edit form</note>
+            </trans-unit>
+            <trans-unit id="app.form.placeholder.latest_set">
+                <source>app.form.placeholder.latest_set</source>
+                <target>Select an expansion set…</target>
+                <note>Placeholder for expansion set selector on deck edit form</note>
+            </trans-unit>
             <trans-unit id="app.form.label.public">
                 <source>app.form.label.public</source>
                 <target>Public (visible in deck catalog)</target>
@@ -3614,6 +3624,41 @@
                 <source>app.archetype.variant.paste_to_replace</source>
                 <target>Paste a new list above to create a new version</target>
                 <note>Help text for replacing existing decklist</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.latest_set">
+                <source>app.archetype.variant.latest_set</source>
+                <target>Latest expansion set</target>
+                <note>Label for expansion set selector on variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.latest_set_placeholder">
+                <source>app.archetype.variant.latest_set_placeholder</source>
+                <target>Select an expansion set…</target>
+                <note>Placeholder for expansion set selector</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.outdated">
+                <source>app.archetype.variant.outdated</source>
+                <target>Outdated</target>
+                <note>Label for outdated checkbox on variant form</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.outdated_badge">
+                <source>app.archetype.variant.outdated_badge</source>
+                <target>Outdated variant</target>
+                <note>Badge text shown above the description for outdated variants</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.duplicate">
+                <source>app.archetype.variant.duplicate</source>
+                <target>Duplicate</target>
+                <note>Tooltip for duplicate variant button in admin</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.duplicated">
+                <source>app.archetype.variant.duplicated</source>
+                <target>Variant "%name%" duplicated.</target>
+                <note>Flash message after duplicating variant. %name% = new variant name</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.copy_prefix">
+                <source>app.archetype.variant.copy_prefix</source>
+                <target>Copy of %name%</target>
+                <note>Name prefix for duplicated variant. %name% = source variant name</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.created">
                 <source>app.archetype.variant.created</source>

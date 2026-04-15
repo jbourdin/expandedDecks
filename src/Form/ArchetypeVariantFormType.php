@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Deck;
+use App\Entity\TcgdexSet;
+use App\Repository\TcgdexSetRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -53,6 +56,23 @@ class ArchetypeVariantFormType extends AbstractType
                     'rows' => 10,
                     'placeholder' => 'app.archetype.variant.raw_list_placeholder',
                 ],
+            ])
+            ->add('latestSet', EntityType::class, [
+                'class' => TcgdexSet::class,
+                'label' => 'app.archetype.variant.latest_set',
+                'required' => false,
+                'placeholder' => 'app.archetype.variant.latest_set_placeholder',
+                'query_builder' => static fn (TcgdexSetRepository $repository) => $repository->createExpandedSetsQueryBuilder(),
+                'choice_label' => static fn (TcgdexSet $set): string => \sprintf(
+                    '%s — %s',
+                    $set->getPtcgCode() ?? $set->getId(),
+                    $set->getLocalizedName() ?? $set->getId(),
+                ),
+            ])
+            ->add('outdated', CheckboxType::class, [
+                'label' => 'app.archetype.variant.outdated',
+                'required' => false,
+                'mapped' => false,
             ])
             ->add('notes', TextareaType::class, [
                 'label' => 'app.archetype.variant.description',

@@ -15,6 +15,7 @@ namespace App\Repository;
 
 use App\Entity\TcgdexSet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -33,5 +34,59 @@ class TcgdexSetRepository extends ServiceEntityRepository
         $result = $this->findOneBy(['ptcgCode' => $ptcgCode]);
 
         return $result;
+    }
+
+    /** Series IDs that belong to the Expanded format (Black & White onward). */
+    private const array EXPANDED_SERIES = ['bw', 'xy', 'sm', 'swsh', 'sv', 'me'];
+
+    /**
+     * Base query builder for non-promo expansion sets in the Expanded era,
+     * ordered by release date descending.
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function createExpandedSetsQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.serie', 'serie')
+            ->where('s.releaseDate IS NOT NULL')
+            ->andWhere('s.ptcgCode IS NOT NULL')
+            ->andWhere('s.ptcgCode NOT LIKE :promoPrefix')
+            ->andWhere('serie.id IN (:expandedSeries)')
+            ->setParameter('promoPrefix', 'PR-%')
+            ->setParameter('expandedSeries', self::EXPANDED_SERIES)
+            ->orderBy('s.releaseDate', 'DESC');
+    }
+
+    /**
+     * Return all non-promo expansion sets from the Expanded era,
+     * ordered by release date descending (most recent first).
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     *
+     * @return list<TcgdexSet>
+     */
+    public function findExpansionSetsOrderedByReleaseDate(): array
+    {
+        /** @var list<TcgdexSet> $sets */
+        $sets = $this->createExpandedSetsQueryBuilder()
+            ->getQuery()
+            ->getResult();
+
+        return $sets;
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function findLatestExpansionSet(): ?TcgdexSet
+    {
+        /** @var TcgdexSet|null $set */
+        $set = $this->createExpandedSetsQueryBuilder()
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $set;
     }
 }

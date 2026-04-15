@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Deck;
+use App\Entity\TcgdexSet;
+use App\Repository\TcgdexSetRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -56,6 +59,18 @@ class DeckFormType extends AbstractType
             ->add('pokemonSlugs', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
+            ])
+            ->add('latestSet', EntityType::class, [
+                'class' => TcgdexSet::class,
+                'label' => 'app.form.label.latest_set',
+                'required' => false,
+                'placeholder' => 'app.form.placeholder.latest_set',
+                'query_builder' => static fn (TcgdexSetRepository $repository) => $repository->createExpandedSetsQueryBuilder(),
+                'choice_label' => static fn (TcgdexSet $set): string => \sprintf(
+                    '%s — %s',
+                    $set->getPtcgCode() ?? $set->getId(),
+                    $set->getLocalizedName() ?? $set->getId(),
+                ),
             ])
             ->add('public', CheckboxType::class, [
                 'label' => 'app.form.label.public',

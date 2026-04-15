@@ -33,6 +33,9 @@ if (root) {
         moreVariants: root.dataset.labelMoreVariants ?? 'More variants\u2026',
         copyList: root.dataset.labelCopyList ?? 'Copy list',
         copied: root.dataset.labelCopied ?? 'Copied!',
+        outdatedBadge: root.dataset.labelOutdatedBadge ?? 'Outdated variant',
+        shareMosaic: root.dataset.labelShareMosaic ?? 'Share mosaic',
+        enrichmentPending: root.dataset.labelEnrichmentPending ?? 'Card data is being generated…',
     };
 
     createRoot(root).render(
