@@ -374,6 +374,73 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     /**
+     * Re-parse and re-enrich a variant's current deck version.
+     */
+    #[Route('/{id}/variants/{deckId}/reenrich', name: 'app_admin_archetype_variant_reenrich', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    #[IsGranted('ROLE_TECHNICAL_ADMIN')]
+    public function reenrichVariant(
+        Request $request,
+        Archetype $archetype,
+        int $deckId,
+        DeckRepository $deckRepository,
+        DeckListParser $parser,
+        MessageBusInterface $messageBus,
+    ): Response {
+        $deck = $deckRepository->find($deckId);
+        if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('variant-reenrich-'.$deckId, $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        $version = $deck->getCurrentVersion();
+        if (null === $version || null === $version->getRawList() || '' === trim($version->getRawList())) {
+            $this->addFlash('warning', 'app.deck.reenrich.no_raw_list');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        foreach ($version->getCards() as $card) {
+            $version->removeCard($card);
+            $this->em->remove($card);
+        }
+
+        $this->em->flush();
+
+        $result = $parser->parse($version->getRawList());
+
+        foreach ($result->cards as $parsedCard) {
+            $card = new DeckCard();
+            $card->setCardName($parsedCard->cardName);
+            $card->setSetCode($parsedCard->setCode);
+            $card->setCardNumber($parsedCard->cardNumber);
+            $card->setQuantity($parsedCard->quantity);
+            $card->setCardType($parsedCard->cardType);
+            $version->addCard($card);
+        }
+
+        $version->setEnrichmentStatus('pending');
+        $version->setMosaicImageUrl(null);
+        $version->setMinifiedList(null);
+        $version->setMinifiedCardViews(null);
+        $version->setMinifiedMosaicImageUrl(null);
+
+        $this->em->flush();
+
+        /** @var int $versionId */
+        $versionId = $version->getId();
+        $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+
+        $this->addFlash('success', 'app.deck.reenrich.dispatched');
+
+        return $this->redirectToRoute('app_admin_archetype_variant_edit', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+    }
+
+    /**
      * Duplicate an archetype variant: copies name (prefixed), notes, sprites,
      * latest set, and re-parses the raw list to create a fresh DeckVersion.
      *
