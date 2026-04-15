@@ -160,6 +160,7 @@ class ArchetypeDetailController extends AbstractController
                 'latestSetName' => $latestSet?->getLocalizedName($locale),
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
+                'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),
                 'groupedCards' => $orderedGroups,

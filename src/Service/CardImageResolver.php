@@ -46,9 +46,16 @@ class CardImageResolver
      *
      * @return string|false the image data on success, false on failure
      */
-    public function downloadImage(CardPrinting $printing): string|false
+    /**
+     * @param string $resolution 'high' for full resolution, 'low' for thumbnails
+     */
+    public function downloadImage(CardPrinting $printing, string $resolution = 'high'): string|false
     {
         $primaryUrl = $printing->getImageUrl();
+
+        if ('low' === $resolution && null !== $primaryUrl) {
+            $primaryUrl = str_replace('/high.webp', '/low.webp', $primaryUrl);
+        }
         $cardName = $printing->getCardIdentity()->getName();
 
         // Try primary URL

@@ -184,7 +184,7 @@ class MosaicGenerator
         // When a CardPrinting is available, use the fallback-aware resolver
         // which also persists working URLs on the printing entity.
         if (null !== $tile->printing) {
-            $imageData = $this->cardImageResolver->downloadImage($tile->printing);
+            $imageData = $this->cardImageResolver->downloadImage($tile->printing, 'low');
         } elseif (null !== $tile->imageUrl && '' !== $tile->imageUrl) {
             $imageData = @file_get_contents($tile->imageUrl);
         }
@@ -339,7 +339,7 @@ class MosaicGenerator
         if (null !== $imageUrlOverrides && null !== $cardId && isset($imageUrlOverrides[$cardId])) {
             $imageData = @file_get_contents($imageUrlOverrides[$cardId]);
         } elseif (null !== $printing) {
-            $imageData = $this->cardImageResolver->downloadImage($printing);
+            $imageData = $this->cardImageResolver->downloadImage($printing, 'low');
         } else {
             $imageData = false;
         }

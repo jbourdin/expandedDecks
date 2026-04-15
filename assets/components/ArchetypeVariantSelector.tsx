@@ -8,7 +8,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Button, CopyButton, Group, Select, SegmentedControl, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
@@ -36,6 +36,7 @@ interface VariantData {
     outdated: boolean;
     latestSetCode: string | null;
     latestSetName: string | null;
+    enrichmentPending: boolean;
     sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
@@ -58,6 +59,7 @@ interface Labels {
     copied: string;
     outdatedBadge: string;
     shareMosaic: string;
+    enrichmentPending: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -409,11 +411,20 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                         </Group>
                     </Group>
 
-                    {viewMode === 'table' && (
+                    {selectedVariant.enrichmentPending && (
+                        <div className="card shadow-sm">
+                            <div className="card-body text-center py-5">
+                                <Loader size="sm" className="mb-2" />
+                                <Text size="sm" c="dimmed">{labels.enrichmentPending}</Text>
+                            </div>
+                        </div>
+                    )}
+
+                    {!selectedVariant.enrichmentPending && viewMode === 'table' && (
                         <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} onCardClick={handleCardClick} />
                     )}
 
-                    {viewMode === 'mosaic' && (
+                    {!selectedVariant.enrichmentPending && viewMode === 'mosaic' && (
                         <CardMosaicGrid
                             groupedCards={selectedVariant.groupedCards}
                             mosaicAltLabel={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
