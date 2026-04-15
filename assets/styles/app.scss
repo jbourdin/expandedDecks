@@ -590,20 +590,21 @@ footer {
     pointer-events: none;
 }
 
-// Flat-top hexagon (wider than tall) matching the server-generated GD badge.
-// aspect-ratio is √3/2 ≈ 0.866 (height / width for a flat-top regular hexagon).
+// Regular hexagon (all six sides equal, pointy-top).
+// A pointy-top regular hexagon inscribed in a rectangle has
+// width:height = √3 : 2 ≈ 0.866 : 1, so aspect-ratio = 0.866.
 .card-mosaic-qty-inner {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    aspect-ratio: 1 / .866;
+    aspect-ratio: .866;
     background: #e83a45;
     color: #fff;
     font-weight: 700;
     font-size: .75rem;
     line-height: 1;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 // --- Deck mosaic hover overlay (desktop only) ---
