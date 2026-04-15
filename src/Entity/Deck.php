@@ -66,6 +66,16 @@ class Deck
     private ?Archetype $archetype = null;
 
     /**
+     * The latest expansion set that defines the format boundary for this deck.
+     * E.g. SV08 means the deck is built with cards up to and including SV08.
+     *
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    #[ORM\ManyToOne(targetEntity: TcgdexSet::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?TcgdexSet $latestSet = null;
+
+    /**
      * Marks the primary/reference variant for an archetype.
      * Only meaningful for archetype variant decks (owner = null).
      *
@@ -318,6 +328,26 @@ class Deck
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getLatestSet(): ?TcgdexSet
+    {
+        return $this->latestSet;
+    }
+
+    public function setLatestSet(?TcgdexSet $latestSet): static
+    {
+        $this->latestSet = $latestSet;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function isOutdated(): bool
+    {
+        return DeckStatus::Outdated === $this->status;
     }
 
     public function getNotes(): ?string

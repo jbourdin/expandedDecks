@@ -344,4 +344,47 @@ class DeckTest extends TestCase
 
         self::assertSame(3, $deck->getPosition());
     }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testIsOutdatedReturnsTrueWhenStatusIsOutdated(): void
+    {
+        $deck = new Deck();
+        $deck->setStatus(DeckStatus::Outdated);
+
+        self::assertTrue($deck->isOutdated());
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testIsOutdatedReturnsFalseForOtherStatuses(): void
+    {
+        $deck = new Deck();
+
+        self::assertFalse($deck->isOutdated());
+
+        $deck->setStatus(DeckStatus::Retired);
+        self::assertFalse($deck->isOutdated());
+
+        $deck->setStatus(DeckStatus::Available);
+        self::assertFalse($deck->isOutdated());
+    }
+
+    /**
+     * @see docs/features.md F2.24 — Expansion set boundary & outdated variant flag
+     */
+    public function testLatestSetGetterSetter(): void
+    {
+        $deck = new Deck();
+        self::assertNull($deck->getLatestSet());
+
+        $set = $this->createStub(\App\Entity\TcgdexSet::class);
+        $deck->setLatestSet($set);
+        self::assertSame($set, $deck->getLatestSet());
+
+        $deck->setLatestSet(null);
+        self::assertNull($deck->getLatestSet());
+    }
 }

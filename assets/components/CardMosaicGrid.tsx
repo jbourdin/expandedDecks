@@ -11,9 +11,8 @@
  * @see docs/features.md F2.23 — Interactive card mosaic with responsive grid and image modal
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CloseButton, Modal, Text, UnstyledButton } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import CardImageModal, { type FlatCard } from './CardImageModal';
 
 interface CardData {
     cardName: string;
@@ -30,10 +29,7 @@ interface CardMosaicGridProps {
     mosaicAltLabel: string;
 }
 
-interface FlatCard {
-    cardName: string;
-    quantity: number;
-    imageUrl: string;
+interface MosaicCard extends FlatCard {
     lowResUrl: string;
 }
 
@@ -54,104 +50,6 @@ function toLowRes(imageUrl: string): string {
 }
 
 /**
- * Card image gallery modal — swipeable viewer with prev/next navigation.
- */
-const CardImageModal: React.FC<{
-    opened: boolean;
-    cards: FlatCard[];
-    currentIndex: number;
-    onClose: () => void;
-    onNavigate: (index: number) => void;
-}> = ({ opened, cards, currentIndex, onClose, onNavigate }) => {
-    const touchStartX = useRef(0);
-    const touchStartY = useRef(0);
-
-    const card = cards[currentIndex];
-
-    const navigate = useCallback((direction: number) => {
-        onNavigate((currentIndex + direction + cards.length) % cards.length);
-    }, [currentIndex, cards.length, onNavigate]);
-
-    useEffect(() => {
-        if (!opened) return;
-
-        const handleKeyDown = (event: KeyboardEvent): void => {
-            if (event.key === 'ArrowLeft') navigate(-1);
-            if (event.key === 'ArrowRight') navigate(1);
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [opened, navigate]);
-
-    if (!card) return null;
-
-    const title = `${card.quantity} \u00d7 ${card.cardName}`;
-
-    return (
-        <Modal
-            opened={opened}
-            onClose={onClose}
-            withCloseButton={false}
-            centered
-            size="sm"
-            padding={0}
-            styles={{
-                body: { padding: 0 },
-                content: { overflow: 'hidden' },
-            }}
-        >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}>
-                <Text size="sm" fw={500} style={{ flex: 1 }}>{title}</Text>
-                <Text size="xs" c="dimmed" style={{ marginRight: 8 }}>
-                    {currentIndex + 1} / {cards.length}
-                </Text>
-                <CloseButton onClick={onClose} />
-            </div>
-            <div
-                style={{ position: 'relative', textAlign: 'center', padding: '0 8px 8px' }}
-                onTouchStart={(event) => {
-                    touchStartX.current = event.touches[0].clientX;
-                    touchStartY.current = event.touches[0].clientY;
-                }}
-                onTouchMove={(event) => {
-                    const deltaX = Math.abs(event.touches[0].clientX - touchStartX.current);
-                    const deltaY = Math.abs(event.touches[0].clientY - touchStartY.current);
-                    if (deltaY > deltaX) {
-                        event.preventDefault();
-                    }
-                }}
-                onTouchEnd={(event) => {
-                    const deltaX = event.changedTouches[0].clientX - touchStartX.current;
-                    if (Math.abs(deltaX) > 50) {
-                        navigate(deltaX < 0 ? 1 : -1);
-                    }
-                }}
-            >
-                <UnstyledButton
-                    onClick={() => navigate(-1)}
-                    style={{ position: 'absolute', left: 4, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}
-                >
-                    <IconChevronLeft size={28} />
-                </UnstyledButton>
-                <img
-                    src={card.imageUrl}
-                    alt={card.cardName}
-                    style={{ maxWidth: '100%', borderRadius: 4 }}
-                />
-                <UnstyledButton
-                    onClick={() => navigate(1)}
-                    style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}
-                >
-                    <IconChevronRight size={28} />
-                </UnstyledButton>
-            </div>
-        </Modal>
-    );
-};
-
-/**
  * Interactive card mosaic grid — responsive 6-col (desktop) / 3-col (mobile)
  * grid of low-res card thumbnails with quantity badges and click-to-zoom modal.
  */
@@ -159,8 +57,8 @@ export default function CardMosaicGrid({ groupedCards, mosaicAltLabel }: CardMos
     const [modalOpen, setModalOpen] = useState(false);
     const [modalIndex, setModalIndex] = useState(0);
 
-    const flatCards: FlatCard[] = useMemo(() => {
-        const entries: FlatCard[] = [];
+    const flatCards: MosaicCard[] = useMemo(() => {
+        const entries: MosaicCard[] = [];
 
         for (const section of SECTION_ORDER) {
             for (const card of groupedCards[section] ?? []) {

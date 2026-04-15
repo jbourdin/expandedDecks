@@ -7,10 +7,12 @@
  * file that was distributed with this source code.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, CopyButton, Group, Select, SegmentedControl, Stack } from '@mantine/core';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
+import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
 
 /**
@@ -31,6 +33,10 @@ interface VariantData {
     id: number;
     name: string;
     canonical: boolean;
+    outdated: boolean;
+    latestSetCode: string | null;
+    latestSetName: string | null;
+    enrichmentPending: boolean;
     sprites: string[];
     description: string | null;
     mosaicUrl: string | null;
@@ -51,6 +57,9 @@ interface Labels {
     moreVariants: string;
     copyList: string;
     copied: string;
+    outdatedBadge: string;
+    shareMosaic: string;
+    enrichmentPending: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -83,7 +92,12 @@ function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }
     );
 }
 
-function CardSection({ title, cards, labels }: { title: string; cards: CardData[]; labels: Labels }) {
+function CardSection({ title, cards, labels, onCardClick }: {
+    title: string;
+    cards: CardData[];
+    labels: Labels;
+    onCardClick?: (card: CardData) => void;
+}) {
     return (
         <div className="mb-3">
             <h6 className="text-muted text-uppercase small fw-bold">{title}</h6>
@@ -101,15 +115,14 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
                         <tr key={index}>
                             <td>{card.quantity}</td>
                             <td>
-                                {card.imageUrl ? (
-                                    <span className="card-hover" data-quantity={card.quantity} data-card-hover-group="variant-decklist">
+                                {card.imageUrl && onCardClick ? (
+                                    <span className="card-name-link" role="button" tabIndex={0} onClick={() => onCardClick(card)} onKeyDown={(event) => {
+                                        if (event.key === 'Enter' || event.key === ' ') {
+                                            event.preventDefault();
+                                            onCardClick(card);
+                                        }
+                                    }}>
                                         {card.cardName}
-                                        <img
-                                            className="card-hover-img"
-                                            src={card.imageUrl}
-                                            alt={card.cardName}
-                                            loading="lazy"
-                                        />
                                     </span>
                                 ) : (
                                     card.cardName
@@ -125,7 +138,11 @@ function CardSection({ title, cards, labels }: { title: string; cards: CardData[
     );
 }
 
-function CardTable({ groupedCards, labels }: { groupedCards: Record<string, CardData[]>; labels: Labels }) {
+function CardTable({ groupedCards, labels, onCardClick }: {
+    groupedCards: Record<string, CardData[]>;
+    labels: Labels;
+    onCardClick?: (card: CardData) => void;
+}) {
     const sections = Object.entries(groupedCards);
 
     if (sections.length === 0) {
@@ -140,12 +157,12 @@ function CardTable({ groupedCards, labels }: { groupedCards: Record<string, Card
         <div className="row">
             <div className="col-md-6">
                 {leftSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
                 ))}
             </div>
             <div className="col-md-6">
                 {rightSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
                 ))}
             </div>
         </div>
@@ -173,15 +190,21 @@ function DesktopSelector({ variants, selectedIndex, onSelect }: {
                     radius="xl"
                     onClick={() => onSelect(index)}
                     leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={22} /> : undefined}
+                    opacity={variant.outdated && index !== selectedIndex ? 0.5 : 1}
                 >
-                    {variant.name}
+                    {variant.outdated && variant.latestSetCode && (
+                        <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
+                    )}
+                    <span style={variant.outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
                 </Button>
             ))}
             {dropdownVariants.length > 0 && (
                 <Select
                     data={dropdownVariants.map((variant, index) => ({
                         value: String(MAX_BUTTONS + index),
-                        label: variant.name,
+                        label: variant.outdated && variant.latestSetCode
+                            ? `${variant.latestSetCode} ${variant.name}`
+                            : variant.name,
                     }))}
                     value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
                     onChange={(value) => {
@@ -210,7 +233,9 @@ function MobileSelector({ variants, selectedIndex, onSelect }: {
         <Select
             data={variants.map((variant, index) => ({
                 value: String(index),
-                label: variant.name,
+                label: variant.outdated && variant.latestSetCode
+                    ? `${variant.latestSetCode} ${variant.name}`
+                    : variant.name,
             }))}
             value={String(selectedIndex)}
             onChange={(value) => {
@@ -246,6 +271,62 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
     const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [cardModalIndex, setCardModalIndex] = useState(0);
+
+    const selectedVariant = variants[selectedIndex];
+    const groupedCards = selectedVariant?.groupedCards;
+
+    const flatCards: FlatCard[] = useMemo(() => {
+        const entries: FlatCard[] = [];
+        const order = ['pokemon', 'trainer', 'energy'];
+
+        for (const section of order) {
+            for (const card of groupedCards?.[section] ?? []) {
+                if (card.imageUrl) {
+                    entries.push({ imageUrl: card.imageUrl, cardName: card.cardName, quantity: card.quantity });
+                }
+            }
+        }
+
+        return entries;
+    }, [groupedCards]);
+
+    const handleCardClick = (card: CardData): void => {
+        const index = flatCards.findIndex((entry) => entry.imageUrl === card.imageUrl && entry.cardName === card.cardName);
+        if (index >= 0) {
+            setCardModalIndex(index);
+            setCardModalOpen(true);
+        }
+    };
+
+    const handleShareMosaic = useCallback(async () => {
+        const mosaicUrl = selectedVariant?.mosaicUrl;
+        if (!mosaicUrl) return;
+
+        if (navigator.share) {
+            try {
+                const response = await fetch(mosaicUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'deck-mosaic.png', { type: 'image/png' });
+                await navigator.share({ files: [file] });
+
+                return;
+            } catch {
+                // Share cancelled or not supported with files
+            }
+
+            try {
+                await navigator.share({ title: labels.mosaicAlt, url: mosaicUrl });
+
+                return;
+            } catch {
+                // Share cancelled — fall back to clipboard
+            }
+        }
+
+        await navigator.clipboard.writeText(window.location.origin + mosaicUrl);
+    }, [selectedVariant?.mosaicUrl, labels.mosaicAlt]);
 
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
@@ -261,8 +342,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
         return null;
     }
 
-    const selectedVariant = variants[selectedIndex];
-    const hasCards = Object.keys(selectedVariant.groupedCards).length > 0;
+    const hasCards = Object.keys(selectedVariant?.groupedCards ?? {}).length > 0;
 
     return (
         <div ref={containerRef}>
@@ -274,6 +354,17 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                     ) : (
                         <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
                     )}
+                </div>
+            )}
+
+            {/* Outdated badge */}
+            {selectedVariant.outdated && selectedVariant.latestSetCode && (
+                <div className="alert alert-secondary py-2 px-3 mb-3 d-flex align-items-center gap-2" role="status">
+                    <span className="badge bg-secondary">{selectedVariant.latestSetCode}</span>
+                    <span className="text-muted small">
+                        {selectedVariant.latestSetName && <>{selectedVariant.latestSetName} — </>}
+                        {labels.outdatedBadge}
+                    </span>
                 </div>
             )}
 
@@ -295,27 +386,45 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                             ]}
                             size="xs"
                         />
-                        {selectedVariant.rawList && (
-                            <CopyButton value={selectedVariant.rawList} timeout={2000}>
-                                {({ copied, copy }) => (
-                                    <Button
-                                        variant={copied ? 'filled' : 'outline'}
-                                        color={copied ? 'teal' : 'gray'}
-                                        size="sm"
-                                        onClick={copy}
-                                    >
-                                        {copied ? labels.copied : labels.copyList}
-                                    </Button>
-                                )}
-                            </CopyButton>
-                        )}
+                        <Group gap="xs">
+                            {selectedVariant.rawList && (
+                                <CopyButton value={selectedVariant.rawList} timeout={2000}>
+                                    {({ copied, copy }) => (
+                                        <Button
+                                            variant={copied ? 'filled' : 'outline'}
+                                            color={copied ? 'teal' : 'gray'}
+                                            size="sm"
+                                            onClick={copy}
+                                        >
+                                            {copied ? labels.copied : labels.copyList}
+                                        </Button>
+                                    )}
+                                </CopyButton>
+                            )}
+                            {selectedVariant.mosaicUrl && (
+                                <Tooltip label={labels.shareMosaic}>
+                                    <ActionIcon variant="subtle" color="gray" size="lg" onClick={handleShareMosaic}>
+                                        <IconShare size={18} />
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
+                        </Group>
                     </Group>
 
-                    {viewMode === 'table' && (
-                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} />
+                    {selectedVariant.enrichmentPending && (
+                        <div className="card shadow-sm">
+                            <div className="card-body text-center py-5">
+                                <Loader size="sm" className="mb-2" />
+                                <Text size="sm" c="dimmed">{labels.enrichmentPending}</Text>
+                            </div>
+                        </div>
                     )}
 
-                    {viewMode === 'mosaic' && (
+                    {!selectedVariant.enrichmentPending && viewMode === 'table' && (
+                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} onCardClick={handleCardClick} />
+                    )}
+
+                    {!selectedVariant.enrichmentPending && viewMode === 'mosaic' && (
                         <CardMosaicGrid
                             groupedCards={selectedVariant.groupedCards}
                             mosaicAltLabel={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
@@ -323,6 +432,14 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                     )}
                 </Stack>
             )}
+
+            <CardImageModal
+                opened={cardModalOpen}
+                cards={flatCards}
+                currentIndex={cardModalIndex}
+                onClose={() => setCardModalOpen(false)}
+                onNavigate={setCardModalIndex}
+            />
         </div>
     );
 }

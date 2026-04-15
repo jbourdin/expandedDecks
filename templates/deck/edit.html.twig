@@ -59,6 +59,8 @@
                             {{ form_widget(form.languages) }}
                         </div>
 
+                        {{ form_row(form.latestSet) }}
+
                         <div class="mb-3">
                             {{ form_row(form.public) }}
                             {% if has_active_registrations is defined and has_active_registrations %}

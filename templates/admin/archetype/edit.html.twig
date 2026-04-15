@@ -134,11 +134,17 @@
                                         {% for slug in variant.effectivePokemonSlugs[:3] %}
                                             <img src="{{ asset('build/sprites/pokemon/' ~ slug ~ '.png') }}" alt="{{ slug }}" class="archetype-sprite" style="height: 24px;">
                                         {% endfor %}
+                                        {% if variant.latestSet %}
+                                            <span class="badge bg-light text-dark border">{{ variant.latestSet.ptcgCode }}</span>
+                                        {% endif %}
                                         {{ variant.name }}
                                     </td>
                                     <td>
                                         {% if variant.canonical %}
                                             <span class="badge bg-success">{{ 'app.archetype.variant.canonical'|trans }}</span>
+                                        {% endif %}
+                                        {% if variant.outdated %}
+                                            <span class="badge bg-secondary">{{ 'app.archetype.variant.outdated'|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -155,9 +161,15 @@
                                     </td>
                                     <td>{{ variant.createdAt|date('Y-m-d') }}</td>
                                     <td class="text-end">
-                                        <a href="{{ path('app_admin_archetype_variant_edit', {id: archetype.id, deckId: variant.id}) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ path('app_admin_archetype_variant_edit', {id: archetype.id, deckId: variant.id}) }}" class="btn btn-sm btn-outline-primary" title="{{ 'app.common.edit'|trans }}">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        <form method="post" action="{{ path('app_admin_archetype_variant_duplicate', {id: archetype.id, deckId: variant.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('variant-duplicate-' ~ variant.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'app.archetype.variant.duplicate'|trans }}">
+                                                <i class="bi bi-copy"></i>
+                                            </button>
+                                        </form>
                                         <form method="post" action="{{ path('app_admin_archetype_variant_delete', {id: archetype.id, deckId: variant.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'app.archetype.variant.delete_confirm'|trans|e('js') }}')">
                                             <input type="hidden" name="_token" value="{{ csrf_token('variant-delete-' ~ variant.id) }}">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">

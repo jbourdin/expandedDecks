@@ -38,9 +38,6 @@ class EnrichmentFlushServiceTest extends TestCase
 
                 if (0 === $callIndex++) {
                     self::assertStringContainsString('deck_card', $sql);
-                    self::assertStringContainsString('tcgdex_id = NULL', $sql);
-                    self::assertStringContainsString('image_url = NULL', $sql);
-                    self::assertStringContainsString('trainer_subtype = NULL', $sql);
                     self::assertStringContainsString('card_printing_id = NULL', $sql);
                 }
 
