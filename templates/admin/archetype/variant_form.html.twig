@@ -57,21 +57,11 @@
                 {{ form_row(form.rawList) }}
 
                 {% if not isNew and deck.currentVersion %}
-                    <div class="alert alert-info mb-3 d-flex justify-content-between align-items-center">
-                        <span>
-                            <strong>{{ 'app.archetype.variant.current_version'|trans }}:</strong>
-                            v{{ deck.currentVersion.versionNumber }}
-                            ({{ deck.currentVersion.enrichmentStatus }})
-                            — {{ 'app.archetype.variant.paste_to_replace'|trans }}
-                        </span>
-                        {% if is_granted('ROLE_TECHNICAL_ADMIN') %}
-                            <form method="post" action="{{ path('app_admin_archetype_variant_reenrich', {id: archetype.id, deckId: deck.id}) }}" class="d-inline ms-2">
-                                <input type="hidden" name="_token" value="{{ csrf_token('variant-reenrich-' ~ deck.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-dark" title="{{ 'app.deck.reenrich.button'|trans }}">
-                                    <i class="bi bi-arrow-repeat"></i> {{ 'app.deck.reenrich.button'|trans }}
-                                </button>
-                            </form>
-                        {% endif %}
+                    <div class="alert alert-info mb-3">
+                        <strong>{{ 'app.archetype.variant.current_version'|trans }}:</strong>
+                        v{{ deck.currentVersion.versionNumber }}
+                        ({{ deck.currentVersion.enrichmentStatus }})
+                        — {{ 'app.archetype.variant.paste_to_replace'|trans }}
                     </div>
                 {% endif %}
 
@@ -80,6 +70,16 @@
 
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
             {{ form_end(form) }}
+
+            {% if not isNew and deck.currentVersion and is_granted('ROLE_TECHNICAL_ADMIN') %}
+                <hr>
+                <form method="post" action="{{ path('app_admin_archetype_variant_reenrich', {id: archetype.id, deckId: deck.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('variant-reenrich-' ~ deck.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-dark">
+                        <i class="bi bi-arrow-repeat"></i> {{ 'app.deck.reenrich.button'|trans }}
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
