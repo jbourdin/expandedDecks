@@ -16,6 +16,24 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.4] — 2026-04-15
+
+Interactive card mosaic replacing the static server-generated image.
+
+### Features
+
+- **Interactive card mosaic grid** — replaced the static server-generated PNG mosaic with a responsive 6-col (desktop) / 3-col (mobile) CSS Grid of `low.webp` card thumbnails. Clicking a card opens a `high.webp` modal with swipe/keyboard navigation and quantity display. Used on both the deck detail page and archetype variant view. Server-side mosaic generation is preserved for Web Share / social preview. ([F2.23](https://github.com/jbourdin/expandedDecks/issues/400))
+
+### Bug Fixes
+
+- **Hexagonal badge shadow on Firefox** — moved `filter: drop-shadow()` to a wrapper element to work around Firefox not rendering shadows when combined with `clip-path` on the same element.
+
+### Infrastructure
+
+- Enhanced `/next` skill with board hygiene and in-flight work assessment.
+
+---
+
 ## [1.7.3] — 2026-04-13
 
 Localized deck list support and canonical card name display.
