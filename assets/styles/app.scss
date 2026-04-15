@@ -536,6 +536,62 @@ footer {
     }
 }
 
+// --- Interactive card mosaic grid ---
+// Responsive grid of card thumbnails with quantity badges.
+// @see docs/features.md F2.23
+
+.card-mosaic-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+
+    @include media-breakpoint-down(md) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card-mosaic-cell {
+    position: relative;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+    background: none;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: transform .15s ease;
+
+    &:hover {
+        transform: scale(1.03);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+}
+
+.card-mosaic-qty {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: $danger;
+    color: #fff;
+    font-weight: 700;
+    font-size: .7rem;
+    line-height: 1;
+    padding: 3px 8px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+    pointer-events: none;
+}
+
 // --- Deck mosaic hover overlay (desktop only) ---
 // Shows the mosaic image on hover over deck cards in list views.
 .deck-mosaic-hover {
