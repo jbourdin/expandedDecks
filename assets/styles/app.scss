@@ -536,6 +536,28 @@ footer {
     }
 }
 
+// --- Clickable card name in table views ---
+// Subtle hover hint to indicate the card name opens the image modal.
+.card-name-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 2px;
+    transition: text-decoration-color .15s ease, color .15s ease;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration-color: currentcolor;
+        color: var(--bs-primary);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+}
+
 // --- Interactive card mosaic grid ---
 // Responsive grid of card thumbnails with quantity badges.
 // @see docs/features.md F2.23
