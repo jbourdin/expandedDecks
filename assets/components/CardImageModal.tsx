@@ -64,11 +64,16 @@ const CardImageModal: React.FC<CardImageModalProps> = ({ opened, cards, currentI
             onClose={onClose}
             withCloseButton={false}
             centered
-            size="sm"
             padding={0}
+            size="auto"
             styles={{
                 body: { padding: 0 },
-                content: { overflow: 'hidden' },
+                content: {
+                    overflow: 'hidden',
+                    // Fit viewport, cap at TCGdex native resolution (600×825)
+                    maxWidth: 'min(600px, 90vw)',
+                    maxHeight: 'min(865px, 95dvh)', // 825px image + ~40px header
+                },
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}>
@@ -107,7 +112,12 @@ const CardImageModal: React.FC<CardImageModalProps> = ({ opened, cards, currentI
                 <img
                     src={card.imageUrl}
                     alt={card.cardName}
-                    style={{ maxWidth: '100%', borderRadius: 4 }}
+                    style={{
+                        maxWidth: '100%',
+                        maxHeight: 'calc(min(865px, 95dvh) - 48px)', // viewport cap minus header
+                        objectFit: 'contain',
+                        borderRadius: 4,
+                    }}
                 />
                 <UnstyledButton
                     onClick={() => navigate(1)}
