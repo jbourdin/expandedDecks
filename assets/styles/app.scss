@@ -576,20 +576,35 @@ footer {
     }
 }
 
+// Badge sized at ~20% of card width to match the server-generated mosaic
+// (50 px badge on a 245 px card). Hexagonal shape via clip-path.
 .card-mosaic-qty {
     position: absolute;
-    bottom: 6px;
+    bottom: 6%;
     left: 50%;
     transform: translateX(-50%);
+    width: 20%;
+    aspect-ratio: 1.1547; // regular hexagon width:height ratio (2 / √3)
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: $danger;
     color: #fff;
     font-weight: 700;
-    font-size: .7rem;
+    font-size: .75rem;
     line-height: 1;
-    padding: 3px 8px;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     pointer-events: none;
+
+    // Shadow layer behind the hexagon
+    &::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        background: rgb(102 17 22); // matches GD shadow color 0x661116
+        clip-path: inherit;
+        z-index: -1;
+    }
 }
 
 // --- Deck mosaic hover overlay (desktop only) ---
