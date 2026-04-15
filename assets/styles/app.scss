@@ -588,23 +588,14 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: $danger;
+    background: #e83a45; // bright red matching the GD badge (0xCC2936 lightened for screen)
     color: #fff;
     font-weight: 700;
     font-size: .75rem;
     line-height: 1;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    filter: drop-shadow(2px 2px 2px rgb(0 0 0 / 50%));
     pointer-events: none;
-
-    // Shadow layer behind the hexagon
-    &::before {
-        content: "";
-        position: absolute;
-        inset: -2px;
-        background: rgb(102 17 22); // matches GD shadow color 0x661116
-        clip-path: inherit;
-        z-index: -1;
-    }
 }
 
 // --- Deck mosaic hover overlay (desktop only) ---
