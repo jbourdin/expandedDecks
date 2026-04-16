@@ -49,9 +49,17 @@ jobs:
           DATABASE_URL: "mysql://localhost/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
 
       - name: PHPUnit (unit)
-        run: php bin/phpunit --testsuite unit --display-time
+        run: php bin/phpunit --testsuite unit --log-junit var/junit.xml
         env:
           DATABASE_URL: "mysql://localhost/expanded_decks_test?serverVersion=8.0&charset=utf8mb4"
+
+      - name: Upload unit test timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-unit
+          path: var/junit.xml
+          retention-days: 7
 
   php-functional:
     name: PHP Functional Tests
@@ -98,9 +106,17 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: PHPUnit (functional)
-        run: php bin/phpunit --testsuite functional --display-time
+        run: php bin/phpunit --testsuite functional --log-junit var/junit.xml
         env:
           DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
+
+      - name: Upload functional test timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-functional
+          path: var/junit.xml
+          retention-days: 7
 
   php-coverage:
     name: PHP Coverage
@@ -146,7 +162,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: PHPUnit with coverage
-        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text --display-time
+        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text --log-junit var/junit.xml
         env:
           DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
