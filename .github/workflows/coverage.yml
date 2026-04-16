@@ -55,7 +55,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: PHPUnit with coverage
-        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text 2>&1 | tee var/coverage/coverage-text.txt
+        run: php -d pcov.enabled=1 bin/phpunit --coverage-clover var/coverage/clover.xml --coverage-text --display-time 2>&1 | tee var/coverage/coverage-text.txt
         env:
           DATABASE_URL: "mysql://expanded_decks:expanded_decks@127.0.0.1:3306/expanded_decks?serverVersion=8.0&charset=utf8mb4"
 
