@@ -58,6 +58,8 @@ interface Labels {
     copyList: string;
     copied: string;
     outdatedBadge: string;
+    groupCurrent: string;
+    groupOutdated: string;
     shareMosaic: string;
     enrichmentPending: string;
 }
@@ -75,7 +77,7 @@ const SECTION_LABELS: Record<string, keyof Labels> = {
     energy: 'sectionEnergy',
 };
 
-const MAX_BUTTONS = 5;
+const MAX_BUTTONS = 4;
 
 function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }) {
     return (
@@ -171,72 +173,155 @@ function CardTable({ groupedCards, labels, onCardClick }: {
 
 /**
  * Desktop variant selector: compact pill buttons with sprites.
+ * Current variants appear on one row; outdated variants on a separate row
+ * with a grayed-out visual treatment.
  */
 function DesktopSelector({ variants, selectedIndex, onSelect }: {
     variants: VariantData[];
     selectedIndex: number;
     onSelect: (index: number) => void;
 }) {
-    const buttonVariants = variants.slice(0, MAX_BUTTONS);
-    const dropdownVariants = variants.slice(MAX_BUTTONS);
+    const indexed = variants.map((variant, index) => ({ variant, index }));
+    const currentVariants = indexed.filter(({ variant }) => !variant.outdated);
+    const outdatedVariants = indexed.filter(({ variant }) => variant.outdated);
+
+    const renderRow = (items: { variant: VariantData; index: number }[], outdated: boolean) => {
+        const buttonItems = items.slice(0, MAX_BUTTONS);
+        const dropdownItems = items.slice(MAX_BUTTONS);
+
+        return (
+            <Group gap="xs" wrap="wrap">
+                {buttonItems.map(({ variant, index }) => (
+                    <Button
+                        key={variant.id}
+                        variant={outdated
+                            ? (index === selectedIndex ? 'filled' : 'light')
+                            : (index === selectedIndex ? 'filled' : 'outline')}
+                        color={outdated ? 'gray' : undefined}
+                        size="sm"
+                        radius="xl"
+                        onClick={() => onSelect(index)}
+                        leftSection={variant.sprites.length > 0
+                            ? <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}><SpriteList slugs={variant.sprites} height={22} /></span>
+                            : undefined}
+                    >
+                        {variant.outdated && variant.latestSetCode && (
+                            <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
+                        )}
+                        <span style={outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
+                    </Button>
+                ))}
+                {dropdownItems.length > 0 && (() => {
+                    const selectedDropdownItem = dropdownItems.find(({ index }) => index === selectedIndex);
+                    const selectedDropdownVariant = selectedDropdownItem?.variant;
+
+                    return (
+                        <Select
+                            data={dropdownItems.map(({ variant, index }) => ({
+                                value: String(index),
+                                label: variant.outdated && variant.latestSetCode
+                                    ? `${variant.latestSetCode} ${variant.name}`
+                                    : variant.name,
+                            }))}
+                            value={selectedDropdownItem ? String(selectedIndex) : null}
+                            onChange={(value) => {
+                                if (value) {
+                                    onSelect(Number(value));
+                                }
+                            }}
+                            size="sm"
+                            clearable
+                            style={{ minWidth: 200 }}
+                            leftSection={
+                                selectedDropdownVariant && selectedDropdownVariant.sprites.length > 0
+                                    ? <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}><SpriteList slugs={selectedDropdownVariant.sprites} height={20} /></span>
+                                    : undefined
+                            }
+                            leftSectionWidth={
+                                selectedDropdownVariant && selectedDropdownVariant.sprites.length > 0
+                                    ? selectedDropdownVariant.sprites.length * 22 + 8
+                                    : undefined
+                            }
+                            styles={outdated ? { input: { fontStyle: 'italic' } } : { input: { fontWeight: 600 } }}
+                            renderOption={({ option }) => {
+                                const item = dropdownItems.find(({ index }) => String(index) === option.value);
+                                if (!item) return <span>{option.label}</span>;
+                                const { variant } = item;
+
+                                return (
+                                    <Group gap={6} wrap="nowrap" style={outdated ? { opacity: 0.5 } : undefined}>
+                                        {variant.sprites.length > 0 && (
+                                            <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}>
+                                                <SpriteList slugs={variant.sprites} height={20} />
+                                            </span>
+                                        )}
+                                        {variant.outdated && variant.latestSetCode && (
+                                            <span className="badge bg-secondary" style={{ fontSize: '0.65em' }}>{variant.latestSetCode}</span>
+                                        )}
+                                        <span style={outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
+                                    </Group>
+                                );
+                            }}
+                        />
+                    );
+                })()}
+            </Group>
+        );
+    };
 
     return (
-        <Group gap="xs" wrap="wrap">
-            {buttonVariants.map((variant, index) => (
-                <Button
-                    key={variant.id}
-                    variant={index === selectedIndex ? 'filled' : 'outline'}
-                    size="sm"
-                    radius="xl"
-                    onClick={() => onSelect(index)}
-                    leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={22} /> : undefined}
-                    opacity={variant.outdated && index !== selectedIndex ? 0.5 : 1}
-                >
-                    {variant.outdated && variant.latestSetCode && (
-                        <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
-                    )}
-                    <span style={variant.outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
-                </Button>
-            ))}
-            {dropdownVariants.length > 0 && (
-                <Select
-                    data={dropdownVariants.map((variant, index) => ({
-                        value: String(MAX_BUTTONS + index),
-                        label: variant.outdated && variant.latestSetCode
-                            ? `${variant.latestSetCode} ${variant.name}`
-                            : variant.name,
-                    }))}
-                    value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
-                    onChange={(value) => {
-                        if (value) {
-                            onSelect(Number(value));
-                        }
-                    }}
-                    size="xs"
-                    clearable
-                    style={{ minWidth: 200 }}
-                />
-            )}
-        </Group>
+        <Stack gap="xs">
+            {currentVariants.length > 0 && renderRow(currentVariants, false)}
+            {outdatedVariants.length > 0 && renderRow(outdatedVariants, true)}
+        </Stack>
     );
 }
 
 /**
  * Mobile variant selector: dropdown with sprites in both the input and options.
+ * Groups current and outdated variants with a separator header.
  */
-function MobileSelector({ variants, selectedIndex, onSelect }: {
+function MobileSelector({ variants, selectedIndex, onSelect, labels }: {
     variants: VariantData[];
     selectedIndex: number;
     onSelect: (index: number) => void;
+    labels: Labels;
 }) {
+    const hasOutdated = variants.some((variant) => variant.outdated);
+
+    const data = hasOutdated
+        ? [
+            {
+                group: labels.groupCurrent,
+                items: variants
+                    .map((variant, index) => ({ variant, index }))
+                    .filter(({ variant }) => !variant.outdated)
+                    .map(({ variant, index }) => ({
+                        value: String(index),
+                        label: variant.name,
+                    })),
+            },
+            {
+                group: labels.groupOutdated,
+                items: variants
+                    .map((variant, index) => ({ variant, index }))
+                    .filter(({ variant }) => variant.outdated)
+                    .map(({ variant, index }) => ({
+                        value: String(index),
+                        label: variant.latestSetCode
+                            ? `${variant.latestSetCode} ${variant.name}`
+                            : variant.name,
+                    })),
+            },
+        ]
+        : variants.map((variant, index) => ({
+            value: String(index),
+            label: variant.name,
+        }));
+
     return (
         <Select
-            data={variants.map((variant, index) => ({
-                value: String(index),
-                label: variant.outdated && variant.latestSetCode
-                    ? `${variant.latestSetCode} ${variant.name}`
-                    : variant.name,
-            }))}
+            data={data}
             value={String(selectedIndex)}
             onChange={(value) => {
                 if (value) {
@@ -353,7 +438,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
             {variants.length > 1 && (
                 <div className="mb-3">
                     {isMobile ? (
-                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} labels={labels} />
                     ) : (
                         <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
                     )}
