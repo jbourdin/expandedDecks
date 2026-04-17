@@ -60,7 +60,7 @@ class ArchetypeVariantCompareController extends AbstractController
         $hasBothVersions = null !== $versionA && null !== $versionB;
 
         if ($hasBothVersions) {
-            $diff = $differ->diff($versionA, $versionB);
+            $diff = $differ->diff($versionA, $versionB, mergeByIdentity: true);
         }
 
         $pickerData = array_map(static fn (Deck $variant): array => [

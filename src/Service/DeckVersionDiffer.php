@@ -39,11 +39,15 @@ final class DeckVersionDiffer
      *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
      *     unified: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, delta: int, status: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>
      * }
+     *
+     * @param bool $mergeByIdentity When true, cards with the same CardIdentity
+     *                              are merged (different printings treated as the
+     *                              same card). Uses canonical printing for display.
      */
-    public function diff(DeckVersion $oldVersion, DeckVersion $newVersion): array
+    public function diff(DeckVersion $oldVersion, DeckVersion $newVersion, bool $mergeByIdentity = false): array
     {
-        $oldCards = $this->indexCards($oldVersion);
-        $newCards = $this->indexCards($newVersion);
+        $oldCards = $mergeByIdentity ? $this->indexCardsByIdentity($oldVersion) : $this->indexCards($oldVersion);
+        $newCards = $mergeByIdentity ? $this->indexCardsByIdentity($newVersion) : $this->indexCards($newVersion);
 
         $added = [];
         $removed = [];
@@ -159,6 +163,41 @@ final class DeckVersionDiffer
         foreach ($version->getCards() as $card) {
             $key = $card->getSetCode().'|'.$card->getCardNumber();
             $index[$key] = $card;
+        }
+
+        return $index;
+    }
+
+    /**
+     * Index cards by CardIdentity ID, merging different printings of the same
+     * functional card. When multiple printings exist, the card with the canonical
+     * printing (lowest rarity) is kept. Quantities are summed.
+     *
+     * Falls back to cardName as the key when no CardPrinting is linked.
+     *
+     * @return array<string, DeckCard>
+     */
+    private function indexCardsByIdentity(DeckVersion $version): array
+    {
+        $index = [];
+        foreach ($version->getCards() as $card) {
+            $identity = $card->getCardPrinting()?->getCardIdentity();
+            $key = null !== $identity ? 'identity:'.$identity->getId() : 'name:'.$card->getCardName();
+
+            if (isset($index[$key])) {
+                // Same identity already seen — keep the one with the canonical printing
+                $existing = $index[$key];
+                $existingIsCanonical = $existing->getCardPrinting()?->isCanonical() ?? false;
+                $newIsCanonical = $card->getCardPrinting()?->isCanonical() ?? false;
+
+                if ($newIsCanonical && !$existingIsCanonical) {
+                    $index[$key] = $card;
+                }
+            // Quantities are identical for the same card in a deck list (one entry per card),
+            // so no summing needed — we just pick the best printing.
+            } else {
+                $index[$key] = $card;
+            }
         }
 
         return $index;
