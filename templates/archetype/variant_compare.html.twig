@@ -209,13 +209,13 @@
          */
         const selectA = document.getElementById('variant-select-a');
         const selectB = document.getElementById('variant-select-b');
-        const baseUrl = '{{ path('app_archetype_variant_compare', {slug: archetype.slug, shortTagA: '__A__', shortTagB: '__B__'}) }}';
+        const basePath = '/archetypes/{{ archetype.slug }}/compare/';
 
         function navigateToCompare() {
             const tagA = selectA.value;
             const tagB = selectB.value;
             if (tagA && tagB && tagA !== tagB) {
-                window.location.href = baseUrl.replace('__A__', tagA).replace('__B__', tagB);
+                window.location.href = basePath + tagA + '/' + tagB;
             }
         }
 
