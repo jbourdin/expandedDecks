@@ -3685,6 +3685,21 @@
                 <target>Voulez-vous vraiment supprimer cette variante ?</target>
                 <note>Confirmation dialog for variant deletion</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.copy_tag">
+                <source>app.archetype.variant.copy_tag</source>
+                <target>Copier la balise de référence</target>
+                <note>Tooltip for copy-tag button on archetype variant selector (F2.25)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.copy_tag_copied">
+                <source>app.archetype.variant.copy_tag_copied</source>
+                <target>Copié !</target>
+                <note>Tooltip shown after reference tag has been copied to clipboard (F2.25)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.copy_card_tag">
+                <source>app.archetype.variant.copy_card_tag</source>
+                <target>Copier la référence carte</target>
+                <note>Tooltip for copy card reference button on card table rows (F2.25)</note>
+            </trans-unit>
 
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">

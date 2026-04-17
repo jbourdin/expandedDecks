@@ -109,7 +109,7 @@ interface MarkdownEditorProps {
 type EditorMode = 'rte' | 'markdown';
 
 const CARD_PATTERN = /^[A-Za-z0-9-]+$/;
-const ARCHETYPE_PATTERN = /^[a-z0-9-]+$/;
+const ARCHETYPE_PATTERN = /^[a-z0-9-]+(:[A-HJ-NP-Z0-9]{6})?$/;
 const DECK_PATTERN = /^[A-HJ-NP-Z0-9]{6}$/;
 
 const validateCardReference = (value: string) => CARD_PATTERN.test(value);
@@ -295,10 +295,15 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
                                 editor={editor}
                                 icon={<IconSword size={16} />}
                                 label="Insert archetype reference"
-                                placeholder="slug"
+                                placeholder="slug or slug:SHORTTAG"
                                 validate={validateArchetypeSlug}
                                 nodeType="archetypeReference"
                                 attrName="slug"
+                                getAttributes={(value) => {
+                                    const parts = value.split(':');
+
+                                    return { slug: parts[0], shortTag: parts[1] ?? null };
+                                }}
                             />
                             <InsertReferenceButton
                                 editor={editor}

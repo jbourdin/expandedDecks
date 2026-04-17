@@ -18,6 +18,7 @@ use App\Entity\ArchetypeTranslation;
 use App\Entity\DeckCard;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckCardRepository;
+use App\Repository\DeckRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownRenderer;
 use App\Service\Tcgdex\TcgdexApiClient;
@@ -36,6 +37,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
     private ArchetypeDescriptionRenderer $renderer;
     private ArchetypeRepository&Stub $archetypeRepository;
     private DeckCardRepository&Stub $deckCardRepository;
+    private DeckRepository&Stub $deckRepository;
     private TcgdexApiClient&Stub $tcgdexApiClient;
     private UrlGeneratorInterface&Stub $urlGenerator;
 
@@ -43,6 +45,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
     {
         $this->archetypeRepository = $this->createStub(ArchetypeRepository::class);
         $this->deckCardRepository = $this->createStub(DeckCardRepository::class);
+        $this->deckRepository = $this->createStub(DeckRepository::class);
         $this->tcgdexApiClient = $this->createStub(TcgdexApiClient::class);
         $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
 
@@ -50,6 +53,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
             new MarkdownRenderer(),
             $this->archetypeRepository,
             $this->deckCardRepository,
+            $this->deckRepository,
             $this->tcgdexApiClient,
             new ArchetypeSpriteRuntime(),
             $this->urlGenerator,

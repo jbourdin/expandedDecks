@@ -20,6 +20,8 @@ import ArchetypeVariantSelector from './components/ArchetypeVariantSelector';
 const root = document.getElementById('archetype-variant-selector-root');
 if (root) {
     const variants = JSON.parse(root.dataset.variants ?? '[]');
+    const archetypeSlug = root.dataset.archetypeSlug ?? '';
+    const canCopyTag = root.dataset.canCopyTag === 'true';
     const labels = {
         viewTable: root.dataset.labelViewTable ?? 'Table',
         viewMosaic: root.dataset.labelViewMosaic ?? 'Mosaic',
@@ -38,11 +40,14 @@ if (root) {
         groupOutdated: root.dataset.labelGroupOutdated ?? 'Outdated',
         shareMosaic: root.dataset.labelShareMosaic ?? 'Share mosaic',
         enrichmentPending: root.dataset.labelEnrichmentPending ?? 'Card data is being generated…',
+        copyTag: root.dataset.labelCopyTag ?? 'Copy reference tag',
+        copyTagCopied: root.dataset.labelCopyTagCopied ?? 'Copied!',
+        copyCardTag: root.dataset.labelCopyCardTag ?? 'Copy card reference',
     };
 
     createRoot(root).render(
         <MantineProvider>
-            <ArchetypeVariantSelector variants={variants} labels={labels} />
+            <ArchetypeVariantSelector variants={variants} labels={labels} archetypeSlug={archetypeSlug} canCopyTag={canCopyTag} />
         </MantineProvider>,
     );
 }

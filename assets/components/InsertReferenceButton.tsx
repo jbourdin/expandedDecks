@@ -24,6 +24,7 @@ interface InsertReferenceButtonProps {
     validate: (value: string) => boolean;
     nodeType: string;
     attrName: string;
+    getAttributes?: (value: string) => Record<string, string | null>;
 }
 
 export default function InsertReferenceButton({
@@ -34,6 +35,7 @@ export default function InsertReferenceButton({
     validate,
     nodeType,
     attrName,
+    getAttributes,
 }: InsertReferenceButtonProps) {
     const [opened, setOpened] = useState(false);
     const [value, setValue] = useState('');
@@ -47,16 +49,18 @@ export default function InsertReferenceButton({
             return;
         }
 
+        const attrs = getAttributes ? getAttributes(trimmed) : { [attrName]: trimmed };
+
         editor
             .chain()
             .focus()
-            .insertContent({ type: nodeType, attrs: { [attrName]: trimmed } })
+            .insertContent({ type: nodeType, attrs })
             .run();
 
         setValue('');
         setError(false);
         setOpened(false);
-    }, [value, validate, editor, nodeType, attrName]);
+    }, [value, validate, editor, nodeType, attrName, getAttributes]);
 
     const handleKeyDown = useCallback(
         (event: React.KeyboardEvent) => {
