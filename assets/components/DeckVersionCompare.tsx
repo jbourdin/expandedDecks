@@ -8,7 +8,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Loader, NativeSelect, Table, Text } from '@mantine/core';
+import { ActionIcon, Loader, NativeSelect, Table, Text, Tooltip } from '@mantine/core';
+import { IconArrowsExchange } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
 
 /**
@@ -66,6 +67,7 @@ interface Labels {
     set: string;
     qty: string;
     change: string;
+    swap: string;
 }
 
 interface DeckVersionCompareProps {
@@ -141,21 +143,43 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
 
     return (
         <div>
-            <div className="row g-3 mb-3">
-                <div className="col-md-6">
+            <div className="row g-3 align-items-end mb-3">
+                <div className="col">
                     <NativeSelect
                         label={labels.from}
                         data={versionOptions}
                         value={String(fromVersion)}
-                        onChange={(event) => setFromVersion(Number(event.currentTarget.value))}
+                        onChange={(event) => {
+                            const value = Number(event.currentTarget.value);
+                            if (value === toVersion) {
+                                setToVersion(fromVersion);
+                            }
+                            setFromVersion(value);
+                        }}
                     />
                 </div>
-                <div className="col-md-6">
+                <div className="col-auto pb-1">
+                    <Tooltip label={labels.swap}>
+                        <ActionIcon variant="subtle" color="gray" size="lg" onClick={() => {
+                            setFromVersion(toVersion);
+                            setToVersion(fromVersion);
+                        }}>
+                            <IconArrowsExchange size={20} />
+                        </ActionIcon>
+                    </Tooltip>
+                </div>
+                <div className="col">
                     <NativeSelect
                         label={labels.to}
                         data={versionOptions}
                         value={String(toVersion)}
-                        onChange={(event) => setToVersion(Number(event.currentTarget.value))}
+                        onChange={(event) => {
+                            const value = Number(event.currentTarget.value);
+                            if (value === fromVersion) {
+                                setFromVersion(toVersion);
+                            }
+                            setToVersion(value);
+                        }}
                     />
                 </div>
             </div>

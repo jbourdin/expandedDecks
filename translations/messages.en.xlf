@@ -991,6 +991,11 @@
                 <target>Change</target>
                 <note>Table header for change type column in version comparison</note>
             </trans-unit>
+            <trans-unit id="app.deck.version_compare.swap">
+                <source>app.deck.version_compare.swap</source>
+                <target>Swap versions</target>
+                <note>Tooltip for swap button between version selectors (#428)</note>
+            </trans-unit>
 
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">
