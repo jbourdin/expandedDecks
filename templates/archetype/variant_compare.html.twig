@@ -1,0 +1,227 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.archetype.variant.compare_title'|trans({'%variantA%': variantA.name, '%variantB%': variantB.name}) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.localizedName(app.request.locale) }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'app.archetype.variant.compare'|trans }}</li>
+        </ol>
+    </nav>
+
+    {# Variant selectors #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.archetype.variant.compare_title'|trans({'%variantA%': variantA.name, '%variantB%': variantB.name}) }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">{{ 'app.archetype.variant.compare_from'|trans }}</label>
+                    <select class="form-select" id="variant-select-a">
+                        {% for variant in variants %}
+                            <option value="{{ variant.shortTag }}" {{ variant.shortTag == variantA.shortTag ? 'selected' : '' }}>
+                                {{ variant.name }}{% if variant.outdated %} ({{ 'app.archetype.variant.outdated'|trans }}){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">{{ 'app.archetype.variant.compare_to'|trans }}</label>
+                    <select class="form-select" id="variant-select-b">
+                        {% for variant in variants %}
+                            <option value="{{ variant.shortTag }}" {{ variant.shortTag == variantB.shortTag ? 'selected' : '' }}>
+                                {{ variant.name }}{% if variant.outdated %} ({{ 'app.archetype.variant.outdated'|trans }}){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            {% if not hasBothVersions %}
+                <div class="alert alert-warning mb-0">
+                    {{ 'app.archetype.variant.no_version'|trans }}
+                </div>
+            {% elseif diff is not null %}
+                {% set hasChanges = diff.added|length > 0 or diff.removed|length > 0 or diff.changed|length > 0 %}
+
+                {% if not hasChanges %}
+                    <div class="alert alert-info mb-0">
+                        {{ 'app.archetype.variant.compare_identical'|trans }}
+                    </div>
+                {% else %}
+                    {# Only in variant A (removed from B's perspective) #}
+                    {% if diff.removed|length > 0 %}
+                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
+                            {{ 'app.archetype.variant.only_in'|trans({'%name%': variantA.name}) }}
+                        </h6>
+                        <table class="table table-sm mb-3">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'app.deck.table_card'|trans }}</th>
+                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                    <th style="width: 40px">#</th>
+                                    <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for card in diff.removed %}
+                                    <tr class="table-success">
+                                        <td>
+                                            {% if card.imageUrl %}
+                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
+                                            {% else %}
+                                                {{ card.cardName }}
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
+                                        <td>{{ card.cardNumber }}</td>
+                                        <td>{{ card.quantity }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    {# Only in variant B #}
+                    {% if diff.added|length > 0 %}
+                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
+                            {{ 'app.archetype.variant.only_in'|trans({'%name%': variantB.name}) }}
+                        </h6>
+                        <table class="table table-sm mb-3">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'app.deck.table_card'|trans }}</th>
+                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                    <th style="width: 40px">#</th>
+                                    <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for card in diff.added %}
+                                    <tr class="table-danger">
+                                        <td>
+                                            {% if card.imageUrl %}
+                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
+                                            {% else %}
+                                                {{ card.cardName }}
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
+                                        <td>{{ card.cardNumber }}</td>
+                                        <td>{{ card.quantity }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    {# Different quantities #}
+                    {% if diff.changed|length > 0 %}
+                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
+                            {{ 'app.archetype.variant.different_quantities'|trans }}
+                        </h6>
+                        <table class="table table-sm mb-3">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'app.deck.table_card'|trans }}</th>
+                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                    <th style="width: 40px">#</th>
+                                    <th style="width: 80px">{{ 'app.deck.table_qty'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for card in diff.changed %}
+                                    <tr class="table-warning">
+                                        <td>
+                                            {% if card.imageUrl %}
+                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
+                                            {% else %}
+                                                {{ card.cardName }}
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
+                                        <td>{{ card.cardNumber }}</td>
+                                        <td>{{ card.oldQuantity }} → {{ card.newQuantity }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    {# Shared cards (collapsible) #}
+                    {% if diff.unchanged|length > 0 %}
+                        <button class="btn btn-sm btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#shared-cards" aria-expanded="false" aria-controls="shared-cards">
+                            {{ 'app.archetype.variant.shared_cards'|trans }} ({{ diff.unchanged|length }})
+                        </button>
+                        <div class="collapse" id="shared-cards">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>{{ 'app.deck.table_card'|trans }}</th>
+                                        <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                        <th style="width: 40px">#</th>
+                                        <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for card in diff.unchanged %}
+                                        <tr>
+                                            <td>
+                                                {% if card.imageUrl %}
+                                                    <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
+                                                {% else %}
+                                                    {{ card.cardName }}
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
+                                            <td>{{ card.cardNumber }}</td>
+                                            <td>{{ card.quantity }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('archetype_show') }}
+    <script>
+        /**
+         * Navigate to the compare URL when a variant selector changes.
+         */
+        const selectA = document.getElementById('variant-select-a');
+        const selectB = document.getElementById('variant-select-b');
+        const baseUrl = '{{ path('app_archetype_variant_compare', {slug: archetype.slug, shortTagA: '__A__', shortTagB: '__B__'}) }}';
+
+        function navigateToCompare() {
+            const tagA = selectA.value;
+            const tagB = selectB.value;
+            if (tagA && tagB && tagA !== tagB) {
+                window.location.href = baseUrl.replace('__A__', tagA).replace('__B__', tagB);
+            }
+        }
+
+        if (selectA && selectB) {
+            selectA.addEventListener('change', navigateToCompare);
+            selectB.addEventListener('change', navigateToCompare);
+        }
+    </script>
+{% endblock %}

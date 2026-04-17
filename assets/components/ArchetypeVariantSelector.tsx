@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconShare } from '@tabler/icons-react';
+import { IconArrowsExchange, IconCopy, IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
 import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
@@ -66,6 +66,7 @@ interface Labels {
     copyTag: string;
     copyTagCopied: string;
     copyCardTag: string;
+    compareVariants: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -669,6 +670,25 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                                     </ActionIcon>
                                 </Tooltip>
                             )}
+                            {variants.length >= 2 && selectedVariant.shortTag && (() => {
+                                const canonicalIndex = variants.findIndex((variant) => variant.canonical);
+                                const otherIndex = canonicalIndex >= 0 && canonicalIndex !== selectedIndex ? canonicalIndex : (selectedIndex === 0 ? 1 : 0);
+                                const otherVariant = variants[otherIndex];
+
+                                return otherVariant?.shortTag ? (
+                                    <Tooltip label={labels.compareVariants}>
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            size="lg"
+                                            component="a"
+                                            href={`/archetypes/${archetypeSlug}/compare/${selectedVariant.shortTag}/${otherVariant.shortTag}`}
+                                        >
+                                            <IconArrowsExchange size={18} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                ) : null;
+                            })()}
                         </Group>
                     </Group>
 
