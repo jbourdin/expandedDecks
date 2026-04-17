@@ -114,8 +114,8 @@ final class DeckVersionDiffer
      * Sort unified diff entries by type (Pokemon → Trainer by subtype → Energy),
      * then by new quantity descending, then by name ascending.
      *
-     * @param array{cardType: string, trainerSubtype: string|null, newQuantity: int, cardName: string} $entryA
-     * @param array{cardType: string, trainerSubtype: string|null, newQuantity: int, cardName: string} $entryB
+     * @param array{cardType: string, trainerSubtype: string|null, oldQuantity: int, newQuantity: int, cardName: string} $entryA
+     * @param array{cardType: string, trainerSubtype: string|null, oldQuantity: int, newQuantity: int, cardName: string} $entryB
      */
     private function unifiedSortComparator(array $entryA, array $entryB): int
     {
