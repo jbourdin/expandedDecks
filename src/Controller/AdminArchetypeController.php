@@ -657,6 +657,46 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     /**
+     * Soft-delete a previous variant version (not the current one).
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/{id}/variants/{deckId}/versions/{versionNumber}/delete', name: 'app_admin_archetype_variant_version_delete', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+', 'versionNumber' => '\d+'])]
+    public function variantVersionDelete(
+        Archetype $archetype,
+        int $deckId,
+        int $versionNumber,
+        Request $request,
+        DeckRepository $deckRepository,
+        DeckVersionRepository $versionRepository,
+    ): RedirectResponse {
+        $variant = $this->findVariantOrThrow($deckRepository, $deckId, $archetype);
+
+        if (!$this->isCsrfTokenValid('variant-version-delete-'.$deckId.'-'.$versionNumber, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $version = $versionRepository->findOneByDeckAndVersion($variant, $versionNumber);
+
+        if (null === $version) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($variant->getCurrentVersion()?->getId() === $version->getId()) {
+            $this->addFlash('warning', 'app.deck.version.cannot_delete_current');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_versions', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        $version->setDeletedAt(new \DateTimeImmutable());
+        $this->em->flush();
+
+        $this->addFlash('success', 'app.deck.version.deleted');
+
+        return $this->redirectToRoute('app_admin_archetype_variant_versions', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+    }
+
+    /**
      * Find a variant deck or throw 404.
      */
     private function findVariantOrThrow(DeckRepository $deckRepository, int $deckId, Archetype $archetype): Deck

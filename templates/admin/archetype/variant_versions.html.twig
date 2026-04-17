@@ -71,6 +71,17 @@
                                                         <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
                                                     </span>
                                                 </form>
+                                                <form method="post" action="{{ path('app_admin_archetype_variant_version_delete', {id: archetype.id, deckId: deck.id, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('variant-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger inline-confirm-trigger" title="{{ 'app.deck.version.delete'|trans }}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    <span class="inline-confirm-actions d-none">
+                                                        <span class="small text-muted me-1">{{ 'app.deck.version.delete_confirm'|trans({'%version%': version.versionNumber}) }}</span>
+                                                        <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                                                    </span>
+                                                </form>
                                             </span>
                                         {% endif %}
                                     </td>
