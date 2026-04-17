@@ -43,6 +43,7 @@ if (root) {
         copyTag: root.dataset.labelCopyTag ?? 'Copy reference tag',
         copyTagCopied: root.dataset.labelCopyTagCopied ?? 'Copied!',
         copyCardTag: root.dataset.labelCopyCardTag ?? 'Copy card reference',
+        compareVariants: root.dataset.labelCompareVariants ?? 'Compare variants',
     };
 
     createRoot(root).render(

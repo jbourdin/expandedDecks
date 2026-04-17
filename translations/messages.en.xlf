@@ -3730,6 +3730,51 @@
                 <target>Copy card reference</target>
                 <note>Tooltip for copy card reference button on card table rows (F2.25)</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.compare">
+                <source>app.archetype.variant.compare</source>
+                <target>Compare variants</target>
+                <note>Button label and breadcrumb for variant comparison page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_title">
+                <source>app.archetype.variant.compare_title</source>
+                <target>Compare: %variantA% vs %variantB%</target>
+                <note>Page title for variant comparison (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_from">
+                <source>app.archetype.variant.compare_from</source>
+                <target>First variant</target>
+                <note>Label for first variant selector on compare page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_to">
+                <source>app.archetype.variant.compare_to</source>
+                <target>Second variant</target>
+                <note>Label for second variant selector on compare page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.only_in">
+                <source>app.archetype.variant.only_in</source>
+                <target>Only in %name%</target>
+                <note>Section heading for cards exclusive to one variant (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.different_quantities">
+                <source>app.archetype.variant.different_quantities</source>
+                <target>Different quantities</target>
+                <note>Section heading for cards with different counts (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.shared_cards">
+                <source>app.archetype.variant.shared_cards</source>
+                <target>Shared cards</target>
+                <note>Collapsible section for identical cards (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_identical">
+                <source>app.archetype.variant.compare_identical</source>
+                <target>These variants have identical card lists.</target>
+                <note>Message when no differences found (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.no_version">
+                <source>app.archetype.variant.no_version</source>
+                <target>One or both variants have no deck list yet.</target>
+                <note>Warning when a variant lacks a current version (#413)</note>
+            </trans-unit>
 
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">

@@ -3716,6 +3716,42 @@
                 <target>Copier la référence carte</target>
                 <note>Tooltip for copy card reference button on card table rows (F2.25)</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.compare">
+                <source>app.archetype.variant.compare</source>
+                <target>Comparer les variantes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_title">
+                <source>app.archetype.variant.compare_title</source>
+                <target>Comparaison : %variantA% vs %variantB%</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_from">
+                <source>app.archetype.variant.compare_from</source>
+                <target>Première variante</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_to">
+                <source>app.archetype.variant.compare_to</source>
+                <target>Deuxième variante</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.only_in">
+                <source>app.archetype.variant.only_in</source>
+                <target>Uniquement dans %name%</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.different_quantities">
+                <source>app.archetype.variant.different_quantities</source>
+                <target>Quantités différentes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.shared_cards">
+                <source>app.archetype.variant.shared_cards</source>
+                <target>Cartes communes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_identical">
+                <source>app.archetype.variant.compare_identical</source>
+                <target>Ces variantes ont des listes de cartes identiques.</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.no_version">
+                <source>app.archetype.variant.no_version</source>
+                <target>Une ou les deux variantes n'ont pas encore de liste.</target>
+            </trans-unit>
 
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">
