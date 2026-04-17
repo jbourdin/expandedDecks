@@ -50,6 +50,13 @@ abstract class AbstractFunctionalTest extends WebTestCase
             $conn->rollbackTestTransaction();
         }
 
+        // Clear Doctrine's identity map to release accumulated entities between
+        // tests. Without this, pcov coverage runs exhaust memory across 68+
+        // functional tests because managed entities pile up in the heap.
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager->clear();
+
         unset($this->client);
         parent::tearDown();
     }
