@@ -63,11 +63,20 @@ class ArchetypeVariantCompareController extends AbstractController
             $diff = $differ->diff($versionA, $versionB);
         }
 
+        $pickerData = array_map(static fn (Deck $variant): array => [
+            'shortTag' => $variant->getShortTag(),
+            'name' => $variant->getName(),
+            'outdated' => $variant->isOutdated(),
+            'latestSetCode' => $variant->getLatestSet()?->getPtcgCode(),
+            'sprites' => $variant->getPokemonSlugs(),
+        ], $variants);
+
         return $this->render('archetype/variant_compare.html.twig', [
             'archetype' => $archetype,
             'variantA' => $variantA,
             'variantB' => $variantB,
             'variants' => $variants,
+            'pickerData' => $pickerData,
             'diff' => $diff,
             'hasBothVersions' => $hasBothVersions,
         ]);

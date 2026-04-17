@@ -26,27 +26,16 @@
             <h5 class="mb-0">{{ 'app.archetype.variant.compare_title'|trans({'%variantA%': variantA.name, '%variantB%': variantB.name}) }}</h5>
         </div>
         <div class="card-body">
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">{{ 'app.archetype.variant.compare_from'|trans }}</label>
-                    <select class="form-select" id="variant-select-a">
-                        {% for variant in variants %}
-                            <option value="{{ variant.shortTag }}" {{ variant.shortTag == variantA.shortTag ? 'selected' : '' }}>
-                                {{ variant.name }}{% if variant.outdated %} ({{ 'app.archetype.variant.outdated'|trans }}){% endif %}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">{{ 'app.archetype.variant.compare_to'|trans }}</label>
-                    <select class="form-select" id="variant-select-b">
-                        {% for variant in variants %}
-                            <option value="{{ variant.shortTag }}" {{ variant.shortTag == variantB.shortTag ? 'selected' : '' }}>
-                                {{ variant.name }}{% if variant.outdated %} ({{ 'app.archetype.variant.outdated'|trans }}){% endif %}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div id="variant-compare-picker-root"
+                 class="mb-3"
+                 data-variants="{{ pickerData|json_encode|e('html_attr') }}"
+                 data-selected-tag-a="{{ variantA.shortTag }}"
+                 data-selected-tag-b="{{ variantB.shortTag }}"
+                 data-archetype-slug="{{ archetype.slug }}"
+                 data-label-from="{{ 'app.archetype.variant.compare_from'|trans }}"
+                 data-label-to="{{ 'app.archetype.variant.compare_to'|trans }}"
+                 data-label-group-current="{{ 'app.archetype.variant.group_current'|trans }}"
+                 data-label-group-outdated="{{ 'app.archetype.variant.group_outdated'|trans }}">
             </div>
 
             {% if not hasBothVersions %}
@@ -200,28 +189,13 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('variant_compare') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_show') }}
-    <script>
-        /**
-         * Navigate to the compare URL when a variant selector changes.
-         */
-        const selectA = document.getElementById('variant-select-a');
-        const selectB = document.getElementById('variant-select-b');
-        const basePath = '/archetypes/{{ archetype.slug }}/compare/';
-
-        function navigateToCompare() {
-            const tagA = selectA.value;
-            const tagB = selectB.value;
-            if (tagA && tagB && tagA !== tagB) {
-                window.location.href = basePath + tagA + '/' + tagB;
-            }
-        }
-
-        if (selectA && selectB) {
-            selectA.addEventListener('change', navigateToCompare);
-            selectB.addEventListener('change', navigateToCompare);
-        }
-    </script>
+    {{ encore_entry_script_tags('variant_compare') }}
 {% endblock %}
