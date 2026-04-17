@@ -51,6 +51,27 @@
                         {{ 'app.archetype.variant.compare_identical'|trans }}
                     </div>
                 {% else %}
+                    {% set modalCards = [] %}
+                    {% for entry in diff.unified %}
+                        {% if entry.imageUrl %}
+                            {% set deltaText = '' %}
+                            {% if entry.delta > 0 %}
+                                {% set deltaText = '(+' ~ entry.delta ~ ')' %}
+                            {% elseif entry.delta < 0 %}
+                                {% set deltaText = '(' ~ entry.delta ~ ')' %}
+                            {% endif %}
+                            {% set detailColor = entry.status == 'added' ? 'green' : (entry.status == 'removed' ? 'red' : (entry.status == 'changed' ? 'yellow.7' : null)) %}
+                            {% set modalCards = modalCards|merge([{
+                                cardName: entry.cardName,
+                                quantity: entry.newQuantity,
+                                imageUrl: entry.imageUrl,
+                                detail: deltaText,
+                                detailColor: detailColor,
+                            }]) %}
+                        {% endif %}
+                    {% endfor %}
+                    <div id="variant-compare-modal-root" data-cards="{{ modalCards|json_encode|e('html_attr') }}"></div>
+
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
@@ -82,7 +103,7 @@
                                     </td>
                                     <td>
                                         {% if entry.imageUrl %}
-                                            <span class="card-hover">{{ entry.cardName }}<img class="card-hover-img" src="{{ entry.imageUrl }}" alt="{{ entry.cardName }}"></span>
+                                            <span class="card-hover card-modal-trigger" role="button" tabIndex="0" data-card-name="{{ entry.cardName }}" data-card-image="{{ entry.imageUrl }}">{{ entry.cardName }}<img class="card-hover-img" src="{{ entry.imageUrl }}" alt="{{ entry.cardName }}"></span>
                                         {% else %}
                                             {{ entry.cardName }}
                                         {% endif %}
@@ -102,10 +123,12 @@
 {% block stylesheets %}
     {{ parent() }}
     {{ encore_entry_link_tags('variant_compare') }}
+    {{ encore_entry_link_tags('variant_compare_modal') }}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_show') }}
     {{ encore_entry_script_tags('variant_compare') }}
+    {{ encore_entry_script_tags('variant_compare_modal') }}
 {% endblock %}
