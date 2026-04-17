@@ -136,9 +136,14 @@ final class DeckVersionDiffer
             }
         }
 
-        // Then by new quantity descending
+        // Then by new quantity descending (removed cards with qty 0 sort by old quantity instead)
         if ($entryA['newQuantity'] !== $entryB['newQuantity']) {
             return $entryB['newQuantity'] <=> $entryA['newQuantity'];
+        }
+
+        // When new quantity is 0 (removed cards), sort by old quantity descending
+        if (0 === $entryA['newQuantity'] && $entryA['oldQuantity'] !== $entryB['oldQuantity']) {
+            return $entryB['oldQuantity'] <=> $entryA['oldQuantity'];
         }
 
         // Then by name ascending
