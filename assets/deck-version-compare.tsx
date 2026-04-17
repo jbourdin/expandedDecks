@@ -41,6 +41,7 @@ document.querySelectorAll<HTMLElement>('[data-version-compare]').forEach((root) 
         set: root.dataset.labelSet ?? 'Set',
         qty: root.dataset.labelQty ?? 'Qty',
         change: root.dataset.labelChange ?? 'Change',
+        swap: root.dataset.labelSwap ?? 'Swap versions',
     };
 
     createRoot(root).render(

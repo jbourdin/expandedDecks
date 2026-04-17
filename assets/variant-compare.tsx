@@ -30,6 +30,7 @@ if (root) {
                 archetypeSlug={root.dataset.archetypeSlug ?? ''}
                 labelFrom={root.dataset.labelFrom ?? 'First variant'}
                 labelTo={root.dataset.labelTo ?? 'Second variant'}
+                labelSwap={root.dataset.labelSwap ?? 'Swap variants'}
                 labelGroupCurrent={root.dataset.labelGroupCurrent ?? 'Current'}
                 labelGroupOutdated={root.dataset.labelGroupOutdated ?? 'Outdated'}
             />

@@ -991,6 +991,11 @@
                 <target>Change</target>
                 <note>Table header for change type column in version comparison</note>
             </trans-unit>
+            <trans-unit id="app.deck.version_compare.swap">
+                <source>app.deck.version_compare.swap</source>
+                <target>Swap versions</target>
+                <note>Tooltip for swap button between version selectors (#428)</note>
+            </trans-unit>
 
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">
@@ -3749,6 +3754,11 @@
                 <source>app.archetype.variant.compare_to</source>
                 <target>Second variant</target>
                 <note>Label for second variant selector on compare page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Swap variants</target>
+                <note>Tooltip for swap button between variant selectors on compare page (#428)</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.only_in">
                 <source>app.archetype.variant.only_in</source>

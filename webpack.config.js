@@ -58,6 +58,7 @@ Encore
     .addEntry('notification_bell', './assets/notification-bell.tsx')
     .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
     .addEntry('variant_compare', './assets/variant-compare.tsx')
+    .addEntry('variant_compare_modal', './assets/variant-compare-modal.tsx')
     .addEntry('archetype_form', './assets/archetype-form.tsx')
     .addEntry('page_form', './assets/page-form.tsx')
     .addEntry('admin_page_list', './assets/admin-page-list.ts')

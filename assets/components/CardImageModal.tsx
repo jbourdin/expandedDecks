@@ -21,6 +21,8 @@ export interface FlatCard {
     cardName: string;
     quantity: number;
     imageUrl: string;
+    detail?: string;
+    detailColor?: string;
 }
 
 interface CardImageModalProps {
@@ -56,7 +58,7 @@ const CardImageModal: React.FC<CardImageModalProps> = ({ opened, cards, currentI
 
     if (!card) return null;
 
-    const title = `${card.quantity} \u00d7 ${card.cardName}`;
+    const title = `${card.quantity} \u00d7 ${card.cardName}${card.detail ? ` ${card.detail}` : ''}`;
 
     return (
         <Modal
@@ -77,7 +79,7 @@ const CardImageModal: React.FC<CardImageModalProps> = ({ opened, cards, currentI
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}>
-                <Text size="sm" fw={500} style={{ flex: 1 }}>{title}</Text>
+                <Text size="sm" fw={500} c={card.detailColor} style={{ flex: 1 }}>{title}</Text>
                 <Text size="xs" c="dimmed" style={{ marginRight: 8 }}>
                     {currentIndex + 1} / {cards.length}
                 </Text>

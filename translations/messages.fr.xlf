@@ -982,6 +982,10 @@
                 <target>Changement</target>
                 <note>Table header for change type column in version comparison</note>
             </trans-unit>
+            <trans-unit id="app.deck.version_compare.swap">
+                <source>app.deck.version_compare.swap</source>
+                <target>Inverser les versions</target>
+            </trans-unit>
 
             <!-- Event list, detail, and forms -->
             <trans-unit id="app.event.list_title">
@@ -3731,6 +3735,10 @@
             <trans-unit id="app.archetype.variant.compare_to">
                 <source>app.archetype.variant.compare_to</source>
                 <target>Deuxième variante</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Inverser les variantes</target>
             </trans-unit>
             <trans-unit id="app.archetype.variant.only_in">
                 <source>app.archetype.variant.only_in</source>
