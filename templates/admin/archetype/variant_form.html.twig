@@ -57,11 +57,18 @@
                 {{ form_row(form.rawList) }}
 
                 {% if not isNew and deck.currentVersion %}
-                    <div class="alert alert-info mb-3">
-                        <strong>{{ 'app.archetype.variant.current_version'|trans }}:</strong>
-                        v{{ deck.currentVersion.versionNumber }}
-                        ({{ deck.currentVersion.enrichmentStatus }})
-                        — {{ 'app.archetype.variant.paste_to_replace'|trans }}
+                    <div class="alert alert-info mb-3 d-flex align-items-center justify-content-between">
+                        <span>
+                            <strong>{{ 'app.archetype.variant.current_version'|trans }}:</strong>
+                            v{{ deck.currentVersion.versionNumber }}
+                            ({{ deck.currentVersion.enrichmentStatus }})
+                            — {{ 'app.archetype.variant.paste_to_replace'|trans }}
+                        </span>
+                        {% if deck.versions|length > 1 %}
+                            <a href="{{ path('app_admin_archetype_variant_versions', {id: archetype.id, deckId: deck.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-clock-history me-1"></i>{{ 'app.deck.version_history'|trans }}
+                            </a>
+                        {% endif %}
                     </div>
                 {% endif %}
 
