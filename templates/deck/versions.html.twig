@@ -58,6 +58,12 @@
                                             </a>
                                         {% endif %}
                                         {% if isOwner and not isCurrent %}
+                                            <form method="post" action="{{ path('app_deck_version_restore', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-version-restore-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ 'app.deck.version.restore'|trans }}" onclick="return confirm('{{ 'app.deck.version.restore_confirm'|trans({'%version%': version.versionNumber})|e('js') }}')">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                            </form>
                                             <form method="post" action="{{ path('app_deck_version_delete', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('deck-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ 'app.deck.version.delete'|trans }}" onclick="return confirm('{{ 'app.deck.version.delete_confirm'|trans({'%version%': version.versionNumber})|e('js') }}')">

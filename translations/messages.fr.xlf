@@ -911,6 +911,22 @@
                 <source>app.deck.version.cannot_delete_current</source>
                 <target>La version actuelle ne peut pas être supprimée.</target>
             </trans-unit>
+            <trans-unit id="app.deck.version.restore">
+                <source>app.deck.version.restore</source>
+                <target>Restaurer cette version</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restore_confirm">
+                <source>app.deck.version.restore_confirm</source>
+                <target>Restaurer la version %version% comme version active ?</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restored">
+                <source>app.deck.version.restored</source>
+                <target>Version restaurée avec succès.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.already_current">
+                <source>app.deck.version.already_current</source>
+                <target>Cette version est déjà active.</target>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>Ce deck n'a pas encore d'historique de versions.</target>
