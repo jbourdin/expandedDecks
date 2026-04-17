@@ -7,10 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Loader, NativeSelect, Table, Text, Tooltip } from '@mantine/core';
 import { IconArrowsExchange } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
+import CardImageModal, { type FlatCard } from './CardImageModal';
 
 /**
  * @see docs/features.md F2.9 — Deck version history
@@ -102,6 +103,8 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
     const [toVersion, setToVersion] = useState<number>(versions[0].versionNumber);
     const [diff, setDiff] = useState<DiffResult | null>(null);
     const [loading, setLoading] = useState(false);
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [cardModalIndex, setCardModalIndex] = useState(0);
 
     const fetchDiff = useCallback(async () => {
         if (fromVersion === toVersion) {
@@ -140,6 +143,39 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
     }));
 
     const hasChanges = diff !== null && (diff.added.length > 0 || diff.removed.length > 0 || diff.changed.length > 0);
+
+    const flatCards: FlatCard[] = useMemo(() => {
+        if (!diff?.unified) return [];
+
+        return diff.unified
+            .filter((entry) => entry.imageUrl)
+            .map((entry) => {
+                const deltaText = entry.delta > 0 ? `(+${entry.delta})`
+                    : entry.delta < 0 ? `(${entry.delta})`
+                        : '';
+
+                const detailColor = entry.status === 'added' ? 'green'
+                    : entry.status === 'removed' ? 'red'
+                        : entry.status === 'changed' ? 'yellow.7'
+                            : undefined;
+
+                return {
+                    cardName: entry.cardName,
+                    quantity: entry.newQuantity,
+                    imageUrl: entry.imageUrl as string,
+                    detail: deltaText,
+                    detailColor,
+                };
+            });
+    }, [diff]);
+
+    const handleCardClick = (entry: UnifiedEntry): void => {
+        const index = flatCards.findIndex((card) => card.cardName === entry.cardName && card.imageUrl === entry.imageUrl);
+        if (index >= 0) {
+            setCardModalIndex(index);
+            setCardModalOpen(true);
+        }
+    };
 
     return (
         <div>
@@ -227,7 +263,20 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                                         <span style={{ fontWeight: 600 }}>{entry.newQuantity > 0 ? entry.newQuantity : '—'}</span>
                                         {deltaText && <Text component="span" size="xs" c={deltaColor} ml={4}>{deltaText}</Text>}
                                     </Table.Td>
-                                    <Table.Td><CardName card={entry} /></Table.Td>
+                                    <Table.Td>
+                                        {entry.imageUrl ? (
+                                            <span className="card-name-link" role="button" tabIndex={0} onClick={() => handleCardClick(entry)} onKeyDown={(event) => {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    handleCardClick(entry);
+                                                }
+                                            }}>
+                                                <CardName card={entry} />
+                                            </span>
+                                        ) : (
+                                            <CardName card={entry} />
+                                        )}
+                                    </Table.Td>
                                     <Table.Td><code>{entry.setCode}</code></Table.Td>
                                     <Table.Td>{entry.cardNumber}</Table.Td>
                                 </Table.Tr>
@@ -236,6 +285,14 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                     </Table.Tbody>
                 </Table>
             )}
+
+            <CardImageModal
+                opened={cardModalOpen}
+                cards={flatCards}
+                currentIndex={cardModalIndex}
+                onClose={() => setCardModalOpen(false)}
+                onNavigate={setCardModalIndex}
+            />
         </div>
     );
 };
