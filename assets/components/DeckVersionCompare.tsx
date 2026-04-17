@@ -178,11 +178,10 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                 <Table striped highlightOnHover>
                     <Table.Thead>
                         <Table.Tr>
-                            <Table.Th style={{ width: 50 }}>{labels.qty}</Table.Th>
+                            <Table.Th style={{ width: 80 }}>{labels.qty}</Table.Th>
                             <Table.Th>{labels.card}</Table.Th>
                             <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
                             <Table.Th style={{ width: 40 }}>#</Table.Th>
-                            <Table.Th style={{ width: 60 }}></Table.Th>
                         </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
@@ -193,21 +192,21 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                                         : entry.delta < 0 ? 'red.0'
                                             : undefined;
 
-                            const deltaText = entry.delta > 0 ? `+${entry.delta}`
-                                : entry.delta < 0 ? String(entry.delta)
+                            const deltaText = entry.delta > 0 ? `(+${entry.delta})`
+                                : entry.delta < 0 ? `(${entry.delta})`
                                     : '';
 
-                            const deltaColor = entry.delta > 0 ? 'green' : entry.delta < 0 ? 'red' : undefined;
+                            const deltaColor = entry.delta > 0 ? 'green.7' : entry.delta < 0 ? 'red.7' : undefined;
 
                             return (
                                 <Table.Tr key={`${entry.status}-${entry.setCode}-${entry.cardNumber}`} bg={rowColor}>
-                                    <Table.Td fw={600}>{entry.newQuantity > 0 ? entry.newQuantity : '—'}</Table.Td>
+                                    <Table.Td>
+                                        <span style={{ fontWeight: 600 }}>{entry.newQuantity > 0 ? entry.newQuantity : '—'}</span>
+                                        {deltaText && <Text component="span" size="xs" c={deltaColor} ml={4}>{deltaText}</Text>}
+                                    </Table.Td>
                                     <Table.Td><CardName card={entry} /></Table.Td>
                                     <Table.Td><code>{entry.setCode}</code></Table.Td>
                                     <Table.Td>{entry.cardNumber}</Table.Td>
-                                    <Table.Td ta="right">
-                                        {deltaText && <Text component="span" size="sm" fw={600} c={deltaColor}>{deltaText}</Text>}
-                                    </Table.Td>
                                 </Table.Tr>
                             );
                         })}

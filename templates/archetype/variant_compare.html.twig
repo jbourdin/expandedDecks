@@ -54,11 +54,10 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
-                                <th style="width: 50px">{{ 'app.deck.table_qty'|trans }}</th>
+                                <th style="width: 80px">{{ 'app.deck.table_qty'|trans }}</th>
                                 <th>{{ 'app.deck.table_card'|trans }}</th>
                                 <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
                                 <th style="width: 40px">#</th>
-                                <th style="width: 60px"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,7 +70,14 @@
                                     {% set rowClass = '' %}
                                 {% endif %}
                                 <tr class="{{ rowClass }}">
-                                    <td class="fw-bold">{{ entry.newQuantity > 0 ? entry.newQuantity : '—' }}</td>
+                                    <td>
+                                        <span class="fw-bold">{{ entry.newQuantity > 0 ? entry.newQuantity : '—' }}</span>
+                                        {% if entry.delta > 0 %}
+                                            <small class="text-success ms-1">(+{{ entry.delta }})</small>
+                                        {% elseif entry.delta < 0 %}
+                                            <small class="text-danger ms-1">({{ entry.delta }})</small>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if entry.imageUrl %}
                                             <span class="card-hover">{{ entry.cardName }}<img class="card-hover-img" src="{{ entry.imageUrl }}" alt="{{ entry.cardName }}"></span>
@@ -81,13 +87,6 @@
                                     </td>
                                     <td><span class="badge bg-secondary">{{ entry.setCode }}</span></td>
                                     <td>{{ entry.cardNumber }}</td>
-                                    <td class="text-end">
-                                        {% if entry.delta > 0 %}
-                                            <span class="fw-bold text-success">+{{ entry.delta }}</span>
-                                        {% elseif entry.delta < 0 %}
-                                            <span class="fw-bold text-danger">{{ entry.delta }}</span>
-                                        {% endif %}
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
