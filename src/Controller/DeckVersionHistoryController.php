@@ -15,6 +15,7 @@ namespace App\Controller;
 
 use App\Entity\Deck;
 use App\Entity\User;
+use App\Message\EnrichDeckVersionMessage;
 use App\Repository\DeckVersionRepository;
 use App\Service\DeckVersionDiffer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,9 +25,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
+ * Version history for user-owned decks (not archetype variants — see AdminArchetypeController).
+ *
  * @see docs/features.md F2.9 — Deck version history
  */
 class DeckVersionHistoryController extends AbstractAppController
@@ -42,7 +46,7 @@ class DeckVersionHistoryController extends AbstractAppController
 
         /** @var User|null $user */
         $user = $this->getUser();
-        $isOwner = null !== $user && $deck->getOwnerOrFail()->getId() === $user->getId();
+        $isOwner = null !== $user && null !== $deck->getOwner() && $deck->getOwner()->getId() === $user->getId();
 
         return $this->render('deck/versions.html.twig', [
             'deck' => $deck,
@@ -148,12 +152,58 @@ class DeckVersionHistoryController extends AbstractAppController
         return $this->redirectToRoute('app_deck_versions', ['short_tag' => $deck->getShortTag()]);
     }
 
+    /**
+     * Restore a previous version as the active deck version (pointer update, no new version created).
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/deck/{short_tag}/versions/{versionNumber}/restore', name: 'app_deck_version_restore', methods: ['POST'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}', 'versionNumber' => '\d+'])]
+    public function restoreVersion(
+        #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
+        int $versionNumber,
+        Request $request,
+        DeckVersionRepository $versionRepository,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
+    ): RedirectResponse {
+        $this->denyAccessUnlessOwner($deck);
+
+        if (!$this->isCsrfTokenValid('deck-version-restore-'.$deck->getId().'-'.$versionNumber, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $version = $versionRepository->findOneByDeckAndVersion($deck, $versionNumber);
+
+        if (null === $version || null !== $version->getDeletedAt()) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($deck->getCurrentVersion()?->getId() === $version->getId()) {
+            $this->addFlash('warning', 'app.deck.version.already_current');
+
+            return $this->redirectToRoute('app_deck_versions', ['short_tag' => $deck->getShortTag()]);
+        }
+
+        $deck->setCurrentVersion($version);
+        $entityManager->flush();
+
+        if ('done' !== $version->getEnrichmentStatus()) {
+            /** @var int $versionId */
+            $versionId = $version->getId();
+            $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+        }
+
+        $this->addFlash('success', 'app.deck.version.restored');
+
+        return $this->redirectToRoute('app_deck_versions', ['short_tag' => $deck->getShortTag()]);
+    }
+
     private function denyAccessUnlessOwner(Deck $deck): void
     {
         /** @var User|null $user */
         $user = $this->getUser();
 
-        if (null === $user || $deck->getOwnerOrFail()->getId() !== $user->getId()) {
+        if (null === $user || null === $deck->getOwner() || $deck->getOwner()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
     }
@@ -171,7 +221,9 @@ class DeckVersionHistoryController extends AbstractAppController
             throw $this->createAccessDeniedException();
         }
 
-        if ($deck->getOwnerOrFail()->getId() === $user->getId() || $this->isGranted('ROLE_ADMIN')) {
+        $owner = $deck->getOwner();
+
+        if ((null !== $owner && $owner->getId() === $user->getId()) || $this->isGranted('ROLE_ADMIN')) {
             return;
         }
 

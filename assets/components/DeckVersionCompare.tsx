@@ -56,6 +56,7 @@ interface Labels {
 
 interface DeckVersionCompareProps {
     shortTag: string;
+    compareUrl?: string;
     versions: VersionInfo[];
     labels: Labels;
 }
@@ -80,7 +81,7 @@ const CardName: React.FC<{ card: CardDiff; detail?: string }> = ({ card, detail 
     );
 };
 
-const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versions, labels }) => {
+const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compareUrl, versions, labels }) => {
     const [fromVersion, setFromVersion] = useState<number>(versions.length > 1 ? versions[1].versionNumber : versions[0].versionNumber);
     const [toVersion, setToVersion] = useState<number>(versions[0].versionNumber);
     const [diff, setDiff] = useState<DiffResult | null>(null);
@@ -96,7 +97,8 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
 
         setLoading(true);
         try {
-            const response = await fetch(`/api/deck/${shortTag}/versions/compare?from=${fromVersion}&to=${toVersion}`);
+            const baseUrl = compareUrl ?? `/api/deck/${shortTag}/versions/compare`;
+            const response = await fetch(`${baseUrl}?from=${fromVersion}&to=${toVersion}`);
             if (response.ok) {
                 const data = (await response.json()) as DiffResult;
                 setDiff(data);
@@ -104,7 +106,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
         } finally {
             setLoading(false);
         }
-    }, [shortTag, fromVersion, toVersion]);
+    }, [shortTag, compareUrl, fromVersion, toVersion]);
 
     useEffect(() => {
         void fetchDiff();
