@@ -16,6 +16,31 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.7] — 2026-04-17
+
+Variant selector grouped layout with dynamic overflow, and CI/test performance improvements.
+
+### Style
+
+- **Grouped variant selector** — desktop variant selector now renders current and outdated variants on separate rows. Outdated buttons use gray color, light variant, grayscale sprites, and italic text for a clearer visual distinction. Mobile Select dropdown uses group headers ("Current" / "Outdated") as separators.
+- **Dynamic button overflow** — replaced fixed `MAX_BUTTONS` cap with a measurement-based approach (hidden row + `ResizeObserver`) that dynamically determines how many buttons fit on one line. Overflow items go into a styled Select dropdown with sprites and a "More variants…" placeholder.
+
+### Bug Fixes
+
+- **Coverage memory exhaustion** — added `$em->clear()` in `AbstractFunctionalTest::tearDown()` to flush Doctrine's identity map between tests, preventing cumulative entity memory growth during pcov coverage runs. Also fixed 41 pre-existing test failures caused by stale entity references leaking across tests.
+- **`get_headers()` bypassing mock** — `CardEnricher::isImageReachable()` used PHP's native `get_headers()` which bypassed the mock HTTP client, hitting real CDNs during tests. Replaced with an injected `HttpClientInterface`.
+
+### Infrastructure
+
+- **CI job split** — split the monolithic `php-quality` job into parallel `php-lint` (CS-Fixer + PHPStan + unit tests, no MySQL) and `php-functional` (functional tests with MySQL). Lint and unit tests no longer wait for the MySQL health check.
+- **Coverage memory limit** — bumped pcov coverage memory to 1G (from 768M) to account for coverage overhead.
+
+### Testing & Quality
+
+- **Mosaic generation stubbed** — replaced `GenerateDeckMosaicHandler` and `GenerateMinifiedMosaicHandler` with no-op stubs in functional tests, eliminating expensive GD image rendering. Functional test suite dropped from ~11m to ~2m.
+
+---
+
 ## [1.7.6] — 2026-04-16
 
 Mobile variant dropdown outdated styling.

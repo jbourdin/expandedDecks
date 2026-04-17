@@ -12,7 +12,27 @@ services:
         arguments:
             $tcgdexClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
 
+    App\Service\Tcgdex\CardEnricher:
+        autowire: true
+        arguments:
+            $httpClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
+
     App\MessageHandler\BuildSetMappingsHandler:
         autowire: true
         arguments:
             $tcgdexClient: '@App\Tests\HttpClient\TcgdexMockHttpClient'
+
+    # Stub mosaic generation — GD image rendering is too expensive for
+    # functional tests. The HTML mosaic is the primary display; server-generated
+    # images are covered by dedicated unit tests.
+    App\Tests\MessageHandler\Stub\NoOpMosaicHandler: ~
+
+    App\MessageHandler\GenerateDeckMosaicHandler:
+        class: App\Tests\MessageHandler\Stub\NoOpMosaicHandler
+        tags:
+            - { name: messenger.message_handler, handles: App\Message\GenerateDeckMosaicMessage, method: handleDeckMosaic }
+
+    App\MessageHandler\GenerateMinifiedMosaicHandler:
+        class: App\Tests\MessageHandler\Stub\NoOpMosaicHandler
+        tags:
+            - { name: messenger.message_handler, handles: App\Message\GenerateMinifiedMosaicMessage, method: handleMinifiedMosaic }

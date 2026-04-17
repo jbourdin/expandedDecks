@@ -3635,6 +3635,16 @@
                 <target>Variante obsolète</target>
                 <note>Badge text shown above the description for outdated variants</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.group_current">
+                <source>app.archetype.variant.group_current</source>
+                <target>Actuelles</target>
+                <note>Group header for current variants in the variant selector dropdown</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.group_outdated">
+                <source>app.archetype.variant.group_outdated</source>
+                <target>Obsolètes</target>
+                <note>Group header for outdated variants in the variant selector dropdown</note>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.duplicate">
                 <source>app.archetype.variant.duplicate</source>
                 <target>Dupliquer</target>

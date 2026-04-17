@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconShare } from '@tabler/icons-react';
@@ -58,6 +58,8 @@ interface Labels {
     copyList: string;
     copied: string;
     outdatedBadge: string;
+    groupCurrent: string;
+    groupOutdated: string;
     shareMosaic: string;
     enrichmentPending: string;
 }
@@ -75,7 +77,8 @@ const SECTION_LABELS: Record<string, keyof Labels> = {
     energy: 'sectionEnergy',
 };
 
-const MAX_BUTTONS = 5;
+const SELECT_MIN_WIDTH = 220;
+const ROW_GAP = 8;
 
 function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }) {
     return (
@@ -170,73 +173,249 @@ function CardTable({ groupedCards, labels, onCardClick }: {
 }
 
 /**
- * Desktop variant selector: compact pill buttons with sprites.
+ * Renders a variant button (shared between measurement and visible rows).
  */
-function DesktopSelector({ variants, selectedIndex, onSelect }: {
+function VariantButton({ variant, index, outdated, selected, onSelect }: {
+    variant: VariantData;
+    index: number;
+    outdated: boolean;
+    selected: boolean;
+    onSelect: (index: number) => void;
+}) {
+    return (
+        <Button
+            variant={outdated
+                ? (selected ? 'filled' : 'light')
+                : (selected ? 'filled' : 'outline')}
+            color={outdated ? 'gray' : undefined}
+            size="sm"
+            radius="xl"
+            onClick={() => onSelect(index)}
+            leftSection={variant.sprites.length > 0
+                ? <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}><SpriteList slugs={variant.sprites} height={22} /></span>
+                : undefined}
+        >
+            {variant.outdated && variant.latestSetCode && (
+                <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
+            )}
+            <span style={outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
+        </Button>
+    );
+}
+
+/**
+ * A single row of variant buttons that dynamically overflows excess items
+ * into a Select dropdown based on available container width.
+ */
+function OverflowRow({ items, selectedIndex, onSelect, outdated, placeholder }: {
+    items: { variant: VariantData; index: number }[];
+    selectedIndex: number;
+    onSelect: (index: number) => void;
+    outdated: boolean;
+    placeholder: string;
+}) {
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const measureRef = useRef<HTMLDivElement>(null);
+    const [visibleCount, setVisibleCount] = useState(items.length);
+
+    const measureVisibleCount = useCallback((): number => {
+        const measure = measureRef.current;
+        const wrapper = wrapperRef.current;
+        if (!measure || !wrapper) return items.length;
+
+        const children = Array.from(measure.children) as HTMLElement[];
+        if (children.length === 0) return items.length;
+
+        const available = wrapper.getBoundingClientRect().width;
+        let total = 0;
+        let count = 0;
+
+        for (let i = 0; i < children.length; i++) {
+            const childWidth = children[i].getBoundingClientRect().width;
+            const accumulated = total + childWidth + (i > 0 ? ROW_GAP : 0);
+
+            if (i === children.length - 1 && accumulated <= available) {
+                count = children.length;
+                break;
+            }
+
+            if (accumulated + ROW_GAP + SELECT_MIN_WIDTH > available) break;
+            total = accumulated;
+            count++;
+        }
+
+        return Math.max(1, count);
+    }, [items.length]);
+
+    useLayoutEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- DOM measurement requires setState after layout
+        setVisibleCount(measureVisibleCount());
+    }, [measureVisibleCount]);
+
+    useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return;
+
+        const observer = new ResizeObserver(() => {
+             
+            setVisibleCount(measureVisibleCount());
+        });
+        observer.observe(wrapper);
+
+        return () => observer.disconnect();
+    }, [measureVisibleCount]);
+
+    const buttonItems = items.slice(0, visibleCount);
+    const dropdownItems = items.slice(visibleCount);
+    const selectedDropdownItem = dropdownItems.find(({ index }) => index === selectedIndex);
+    const selectedDropdownVariant = selectedDropdownItem?.variant;
+
+    return (
+        <div ref={wrapperRef} style={{ position: 'relative' }}>
+            {/* Hidden measurement row — renders ALL buttons to capture natural widths */}
+            <div
+                ref={measureRef}
+                aria-hidden
+                style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none', display: 'flex', gap: ROW_GAP, flexWrap: 'nowrap' }}
+            >
+                {items.map(({ variant, index }) => (
+                    <VariantButton key={variant.id} variant={variant} index={index} outdated={outdated} selected={index === selectedIndex} onSelect={onSelect} />
+                ))}
+            </div>
+
+            {/* Visible row */}
+            <Group gap="xs" wrap="nowrap">
+                {buttonItems.map(({ variant, index }) => (
+                    <VariantButton key={variant.id} variant={variant} index={index} outdated={outdated} selected={index === selectedIndex} onSelect={onSelect} />
+                ))}
+                {dropdownItems.length > 0 && (
+                    <Select
+                        data={dropdownItems.map(({ variant, index }) => ({
+                            value: String(index),
+                            label: variant.outdated && variant.latestSetCode
+                                ? `${variant.latestSetCode} ${variant.name}`
+                                : variant.name,
+                        }))}
+                        value={selectedDropdownItem ? String(selectedIndex) : null}
+                        onChange={(value) => {
+                            if (value) {
+                                onSelect(Number(value));
+                            }
+                        }}
+                        size="sm"
+                        clearable
+                        placeholder={placeholder}
+                        style={{ minWidth: SELECT_MIN_WIDTH }}
+                        leftSection={
+                            selectedDropdownVariant && selectedDropdownVariant.sprites.length > 0
+                                ? <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}><SpriteList slugs={selectedDropdownVariant.sprites} height={20} /></span>
+                                : undefined
+                        }
+                        leftSectionWidth={
+                            selectedDropdownVariant && selectedDropdownVariant.sprites.length > 0
+                                ? selectedDropdownVariant.sprites.length * 22 + 8
+                                : undefined
+                        }
+                        styles={outdated ? { input: { fontStyle: 'italic' } } : { input: { fontWeight: 600 } }}
+                        renderOption={({ option }) => {
+                            const item = dropdownItems.find(({ index }) => String(index) === option.value);
+                            if (!item) return <span>{option.label}</span>;
+                            const { variant } = item;
+
+                            return (
+                                <Group gap={6} wrap="nowrap" style={outdated ? { opacity: 0.5 } : undefined}>
+                                    {variant.sprites.length > 0 && (
+                                        <span style={outdated ? { filter: 'grayscale(70%)' } : undefined}>
+                                            <SpriteList slugs={variant.sprites} height={20} />
+                                        </span>
+                                    )}
+                                    {variant.outdated && variant.latestSetCode && (
+                                        <span className="badge bg-secondary" style={{ fontSize: '0.65em' }}>{variant.latestSetCode}</span>
+                                    )}
+                                    <span style={outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
+                                </Group>
+                            );
+                        }}
+                    />
+                )}
+            </Group>
+        </div>
+    );
+}
+
+/**
+ * Desktop variant selector: compact pill buttons with sprites.
+ * Current variants appear on one row; outdated variants on a separate row
+ * with a grayed-out visual treatment. Each row dynamically overflows excess
+ * buttons into a Select dropdown based on available width.
+ */
+function DesktopSelector({ variants, selectedIndex, onSelect, labels }: {
     variants: VariantData[];
     selectedIndex: number;
     onSelect: (index: number) => void;
+    labels: Labels;
 }) {
-    const buttonVariants = variants.slice(0, MAX_BUTTONS);
-    const dropdownVariants = variants.slice(MAX_BUTTONS);
+    const indexed = variants.map((variant, index) => ({ variant, index }));
+    const currentVariants = indexed.filter(({ variant }) => !variant.outdated);
+    const outdatedVariants = indexed.filter(({ variant }) => variant.outdated);
 
     return (
-        <Group gap="xs" wrap="wrap">
-            {buttonVariants.map((variant, index) => (
-                <Button
-                    key={variant.id}
-                    variant={index === selectedIndex ? 'filled' : 'outline'}
-                    size="sm"
-                    radius="xl"
-                    onClick={() => onSelect(index)}
-                    leftSection={variant.sprites.length > 0 ? <SpriteList slugs={variant.sprites} height={22} /> : undefined}
-                    opacity={variant.outdated && index !== selectedIndex ? 0.5 : 1}
-                >
-                    {variant.outdated && variant.latestSetCode && (
-                        <span className="badge bg-secondary" style={{ marginRight: 6, fontStyle: 'normal', fontSize: '0.7em' }}>{variant.latestSetCode}</span>
-                    )}
-                    <span style={variant.outdated ? { fontStyle: 'italic' } : undefined}>{variant.name}</span>
-                </Button>
-            ))}
-            {dropdownVariants.length > 0 && (
-                <Select
-                    data={dropdownVariants.map((variant, index) => ({
-                        value: String(MAX_BUTTONS + index),
-                        label: variant.outdated && variant.latestSetCode
-                            ? `${variant.latestSetCode} ${variant.name}`
-                            : variant.name,
-                    }))}
-                    value={selectedIndex >= MAX_BUTTONS ? String(selectedIndex) : null}
-                    onChange={(value) => {
-                        if (value) {
-                            onSelect(Number(value));
-                        }
-                    }}
-                    size="xs"
-                    clearable
-                    style={{ minWidth: 200 }}
-                />
+        <Stack gap="xs">
+            {currentVariants.length > 0 && (
+                <OverflowRow items={currentVariants} selectedIndex={selectedIndex} onSelect={onSelect} outdated={false} placeholder={labels.moreVariants} />
             )}
-        </Group>
+            {outdatedVariants.length > 0 && (
+                <OverflowRow items={outdatedVariants} selectedIndex={selectedIndex} onSelect={onSelect} outdated={true} placeholder={labels.moreVariants} />
+            )}
+        </Stack>
     );
 }
 
 /**
  * Mobile variant selector: dropdown with sprites in both the input and options.
+ * Groups current and outdated variants with a separator header.
  */
-function MobileSelector({ variants, selectedIndex, onSelect }: {
+function MobileSelector({ variants, selectedIndex, onSelect, labels }: {
     variants: VariantData[];
     selectedIndex: number;
     onSelect: (index: number) => void;
+    labels: Labels;
 }) {
+    const hasOutdated = variants.some((variant) => variant.outdated);
+
+    const data = hasOutdated
+        ? [
+            {
+                group: labels.groupCurrent,
+                items: variants
+                    .map((variant, index) => ({ variant, index }))
+                    .filter(({ variant }) => !variant.outdated)
+                    .map(({ variant, index }) => ({
+                        value: String(index),
+                        label: variant.name,
+                    })),
+            },
+            {
+                group: labels.groupOutdated,
+                items: variants
+                    .map((variant, index) => ({ variant, index }))
+                    .filter(({ variant }) => variant.outdated)
+                    .map(({ variant, index }) => ({
+                        value: String(index),
+                        label: variant.latestSetCode
+                            ? `${variant.latestSetCode} ${variant.name}`
+                            : variant.name,
+                    })),
+            },
+        ]
+        : variants.map((variant, index) => ({
+            value: String(index),
+            label: variant.name,
+        }));
+
     return (
         <Select
-            data={variants.map((variant, index) => ({
-                value: String(index),
-                label: variant.outdated && variant.latestSetCode
-                    ? `${variant.latestSetCode} ${variant.name}`
-                    : variant.name,
-            }))}
+            data={data}
             value={String(selectedIndex)}
             onChange={(value) => {
                 if (value) {
@@ -353,9 +532,9 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
             {variants.length > 1 && (
                 <div className="mb-3">
                     {isMobile ? (
-                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} labels={labels} />
                     ) : (
-                        <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+                        <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} labels={labels} />
                     )}
                 </div>
             )}

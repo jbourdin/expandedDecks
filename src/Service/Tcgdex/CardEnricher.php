@@ -20,6 +20,7 @@ use App\Entity\DeckVersion;
 use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\DeckListParser;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Enriches DeckCards with card data, linking them to CardPrinting/CardIdentity.
@@ -190,6 +191,7 @@ class CardEnricher
         private readonly TcgdexApiClient $apiClient,
         private readonly CardIdentityResolver $identityResolver,
         private readonly EntityManagerInterface $em,
+        private readonly HttpClientInterface $httpClient,
     ) {
     }
 
@@ -493,15 +495,13 @@ class CardEnricher
      */
     private function isImageReachable(string $url): bool
     {
-        $headers = @get_headers($url);
+        try {
+            $response = $this->httpClient->request('HEAD', $url, ['timeout' => 5]);
 
-        if (!\is_array($headers) || [] === $headers) {
+            return 200 === $response->getStatusCode();
+        } catch (\Throwable) {
             return false;
         }
-
-        $statusLine = $headers[0];
-
-        return \is_string($statusLine) && str_contains($statusLine, '200');
     }
 
     /**

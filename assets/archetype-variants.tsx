@@ -34,6 +34,8 @@ if (root) {
         copyList: root.dataset.labelCopyList ?? 'Copy list',
         copied: root.dataset.labelCopied ?? 'Copied!',
         outdatedBadge: root.dataset.labelOutdatedBadge ?? 'Outdated variant',
+        groupCurrent: root.dataset.labelGroupCurrent ?? 'Current',
+        groupOutdated: root.dataset.labelGroupOutdated ?? 'Outdated',
         shareMosaic: root.dataset.labelShareMosaic ?? 'Share mosaic',
         enrichmentPending: root.dataset.labelEnrichmentPending ?? 'Card data is being generated…',
     };
