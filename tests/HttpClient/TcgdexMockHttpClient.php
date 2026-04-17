@@ -34,6 +34,11 @@ class TcgdexMockHttpClient implements HttpClientInterface
     public function __construct()
     {
         $this->delegate = new MockHttpClient(function (string $method, string $url): MockResponse {
+            // Image reachability checks (HEAD requests) — assume reachable in tests
+            if ('HEAD' === $method) {
+                return new MockResponse('', ['http_code' => 200]);
+            }
+
             // Non-TCGdex requests: return 404 (should not happen in tests)
             if (!str_starts_with($url, self::TCGDEX_BASE)) {
                 return new MockResponse('', ['http_code' => 404]);

@@ -23,6 +23,9 @@ use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
@@ -31,11 +34,13 @@ class CardEnricherTest extends TestCase
 {
     private EntityManagerInterface $em;
     private CardIdentityResolver $identityResolver;
+    private HttpClientInterface $httpClient;
 
     protected function setUp(): void
     {
         $this->em = $this->createStub(EntityManagerInterface::class);
         $this->em->method('flush');
+        $this->httpClient = new MockHttpClient(static fn (): MockResponse => new MockResponse('', ['http_code' => 200]));
         $this->identityResolver = $this->createStub(CardIdentityResolver::class);
         $this->identityResolver->method('resolveFromTcgdexCard')->willReturnCallback(
             static function (TcgdexCard $tcgdexCard): CardPrinting {
@@ -78,7 +83,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -114,7 +119,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -146,7 +151,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -169,7 +174,7 @@ class CardEnricherTest extends TestCase
 
         $apiClient = $this->createStub(TcgdexApiClient::class);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -192,7 +197,7 @@ class CardEnricherTest extends TestCase
         $apiClient = $this->createStub(TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(0, $report->enrichedCount);
@@ -223,7 +228,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: false,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertCount(1, $report->legalityWarnings);
@@ -253,7 +258,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -287,7 +292,7 @@ class CardEnricherTest extends TestCase
         $apiClient->expects(self::never())
             ->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -309,7 +314,7 @@ class CardEnricherTest extends TestCase
         $apiClient->method('findCard')
             ->willThrowException(new \RuntimeException('API error'));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
 
         self::expectException(\RuntimeException::class);
         self::expectExceptionMessage('API error');
@@ -348,7 +353,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -389,7 +394,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -426,7 +431,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -463,7 +468,7 @@ class CardEnricherTest extends TestCase
             ),
         );
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -495,7 +500,7 @@ class CardEnricherTest extends TestCase
         $apiClient->method('findCard')->willReturn(null);
         $apiClient->method('findCardByNameInAliasedSet')->willReturn(null);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(0, $report->enrichedCount);
@@ -528,7 +533,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertSame('pokemon', $card->getCardType());
@@ -559,7 +564,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         // Card type should remain 'pokemon', not overridden to 'trainer'
@@ -604,7 +609,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -651,7 +656,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -695,7 +700,7 @@ class CardEnricherTest extends TestCase
             ),
         ]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -728,7 +733,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         // Image should be overridden to the correct one
@@ -764,7 +769,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -803,7 +808,7 @@ class CardEnricherTest extends TestCase
         $apiClient->method('findImageByName')
             ->willReturn('https://example.com/fallback-image.webp');
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -839,7 +844,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -868,7 +873,7 @@ class CardEnricherTest extends TestCase
         // findAllPrintingsByName returns empty — no TCGdex printings at all
         $apiClient->method('findAllPrintingsByName')->willReturn([]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -939,7 +944,10 @@ class CardEnricherTest extends TestCase
             ));
         $apiClient->expects(self::never())->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        // Image URLs must be unreachable to test the sibling fallback chain
+        $unreachableHttpClient = new MockHttpClient(static fn (): MockResponse => new MockResponse('', ['http_code' => 404]));
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em, $unreachableHttpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -976,7 +984,7 @@ class CardEnricherTest extends TestCase
         // findImageByName must NOT be called for Pokemon cards
         $apiClient->expects(self::never())->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -1013,7 +1021,7 @@ class CardEnricherTest extends TestCase
         $apiClient->method('findImageByName')
             ->willReturn('https://example.com/judge-fallback.webp');
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -1080,7 +1088,10 @@ class CardEnricherTest extends TestCase
             ));
         $apiClient->expects(self::never())->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        // Image URLs must be unreachable to test the sibling fallback chain
+        $unreachableHttpClient = new MockHttpClient(static fn (): MockResponse => new MockResponse('', ['http_code' => 404]));
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em, $unreachableHttpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -1148,7 +1159,10 @@ class CardEnricherTest extends TestCase
             ));
         $apiClient->expects(self::never())->method('findImageByName');
 
-        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em);
+        // Image URLs must be unreachable to test the sibling fallback chain
+        $unreachableHttpClient = new MockHttpClient(static fn (): MockResponse => new MockResponse('', ['http_code' => 404]));
+
+        $enricher = new CardEnricher($apiClient, $identityResolver, $this->em, $unreachableHttpClient);
         $enricher->enrichVersion($version);
 
         self::assertNotNull($card->getCardPrinting());
@@ -1194,7 +1208,7 @@ class CardEnricherTest extends TestCase
             },
         );
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -1225,7 +1239,7 @@ class CardEnricherTest extends TestCase
         // All name lookups return empty — force synthetic fallback
         $apiClient->method('findAllPrintingsByName')->willReturn([]);
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $report = $enricher->enrichVersion($version);
 
         self::assertSame(1, $report->enrichedCount);
@@ -1263,7 +1277,7 @@ class CardEnricherTest extends TestCase
                 isExpandedLegal: true,
             ));
 
-        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em);
+        $enricher = new CardEnricher($apiClient, $this->identityResolver, $this->em, $this->httpClient);
         $enricher->enrichVersion($version);
 
         // Card name should be updated to the canonical English name from TCGdex
