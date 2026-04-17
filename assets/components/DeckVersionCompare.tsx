@@ -188,9 +188,8 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                         {diff.unified.map((entry) => {
                             const rowColor = entry.status === 'added' ? 'green.0'
                                 : entry.status === 'removed' ? 'red.0'
-                                    : entry.delta > 0 ? 'green.0'
-                                        : entry.delta < 0 ? 'red.0'
-                                            : undefined;
+                                    : entry.status === 'changed' ? 'yellow.0'
+                                        : undefined;
 
                             const deltaText = entry.delta > 0 ? `(+${entry.delta})`
                                 : entry.delta < 0 ? `(${entry.delta})`

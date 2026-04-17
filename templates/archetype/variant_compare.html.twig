@@ -62,10 +62,12 @@
                         </thead>
                         <tbody>
                             {% for entry in diff.unified %}
-                                {% if entry.status == 'added' or entry.delta > 0 %}
+                                {% if entry.status == 'added' %}
                                     {% set rowClass = 'table-success' %}
-                                {% elseif entry.status == 'removed' or entry.delta < 0 %}
+                                {% elseif entry.status == 'removed' %}
                                     {% set rowClass = 'table-danger' %}
+                                {% elseif entry.status == 'changed' %}
+                                    {% set rowClass = 'table-warning' %}
                                 {% else %}
                                     {% set rowClass = '' %}
                                 {% endif %}
