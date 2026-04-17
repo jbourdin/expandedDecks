@@ -32,6 +32,10 @@ final class DeckVersionDiffer
      * descending, then by name ascending. Each entry includes a `status` field
      * (added, removed, changed, unchanged) and a `delta` field (+N or -N).
      *
+     * @param bool $mergeByIdentity When true, cards with the same CardIdentity
+     *                              are merged (different printings treated as the
+     *                              same card). Uses canonical printing for display.
+     *
      * @return array{
      *     added: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
      *     removed: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
@@ -39,10 +43,6 @@ final class DeckVersionDiffer
      *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
      *     unified: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, delta: int, status: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>
      * }
-     *
-     * @param bool $mergeByIdentity When true, cards with the same CardIdentity
-     *                              are merged (different printings treated as the
-     *                              same card). Uses canonical printing for display.
      */
     public function diff(DeckVersion $oldVersion, DeckVersion $newVersion, bool $mergeByIdentity = false): array
     {
