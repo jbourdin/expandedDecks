@@ -7,16 +7,17 @@
  * file that was distributed with this source code.
  */
 
-import { mergeAttributes, Node } from '@tiptap/core';
+import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core';
 
 /**
  * @see docs/features.md F17.3 — Custom Tiptap extension for [[archetype:slug]] tags
+ * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
  */
 
-const ARCHETYPE_TAG_PATTERN = /\[\[archetype:([a-z0-9-]+)\]\]/;
+const ARCHETYPE_TAG_PATTERN = /\[\[archetype:([a-z0-9-]+)(?::([A-HJ-NP-Z0-9]{6}))?\]\]/;
 
 /**
- * markdown-it inline rule that matches `[[archetype:slug]]` tokens.
+ * markdown-it inline rule that matches `[[archetype:slug]]` and `[[archetype:slug:shortTag]]` tokens.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function archetypeReferenceRule(state: any, silent: boolean): boolean {
@@ -30,6 +31,7 @@ function archetypeReferenceRule(state: any, silent: boolean): boolean {
     if (!silent) {
         const token = state.push('archetype_reference', '', 0);
         token.content = match[1];
+        token.meta = { shortTag: match[2] ?? null };
     }
 
     state.pos += match[0].length;
@@ -52,6 +54,17 @@ const ArchetypeReference = Node.create({
                     'data-archetype-slug': attributes.slug,
                 }),
             },
+            shortTag: {
+                default: null,
+                parseHTML: (element: HTMLElement) => element.getAttribute('data-archetype-short-tag'),
+                renderHTML: (attributes: Record<string, string | null>) => {
+                    if (!attributes.shortTag) {
+                        return {};
+                    }
+
+                    return { 'data-archetype-short-tag': attributes.shortTag };
+                },
+            },
         };
     },
 
@@ -60,10 +73,27 @@ const ArchetypeReference = Node.create({
     },
 
     renderHTML({ HTMLAttributes }) {
+        const slug = HTMLAttributes['data-archetype-slug'] ?? '';
+        const shortTag = HTMLAttributes['data-archetype-short-tag'];
+        const display = shortTag ? `${slug}:${shortTag}` : slug;
+
         return [
             'span',
             mergeAttributes(HTMLAttributes, { class: 'archetype-reference-badge' }),
-            HTMLAttributes['data-archetype-slug'] ?? '',
+            display,
+        ];
+    },
+
+    addPasteRules() {
+        return [
+            nodePasteRule({
+                find: /\[\[archetype:([a-z0-9-]+)(?::([A-HJ-NP-Z0-9]{6}))?\]\]/g,
+                type: this.type,
+                getAttributes: (match) => ({
+                    slug: match[1],
+                    shortTag: match[2] ?? null,
+                }),
+            }),
         ];
     },
 
@@ -72,7 +102,9 @@ const ArchetypeReference = Node.create({
             markdown: {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 serialize(state: any, node: any) {
-                    state.write(`[[archetype:${node.attrs.slug}]]`);
+                    const { slug, shortTag } = node.attrs;
+                    const tag = shortTag ? `[[archetype:${slug}:${shortTag}]]` : `[[archetype:${slug}]]`;
+                    state.write(tag);
                 },
                 parse: {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,6 +117,11 @@ const ArchetypeReference = Node.create({
                             index: number,
                         ) => {
                             const slug = tokens[index].content;
+                            const shortTag = tokens[index].meta?.shortTag;
+
+                            if (shortTag) {
+                                return `<span data-archetype-slug="${slug}" data-archetype-short-tag="${shortTag}">${slug}:${shortTag}</span>`;
+                            }
 
                             return `<span data-archetype-slug="${slug}">${slug}</span>`;
                         };

@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { mergeAttributes, Node } from '@tiptap/core';
+import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core';
 
 /**
  * @see docs/features.md F17.2 — Custom Tiptap extension for [[deck:SHORT_TAG]] tags
@@ -64,6 +64,18 @@ const DeckReference = Node.create({
             'span',
             mergeAttributes(HTMLAttributes, { class: 'deck-reference-badge' }),
             HTMLAttributes['data-deck-short-tag'] ?? '',
+        ];
+    },
+
+    addPasteRules() {
+        return [
+            nodePasteRule({
+                find: /\[\[deck:([A-HJ-NP-Z0-9]{6})\]\]/g,
+                type: this.type,
+                getAttributes: (match) => ({
+                    shortTag: match[1],
+                }),
+            }),
         ];
     },
 

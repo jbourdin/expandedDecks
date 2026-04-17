@@ -67,6 +67,11 @@
                 <div class="card-body">
                     <div id="archetype-variant-selector-root"
                          data-variants="{{ variantsData|json_encode|e('html_attr') }}"
+                         data-archetype-slug="{{ archetype.slug }}"
+                         data-can-copy-tag="{{ is_granted('ROLE_ARCHETYPE_EDITOR') or is_granted('ROLE_ADMIN') ? 'true' : 'false' }}"
+                         data-label-copy-tag="{{ 'app.archetype.variant.copy_tag'|trans }}"
+                         data-label-copy-tag-copied="{{ 'app.archetype.variant.copy_tag_copied'|trans }}"
+                         data-label-copy-card-tag="{{ 'app.archetype.variant.copy_card_tag'|trans }}"
                          data-label-view-table="{{ 'app.deck.view_table'|trans }}"
                          data-label-view-mosaic="{{ 'app.deck.view_mosaic'|trans }}"
                          data-label-mosaic-alt="{{ 'app.deck.mosaic_alt'|trans({'%name%': archetype.localizedName(app.request.locale)}) }}"

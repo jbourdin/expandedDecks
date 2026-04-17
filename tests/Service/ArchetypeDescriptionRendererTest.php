@@ -15,9 +15,11 @@ namespace App\Tests\Service;
 
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
+use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckCardRepository;
+use App\Repository\DeckRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownRenderer;
 use App\Service\Tcgdex\TcgdexApiClient;
@@ -36,6 +38,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
     private ArchetypeDescriptionRenderer $renderer;
     private ArchetypeRepository&Stub $archetypeRepository;
     private DeckCardRepository&Stub $deckCardRepository;
+    private DeckRepository&Stub $deckRepository;
     private TcgdexApiClient&Stub $tcgdexApiClient;
     private UrlGeneratorInterface&Stub $urlGenerator;
 
@@ -43,6 +46,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
     {
         $this->archetypeRepository = $this->createStub(ArchetypeRepository::class);
         $this->deckCardRepository = $this->createStub(DeckCardRepository::class);
+        $this->deckRepository = $this->createStub(DeckRepository::class);
         $this->tcgdexApiClient = $this->createStub(TcgdexApiClient::class);
         $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
 
@@ -50,6 +54,7 @@ class ArchetypeDescriptionRendererTest extends TestCase
             new MarkdownRenderer(),
             $this->archetypeRepository,
             $this->deckCardRepository,
+            $this->deckRepository,
             $this->tcgdexApiClient,
             new ArchetypeSpriteRuntime(),
             $this->urlGenerator,
@@ -258,5 +263,99 @@ class ArchetypeDescriptionRendererTest extends TestCase
 
         self::assertStringContainsString('Professor Research', $result);
         self::assertStringContainsString('card-hover', $result);
+    }
+
+    /**
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+     */
+    public function testExpandsThreePartArchetypeTagWithVariant(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setName('Lugia VSTAR');
+        $archetype->setPokemonSlugs(['lugia']);
+        $archetype->setIsPublished(true);
+
+        $variant = new Deck();
+        $variant->setName('Turbo Lugia');
+        $variant->setPokemonSlugs(['lugia', 'archeops']);
+        $variant->setArchetype($archetype);
+
+        $this->archetypeRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'lugia-vstar' === ($criteria['slug'] ?? null) ? $archetype : null);
+
+        $this->deckRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Deck => 'ABC123' === ($criteria['shortTag'] ?? null) ? $variant : null);
+
+        $this->urlGenerator->method('generate')
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_archetype_show' === $route && 'lugia-vstar' === ($parameters['slug'] ?? null) ? '/archetypes/lugia-vstar' : '');
+
+        $result = $this->renderer->render('See [[archetype:lugia-vstar:ABC123]].');
+
+        self::assertStringContainsString('<a href="/archetypes/lugia-vstar#ABC123">', $result);
+        self::assertStringContainsString('Turbo Lugia', $result);
+        self::assertStringContainsString('archeops', $result);
+        self::assertStringNotContainsString('[[archetype:', $result);
+    }
+
+    /**
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+     */
+    public function testThreePartTagFallsBackWhenVariantBelongsToDifferentArchetype(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setName('Kyurem');
+        $archetype->setPokemonSlugs(['kyurem']);
+        $archetype->setIsPublished(true);
+
+        $otherArchetype = new Archetype();
+        $otherArchetype->setName('Lugia VSTAR');
+
+        $variant = new Deck();
+        $variant->setName('Turbo Lugia');
+        $variant->setArchetype($otherArchetype);
+
+        $this->archetypeRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'kyurem' === ($criteria['slug'] ?? null) ? $archetype : null);
+
+        $this->deckRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Deck => 'XYZ789' === ($criteria['shortTag'] ?? null) ? $variant : null);
+
+        $this->urlGenerator->method('generate')
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_archetype_show' === $route && 'kyurem' === ($parameters['slug'] ?? null) ? '/archetypes/kyurem' : '');
+
+        $result = $this->renderer->render('See [[archetype:kyurem:XYZ789]].');
+
+        // Falls back to archetype rendering (no hash, archetype name)
+        self::assertStringContainsString('<a href="/archetypes/kyurem">', $result);
+        self::assertStringContainsString('Kyurem', $result);
+        self::assertStringNotContainsString('#XYZ789', $result);
+        self::assertStringNotContainsString('Turbo Lugia', $result);
+    }
+
+    /**
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+     */
+    public function testThreePartTagFallsBackWhenVariantNotFound(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setName('Kyurem');
+        $archetype->setPokemonSlugs(['kyurem']);
+        $archetype->setIsPublished(true);
+
+        $this->archetypeRepository->method('findOneBy')
+            ->willReturnCallback(static fn (array $criteria): ?Archetype => 'kyurem' === ($criteria['slug'] ?? null) ? $archetype : null);
+
+        $this->deckRepository->method('findOneBy')
+            ->willReturn(null);
+
+        $this->urlGenerator->method('generate')
+            ->willReturnCallback(static fn (string $route, array $parameters): string => 'app_archetype_show' === $route && 'kyurem' === ($parameters['slug'] ?? null) ? '/archetypes/kyurem' : '');
+
+        $result = $this->renderer->render('See [[archetype:kyurem:NHE5T3]].');
+
+        // Falls back to archetype rendering (no hash, archetype name)
+        self::assertStringContainsString('<a href="/archetypes/kyurem">', $result);
+        self::assertStringContainsString('Kyurem', $result);
+        self::assertStringNotContainsString('#NHE5T3', $result);
     }
 }
