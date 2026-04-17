@@ -164,6 +164,11 @@
                                         <a href="{{ path('app_admin_archetype_variant_edit', {id: archetype.id, deckId: variant.id}) }}" class="btn btn-sm btn-outline-primary" title="{{ 'app.common.edit'|trans }}">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        {% if variant.versions|length > 1 %}
+                                            <a href="{{ path('app_admin_archetype_variant_versions', {id: archetype.id, deckId: variant.id}) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.deck.version_history'|trans }}">
+                                                <i class="bi bi-clock-history"></i>
+                                            </a>
+                                        {% endif %}
                                         <form method="post" action="{{ path('app_admin_archetype_variant_duplicate', {id: archetype.id, deckId: variant.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('variant-duplicate-' ~ variant.id) }}">
                                             <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'app.archetype.variant.duplicate'|trans }}">

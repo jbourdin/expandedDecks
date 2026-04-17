@@ -1,0 +1,134 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.archetype.variant.compare_title'|trans({'%variantA%': variantA.name, '%variantB%': variantB.name}) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_archetype_list') }}">{{ 'app.nav.archetypes'|trans }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_archetype_show', {slug: archetype.slug}) }}">{{ archetype.localizedName(app.request.locale) }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'app.archetype.variant.compare'|trans }}</li>
+        </ol>
+    </nav>
+
+    {# Variant selectors #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.archetype.variant.compare_title'|trans({'%variantA%': variantA.name, '%variantB%': variantB.name}) }}</h5>
+        </div>
+        <div class="card-body">
+            <div id="variant-compare-picker-root"
+                 class="mb-3"
+                 data-variants="{{ pickerData|json_encode|e('html_attr') }}"
+                 data-selected-tag-a="{{ variantA.shortTag }}"
+                 data-selected-tag-b="{{ variantB.shortTag }}"
+                 data-archetype-slug="{{ archetype.slug }}"
+                 data-label-from="{{ 'app.archetype.variant.compare_from'|trans }}"
+                 data-label-to="{{ 'app.archetype.variant.compare_to'|trans }}"
+                 data-label-swap="{{ 'app.archetype.variant.compare_swap'|trans }}"
+                 data-label-group-current="{{ 'app.archetype.variant.group_current'|trans }}"
+                 data-label-group-outdated="{{ 'app.archetype.variant.group_outdated'|trans }}">
+            </div>
+
+            {% if not hasBothVersions %}
+                <div class="alert alert-warning mb-0">
+                    {{ 'app.archetype.variant.no_version'|trans }}
+                </div>
+            {% elseif diff is not null %}
+                {% set hasChanges = diff.added|length > 0 or diff.removed|length > 0 or diff.changed|length > 0 %}
+
+                {% if not hasChanges %}
+                    <div class="alert alert-info mb-0">
+                        {{ 'app.archetype.variant.compare_identical'|trans }}
+                    </div>
+                {% else %}
+                    {% set modalCards = [] %}
+                    {% for entry in diff.unified %}
+                        {% if entry.imageUrl %}
+                            {% set deltaText = '' %}
+                            {% if entry.delta > 0 %}
+                                {% set deltaText = '(+' ~ entry.delta ~ ')' %}
+                            {% elseif entry.delta < 0 %}
+                                {% set deltaText = '(' ~ entry.delta ~ ')' %}
+                            {% endif %}
+                            {% set detailColor = entry.status == 'added' ? 'green' : (entry.status == 'removed' ? 'red' : (entry.status == 'changed' ? 'yellow.7' : null)) %}
+                            {% set modalCards = modalCards|merge([{
+                                cardName: entry.cardName,
+                                quantity: entry.newQuantity,
+                                imageUrl: entry.imageUrl,
+                                detail: deltaText,
+                                detailColor: detailColor,
+                            }]) %}
+                        {% endif %}
+                    {% endfor %}
+                    <div id="variant-compare-modal-root" data-cards="{{ modalCards|json_encode|e('html_attr') }}"></div>
+
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">{{ 'app.deck.table_qty'|trans }}</th>
+                                <th>{{ 'app.deck.table_card'|trans }}</th>
+                                <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                <th style="width: 40px">#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in diff.unified %}
+                                {% if entry.status == 'added' %}
+                                    {% set rowClass = 'table-success' %}
+                                {% elseif entry.status == 'removed' %}
+                                    {% set rowClass = 'table-danger' %}
+                                {% elseif entry.status == 'changed' %}
+                                    {% set rowClass = 'table-warning' %}
+                                {% else %}
+                                    {% set rowClass = '' %}
+                                {% endif %}
+                                <tr class="{{ rowClass }}">
+                                    <td>
+                                        <span class="fw-bold">{{ entry.newQuantity > 0 ? entry.newQuantity : '—' }}</span>
+                                        {% if entry.delta > 0 %}
+                                            <small class="text-success ms-1">(+{{ entry.delta }})</small>
+                                        {% elseif entry.delta < 0 %}
+                                            <small class="text-danger ms-1">({{ entry.delta }})</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if entry.imageUrl %}
+                                            <span class="card-hover card-modal-trigger" role="button" tabIndex="0" data-card-name="{{ entry.cardName }}" data-card-image="{{ entry.imageUrl }}">{{ entry.cardName }}<img class="card-hover-img" src="{{ entry.imageUrl }}" alt="{{ entry.cardName }}"></span>
+                                        {% else %}
+                                            {{ entry.cardName }}
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ entry.setCode }}</span></td>
+                                    <td>{{ entry.cardNumber }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('variant_compare') }}
+    {{ encore_entry_link_tags('variant_compare_modal') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('archetype_show') }}
+    {{ encore_entry_script_tags('variant_compare') }}
+    {{ encore_entry_script_tags('variant_compare_modal') }}
+{% endblock %}

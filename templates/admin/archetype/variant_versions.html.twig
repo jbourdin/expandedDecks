@@ -14,8 +14,9 @@
     {# Breadcrumb #}
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a></li>
-            <li class="breadcrumb-item"><a href="{{ path('app_deck_show', {short_tag: deck.shortTag}) }}">{{ deck.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_archetype_list') }}">{{ 'app.admin.archetype.list_title'|trans }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}">{{ archetype.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_archetype_variant_edit', {id: archetype.id, deckId: deck.id}) }}">{{ deck.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ 'app.deck.version_history'|trans }}</li>
         </ol>
     </nav>
@@ -52,15 +53,15 @@
                                         {% if isCurrent %}
                                             <span class="badge bg-success">{{ 'app.deck.version_history.current'|trans }}</span>
                                         {% endif %}
-                                        {% if isOwner and version.rawList is not null %}
-                                            <a href="{{ path('app_deck_version_export', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.deck.version.export_list'|trans }}">
+                                        {% if version.rawList is not null %}
+                                            <a href="{{ path('app_admin_archetype_variant_version_export', {id: archetype.id, deckId: deck.id, versionNumber: version.versionNumber}) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.deck.version.export_list'|trans }}">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                         {% endif %}
-                                        {% if isOwner and not isCurrent %}
+                                        {% if not isCurrent %}
                                             <span class="d-inline-flex align-items-center gap-1">
-                                                <form method="post" action="{{ path('app_deck_version_restore', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('deck-version-restore-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                <form method="post" action="{{ path('app_admin_archetype_variant_version_restore', {id: archetype.id, deckId: deck.id, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('variant-version-restore-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
                                                     <button type="button" class="btn btn-sm btn-outline-primary inline-confirm-trigger" title="{{ 'app.deck.version.restore'|trans }}">
                                                         <i class="bi bi-arrow-counterclockwise"></i>
                                                     </button>
@@ -70,8 +71,8 @@
                                                         <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
                                                     </span>
                                                 </form>
-                                                <form method="post" action="{{ path('app_deck_version_delete', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('deck-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                <form method="post" action="{{ path('app_admin_archetype_variant_version_delete', {id: archetype.id, deckId: deck.id, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('variant-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
                                                     <button type="button" class="btn btn-sm btn-outline-danger inline-confirm-trigger" title="{{ 'app.deck.version.delete'|trans }}">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
@@ -111,7 +112,7 @@
 
                 <div
                     data-version-compare
-                    data-short-tag="{{ deck.shortTag }}"
+                    data-compare-url="{{ path('app_admin_archetype_variant_version_compare', {id: archetype.id, deckId: deck.id}) }}"
                     data-versions="{{ versionData|json_encode }}"
                     data-label-from="{{ 'app.deck.version_compare.from_version'|trans }}"
                     data-label-to="{{ 'app.deck.version_compare.to_version'|trans }}"
@@ -147,8 +148,6 @@
     <script>
         /**
          * Inline confirmation toggle for destructive actions.
-         * Clicking the trigger hides it and reveals Yes/Cancel buttons.
-         * Cancel or timeout (5 s) resets to the initial state.
          *
          * @see docs/features.md F2.9 — Deck version history
          */

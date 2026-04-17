@@ -916,6 +916,26 @@
                 <target>The current version cannot be deleted.</target>
                 <note>Flash message when trying to delete the current version</note>
             </trans-unit>
+            <trans-unit id="app.deck.version.restore">
+                <source>app.deck.version.restore</source>
+                <target>Restore this version</target>
+                <note>Button tooltip to restore a previous version as active (#412)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restore_confirm">
+                <source>app.deck.version.restore_confirm</source>
+                <target>Restore version %version% as the active version?</target>
+                <note>Confirm dialog for version restoration (#412)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restored">
+                <source>app.deck.version.restored</source>
+                <target>Version restored successfully.</target>
+                <note>Flash message after version restoration (#412)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version.already_current">
+                <source>app.deck.version.already_current</source>
+                <target>This version is already active.</target>
+                <note>Flash message when trying to restore the already-active version (#412)</note>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>This deck has no version history yet.</target>
@@ -970,6 +990,11 @@
                 <source>app.deck.version_compare.change</source>
                 <target>Change</target>
                 <note>Table header for change type column in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.swap">
+                <source>app.deck.version_compare.swap</source>
+                <target>Swap versions</target>
+                <note>Tooltip for swap button between version selectors (#428)</note>
             </trans-unit>
 
             <!-- Event list, detail, and forms -->
@@ -3709,6 +3734,56 @@
                 <source>app.archetype.variant.copy_card_tag</source>
                 <target>Copy card reference</target>
                 <note>Tooltip for copy card reference button on card table rows (F2.25)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare">
+                <source>app.archetype.variant.compare</source>
+                <target>Compare variants</target>
+                <note>Button label and breadcrumb for variant comparison page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_title">
+                <source>app.archetype.variant.compare_title</source>
+                <target>Compare: %variantA% vs %variantB%</target>
+                <note>Page title for variant comparison (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_from">
+                <source>app.archetype.variant.compare_from</source>
+                <target>First variant</target>
+                <note>Label for first variant selector on compare page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_to">
+                <source>app.archetype.variant.compare_to</source>
+                <target>Second variant</target>
+                <note>Label for second variant selector on compare page (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Swap variants</target>
+                <note>Tooltip for swap button between variant selectors on compare page (#428)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.only_in">
+                <source>app.archetype.variant.only_in</source>
+                <target>Only in %name%</target>
+                <note>Section heading for cards exclusive to one variant (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.different_quantities">
+                <source>app.archetype.variant.different_quantities</source>
+                <target>Different quantities</target>
+                <note>Section heading for cards with different counts (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.shared_cards">
+                <source>app.archetype.variant.shared_cards</source>
+                <target>Shared cards</target>
+                <note>Collapsible section for identical cards (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_identical">
+                <source>app.archetype.variant.compare_identical</source>
+                <target>These variants have identical card lists.</target>
+                <note>Message when no differences found (#413)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.no_version">
+                <source>app.archetype.variant.no_version</source>
+                <target>One or both variants have no deck list yet.</target>
+                <note>Warning when a variant lacks a current version (#413)</note>
             </trans-unit>
 
             <!-- Admin: User management -->

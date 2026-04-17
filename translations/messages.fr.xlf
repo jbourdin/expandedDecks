@@ -911,6 +911,22 @@
                 <source>app.deck.version.cannot_delete_current</source>
                 <target>La version actuelle ne peut pas être supprimée.</target>
             </trans-unit>
+            <trans-unit id="app.deck.version.restore">
+                <source>app.deck.version.restore</source>
+                <target>Restaurer cette version</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restore_confirm">
+                <source>app.deck.version.restore_confirm</source>
+                <target>Restaurer la version %version% comme version active ?</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.restored">
+                <source>app.deck.version.restored</source>
+                <target>Version restaurée avec succès.</target>
+            </trans-unit>
+            <trans-unit id="app.deck.version.already_current">
+                <source>app.deck.version.already_current</source>
+                <target>Cette version est déjà active.</target>
+            </trans-unit>
             <trans-unit id="app.deck.version_history.no_versions">
                 <source>app.deck.version_history.no_versions</source>
                 <target>Ce deck n'a pas encore d'historique de versions.</target>
@@ -965,6 +981,10 @@
                 <source>app.deck.version_compare.change</source>
                 <target>Changement</target>
                 <note>Table header for change type column in version comparison</note>
+            </trans-unit>
+            <trans-unit id="app.deck.version_compare.swap">
+                <source>app.deck.version_compare.swap</source>
+                <target>Inverser les versions</target>
             </trans-unit>
 
             <!-- Event list, detail, and forms -->
@@ -3699,6 +3719,46 @@
                 <source>app.archetype.variant.copy_card_tag</source>
                 <target>Copier la référence carte</target>
                 <note>Tooltip for copy card reference button on card table rows (F2.25)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare">
+                <source>app.archetype.variant.compare</source>
+                <target>Comparer les variantes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_title">
+                <source>app.archetype.variant.compare_title</source>
+                <target>Comparaison : %variantA% vs %variantB%</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_from">
+                <source>app.archetype.variant.compare_from</source>
+                <target>Première variante</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_to">
+                <source>app.archetype.variant.compare_to</source>
+                <target>Deuxième variante</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Inverser les variantes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.only_in">
+                <source>app.archetype.variant.only_in</source>
+                <target>Uniquement dans %name%</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.different_quantities">
+                <source>app.archetype.variant.different_quantities</source>
+                <target>Quantités différentes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.shared_cards">
+                <source>app.archetype.variant.shared_cards</source>
+                <target>Cartes communes</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_identical">
+                <source>app.archetype.variant.compare_identical</source>
+                <target>Ces variantes ont des listes de cartes identiques.</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.no_version">
+                <source>app.archetype.variant.no_version</source>
+                <target>Une ou les deux variantes n'ont pas encore de liste.</target>
             </trans-unit>
 
             <!-- Admin: User management -->

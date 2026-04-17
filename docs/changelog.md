@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.9] — 2026-04-17
+
+Variant version history, public variant comparison page, and unified diff view with card image modals.
+
+### Features
+
+- **Variant version history** — admin-scoped version history at `/admin/archetypes/{id}/variants/{deckId}/versions` for archetype editors. Includes version list, compare, export, restore, and delete actions. Clock icon in variant list and edit form links to history. ([#412](https://github.com/jbourdin/expandedDecks/issues/412))
+- **Restore previous version** — new "Restore" action on both user deck and admin variant version history pages. Sets `Deck.currentVersion` pointer to a previous version (no new version created). Dispatches re-enrichment if needed. Available on user deck history as well. ([#412](https://github.com/jbourdin/expandedDecks/issues/412))
+- **Public variant comparison** — dedicated page at `/archetypes/{slug}/compare/{tagA}/{tagB}` showing a card-by-card diff between two archetype variants' current deck lists. Mantine Select pickers with sprites, swap button, and auto-swap on duplicate selection. Compare button added to archetype detail page variant selector. ([#413](https://github.com/jbourdin/expandedDecks/issues/413))
+- **Unified comparison view** — both version compare and variant compare now display a single sorted list ordered by card type and quantity instead of separate added/removed/changed/unchanged sections. Green rows for additions, red for removals, orange for quantity changes. Delta shown inline as a smaller annotation: `2 (-2)`. ([#428](https://github.com/jbourdin/expandedDecks/issues/428))
+- **Card identity merge** — variant comparison merges functionally identical cards with different printings (e.g. Boss's Orders from BRS vs PAL) via CardIdentity, using the canonical (lowest rarity) printing for display. ([#428](https://github.com/jbourdin/expandedDecks/issues/428))
+- **Card image modal in comparisons** — clicking a card name opens a full-screen modal with the card image, quantity, and delta annotation in the title (colored by status). Works in both React version compare and Twig variant compare pages. ([#428](https://github.com/jbourdin/expandedDecks/issues/428))
+
+### UX Improvements
+
+- **Inline confirmation** — replaced browser `confirm()` dialogs with inline toggle pattern (trigger → Yes/Cancel with 5-second auto-reset) on version history restore and delete buttons. ([#412](https://github.com/jbourdin/expandedDecks/issues/412))
+- **Swap buttons** — exchange arrows button between selectors on both version compare and variant compare, with auto-swap when selecting the same value as the other side.
+
+### Infrastructure
+
+- **Coverage memory limit** — bumped PHPUnit memory limit from 768M to 1536M in both `phpunit.xml.dist` and CI workflow to accommodate growing test suite.
+
+### Testing & Quality
+
+- **25 new functional tests** covering admin variant version history (access control, CRUD, compare, edge cases), user deck version restore, and public variant comparison page.
+
+---
+
 ## [1.7.8] — 2026-04-17
 
 Archetype variant deep-linking, extended reference tags, and editor copy helpers.

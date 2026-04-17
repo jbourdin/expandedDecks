@@ -7,9 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { Badge, Loader, NativeSelect, Table, Text, UnstyledButton } from '@mantine/core';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActionIcon, Loader, NativeSelect, Table, Text, Tooltip } from '@mantine/core';
+import { IconArrowsExchange } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
+import CardImageModal, { type FlatCard } from './CardImageModal';
 
 /**
  * @see docs/features.md F2.9 — Deck version history
@@ -32,11 +34,25 @@ interface CardDiff {
     imageUrl?: string | null;
 }
 
+interface UnifiedEntry {
+    cardName: string;
+    setCode: string;
+    cardNumber: string;
+    oldQuantity: number;
+    newQuantity: number;
+    delta: number;
+    status: 'added' | 'removed' | 'changed' | 'unchanged';
+    cardType: string;
+    trainerSubtype: string | null;
+    imageUrl?: string | null;
+}
+
 interface DiffResult {
     added: CardDiff[];
     removed: CardDiff[];
     changed: CardDiff[];
     unchanged: CardDiff[];
+    unified: UnifiedEntry[];
 }
 
 interface Labels {
@@ -52,10 +68,12 @@ interface Labels {
     set: string;
     qty: string;
     change: string;
+    swap: string;
 }
 
 interface DeckVersionCompareProps {
     shortTag: string;
+    compareUrl?: string;
     versions: VersionInfo[];
     labels: Labels;
 }
@@ -80,12 +98,13 @@ const CardName: React.FC<{ card: CardDiff; detail?: string }> = ({ card, detail 
     );
 };
 
-const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versions, labels }) => {
+const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compareUrl, versions, labels }) => {
     const [fromVersion, setFromVersion] = useState<number>(versions.length > 1 ? versions[1].versionNumber : versions[0].versionNumber);
     const [toVersion, setToVersion] = useState<number>(versions[0].versionNumber);
     const [diff, setDiff] = useState<DiffResult | null>(null);
     const [loading, setLoading] = useState(false);
-    const [showUnchanged, setShowUnchanged] = useState(false);
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [cardModalIndex, setCardModalIndex] = useState(0);
 
     const fetchDiff = useCallback(async () => {
         if (fromVersion === toVersion) {
@@ -96,7 +115,8 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
 
         setLoading(true);
         try {
-            const response = await fetch(`/api/deck/${shortTag}/versions/compare?from=${fromVersion}&to=${toVersion}`);
+            const baseUrl = compareUrl ?? `/api/deck/${shortTag}/versions/compare`;
+            const response = await fetch(`${baseUrl}?from=${fromVersion}&to=${toVersion}`);
             if (response.ok) {
                 const data = (await response.json()) as DiffResult;
                 setDiff(data);
@@ -104,7 +124,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
         } finally {
             setLoading(false);
         }
-    }, [shortTag, fromVersion, toVersion]);
+    }, [shortTag, compareUrl, fromVersion, toVersion]);
 
     useEffect(() => {
         void fetchDiff();
@@ -115,7 +135,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
         if (diff) {
             initCardHover();
         }
-    }, [diff, showUnchanged]);
+    }, [diff]);
 
     const versionOptions = versions.map((version) => ({
         value: String(version.versionNumber),
@@ -124,23 +144,78 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
 
     const hasChanges = diff !== null && (diff.added.length > 0 || diff.removed.length > 0 || diff.changed.length > 0);
 
+    const flatCards: FlatCard[] = useMemo(() => {
+        if (!diff?.unified) return [];
+
+        return diff.unified
+            .filter((entry) => entry.imageUrl)
+            .map((entry) => {
+                const deltaText = entry.delta > 0 ? `(+${entry.delta})`
+                    : entry.delta < 0 ? `(${entry.delta})`
+                        : '';
+
+                const detailColor = entry.status === 'added' ? 'green'
+                    : entry.status === 'removed' ? 'red'
+                        : entry.status === 'changed' ? 'yellow.7'
+                            : undefined;
+
+                return {
+                    cardName: entry.cardName,
+                    quantity: entry.newQuantity,
+                    imageUrl: entry.imageUrl as string,
+                    detail: deltaText,
+                    detailColor,
+                };
+            });
+    }, [diff]);
+
+    const handleCardClick = (entry: UnifiedEntry): void => {
+        const index = flatCards.findIndex((card) => card.cardName === entry.cardName && card.imageUrl === entry.imageUrl);
+        if (index >= 0) {
+            setCardModalIndex(index);
+            setCardModalOpen(true);
+        }
+    };
+
     return (
         <div>
-            <div className="row g-3 mb-3">
-                <div className="col-md-6">
+            <div className="row g-3 align-items-end mb-3">
+                <div className="col">
                     <NativeSelect
                         label={labels.from}
                         data={versionOptions}
                         value={String(fromVersion)}
-                        onChange={(event) => setFromVersion(Number(event.currentTarget.value))}
+                        onChange={(event) => {
+                            const value = Number(event.currentTarget.value);
+                            if (value === toVersion) {
+                                setToVersion(fromVersion);
+                            }
+                            setFromVersion(value);
+                        }}
                     />
                 </div>
-                <div className="col-md-6">
+                <div className="col-auto pb-1">
+                    <Tooltip label={labels.swap}>
+                        <ActionIcon variant="subtle" color="gray" size="lg" onClick={() => {
+                            setFromVersion(toVersion);
+                            setToVersion(fromVersion);
+                        }}>
+                            <IconArrowsExchange size={20} />
+                        </ActionIcon>
+                    </Tooltip>
+                </div>
+                <div className="col">
                     <NativeSelect
                         label={labels.to}
                         data={versionOptions}
                         value={String(toVersion)}
-                        onChange={(event) => setToVersion(Number(event.currentTarget.value))}
+                        onChange={(event) => {
+                            const value = Number(event.currentTarget.value);
+                            if (value === fromVersion) {
+                                setFromVersion(toVersion);
+                            }
+                            setToVersion(value);
+                        }}
                     />
                 </div>
             </div>
@@ -155,88 +230,69 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, versi
                 <Text c="dimmed" ta="center" py="md">{labels.noChanges}</Text>
             )}
 
-            {!loading && diff !== null && hasChanges && (
-                <Table striped highlightOnHover>
-                    <Table.Thead>
-                        <Table.Tr>
-                            <Table.Th>{labels.card}</Table.Th>
-                            <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
-                            <Table.Th style={{ width: 40 }}>#</Table.Th>
-                            <Table.Th style={{ width: 100 }}>{labels.qty}</Table.Th>
-                            <Table.Th style={{ width: 100 }}>{labels.change}</Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {diff.added.map((card) => (
-                            <Table.Tr key={`added-${card.setCode}-${card.cardNumber}`} bg="green.0">
-                                <Table.Td><CardName card={card} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>+{card.quantity}</Table.Td>
-                                <Table.Td><Badge color="green" variant="light">{labels.added}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                        {diff.removed.map((card) => (
-                            <Table.Tr key={`removed-${card.setCode}-${card.cardNumber}`} bg="red.0">
-                                <Table.Td><CardName card={card} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>-{card.quantity}</Table.Td>
-                                <Table.Td><Badge color="red" variant="light">{labels.removed}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                        {diff.changed.map((card) => (
-                            <Table.Tr key={`changed-${card.setCode}-${card.cardNumber}`} bg="yellow.0">
-                                <Table.Td><CardName card={card} detail={`${card.oldQuantity} → ${card.newQuantity}`} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>{card.oldQuantity} → {card.newQuantity}</Table.Td>
-                                <Table.Td><Badge color="yellow" variant="light">{labels.changed}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                    </Table.Tbody>
-                </Table>
-            )}
-
             {!loading && diff !== null && !hasChanges && (
                 <Text c="dimmed" ta="center" py="md">{labels.noChanges}</Text>
             )}
 
-            {!loading && diff !== null && diff.unchanged.length > 0 && (
-                <div className="mt-3">
-                    <UnstyledButton
-                        onClick={() => setShowUnchanged(!showUnchanged)}
-                        className="text-muted small"
-                    >
-                        {labels.showUnchanged} ({diff.unchanged.length})
-                    </UnstyledButton>
+            {!loading && diff !== null && hasChanges && diff.unified && (
+                <Table striped highlightOnHover>
+                    <Table.Thead>
+                        <Table.Tr>
+                            <Table.Th style={{ width: 80 }}>{labels.qty}</Table.Th>
+                            <Table.Th>{labels.card}</Table.Th>
+                            <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
+                            <Table.Th style={{ width: 40 }}>#</Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {diff.unified.map((entry) => {
+                            const rowColor = entry.status === 'added' ? 'green.1'
+                                : entry.status === 'removed' ? 'red.1'
+                                    : entry.status === 'changed' ? 'yellow.1'
+                                        : undefined;
 
-                    {showUnchanged && (
-                        <Table striped mt="sm">
-                            <Table.Thead>
-                                <Table.Tr>
-                                    <Table.Th>{labels.card}</Table.Th>
-                                    <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
-                                    <Table.Th style={{ width: 40 }}>#</Table.Th>
-                                    <Table.Th style={{ width: 100 }}>{labels.qty}</Table.Th>
-                                    <Table.Th style={{ width: 100 }}>{labels.change}</Table.Th>
+                            const deltaText = entry.delta > 0 ? `(+${entry.delta})`
+                                : entry.delta < 0 ? `(${entry.delta})`
+                                    : '';
+
+                            const deltaColor = entry.delta > 0 ? 'green.7' : entry.delta < 0 ? 'red.7' : undefined;
+
+                            return (
+                                <Table.Tr key={`${entry.status}-${entry.setCode}-${entry.cardNumber}`} bg={rowColor}>
+                                    <Table.Td>
+                                        <span style={{ fontWeight: 600 }}>{entry.newQuantity > 0 ? entry.newQuantity : '—'}</span>
+                                        {deltaText && <Text component="span" size="xs" c={deltaColor} ml={4}>{deltaText}</Text>}
+                                    </Table.Td>
+                                    <Table.Td>
+                                        {entry.imageUrl ? (
+                                            <span className="card-name-link" role="button" tabIndex={0} onClick={() => handleCardClick(entry)} onKeyDown={(event) => {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    handleCardClick(entry);
+                                                }
+                                            }}>
+                                                <CardName card={entry} />
+                                            </span>
+                                        ) : (
+                                            <CardName card={entry} />
+                                        )}
+                                    </Table.Td>
+                                    <Table.Td><code>{entry.setCode}</code></Table.Td>
+                                    <Table.Td>{entry.cardNumber}</Table.Td>
                                 </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                                {diff.unchanged.map((card) => (
-                                    <Table.Tr key={`unchanged-${card.setCode}-${card.cardNumber}`}>
-                                        <Table.Td><CardName card={card} /></Table.Td>
-                                        <Table.Td><code>{card.setCode}</code></Table.Td>
-                                        <Table.Td>{card.cardNumber}</Table.Td>
-                                        <Table.Td>{card.quantity}</Table.Td>
-                                        <Table.Td><Badge color="gray" variant="light">{labels.unchanged}</Badge></Table.Td>
-                                    </Table.Tr>
-                                ))}
-                            </Table.Tbody>
-                        </Table>
-                    )}
-                </div>
+                            );
+                        })}
+                    </Table.Tbody>
+                </Table>
             )}
+
+            <CardImageModal
+                opened={cardModalOpen}
+                cards={flatCards}
+                currentIndex={cardModalIndex}
+                onClose={() => setCardModalOpen(false)}
+                onNavigate={setCardModalIndex}
+            />
         </div>
     );
 };
