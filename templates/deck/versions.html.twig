@@ -58,18 +58,30 @@
                                             </a>
                                         {% endif %}
                                         {% if isOwner and not isCurrent %}
-                                            <form method="post" action="{{ path('app_deck_version_restore', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-version-restore-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ 'app.deck.version.restore'|trans }}" onclick="return confirm('{{ 'app.deck.version.restore_confirm'|trans({'%version%': version.versionNumber})|e('js') }}')">
-                                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                                </button>
-                                            </form>
-                                            <form method="post" action="{{ path('app_deck_version_delete', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('deck-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ 'app.deck.version.delete'|trans }}" onclick="return confirm('{{ 'app.deck.version.delete_confirm'|trans({'%version%': version.versionNumber})|e('js') }}')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
+                                            <span class="d-inline-flex align-items-center gap-1">
+                                                <form method="post" action="{{ path('app_deck_version_restore', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('deck-version-restore-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary inline-confirm-trigger" title="{{ 'app.deck.version.restore'|trans }}">
+                                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                                    </button>
+                                                    <span class="inline-confirm-actions d-none">
+                                                        <span class="small text-muted me-1">{{ 'app.deck.version.restore_confirm'|trans({'%version%': version.versionNumber}) }}</span>
+                                                        <button type="submit" class="btn btn-sm btn-primary">{{ 'app.common.yes'|trans }}</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                                                    </span>
+                                                </form>
+                                                <form method="post" action="{{ path('app_deck_version_delete', {short_tag: deck.shortTag, versionNumber: version.versionNumber}) }}" class="d-inline inline-confirm-form">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('deck-version-delete-' ~ deck.id ~ '-' ~ version.versionNumber) }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger inline-confirm-trigger" title="{{ 'app.deck.version.delete'|trans }}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    <span class="inline-confirm-actions d-none">
+                                                        <span class="small text-muted me-1">{{ 'app.deck.version.delete_confirm'|trans({'%version%': version.versionNumber}) }}</span>
+                                                        <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                                                    </span>
+                                                </form>
+                                            </span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -131,4 +143,36 @@
     {% if versions|length > 1 %}
         {{ encore_entry_script_tags('deck_version_compare') }}
     {% endif %}
+    <script>
+        /**
+         * Inline confirmation toggle for destructive actions.
+         * Clicking the trigger hides it and reveals Yes/Cancel buttons.
+         * Cancel or timeout (5 s) resets to the initial state.
+         *
+         * @see docs/features.md F2.9 — Deck version history
+         */
+        document.querySelectorAll('.inline-confirm-form').forEach((form) => {
+            const trigger = form.querySelector('.inline-confirm-trigger');
+            const actions = form.querySelector('.inline-confirm-actions');
+            const cancel = form.querySelector('.inline-confirm-cancel');
+
+            if (!trigger || !actions || !cancel) return;
+
+            let timeout;
+
+            const reset = () => {
+                trigger.classList.remove('d-none');
+                actions.classList.add('d-none');
+                clearTimeout(timeout);
+            };
+
+            trigger.addEventListener('click', () => {
+                trigger.classList.add('d-none');
+                actions.classList.remove('d-none');
+                timeout = setTimeout(reset, 5000);
+            });
+
+            cancel.addEventListener('click', reset);
+        });
+    </script>
 {% endblock %}
