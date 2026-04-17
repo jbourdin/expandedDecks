@@ -8,7 +8,8 @@
  */
 
 import React from 'react';
-import { Select } from '@mantine/core';
+import { ActionIcon, Select, Tooltip } from '@mantine/core';
+import { IconArrowsExchange } from '@tabler/icons-react';
 
 /**
  * Two variant selectors for the archetype variant comparison page.
@@ -32,6 +33,7 @@ interface VariantComparePickerProps {
     archetypeSlug: string;
     labelFrom: string;
     labelTo: string;
+    labelSwap: string;
     labelGroupCurrent: string;
     labelGroupOutdated: string;
 }
@@ -96,47 +98,71 @@ export default function VariantComparePicker({
     archetypeSlug,
     labelFrom,
     labelTo,
+    labelSwap,
     labelGroupCurrent,
     labelGroupOutdated,
 }: VariantComparePickerProps) {
     const data = buildSelectData(variants, labelGroupCurrent, labelGroupOutdated);
 
     const navigate = (tagA: string, tagB: string) => {
-        if (tagA && tagB && tagA !== tagB) {
+        if (tagA && tagB) {
             window.location.href = `/archetypes/${archetypeSlug}/compare/${tagA}/${tagB}`;
         }
+    };
+
+    const handleSelectA = (value: string | null) => {
+        if (!value) return;
+        // If user picks the same value as side B, swap
+        if (value === selectedTagB) {
+            navigate(value, selectedTagA);
+        } else {
+            navigate(value, selectedTagB);
+        }
+    };
+
+    const handleSelectB = (value: string | null) => {
+        if (!value) return;
+        // If user picks the same value as side A, swap
+        if (value === selectedTagA) {
+            navigate(selectedTagB, value);
+        } else {
+            navigate(selectedTagA, value);
+        }
+    };
+
+    const handleSwap = () => {
+        navigate(selectedTagB, selectedTagA);
     };
 
     const variantA = variants.find((variant) => variant.shortTag === selectedTagA);
     const variantB = variants.find((variant) => variant.shortTag === selectedTagB);
 
     return (
-        <div className="row g-3">
-            <div className="col-md-6">
+        <div className="row g-3 align-items-end">
+            <div className="col">
                 <label className="form-label fw-bold">{labelFrom}</label>
                 <Select
                     data={data}
                     value={selectedTagA}
-                    onChange={(value) => {
-                        if (value) {
-                            navigate(value, selectedTagB);
-                        }
-                    }}
+                    onChange={handleSelectA}
                     size="sm"
                     leftSection={<SpritePreview variant={variantA} />}
                     leftSectionWidth={variantA && variantA.sprites.length > 0 ? 22 * Math.min(variantA.sprites.length, 3) + 12 : undefined}
                 />
             </div>
-            <div className="col-md-6">
+            <div className="col-auto pb-1">
+                <Tooltip label={labelSwap}>
+                    <ActionIcon variant="subtle" color="gray" size="lg" onClick={handleSwap}>
+                        <IconArrowsExchange size={20} />
+                    </ActionIcon>
+                </Tooltip>
+            </div>
+            <div className="col">
                 <label className="form-label fw-bold">{labelTo}</label>
                 <Select
                     data={data}
                     value={selectedTagB}
-                    onChange={(value) => {
-                        if (value) {
-                            navigate(selectedTagA, value);
-                        }
-                    }}
+                    onChange={handleSelectB}
                     size="sm"
                     leftSection={<SpritePreview variant={variantB} />}
                     leftSectionWidth={variantB && variantB.sprites.length > 0 ? 22 * Math.min(variantB.sprites.length, 3) + 12 : undefined}

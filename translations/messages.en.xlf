@@ -3750,6 +3750,11 @@
                 <target>Second variant</target>
                 <note>Label for second variant selector on compare page (#413)</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Swap variants</target>
+                <note>Tooltip for swap button between variant selectors on compare page (#428)</note>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.only_in">
                 <source>app.archetype.variant.only_in</source>
                 <target>Only in %name%</target>

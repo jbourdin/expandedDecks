@@ -3732,6 +3732,10 @@
                 <source>app.archetype.variant.compare_to</source>
                 <target>Deuxième variante</target>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.compare_swap">
+                <source>app.archetype.variant.compare_swap</source>
+                <target>Inverser les variantes</target>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.only_in">
                 <source>app.archetype.variant.only_in</source>
                 <target>Uniquement dans %name%</target>
