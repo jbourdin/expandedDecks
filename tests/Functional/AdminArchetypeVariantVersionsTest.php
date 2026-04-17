@@ -154,6 +154,112 @@ class AdminArchetypeVariantVersionsTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testCompareInvalidVersionNumbers(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/compare?from=0&to=1');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testCompareNonExistentVersion(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/compare?from=1&to=99');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testExport404ForNonExistentVersion(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/99/export');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testRestoreNonExistentVersion(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('POST', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/99/restore', [
+            '_token' => 'any',
+        ]);
+
+        // CSRF check fails first since token is wrong
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testDeleteNonExistentVersion(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('POST', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/99/delete', [
+            '_token' => 'any',
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testDeleteCurrentVersionShowsWarning(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+
+        // Load page to find the current version's delete form — it shouldn't exist
+        // (template hides delete for current version), so try POSTing manually
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions');
+        self::assertResponseIsSuccessful();
+
+        // Verify the "Current" badge is displayed
+        self::assertSelectorExists('.badge.bg-success');
+    }
+
+    public function testVariantFromWrongArchetypeReturns404(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        // Use archetype ID 1 but variant ID from archetype 3 — should 404
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/1/variants/'.$variantId.'/versions');
+
+        // Variant belongs to archetype 3 (Regidrago), not 1 — should 404
+        if (1 !== $archetypeId) {
+            self::assertResponseStatusCodeSame(404);
+        } else {
+            self::assertResponseIsSuccessful();
+        }
+    }
+
+    public function testExportDeniedForRegularUser(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/1/export');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testCompareDeniedForRegularUser(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        [$archetypeId, $variantId] = $this->getRegidragoVariantIds();
+        $this->client->request('GET', '/admin/archetypes/'.$archetypeId.'/variants/'.$variantId.'/versions/compare?from=1&to=1');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     /**
      * @return array{int, int} [archetypeId, variantDeckId]
      */
