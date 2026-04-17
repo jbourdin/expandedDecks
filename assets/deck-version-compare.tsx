@@ -26,6 +26,7 @@ interface VersionInfo {
 
 document.querySelectorAll<HTMLElement>('[data-version-compare]').forEach((root) => {
     const shortTag = root.dataset.shortTag ?? '';
+    const compareUrl = root.dataset.compareUrl;
     const versions = JSON.parse(root.dataset.versions ?? '[]') as VersionInfo[];
     const labels = {
         from: root.dataset.labelFrom ?? 'From version',
@@ -44,7 +45,7 @@ document.querySelectorAll<HTMLElement>('[data-version-compare]').forEach((root) 
 
     createRoot(root).render(
         <MantineProvider>
-            <DeckVersionCompare shortTag={shortTag} versions={versions} labels={labels} />
+            <DeckVersionCompare shortTag={shortTag} compareUrl={compareUrl} versions={versions} labels={labels} />
         </MantineProvider>,
     );
 });

@@ -29,8 +29,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
+ * Version history for user-owned decks (not archetype variants — see AdminArchetypeController).
+ *
  * @see docs/features.md F2.9 — Deck version history
- * @see docs/features.md F2.9 — Restore previous deck version (#412)
  */
 class DeckVersionHistoryController extends AbstractAppController
 {
@@ -43,10 +44,14 @@ class DeckVersionHistoryController extends AbstractAppController
 
         $versions = $versionRepository->findByDeckOrderedByVersion($deck);
 
+        /** @var User|null $user */
+        $user = $this->getUser();
+        $isOwner = null !== $user && null !== $deck->getOwner() && $deck->getOwner()->getId() === $user->getId();
+
         return $this->render('deck/versions.html.twig', [
             'deck' => $deck,
             'versions' => $versions,
-            'isOwner' => $this->canMutateDeck($deck),
+            'isOwner' => $isOwner,
         ]);
     }
 
@@ -193,45 +198,18 @@ class DeckVersionHistoryController extends AbstractAppController
         return $this->redirectToRoute('app_deck_versions', ['short_tag' => $deck->getShortTag()]);
     }
 
-    /**
-     * Check whether the current user can mutate the deck (owner for user decks, editor/admin for variants).
-     */
-    private function canMutateDeck(Deck $deck): bool
+    private function denyAccessUnlessOwner(Deck $deck): void
     {
         /** @var User|null $user */
         $user = $this->getUser();
 
-        if (null === $user) {
-            return false;
-        }
-
-        if ($deck->isArchetypeVariant()) {
-            return $this->isGranted('ROLE_ARCHETYPE_EDITOR') || $this->isGranted('ROLE_ADMIN');
-        }
-
-        $owner = $deck->getOwner();
-
-        return null !== $owner && $owner->getId() === $user->getId();
-    }
-
-    private function denyAccessUnlessOwner(Deck $deck): void
-    {
-        if (!$this->canMutateDeck($deck)) {
+        if (null === $user || null === $deck->getOwner() || $deck->getOwner()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
     }
 
     private function denyAccessUnlessCanViewDeck(Deck $deck): void
     {
-        // Variant decks are editorial content, accessible to editors and admins only.
-        if ($deck->isArchetypeVariant()) {
-            if ($this->isGranted('ROLE_ARCHETYPE_EDITOR') || $this->isGranted('ROLE_ADMIN')) {
-                return;
-            }
-
-            throw $this->createAccessDeniedException();
-        }
-
         if ($deck->isPublic()) {
             return;
         }

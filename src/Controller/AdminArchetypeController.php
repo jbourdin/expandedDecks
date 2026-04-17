@@ -27,10 +27,12 @@ use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Repository\DeckVersionRepository;
 use App\Service\DeckListParser;
+use App\Service\DeckVersionDiffer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -514,6 +516,157 @@ class AdminArchetypeController extends AbstractAppController
             'id' => $archetype->getId(),
             'deckId' => $copy->getId(),
         ]);
+    }
+
+    /**
+     * Version history for an archetype variant.
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/{id}/variants/{deckId}/versions', name: 'app_admin_archetype_variant_versions', methods: ['GET'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    public function variantVersions(
+        Archetype $archetype,
+        int $deckId,
+        DeckRepository $deckRepository,
+        DeckVersionRepository $versionRepository,
+    ): Response {
+        $variant = $this->findVariantOrThrow($deckRepository, $deckId, $archetype);
+
+        return $this->render('admin/archetype/variant_versions.html.twig', [
+            'archetype' => $archetype,
+            'deck' => $variant,
+            'versions' => $versionRepository->findByDeckOrderedByVersion($variant),
+        ]);
+    }
+
+    /**
+     * Compare two versions of a variant (JSON API for the React island).
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/{id}/variants/{deckId}/versions/compare', name: 'app_admin_archetype_variant_version_compare', methods: ['GET'], requirements: ['id' => '\d+', 'deckId' => '\d+'])]
+    public function variantVersionCompare(
+        Archetype $archetype,
+        int $deckId,
+        Request $request,
+        DeckRepository $deckRepository,
+        DeckVersionRepository $versionRepository,
+        DeckVersionDiffer $differ,
+    ): JsonResponse {
+        $variant = $this->findVariantOrThrow($deckRepository, $deckId, $archetype);
+
+        $fromNumber = $request->query->getInt('from');
+        $toNumber = $request->query->getInt('to');
+
+        if ($fromNumber < 1 || $toNumber < 1) {
+            throw $this->createNotFoundException('Invalid version numbers.');
+        }
+
+        $versions = $versionRepository->findByDeckOrderedByVersion($variant);
+        $fromVersion = null;
+        $toVersion = null;
+
+        foreach ($versions as $version) {
+            if ($version->getVersionNumber() === $fromNumber) {
+                $fromVersion = $version;
+            }
+            if ($version->getVersionNumber() === $toNumber) {
+                $toVersion = $version;
+            }
+        }
+
+        if (null === $fromVersion || null === $toVersion) {
+            throw $this->createNotFoundException('Version not found.');
+        }
+
+        return $this->json($differ->diff($fromVersion, $toVersion));
+    }
+
+    /**
+     * Export a variant version's raw deck list as a text file.
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/{id}/variants/{deckId}/versions/{versionNumber}/export', name: 'app_admin_archetype_variant_version_export', methods: ['GET'], requirements: ['id' => '\d+', 'deckId' => '\d+', 'versionNumber' => '\d+'])]
+    public function variantVersionExport(
+        Archetype $archetype,
+        int $deckId,
+        int $versionNumber,
+        DeckRepository $deckRepository,
+        DeckVersionRepository $versionRepository,
+    ): Response {
+        $variant = $this->findVariantOrThrow($deckRepository, $deckId, $archetype);
+
+        $version = $versionRepository->findOneByDeckAndVersion($variant, $versionNumber);
+
+        if (null === $version || null === $version->getRawList()) {
+            throw $this->createNotFoundException();
+        }
+
+        return new Response($version->getRawList(), 200, [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Content-Disposition' => \sprintf('attachment; filename="variant-%s-v%d.txt"', $variant->getShortTag(), $versionNumber),
+        ]);
+    }
+
+    /**
+     * Restore a previous version as the active variant version.
+     *
+     * @see docs/features.md F2.9 — Deck version history
+     */
+    #[Route('/{id}/variants/{deckId}/versions/{versionNumber}/restore', name: 'app_admin_archetype_variant_version_restore', methods: ['POST'], requirements: ['id' => '\d+', 'deckId' => '\d+', 'versionNumber' => '\d+'])]
+    public function variantVersionRestore(
+        Archetype $archetype,
+        int $deckId,
+        int $versionNumber,
+        Request $request,
+        DeckRepository $deckRepository,
+        DeckVersionRepository $versionRepository,
+        MessageBusInterface $messageBus,
+    ): RedirectResponse {
+        $variant = $this->findVariantOrThrow($deckRepository, $deckId, $archetype);
+
+        if (!$this->isCsrfTokenValid('variant-version-restore-'.$deckId.'-'.$versionNumber, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $version = $versionRepository->findOneByDeckAndVersion($variant, $versionNumber);
+
+        if (null === $version || null !== $version->getDeletedAt()) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($variant->getCurrentVersion()?->getId() === $version->getId()) {
+            $this->addFlash('warning', 'app.deck.version.already_current');
+
+            return $this->redirectToRoute('app_admin_archetype_variant_versions', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+        }
+
+        $variant->setCurrentVersion($version);
+        $this->em->flush();
+
+        if ('done' !== $version->getEnrichmentStatus()) {
+            /** @var int $versionId */
+            $versionId = $version->getId();
+            $messageBus->dispatch(new EnrichDeckVersionMessage($versionId));
+        }
+
+        $this->addFlash('success', 'app.deck.version.restored');
+
+        return $this->redirectToRoute('app_admin_archetype_variant_versions', ['id' => $archetype->getId(), 'deckId' => $deckId]);
+    }
+
+    /**
+     * Find a variant deck or throw 404.
+     */
+    private function findVariantOrThrow(DeckRepository $deckRepository, int $deckId, Archetype $archetype): Deck
+    {
+        $deck = $deckRepository->find($deckId);
+        if (!$deck instanceof Deck || !$deck->isArchetypeVariant() || $deck->getArchetype()?->getId() !== $archetype->getId()) {
+            throw $this->createNotFoundException();
+        }
+
+        return $deck;
     }
 
     /**
