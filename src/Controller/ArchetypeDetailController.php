@@ -79,10 +79,11 @@ class ArchetypeDetailController extends AbstractController
      * Build serializable variant data for the React variant selector.
      *
      * @see docs/features.md F18.16 — Archetype detail: variant selector
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
      *
      * @param list<Deck> $variants
      *
-     * @return list<array{id: int, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
+     * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
      */
     private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale): array
     {
@@ -153,6 +154,7 @@ class ArchetypeDetailController extends AbstractController
 
             $data[] = [
                 'id' => $variantId,
+                'shortTag' => $variant->getShortTag(),
                 'name' => $variant->getName(),
                 'canonical' => $variant->isCanonical(),
                 'outdated' => $variant->isOutdated(),

@@ -15,6 +15,7 @@ namespace App\Service;
 
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckCardRepository;
+use App\Repository\DeckRepository;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Twig\Runtime\ArchetypeSpriteRuntime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -25,11 +26,13 @@ use Symfony\Contracts\Cache\ItemInterface;
  * Renders archetype descriptions: Markdown → HTML with custom tag expansion.
  *
  * Supported custom tags:
- * - [[archetype:slug]]   → link to archetype detail page with sprites
- * - [[deck:SHORTTAG]]    → link to deck show page with short tag badge
- * - [[card:SET-NUMBER]]  → card name with hover image preview
+ * - [[archetype:slug]]            → link to archetype detail page with sprites
+ * - [[archetype:slug:shortTag]]  → link to archetype variant with variant sprites and name
+ * - [[deck:SHORTTAG]]            → link to deck show page with short tag badge
+ * - [[card:SET-NUMBER]]          → card name with hover image preview
  *
  * @see docs/features.md F2.10 — Archetype detail page
+ * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
  */
 class ArchetypeDescriptionRenderer
 {
@@ -37,6 +40,7 @@ class ArchetypeDescriptionRenderer
         private readonly MarkdownRenderer $markdownRenderer,
         private readonly ArchetypeRepository $archetypeRepository,
         private readonly DeckCardRepository $deckCardRepository,
+        private readonly DeckRepository $deckRepository,
         private readonly TcgdexApiClient $tcgdexApiClient,
         private readonly ArchetypeSpriteRuntime $spriteRuntime,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -73,27 +77,48 @@ class ArchetypeDescriptionRenderer
 
     /**
      * @see docs/features.md F9.6 — Archetype localization
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
      */
     private function expandArchetypeTags(string $html, string $locale): string
     {
         return (string) preg_replace_callback(
-            '/\[\[archetype:([a-z0-9-]+)\]\]/',
+            '/\[\[archetype:([a-z0-9-]+)(?::([A-HJ-NP-Z0-9]{6}))?\]\]/',
             function (array $matches) use ($locale): string {
                 $slug = $matches[1];
+                $variantShortTag = $matches[2] ?? null;
                 $archetype = $this->archetypeRepository->findOneBy(['slug' => $slug]);
 
                 if (null === $archetype) {
                     return htmlspecialchars($matches[0], \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
                 }
 
-                $sprites = $this->spriteRuntime->renderSprites($archetype);
-                $name = htmlspecialchars($archetype->getLocalizedName($locale), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                // Resolve variant-specific display when a shortTag is provided.
+                $variant = null;
+                if (null !== $variantShortTag) {
+                    $variant = $this->deckRepository->findOneBy(['shortTag' => $variantShortTag]);
+
+                    // Ignore the variant if it doesn't belong to this archetype.
+                    if (null !== $variant && $variant->getArchetype() !== $archetype) {
+                        $variant = null;
+                    }
+                }
+
+                if (null !== $variant) {
+                    $sprites = $this->spriteRuntime->renderDeckSprites($variant);
+                    $name = htmlspecialchars($variant->getName(), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                } else {
+                    $sprites = $this->spriteRuntime->renderSprites($archetype);
+                    $name = htmlspecialchars($archetype->getLocalizedName($locale), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                }
 
                 if (!$archetype->isPublished()) {
                     return \sprintf('%s %s', $sprites, $name);
                 }
 
                 $url = $this->urlGenerator->generate('app_archetype_show', ['slug' => $slug]);
+                if (null !== $variant && null !== $variantShortTag) {
+                    $url .= '#'.urlencode($variantShortTag);
+                }
 
                 return \sprintf('<a href="%s">%s %s</a>', htmlspecialchars($url, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8'), $sprites, $name);
             },

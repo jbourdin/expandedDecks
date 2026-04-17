@@ -16,6 +16,25 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.8] — 2026-04-17
+
+Archetype variant deep-linking, extended reference tags, and editor copy helpers.
+
+### Features
+
+- **Variant URL anchors** — archetype page URLs now accept a `#shortTag` hash that auto-selects the corresponding variant on load. Selecting a variant updates the URL hash via `history.replaceState`, making variant links shareable. Browser back/forward navigation is supported via `hashchange` listener. ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+- **Extended `[[archetype:slug:shortTag]]` tag** — the existing `[[archetype:slug]]` custom tag now supports an optional third segment with a variant's short tag. When present, the rendered link uses the variant's name and sprites instead of the archetype's, and points to `/archetypes/{slug}#shortTag`. Two-part tags remain unchanged (backward compatible). ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+- **Copy-tag button for editors** — users with `ROLE_ARCHETYPE_EDITOR` or `ROLE_ADMIN` see a copy icon on each variant that puts `[[archetype:slug:shortTag]]` in the clipboard. ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+- **Copy card reference in table view** — editors see a copy icon on each card row in the variant table view that copies `[[card:SET-NUMBER]]` to the clipboard for quick content referencing. ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+- **RTE paste detection** — pasting `[[archetype:...]]`, `[[card:...]]`, or `[[deck:...]]` tags as plain text in the Tiptap editor now auto-converts them to their respective custom nodes via `addPasteRules()`. ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+- **InsertReferenceButton multi-field input** — the archetype reference toolbar button now accepts `slug:SHORTTAG` format via a new `getAttributes` prop that parses the input into separate `slug` and `shortTag` attributes. ([F2.25](https://github.com/jbourdin/expandedDecks/issues/402))
+
+### Testing & Quality
+
+- **Variant tag expansion tests** — three new unit tests covering the `[[archetype:slug:shortTag]]` three-part tag: valid variant rendering, archetype-mismatch fallback, and unknown variant fallback.
+
+---
+
 ## [1.7.7] — 2026-04-17
 
 Variant selector grouped layout with dynamic overflow, and CI/test performance improvements.

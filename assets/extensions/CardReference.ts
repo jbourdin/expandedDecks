@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { mergeAttributes, Node } from '@tiptap/core';
+import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core';
 
 /**
  * @see docs/features.md F17.2 — Custom Tiptap extension for [[card:SET-NUM]] tags
@@ -64,6 +64,18 @@ const CardReference = Node.create({
             'span',
             mergeAttributes(HTMLAttributes, { class: 'card-reference-badge' }),
             HTMLAttributes['data-card-reference'] ?? '',
+        ];
+    },
+
+    addPasteRules() {
+        return [
+            nodePasteRule({
+                find: /\[\[card:([A-Za-z0-9-]+)\]\]/g,
+                type: this.type,
+                getAttributes: (match) => ({
+                    reference: match[1],
+                }),
+            }),
         ];
     },
 

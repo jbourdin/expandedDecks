@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconShare } from '@tabler/icons-react';
+import { IconCopy, IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
 import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
@@ -31,6 +31,7 @@ interface CardData {
 
 interface VariantData {
     id: number;
+    shortTag: string;
     name: string;
     canonical: boolean;
     outdated: boolean;
@@ -62,11 +63,16 @@ interface Labels {
     groupOutdated: string;
     shareMosaic: string;
     enrichmentPending: string;
+    copyTag: string;
+    copyTagCopied: string;
+    copyCardTag: string;
 }
 
 interface ArchetypeVariantSelectorProps {
     variants: VariantData[];
     labels: Labels;
+    archetypeSlug: string;
+    canCopyTag: boolean;
 }
 
 type ViewMode = 'table' | 'mosaic';
@@ -95,11 +101,12 @@ function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }
     );
 }
 
-function CardSection({ title, cards, labels, onCardClick }: {
+function CardSection({ title, cards, labels, onCardClick, canCopyTag }: {
     title: string;
     cards: CardData[];
     labels: Labels;
     onCardClick?: (card: CardData) => void;
+    canCopyTag: boolean;
 }) {
     return (
         <div className="mb-3">
@@ -111,6 +118,7 @@ function CardSection({ title, cards, labels, onCardClick }: {
                         <th>{labels.tableCard}</th>
                         <th style={{ width: '60px' }}>{labels.tableSet}</th>
                         <th style={{ width: '40px' }}>#</th>
+                        {canCopyTag && <th style={{ width: '32px' }} />}
                     </tr>
                 </thead>
                 <tbody>
@@ -133,6 +141,19 @@ function CardSection({ title, cards, labels, onCardClick }: {
                             </td>
                             <td><span className="badge bg-secondary">{card.setCode}</span></td>
                             <td>{card.cardNumber}</td>
+                            {canCopyTag && (
+                                <td>
+                                    <CopyButton value={`[[card:${card.setCode}-${card.cardNumber}]]`} timeout={2000}>
+                                        {({ copied, copy }) => (
+                                            <Tooltip label={copied ? labels.copyTagCopied : labels.copyCardTag} withArrow>
+                                                <ActionIcon variant="subtle" color={copied ? 'teal' : 'gray'} size="xs" onClick={copy}>
+                                                    <IconCopy size={14} />
+                                                </ActionIcon>
+                                            </Tooltip>
+                                        )}
+                                    </CopyButton>
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>
@@ -141,10 +162,11 @@ function CardSection({ title, cards, labels, onCardClick }: {
     );
 }
 
-function CardTable({ groupedCards, labels, onCardClick }: {
+function CardTable({ groupedCards, labels, onCardClick, canCopyTag }: {
     groupedCards: Record<string, CardData[]>;
     labels: Labels;
     onCardClick?: (card: CardData) => void;
+    canCopyTag: boolean;
 }) {
     const sections = Object.entries(groupedCards);
 
@@ -160,12 +182,12 @@ function CardTable({ groupedCards, labels, onCardClick }: {
         <div className="row">
             <div className="col-md-6">
                 {leftSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} canCopyTag={canCopyTag} />
                 ))}
             </div>
             <div className="col-md-6">
                 {rightSections.map(([type, cards]) => (
-                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} />
+                    <CardSection key={type} title={labels[SECTION_LABELS[type]] ?? type} cards={cards} labels={labels} onCardClick={onCardClick} canCopyTag={canCopyTag} />
                 ))}
             </div>
         </div>
@@ -447,14 +469,60 @@ function MobileSelector({ variants, selectedIndex, onSelect, labels }: {
     );
 }
 
-export default function ArchetypeVariantSelector({ variants, labels }: ArchetypeVariantSelectorProps) {
+/**
+ * Resolve the initial variant index from the URL hash, falling back to the canonical variant.
+ *
+ * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+ */
+function resolveInitialIndex(variants: VariantData[]): number {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+        const hashIndex = variants.findIndex((variant) => variant.shortTag === hash);
+        if (hashIndex >= 0) {
+            return hashIndex;
+        }
+    }
+
     const canonicalIndex = variants.findIndex((variant) => variant.canonical);
-    const [selectedIndex, setSelectedIndex] = useState(canonicalIndex >= 0 ? canonicalIndex : 0);
+
+    return canonicalIndex >= 0 ? canonicalIndex : 0;
+}
+
+export default function ArchetypeVariantSelector({ variants, labels, archetypeSlug, canCopyTag }: ArchetypeVariantSelectorProps) {
+    const [selectedIndex, setSelectedIndex] = useState(() => resolveInitialIndex(variants));
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
     const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const [cardModalOpen, setCardModalOpen] = useState(false);
     const [cardModalIndex, setCardModalIndex] = useState(0);
+
+    /**
+     * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+     */
+    const handleSelectVariant = useCallback((index: number) => {
+        setSelectedIndex(index);
+        const shortTag = variants[index]?.shortTag;
+        if (shortTag) {
+            history.replaceState(null, '', `#${shortTag}`);
+        }
+    }, [variants]);
+
+    // Sync variant selection when the URL hash changes (browser back/forward).
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const hashIndex = variants.findIndex((variant) => variant.shortTag === hash);
+                if (hashIndex >= 0) {
+                    setSelectedIndex(hashIndex);
+                }
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, [variants]);
 
     const selectedVariant = variants[selectedIndex];
     const groupedCards = selectedVariant?.groupedCards;
@@ -532,9 +600,9 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
             {variants.length > 1 && (
                 <div className="mb-3">
                     {isMobile ? (
-                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} labels={labels} />
+                        <MobileSelector variants={variants} selectedIndex={selectedIndex} onSelect={handleSelectVariant} labels={labels} />
                     ) : (
-                        <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={setSelectedIndex} labels={labels} />
+                        <DesktopSelector variants={variants} selectedIndex={selectedIndex} onSelect={handleSelectVariant} labels={labels} />
                     )}
                 </div>
             )}
@@ -583,6 +651,17 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                                     )}
                                 </CopyButton>
                             )}
+                            {canCopyTag && selectedVariant.shortTag && (
+                                <CopyButton value={`[[archetype:${archetypeSlug}:${selectedVariant.shortTag}]]`} timeout={2000}>
+                                    {({ copied, copy }) => (
+                                        <Tooltip label={copied ? labels.copyTagCopied : labels.copyTag}>
+                                            <ActionIcon variant="subtle" color={copied ? 'teal' : 'gray'} size="lg" onClick={copy}>
+                                                <IconCopy size={18} />
+                                            </ActionIcon>
+                                        </Tooltip>
+                                    )}
+                                </CopyButton>
+                            )}
                             {selectedVariant.mosaicUrl && (
                                 <Tooltip label={labels.shareMosaic}>
                                     <ActionIcon variant="subtle" color="gray" size="lg" onClick={handleShareMosaic}>
@@ -603,7 +682,7 @@ export default function ArchetypeVariantSelector({ variants, labels }: Archetype
                     )}
 
                     {!selectedVariant.enrichmentPending && viewMode === 'table' && (
-                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} onCardClick={handleCardClick} />
+                        <CardTable groupedCards={selectedVariant.groupedCards} labels={labels} onCardClick={handleCardClick} canCopyTag={canCopyTag} />
                     )}
 
                     {!selectedVariant.enrichmentPending && viewMode === 'mosaic' && (
