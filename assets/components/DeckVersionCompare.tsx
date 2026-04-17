@@ -8,7 +8,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Badge, Loader, NativeSelect, Table, Text, UnstyledButton } from '@mantine/core';
+import { Loader, NativeSelect, Table, Text } from '@mantine/core';
 import { initCardHover } from '../shared/card-hover';
 
 /**
@@ -32,11 +32,25 @@ interface CardDiff {
     imageUrl?: string | null;
 }
 
+interface UnifiedEntry {
+    cardName: string;
+    setCode: string;
+    cardNumber: string;
+    oldQuantity: number;
+    newQuantity: number;
+    delta: number;
+    status: 'added' | 'removed' | 'changed' | 'unchanged';
+    cardType: string;
+    trainerSubtype: string | null;
+    imageUrl?: string | null;
+}
+
 interface DiffResult {
     added: CardDiff[];
     removed: CardDiff[];
     changed: CardDiff[];
     unchanged: CardDiff[];
+    unified: UnifiedEntry[];
 }
 
 interface Labels {
@@ -86,7 +100,6 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
     const [toVersion, setToVersion] = useState<number>(versions[0].versionNumber);
     const [diff, setDiff] = useState<DiffResult | null>(null);
     const [loading, setLoading] = useState(false);
-    const [showUnchanged, setShowUnchanged] = useState(false);
 
     const fetchDiff = useCallback(async () => {
         if (fromVersion === toVersion) {
@@ -117,7 +130,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
         if (diff) {
             initCardHover();
         }
-    }, [diff, showUnchanged]);
+    }, [diff]);
 
     const versionOptions = versions.map((version) => ({
         value: String(version.versionNumber),
@@ -157,87 +170,49 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
                 <Text c="dimmed" ta="center" py="md">{labels.noChanges}</Text>
             )}
 
-            {!loading && diff !== null && hasChanges && (
-                <Table striped highlightOnHover>
-                    <Table.Thead>
-                        <Table.Tr>
-                            <Table.Th>{labels.card}</Table.Th>
-                            <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
-                            <Table.Th style={{ width: 40 }}>#</Table.Th>
-                            <Table.Th style={{ width: 100 }}>{labels.qty}</Table.Th>
-                            <Table.Th style={{ width: 100 }}>{labels.change}</Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {diff.added.map((card) => (
-                            <Table.Tr key={`added-${card.setCode}-${card.cardNumber}`} bg="green.0">
-                                <Table.Td><CardName card={card} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>+{card.quantity}</Table.Td>
-                                <Table.Td><Badge color="green" variant="light">{labels.added}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                        {diff.removed.map((card) => (
-                            <Table.Tr key={`removed-${card.setCode}-${card.cardNumber}`} bg="red.0">
-                                <Table.Td><CardName card={card} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>-{card.quantity}</Table.Td>
-                                <Table.Td><Badge color="red" variant="light">{labels.removed}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                        {diff.changed.map((card) => (
-                            <Table.Tr key={`changed-${card.setCode}-${card.cardNumber}`} bg="yellow.0">
-                                <Table.Td><CardName card={card} detail={`${card.oldQuantity} → ${card.newQuantity}`} /></Table.Td>
-                                <Table.Td><code>{card.setCode}</code></Table.Td>
-                                <Table.Td>{card.cardNumber}</Table.Td>
-                                <Table.Td>{card.oldQuantity} → {card.newQuantity}</Table.Td>
-                                <Table.Td><Badge color="yellow" variant="light">{labels.changed}</Badge></Table.Td>
-                            </Table.Tr>
-                        ))}
-                    </Table.Tbody>
-                </Table>
-            )}
-
             {!loading && diff !== null && !hasChanges && (
                 <Text c="dimmed" ta="center" py="md">{labels.noChanges}</Text>
             )}
 
-            {!loading && diff !== null && diff.unchanged.length > 0 && (
-                <div className="mt-3">
-                    <UnstyledButton
-                        onClick={() => setShowUnchanged(!showUnchanged)}
-                        className="text-muted small"
-                    >
-                        {labels.showUnchanged} ({diff.unchanged.length})
-                    </UnstyledButton>
+            {!loading && diff !== null && hasChanges && diff.unified && (
+                <Table striped highlightOnHover>
+                    <Table.Thead>
+                        <Table.Tr>
+                            <Table.Th style={{ width: 50 }}>{labels.qty}</Table.Th>
+                            <Table.Th>{labels.card}</Table.Th>
+                            <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
+                            <Table.Th style={{ width: 40 }}>#</Table.Th>
+                            <Table.Th style={{ width: 60 }}></Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {diff.unified.map((entry) => {
+                            const rowColor = entry.status === 'added' ? 'green.0'
+                                : entry.status === 'removed' ? 'red.0'
+                                    : entry.delta > 0 ? 'green.0'
+                                        : entry.delta < 0 ? 'red.0'
+                                            : undefined;
 
-                    {showUnchanged && (
-                        <Table striped mt="sm">
-                            <Table.Thead>
-                                <Table.Tr>
-                                    <Table.Th>{labels.card}</Table.Th>
-                                    <Table.Th style={{ width: 56 }}>{labels.set}</Table.Th>
-                                    <Table.Th style={{ width: 40 }}>#</Table.Th>
-                                    <Table.Th style={{ width: 100 }}>{labels.qty}</Table.Th>
-                                    <Table.Th style={{ width: 100 }}>{labels.change}</Table.Th>
+                            const deltaText = entry.delta > 0 ? `+${entry.delta}`
+                                : entry.delta < 0 ? String(entry.delta)
+                                    : '';
+
+                            const deltaColor = entry.delta > 0 ? 'green' : entry.delta < 0 ? 'red' : undefined;
+
+                            return (
+                                <Table.Tr key={`${entry.status}-${entry.setCode}-${entry.cardNumber}`} bg={rowColor}>
+                                    <Table.Td fw={600}>{entry.newQuantity > 0 ? entry.newQuantity : '—'}</Table.Td>
+                                    <Table.Td><CardName card={entry} /></Table.Td>
+                                    <Table.Td><code>{entry.setCode}</code></Table.Td>
+                                    <Table.Td>{entry.cardNumber}</Table.Td>
+                                    <Table.Td ta="right">
+                                        {deltaText && <Text component="span" size="sm" fw={600} c={deltaColor}>{deltaText}</Text>}
+                                    </Table.Td>
                                 </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                                {diff.unchanged.map((card) => (
-                                    <Table.Tr key={`unchanged-${card.setCode}-${card.cardNumber}`}>
-                                        <Table.Td><CardName card={card} /></Table.Td>
-                                        <Table.Td><code>{card.setCode}</code></Table.Td>
-                                        <Table.Td>{card.cardNumber}</Table.Td>
-                                        <Table.Td>{card.quantity}</Table.Td>
-                                        <Table.Td><Badge color="gray" variant="light">{labels.unchanged}</Badge></Table.Td>
-                                    </Table.Tr>
-                                ))}
-                            </Table.Tbody>
-                        </Table>
-                    )}
-                </div>
+                            );
+                        })}
+                    </Table.Tbody>
+                </Table>
             )}
         </div>
     );

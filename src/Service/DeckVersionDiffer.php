@@ -21,14 +21,23 @@ use App\Entity\DeckVersion;
  */
 final class DeckVersionDiffer
 {
+    private const array TYPE_ORDER = ['pokemon' => 0, 'trainer' => 1, 'energy' => 2];
+    private const array SUBTYPE_ORDER = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
+
     /**
-     * Compare two deck versions and return categorized card changes.
+     * Compare two deck versions and return both categorized and unified card changes.
+     *
+     * The `unified` list merges all cards into a single sorted list ordered by
+     * card type (Pokemon → Trainer by subtype → Energy), then by new quantity
+     * descending, then by name ascending. Each entry includes a `status` field
+     * (added, removed, changed, unchanged) and a `delta` field (+N or -N).
      *
      * @return array{
-     *     added: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>,
-     *     removed: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>,
-     *     changed: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, cardType: string, imageUrl: string|null}>,
-     *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, imageUrl: string|null}>
+     *     added: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
+     *     removed: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
+     *     changed: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
+     *     unchanged: list<array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>,
+     *     unified: list<array{cardName: string, setCode: string, cardNumber: string, oldQuantity: int, newQuantity: int, delta: int, status: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>
      * }
      */
     public function diff(DeckVersion $oldVersion, DeckVersion $newVersion): array
@@ -40,58 +49,100 @@ final class DeckVersionDiffer
         $removed = [];
         $changed = [];
         $unchanged = [];
+        $unified = [];
 
         foreach ($newCards as $key => $card) {
+            $trainerSubtype = $card->getTrainerSubtype();
+
             if (!isset($oldCards[$key])) {
-                $added[] = [
-                    'cardName' => $card->getCardName(),
-                    'setCode' => $card->getSetCode(),
-                    'cardNumber' => $card->getCardNumber(),
-                    'quantity' => $card->getQuantity(),
-                    'cardType' => $card->getCardType(),
-                    'imageUrl' => $card->getImageUrl(),
-                ];
+                $entry = $this->buildCardEntry($card, $trainerSubtype);
+                $added[] = $entry;
+                $unified[] = $entry + ['oldQuantity' => 0, 'newQuantity' => $card->getQuantity(), 'delta' => $card->getQuantity(), 'status' => 'added'];
             } elseif ($oldCards[$key]->getQuantity() !== $card->getQuantity()) {
-                $changed[] = [
-                    'cardName' => $card->getCardName(),
-                    'setCode' => $card->getSetCode(),
-                    'cardNumber' => $card->getCardNumber(),
-                    'oldQuantity' => $oldCards[$key]->getQuantity(),
-                    'newQuantity' => $card->getQuantity(),
-                    'cardType' => $card->getCardType(),
-                    'imageUrl' => $card->getImageUrl(),
-                ];
+                $oldQuantity = $oldCards[$key]->getQuantity();
+                $newQuantity = $card->getQuantity();
+                $changedEntry = $this->buildCardEntry($card, $trainerSubtype);
+                $changedEntry['oldQuantity'] = $oldQuantity;
+                $changedEntry['newQuantity'] = $newQuantity;
+                unset($changedEntry['quantity']);
+                $changed[] = $changedEntry;
+                $unified[] = $this->buildCardEntry($card, $trainerSubtype) + ['oldQuantity' => $oldQuantity, 'newQuantity' => $newQuantity, 'delta' => $newQuantity - $oldQuantity, 'status' => 'changed'];
             } else {
-                $unchanged[] = [
-                    'cardName' => $card->getCardName(),
-                    'setCode' => $card->getSetCode(),
-                    'cardNumber' => $card->getCardNumber(),
-                    'quantity' => $card->getQuantity(),
-                    'cardType' => $card->getCardType(),
-                    'imageUrl' => $card->getImageUrl(),
-                ];
+                $entry = $this->buildCardEntry($card, $trainerSubtype);
+                $unchanged[] = $entry;
+                $unified[] = $entry + ['oldQuantity' => $card->getQuantity(), 'newQuantity' => $card->getQuantity(), 'delta' => 0, 'status' => 'unchanged'];
             }
         }
 
         foreach ($oldCards as $key => $card) {
             if (!isset($newCards[$key])) {
-                $removed[] = [
-                    'cardName' => $card->getCardName(),
-                    'setCode' => $card->getSetCode(),
-                    'cardNumber' => $card->getCardNumber(),
-                    'quantity' => $card->getQuantity(),
-                    'cardType' => $card->getCardType(),
-                    'imageUrl' => $card->getImageUrl(),
-                ];
+                $trainerSubtype = $card->getTrainerSubtype();
+                $entry = $this->buildCardEntry($card, $trainerSubtype);
+                $removed[] = $entry;
+                $unified[] = $entry + ['oldQuantity' => $card->getQuantity(), 'newQuantity' => 0, 'delta' => -$card->getQuantity(), 'status' => 'removed'];
             }
         }
+
+        usort($unified, $this->unifiedSortComparator(...));
 
         return [
             'added' => $added,
             'removed' => $removed,
             'changed' => $changed,
             'unchanged' => $unchanged,
+            'unified' => $unified,
         ];
+    }
+
+    /**
+     * @return array{cardName: string, setCode: string, cardNumber: string, quantity: int, cardType: string, trainerSubtype: string|null, imageUrl: string|null}
+     */
+    private function buildCardEntry(DeckCard $card, ?string $trainerSubtype): array
+    {
+        return [
+            'cardName' => $card->getCardName(),
+            'setCode' => $card->getSetCode(),
+            'cardNumber' => $card->getCardNumber(),
+            'quantity' => $card->getQuantity(),
+            'cardType' => $card->getCardType(),
+            'trainerSubtype' => $trainerSubtype,
+            'imageUrl' => $card->getImageUrl(),
+        ];
+    }
+
+    /**
+     * Sort unified diff entries by type (Pokemon → Trainer by subtype → Energy),
+     * then by new quantity descending, then by name ascending.
+     *
+     * @param array{cardType: string, trainerSubtype: string|null, newQuantity: int, cardName: string} $entryA
+     * @param array{cardType: string, trainerSubtype: string|null, newQuantity: int, cardName: string} $entryB
+     */
+    private function unifiedSortComparator(array $entryA, array $entryB): int
+    {
+        $typeA = self::TYPE_ORDER[strtolower($entryA['cardType'])] ?? 9;
+        $typeB = self::TYPE_ORDER[strtolower($entryB['cardType'])] ?? 9;
+
+        if ($typeA !== $typeB) {
+            return $typeA <=> $typeB;
+        }
+
+        // Within trainers, sort by subtype
+        if ('trainer' === strtolower($entryA['cardType'])) {
+            $subtypeA = self::SUBTYPE_ORDER[strtolower((string) $entryA['trainerSubtype'])] ?? 9;
+            $subtypeB = self::SUBTYPE_ORDER[strtolower((string) $entryB['trainerSubtype'])] ?? 9;
+
+            if ($subtypeA !== $subtypeB) {
+                return $subtypeA <=> $subtypeB;
+            }
+        }
+
+        // Then by new quantity descending
+        if ($entryA['newQuantity'] !== $entryB['newQuantity']) {
+            return $entryB['newQuantity'] <=> $entryA['newQuantity'];
+        }
+
+        // Then by name ascending
+        return strcmp($entryA['cardName'], $entryB['cardName']);
     }
 
     /**

@@ -50,139 +50,47 @@
                         {{ 'app.archetype.variant.compare_identical'|trans }}
                     </div>
                 {% else %}
-                    {# Only in variant A (removed from B's perspective) #}
-                    {% if diff.removed|length > 0 %}
-                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
-                            {{ 'app.archetype.variant.only_in'|trans({'%name%': variantA.name}) }}
-                        </h6>
-                        <table class="table table-sm mb-3">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'app.deck.table_card'|trans }}</th>
-                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
-                                    <th style="width: 40px">#</th>
-                                    <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px">{{ 'app.deck.table_qty'|trans }}</th>
+                                <th>{{ 'app.deck.table_card'|trans }}</th>
+                                <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
+                                <th style="width: 40px">#</th>
+                                <th style="width: 60px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in diff.unified %}
+                                {% if entry.status == 'added' or entry.delta > 0 %}
+                                    {% set rowClass = 'table-success' %}
+                                {% elseif entry.status == 'removed' or entry.delta < 0 %}
+                                    {% set rowClass = 'table-danger' %}
+                                {% else %}
+                                    {% set rowClass = '' %}
+                                {% endif %}
+                                <tr class="{{ rowClass }}">
+                                    <td class="fw-bold">{{ entry.newQuantity > 0 ? entry.newQuantity : '—' }}</td>
+                                    <td>
+                                        {% if entry.imageUrl %}
+                                            <span class="card-hover">{{ entry.cardName }}<img class="card-hover-img" src="{{ entry.imageUrl }}" alt="{{ entry.cardName }}"></span>
+                                        {% else %}
+                                            {{ entry.cardName }}
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ entry.setCode }}</span></td>
+                                    <td>{{ entry.cardNumber }}</td>
+                                    <td class="text-end">
+                                        {% if entry.delta > 0 %}
+                                            <span class="fw-bold text-success">+{{ entry.delta }}</span>
+                                        {% elseif entry.delta < 0 %}
+                                            <span class="fw-bold text-danger">{{ entry.delta }}</span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {% for card in diff.removed %}
-                                    <tr class="table-success">
-                                        <td>
-                                            {% if card.imageUrl %}
-                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
-                                            {% else %}
-                                                {{ card.cardName }}
-                                            {% endif %}
-                                        </td>
-                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
-                                        <td>{{ card.cardNumber }}</td>
-                                        <td>{{ card.quantity }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-
-                    {# Only in variant B #}
-                    {% if diff.added|length > 0 %}
-                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
-                            {{ 'app.archetype.variant.only_in'|trans({'%name%': variantB.name}) }}
-                        </h6>
-                        <table class="table table-sm mb-3">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'app.deck.table_card'|trans }}</th>
-                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
-                                    <th style="width: 40px">#</th>
-                                    <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for card in diff.added %}
-                                    <tr class="table-danger">
-                                        <td>
-                                            {% if card.imageUrl %}
-                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
-                                            {% else %}
-                                                {{ card.cardName }}
-                                            {% endif %}
-                                        </td>
-                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
-                                        <td>{{ card.cardNumber }}</td>
-                                        <td>{{ card.quantity }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-
-                    {# Different quantities #}
-                    {% if diff.changed|length > 0 %}
-                        <h6 class="text-muted text-uppercase small fw-bold mt-2">
-                            {{ 'app.archetype.variant.different_quantities'|trans }}
-                        </h6>
-                        <table class="table table-sm mb-3">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'app.deck.table_card'|trans }}</th>
-                                    <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
-                                    <th style="width: 40px">#</th>
-                                    <th style="width: 80px">{{ 'app.deck.table_qty'|trans }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for card in diff.changed %}
-                                    <tr class="table-warning">
-                                        <td>
-                                            {% if card.imageUrl %}
-                                                <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
-                                            {% else %}
-                                                {{ card.cardName }}
-                                            {% endif %}
-                                        </td>
-                                        <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
-                                        <td>{{ card.cardNumber }}</td>
-                                        <td>{{ card.oldQuantity }} → {{ card.newQuantity }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-
-                    {# Shared cards (collapsible) #}
-                    {% if diff.unchanged|length > 0 %}
-                        <button class="btn btn-sm btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#shared-cards" aria-expanded="false" aria-controls="shared-cards">
-                            {{ 'app.archetype.variant.shared_cards'|trans }} ({{ diff.unchanged|length }})
-                        </button>
-                        <div class="collapse" id="shared-cards">
-                            <table class="table table-sm mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>{{ 'app.deck.table_card'|trans }}</th>
-                                        <th style="width: 60px">{{ 'app.deck.table_set'|trans }}</th>
-                                        <th style="width: 40px">#</th>
-                                        <th style="width: 40px">{{ 'app.deck.table_qty'|trans }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for card in diff.unchanged %}
-                                        <tr>
-                                            <td>
-                                                {% if card.imageUrl %}
-                                                    <span class="card-hover">{{ card.cardName }}<img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}"></span>
-                                                {% else %}
-                                                    {{ card.cardName }}
-                                                {% endif %}
-                                            </td>
-                                            <td><span class="badge bg-secondary">{{ card.setCode }}</span></td>
-                                            <td>{{ card.cardNumber }}</td>
-                                            <td>{{ card.quantity }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 {% endif %}
             {% endif %}
         </div>
