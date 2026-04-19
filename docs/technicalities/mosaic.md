@@ -16,9 +16,9 @@ The mosaic is a **server-generated composite image** of a deck's card list, foll
 
 ## Layout
 
-- **Grid:** fixed-width, 8–9 cards per row
+- **Grid:** fixed-width, 8 cards per row
 - **Card order:** Pokemon → Trainer → Energy (no section headers, continuous flow); within each type: quantity descending, then name ascending
-- **Background:** site background (`#f5f5f7` with tiled `bg_fairy_quincunx.png` texture, 96×80px repeat)
+- **Background:** transparent (PNG alpha channel)
 - **Quantity badge:** red hexagonal badge centered at the bottom of each tile, white text
 - **Placeholder:** cards without an `imageUrl` render as a grey tile with the card name
 
@@ -58,7 +58,7 @@ A `MosaicRedispatchService` finds deck versions that are fully enriched but have
 - **Input:** ordered list of `DeckCard` entities with `imageUrl` and `quantity`
 - **Process:**
   1. Download card images from TCGdex (webp format, `/high.webp` URLs)
-  2. Create canvas with tiled background texture
+  2. Create canvas with transparent background
   3. Place card images in grid cells
   4. Overlay quantity badges (red hexagon, white text, centered bottom)
   5. Export as PNG or WebP
