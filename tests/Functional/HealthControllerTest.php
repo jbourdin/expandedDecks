@@ -22,8 +22,10 @@ class HealthControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type', 'application/json');
 
-        $content = (string) $this->client->getResponse()->getContent();
-        self::assertStringContainsString('ok', $content);
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertSame('ok', $data['status']);
+        self::assertArrayHasKey('version', $data);
     }
 
     public function testReadinessProbeReturnsOk(): void
@@ -32,6 +34,10 @@ class HealthControllerTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type', 'application/json');
+
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('version', $data);
     }
 
     public function testHealthEndpointsAccessibleWithoutAuth(): void
