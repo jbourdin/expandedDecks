@@ -144,6 +144,15 @@ final class MosaicGeneratorTest extends TestCase
         self::assertTrue(str_starts_with($writtenData, "\x89PNG"));
     }
 
+    public function testGenerateFromTilesReturnsEmptyStringOnEmptyTiles(): void
+    {
+        $version = $this->createVersion(9, 9);
+
+        $result = $this->generator->generateFromTiles($version, []);
+
+        self::assertSame('', $result);
+    }
+
     public function testGenerateFromTilesUsesCardImageResolverWhenPrintingPresent(): void
     {
         $printing = new CardPrinting();
@@ -185,6 +194,30 @@ final class MosaicGeneratorTest extends TestCase
         $version = $this->createVersion(10, 20);
 
         $generator->generateFromTiles($version, [$tile], 'minified');
+    }
+
+    public function testGenerateFromTilesCentersIncompleteLastRow(): void
+    {
+        // 9 tiles = 8 in first row + 1 centered in second row (CARDS_PER_ROW = 8)
+        $tiles = [];
+
+        for ($i = 1; $i <= 9; ++$i) {
+            $tiles[] = new MosaicTile('Tile '.$i, $i, null, 'pokemon', null);
+        }
+
+        $writtenData = '';
+        $this->storage->method('write')->willReturnCallback(
+            static function (string $path, string $data) use (&$writtenData): void {
+                $writtenData = $data;
+            },
+        );
+
+        $version = $this->createVersion(12, 22);
+
+        $this->generator->generateFromTiles($version, $tiles, 'minified');
+
+        self::assertNotEmpty($writtenData);
+        self::assertTrue(str_starts_with($writtenData, "\x89PNG"));
     }
 
     public function testGenerateFromTilesFallsBackToRawUrlWhenNoPrinting(): void
