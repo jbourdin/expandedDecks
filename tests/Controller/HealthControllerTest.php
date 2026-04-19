@@ -25,12 +25,15 @@ final class HealthControllerTest extends TestCase
 {
     public function testLivenessReturns200(): void
     {
-        $controller = new HealthController($this->createStub(Connection::class), new NullLogger());
+        $controller = new HealthController($this->createStub(Connection::class), new NullLogger(), 'test');
 
         $response = $controller->liveness();
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame('{"status":"ok"}', $response->getContent());
+
+        $data = json_decode((string) $response->getContent(), true);
+        self::assertSame('ok', $data['status']);
+        self::assertSame('test', $data['version']);
     }
 
     public function testReadinessReturns200WhenDatabaseIsReachable(): void
@@ -38,13 +41,14 @@ final class HealthControllerTest extends TestCase
         $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willReturn($this->createStub(\Doctrine\DBAL\Result::class));
 
-        $controller = new HealthController($connection, new NullLogger());
+        $controller = new HealthController($connection, new NullLogger(), 'test');
         $response = $controller->readiness();
 
         self::assertSame(200, $response->getStatusCode());
 
         $data = json_decode((string) $response->getContent(), true);
         self::assertSame('healthy', $data['status']);
+        self::assertSame('test', $data['version']);
         self::assertSame('ok', $data['checks']['database']['status']);
         self::assertArrayHasKey('latency_ms', $data['checks']['database']);
     }
@@ -54,13 +58,14 @@ final class HealthControllerTest extends TestCase
         $connection = $this->createStub(Connection::class);
         $connection->method('executeQuery')->willThrowException(new \RuntimeException('Connection refused'));
 
-        $controller = new HealthController($connection, new NullLogger());
+        $controller = new HealthController($connection, new NullLogger(), 'test');
         $response = $controller->readiness();
 
         self::assertSame(503, $response->getStatusCode());
 
         $data = json_decode((string) $response->getContent(), true);
         self::assertSame('unhealthy', $data['status']);
+        self::assertSame('test', $data['version']);
         self::assertSame('fail', $data['checks']['database']['status']);
         self::assertSame('Connection refused', $data['checks']['database']['error']);
     }
