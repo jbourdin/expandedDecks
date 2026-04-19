@@ -68,7 +68,6 @@ services:
     App\Service\Mosaic\MosaicGenerator:
         arguments:
             $mosaicStorage: '@mosaic.storage'
-            $projectDir: '%kernel.project_dir%'
 
     App\Controller\MosaicController:
         arguments:

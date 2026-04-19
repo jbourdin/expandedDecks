@@ -36,15 +36,10 @@ class MosaicGenerator
     private const int SHADOW_OFFSET_X = 3;
     private const int SHADOW_OFFSET_Y = 3;
 
-    /** Background tile dimensions matching app.scss (96px x 80px). */
-    private const int TILE_WIDTH = 96;
-    private const int TILE_HEIGHT = 80;
-
     public function __construct(
         private readonly FilesystemOperator $mosaicStorage,
         private readonly LoggerInterface $logger,
         private readonly CardImageResolver $cardImageResolver,
-        private readonly string $projectDir,
     ) {
     }
 
@@ -207,31 +202,8 @@ class MosaicGenerator
         $offsetX = (int) (($canvasWidth - $lastRowWidth) / 2);
         $lastRowY = self::PADDING + ($rows - 1) * (self::CARD_HEIGHT + self::PADDING);
 
-        $backgroundColor = imagecolorallocate($canvas, 0xF5, 0xF5, 0xF7);
-
-        if (false !== $backgroundColor) {
-            imagefilledrectangle($canvas, 0, $lastRowY, $canvasWidth - 1, $lastRowY + self::CARD_HEIGHT + self::PADDING - 1, $backgroundColor);
-        }
-
-        $tilePath = $this->projectDir.'/assets/images/bg_fairy_quincunx.png';
-
-        if (file_exists($tilePath)) {
-            $bgTile = imagecreatefrompng($tilePath);
-
-            if (false !== $bgTile) {
-                for ($tileY = $lastRowY; $tileY < $lastRowY + self::CARD_HEIGHT + self::PADDING; $tileY += self::TILE_HEIGHT) {
-                    for ($tileX = 0; $tileX < $canvasWidth; $tileX += self::TILE_WIDTH) {
-                        $copyWidth = min(self::TILE_WIDTH, $canvasWidth - $tileX);
-                        $copyHeight = min(self::TILE_HEIGHT, $lastRowY + self::CARD_HEIGHT + self::PADDING - $tileY);
-
-                        if ($copyHeight > 0 && $copyWidth > 0) {
-                            $sourceTileY = $tileY % self::TILE_HEIGHT;
-                            imagecopy($canvas, $bgTile, $tileX, $tileY, $tileX % self::TILE_WIDTH, $sourceTileY, $copyWidth, min($copyHeight, self::TILE_HEIGHT - $sourceTileY));
-                        }
-                    }
-                }
-            }
-        }
+        // Clear last row area to transparent before redrawing centered
+        $this->clearRegionToTransparent($canvas, 0, $lastRowY, $canvasWidth - 1, $lastRowY + self::CARD_HEIGHT + self::PADDING - 1);
 
         $lastRowStartIndex = (int) (($rows - 1) * self::CARDS_PER_ROW);
 
@@ -284,9 +256,8 @@ class MosaicGenerator
     }
 
     /**
-     * Create the canvas with the site background texture tiled.
-     */
-    /**
+     * Create the canvas with a transparent background.
+     *
      * @param int<1, max> $width
      * @param int<1, max> $height
      */
@@ -298,31 +269,17 @@ class MosaicGenerator
             throw new \RuntimeException('Failed to create GD canvas.');
         }
 
-        // Fill with site background color #f5f5f7
-        $backgroundColor = imagecolorallocate($canvas, 0xF5, 0xF5, 0xF7);
+        imagesavealpha($canvas, true);
+        imagealphablending($canvas, false);
 
-        if (false === $backgroundColor) {
-            throw new \RuntimeException('Failed to allocate background color.');
+        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+
+        if (false === $transparent) {
+            throw new \RuntimeException('Failed to allocate transparent color.');
         }
 
-        imagefill($canvas, 0, 0, $backgroundColor);
-
-        // Tile the background texture
-        $tilePath = $this->projectDir.'/assets/images/bg_fairy_quincunx.png';
-
-        if (file_exists($tilePath)) {
-            $tile = imagecreatefrompng($tilePath);
-
-            if (false !== $tile) {
-                for ($tileY = 0; $tileY < $height; $tileY += self::TILE_HEIGHT) {
-                    for ($tileX = 0; $tileX < $width; $tileX += self::TILE_WIDTH) {
-                        $copyWidth = min(self::TILE_WIDTH, $width - $tileX);
-                        $copyHeight = min(self::TILE_HEIGHT, $height - $tileY);
-                        imagecopy($canvas, $tile, $tileX, $tileY, 0, 0, $copyWidth, $copyHeight);
-                    }
-                }
-            }
-        }
+        imagefill($canvas, 0, 0, $transparent);
+        imagealphablending($canvas, true);
 
         return $canvas;
     }
@@ -461,36 +418,9 @@ class MosaicGenerator
         $offsetX = (int) (($canvasWidth - $lastRowWidth) / 2);
         $lastRowY = self::PADDING + ($rows - 1) * (self::CARD_HEIGHT + self::PADDING);
 
-        // Clear last row area first (redraw background)
-        $backgroundColor = imagecolorallocate($canvas, 0xF5, 0xF5, 0xF7);
+        // Clear last row area to transparent before redrawing centered
+        $this->clearRegionToTransparent($canvas, 0, $lastRowY, $canvasWidth - 1, $lastRowY + self::CARD_HEIGHT + self::PADDING - 1);
 
-        if (false !== $backgroundColor) {
-            imagefilledrectangle($canvas, 0, $lastRowY, $canvasWidth - 1, $lastRowY + self::CARD_HEIGHT + self::PADDING - 1, $backgroundColor);
-        }
-
-        // Re-tile background for last row
-        $tilePath = $this->projectDir.'/assets/images/bg_fairy_quincunx.png';
-
-        if (file_exists($tilePath)) {
-            $tile = imagecreatefrompng($tilePath);
-
-            if (false !== $tile) {
-                for ($tileY = $lastRowY; $tileY < $lastRowY + self::CARD_HEIGHT + self::PADDING; $tileY += self::TILE_HEIGHT) {
-                    for ($tileX = 0; $tileX < $canvasWidth; $tileX += self::TILE_WIDTH) {
-                        $copyWidth = min(self::TILE_WIDTH, $canvasWidth - $tileX);
-                        $copyHeight = min(self::TILE_HEIGHT, $lastRowY + self::CARD_HEIGHT + self::PADDING - $tileY);
-
-                        if ($copyHeight > 0 && $copyWidth > 0) {
-                            // Use tile offset to maintain seamless pattern
-                            $sourceTileY = $tileY % self::TILE_HEIGHT;
-                            imagecopy($canvas, $tile, $tileX, $tileY, $tileX % self::TILE_WIDTH, $sourceTileY, $copyWidth, min($copyHeight, self::TILE_HEIGHT - $sourceTileY));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Redraw cards centered
         $lastRowStartIndex = (int) (($rows - 1) * self::CARDS_PER_ROW);
 
         for ($i = 0; $i < $columnsInLastRow; ++$i) {
@@ -498,6 +428,22 @@ class MosaicGenerator
             $x = $offsetX + $i * (self::CARD_WIDTH + self::PADDING);
             $this->drawCard($canvas, $card, $x, $lastRowY, $imageUrlOverrides);
         }
+    }
+
+    /**
+     * Clear a rectangular region to fully transparent by temporarily disabling alpha blending.
+     */
+    private function clearRegionToTransparent(\GdImage $canvas, int $x1, int $y1, int $x2, int $y2): void
+    {
+        imagealphablending($canvas, false);
+
+        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+
+        if (false !== $transparent) {
+            imagefilledrectangle($canvas, $x1, $y1, $x2, $y2, $transparent);
+        }
+
+        imagealphablending($canvas, true);
     }
 
     private function buildStoragePath(DeckVersion $version, string $variant = ''): string

@@ -40,7 +40,6 @@ final class MosaicGeneratorTest extends TestCase
             $this->storage,
             new NullLogger(),
             $this->createStub(CardImageResolver::class),
-            \dirname(__DIR__, 3), // project root
         );
     }
 
@@ -56,7 +55,7 @@ final class MosaicGeneratorTest extends TestCase
     public function testGenerateWritesPngToStorage(): void
     {
         $storage = $this->createMock(FilesystemOperator::class);
-        $generator = new MosaicGenerator($storage, new NullLogger(), $this->createStub(CardImageResolver::class), \dirname(__DIR__, 3));
+        $generator = new MosaicGenerator($storage, new NullLogger(), $this->createStub(CardImageResolver::class));
 
         $version = $this->createVersion(1, 1);
         $this->addCard($version, 'Pikachu', 'pokemon', null, 4);
@@ -181,7 +180,7 @@ final class MosaicGeneratorTest extends TestCase
             ->willReturn($fakePngData);
 
         $storage = $this->createStub(FilesystemOperator::class);
-        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver, \dirname(__DIR__, 3));
+        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver);
 
         $version = $this->createVersion(10, 20);
 
@@ -203,7 +202,7 @@ final class MosaicGeneratorTest extends TestCase
         $resolver->expects(self::never())->method('downloadImage');
 
         $storage = $this->createStub(FilesystemOperator::class);
-        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver, \dirname(__DIR__, 3));
+        $generator = new MosaicGenerator($storage, new NullLogger(), $resolver);
 
         $version = $this->createVersion(11, 21);
 
