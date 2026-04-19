@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.10] — 2026-04-19
+
+Mosaic grid widened to 8 cards per row with transparent PNG background.
+
+### Features
+
+- **8-column mosaic grid** — increased mosaic layout from 6 to 8 cards per row in both the server-side GD-rendered PNG and the client-side HTML grid. Mobile breakpoint updated from 3 to 4 columns. Aligns with the original documented layout specification. ([#431](https://github.com/jbourdin/expandedDecks/pull/431))
+- **Transparent mosaic background** — replaced the tiled `bg_fairy_quincunx.png` background with full PNG alpha transparency. Simplifies the GD rendering pipeline and removes the `$projectDir` dependency from `MosaicGenerator`. ([#431](https://github.com/jbourdin/expandedDecks/pull/431))
+
+### Testing & Quality
+
+- **2 new unit tests** covering `generateFromTiles()` empty input early return and incomplete last-row centering path for tile mosaics.
+
+---
+
 ## [1.7.9] — 2026-04-17
 
 Variant version history, public variant comparison page, and unified diff view with card image modals.
