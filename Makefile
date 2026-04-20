@@ -173,3 +173,18 @@ stylelint: ## Lint SCSS and CSS files
 .PHONY: stylelint-fix
 stylelint-fix: ## Fix SCSS and CSS style issues
 	npx stylelint "assets/**/*.scss" --fix
+
+## —— Security —————————————————————————————————————————————————————————
+
+.PHONY: audit
+audit: ## Run dependency vulnerability audit (PHP + JS)
+	symfony composer audit
+	npm audit
+
+.PHONY: audit.php
+audit.php: ## Run PHP dependency vulnerability audit
+	symfony composer audit
+
+.PHONY: audit.js
+audit.js: ## Run JS dependency vulnerability audit
+	npm audit

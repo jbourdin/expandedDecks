@@ -66,7 +66,7 @@
         "bump-after-update": true,
         "sort-packages": true,
         "audit": {
-            "block-insecure": false
+            "block-insecure": true
         }
     },
     "autoload": {
