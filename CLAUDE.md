@@ -195,6 +195,7 @@ make phpstan       # Static analysis
 make lint-i18n     # Validate translation files (syntax + content)
 make lint-yaml     # Validate YAML configuration files
 make lint-container # Validate Symfony DI container
+make audit         # Dependency vulnerability audit (PHP + JS)
 make test          # Run test suite
 ```
 
@@ -278,6 +279,9 @@ When creating new features or backlog items, create a GitHub issue with the feat
 | `make lint-i18n`       | Validate translation files (syntax + content)    | Before every commit (translation changes)|
 | `make lint-yaml`       | Validate YAML configuration files                | Before every commit (config changes)     |
 | `make lint-container`  | Validate Symfony DI container                    | Before every commit                      |
+| `make audit`           | Run dependency vulnerability audit (PHP + JS)    | Before every commit                      |
+| `make audit.php`       | Run PHP dependency vulnerability audit            | When checking PHP deps only              |
+| `make audit.js`        | Run JS dependency vulnerability audit             | When checking JS deps only               |
 
 ### Messenger Workers
 
@@ -365,6 +369,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/standards/documentation.md](docs/standards/documentation.md) — Documentation standards
 - [docs/standards/file_headers.md](docs/standards/file_headers.md) — Copyright & license headers
 - [docs/standards/release_process.md](docs/standards/release_process.md) — Release checklist
+- [docs/standards/security.md](docs/standards/security.md) — Dependency vulnerability scanning, Dependabot, CI audit
 
 **Frontend**
 - [docs/frontend.md](docs/frontend.md) — Frontend architecture (Twig+Bootstrap layout, Mantine for React islands)

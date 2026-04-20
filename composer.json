@@ -15,7 +15,7 @@
         "dompdf/dompdf": "^3.1",
         "endroid/qr-code": "^6.1",
         "friendlycaptcha/sdk": "^0.2.0",
-        "league/commonmark": "^2.8",
+        "league/commonmark": "^2.8.2",
         "league/flysystem": "^3.32",
         "league/flysystem-aws-s3-v3": "^3.32",
         "phpdocumentor/reflection-docblock": "^6.0.2",
@@ -66,7 +66,7 @@
         "bump-after-update": true,
         "sort-packages": true,
         "audit": {
-            "block-insecure": false
+            "block-insecure": true
         }
     },
     "autoload": {

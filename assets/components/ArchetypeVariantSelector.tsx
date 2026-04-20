@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconArrowsExchange, IconCopy, IconShare } from '@tabler/icons-react';
+import { IconArrowsExchange, IconCheck, IconCopy, IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
 import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
@@ -496,6 +496,8 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
     const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
     const [cardModalOpen, setCardModalOpen] = useState(false);
     const [cardModalIndex, setCardModalIndex] = useState(0);
+    const [mosaicCopied, setMosaicCopied] = useState(false);
+    const mosaicCopyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /**
      * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
@@ -555,29 +557,15 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
         const mosaicUrl = selectedVariant?.mosaicUrl;
         if (!mosaicUrl) return;
 
-        if (navigator.share) {
-            try {
-                const response = await fetch(mosaicUrl);
-                const blob = await response.blob();
-                const file = new File([blob], 'deck-mosaic.png', { type: 'image/png' });
-                await navigator.share({ files: [file] });
+        await navigator.clipboard.writeText(window.location.origin + mosaicUrl);
+        setMosaicCopied(true);
 
-                return;
-            } catch {
-                // Share cancelled or not supported with files
-            }
-
-            try {
-                await navigator.share({ title: labels.mosaicAlt, url: mosaicUrl });
-
-                return;
-            } catch {
-                // Share cancelled — fall back to clipboard
-            }
+        if (mosaicCopyTimeout.current) {
+            clearTimeout(mosaicCopyTimeout.current);
         }
 
-        await navigator.clipboard.writeText(window.location.origin + mosaicUrl);
-    }, [selectedVariant?.mosaicUrl, labels.mosaicAlt]);
+        mosaicCopyTimeout.current = setTimeout(() => setMosaicCopied(false), 2000);
+    }, [selectedVariant?.mosaicUrl]);
 
     // Re-initialize card hover after every render — description HTML contains
     // .card-hover elements from [[card:...]] tags, and they get recreated on
@@ -664,9 +652,9 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                                 </CopyButton>
                             )}
                             {selectedVariant.mosaicUrl && (
-                                <Tooltip label={labels.shareMosaic}>
-                                    <ActionIcon variant="subtle" color="gray" size="lg" onClick={handleShareMosaic}>
-                                        <IconShare size={18} />
+                                <Tooltip label={mosaicCopied ? labels.copied : labels.shareMosaic}>
+                                    <ActionIcon variant="subtle" color={mosaicCopied ? 'teal' : 'gray'} size="lg" onClick={handleShareMosaic}>
+                                        {mosaicCopied ? <IconCheck size={18} /> : <IconShare size={18} />}
                                     </ActionIcon>
                                 </Tooltip>
                             )}

@@ -16,6 +16,30 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.7.11] — 2026-04-20
+
+Dependency security scanning pipeline and vulnerability fixes.
+
+### Features
+
+- **Health endpoint version** — the `/health` endpoint now includes the application version in its response, sourced from `composer.json`. ([#434](https://github.com/jbourdin/expandedDecks/pull/434))
+
+### Bug Fixes
+
+- **Mosaic share clipboard** — replaced Web Share API with direct clipboard copy for the mosaic share action, fixing unreliable behavior on desktop browsers. ([#435](https://github.com/jbourdin/expandedDecks/pull/435))
+- **league/commonmark CVE-2026-33347** — updated from 2.8.1 to 2.8.2 to patch a medium-severity embed extension `allowed_domains` bypass. ([#440](https://github.com/jbourdin/expandedDecks/pull/440))
+- **npm audit vulnerabilities** — resolved 11 JS dependency vulnerabilities (10 high, 1 moderate) via `npm audit fix` and an npm override for `serialize-javascript`. ([#441](https://github.com/jbourdin/expandedDecks/pull/441))
+
+### Infrastructure
+
+- **Dependency vulnerability scanning** — added `make audit` / `make audit.php` / `make audit.js` targets, a CI Security Audit job running `composer audit` and `npm audit` on every push/PR, GitHub Dependabot for weekly checks on both ecosystems, and `composer.json` `block-insecure: true` to gate installs. ([#439](https://github.com/jbourdin/expandedDecks/pull/439))
+
+### Documentation
+
+- **Security scanning docs** — new `docs/standards/security.md` documenting the full vulnerability scanning setup, response workflow, and npm overrides pattern. ([#442](https://github.com/jbourdin/expandedDecks/pull/442))
+
+---
+
 ## [1.7.10] — 2026-04-19
 
 Mosaic grid widened to 8 cards per row with transparent PNG background.

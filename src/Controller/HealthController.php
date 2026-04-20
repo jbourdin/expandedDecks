@@ -29,6 +29,8 @@ class HealthController
     public function __construct(
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'APP_VERSION')]
+        private readonly string $appVersion,
     ) {
     }
 
@@ -38,7 +40,7 @@ class HealthController
     #[Route('/health', name: 'app_health', methods: ['GET'])]
     public function liveness(): JsonResponse
     {
-        return new JsonResponse(['status' => 'ok']);
+        return new JsonResponse(['status' => 'ok', 'version' => $this->appVersion]);
     }
 
     /**
@@ -58,7 +60,7 @@ class HealthController
         }
 
         return new JsonResponse(
-            ['status' => $healthy ? 'healthy' : 'unhealthy', 'checks' => $checks],
+            ['status' => $healthy ? 'healthy' : 'unhealthy', 'version' => $this->appVersion, 'checks' => $checks],
             $healthy ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE,
         );
     }
