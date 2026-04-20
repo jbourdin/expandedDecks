@@ -369,6 +369,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/standards/documentation.md](docs/standards/documentation.md) — Documentation standards
 - [docs/standards/file_headers.md](docs/standards/file_headers.md) — Copyright & license headers
 - [docs/standards/release_process.md](docs/standards/release_process.md) — Release checklist
+- [docs/standards/security.md](docs/standards/security.md) — Dependency vulnerability scanning, Dependabot, CI audit
 
 **Frontend**
 - [docs/frontend.md](docs/frontend.md) — Frontend architecture (Twig+Bootstrap layout, Mantine for React islands)
