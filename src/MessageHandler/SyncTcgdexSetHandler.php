@@ -84,11 +84,12 @@ class SyncTcgdexSetHandler
         $this->updateSetMetadata($set, $setData);
         $this->entityManager->flush();
 
-        // Dispatch card sync for missing cards
+        // Process cards from the set response
         /** @var list<array<string, mixed>> $cardsData */
         $cardsData = isset($setData['cards']) && \is_array($setData['cards']) ? $setData['cards'] : [];
 
         $dispatched = 0;
+        $updatedImages = 0;
 
         foreach ($cardsData as $cardData) {
             $cardId = $this->extractString($cardData, 'id');
@@ -99,10 +100,31 @@ class SyncTcgdexSetHandler
 
             $existing = $this->entityManager->find(TcgdexCard::class, $cardId);
 
-            if (null === $existing || SyncMode::Full === $mode) {
+            if (null === $existing) {
+                // New card — dispatch full hydration
                 $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
                 ++$dispatched;
+            } elseif (SyncMode::Full === $mode) {
+                // Full mode — re-fetch and overwrite entire card via per-card API call
+                $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
+                ++$dispatched;
+            } elseif (SyncMode::Update === $mode) {
+                // Update mode — update imageBaseUrl directly from set response (no per-card API call)
+                $imageBaseUrl = $this->extractString($cardData, 'image');
+
+                if (null !== $imageBaseUrl && $imageBaseUrl !== $existing->getImageBaseUrl()) {
+                    $existing->setImageBaseUrl($imageBaseUrl);
+                    ++$updatedImages;
+                }
             }
+        }
+
+        if ($updatedImages > 0) {
+            $this->entityManager->flush();
+            $this->logger->info('TCGdex sync: set {setId} — updated {count} card image URLs from set response.', [
+                'setId' => $setId,
+                'count' => $updatedImages,
+            ]);
         }
 
         if ($dispatched > 0) {
