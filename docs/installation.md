@@ -55,7 +55,12 @@ Each transport has its own DSN. Default: `doctrine://default?auto_setup=0` (Doct
 | `MESSENGER_TRANSPORT_DECK_ENRICHMENT_DSN` | No | `doctrine://default?auto_setup=0` | TCGdex card enrichment + mosaic generation queue. |
 | `MESSENGER_TRANSPORT_NOTIFICATION_DSN` | No | `doctrine://default?auto_setup=0` | Push notification dispatch queue. |
 | `MESSENGER_TRANSPORT_BORROW_LIFECYCLE_DSN` | No | `doctrine://default?auto_setup=0` | Borrow state transition queue. |
+| `MESSENGER_TRANSPORT_TCGDEX_SYNC_DSN` | No | `doctrine://default?auto_setup=0` | TCGdex incremental sync queue. |
 | `MESSENGER_TRANSPORT_FAILED_DSN` | No | `doctrine://default?queue_name=failed` | Dead-letter queue for failed messages (all transports). |
+| `TCGDEX_SYNC_DELAY_MS` | No | `200` | Minimum delay (ms) between TCGdex API calls. |
+| `TCGDEX_SYNC_FAILURE_THRESHOLD` | No | `3` | Consecutive API failures before cooldown. |
+| `TCGDEX_SYNC_COOLDOWN_SECONDS` | No | `300` | Cooldown duration (seconds) after threshold reached. |
+| `TCGDEX_SYNC_WEBHOOK_SECRET` | No | *(empty = disabled)* | HMAC-SHA256 secret for the sync webhook endpoint. |
 | `MESSENGER_WEBHOOK_SECRET` | No | (empty) | Shared secret for webhook-based message consumption. Leave empty to disable. |
 
 ### Error Tracking (Sentry)
@@ -97,10 +102,11 @@ The application uses Symfony Messenger for async processing. In production, cons
 
 ```bash
 # Consume all transports
-php bin/console messenger:consume transactional_email deck_enrichment notification borrow_lifecycle --time-limit=300
+php bin/console messenger:consume transactional_email deck_enrichment notification borrow_lifecycle tcgdex_sync_series tcgdex_sync_serie tcgdex_sync_set tcgdex_sync_card --time-limit=300
 
 # Or consume specific transports individually
 php bin/console messenger:consume deck_enrichment --time-limit=300
+php bin/console messenger:consume tcgdex_sync_series tcgdex_sync_serie tcgdex_sync_set tcgdex_sync_card --time-limit=300
 ```
 
 ### Transports
@@ -111,6 +117,10 @@ php bin/console messenger:consume deck_enrichment --time-limit=300
 | `deck_enrichment` | `deck_enrichment` | TCGdex card enrichment, mosaic image generation |
 | `notification` | `notification` | Push notifications (Notifier) |
 | `borrow_lifecycle` | `borrow_lifecycle` | Borrow state transitions, competing borrow declining |
+| `tcgdex_sync_series` | `tcgdex_sync_series` | TCGdex sync: series level |
+| `tcgdex_sync_serie` | `tcgdex_sync_serie` | TCGdex sync: serie level |
+| `tcgdex_sync_set` | `tcgdex_sync_set` | TCGdex sync: set level |
+| `tcgdex_sync_card` | `tcgdex_sync_card` | TCGdex sync: card level |
 | `failed` | `failed` | Dead-letter queue (retry 3×, multiplier ×2) |
 
 ---
