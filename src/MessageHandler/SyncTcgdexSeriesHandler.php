@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\MessageHandler;
 
 use App\Entity\TcgdexSerie;
+use App\Enum\SyncMode;
 use App\Message\SyncTcgdexCompleteMessage;
 use App\Message\SyncTcgdexSerieMessage;
 use App\Message\SyncTcgdexSeriesMessage;
@@ -52,7 +53,8 @@ class SyncTcgdexSeriesHandler
 
     public function __invoke(SyncTcgdexSeriesMessage $message): void
     {
-        $this->logger->info('TCGdex sync: fetching all series…');
+        $mode = $message->mode;
+        $this->logger->info('TCGdex sync: fetching all series… (mode: {mode})', ['mode' => $mode->value]);
 
         $this->throttle->waitIfNeeded();
 
@@ -74,6 +76,7 @@ class SyncTcgdexSeriesHandler
 
         $existingIds = array_flip($this->serieRepository->findAllIds());
         $created = 0;
+        $updated = 0;
 
         foreach ($seriesList as $serieData) {
             $serieId = $this->extractString($serieData, 'id');
@@ -95,12 +98,28 @@ class SyncTcgdexSeriesHandler
 
                 $this->entityManager->persist($serie);
                 ++$created;
+            } elseif (SyncMode::Insert !== $mode) {
+                // Update existing serie metadata
+                $serie = $this->entityManager->find(TcgdexSerie::class, $serieId);
+
+                if (null !== $serie) {
+                    $logo = $this->extractString($serieData, 'logo');
+
+                    if (null !== $logo) {
+                        $serie->setLogoUrl($logo);
+                    }
+
+                    ++$updated;
+                }
             }
         }
 
-        if ($created > 0) {
+        if ($created > 0 || $updated > 0) {
             $this->entityManager->flush();
-            $this->logger->info('TCGdex sync: created {count} new series.', ['count' => $created]);
+            $this->logger->info('TCGdex sync: {created} new series, {updated} updated.', [
+                'created' => $created,
+                'updated' => $updated,
+            ]);
         }
 
         // Sort by releaseDate DESC (newest first) and dispatch for all series
@@ -120,7 +139,7 @@ class SyncTcgdexSeriesHandler
                 continue;
             }
 
-            $this->messageBus->dispatch(new SyncTcgdexSerieMessage($serieId));
+            $this->messageBus->dispatch(new SyncTcgdexSerieMessage($serieId, $mode));
             ++$dispatched;
         }
 

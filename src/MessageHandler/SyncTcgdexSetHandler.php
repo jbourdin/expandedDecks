@@ -15,6 +15,7 @@ namespace App\MessageHandler;
 
 use App\Entity\TcgdexCard;
 use App\Entity\TcgdexSet;
+use App\Enum\SyncMode;
 use App\Message\SyncTcgdexCardMessage;
 use App\Message\SyncTcgdexSetMessage;
 use App\Service\Tcgdex\TcgdexApiThrottle;
@@ -48,6 +49,7 @@ class SyncTcgdexSetHandler
     public function __invoke(SyncTcgdexSetMessage $message): void
     {
         $setId = $message->setId;
+        $mode = $message->mode;
 
         $this->throttle->waitIfNeeded();
 
@@ -97,8 +99,8 @@ class SyncTcgdexSetHandler
 
             $existing = $this->entityManager->find(TcgdexCard::class, $cardId);
 
-            if (null === $existing) {
-                $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId));
+            if (null === $existing || SyncMode::Full === $mode) {
+                $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
                 ++$dispatched;
             }
         }

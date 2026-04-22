@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Message;
 
+use App\Enum\SyncMode;
+
 /**
  * Syncs a single TCGdex serie: detects missing or changed sets and dispatches
  * SyncTcgdexSetMessage for each.
@@ -23,6 +25,7 @@ readonly class SyncTcgdexSerieMessage
 {
     public function __construct(
         public string $serieId,
+        public SyncMode $mode = SyncMode::Insert,
     ) {
     }
 }

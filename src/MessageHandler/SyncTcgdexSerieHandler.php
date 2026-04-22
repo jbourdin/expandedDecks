@@ -15,6 +15,7 @@ namespace App\MessageHandler;
 
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
+use App\Enum\SyncMode;
 use App\Message\SyncTcgdexSerieMessage;
 use App\Message\SyncTcgdexSetMessage;
 use App\Repository\TcgdexCardRepository;
@@ -50,6 +51,7 @@ class SyncTcgdexSerieHandler
     public function __invoke(SyncTcgdexSerieMessage $message): void
     {
         $serieId = $message->serieId;
+        $mode = $message->mode;
 
         $this->throttle->waitIfNeeded();
 
@@ -127,9 +129,11 @@ class SyncTcgdexSerieHandler
                 ++$created;
 
                 $setsToSync[] = ['setId' => $setId, 'isNew' => true, 'releaseDate' => $releaseDate];
+            } elseif (SyncMode::Insert !== $mode) {
+                // Update/full mode: always sync existing sets (metadata + potential new cards)
+                $setsToSync[] = ['setId' => $setId, 'isNew' => false, 'releaseDate' => $releaseDate];
             } else {
-                // Existing set — check if card count changed
-                // API returns cardCount as {official: int, total: int}
+                // Insert mode: only sync if card count changed
                 $apiCardCount = $this->extractTotalCardCount($setData);
                 $localCardCount = $this->cardRepository->countBySetId($setId);
 
@@ -147,7 +151,7 @@ class SyncTcgdexSerieHandler
         usort($setsToSync, static fn (array $itemA, array $itemB): int => $itemB['releaseDate'] <=> $itemA['releaseDate']);
 
         foreach ($setsToSync as $setToSync) {
-            $this->messageBus->dispatch(new SyncTcgdexSetMessage($setToSync['setId']));
+            $this->messageBus->dispatch(new SyncTcgdexSetMessage($setToSync['setId'], $mode));
         }
 
         if ([] !== $setsToSync) {

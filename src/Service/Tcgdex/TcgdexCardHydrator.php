@@ -110,7 +110,30 @@ class TcgdexCardHydrator
         }
 
         $card = new TcgdexCard($id, $set, $localId);
+        $this->applyApiFields($card, $data);
 
+        return $card;
+    }
+
+    /**
+     * Update an existing TcgdexCard entity from a TCGdex API response.
+     *
+     * Used in "full" sync mode to refresh all card fields from the API.
+     *
+     * @param array<string, mixed> $data raw JSON response from GET /cards/{id}
+     */
+    public function updateFromApiResponse(TcgdexCard $card, array $data): void
+    {
+        $this->applyApiFields($card, $data);
+    }
+
+    /**
+     * Apply all API response fields to a TcgdexCard entity (shared by create and update).
+     *
+     * @param array<string, mixed> $data
+     */
+    private function applyApiFields(TcgdexCard $card, array $data): void
+    {
         $card->setName($this->wrapEnglish($this->extractString($data, 'name')) ?? []);
         $card->setCategory($this->extractString($data, 'category') ?? '');
         $card->setHp($this->extractInt($data, 'hp'));
@@ -151,8 +174,6 @@ class TcgdexCardHydrator
 
         // Marketplace IDs from pricing data
         $this->hydrateMarketplaceIds($card, $data);
-
-        return $card;
     }
 
     /**

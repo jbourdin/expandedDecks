@@ -15,6 +15,7 @@ namespace App\MessageHandler;
 
 use App\Entity\TcgdexCard;
 use App\Entity\TcgdexSet;
+use App\Enum\SyncMode;
 use App\Message\SyncTcgdexCardMessage;
 use App\Service\Tcgdex\TcgdexApiThrottle;
 use App\Service\Tcgdex\TcgdexCardHydrator;
@@ -52,11 +53,12 @@ class SyncTcgdexCardHandler
     {
         $cardId = $message->cardId;
         $setId = $message->setId;
+        $mode = $message->mode;
 
-        // Skip if already exists (race condition guard)
+        // In insert/update mode, skip if card already exists
         $existing = $this->entityManager->find(TcgdexCard::class, $cardId);
 
-        if (null !== $existing) {
+        if (null !== $existing && SyncMode::Full !== $mode) {
             return;
         }
 
@@ -101,7 +103,15 @@ class SyncTcgdexCardHandler
         try {
             /** @var array<string, mixed> $data */
             $data = $response->toArray();
-            $card = $this->hydrator->hydrateFromApiResponse($data, $set);
+
+            if (null !== $existing) {
+                // Full mode: update existing card
+                $this->hydrator->updateFromApiResponse($existing, $data);
+            } else {
+                // Insert new card
+                $card = $this->hydrator->hydrateFromApiResponse($data, $set);
+                $this->entityManager->persist($card);
+            }
         } catch (\Throwable $exception) {
             $this->logger->error('TCGdex sync: failed to hydrate card {cardId}: {error}', [
                 'cardId' => $cardId,
@@ -111,7 +121,6 @@ class SyncTcgdexCardHandler
             return;
         }
 
-        $this->entityManager->persist($card);
         $this->entityManager->flush();
     }
 }
