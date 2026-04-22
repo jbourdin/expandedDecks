@@ -35,6 +35,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[AsMessageHandler]
 class SyncTcgdexSerieHandler
 {
+    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
+
     public function __construct(
         private readonly HttpClientInterface $tcgdexClient,
         private readonly TcgdexApiThrottle $throttle,
@@ -52,7 +54,7 @@ class SyncTcgdexSerieHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', '/series/'.$serieId);
+            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/series/'.$serieId);
             /** @var array<string, mixed> $serieData */
             $serieData = $response->toArray();
         } catch (\Throwable $exception) {
@@ -127,7 +129,8 @@ class SyncTcgdexSerieHandler
                 $setsToSync[] = ['setId' => $setId, 'isNew' => true, 'releaseDate' => $releaseDate];
             } else {
                 // Existing set — check if card count changed
-                $apiCardCount = $this->extractInt($setData, 'cardCount');
+                // API returns cardCount as {official: int, total: int}
+                $apiCardCount = $this->extractTotalCardCount($setData);
                 $localCardCount = $this->cardRepository->countBySetId($setId);
 
                 if (null !== $apiCardCount && $apiCardCount !== $localCardCount) {
@@ -157,18 +160,28 @@ class SyncTcgdexSerieHandler
     }
 
     /**
-     * @param array<string, mixed> $data
+     * Extract the total card count from the nested cardCount object.
+     *
+     * API format: {"cardCount": {"official": 162, "total": 218}}
+     *
+     * @param array<string, mixed> $setData
      */
-    private function extractString(array $data, string $key): ?string
+    private function extractTotalCardCount(array $setData): ?int
     {
-        return isset($data[$key]) && \is_string($data[$key]) ? $data[$key] : null;
+        if (!isset($setData['cardCount']) || !\is_array($setData['cardCount'])) {
+            return null;
+        }
+
+        $total = $setData['cardCount']['total'] ?? null;
+
+        return \is_int($total) ? $total : null;
     }
 
     /**
      * @param array<string, mixed> $data
      */
-    private function extractInt(array $data, string $key): ?int
+    private function extractString(array $data, string $key): ?string
     {
-        return isset($data[$key]) && \is_int($data[$key]) ? $data[$key] : null;
+        return isset($data[$key]) && \is_string($data[$key]) ? $data[$key] : null;
     }
 }

@@ -35,6 +35,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[AsMessageHandler]
 class SyncTcgdexSeriesHandler
 {
+    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
+
     /** Serie ID to exclude (Pokemon TCG Pocket, not relevant). */
     private const string EXCLUDED_SERIE = 'tcgp';
 
@@ -55,7 +57,7 @@ class SyncTcgdexSeriesHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', '/series');
+            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/series');
             /** @var list<array<string, mixed>> $seriesList */
             $seriesList = $response->toArray();
         } catch (\Throwable $exception) {

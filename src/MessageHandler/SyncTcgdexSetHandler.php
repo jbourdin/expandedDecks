@@ -34,6 +34,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[AsMessageHandler]
 class SyncTcgdexSetHandler
 {
+    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
+
     public function __construct(
         private readonly HttpClientInterface $tcgdexClient,
         private readonly TcgdexApiThrottle $throttle,
@@ -50,7 +52,7 @@ class SyncTcgdexSetHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', '/sets/'.$setId);
+            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/sets/'.$setId);
             /** @var array<string, mixed> $setData */
             $setData = $response->toArray();
         } catch (\Throwable $exception) {
