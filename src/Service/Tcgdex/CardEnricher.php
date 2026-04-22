@@ -400,6 +400,14 @@ class CardEnricher
     {
         $currentUrl = $printing->getImageUrl();
 
+        // Prefer the TCGdex API-sourced image URL (from imageBaseUrl) when available.
+        // This avoids expensive HTTP reachability checks for the vast majority of cards.
+        if (null !== $tcgdexCard->imageUrl && $tcgdexCard->imageUrl !== $currentUrl) {
+            $printing->setImageUrl($tcgdexCard->imageUrl);
+
+            return;
+        }
+
         if (null !== $currentUrl && $this->isImageReachable($currentUrl)) {
             return;
         }
