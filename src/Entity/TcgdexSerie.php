@@ -40,6 +40,10 @@ class TcgdexSerie
     #[ORM\Column(type: 'json')]
     private array $name = [];
 
+    /** Serie logo URL from TCGdex API. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $logoUrl = null;
+
     /** @var Collection<int, TcgdexSet> */
     #[ORM\OneToMany(targetEntity: TcgdexSet::class, mappedBy: 'serie')]
     private Collection $sets;
@@ -76,6 +80,18 @@ class TcgdexSerie
     public function setName(array $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getLogoUrl(): ?string
+    {
+        return $this->logoUrl;
+    }
+
+    public function setLogoUrl(?string $logoUrl): static
+    {
+        $this->logoUrl = $logoUrl;
 
         return $this;
     }
