@@ -18,6 +18,9 @@ framework:
         pools:
             cache.menu_categories:
                 default_lifetime: 3600
+            cache.tcgdex_throttle:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 600
 
 when@prod:
     framework:
