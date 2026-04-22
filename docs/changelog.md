@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.1] — 2026-04-23
+
+Production deployment fix for TCGdex sync workers.
+
+### Infrastructure
+
+- **Supervisor config** — added `worker-tcgdex-sync` program consuming all 4 sync transports (`tcgdex_sync_series`, `tcgdex_sync_serie`, `tcgdex_sync_set`, `tcgdex_sync_card`). Without this, sync messages dispatched in production were never consumed. ([#457](https://github.com/jbourdin/expandedDecks/pull/457))
+
+### Documentation
+
+- **Installation docs** — added new sync env vars (`TCGDEX_SYNC_*`), transports, and consume commands to the production deployment guide. ([#457](https://github.com/jbourdin/expandedDecks/pull/457))
+
+---
+
 ## [1.8.0] — 2026-04-23
 
 Incremental TCGdex database sync — API-based cascade replacing the monolithic git-clone import.
