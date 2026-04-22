@@ -16,6 +16,7 @@ namespace App\Command;
 use App\Entity\TcgdexCard;
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
+use App\Service\Tcgdex\TcgdexCardHydrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -45,6 +46,7 @@ class ImportTcgdexDatabaseCommand extends Command
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly TcgdexCardHydrator $cardHydrator,
         private readonly string $projectDir,
     ) {
         parent::__construct();
@@ -268,9 +270,8 @@ class ImportTcgdexDatabaseCommand extends Command
     {
         $id = $this->extractString($record, 'id');
         $setId = $this->extractString($record, 'setId');
-        $localId = $this->extractString($record, 'localId');
 
-        if (null === $id || '' === $id || null === $setId || null === $localId) {
+        if (null === $id || '' === $id || null === $setId) {
             ++$counts['errors'];
 
             return;
@@ -292,44 +293,13 @@ class ImportTcgdexDatabaseCommand extends Command
             return;
         }
 
-        /** @var array<string, mixed> $cardName */
-        $cardName = $this->extractArray($record, 'name');
-        /** @var list<array<string, mixed>> $abilities */
-        $abilities = $this->extractArray($record, 'abilities');
-        /** @var list<array<string, mixed>> $attacks */
-        $attacks = $this->extractArray($record, 'attacks');
+        try {
+            $card = $this->cardHydrator->hydrateFromNdjsonRecord($record, $set);
+        } catch (\InvalidArgumentException) {
+            ++$counts['errors'];
 
-        $card = new TcgdexCard($id, $set, $localId);
-        $card->setName($cardName);
-        $card->setCategory($this->extractString($record, 'category') ?? '');
-        $card->setHp($this->extractInt($record, 'hp'));
-        $card->setTrainerType($this->extractString($record, 'trainerType'));
-        $card->setEnergyType($this->extractString($record, 'energyType'));
-        $card->setRarity($this->extractString($record, 'rarity'));
-        $card->setIsExpandedLegal((bool) ($record['isExpandedLegal'] ?? false));
-        $card->setAbilities($abilities);
-        $card->setAttacks($attacks);
-        $card->setStage($this->extractString($record, 'stage'));
-        $card->setRetreat($this->extractInt($record, 'retreat'));
-        $card->setRegulationMark($this->extractString($record, 'regulationMark'));
-        $card->setIllustrator($this->extractString($record, 'illustrator'));
-        $card->setCardmarketProductId($this->extractInt($record, 'cardmarketProductId'));
-        $card->setTcgplayerProductId($this->extractInt($record, 'tcgplayerProductId'));
-
-        $effect = $record['effect'] ?? null;
-        /** @var array<string, mixed>|null $effectArray */
-        $effectArray = \is_array($effect) ? $effect : null;
-        $card->setEffect($effectArray);
-
-        $evolveFrom = $record['evolveFrom'] ?? null;
-        /** @var array<string, mixed>|null $evolveFromArray */
-        $evolveFromArray = \is_array($evolveFrom) ? $evolveFrom : null;
-        $card->setEvolveFrom($evolveFromArray);
-
-        $types = $record['types'] ?? [];
-        /** @var list<string> $typesArray */
-        $typesArray = \is_array($types) ? array_values(array_filter($types, 'is_string')) : [];
-        $card->setTypes($typesArray);
+            return;
+        }
 
         $this->entityManager->persist($card);
         ++$counts['card_created'];

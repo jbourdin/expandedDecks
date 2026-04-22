@@ -61,6 +61,14 @@ class TcgdexSet
     #[ORM\Column(nullable: true)]
     private ?int $tcgplayerId = null;
 
+    /** Set logo URL from TCGdex API. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $logoUrl = null;
+
+    /** Set symbol/icon URL from TCGdex API. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $symbolUrl = null;
+
     /** @var Collection<int, TcgdexCard> */
     #[ORM\OneToMany(targetEntity: TcgdexCard::class, mappedBy: 'set')]
     private Collection $cards;
@@ -163,6 +171,30 @@ class TcgdexSet
     public function setTcgplayerId(?int $tcgplayerId): static
     {
         $this->tcgplayerId = $tcgplayerId;
+
+        return $this;
+    }
+
+    public function getLogoUrl(): ?string
+    {
+        return $this->logoUrl;
+    }
+
+    public function setLogoUrl(?string $logoUrl): static
+    {
+        $this->logoUrl = $logoUrl;
+
+        return $this;
+    }
+
+    public function getSymbolUrl(): ?string
+    {
+        return $this->symbolUrl;
+    }
+
+    public function setSymbolUrl(?string $symbolUrl): static
+    {
+        $this->symbolUrl = $symbolUrl;
 
         return $this;
     }

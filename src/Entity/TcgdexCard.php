@@ -144,6 +144,10 @@ class TcgdexCard
     #[ORM\Column(nullable: true)]
     private ?int $tcgplayerProductId = null;
 
+    /** Base URL for card images from TCGdex API (append "/{resolution}.{format}" for actual image). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageBaseUrl = null;
+
     public function __construct(string $id, TcgdexSet $set, string $localId)
     {
         $this->id = $id;
@@ -264,12 +268,17 @@ class TcgdexCard
     /**
      * Build the TCGdex CDN image URL for this card.
      *
-     * The URL is derived from the card's position in the serie/set hierarchy.
+     * Prefers the API-sourced imageBaseUrl when available (exact URL from TCGdex).
+     * Falls back to the computed URL from the serie/set hierarchy.
      * Note: some dotted set IDs (e.g. sm3.5) may return 404 — consumers should
      * handle fallbacks (see CardImageResolver / MosaicGenerator).
      */
     public function getImageUrl(string $resolution = 'high', string $format = 'webp'): string
     {
+        if (null !== $this->imageBaseUrl) {
+            return \sprintf('%s/%s.%s', $this->imageBaseUrl, $resolution, $format);
+        }
+
         return \sprintf(
             'https://assets.tcgdex.net/en/%s/%s/%s/%s.%s',
             $this->set->getSerie()->getId(),
@@ -278,6 +287,18 @@ class TcgdexCard
             $resolution,
             $format,
         );
+    }
+
+    public function getImageBaseUrl(): ?string
+    {
+        return $this->imageBaseUrl;
+    }
+
+    public function setImageBaseUrl(?string $imageBaseUrl): static
+    {
+        $this->imageBaseUrl = $imageBaseUrl;
+
+        return $this;
     }
 
     public function isExpandedLegal(): bool
