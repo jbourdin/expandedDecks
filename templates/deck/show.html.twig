@@ -32,7 +32,7 @@
                                 {% if card.imageUrl %}
                                     <span class="card-hover" data-quantity="{{ card.quantity }}">
                                         {{ card.cardName }}
-                                        <img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}">
+                                        <img class="card-hover-img" src="{{ card.imageUrl }}" alt="{{ card.cardName }}" onerror="this.style.display='none'">
                                     </span>
                                 {% else %}
                                     {{ card.cardName }}

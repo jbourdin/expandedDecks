@@ -100,7 +100,19 @@ export default function CardMosaicGrid({ groupedCards, mosaicAltLabel }: CardMos
                             src={card.lowResUrl}
                             alt={card.cardName}
                             loading="lazy"
+                            onError={(event) => {
+                                const target = event.currentTarget;
+                                target.style.display = 'none';
+                                const fallback = target.parentElement?.querySelector('.card-mosaic-fallback');
+
+                                if (fallback instanceof HTMLElement) {
+                                    fallback.style.display = 'flex';
+                                }
+                            }}
                         />
+                        <span className="card-mosaic-fallback" style={{ display: 'none' }}>
+                            {card.cardName}
+                        </span>
                         <span className="card-mosaic-qty">
                             <span className="card-mosaic-qty-inner">{card.quantity}</span>
                         </span>
