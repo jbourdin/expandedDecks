@@ -101,6 +101,13 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    App\Service\Tcgdex\TcgdexApiThrottle:
+        arguments:
+            $cache: '@cache.tcgdex_throttle'
+            $minimumDelayMilliseconds: '%env(int:TCGDEX_SYNC_DELAY_MS)%'
+            $failureThreshold: '%env(int:TCGDEX_SYNC_FAILURE_THRESHOLD)%'
+            $cooldownDurationSeconds: '%env(int:TCGDEX_SYNC_COOLDOWN_SECONDS)%'
+
     App\Service\EnrichmentFlushService:
         arguments:
             $mosaicStorage: '@mosaic.storage'
