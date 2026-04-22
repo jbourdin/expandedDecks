@@ -58,6 +58,7 @@ security:
         - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/webhook/messenger/, roles: PUBLIC_ACCESS }
+        - { path: ^/webhook/tcgdex-sync$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/technical, roles: ROLE_TECHNICAL_ADMIN }
         - { path: ^/admin/archetypes, roles: ROLE_ARCHETYPE_EDITOR }
         - { path: ^/admin/pages, roles: ROLE_CMS_EDITOR }

@@ -16,6 +16,39 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.0] — 2026-04-23
+
+Incremental TCGdex database sync — API-based cascade replacing the monolithic git-clone import.
+
+### Features
+
+- **Incremental TCGdex sync (F6.13)** — new async message cascade (Series → Serie → Set → Card → Complete) that detects new or changed data from the TCGdex REST API and pulls only what is missing. Supports three sync modes: *insert* (default, new entities only), *update* (refresh metadata and image URLs without per-card API calls), and *full* (re-fetch everything, CLI only). ([#449](https://github.com/jbourdin/expandedDecks/pull/449), [#451](https://github.com/jbourdin/expandedDecks/pull/451))
+- **Rate limiting service** — `TcgdexApiThrottle` with configurable minimum delay (200ms), consecutive failure tracking, and cooldown (5 min after 3 failures). Filesystem-backed cache shared across workers. ([#450](https://github.com/jbourdin/expandedDecks/pull/450))
+- **CLI command** — `symfony console app:tcgdex:sync --mode=insert|update|full` with queue depth reporting and `--force` guard for full mode. ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+- **Admin dashboard sync card** — "TCGdex Database Sync" card with last sync timestamp, queue depth, cooldown status badges, and two buttons (insert + update mode). ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+- **Webhook trigger** — anonymous `POST /webhook/tcgdex-sync` endpoint with HMAC-SHA256 signature verification for serverless cron jobs. Idempotent (returns 200 if sync already in progress). ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+- **Entity image fields** — `logoUrl` on `TcgdexSerie`, `logoUrl` + `symbolUrl` on `TcgdexSet`, `imageBaseUrl` on `TcgdexCard`. `getImageUrl()` prefers `imageBaseUrl` when available, falling back to the computed URL. ([#449](https://github.com/jbourdin/expandedDecks/pull/449))
+- **Card hydration service** — `TcgdexCardHydrator` extracted from the import command with `hydrateFromNdjsonRecord()` (git import) and `hydrateFromApiResponse()` (API sync, wraps English strings into multilingual format). ([#449](https://github.com/jbourdin/expandedDecks/pull/449))
+
+### Bug Fixes
+
+- **Image URL resolution** — `CardEnricher` and `CardIdentityResolver` now prefer the API-sourced `imageBaseUrl` over guessed/computed URLs, avoiding expensive HTTP reachability checks during enrichment. ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+- **Broken image fallback** — HTML mosaic grid and card hover images now gracefully handle broken URLs: mosaic cells show a text placeholder with the card name, hover images hide instead of showing a broken icon. ([#455](https://github.com/jbourdin/expandedDecks/pull/455))
+
+### Infrastructure
+
+- **4 per-level Doctrine transports** — `tcgdex_sync_series`, `tcgdex_sync_serie`, `tcgdex_sync_set`, `tcgdex_sync_card` with `max_retries: 0` (handlers manage retry via redispatch). `make worker.sync` target added. ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+
+### Testing & Quality
+
+- **48 new unit tests** — covering all 5 sync handlers, webhook HMAC verification, CLI command modes, and card hydrator (NDJSON + API + update paths). Test count: 860 → 908. ([#451](https://github.com/jbourdin/expandedDecks/pull/451))
+
+### Documentation
+
+- **TCGdex sync deep-dive** — new `docs/technicalities/tcgdex_sync.md` covering cascade architecture, sync modes, rate limiting, change detection, triggers, environment variables, and edge cases. CLAUDE.md updated with sync transports and worker command. ([#455](https://github.com/jbourdin/expandedDecks/pull/455))
+
+---
+
 ## [1.7.11] — 2026-04-20
 
 Dependency security scanning pipeline and vulnerability fixes.

@@ -598,6 +598,23 @@ footer {
     }
 }
 
+// Fallback text shown when a card image fails to load.
+// Matches the aspect ratio of a Pokemon card (~1.4:1).
+.card-mosaic-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    aspect-ratio: 5 / 7;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .7rem;
+    padding: 4px;
+    border-radius: 6px;
+    overflow-wrap: break-word;
+}
+
 // Badge sized at ~20% of card width to match the server-generated mosaic
 // (50 px badge on a 245 px card). Hexagonal shape via clip-path.
 // Shadow lives on the outer wrapper so Firefox renders it correctly
