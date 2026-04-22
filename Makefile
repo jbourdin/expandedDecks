@@ -62,9 +62,13 @@ worker.notification: ## Run the notification Messenger worker
 worker.borrow: ## Run the borrow lifecycle Messenger worker
 	symfony console messenger:consume borrow_lifecycle -vv --no-debug
 
+.PHONY: worker.sync
+worker.sync: ## Run the TCGdex sync Messenger worker
+	symfony console messenger:consume tcgdex_sync_series tcgdex_sync_serie tcgdex_sync_set tcgdex_sync_card -vv --no-debug
+
 .PHONY: worker.all
 worker.all: ## Run all Messenger workers
-	symfony console messenger:consume transactional_email deck_enrichment notification borrow_lifecycle -vv --no-debug
+	symfony console messenger:consume transactional_email deck_enrichment notification borrow_lifecycle tcgdex_sync_series tcgdex_sync_serie tcgdex_sync_set tcgdex_sync_card -vv --no-debug
 
 ## —— Database —————————————————————————————————————————————————————————
 

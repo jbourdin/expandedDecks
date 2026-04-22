@@ -39,6 +39,30 @@ framework:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
+            tcgdex_sync_series:
+                dsn: '%env(MESSENGER_TRANSPORT_TCGDEX_SYNC_DSN)%'
+                options:
+                    queue_name: tcgdex_sync_series
+                retry_strategy:
+                    max_retries: 0
+            tcgdex_sync_serie:
+                dsn: '%env(MESSENGER_TRANSPORT_TCGDEX_SYNC_DSN)%'
+                options:
+                    queue_name: tcgdex_sync_serie
+                retry_strategy:
+                    max_retries: 0
+            tcgdex_sync_set:
+                dsn: '%env(MESSENGER_TRANSPORT_TCGDEX_SYNC_DSN)%'
+                options:
+                    queue_name: tcgdex_sync_set
+                retry_strategy:
+                    max_retries: 0
+            tcgdex_sync_card:
+                dsn: '%env(MESSENGER_TRANSPORT_TCGDEX_SYNC_DSN)%'
+                options:
+                    queue_name: tcgdex_sync_card
+                retry_strategy:
+                    max_retries: 0
             failed:
                 dsn: '%env(MESSENGER_TRANSPORT_FAILED_DSN)%'
                 options:
@@ -58,6 +82,11 @@ framework:
             App\Message\GenerateDeckMosaicMessage: deck_enrichment
             App\Message\GenerateMinifiedListMessage: deck_enrichment
             App\Message\GenerateMinifiedMosaicMessage: deck_enrichment
+            App\Message\SyncTcgdexSeriesMessage: tcgdex_sync_series
+            App\Message\SyncTcgdexSerieMessage: tcgdex_sync_serie
+            App\Message\SyncTcgdexSetMessage: tcgdex_sync_set
+            App\Message\SyncTcgdexCardMessage: tcgdex_sync_card
+            App\Message\SyncTcgdexCompleteMessage: deck_enrichment
             App\Message\DeclineCompetingBorrowsMessage: borrow_lifecycle
             App\Message\CancelEventBorrowsMessage: borrow_lifecycle
             App\Message\StartEndingPhaseMessage: borrow_lifecycle
