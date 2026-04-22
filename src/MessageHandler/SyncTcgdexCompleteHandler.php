@@ -17,6 +17,7 @@ use App\Message\BuildSetMappingsMessage;
 use App\Message\EnrichDeckVersionMessage;
 use App\Message\SyncTcgdexCompleteMessage;
 use App\Repository\DeckVersionRepository;
+use App\Service\Tcgdex\TcgdexSyncStatusService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -34,6 +35,7 @@ class SyncTcgdexCompleteHandler
 {
     public function __construct(
         private readonly DeckVersionRepository $versionRepository,
+        private readonly TcgdexSyncStatusService $syncStatus,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
     ) {
@@ -42,6 +44,8 @@ class SyncTcgdexCompleteHandler
     public function __invoke(SyncTcgdexCompleteMessage $message): void
     {
         $this->logger->info('TCGdex sync complete: triggering post-sync actions.');
+
+        $this->syncStatus->recordSyncCompleted();
 
         // Rebuild set mappings
         $this->messageBus->dispatch(new BuildSetMappingsMessage());

@@ -101,6 +101,10 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    App\Service\Tcgdex\TcgdexSyncStatusService:
+        arguments:
+            $cache: '@cache.tcgdex_throttle'
+
     App\Service\Tcgdex\TcgdexApiThrottle:
         arguments:
             $cache: '@cache.tcgdex_throttle'
