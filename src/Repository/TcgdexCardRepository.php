@@ -70,6 +70,23 @@ class TcgdexCardRepository extends ServiceEntityRepository
     }
 
     /**
+     * Count the number of cards in a given set.
+     */
+    public function countBySetId(string $setId): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->join('c.set', 's')
+            ->where('s.id = :setId')
+            ->setParameter('setId', $setId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+    /**
      * Find all cards with the given English name within a specific set.
      *
      * Used for Asian alias resolution: the set is known (via alias table)
