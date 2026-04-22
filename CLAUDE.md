@@ -292,6 +292,7 @@ When creating new features or backlog items, create a GitHub issue with the feat
 | `make worker.enrichment`| Consume `deck_enrichment` transport             | Process TCGdex card enrichment           |
 | `make worker.notification`| Consume `notification` transport              | Process push notifications               |
 | `make worker.borrow`   | Consume `borrow_lifecycle` transport             | Process borrow state transitions         |
+| `make worker.sync`     | Consume `tcgdex_sync_*` transports               | Process TCGdex incremental sync          |
 
 ### Other
 
@@ -328,8 +329,12 @@ Symfony Messenger with domain-separated transports (see `config/packages/messeng
 | `deck_enrichment`    | `deck_enrichment`   | `EnrichDeckVersionMessage`, `BuildSetMappingsMessage`, `GenerateDeckMosaicMessage`, `GenerateMinifiedListMessage`, `GenerateMinifiedMosaicMessage` |
 | `notification`       | `notification`      | `ChatMessage`, `SmsMessage` (Symfony Notifier)       |
 | `borrow_lifecycle`   | `borrow_lifecycle`  | `DeclineCompetingBorrowsMessage`, `CancelEventBorrowsMessage` |
+| `tcgdex_sync_series` | `tcgdex_sync_series`| `SyncTcgdexSeriesMessage`                                     |
+| `tcgdex_sync_serie`  | `tcgdex_sync_serie` | `SyncTcgdexSerieMessage`                                      |
+| `tcgdex_sync_set`    | `tcgdex_sync_set`   | `SyncTcgdexSetMessage`                                        |
+| `tcgdex_sync_card`   | `tcgdex_sync_card`  | `SyncTcgdexCardMessage`                                       |
 
-Pattern: services dispatch messages → handlers process them asynchronously. Each transport has independent retry (3 retries, ×2 multiplier). Failed messages route to the `failed` transport.
+Pattern: services dispatch messages → handlers process them asynchronously. Each transport has independent retry (3 retries, ×2 multiplier). Sync transports use `max_retries: 0` (handlers manage retry via redispatch). Failed messages route to the `failed` transport.
 
 ## Translations
 
@@ -381,6 +386,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/mosaic.md](docs/technicalities/mosaic.md) — Server-generated deck mosaic image (GD, Flysystem)
 - [docs/technicalities/enrichment.md](docs/technicalities/enrichment.md) — TCGdex enrichment, card identity model, minified export
 - [docs/technicalities/cardmarket_export.md](docs/technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
+- [docs/technicalities/tcgdex_sync.md](docs/technicalities/tcgdex_sync.md) — Incremental TCGdex sync: cascade architecture, rate limiting, sync modes
 - [docs/technicalities/error_pages.md](docs/technicalities/error_pages.md) — Custom error pages, Pokemon sprites, CDN integration, Sentry
 
 ### Documentation Rules
