@@ -45,6 +45,11 @@ class CardIdentityResolver
         $existing = $this->printingRepository->findByTcgdexId($tcgdexCard->id);
 
         if (null !== $existing) {
+            // Refresh image URL from TCGdex if a better source is available (e.g. imageBaseUrl populated by sync)
+            if (null !== $tcgdexCard->imageUrl && $tcgdexCard->imageUrl !== $existing->getImageUrl()) {
+                $existing->setImageUrl($tcgdexCard->imageUrl);
+            }
+
             return $existing;
         }
 

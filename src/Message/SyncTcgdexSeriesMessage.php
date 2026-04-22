@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Message;
 
+use App\Enum\SyncMode;
+
 /**
  * Triggers a full incremental sync of the TCGdex database (root entry point).
  *
@@ -23,4 +25,8 @@ namespace App\Message;
  */
 readonly class SyncTcgdexSeriesMessage
 {
+    public function __construct(
+        public SyncMode $mode = SyncMode::Insert,
+    ) {
+    }
 }

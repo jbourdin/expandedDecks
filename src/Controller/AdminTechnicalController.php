@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Enum\SyncMode;
 use App\Message\BuildSetMappingsMessage;
 use App\Message\EnrichDeckVersionMessage;
+use App\Message\SyncTcgdexSeriesMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\TcgdexSetMappingRepository;
@@ -22,6 +24,8 @@ use App\Service\BannedCardsSyncService;
 use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
+use App\Service\Tcgdex\TcgdexApiThrottle;
+use App\Service\Tcgdex\TcgdexSyncStatusService;
 use App\Twig\Runtime\MenuRuntime;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +50,8 @@ class AdminTechnicalController extends AbstractAppController
         private readonly EnrichmentFlushService $enrichmentFlushService,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
         private readonly CardReenrichService $cardReenrichService,
+        private readonly TcgdexSyncStatusService $syncStatusService,
+        private readonly TcgdexApiThrottle $tcgdexApiThrottle,
     ) {
         parent::__construct($translator);
     }
@@ -63,6 +69,9 @@ class AdminTechnicalController extends AbstractAppController
             'pendingMosaics' => $pendingMosaics,
             'bannedCardCount' => $bannedCardCount,
             'setMappingCount' => $setMappingCount,
+            'syncQueueDepth' => $this->syncStatusService->getQueueDepth(),
+            'syncLastCompleted' => $this->syncStatusService->getLastSyncTimestamp(),
+            'syncInCooldown' => $this->tcgdexApiThrottle->isInCooldown(),
         ]);
     }
 
@@ -190,6 +199,42 @@ class AdminTechnicalController extends AbstractAppController
         $this->messageBus->dispatch(new BuildSetMappingsMessage());
 
         $this->addFlash('success', 'app.admin.technical.set_mappings.dispatched');
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * @see docs/features.md F6.13 — Incremental TCGdex database sync
+     */
+    #[Route('/tcgdex-sync-insert', name: 'app_admin_technical_tcgdex_sync_insert', methods: ['POST'])]
+    public function tcgdexSyncInsert(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-tcgdex-sync-insert', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Insert));
+        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_insert');
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * @see docs/features.md F6.13 — Incremental TCGdex database sync
+     */
+    #[Route('/tcgdex-sync-update', name: 'app_admin_technical_tcgdex_sync_update', methods: ['POST'])]
+    public function tcgdexSyncUpdate(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-tcgdex-sync-update', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Update));
+        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_update');
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

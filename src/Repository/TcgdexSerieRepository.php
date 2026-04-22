@@ -26,4 +26,20 @@ class TcgdexSerieRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TcgdexSerie::class);
     }
+
+    /**
+     * Return all serie IDs currently in the database.
+     *
+     * @return list<string>
+     */
+    public function findAllIds(): array
+    {
+        /** @var list<array{id: string}> $rows */
+        $rows = $this->createQueryBuilder('s')
+            ->select('s.id')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($rows, 'id');
+    }
 }

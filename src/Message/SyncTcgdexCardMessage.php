@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\Message;
 
+use App\Enum\SyncMode;
+
 /**
  * Fetches and persists a single card from the TCGdex API.
  *
@@ -26,6 +28,7 @@ readonly class SyncTcgdexCardMessage
     public function __construct(
         public string $cardId,
         public string $setId,
+        public SyncMode $mode = SyncMode::Insert,
     ) {
     }
 }

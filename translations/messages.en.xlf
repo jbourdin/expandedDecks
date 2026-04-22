@@ -4581,6 +4581,46 @@
                 <source>app.admin.technical.set_mappings.dispatched</source>
                 <target>Set mappings rebuild dispatched. It will complete in the background.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.title">
+                <source>app.admin.technical.tcgdex_sync.title</source>
+                <target>TCGdex Database Sync</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.description">
+                <source>app.admin.technical.tcgdex_sync.description</source>
+                <target>Incrementally sync new cards and metadata from the TCGdex API.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.last_sync">
+                <source>app.admin.technical.tcgdex_sync.last_sync</source>
+                <target>Last sync: %date%</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.never_synced">
+                <source>app.admin.technical.tcgdex_sync.never_synced</source>
+                <target>Never synced</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.queue_depth">
+                <source>app.admin.technical.tcgdex_sync.queue_depth</source>
+                <target>%count% message(s) pending</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.cooldown_active">
+                <source>app.admin.technical.tcgdex_sync.cooldown_active</source>
+                <target>API cooldown active</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.insert_button">
+                <source>app.admin.technical.tcgdex_sync.insert_button</source>
+                <target>Sync new data</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.update_button">
+                <source>app.admin.technical.tcgdex_sync.update_button</source>
+                <target>Sync &amp; update metadata</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_insert">
+                <source>app.admin.technical.tcgdex_sync.dispatched_insert</source>
+                <target>TCGdex sync dispatched (insert mode). New data will appear shortly.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_update">
+                <source>app.admin.technical.tcgdex_sync.dispatched_update</source>
+                <target>TCGdex sync dispatched (update mode). Metadata and image URLs will be refreshed.</target>
+            </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>
                 <target>Banned Cards Sync</target>

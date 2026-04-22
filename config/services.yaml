@@ -101,6 +101,14 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    App\Controller\WebhookTcgdexSyncController:
+        arguments:
+            $tcgdexSyncWebhookSecret: '%env(TCGDEX_SYNC_WEBHOOK_SECRET)%'
+
+    App\Service\Tcgdex\TcgdexSyncStatusService:
+        arguments:
+            $cache: '@cache.tcgdex_throttle'
+
     App\Service\Tcgdex\TcgdexApiThrottle:
         arguments:
             $cache: '@cache.tcgdex_throttle'
