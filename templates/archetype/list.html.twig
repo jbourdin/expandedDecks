@@ -10,6 +10,10 @@
 
 {% block title %}{{ 'app.archetype.catalog_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_list') }}">
+{% endblock %}
+
 {% block body %}
     <h1 class="mb-4">{{ 'app.archetype.catalog_title'|trans }}</h1>
 

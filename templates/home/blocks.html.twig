@@ -11,6 +11,10 @@
 
 {% block title %}{{ 'app.home.title'|trans }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ self_canonical_url('app_home') }}">
+{% endblock %}
+
 {% block body %}
     {% set rowOpen = false %}
     {% set rowWidth = 0 %}

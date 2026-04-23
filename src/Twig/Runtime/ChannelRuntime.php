@@ -62,10 +62,31 @@ class ChannelRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Read a parameter from the current channel with a fallback default.
+     * Generate an absolute canonical URL for the channel that provides a feature.
      *
-     * Returns the default if no channel is resolved (CLI, error pages, etc.).
+     * Always returns an absolute URL, even on the same channel.
+     *
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     *
+     * @param array<string, mixed> $parameters
      */
+    public function canonicalUrl(string $feature, string $routeName, array $parameters = []): string
+    {
+        return $this->channelUrlGenerator->canonicalUrl($feature, $routeName, $parameters);
+    }
+
+    /**
+     * Generate an absolute canonical URL on the current channel.
+     *
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function selfCanonicalUrl(string $routeName, array $parameters = []): string
+    {
+        return $this->channelUrlGenerator->selfCanonicalUrl($routeName, $parameters);
+    }
+
     /**
      * Returns the current channel's theme name, or null if unavailable.
      * Safe to call on error pages and CLI.

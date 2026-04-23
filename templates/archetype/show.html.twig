@@ -10,6 +10,10 @@
 
 {% block title %}{{ archetype.localizedName(app.request.locale) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) }}">
+{% endblock %}
+
 {% block meta %}
     {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}
     {% if localizedMeta %}

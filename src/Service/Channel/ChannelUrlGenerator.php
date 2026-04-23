@@ -88,6 +88,44 @@ class ChannelUrlGenerator
     }
 
     /**
+     * Generate an absolute canonical URL for the channel that provides a feature.
+     *
+     * Unlike forFeature(), this always returns an absolute URL — even when
+     * the current channel hosts the feature. Canonical URLs must be absolute
+     * and must point to the authoritative channel for the content type.
+     *
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function canonicalUrl(string $feature, string $routeName, array $parameters = []): string
+    {
+        $targetChannel = $this->findChannelForFeature($feature);
+
+        if (null === $targetChannel) {
+            $targetChannel = $this->channelContext->getChannel();
+        }
+
+        return $this->generateAbsoluteUrl($targetChannel, $routeName, $parameters);
+    }
+
+    /**
+     * Generate an absolute canonical URL on the current channel.
+     *
+     * Used for pages that are channel-specific (e.g. homepage, CMS pages
+     * assigned to a channel) where the canonical is simply the current
+     * channel's own domain.
+     *
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function selfCanonicalUrl(string $routeName, array $parameters = []): string
+    {
+        return $this->generateAbsoluteUrl($this->channelContext->getChannel(), $routeName, $parameters);
+    }
+
+    /**
      * Whether a channel can serve pages for a given feature.
      *
      * When a flag is false, the feature is disabled on that channel and
