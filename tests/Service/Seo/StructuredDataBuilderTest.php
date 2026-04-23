@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @see docs/features.md F18.27 — JSON-LD structured data
@@ -63,7 +64,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('Expanded Decks', $data['publisher']['name']);
     }
 
-    public function testBuildArticleIncludesArchetypeFieldsAndGenre(): void
+    public function testBuildArticleIncludesHeadlineGenreAndAbout(): void
     {
         $builder = $this->createBuilder('Expanded Talks');
 
@@ -73,6 +74,7 @@ final class StructuredDataBuilderTest extends TestCase
 
         self::assertSame('Article', $data['@type']);
         self::assertSame('Iron Thorns', $data['name']);
+        self::assertSame('Iron Thorns — Pokémon TCG Expanded Deck Archetype', $data['headline']);
         self::assertSame('Pokémon TCG Expanded', $data['genre']);
         self::assertSame('Game', $data['about']['@type']);
         self::assertSame('Pokémon Trading Card Game', $data['about']['name']);
@@ -81,7 +83,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertArrayNotHasKey('hasPart', $data);
     }
 
-    public function testBuildArticleIncludesVariantsAsHasPartWithGenre(): void
+    public function testBuildArticleVariantsHaveGenreAndDescription(): void
     {
         $builder = $this->createBuilder('Expanded Talks');
 
@@ -98,6 +100,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('CreativeWork', $data['hasPart'][0]['@type']);
         self::assertSame('Spread variant', $data['hasPart'][0]['name']);
         self::assertSame('Pokémon TCG Expanded', $data['hasPart'][0]['genre']);
+        self::assertSame('Deck list variant for the Spread variant archetype', $data['hasPart'][0]['description']);
         self::assertStringContainsString('#98QPPD', $data['hasPart'][0]['url']);
     }
 
@@ -226,6 +229,17 @@ final class StructuredDataBuilderTest extends TestCase
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('getContext')->willReturn(new RequestContext(scheme: 'https'));
 
-        return new StructuredDataBuilder($channelContext, $urlGenerator);
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $parameters = []): string => match ($id) {
+                'app.seo.tcg_genre' => 'Pokémon TCG Expanded',
+                'app.seo.tcg_game_name' => 'Pokémon Trading Card Game',
+                'app.seo.archetype_headline' => ($parameters['%name%'] ?? '').' — Pokémon TCG Expanded Deck Archetype',
+                'app.seo.variant_description' => 'Deck list variant for the '.($parameters['%name%'] ?? '').' archetype',
+                default => $id,
+            },
+        );
+
+        return new StructuredDataBuilder($channelContext, $urlGenerator, $translator);
     }
 }

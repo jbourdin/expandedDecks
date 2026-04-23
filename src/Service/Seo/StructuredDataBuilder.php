@@ -20,6 +20,7 @@ use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Service\Channel\ChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Builds JSON-LD structured data arrays for public pages.
@@ -27,20 +28,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Each method returns a plain array that can be rendered as
  * <script type="application/ld+json"> via json_encode in Twig.
  * The organization name is read from the current channel's
- * brand_name parameter.
+ * brand_name parameter. Contextual strings (genre, descriptions)
+ * are translated via TranslatorInterface to match the page locale.
  *
  * @see docs/features.md F18.27 — JSON-LD structured data
  */
 final readonly class StructuredDataBuilder
 {
-    private const TCG_GENRE = 'Pokémon TCG Expanded';
-
-    /** @var array<string, string> */
-    private const TCG_GAME = ['@type' => 'Game', 'name' => 'Pokémon Trading Card Game'];
-
     public function __construct(
         private ChannelContext $channelContext,
         private UrlGeneratorInterface $urlGenerator,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -87,13 +85,20 @@ final readonly class StructuredDataBuilder
      */
     public function buildArticle(Archetype $archetype, string $locale, string $url, array $variants = []): array
     {
+        $archetypeName = $archetype->getLocalizedName($locale);
+        $genre = $this->translator->trans('app.seo.tcg_genre', locale: $locale);
+
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
-            'name' => $archetype->getLocalizedName($locale),
+            'name' => $archetypeName,
+            'headline' => $this->translator->trans('app.seo.archetype_headline', ['%name%' => $archetypeName], locale: $locale),
             'url' => $url,
-            'genre' => self::TCG_GENRE,
-            'about' => self::TCG_GAME,
+            'genre' => $genre,
+            'about' => [
+                '@type' => 'Game',
+                'name' => $this->translator->trans('app.seo.tcg_game_name', locale: $locale),
+            ],
             'author' => $this->buildOrganization(),
             'publisher' => $this->buildOrganization(),
         ];
@@ -109,11 +114,12 @@ final readonly class StructuredDataBuilder
 
         if ([] !== $variants) {
             $data['hasPart'] = array_map(
-                static fn (array $variant): array => [
+                fn (array $variant): array => [
                     '@type' => 'CreativeWork',
                     'name' => $variant['name'],
                     'url' => $variant['url'],
-                    'genre' => self::TCG_GENRE,
+                    'genre' => $genre,
+                    'description' => $this->translator->trans('app.seo.variant_description', ['%name%' => $variant['name']], locale: $locale),
                 ],
                 $variants,
             );
@@ -176,7 +182,7 @@ final readonly class StructuredDataBuilder
             '@type' => 'CreativeWork',
             'name' => $deck->getName(),
             'url' => $url,
-            'genre' => self::TCG_GENRE,
+            'genre' => $this->translator->trans('app.seo.tcg_genre'),
             'dateCreated' => $deck->getCreatedAt()->format('c'),
         ];
 
