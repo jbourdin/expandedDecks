@@ -323,6 +323,31 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all public, non-retired decks, returning only sitemap-relevant fields.
+     *
+     * @see docs/features.md F18.23 — Dynamic sitemap generation
+     *
+     * @return list<array{shortTag: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}>
+     */
+    public function findPublicForSitemap(): array
+    {
+        /** @var list<array{shortTag: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}> $results */
+        $results = $this->createQueryBuilder('d')
+            ->select('d.shortTag', 'd.updatedAt', 'd.createdAt')
+            ->where('d.public = :public')
+            ->andWhere('d.status != :retired')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('public', true)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->orderBy('d.updatedAt', 'DESC')
+            ->addOrderBy('d.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Build a query for the public deck catalog with optional filters.
      *
      * When selfOwner is true the public-visibility constraint is dropped,

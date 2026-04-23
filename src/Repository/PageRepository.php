@@ -101,6 +101,33 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all published pages for a given channel, returning only sitemap-relevant fields.
+     *
+     * @see docs/features.md F18.23 — Dynamic sitemap generation
+     *
+     * @return list<array{slug: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}>
+     */
+    public function findPublishedForSitemap(?Channel $channel): array
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->select('p.slug', 'p.updatedAt', 'p.createdAt')
+            ->where('p.isPublished = true')
+            ->andWhere('p.deletedAt IS NULL')
+            ->orderBy('p.createdAt', 'DESC');
+
+        if (null !== $channel) {
+            $queryBuilder->andWhere('p.channel = :channel')->setParameter('channel', $channel);
+        } else {
+            $queryBuilder->andWhere('p.channel IS NULL');
+        }
+
+        /** @var list<array{slug: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}> $results */
+        $results = $queryBuilder->getQuery()->getResult();
+
+        return $results;
+    }
+
+    /**
      * Build a query builder for the admin page list with optional search and category filter.
      *
      * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting
