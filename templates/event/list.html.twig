@@ -14,6 +14,14 @@
     <link rel="canonical" href="{{ canonical_url('events', 'app_event_list') }}">
 {% endblock %}
 
+{% block structured_data %}
+    {% set items = [] %}
+    {% for event in events %}
+        {% set items = items|merge([{name: event.name, url: canonical_url('events', 'app_event_show', {id: event.id})}]) %}
+    {% endfor %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.event.list_title'|trans, canonical_url('events', 'app_event_list'), items)) }}</script>
+{% endblock %}
+
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.event.list_title'|trans }}</h1>

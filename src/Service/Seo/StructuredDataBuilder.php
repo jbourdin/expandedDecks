@@ -33,6 +33,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final readonly class StructuredDataBuilder
 {
+    private const TCG_GENRE = 'Pokémon TCG Expanded';
+
+    /** @var array<string, string> */
+    private const TCG_GAME = ['@type' => 'Game', 'name' => 'Pokémon Trading Card Game'];
+
     public function __construct(
         private ChannelContext $channelContext,
         private UrlGeneratorInterface $urlGenerator,
@@ -87,6 +92,8 @@ final readonly class StructuredDataBuilder
             '@type' => 'Article',
             'name' => $archetype->getLocalizedName($locale),
             'url' => $url,
+            'genre' => self::TCG_GENRE,
+            'about' => self::TCG_GAME,
             'author' => $this->buildOrganization(),
             'publisher' => $this->buildOrganization(),
         ];
@@ -106,6 +113,7 @@ final readonly class StructuredDataBuilder
                     '@type' => 'CreativeWork',
                     'name' => $variant['name'],
                     'url' => $variant['url'],
+                    'genre' => self::TCG_GENRE,
                 ],
                 $variants,
             );
@@ -168,6 +176,7 @@ final readonly class StructuredDataBuilder
             '@type' => 'CreativeWork',
             'name' => $deck->getName(),
             'url' => $url,
+            'genre' => self::TCG_GENRE,
             'dateCreated' => $deck->getCreatedAt()->format('c'),
         ];
 
@@ -182,6 +191,39 @@ final readonly class StructuredDataBuilder
         $data['dateModified'] = $lastModified->format('c');
 
         return $data;
+    }
+
+    /**
+     * Build a CollectionPage with an ItemList for catalog/listing pages.
+     *
+     * @see docs/features.md F18.27 — JSON-LD structured data
+     *
+     * @param list<array{name: string, url: string}> $items ordered list of items with name and absolute URL
+     *
+     * @return array<string, mixed>
+     */
+    public function buildCollectionPage(string $name, string $url, array $items): array
+    {
+        $listItems = [];
+        foreach ($items as $position => $item) {
+            $listItems[] = [
+                '@type' => 'ListItem',
+                'position' => $position + 1,
+                'name' => $item['name'],
+                'url' => $item['url'],
+            ];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'url' => $url,
+            'mainEntity' => [
+                '@type' => 'ItemList',
+                'itemListElement' => $listItems,
+            ],
+        ];
     }
 
     private function getBrandName(): string

@@ -63,7 +63,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('Expanded Decks', $data['publisher']['name']);
     }
 
-    public function testBuildArticleIncludesArchetypeFields(): void
+    public function testBuildArticleIncludesArchetypeFieldsAndGenre(): void
     {
         $builder = $this->createBuilder('Expanded Talks');
 
@@ -73,12 +73,15 @@ final class StructuredDataBuilderTest extends TestCase
 
         self::assertSame('Article', $data['@type']);
         self::assertSame('Iron Thorns', $data['name']);
+        self::assertSame('Pokémon TCG Expanded', $data['genre']);
+        self::assertSame('Game', $data['about']['@type']);
+        self::assertSame('Pokémon Trading Card Game', $data['about']['name']);
         self::assertArrayHasKey('datePublished', $data);
         self::assertArrayHasKey('dateModified', $data);
         self::assertArrayNotHasKey('hasPart', $data);
     }
 
-    public function testBuildArticleIncludesVariantsAsHasPart(): void
+    public function testBuildArticleIncludesVariantsAsHasPartWithGenre(): void
     {
         $builder = $this->createBuilder('Expanded Talks');
 
@@ -94,6 +97,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertCount(2, $data['hasPart']);
         self::assertSame('CreativeWork', $data['hasPart'][0]['@type']);
         self::assertSame('Spread variant', $data['hasPart'][0]['name']);
+        self::assertSame('Pokémon TCG Expanded', $data['hasPart'][0]['genre']);
         self::assertStringContainsString('#98QPPD', $data['hasPart'][0]['url']);
     }
 
@@ -149,6 +153,48 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('MistyWater', $data['author']['name']);
         self::assertArrayHasKey('dateCreated', $data);
         self::assertArrayHasKey('dateModified', $data);
+    }
+
+    public function testBuildCreativeWorkIncludesGenre(): void
+    {
+        $builder = $this->createBuilder('Expanded Decks');
+
+        $deck = new Deck();
+        $deck->setName('Test Deck');
+
+        $data = $builder->buildCreativeWork($deck, 'https://expandeddecks.wip/deck/AB3K7N');
+
+        self::assertSame('Pokémon TCG Expanded', $data['genre']);
+    }
+
+    public function testBuildCollectionPageWithItems(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $items = [
+            ['name' => 'Iron Thorns', 'url' => 'https://expandedtalks.wip/archetypes/iron-thorns'],
+            ['name' => 'Lugia VSTAR', 'url' => 'https://expandedtalks.wip/archetypes/lugia-vstar'],
+        ];
+
+        $data = $builder->buildCollectionPage('Archetypes', 'https://expandedtalks.wip/archetypes', $items);
+
+        self::assertSame('CollectionPage', $data['@type']);
+        self::assertSame('Archetypes', $data['name']);
+        self::assertSame('ItemList', $data['mainEntity']['@type']);
+        self::assertCount(2, $data['mainEntity']['itemListElement']);
+        self::assertSame(1, $data['mainEntity']['itemListElement'][0]['position']);
+        self::assertSame('Iron Thorns', $data['mainEntity']['itemListElement'][0]['name']);
+        self::assertSame(2, $data['mainEntity']['itemListElement'][1]['position']);
+    }
+
+    public function testBuildCollectionPageEmptyList(): void
+    {
+        $builder = $this->createBuilder('Expanded Decks');
+
+        $data = $builder->buildCollectionPage('Decks', 'https://expandeddecks.wip/deck', []);
+
+        self::assertSame('CollectionPage', $data['@type']);
+        self::assertSame([], $data['mainEntity']['itemListElement']);
     }
 
     public function testOrganizationUrlUsesChannelDomain(): void
