@@ -146,6 +146,56 @@ final class ChannelUrlGeneratorTest extends TestCase
     }
 
     /**
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     */
+    public function testCanonicalUrlAlwaysReturnsAbsoluteOnCorrectChannel(): void
+    {
+        // Even on the app channel, canonical for archetypes → content channel
+        $generator = $this->createGenerator($this->appChannel, findAll: [$this->contentChannel, $this->appChannel]);
+
+        $result = $generator->canonicalUrl('archetypes', 'app_archetype_show', ['slug' => 'lugia-vstar']);
+
+        self::assertSame('https://expandedtalks.wip/archetype/lugia-vstar', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     */
+    public function testCanonicalUrlReturnsAbsoluteEvenOnSameChannel(): void
+    {
+        // On content channel, canonical for archetypes is still absolute
+        $generator = $this->createGenerator($this->contentChannel, findAll: [$this->contentChannel, $this->appChannel]);
+
+        $result = $generator->canonicalUrl('archetypes', 'app_archetype_show', ['slug' => 'lugia-vstar']);
+
+        self::assertSame('https://expandedtalks.wip/archetype/lugia-vstar', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     */
+    public function testCanonicalUrlForDecksPointsToAppChannel(): void
+    {
+        $generator = $this->createGenerator($this->contentChannel, findAll: [$this->contentChannel, $this->appChannel]);
+
+        $result = $generator->canonicalUrl('decks', 'app_deck_show', ['short_tag' => 'AB3K7N']);
+
+        self::assertSame('https://expandeddecks.wip/deck/AB3K7N', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.25 — Canonical URLs on all public pages
+     */
+    public function testSelfCanonicalUrlUsesCurrentChannel(): void
+    {
+        $generator = $this->createGenerator($this->appChannel);
+
+        $result = $generator->selfCanonicalUrl('app_deck_list');
+
+        self::assertSame('https://expandeddecks.wip/decks', $result);
+    }
+
+    /**
      * @param list<Channel>|null $findAll
      */
     private function createGenerator(
