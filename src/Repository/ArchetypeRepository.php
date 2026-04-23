@@ -196,6 +196,28 @@ class ArchetypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all published archetypes, returning only sitemap-relevant fields.
+     *
+     * @see docs/features.md F18.23 — Dynamic sitemap generation
+     *
+     * @return list<array{slug: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}>
+     */
+    public function findPublishedForSitemap(): array
+    {
+        /** @var list<array{slug: string, updatedAt: ?\DateTimeImmutable, createdAt: \DateTimeImmutable}> $results */
+        $results = $this->createQueryBuilder('a')
+            ->select('a.slug', 'a.updatedAt', 'a.createdAt')
+            ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
+            ->setParameter('published', true)
+            ->orderBy('a.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     public function findPublishedBySlug(string $slug): ?Archetype
