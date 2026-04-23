@@ -15,6 +15,7 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block canonical %}{% endblock %}
         {% block meta %}{% endblock %}
+        {% block structured_data %}{% endblock %}
         {% block stylesheets %}
             {% if channel_theme() %}
                 {{ encore_entry_link_tags('theme_' ~ channel_theme()) }}
