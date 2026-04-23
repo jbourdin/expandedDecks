@@ -5107,6 +5107,27 @@
                 <target>View deck</target>
                 <note>CTA button in email</note>
             </trans-unit>
+            <!-- SEO structured data (F18.27) -->
+            <trans-unit id="app.seo.tcg_genre">
+                <source>app.seo.tcg_genre</source>
+                <target>Pokémon TCG Expanded</target>
+                <note>Genre for JSON-LD structured data on archetype and deck pages</note>
+            </trans-unit>
+            <trans-unit id="app.seo.tcg_game_name">
+                <source>app.seo.tcg_game_name</source>
+                <target>Pokémon Trading Card Game</target>
+                <note>Game name for JSON-LD about field</note>
+            </trans-unit>
+            <trans-unit id="app.seo.archetype_headline">
+                <source>app.seo.archetype_headline</source>
+                <target>%name% — Pokémon TCG Expanded Deck Archetype</target>
+                <note>Headline for archetype Article JSON-LD</note>
+            </trans-unit>
+            <trans-unit id="app.seo.variant_description">
+                <source>app.seo.variant_description</source>
+                <target>Deck list variant for the %name% archetype</target>
+                <note>Description for hasPart variant entries in archetype JSON-LD</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -13,6 +13,10 @@
     <link rel="canonical" href="{{ canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}) }}">
 {% endblock %}
 
+{% block structured_data %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildCreativeWork(deck, canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}))) }}</script>
+{% endblock %}
+
 {% macro cardSection(label, cards) %}
     <div class="card shadow-sm">
         <div class="card-header card-header-themed">

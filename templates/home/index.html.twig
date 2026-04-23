@@ -14,6 +14,10 @@
     <link rel="canonical" href="{{ self_canonical_url('app_home') }}">
 {% endblock %}
 
+{% block structured_data %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildWebSite(self_canonical_url('app_home'))) }}</script>
+{% endblock %}
+
 {% block body %}
     <div class="hero-pokemon p-5 mb-4">
         <div class="container-fluid py-3">
