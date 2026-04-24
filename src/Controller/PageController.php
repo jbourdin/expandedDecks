@@ -33,7 +33,7 @@ class PageController extends AbstractController
     /**
      * @see docs/features.md F11.2 — Menu categories
      */
-    #[Route('/pages/category/{id}', name: 'app_page_category', requirements: ['id' => '\d+'])]
+    #[Route('/{_locale}/pages/category/{id}', name: 'app_page_category', requirements: ['_locale' => 'en|fr', 'id' => '\d+'])]
     public function category(
         MenuCategory $category,
         Request $request,
@@ -69,7 +69,7 @@ class PageController extends AbstractController
     /**
      * @see docs/features.md F7.11 — Draft state with preview
      */
-    #[Route('/pages/{slug}', name: 'app_page_show', requirements: ['slug' => '[a-z0-9-]+'])]
+    #[Route('/{_locale}/pages/{slug}', name: 'app_page_show', requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
         Request $request,

@@ -83,8 +83,10 @@ final class SitemapGeneratorTest extends TestCase
 
         self::assertStringContainsString('<?xml version="1.0" encoding="UTF-8"?>', $xml);
         self::assertStringContainsString('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', $xml);
-        self::assertStringContainsString('https://expandedtalks.wip/', $xml);
-        self::assertStringContainsString('https://expandedtalks.wip/pages/about', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/en/', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/fr/', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/en/pages/about', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/fr/pages/about', $xml);
         self::assertStringContainsString('<lastmod>2026-04-01</lastmod>', $xml);
         self::assertStringContainsString('<priority>1.0</priority>', $xml);
         self::assertStringContainsString('<priority>0.6</priority>', $xml);
@@ -101,7 +103,8 @@ final class SitemapGeneratorTest extends TestCase
 
         $xml = $generator->generateCombined($this->contentChannel);
 
-        self::assertStringContainsString('https://expandedtalks.wip/archetypes/lugia-vstar', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/en/archetypes/lugia-vstar', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/fr/archetypes/lugia-vstar', $xml);
         self::assertStringContainsString('<lastmod>2026-03-15</lastmod>', $xml);
         self::assertStringContainsString('<changefreq>weekly</changefreq>', $xml);
         self::assertStringContainsString('<priority>0.8</priority>', $xml);
@@ -165,13 +168,14 @@ final class SitemapGeneratorTest extends TestCase
         self::assertStringNotContainsString('sitemap-archetypes.xml', $xml);
     }
 
-    public function testGenerateSectionIncludesHomepageEntry(): void
+    public function testGenerateSectionIncludesHomepageEntries(): void
     {
         $generator = $this->createGenerator();
 
         $xml = $generator->generateSection($this->appChannel, 'pages');
 
-        self::assertStringContainsString('https://expandeddecks.wip/', $xml);
+        self::assertStringContainsString('https://expandeddecks.wip/en/', $xml);
+        self::assertStringContainsString('https://expandeddecks.wip/fr/', $xml);
         self::assertStringContainsString('<priority>1.0</priority>', $xml);
     }
 
@@ -224,8 +228,8 @@ final class SitemapGeneratorTest extends TestCase
         self::assertSame('urlset', $document->documentElement->localName);
 
         $urls = $document->getElementsByTagName('url');
-        // homepage + 2 pages + 1 archetype = 4
-        self::assertSame(4, $urls->length);
+        // (homepage + 2 pages + 1 archetype) × 2 locales = 8
+        self::assertSame(8, $urls->length);
     }
 
     public function testGenerateIndexProducesValidXml(): void
@@ -265,10 +269,12 @@ final class SitemapGeneratorTest extends TestCase
         $urlGenerator->method('getContext')->willReturn(new RequestContext(scheme: 'https'));
         $urlGenerator->method('generate')->willReturnCallback(
             static function (string $routeName, array $parameters = []): string {
+                $locale = $parameters['_locale'] ?? null;
+
                 return match ($routeName) {
-                    'app_home' => '/',
-                    'app_page_show' => '/pages/'.$parameters['slug'],
-                    'app_archetype_show' => '/archetypes/'.$parameters['slug'],
+                    'app_home_localized' => '/'.$locale.'/',
+                    'app_page_show' => '/'.$locale.'/pages/'.$parameters['slug'],
+                    'app_archetype_show' => '/'.$locale.'/archetypes/'.$parameters['slug'],
                     'app_deck_show' => '/deck/'.$parameters['short_tag'],
                     'app_event_show' => '/event/'.$parameters['id'],
                     'app_sitemap_section' => '/sitemap-'.$parameters['section'].'.xml',

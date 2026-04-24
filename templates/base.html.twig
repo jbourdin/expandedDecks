@@ -179,6 +179,27 @@
                                 </li>
                             {% endif %}
                         {% endif %}
+                        {% if current_channel().locales|length > 1 %}
+                            {% set currentLocale = app.request.locale %}
+                            {% set alternateLocale = currentLocale == 'en' ? 'fr' : 'en' %}
+                            {% set routeParams = app.request.attributes.get('_route_params', {}) %}
+                            {% if '_locale' in routeParams|keys %}
+                                {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: alternateLocale})) %}
+                            {% else %}
+                                {% set switchUrl = path('app_locale_switch', {_locale: alternateLocale, _redirect: app.request.requestUri}) %}
+                            {% endif %}
+                            <li class="nav-item d-flex align-items-center ms-lg-2">
+                                {% if currentLocale == 'en' %}
+                                    <span class="fw-bold text-light small">EN</span>
+                                    <span class="mx-1 text-secondary">|</span>
+                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_french'|trans }}">FR</a>
+                                {% else %}
+                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_english'|trans }}">EN</a>
+                                    <span class="mx-1 text-secondary">|</span>
+                                    <span class="fw-bold text-light small">FR</span>
+                                {% endif %}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

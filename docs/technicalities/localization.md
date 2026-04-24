@@ -21,13 +21,49 @@ framework:
 
 ## Locale Detection
 
-`LocaleListener` (priority 20, after firewall) resolves the locale in this order:
+`LocaleListener` (priority 4, after firewall) resolves the locale in this order:
 
-1. **Authenticated user** -> `user.preferredLocale`, stored in session
-2. **Anonymous with session `_locale`** -> use it
-3. **Anonymous without** -> detect from `Accept-Language` header against enabled locales, fallback `en`, store in session
+1. **Route-level `_locale`** -> editorial routes use `/{_locale}/` prefix (e.g. `/en/archetypes/...`); when present, the URL dictates the language
+2. **Authenticated user** -> `user.preferredLocale`, stored in session
+3. **Anonymous with session `_locale`** -> use it
+4. **Anonymous without** -> detect from `Accept-Language` header against enabled locales, fallback `en`, store in session
 
 The `<html lang>` attribute reflects the request locale.
+
+## Locale-prefixed URL Routing
+
+Editorial routes (archetypes, CMS pages) include a `/{_locale}/` prefix so each language has a distinct URL, enabling SEO differentiation and hreflang tags.
+
+### Routes with locale prefix
+
+| Route name | Path |
+|------------|------|
+| `app_archetype_list` | `/{_locale}/archetypes` |
+| `app_archetype_show` | `/{_locale}/archetypes/{slug}` |
+| `app_archetype_variant_compare` | `/{_locale}/archetypes/{slug}/compare/{shortTagA}/{shortTagB}` |
+| `app_page_show` | `/{_locale}/pages/{slug}` |
+| `app_page_category` | `/{_locale}/pages/category/{id}` |
+| `app_home_localized` | `/{_locale}/` |
+
+### Routes without locale prefix (session-based)
+
+Decks, events, auth, admin, API, homepage (`/`) — all retain session-based locale.
+
+### Homepage special case
+
+`/` remains session-based for UX. Its canonical points to `/en/`. Localized homepage routes (`/en/`, `/fr/`) exist for hreflang purposes.
+
+### Legacy URL redirects
+
+All old unprefixed editorial URLs (e.g. `/archetypes/iron-thorns`) 301-redirect to their `/en/` equivalents. Defined in `config/routes.yaml`.
+
+### Locale switcher
+
+A navbar `EN | FR` toggle is visible when the channel supports multiple locales. On editorial routes, it swaps `_locale` directly in the URL. On session-based routes, it goes through `LocaleSwitchController` (`/locale/{_locale}`) which sets the session locale and redirects back.
+
+### URL generation
+
+Symfony auto-fills `{_locale}` from the current request context when generating URLs. All `path()` calls in Twig and `UrlGeneratorInterface::generate()` calls in PHP automatically include the locale prefix for editorial routes — no explicit `_locale` parameter needed.
 
 ## Translation Catalogues
 

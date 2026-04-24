@@ -82,8 +82,10 @@ class RobotsTxtController extends AbstractController
     {
         return [
             'Allow: /',
-            'Allow: /pages/',
-            'Allow: /archetypes',
+            'Allow: /en/pages/',
+            'Allow: /fr/pages/',
+            'Allow: /en/archetypes',
+            'Allow: /fr/archetypes',
             '',
             'Disallow: /admin/',
             'Disallow: /api/',
@@ -98,7 +100,8 @@ class RobotsTxtController extends AbstractController
     {
         return [
             'Allow: /',
-            'Allow: /pages/',
+            'Allow: /en/pages/',
+            'Allow: /fr/pages/',
             'Allow: /deck/',
             'Allow: /event',
             '',
@@ -106,6 +109,8 @@ class RobotsTxtController extends AbstractController
             'Disallow: /api/',
             'Disallow: /build/',
             'Disallow: /archetypes',
+            'Disallow: /en/archetypes',
+            'Disallow: /fr/archetypes',
             'Disallow: /borrow',
             'Disallow: /borrows',
             'Disallow: /confirm-deletion/',

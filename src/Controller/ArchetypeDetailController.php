@@ -33,7 +33,7 @@ class ArchetypeDetailController extends AbstractController
      * @see docs/features.md F7.11 — Draft state with preview
      * @see docs/features.md F9.6 — Archetype localization
      */
-    #[Route('/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['slug' => '[a-z0-9-]+'])]
+    #[Route('/{_locale}/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
         Request $request,
