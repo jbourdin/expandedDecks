@@ -14,6 +14,10 @@
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block canonical %}{% endblock %}
+        <meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
+        {% if current_channel().locales|length > 1 %}
+            <meta property="og:locale:alternate" content="{{ app.request.locale == 'fr' ? 'en_US' : 'fr_FR' }}">
+        {% endif %}
         {% block meta %}{% endblock %}
         {% block structured_data %}{% endblock %}
         {% block stylesheets %}
