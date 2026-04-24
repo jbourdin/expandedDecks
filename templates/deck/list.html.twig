@@ -10,6 +10,18 @@
 
 {% block title %}{{ 'app.deck.catalog_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('decks', 'app_deck_list') }}">
+{% endblock %}
+
+{% block structured_data %}
+    {% set items = [] %}
+    {% for deck in decks %}
+        {% set items = items|merge([{name: deck.name, url: canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag})}]) %}
+    {% endfor %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.deck.catalog_title'|trans, canonical_url('decks', 'app_deck_list'), items)) }}</script>
+{% endblock %}
+
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.deck.catalog_title'|trans }}</h1>

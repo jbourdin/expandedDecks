@@ -161,6 +161,29 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find all public, non-cancelled events, returning only sitemap-relevant fields.
+     *
+     * @see docs/features.md F18.23 — Dynamic sitemap generation
+     *
+     * @return list<array{id: int, date: \DateTimeImmutable}>
+     */
+    public function findPublicForSitemap(): array
+    {
+        /** @var list<array{id: int, date: \DateTimeImmutable}> $results */
+        $results = $this->createQueryBuilder('e')
+            ->select('e.id', 'e.date')
+            ->where('e.visibility = :visibility')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->setParameter('visibility', EventVisibility::Public)
+            ->orderBy('e.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      *
      * @return list<Event>

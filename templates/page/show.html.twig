@@ -10,6 +10,10 @@
 
 {% block title %}{{ translation.title }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ self_canonical_url('app_page_show', {slug: page.slug}) }}">
+{% endblock %}
+
 {% block meta %}
     {% if page.noIndex %}
         <meta name="robots" content="noindex">
@@ -18,6 +22,10 @@
         <meta property="og:image" content="{{ page.ogImage }}">
     {% endif %}
     <meta property="og:title" content="{{ translation.title }}">
+{% endblock %}
+
+{% block structured_data %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildWebPage(translation, page, self_canonical_url('app_page_show', {slug: page.slug}))) }}</script>
 {% endblock %}
 
 {% block body %}

@@ -10,6 +10,18 @@
 
 {% block title %}{{ 'app.archetype.catalog_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_list') }}">
+{% endblock %}
+
+{% block structured_data %}
+    {% set items = [] %}
+    {% for row in results %}
+        {% set items = items|merge([{name: row.archetype.localizedName(app.request.locale), url: canonical_url('archetypes', 'app_archetype_show', {slug: row.archetype.slug})}]) %}
+    {% endfor %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.archetype.catalog_title'|trans, canonical_url('archetypes', 'app_archetype_list'), items)) }}</script>
+{% endblock %}
+
 {% block body %}
     <h1 class="mb-4">{{ 'app.archetype.catalog_title'|trans }}</h1>
 

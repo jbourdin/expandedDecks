@@ -11,6 +11,14 @@
 
 {% block title %}{{ 'app.home.title'|trans }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ self_canonical_url('app_home') }}">
+{% endblock %}
+
+{% block structured_data %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildWebSite(self_canonical_url('app_home'))) }}</script>
+{% endblock %}
+
 {% block body %}
     {% set rowOpen = false %}
     {% set rowWidth = 0 %}

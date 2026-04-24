@@ -16,6 +16,24 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.2] — 2026-04-24
+
+Channel-aware SEO foundation: dynamic sitemaps, robots.txt, canonical URLs, and JSON-LD structured data.
+
+### Features
+
+- **Dynamic sitemap (F18.23)** — controller-driven XML sitemap at `/sitemap.xml`, channel-aware. Single combined sitemap under 50K entries, sitemap index with per-type sub-sitemaps above that. Content channel includes homepage, CMS pages, and archetypes; app channel includes homepage, CMS pages, decks, and events. `Cache-Control: public, max-age=3600`. ([#459](https://github.com/jbourdin/expandedDecks/pull/459))
+- **Channel-aware robots.txt (F18.24)** — dynamic `GET /robots.txt` replacing the static file. App channel allows `/deck/` and `/event`, blocks `/archetypes` (canonical on content channel) and auth paths. Content channel allows `/archetypes` and `/pages/`. Both include `Crawl-delay: 1` and `Sitemap:` directive. ([#460](https://github.com/jbourdin/expandedDecks/pull/460))
+- **Canonical URLs (F18.25)** — self-referencing `<link rel="canonical">` on all public pages via `{% block canonical %}`. Archetypes resolve to content channel, decks/events to app channel, CMS pages to their assigned channel. Two new Twig functions: `canonical_url()` and `self_canonical_url()`. ([#461](https://github.com/jbourdin/expandedDecks/pull/461))
+- **JSON-LD structured data (F18.27)** — `StructuredDataBuilder` service generating schema.org blocks: `WebSite` (homepage), `WebPage` (CMS), `Article` with `hasPart` for archetype variants, `Event` with cancelled status, `CreativeWork` for decks. `CollectionPage` + `ItemList` on catalog pages. Translated genre, headline, and variant descriptions (en + fr). ([#462](https://github.com/jbourdin/expandedDecks/pull/462))
+
+### Documentation
+
+- **F18 feature group** — added F18 section to `docs/features.md` with F18.23–F18.28 and new F18.29 (locale-prefixed routing).
+- **F6.13 status** — marked as Done in `docs/features.md`.
+
+---
+
 ## [1.8.1] — 2026-04-23
 
 Production deployment fix for TCGdex sync workers.

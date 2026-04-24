@@ -10,6 +10,10 @@
 
 {% block title %}{{ archetype.localizedName(app.request.locale) }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) }}">
+{% endblock %}
+
 {% block meta %}
     {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}
     {% if localizedMeta %}
@@ -17,6 +21,15 @@
         <meta property="og:description" content="{{ localizedMeta }}">
     {% endif %}
     <meta property="og:title" content="{{ archetype.localizedName(app.request.locale) }} — Expanded Decks">
+{% endblock %}
+
+{% block structured_data %}
+    {% set archetypeUrl = canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) %}
+    {% set variantParts = [] %}
+    {% for variant in variantsData %}
+        {% set variantParts = variantParts|merge([{name: variant.name, url: archetypeUrl ~ '#' ~ variant.shortTag}]) %}
+    {% endfor %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildArticle(archetype, app.request.locale, archetypeUrl, variantParts)) }}</script>
 {% endblock %}
 
 {% block stylesheets %}

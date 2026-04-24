@@ -13,7 +13,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {% block canonical %}{% endblock %}
         {% block meta %}{% endblock %}
+        {% block structured_data %}{% endblock %}
         {% block stylesheets %}
             {% if channel_theme() %}
                 {{ encore_entry_link_tags('theme_' ~ channel_theme()) }}

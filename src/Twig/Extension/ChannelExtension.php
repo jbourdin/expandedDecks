@@ -32,6 +32,8 @@ class ChannelExtension extends AbstractExtension
             new TwigFunction('is_channel', [ChannelRuntime::class, 'isChannel']),
             new TwigFunction('channel_url', [ChannelRuntime::class, 'channelUrl']),
             new TwigFunction('feature_url', [ChannelRuntime::class, 'featureUrl']),
+            new TwigFunction('canonical_url', [ChannelRuntime::class, 'canonicalUrl']),
+            new TwigFunction('self_canonical_url', [ChannelRuntime::class, 'selfCanonicalUrl']),
             new TwigFunction('channel_theme', [ChannelRuntime::class, 'channelTheme']),
             new TwigFunction('channel_param', [ChannelRuntime::class, 'channelParam']),
         ];
