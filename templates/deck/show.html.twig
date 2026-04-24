@@ -13,6 +13,14 @@
     <link rel="canonical" href="{{ canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}) }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = deck.name ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}) %}
+    {% set og_type = 'article' %}
+    {% set og_image = deck.currentVersion ? deck.currentVersion.mosaicImageUrl : null %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block structured_data %}
     <script type="application/ld+json">{{ json_ld(structured_data().buildCreativeWork(deck, canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}))) }}</script>
 {% endblock %}

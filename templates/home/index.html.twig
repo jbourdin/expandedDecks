@@ -14,6 +14,12 @@
     <link rel="canonical" href="{{ self_canonical_url('app_home') }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = self_canonical_url('app_home') %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block structured_data %}
     <script type="application/ld+json">{{ json_ld(structured_data().buildWebSite(self_canonical_url('app_home'))) }}</script>
 {% endblock %}

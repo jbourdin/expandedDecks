@@ -14,13 +14,19 @@
     <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = archetype.localizedName(app.request.locale) ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_description = archetype.localizedMetaDescription(app.request.locale) %}
+    {% set og_url = canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) %}
+    {% set og_type = 'article' %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block meta %}
     {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}
     {% if localizedMeta %}
         <meta name="description" content="{{ localizedMeta }}">
-        <meta property="og:description" content="{{ localizedMeta }}">
     {% endif %}
-    <meta property="og:title" content="{{ archetype.localizedName(app.request.locale) }} — Expanded Decks">
 {% endblock %}
 
 {% block structured_data %}
