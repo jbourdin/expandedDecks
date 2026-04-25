@@ -16,6 +16,37 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.3] — 2026-04-25
+
+Locale-prefixed URL routing, hreflang tags, and locale switcher for editorial content.
+
+### Features
+
+- **Locale-prefixed routing (F18.29)** — editorial routes (archetypes, CMS pages) now use `/{_locale}/` prefix so each language has a distinct URL (e.g. `/en/archetypes/iron-thorns` vs `/fr/archetypes/iron-thorns`). Homepage gains localized routes (`/en/`, `/fr/`) alongside the session-based `/`. Non-editorial routes (decks, events, auth, admin) remain session-based. `LocaleListener` updated: route-level `_locale` is now the highest priority in locale resolution. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **Hreflang tags (F18.26)** — `<link rel="alternate" hreflang="...">` on all locale-prefixed pages via `{% block hreflang %}` in base template. Archetype templates override for cross-channel URL targeting. `x-default` points to English. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **Locale switcher** — navbar `EN | FR` toggle visible when channel supports multiple locales. Swaps `_locale` directly in the URL on editorial routes; uses `LocaleSwitchController` for session-based routes. Also persists user's `preferredLocale` if authenticated. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **OG locale meta tags** — `og:locale` and `og:locale:alternate` on all pages for social sharing platforms. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **301 redirects** — all legacy unprefixed editorial URLs redirect to `/en/` equivalents for SEO continuity. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+
+### Infrastructure
+
+- **Sitemap** — editorial entries (homepage, pages, archetypes) now generated for each supported locale. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **robots.txt** — allow/disallow rules updated for locale-prefixed paths on both channels. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **Homepage canonical** — now points to `/en/` instead of `/`. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **postcss vulnerability** — bumped postcss to ≥8.5.10 to resolve GHSA-qx2v-qp2m-jg93 (moderate XSS). ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+
+### Testing & Quality
+
+- **4 new LocaleListener tests** — route locale priority, user preference override, unsupported locale fallback, channel constraint. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+- **7 new LocaleSwitchController tests** — locale switch, redirect, open redirect prevention, authenticated user preference update, unsupported locale 404. ([#466](https://github.com/jbourdin/expandedDecks/pull/466))
+
+### Documentation
+
+- **F18.26 and F18.29** — marked as Done in `docs/features.md`.
+- **Localization docs** — new locale-prefixed routing section in `docs/technicalities/localization.md`.
+
+---
+
 ## [1.8.2] — 2026-04-24
 
 Channel-aware SEO foundation: dynamic sitemaps, robots.txt, canonical URLs, and JSON-LD structured data.
