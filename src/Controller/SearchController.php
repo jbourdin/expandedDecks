@@ -36,7 +36,7 @@ class SearchController extends AbstractController
         $typeFilter = $request->query->getString('type') ?: null;
         $locale = $request->getLocale();
 
-        $validTypes = ['archetypes', 'pages', 'events', 'decks'];
+        $validTypes = ['archetypes', 'variants', 'pages', 'events', 'decks'];
         if (null !== $typeFilter && !\in_array($typeFilter, $validTypes, true)) {
             $typeFilter = null;
         }

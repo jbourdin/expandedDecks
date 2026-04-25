@@ -26,6 +26,7 @@ final readonly class SearchResult
         public string $excerpt,
         public string $slug,
         public ?string $secondaryInfo = null,
+        public ?string $archetypeSlug = null,
     ) {
     }
 
@@ -44,6 +45,7 @@ final readonly class SearchResult
             excerpt: self::extractExcerpt($formatted, $type),
             slug: self::extractSlug($hit, $type),
             secondaryInfo: self::extractSecondaryInfo($hit, $type),
+            archetypeSlug: \is_string($hit['archetypeSlug'] ?? null) ? $hit['archetypeSlug'] : null,
         );
     }
 
@@ -98,7 +100,7 @@ final readonly class SearchResult
     private static function extractSlug(array $hit, string $type): string
     {
         return match ($type) {
-            'deck' => \is_string($hit['shortTag'] ?? null) ? $hit['shortTag'] : '',
+            'deck', 'variant' => \is_string($hit['shortTag'] ?? null) ? $hit['shortTag'] : '',
             'event' => \is_string($hit['id'] ?? null) ? $hit['id'] : (\is_int($hit['id'] ?? null) ? (string) $hit['id'] : ''),
             default => \is_string($hit['slug'] ?? null) ? $hit['slug'] : '',
         };
@@ -112,6 +114,7 @@ final readonly class SearchResult
         return match ($type) {
             'event' => \is_string($hit['date'] ?? null) ? $hit['date'] : null,
             'deck' => \is_string($hit['ownerName'] ?? null) ? $hit['ownerName'] : null,
+            'variant' => \is_string($hit['archetypeName'] ?? null) ? $hit['archetypeName'] : null,
             default => null,
         };
     }

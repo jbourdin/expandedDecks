@@ -38,6 +38,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class SearchIndexer
 {
     public const string INDEX_ARCHETYPES = 'archetypes';
+    public const string INDEX_VARIANTS = 'variants';
     public const string INDEX_PAGES = 'pages';
     public const string INDEX_EVENTS = 'events';
     public const string INDEX_DECKS = 'decks';
@@ -63,13 +64,14 @@ class SearchIndexer
     /**
      * Delete all indexes and recreate them with correct settings and full data.
      *
-     * @return array{archetypes: int, pages: int, events: int, decks: int} Document counts per index
+     * @return array{archetypes: int, variants: int, pages: int, events: int, decks: int} Document counts per index
      */
     public function reindexAll(): array
     {
         $counts = [];
 
         $counts[self::INDEX_ARCHETYPES] = $this->reindexArchetypes();
+        $counts[self::INDEX_VARIANTS] = $this->reindexVariants();
         $counts[self::INDEX_PAGES] = $this->reindexPages();
         $counts[self::INDEX_EVENTS] = $this->reindexEvents();
         $counts[self::INDEX_DECKS] = $this->reindexDecks();
@@ -96,6 +98,34 @@ class SearchIndexer
             $ids[] = $archetype->getId().'_'.$locale;
         }
         $this->deleteDocumentsSafe(self::INDEX_ARCHETYPES, $ids);
+    }
+
+    /**
+     * Index a single archetype variant (deck with no owner).
+     * Includes all card names from the current version for card-based search.
+     */
+    public function indexVariant(Deck $variant): void
+    {
+        if (null !== $variant->getOwner() || $variant->getDeletedAt() instanceof \DateTimeImmutable) {
+            $this->removeVariant($variant);
+
+            return;
+        }
+
+        $archetype = $variant->getArchetype();
+        if (null === $archetype || !$archetype->isPublished()) {
+            $this->removeVariant($variant);
+
+            return;
+        }
+
+        $document = $this->mapVariant($variant);
+        $this->client->index(self::INDEX_VARIANTS)->addDocuments([$document]);
+    }
+
+    public function removeVariant(Deck $variant): void
+    {
+        $this->deleteDocumentsSafe(self::INDEX_VARIANTS, [$variant->getShortTag()]);
     }
 
     public function indexPage(Page $page): void
@@ -198,6 +228,39 @@ class SearchIndexer
         }
 
         $this->logger->info('Indexed {count} archetype documents.', ['count' => \count($documents)]);
+
+        return \count($documents);
+    }
+
+    private function reindexVariants(): int
+    {
+        $index = $this->client->index(self::INDEX_VARIANTS);
+
+        try {
+            $this->client->deleteIndex(self::INDEX_VARIANTS);
+        } catch (\Throwable) {
+            // Index may not exist yet
+        }
+
+        $this->client->createIndex(self::INDEX_VARIANTS, ['primaryKey' => 'id']);
+        $index->updateSettings([
+            'searchableAttributes' => ['name', 'archetypeName', 'cardNames'],
+            'filterableAttributes' => ['archetypeSlug'],
+            'displayedAttributes' => ['id', 'name', 'shortTag', 'archetypeName', 'archetypeSlug', 'type'],
+        ]);
+
+        $variants = $this->deckRepository->findVariantsForSearch();
+        $documents = [];
+
+        foreach ($variants as $variant) {
+            $documents[] = $this->mapVariant($variant);
+        }
+
+        if ([] !== $documents) {
+            $index->addDocuments($documents);
+        }
+
+        $this->logger->info('Indexed {count} variant documents.', ['count' => \count($documents)]);
 
         return \count($documents);
     }
@@ -387,6 +450,30 @@ class SearchIndexer
             'archetypeName' => $deck->getArchetype()?->getName() ?? '',
             'ownerName' => $deck->getOwner()?->getScreenName() ?? '',
             'format' => $deck->getFormat(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapVariant(Deck $variant): array
+    {
+        $cardNames = [];
+        $currentVersion = $variant->getCurrentVersion();
+        if (null !== $currentVersion) {
+            foreach ($currentVersion->getCards() as $card) {
+                $cardNames[] = $card->getCardName();
+            }
+        }
+
+        return [
+            'id' => $variant->getShortTag(),
+            'type' => 'variant',
+            'name' => $variant->getName(),
+            'shortTag' => $variant->getShortTag(),
+            'archetypeName' => $variant->getArchetype()?->getName() ?? '',
+            'archetypeSlug' => $variant->getArchetype()?->getSlug() ?? '',
+            'cardNames' => implode(' ', array_unique($cardNames)),
         ];
     }
 

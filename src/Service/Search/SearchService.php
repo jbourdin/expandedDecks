@@ -49,6 +49,7 @@ class SearchService
      *
      * @return array{
      *     archetypes: list<SearchResult>,
+     *     variants: list<SearchResult>,
      *     pages: list<SearchResult>,
      *     events: list<SearchResult>,
      *     decks: list<SearchResult>,
@@ -58,6 +59,7 @@ class SearchService
     {
         $results = [
             'archetypes' => [],
+            'variants' => [],
             'pages' => [],
             'events' => [],
             'decks' => [],
@@ -96,6 +98,7 @@ class SearchService
      *
      * @return array{
      *     archetypes: list<SearchResult>,
+     *     variants: list<SearchResult>,
      *     pages: list<SearchResult>,
      *     events: list<SearchResult>,
      *     decks: list<SearchResult>,
@@ -113,7 +116,8 @@ class SearchService
     {
         if (null !== $typeFilter) {
             return match ($typeFilter) {
-                'archetypes' => [SearchIndexer::INDEX_ARCHETYPES],
+                'archetypes' => [SearchIndexer::INDEX_ARCHETYPES, SearchIndexer::INDEX_VARIANTS],
+                'variants' => [SearchIndexer::INDEX_VARIANTS],
                 'pages' => [SearchIndexer::INDEX_PAGES],
                 'events' => [SearchIndexer::INDEX_EVENTS],
                 'decks' => [SearchIndexer::INDEX_DECKS],
@@ -123,6 +127,7 @@ class SearchService
 
         return [
             SearchIndexer::INDEX_ARCHETYPES,
+            SearchIndexer::INDEX_VARIANTS,
             SearchIndexer::INDEX_PAGES,
             SearchIndexer::INDEX_EVENTS,
             SearchIndexer::INDEX_DECKS,
@@ -155,6 +160,7 @@ class SearchService
     {
         return match ($indexName) {
             SearchIndexer::INDEX_ARCHETYPES => 'archetypes',
+            SearchIndexer::INDEX_VARIANTS => 'variants',
             SearchIndexer::INDEX_PAGES => 'pages',
             SearchIndexer::INDEX_EVENTS => 'events',
             SearchIndexer::INDEX_DECKS => 'decks',

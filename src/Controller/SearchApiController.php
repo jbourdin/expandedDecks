@@ -76,6 +76,7 @@ class SearchApiController extends AbstractController
     ): string {
         return match ($result->type) {
             'archetype' => $urlGenerator->generate('app_archetype_show', ['slug' => $result->slug, '_locale' => $locale]),
+            'variant' => $urlGenerator->generate('app_archetype_show', ['slug' => $result->archetypeSlug ?? '', '_locale' => $locale]).'#'.$result->slug,
             'page' => $urlGenerator->generate('app_page_show', ['slug' => $result->slug, '_locale' => $locale]),
             'event' => $urlGenerator->generate('app_event_show', ['id' => $result->slug]),
             'deck' => $urlGenerator->generate('app_deck_show', ['short_tag' => $result->slug]),
