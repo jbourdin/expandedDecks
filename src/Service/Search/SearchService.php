@@ -30,6 +30,7 @@ class SearchService
 {
     private const int QUICK_SEARCH_LIMIT = 3;
     private const int FULL_SEARCH_LIMIT = 20;
+    private const float RANKING_SCORE_THRESHOLD = 0.3;
 
     private readonly Client $client;
 
@@ -139,6 +140,7 @@ class SearchService
             'attributesToHighlight' => ['*'],
             'highlightPreTag' => '<mark>',
             'highlightPostTag' => '</mark>',
+            'rankingScoreThreshold' => self::RANKING_SCORE_THRESHOLD,
         ];
 
         // Translatable indexes support locale filtering
