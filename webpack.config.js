@@ -56,6 +56,7 @@ Encore
     .addEntry('catalog_filters', './assets/catalog-filters.tsx')
     .addEntry('event_sync', './assets/event-sync.ts')
     .addEntry('notification_bell', './assets/notification-bell.tsx')
+    .addEntry('navbar_search', './assets/navbar-search.tsx')
     .addEntry('deck_version_compare', './assets/deck-version-compare.tsx')
     .addEntry('variant_compare', './assets/variant-compare.tsx')
     .addEntry('variant_compare_modal', './assets/variant-compare-modal.tsx')
