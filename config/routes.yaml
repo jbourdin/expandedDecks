@@ -10,3 +10,34 @@ app_favicon_redirect:
     defaults:
         path: /favicon.svg
         permanent: true
+
+# Legacy URL redirects — SEO continuity for locale-prefixed routes (F18.29)
+# Old unprefixed editorial paths redirect to the English (/en/) equivalent.
+app_redirect_archetype_list:
+    path: /archetypes
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults: { route: app_archetype_list, _locale: en, permanent: true }
+
+app_redirect_archetype_show:
+    path: /archetypes/{slug}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults: { route: app_archetype_show, _locale: en, permanent: true }
+    requirements: { slug: '[a-z0-9-]+' }
+
+app_redirect_archetype_variant_compare:
+    path: /archetypes/{slug}/compare/{shortTagA}/{shortTagB}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults: { route: app_archetype_variant_compare, _locale: en, permanent: true }
+    requirements: { slug: '[a-z0-9-]+', shortTagA: '[A-HJ-NP-Z0-9]{6}', shortTagB: '[A-HJ-NP-Z0-9]{6}' }
+
+app_redirect_page_show:
+    path: /pages/{slug}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults: { route: app_page_show, _locale: en, permanent: true }
+    requirements: { slug: '[a-z0-9-]+' }
+
+app_redirect_page_category:
+    path: /pages/category/{id}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults: { route: app_page_category, _locale: en, permanent: true }
+    requirements: { id: '\d+' }

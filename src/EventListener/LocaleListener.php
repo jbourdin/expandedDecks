@@ -24,10 +24,11 @@ use Symfony\Component\Translation\LocaleSwitcher;
 
 /**
  * Sets the request locale based on (in order of priority):
- * 1. Authenticated user's preferredLocale
- * 2. Existing session locale
- * 3. Accept-Language header detection
- * 4. Default locale (en)
+ * 1. Route-level _locale parameter (e.g. /{_locale}/archetypes)
+ * 2. Authenticated user's preferredLocale
+ * 3. Existing session locale
+ * 4. Accept-Language header detection
+ * 5. Default locale (en)
  *
  * Runs after the firewall (priority 8) so the authenticated user is available,
  * and uses LocaleSwitcher to propagate the locale to the Translator and all
@@ -35,6 +36,7 @@ use Symfony\Component\Translation\LocaleSwitcher;
  * at priority 15).
  *
  * @see docs/features.md F9.1 — User language preference
+ * @see docs/features.md F18.29 — Locale-prefixed URL routing
  */
 #[AsEventListener(event: KernelEvents::REQUEST, priority: 4)]
 class LocaleListener
@@ -58,6 +60,17 @@ class LocaleListener
 
         $channel = $request->attributes->get('_channel');
         $channelLocales = $channel instanceof Channel ? $channel->getLocales() : self::SUPPORTED_LOCALES;
+
+        // Route-level _locale takes precedence (e.g. /{_locale}/archetypes).
+        // Symfony's router already set this attribute; honour it so the URL
+        // always dictates the rendering language.
+        $routeLocale = $request->attributes->get('_locale');
+        if (\is_string($routeLocale) && \in_array($routeLocale, self::SUPPORTED_LOCALES, true)) {
+            $locale = $this->constrainToChannel($routeLocale, $channelLocales);
+            $this->applyLocale($request, $locale);
+
+            return;
+        }
 
         $user = $this->security->getUser();
 

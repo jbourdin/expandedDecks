@@ -25,7 +25,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     public function testComparePageAccessibleAnonymously(): void
     {
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
+        $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h5', 'Compare');
@@ -34,7 +34,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     public function testComparePageShowsDiffSections(): void
     {
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $crawler = $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
 
         // Both variants use the same raw list in fixtures, so diff should show "identical"
         self::assertResponseIsSuccessful();
@@ -45,7 +45,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     public function testComparePageWithVariantSelectors(): void
     {
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $crawler = $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/'.$tagB);
 
         // React island mount point for variant pickers should exist
         self::assertSelectorExists('#variant-compare-picker-root');
@@ -55,7 +55,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     {
         // Kyurem archetype is unpublished in fixtures
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $this->client->request('GET', '/archetypes/nonexistent-archetype/compare/'.$tagA.'/'.$tagB);
+        $this->client->request('GET', '/en/archetypes/nonexistent-archetype/compare/'.$tagA.'/'.$tagB);
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -63,7 +63,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     public function testCompare404ForDeletedArchetype(): void
     {
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $this->client->request('GET', '/archetypes/deleted-slug/compare/'.$tagA.'/'.$tagB);
+        $this->client->request('GET', '/en/archetypes/deleted-slug/compare/'.$tagA.'/'.$tagB);
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -71,7 +71,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
     public function testCompare404ForNonExistentVariant(): void
     {
         [$tagA] = $this->getRegidragoVariantShortTags();
-        $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/ZZZ999');
+        $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/ZZZ999');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -82,7 +82,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
         [$tagA] = $this->getRegidragoVariantShortTags();
         $tagNoVersion = $this->getVariantShortTag('Third Regidrago');
 
-        $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/'.$tagNoVersion);
+        $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/'.$tagNoVersion);
 
         self::assertResponseIsSuccessful();
         // Should show warning about missing version
@@ -95,7 +95,7 @@ class ArchetypeVariantCompareControllerTest extends AbstractFunctionalTest
 
         // Even if archetype were unpublished, preview mode with editor should work
         [$tagA, $tagB] = $this->getRegidragoVariantShortTags();
-        $this->client->request('GET', '/archetypes/regidrago/compare/'.$tagA.'/'.$tagB.'?preview=true');
+        $this->client->request('GET', '/en/archetypes/regidrago/compare/'.$tagA.'/'.$tagB.'?preview=true');
 
         self::assertResponseIsSuccessful();
     }

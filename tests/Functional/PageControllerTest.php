@@ -22,21 +22,21 @@ class PageControllerTest extends AbstractFunctionalTest
 
     public function testPublishedPageIsAccessible(): void
     {
-        $this->client->request('GET', '/pages/welcome', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/welcome', server: self::CONTENT_HOST);
 
         self::assertResponseIsSuccessful();
     }
 
     public function testUnpublishedPageReturns404ForAnonymous(): void
     {
-        $this->client->request('GET', '/pages/upcoming-features', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/upcoming-features', server: self::CONTENT_HOST);
 
         self::assertResponseStatusCodeSame(404);
     }
 
     public function testUnpublishedPageReturns404ForAnonymousWithPreview(): void
     {
-        $this->client->request('GET', '/pages/upcoming-features?preview=true', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/upcoming-features?preview=true', server: self::CONTENT_HOST);
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -48,7 +48,7 @@ class PageControllerTest extends AbstractFunctionalTest
             '_email' => 'admin@example.com',
             '_password' => 'password',
         ]);
-        $this->client->request('GET', '/pages/upcoming-features?preview=true', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/upcoming-features?preview=true', server: self::CONTENT_HOST);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.alert-warning');
@@ -61,7 +61,7 @@ class PageControllerTest extends AbstractFunctionalTest
             '_email' => 'admin@example.com',
             '_password' => 'password',
         ]);
-        $this->client->request('GET', '/pages/upcoming-features', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/upcoming-features', server: self::CONTENT_HOST);
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -73,14 +73,14 @@ class PageControllerTest extends AbstractFunctionalTest
         $category = $repository->findOneBy([]);
         self::assertNotNull($category);
 
-        $this->client->request('GET', \sprintf('/pages/category/%d', $category->getId()), server: self::CONTENT_HOST);
+        $this->client->request('GET', \sprintf('/en/pages/category/%d', $category->getId()), server: self::CONTENT_HOST);
 
         self::assertResponseIsSuccessful();
     }
 
     public function testNonExistentPageReturns404(): void
     {
-        $this->client->request('GET', '/pages/nonexistent-slug', server: self::CONTENT_HOST);
+        $this->client->request('GET', '/en/pages/nonexistent-slug', server: self::CONTENT_HOST);
 
         self::assertResponseStatusCodeSame(404);
     }

@@ -33,7 +33,7 @@ class ArchetypeVariantCompareController extends AbstractController
     /**
      * Display a side-by-side diff of two archetype variants' current deck lists.
      */
-    #[Route('/archetypes/{slug}/compare/{shortTagA}/{shortTagB}', name: 'app_archetype_variant_compare', methods: ['GET'], requirements: ['slug' => '[a-z0-9-]+', 'shortTagA' => '[A-HJ-NP-Z0-9]{6}', 'shortTagB' => '[A-HJ-NP-Z0-9]{6}'])]
+    #[Route('/{_locale}/archetypes/{slug}/compare/{shortTagA}/{shortTagB}', name: 'app_archetype_variant_compare', methods: ['GET'], requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+', 'shortTagA' => '[A-HJ-NP-Z0-9]{6}', 'shortTagB' => '[A-HJ-NP-Z0-9]{6}'])]
     public function compare(
         string $slug,
         string $shortTagA,

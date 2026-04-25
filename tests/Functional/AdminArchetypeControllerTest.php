@@ -205,7 +205,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
      */
     public function testPlaystyleTagsDisplayedOnDetailPage(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.badge.bg-secondary');

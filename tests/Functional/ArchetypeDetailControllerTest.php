@@ -23,7 +23,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 {
     public function testPublishedArchetypeReturns200(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Regidrago');
@@ -31,7 +31,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testDisplaysSpritesInHeader(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('h1 .archetype-sprites');
@@ -40,7 +40,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testRendersMarkdownDescription(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.cms-content');
@@ -49,16 +49,16 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testExpandsArchetypeTags(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         // Kyurem archetype tag should be rendered as a link
-        self::assertSelectorExists('.cms-content a[href="/archetypes/kyurem"]');
+        self::assertSelectorExists('.cms-content a[href="/en/archetypes/kyurem"]');
     }
 
     public function testExpandsCardTags(): void
     {
-        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         $content = $crawler->filter('.cms-content')->html();
@@ -69,7 +69,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testDisplaysLatestDecks(): void
     {
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.list-group-item');
@@ -78,7 +78,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testUnpublishedArchetypeReturns404ForAnonymous(): void
     {
-        $this->client->request('GET', '/archetypes/lugia-archeops');
+        $this->client->request('GET', '/en/archetypes/lugia-archeops');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -86,7 +86,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
     public function testUnpublishedArchetypeReturns404ForRegularUser(): void
     {
         $this->loginAs('borrower@example.com');
-        $this->client->request('GET', '/archetypes/lugia-archeops');
+        $this->client->request('GET', '/en/archetypes/lugia-archeops');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -94,7 +94,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
     public function testUnpublishedArchetypeAccessibleByAdminWithPreview(): void
     {
         $this->loginAs('admin@example.com');
-        $this->client->request('GET', '/archetypes/lugia-archeops?preview=true');
+        $this->client->request('GET', '/en/archetypes/lugia-archeops?preview=true');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.alert-warning');
@@ -103,14 +103,14 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
     public function testUnpublishedArchetypeReturns404ForAdminWithoutPreview(): void
     {
         $this->loginAs('admin@example.com');
-        $this->client->request('GET', '/archetypes/lugia-archeops');
+        $this->client->request('GET', '/en/archetypes/lugia-archeops');
 
         self::assertResponseStatusCodeSame(404);
     }
 
     public function testNonExistentSlugReturns404(): void
     {
-        $this->client->request('GET', '/archetypes/nonexistent-archetype');
+        $this->client->request('GET', '/en/archetypes/nonexistent-archetype');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -124,7 +124,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         $archetype->setDeletedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -140,7 +140,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         $archetype->setDeletedAt(new \DateTimeImmutable());
         $entityManager->flush();
 
-        $this->client->request('GET', '/archetypes/regidrago');
+        $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -156,7 +156,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
         $translation->setMetaDescription('The best deck in Expanded format.');
         $entityManager->flush();
 
-        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         $metaTag = $crawler->filter('meta[name="description"]');
@@ -165,7 +165,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
 
     public function testMultipleSpriteArchetype(): void
     {
-        $this->client->request('GET', '/archetypes/ancient-box');
+        $this->client->request('GET', '/en/archetypes/ancient-box');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('img.archetype-sprite[title="Roaring Moon"]');
@@ -181,7 +181,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
      */
     public function testArchetypeWithVariantsShowsVariantSelector(): void
     {
-        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('#archetype-variant-selector-root');
@@ -204,7 +204,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
      */
     public function testVariantDataContainsExpectedFields(): void
     {
-        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
 
@@ -228,7 +228,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
      */
     public function testVariantDataContainsDescription(): void
     {
-        $crawler = $this->client->request('GET', '/archetypes/regidrago');
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
 
         self::assertResponseIsSuccessful();
 
@@ -247,7 +247,7 @@ class ArchetypeDetailControllerTest extends AbstractFunctionalTest
      */
     public function testArchetypeWithoutVariantsHasNoSelector(): void
     {
-        $this->client->request('GET', '/archetypes/iron-thorns-ex');
+        $this->client->request('GET', '/en/archetypes/iron-thorns-ex');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('#archetype-variant-selector-root');

@@ -28,7 +28,7 @@ class ArchetypeCatalogController extends AbstractController
      * @see docs/features.md F2.16 — Archetype catalog
      * @see docs/features.md F7.11 — Draft state with preview
      */
-    #[Route('/archetypes', name: 'app_archetype_list', methods: ['GET'], priority: 10)]
+    #[Route('/{_locale}/archetypes', name: 'app_archetype_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
     public function list(Request $request, ArchetypeRepository $archetypeRepository): Response
     {
         $showDrafts = $request->query->getBoolean('drafts') && $this->isGranted('ROLE_ARCHETYPE_EDITOR');
