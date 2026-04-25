@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Combobox, TextInput, useCombobox } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
@@ -53,8 +53,8 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
     const abortRef = useRef<AbortController | null>(null);
     const combobox = useCombobox();
 
-    const fetchResults = useCallback(async (searchQuery: string) => {
-        if (searchQuery.length < 2) {
+    useEffect(() => {
+        if (debouncedQuery.length < 2) {
             setGroups([]);
             return;
         }
@@ -64,27 +64,28 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
         abortRef.current = controller;
 
         setLoading(true);
-        try {
-            const separator = searchUrl.includes('?') ? '&' : '?';
-            const url = `${searchUrl}${separator}q=${encodeURIComponent(searchQuery)}`;
-            const response = await fetch(url, { signal: controller.signal });
-            if (!response.ok) return;
-            const data: SearchGroup[] = await response.json();
-            setGroups(data);
+        const separator = searchUrl.includes('?') ? '&' : '?';
+        const url = `${searchUrl}${separator}q=${encodeURIComponent(debouncedQuery)}`;
 
-            if (data.length > 0 || searchQuery.length >= 2) {
-                combobox.openDropdown();
-            }
-        } catch {
-            // Aborted or network error
-        } finally {
-            setLoading(false);
-        }
-    }, [searchUrl, combobox]);
+        fetch(url, { signal: controller.signal })
+            .then((response) => {
+                if (!response.ok) return;
+                return response.json();
+            })
+            .then((data: SearchGroup[] | undefined) => {
+                if (data) {
+                    setGroups(data);
+                    combobox.openDropdown();
+                }
+            })
+            .catch(() => {
+                // Aborted or network error
+            })
+            .finally(() => setLoading(false));
 
-    useEffect(() => {
-        fetchResults(debouncedQuery);
-    }, [debouncedQuery, fetchResults]);
+        return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- combobox is stable but not referentially equal
+    }, [debouncedQuery, searchUrl]);
 
     const hasResults = groups.some((group) => group.items.length > 0);
 
