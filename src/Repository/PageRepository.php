@@ -128,6 +128,29 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all published, indexable pages with their translations eagerly loaded.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Page>
+     */
+    public function findPublishedForSearch(): array
+    {
+        /** @var list<Page> $results */
+        $results = $this->createQueryBuilder('p')
+            ->addSelect('t')
+            ->leftJoin('p.translations', 't')
+            ->where('p.isPublished = true')
+            ->andWhere('p.noIndex = false')
+            ->andWhere('p.deletedAt IS NULL')
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Build a query builder for the admin page list with optional search and category filter.
      *
      * @see docs/features.md F7.10 — Admin pages: filter by category and drag-and-drop sorting

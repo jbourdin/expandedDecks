@@ -5101,6 +5101,81 @@
                 <target>Variante de deck pour l'archétype %name%</target>
                 <note>Description for hasPart variant entries in archetype JSON-LD</note>
             </trans-unit>
+            <trans-unit id="app.search.title">
+                <source>app.search.title</source>
+                <target>Recherche</target>
+                <note>Search page heading (no query)</note>
+            </trans-unit>
+            <trans-unit id="app.search.results_title">
+                <source>app.search.results_title</source>
+                <target>Résultats pour « %query% »</target>
+                <note>Search page heading with query</note>
+            </trans-unit>
+            <trans-unit id="app.search.result_count">
+                <source>app.search.result_count</source>
+                <target>%count% résultats</target>
+                <note>Result count badge</note>
+            </trans-unit>
+            <trans-unit id="app.search.placeholder">
+                <source>app.search.placeholder</source>
+                <target>Rechercher decks, archétypes, événements, pages…</target>
+                <note>Search input placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.search.button">
+                <source>app.search.button</source>
+                <target>Rechercher</target>
+                <note>Search submit button</note>
+            </trans-unit>
+            <trans-unit id="app.search.no_results">
+                <source>app.search.no_results</source>
+                <target>Aucun résultat pour « %query% ». Essayez un autre terme de recherche.</target>
+                <note>Empty state message</note>
+            </trans-unit>
+            <trans-unit id="app.search.type.all">
+                <source>app.search.type.all</source>
+                <target>Tout</target>
+                <note>Type filter tab: all types</note>
+            </trans-unit>
+            <trans-unit id="app.search.type.archetypes">
+                <source>app.search.type.archetypes</source>
+                <target>Archétypes</target>
+                <note>Type filter tab</note>
+            </trans-unit>
+            <trans-unit id="app.search.type.pages">
+                <source>app.search.type.pages</source>
+                <target>Pages</target>
+                <note>Type filter tab</note>
+            </trans-unit>
+            <trans-unit id="app.search.type.events">
+                <source>app.search.type.events</source>
+                <target>Événements</target>
+                <note>Type filter tab</note>
+            </trans-unit>
+            <trans-unit id="app.search.type.decks">
+                <source>app.search.type.decks</source>
+                <target>Decks</target>
+                <note>Type filter tab</note>
+            </trans-unit>
+            <trans-unit id="app.search.see_all_type">
+                <source>app.search.see_all_type</source>
+                <target>Voir tous les %type%</target>
+                <note>Link to type-filtered search</note>
+            </trans-unit>
+            <trans-unit id="app.search.navbar_placeholder">
+                <source>app.search.navbar_placeholder</source>
+                <target>Rechercher…</target>
+                <note>Navbar search input placeholder</note>
+            </trans-unit>
+            <trans-unit id="app.search.navbar_see_all">
+                <source>app.search.navbar_see_all</source>
+                <target>Voir tous les résultats</target>
+                <note>Navbar autocomplete: link to full results page</note>
+            </trans-unit>
+            <trans-unit id="app.search.navbar_no_results">
+                <source>app.search.navbar_no_results</source>
+                <target>Aucun résultat</target>
+                <note>Navbar autocomplete: empty state</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

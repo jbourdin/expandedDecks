@@ -91,6 +91,7 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
+                            {% include '_partials/navbar_search.html.twig' %}
                             {% if channel.enableDecks %}
                                 <li class="nav-item d-flex align-items-center me-2">
                                     <div id="notification-bell-root"
@@ -185,6 +186,7 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
+                            {% include '_partials/navbar_search.html.twig' %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
@@ -265,6 +267,8 @@
 
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
+            {{ encore_entry_script_tags('navbar_search') }}
+            {{ encore_entry_link_tags('navbar_search') }}
             {% if app.user and channel is defined and channel.enableDecks %}
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}

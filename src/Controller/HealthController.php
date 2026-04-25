@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Liveness and readiness probes for container orchestration.
@@ -28,9 +29,12 @@ class HealthController
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'APP_VERSION')]
         private readonly string $appVersion,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'MEILI_URL')]
+        private readonly string $meilisearchUrl,
     ) {
     }
 
@@ -58,6 +62,10 @@ class HealthController
         if ('ok' !== $checks['database']['status']) {
             $healthy = false;
         }
+
+        // MeiliSearch is a non-critical dependency: search degrades gracefully
+        // to database LIKE queries when unavailable. Reported but not fatal.
+        $checks['meilisearch'] = $this->checkMeilisearch();
 
         return new JsonResponse(
             ['status' => $healthy ? 'healthy' : 'unhealthy', 'version' => $this->appVersion, 'checks' => $checks],
@@ -97,6 +105,29 @@ class HealthController
             $latency = (hrtime(true) - $start) / 1_000_000;
 
             return ['status' => 'ok', 'latency_ms' => round($latency, 1)];
+        } catch (\Throwable $exception) {
+            return ['status' => 'fail', 'error' => $exception->getMessage()];
+        }
+    }
+
+    /**
+     * @return array{status: string, latency_ms?: float, error?: string}
+     */
+    private function checkMeilisearch(): array
+    {
+        try {
+            $start = hrtime(true);
+            $response = $this->httpClient->request('GET', $this->meilisearchUrl.'/health');
+            $data = $response->toArray();
+            $latency = (hrtime(true) - $start) / 1_000_000;
+
+            if ('available' === ($data['status'] ?? null)) {
+                return ['status' => 'ok', 'latency_ms' => round($latency, 1)];
+            }
+
+            $meiliStatus = $data['status'] ?? 'unknown';
+
+            return ['status' => 'fail', 'error' => 'MeiliSearch status: '.(\is_string($meiliStatus) ? $meiliStatus : 'unknown')];
         } catch (\Throwable $exception) {
             return ['status' => 'fail', 'error' => $exception->getMessage()];
         }
