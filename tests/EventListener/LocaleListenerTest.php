@@ -291,6 +291,99 @@ class LocaleListenerTest extends TestCase
         self::assertSame('fr', $request->getLocale());
     }
 
+    /**
+     * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     */
+    public function testRouteLocaleOverridesSessionLocale(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->getSession()->set('_locale', 'fr');
+        $request->attributes->set('_locale', 'en');
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
+    /**
+     * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     */
+    public function testRouteLocaleOverridesUserPreference(): void
+    {
+        $user = new User();
+        $user->setPreferredLocale('fr');
+
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn($user);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_locale', 'en');
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('en', $request->getLocale());
+    }
+
+    /**
+     * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     */
+    public function testUnsupportedRouteLocaleIsIgnored(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_locale', 'de');
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        // 'de' is unsupported, falls through to Accept-Language / default
+        self::assertSame('en', $request->getLocale());
+    }
+
+    /**
+     * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     */
+    public function testRouteLocaleConstrainedToChannelLocales(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+
+        $channel = (new Channel())->setCode('content')->setDomain('expandedtalks.wip')->setLocales(['en']);
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_locale', 'fr');
+        $request->attributes->set('_channel', $channel);
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        // Route says 'fr' but channel only supports 'en'
+        self::assertSame('en', $request->getLocale());
+    }
+
     private function createRequestWithSession(): Request
     {
         $request = Request::create('/');

@@ -12,11 +12,11 @@
 {% block title %}{{ 'app.home.title'|trans }}{% endblock %}
 
 {% block canonical %}
-    <link rel="canonical" href="{{ self_canonical_url('app_home') }}">
+    <link rel="canonical" href="{{ self_canonical_url('app_home_localized', {_locale: 'en'}) }}">
 {% endblock %}
 
 {% block structured_data %}
-    <script type="application/ld+json">{{ json_ld(structured_data().buildWebSite(self_canonical_url('app_home'))) }}</script>
+    <script type="application/ld+json">{{ json_ld(structured_data().buildWebSite(self_canonical_url('app_home_localized', {_locale: 'en'}))) }}</script>
 {% endblock %}
 
 {% block body %}
