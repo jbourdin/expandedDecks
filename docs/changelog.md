@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.4] — 2026-04-26
+
+MeiliSearch full-text search engine, Open Graph meta tags, and archetype variant card-based search.
+
+### Features
+
+- **MeiliSearch search engine (F18.1)** — MeiliSearch sidecar process in Docker (local dev: Compose service, production: binary in container managed by Supervisor). Ephemeral index rebuilt from MySQL on cold start. `SearchIndexer` manages 5 indexes: archetypes, variants, pages, events, decks. Per-locale documents for translatable entities, Markdown/custom tag stripping, Doctrine entity listener for real-time sync. `app:search:reindex` console command. Health check at `/health/ready`. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+- **Global search results page (F18.2)** — `GET /{_locale}/search?q=&type=` with results grouped by content type, filter tabs, highlighted excerpts, and empty state. `SearchService` queries all indexes with locale filtering and ranking score threshold (0.3) to filter low-relevance results. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+- **Quick-search autocomplete (F18.3)** — `GET /api/search/quick?q=` JSON API + `NavbarSearch` React island (Mantine Combobox, 300ms debounce, type-grouped dropdown, keyboard navigation, "See all results" link). Visible to both authenticated and anonymous users. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+- **Archetype variant indexing** — variants index includes card names from current deck version, enabling card-based search (e.g. "Regidrago VSTAR" finds the variant that plays it). Variant results link to archetype page with `#{shortTag}` anchor. ([#470](https://github.com/jbourdin/expandedDecks/pull/470))
+- **Open Graph and Twitter Card meta tags (F18.28)** — Full OG/Twitter Card tags on all public pages via `_partials/opengraph.html.twig`. Page-specific images, `twitter:card` type selection, consolidated from partial implementations. ([#464](https://github.com/jbourdin/expandedDecks/pull/464))
+
+### Infrastructure
+
+- **MeiliSearch Docker integration** — `docker-compose.yml` service with health check; Dockerfile copies binary from official image; Supervisor program at priority 5; entrypoint waits for health then reindexes. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+- **`make search.reindex`** — waits for MeiliSearch health before running; `make fixtures` calls it automatically. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+- **`MEILI_URL` env var** — uses `MEILI_` prefix (not `MEILISEARCH_`) to avoid Symfony CLI Docker integration overriding with `tcp://`. ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+
+### Testing & Quality
+
+- **16 new search tests** — `SearchIndexerTest` (Markdown stripping, constants), `SearchReindexCommandTest` (success, graceful skip), `HealthControllerTest` (MeiliSearch check). ([#469](https://github.com/jbourdin/expandedDecks/pull/469))
+
+### Documentation
+
+- **Installation docs** — MeiliSearch env vars (`MEILI_URL`, `MEILI_MASTER_KEY`).
+
+---
+
 ## [1.8.3] — 2026-04-25
 
 Locale-prefixed URL routing, hreflang tags, and locale switcher for editorial content.
