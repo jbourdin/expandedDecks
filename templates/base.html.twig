@@ -28,6 +28,7 @@
         {% if current_channel().locales|length > 1 %}
             <meta property="og:locale:alternate" content="{{ app.request.locale == 'fr' ? 'en_US' : 'fr_FR' }}">
         {% endif %}
+        {% block opengraph %}{% endblock %}
         {% block meta %}{% endblock %}
         {% block structured_data %}{% endblock %}
         {% block stylesheets %}
