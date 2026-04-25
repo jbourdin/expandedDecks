@@ -145,4 +145,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 8080
 
-USER www-data
+# Note: the container runs as root so that MeiliSearch (LMDB) can operate
+# without permission errors. Supervisor drops privileges to www-data for
+# FrankenPHP and Messenger workers via per-program "user=www-data" directives.
