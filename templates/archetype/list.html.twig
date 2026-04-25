@@ -21,6 +21,12 @@
     <link rel="alternate" hreflang="x-default" href="{{ canonical_url('archetypes', 'app_archetype_list', {_locale: 'en'}) }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = 'app.archetype.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = canonical_url('archetypes', 'app_archetype_list') %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block structured_data %}
     {% set items = [] %}
     {% for row in results %}

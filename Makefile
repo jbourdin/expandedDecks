@@ -44,6 +44,15 @@ ngrok.stop: ## Stop ngrok tunnel and agent for this app
 mailpit: ## Open Mailpit web UI
 	open http://localhost:8035
 
+.PHONY: search.reindex
+search.reindex: ## Rebuild MeiliSearch indexes from database
+	@echo "Waiting for MeiliSearch…"
+	@for i in 1 2 3 4 5 6 7 8 9 10; do \
+		curl -sf http://127.0.0.1:7700/health > /dev/null 2>&1 && break; \
+		sleep 1; \
+	done
+	symfony console app:search:reindex
+
 ## —— Messenger ————————————————————————————————————————————————————————
 
 .PHONY: worker.email
@@ -77,7 +86,7 @@ migrations: ## Execute Doctrine migrations
 	symfony console doctrine:migrations:migrate --no-interaction
 
 .PHONY: fixtures
-fixtures: ## Load fixture data and dispatch enrichment
+fixtures: ## Load fixture data, enrich, and rebuild search index
 	symfony console doctrine:database:drop --force --if-exists
 	symfony console doctrine:database:create
 	symfony console doctrine:migrations:migrate --no-interaction
@@ -85,6 +94,7 @@ fixtures: ## Load fixture data and dispatch enrichment
 	symfony console app:banned-cards:sync
 	$(MAKE) tcgdex.import
 	symfony console app:enrich:retry
+	$(MAKE) search.reindex
 
 .PHONY: tcgdex.import
 tcgdex.import: ## Import TCGdex card database from local git clone

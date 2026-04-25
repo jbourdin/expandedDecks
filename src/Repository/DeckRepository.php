@@ -348,6 +348,60 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all public, owned decks for search indexing.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Deck>
+     */
+    public function findPublicForSearch(): array
+    {
+        /** @var list<Deck> $results */
+        $results = $this->createQueryBuilder('d')
+            ->addSelect('a', 'o')
+            ->leftJoin('d.archetype', 'a')
+            ->leftJoin('d.owner', 'o')
+            ->where('d.public = :public')
+            ->andWhere('d.owner IS NOT NULL')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('public', true)
+            ->orderBy('d.updatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
+     * Return all archetype variant decks (no owner) with cards eagerly loaded.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Deck>
+     */
+    public function findVariantsForSearch(): array
+    {
+        /** @var list<Deck> $results */
+        $results = $this->createQueryBuilder('d')
+            ->addSelect('a', 'cv', 'c')
+            ->leftJoin('d.archetype', 'a')
+            ->leftJoin('d.currentVersion', 'cv')
+            ->leftJoin('cv.cards', 'c')
+            ->where('d.owner IS NULL')
+            ->andWhere('d.archetype IS NOT NULL')
+            ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('a.isPublished = true')
+            ->andWhere('a.deletedAt IS NULL')
+            ->orderBy('a.name', 'ASC')
+            ->addOrderBy('d.canonical', 'DESC')
+            ->addOrderBy('d.position', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Build a query for the public deck catalog with optional filters.
      *
      * When selfOwner is true the public-visibility constraint is dropped,

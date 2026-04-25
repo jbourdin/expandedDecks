@@ -16,6 +16,22 @@ services:
     volumes:
       - database_data:/var/lib/mysql
 
+  meilisearch:
+    image: getmeili/meilisearch:v1
+    environment:
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MASTER_KEY: dev-master-key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+
   mailpit:
     image: axllent/mailpit:latest
     ports:
@@ -27,3 +43,4 @@ services:
 
 volumes:
   database_data:
+  meilisearch_data:

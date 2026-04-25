@@ -14,14 +14,18 @@
     <link rel="canonical" href="{{ self_canonical_url('app_page_show', {slug: page.slug}) }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = translation.title %}
+    {% set og_url = self_canonical_url('app_page_show', {slug: page.slug}) %}
+    {% set og_type = 'article' %}
+    {% set og_image = page.ogImage %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block meta %}
     {% if page.noIndex %}
         <meta name="robots" content="noindex">
     {% endif %}
-    {% if page.ogImage %}
-        <meta property="og:image" content="{{ page.ogImage }}">
-    {% endif %}
-    <meta property="og:title" content="{{ translation.title }}">
 {% endblock %}
 
 {% block structured_data %}

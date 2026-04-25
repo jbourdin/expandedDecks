@@ -14,6 +14,12 @@
     <link rel="canonical" href="{{ canonical_url('events', 'app_event_list') }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = 'app.event.list_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = canonical_url('events', 'app_event_list') %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
 {% block structured_data %}
     {% set items = [] %}
     {% for event in events %}

@@ -1,0 +1,111 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{% if query %}{{ 'app.search.results_title'|trans({'%query%': query}) }}{% else %}{{ 'app.search.title'|trans }}{% endif %} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block meta %}
+    <meta name="robots" content="noindex">
+{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">
+        {% if query %}
+            {{ 'app.search.results_title'|trans({'%query%': query}) }}
+            <small class="text-secondary fs-6">{{ 'app.search.result_count'|trans({'%count%': totalCount}) }}</small>
+        {% else %}
+            {{ 'app.search.title'|trans }}
+        {% endif %}
+    </h1>
+
+    <form method="get" action="{{ path('app_search') }}" class="mb-4">
+        <div class="input-group input-group-lg">
+            <input type="search" name="q" value="{{ query }}" class="form-control"
+                   placeholder="{{ 'app.search.placeholder'|trans }}" autofocus>
+            <button class="btn btn-gold" type="submit">
+                <i class="bi bi-search"></i> {{ 'app.search.button'|trans }}
+            </button>
+        </div>
+    </form>
+
+    {% if query %}
+        {% set types = {
+            'archetypes': {'label': 'app.search.type.archetypes'|trans, 'icon': 'bi-trophy'},
+            'variants': {'label': 'app.search.type.variants'|trans, 'icon': 'bi-layers'},
+            'pages': {'label': 'app.search.type.pages'|trans, 'icon': 'bi-file-text'},
+            'events': {'label': 'app.search.type.events'|trans, 'icon': 'bi-calendar-event'},
+            'decks': {'label': 'app.search.type.decks'|trans, 'icon': 'bi-collection'}
+        } %}
+
+        <ul class="nav nav-pills mb-4">
+            <li class="nav-item">
+                <a class="nav-link {{ typeFilter is null ? 'active' : '' }}" href="{{ path('app_search', {q: query}) }}">
+                    {{ 'app.search.type.all'|trans }}
+                    <span class="badge bg-secondary ms-1">{{ totalCount }}</span>
+                </a>
+            </li>
+            {% for typeKey, typeInfo in types %}
+                {% if results[typeKey] is not empty or typeFilter == typeKey %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ typeFilter == typeKey ? 'active' : '' }}" href="{{ path('app_search', {q: query, type: typeKey}) }}">
+                            <i class="bi {{ typeInfo.icon }} me-1"></i>{{ typeInfo.label }}
+                            <span class="badge bg-secondary ms-1">{{ results[typeKey]|length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        {% if totalCount == 0 %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-1"></i>
+                {{ 'app.search.no_results'|trans({'%query%': query}) }}
+            </div>
+        {% else %}
+            {% for typeKey, typeInfo in types %}
+                {% set typeResults = results[typeKey] %}
+                {% if typeResults is not empty and (typeFilter is null or typeFilter == typeKey) %}
+                    <div class="mb-4">
+                        <h2 class="h5 mb-3">
+                            <i class="bi {{ typeInfo.icon }} me-1"></i>{{ typeInfo.label }}
+                            <span class="badge bg-secondary">{{ typeResults|length }}</span>
+                        </h2>
+
+                        <div class="list-group">
+                            {% for result in typeResults %}
+                                {% set resultUrl = _search_result_url(result) %}
+                                <a href="{{ resultUrl }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{{ result.title|raw }}</h6>
+                                            {% if result.excerpt %}
+                                                <p class="mb-1 text-secondary small">{{ result.excerpt|raw }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% if result.secondaryInfo %}
+                                            <small class="text-secondary ms-2 text-nowrap">{{ result.secondaryInfo }}</small>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+
+                        {% if typeFilter is null and typeResults|length >= 3 %}
+                            <div class="text-end mt-2">
+                                <a href="{{ path('app_search', {q: query, type: typeKey}) }}" class="text-decoration-none small">
+                                    {{ 'app.search.see_all_type'|trans({'%type%': typeInfo.label}) }} <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

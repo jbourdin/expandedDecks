@@ -1,0 +1,36 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+ #}
+{# Open Graph #}
+<meta property="og:title" content="{{ og_title }}">
+{% if og_description is defined and og_description %}
+    <meta property="og:description" content="{{ og_description }}">
+{% endif %}
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:type" content="{{ og_type|default('website') }}">
+<meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
+{% if app.request.locale == 'fr' %}
+    <meta property="og:locale:alternate" content="en_US">
+{% else %}
+    <meta property="og:locale:alternate" content="fr_FR">
+{% endif %}
+<meta property="og:site_name" content="{{ channel_param('brand_name', 'Expanded Decks') }}">
+{% if og_image is defined and og_image %}
+    <meta property="og:image" content="{{ og_image }}">
+{% endif %}
+{# Twitter Card #}
+<meta name="twitter:card" content="{{ (og_image is defined and og_image) ? 'summary_large_image' : 'summary' }}">
+<meta name="twitter:title" content="{{ og_title }}">
+{% if og_description is defined and og_description %}
+    <meta name="twitter:description" content="{{ og_description }}">
+{% endif %}
+{% if og_image is defined and og_image %}
+    <meta name="twitter:image" content="{{ og_image }}">
+{% endif %}

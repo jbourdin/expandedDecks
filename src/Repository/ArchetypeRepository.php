@@ -218,6 +218,29 @@ class ArchetypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all published archetypes with their translations eagerly loaded.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Archetype>
+     */
+    public function findPublishedForSearch(): array
+    {
+        /** @var list<Archetype> $results */
+        $results = $this->createQueryBuilder('a')
+            ->addSelect('t')
+            ->leftJoin('a.translations', 't')
+            ->where('a.isPublished = :published')
+            ->andWhere('a.deletedAt IS NULL')
+            ->setParameter('published', true)
+            ->orderBy('a.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     public function findPublishedBySlug(string $slug): ?Archetype
