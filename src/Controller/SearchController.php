@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Service\Search\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +42,12 @@ class SearchController extends AbstractController
             $typeFilter = null;
         }
 
-        $results = '' !== $query ? $searchService->searchAll($query, $locale, $typeFilter) : [
+        $channel = $request->attributes->get('_channel');
+        $enabledTypes = $channel instanceof Channel ? self::getEnabledTypes($channel) : null;
+
+        $results = '' !== $query ? $searchService->searchAll($query, $locale, $typeFilter, $enabledTypes) : [
             'archetypes' => [],
+            'variants' => [],
             'pages' => [],
             'events' => [],
             'decks' => [],
@@ -56,5 +61,27 @@ class SearchController extends AbstractController
             'results' => $results,
             'totalCount' => $totalCount,
         ]);
+    }
+
+    /**
+     * Build the list of content types enabled on the current channel.
+     *
+     * @return list<string>
+     */
+    private static function getEnabledTypes(Channel $channel): array
+    {
+        $types = ['pages']; // pages always enabled
+
+        if ($channel->getEnableArchetypes()) {
+            $types[] = 'archetypes';
+        }
+        if ($channel->getEnableDecks()) {
+            $types[] = 'decks';
+        }
+        if ($channel->getEnableEvents()) {
+            $types[] = 'events';
+        }
+
+        return $types;
     }
 }

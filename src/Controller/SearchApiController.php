@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Service\Search\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,7 +41,10 @@ class SearchApiController extends AbstractController
             return new JsonResponse([]);
         }
 
-        $results = $searchService->quickSearch($query, $locale);
+        $channel = $request->attributes->get('_channel');
+        $enabledTypes = $channel instanceof Channel ? self::getEnabledTypes($channel) : null;
+
+        $results = $searchService->quickSearch($query, $locale, $enabledTypes);
 
         $groups = [];
 
@@ -82,5 +86,25 @@ class SearchApiController extends AbstractController
             'deck' => $urlGenerator->generate('app_deck_show', ['short_tag' => $result->slug]),
             default => '/',
         };
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function getEnabledTypes(Channel $channel): array
+    {
+        $types = ['pages'];
+
+        if ($channel->getEnableArchetypes()) {
+            $types[] = 'archetypes';
+        }
+        if ($channel->getEnableDecks()) {
+            $types[] = 'decks';
+        }
+        if ($channel->getEnableEvents()) {
+            $types[] = 'events';
+        }
+
+        return $types;
     }
 }
