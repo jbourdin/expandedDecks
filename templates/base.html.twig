@@ -91,6 +91,7 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
+                            {% include '_partials/navbar_search.html.twig' %}
                             {% if channel.enableDecks %}
                                 <li class="nav-item d-flex align-items-center me-2">
                                     <div id="notification-bell-root"
@@ -185,6 +186,7 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
+                            {% include '_partials/navbar_search.html.twig' %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
@@ -194,15 +196,6 @@
                                 </li>
                             {% endif %}
                         {% endif %}
-                        <li class="nav-item d-flex align-items-center me-2">
-                            <div id="navbar-search-root"
-                                 data-search-url="{{ path('app_search_api_quick') }}"
-                                 data-search-page-url="{{ path('app_search') }}"
-                                 data-label-placeholder="{{ 'app.search.navbar_placeholder'|trans }}"
-                                 data-label-see-all="{{ 'app.search.navbar_see_all'|trans }}"
-                                 data-label-no-results="{{ 'app.search.navbar_no_results'|trans }}">
-                            </div>
-                        </li>
                         {% if current_channel().locales|length > 1 %}
                             {% set currentLocale = app.request.locale %}
                             {% set alternateLocale = currentLocale == 'en' ? 'fr' : 'en' %}
