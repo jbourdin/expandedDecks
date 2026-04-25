@@ -43,6 +43,16 @@
                 <target>Déconnexion</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.switch_to_french">
+                <source>app.nav.switch_to_french</source>
+                <target>Passer en français</target>
+                <note>Locale switcher accessibility label</note>
+            </trans-unit>
+            <trans-unit id="app.nav.switch_to_english">
+                <source>app.nav.switch_to_english</source>
+                <target>Passer en anglais</target>
+                <note>Locale switcher accessibility label</note>
+            </trans-unit>
             <trans-unit id="app.nav.register">
                 <source>app.nav.register</source>
                 <target>Inscription</target>

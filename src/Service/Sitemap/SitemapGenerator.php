@@ -33,6 +33,9 @@ readonly class SitemapGenerator
 {
     private const MAX_ENTRIES_PER_SITEMAP = 50_000;
 
+    /** @var list<string> */
+    private const array SUPPORTED_LOCALES = ['en', 'fr'];
+
     public function __construct(
         private PageRepository $pageRepository,
         private ArchetypeRepository $archetypeRepository,
@@ -98,7 +101,7 @@ readonly class SitemapGenerator
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
-        $xml .= $this->generateHomepageEntry($channel);
+        $xml .= $this->generateHomepageEntries($channel);
 
         $xml .= match ($section) {
             'pages' => $this->generatePageEntries($channel),
@@ -118,10 +121,14 @@ readonly class SitemapGenerator
      */
     public function needsIndex(Channel $channel): bool
     {
-        $count = \count($this->pageRepository->findPublishedForSitemap($channel));
+        $localeCount = \count(self::SUPPORTED_LOCALES);
+
+        // Homepage + pages + archetypes are locale-multiplied; decks and events are not
+        $count = $localeCount; // homepage entries
+        $count += \count($this->pageRepository->findPublishedForSitemap($channel)) * $localeCount;
 
         if ($channel->getEnableArchetypes()) {
-            $count += \count($this->archetypeRepository->findPublishedForSitemap());
+            $count += \count($this->archetypeRepository->findPublishedForSitemap()) * $localeCount;
         }
 
         if ($channel->getEnableDecks()) {
@@ -143,7 +150,7 @@ readonly class SitemapGenerator
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
-        $xml .= $this->generateHomepageEntry($channel);
+        $xml .= $this->generateHomepageEntries($channel);
         $xml .= $this->generatePageEntries($channel);
 
         if ($channel->getEnableArchetypes()) {
@@ -163,14 +170,20 @@ readonly class SitemapGenerator
         return $xml;
     }
 
-    private function generateHomepageEntry(Channel $channel): string
+    private function generateHomepageEntries(Channel $channel): string
     {
-        return $this->buildUrlEntry(
-            $this->buildAbsoluteUrl($channel, 'app_home'),
-            null,
-            'daily',
-            '1.0',
-        );
+        $xml = '';
+
+        foreach (self::SUPPORTED_LOCALES as $locale) {
+            $xml .= $this->buildUrlEntry(
+                $this->buildAbsoluteUrl($channel, 'app_home_localized', ['_locale' => $locale]),
+                null,
+                'daily',
+                '1.0',
+            );
+        }
+
+        return $xml;
     }
 
     private function generatePageEntries(Channel $channel): string
@@ -179,12 +192,14 @@ readonly class SitemapGenerator
         $xml = '';
 
         foreach ($pages as $page) {
-            $xml .= $this->buildUrlEntry(
-                $this->buildAbsoluteUrl($channel, 'app_page_show', ['slug' => $page['slug']]),
-                $page['updatedAt'] ?? $page['createdAt'],
-                'monthly',
-                '0.6',
-            );
+            foreach (self::SUPPORTED_LOCALES as $locale) {
+                $xml .= $this->buildUrlEntry(
+                    $this->buildAbsoluteUrl($channel, 'app_page_show', ['slug' => $page['slug'], '_locale' => $locale]),
+                    $page['updatedAt'] ?? $page['createdAt'],
+                    'monthly',
+                    '0.6',
+                );
+            }
         }
 
         return $xml;
@@ -196,12 +211,14 @@ readonly class SitemapGenerator
         $xml = '';
 
         foreach ($archetypes as $archetype) {
-            $xml .= $this->buildUrlEntry(
-                $this->buildAbsoluteUrl($channel, 'app_archetype_show', ['slug' => $archetype['slug']]),
-                $archetype['updatedAt'] ?? $archetype['createdAt'],
-                'weekly',
-                '0.8',
-            );
+            foreach (self::SUPPORTED_LOCALES as $locale) {
+                $xml .= $this->buildUrlEntry(
+                    $this->buildAbsoluteUrl($channel, 'app_archetype_show', ['slug' => $archetype['slug'], '_locale' => $locale]),
+                    $archetype['updatedAt'] ?? $archetype['createdAt'],
+                    'weekly',
+                    '0.8',
+                );
+            }
         }
 
         return $xml;

@@ -14,6 +14,20 @@
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block canonical %}{% endblock %}
+        {% block hreflang %}
+            {% set routeParams = app.request.attributes.get('_route_params', {}) %}
+            {% if '_locale' in routeParams|keys and current_channel().locales|length > 1 %}
+                {% set currentRoute = app.request.attributes.get('_route') %}
+                {% for locale in current_channel().locales %}
+                    <link rel="alternate" hreflang="{{ locale }}" href="{{ self_canonical_url(currentRoute, routeParams|merge({_locale: locale})) }}">
+                {% endfor %}
+                <link rel="alternate" hreflang="x-default" href="{{ self_canonical_url(currentRoute, routeParams|merge({_locale: 'en'})) }}">
+            {% endif %}
+        {% endblock %}
+        <meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
+        {% if current_channel().locales|length > 1 %}
+            <meta property="og:locale:alternate" content="{{ app.request.locale == 'fr' ? 'en_US' : 'fr_FR' }}">
+        {% endif %}
         {% block opengraph %}{% endblock %}
         {% block meta %}{% endblock %}
         {% block structured_data %}{% endblock %}
@@ -179,6 +193,27 @@
                                     <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
                                 </li>
                             {% endif %}
+                        {% endif %}
+                        {% if current_channel().locales|length > 1 %}
+                            {% set currentLocale = app.request.locale %}
+                            {% set alternateLocale = currentLocale == 'en' ? 'fr' : 'en' %}
+                            {% set routeParams = app.request.attributes.get('_route_params', {}) %}
+                            {% if '_locale' in routeParams|keys %}
+                                {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: alternateLocale})) %}
+                            {% else %}
+                                {% set switchUrl = path('app_locale_switch', {_locale: alternateLocale, _redirect: app.request.requestUri}) %}
+                            {% endif %}
+                            <li class="nav-item d-flex align-items-center ms-lg-2">
+                                {% if currentLocale == 'en' %}
+                                    <span class="fw-bold text-light small">EN</span>
+                                    <span class="mx-1 text-secondary">|</span>
+                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_french'|trans }}">FR</a>
+                                {% else %}
+                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_english'|trans }}">EN</a>
+                                    <span class="mx-1 text-secondary">|</span>
+                                    <span class="fw-bold text-light small">FR</span>
+                                {% endif %}
+                            </li>
                         {% endif %}
                     </ul>
                 </div>

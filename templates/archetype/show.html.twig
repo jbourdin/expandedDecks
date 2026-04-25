@@ -14,6 +14,13 @@
     <link rel="canonical" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) }}">
 {% endblock %}
 
+{% block hreflang %}
+    {% for locale in current_channel().locales %}
+        <link rel="alternate" hreflang="{{ locale }}" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug, _locale: locale}) }}">
+    {% endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug, _locale: 'en'}) }}">
+{% endblock %}
+
 {% block opengraph %}
     {% set og_title = archetype.localizedName(app.request.locale) ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
     {% set og_description = archetype.localizedMetaDescription(app.request.locale) %}

@@ -42,9 +42,13 @@ final class RobotsTxtControllerTest extends TestCase
         self::assertSame('text/plain; charset=UTF-8', $response->headers->get('Content-Type'));
 
         $body = (string) $response->getContent();
+        self::assertStringContainsString('Allow: /en/pages/', $body);
+        self::assertStringContainsString('Allow: /fr/pages/', $body);
         self::assertStringContainsString('Allow: /deck/', $body);
         self::assertStringContainsString('Allow: /event', $body);
         self::assertStringContainsString('Disallow: /archetypes', $body);
+        self::assertStringContainsString('Disallow: /en/archetypes', $body);
+        self::assertStringContainsString('Disallow: /fr/archetypes', $body);
         self::assertStringContainsString('Disallow: /login', $body);
         self::assertStringContainsString('Disallow: /register', $body);
         self::assertStringContainsString('Sitemap: https://expandeddecks.wip/sitemap.xml', $body);
@@ -62,8 +66,10 @@ final class RobotsTxtControllerTest extends TestCase
         $response = $this->invokeController($channel);
 
         $body = (string) $response->getContent();
-        self::assertStringContainsString('Allow: /archetypes', $body);
-        self::assertStringContainsString('Allow: /pages/', $body);
+        self::assertStringContainsString('Allow: /en/archetypes', $body);
+        self::assertStringContainsString('Allow: /fr/archetypes', $body);
+        self::assertStringContainsString('Allow: /en/pages/', $body);
+        self::assertStringContainsString('Allow: /fr/pages/', $body);
         self::assertStringNotContainsString('Allow: /deck/', $body);
         self::assertStringNotContainsString('Allow: /event', $body);
         self::assertStringContainsString('Disallow: /admin/', $body);
