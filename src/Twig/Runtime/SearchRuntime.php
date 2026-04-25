@@ -35,6 +35,7 @@ class SearchRuntime implements RuntimeExtensionInterface
 
         return match ($result->type) {
             'archetype' => $this->urlGenerator->generate('app_archetype_show', ['slug' => $result->slug, '_locale' => $locale]),
+            'variant' => $this->urlGenerator->generate('app_archetype_show', ['slug' => $result->archetypeSlug ?? '', '_locale' => $locale]).'#'.$result->slug,
             'page' => $this->urlGenerator->generate('app_page_show', ['slug' => $result->slug, '_locale' => $locale]),
             'event' => $this->urlGenerator->generate('app_event_show', ['id' => $result->slug]),
             'deck' => $this->urlGenerator->generate('app_deck_show', ['short_tag' => $result->slug]),

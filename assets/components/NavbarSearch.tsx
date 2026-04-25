@@ -40,6 +40,7 @@ interface NavbarSearchProps {
 
 const TYPE_ICONS: Record<string, string> = {
     archetype: '\u2694\uFE0F',
+    variant: '\uD83C\uDCCF',
     page: '\uD83D\uDCC4',
     event: '\uD83D\uDCC5',
     deck: '\uD83C\uDCCF',

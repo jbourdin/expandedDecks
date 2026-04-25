@@ -68,7 +68,11 @@ class SearchIndexListener
         } elseif ($entity instanceof Event) {
             $this->searchIndexer->removeEvent($entity);
         } elseif ($entity instanceof Deck) {
-            $this->searchIndexer->removeDeck($entity);
+            if (null === $entity->getOwner()) {
+                $this->searchIndexer->removeVariant($entity);
+            } else {
+                $this->searchIndexer->removeDeck($entity);
+            }
         }
     }
 
@@ -82,7 +86,11 @@ class SearchIndexListener
             } elseif ($entity instanceof Event) {
                 $this->searchIndexer->indexEvent($entity);
             } elseif ($entity instanceof Deck) {
-                $this->searchIndexer->indexDeck($entity);
+                if (null === $entity->getOwner()) {
+                    $this->searchIndexer->indexVariant($entity);
+                } else {
+                    $this->searchIndexer->indexDeck($entity);
+                }
             } elseif ($entity instanceof ArchetypeTranslation) {
                 $this->searchIndexer->indexArchetype($entity->getArchetype());
             } elseif ($entity instanceof PageTranslation) {

@@ -5188,6 +5188,11 @@
                 <target>Events</target>
                 <note>Type filter tab</note>
             </trans-unit>
+            <trans-unit id="app.search.type.variants">
+                <source>app.search.type.variants</source>
+                <target>Deck Lists</target>
+                <note>Type filter tab for archetype variants</note>
+            </trans-unit>
             <trans-unit id="app.search.type.decks">
                 <source>app.search.type.decks</source>
                 <target>Decks</target>
