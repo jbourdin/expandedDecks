@@ -34,7 +34,7 @@ class SearchService
     private readonly Client $client;
 
     public function __construct(
-        #[Autowire(env: 'MEILISEARCH_URL')]
+        #[Autowire(env: 'MEILI_URL')]
         string $meilisearchUrl,
         #[Autowire(env: 'MEILI_MASTER_KEY')]
         string $meiliMasterKey,

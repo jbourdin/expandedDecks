@@ -33,7 +33,7 @@ class HealthController
         private readonly LoggerInterface $logger,
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'APP_VERSION')]
         private readonly string $appVersion,
-        #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'MEILISEARCH_URL')]
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'MEILI_URL')]
         private readonly string $meilisearchUrl,
     ) {
     }

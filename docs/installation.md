@@ -77,7 +77,7 @@ MeiliSearch runs as a sidecar process inside the same container (`127.0.0.1:7700
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `MEILISEARCH_URL` | No | `http://127.0.0.1:7700` | MeiliSearch HTTP endpoint. In production, always `http://127.0.0.1:7700` (sidecar). |
+| `MEILI_URL` | No | `http://127.0.0.1:7700` | MeiliSearch HTTP endpoint. In production, always `http://127.0.0.1:7700` (sidecar). Uses `MEILI_` prefix (not `MEILISEARCH_`) to avoid Symfony CLI Docker integration overriding with `tcp://` from the `meilisearch` service. |
 | `MEILI_MASTER_KEY` | **Yes** | (none) | MeiliSearch master key. Generate with `openssl rand -hex 16`. |
 
 ### Bot Protection (Friendly Captcha)

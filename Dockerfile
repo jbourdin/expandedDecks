@@ -111,7 +111,7 @@ RUN rm -rf tests/ .env .env.test .env.dev docker-compose.yml node_modules/ asset
     "APP_VERSION=${APP_VERSION}" \
     'SENTRY_DSN=' \
     'SENTRY_TRACES_SAMPLE_RATE=0' \
-    'MEILISEARCH_URL=http://127.0.0.1:7700' \
+    'MEILI_URL=http://127.0.0.1:7700' \
     'MEILI_MASTER_KEY=change-me-at-runtime' \
     > .env
 
