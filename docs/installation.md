@@ -71,6 +71,15 @@ Each transport has its own DSN. Default: `doctrine://default?auto_setup=0` (Doct
 | `SENTRY_TRACES_SAMPLE_RATE` | No | `0` | Performance tracing sample rate (`0.0`–`1.0`). |
 | `SENTRY_LOGS_ACTION_LEVEL` | No | `error` | Minimum log level that triggers the Sentry handler (`error`, `warning`, `info`, `debug`). |
 
+### Search Engine (MeiliSearch)
+
+MeiliSearch runs as a sidecar process inside the same container (`127.0.0.1:7700`). The index is ephemeral — rebuilt from MySQL on every cold start via `app:search:reindex`.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MEILISEARCH_URL` | No | `http://127.0.0.1:7700` | MeiliSearch HTTP endpoint. In production, always `http://127.0.0.1:7700` (sidecar). |
+| `MEILI_MASTER_KEY` | **Yes** | (none) | MeiliSearch master key. Generate with `openssl rand -hex 16`. |
+
 ### Bot Protection (Friendly Captcha)
 
 | Variable | Required | Default | Description |

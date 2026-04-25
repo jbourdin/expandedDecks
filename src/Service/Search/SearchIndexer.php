@@ -398,11 +398,11 @@ class SearchIndexer
         // Remove archetype/deck/card custom tags: [[archetype:slug]], [[deck:TAG]], [[card:...]]
         $text = (string) preg_replace('/\[\[(archetype|deck|card):[^\]]+\]\]/', '', $markdown);
 
+        // Remove images ![alt](url) — must run before link and bold/italic removal
+        $text = (string) preg_replace('/!\[[^\]]*\]\([^)]+\)/', '', $text);
+
         // Remove Markdown links [text](url)
         $text = (string) preg_replace('/\[([^\]]+)\]\([^)]+\)/', '$1', $text);
-
-        // Remove images ![alt](url)
-        $text = (string) preg_replace('/!\[[^\]]*\]\([^)]+\)/', '', $text);
 
         // Remove headings (#, ##, etc.)
         $text = (string) preg_replace('/^#{1,6}\s+/m', '', $text);

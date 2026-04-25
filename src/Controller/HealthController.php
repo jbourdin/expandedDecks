@@ -63,10 +63,9 @@ class HealthController
             $healthy = false;
         }
 
+        // MeiliSearch is a non-critical dependency: search degrades gracefully
+        // to database LIKE queries when unavailable. Reported but not fatal.
         $checks['meilisearch'] = $this->checkMeilisearch();
-        if ('ok' !== $checks['meilisearch']['status']) {
-            $healthy = false;
-        }
 
         return new JsonResponse(
             ['status' => $healthy ? 'healthy' : 'unhealthy', 'version' => $this->appVersion, 'checks' => $checks],
