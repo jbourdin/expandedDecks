@@ -348,6 +348,31 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all public, owned decks for search indexing.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Deck>
+     */
+    public function findPublicForSearch(): array
+    {
+        /** @var list<Deck> $results */
+        $results = $this->createQueryBuilder('d')
+            ->addSelect('a', 'o')
+            ->leftJoin('d.archetype', 'a')
+            ->leftJoin('d.owner', 'o')
+            ->where('d.public = :public')
+            ->andWhere('d.owner IS NOT NULL')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('public', true)
+            ->orderBy('d.updatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * Build a query for the public deck catalog with optional filters.
      *
      * When selfOwner is true the public-visibility constraint is dropped,

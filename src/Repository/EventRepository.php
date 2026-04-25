@@ -184,6 +184,28 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all public, non-cancelled events for search indexing.
+     *
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     *
+     * @return list<Event>
+     */
+    public function findPublicForSearch(): array
+    {
+        /** @var list<Event> $results */
+        $results = $this->createQueryBuilder('e')
+            ->where('e.visibility = :visibility')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->setParameter('visibility', EventVisibility::Public)
+            ->orderBy('e.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
+
+    /**
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      *
      * @return list<Event>

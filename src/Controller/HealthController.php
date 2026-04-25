@@ -126,7 +126,9 @@ class HealthController
                 return ['status' => 'ok', 'latency_ms' => round($latency, 1)];
             }
 
-            return ['status' => 'fail', 'error' => 'MeiliSearch status: '.($data['status'] ?? 'unknown')];
+            $meiliStatus = $data['status'] ?? 'unknown';
+
+            return ['status' => 'fail', 'error' => 'MeiliSearch status: '.(\is_string($meiliStatus) ? $meiliStatus : 'unknown')];
         } catch (\Throwable $exception) {
             return ['status' => 'fail', 'error' => $exception->getMessage()];
         }
