@@ -50,8 +50,12 @@ FROM dunglas/frankenphp:php8.5 AS runtime
 #   docker build --build-arg APP_VERSION=$(git describe --tags --always) .
 ARG APP_VERSION=dev
 
-# Install Supervisor (manages FrankenPHP + Messenger workers)
+# Install Supervisor (manages FrankenPHP + Messenger workers + MeiliSearch)
 RUN apt-get update && apt-get install -y --no-install-recommends supervisor && rm -rf /var/lib/apt/lists/*
+
+# Copy MeiliSearch binary from official image (lightweight Rust binary, ~70MB)
+# Used as a sidecar process for full-text search (F18.1)
+COPY --from=getmeili/meilisearch:v1 /bin/meilisearch /usr/local/bin/meilisearch
 
 # Install required PHP extensions
 RUN install-php-extensions \
@@ -107,6 +111,8 @@ RUN rm -rf tests/ .env .env.test .env.dev docker-compose.yml node_modules/ asset
     "APP_VERSION=${APP_VERSION}" \
     'SENTRY_DSN=' \
     'SENTRY_TRACES_SAMPLE_RATE=0' \
+    'MEILISEARCH_URL=http://127.0.0.1:7700' \
+    'MEILI_MASTER_KEY=change-me-at-runtime' \
     > .env
 
 ENV APP_ENV=prod
@@ -118,6 +124,9 @@ RUN mkdir -p /data/caddy /config/caddy && chown -R www-data:www-data /data /conf
 
 # Ensure var/ is writable by www-data for runtime cache compilation
 RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
+
+# MeiliSearch data directory (ephemeral — index rebuilt from MySQL on cold start)
+RUN mkdir -p /var/lib/meilisearch/data && chown -R www-data:www-data /var/lib/meilisearch
 
 # Supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

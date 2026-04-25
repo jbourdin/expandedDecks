@@ -44,6 +44,10 @@ ngrok.stop: ## Stop ngrok tunnel and agent for this app
 mailpit: ## Open Mailpit web UI
 	open http://localhost:8035
 
+.PHONY: search.reindex
+search.reindex: ## Rebuild MeiliSearch indexes from database
+	symfony console app:search:reindex
+
 ## —— Messenger ————————————————————————————————————————————————————————
 
 .PHONY: worker.email
