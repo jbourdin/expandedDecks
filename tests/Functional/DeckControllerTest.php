@@ -494,4 +494,56 @@ class DeckControllerTest extends AbstractFunctionalTest
 
         self::assertResponseStatusCodeSame(403);
     }
+
+    // ── My Decks routes (F2.23) ────────────────────────────────────────
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksRequiresAuthentication(): void
+    {
+        $this->client->request('GET', '/mydecks');
+
+        self::assertResponseRedirects();
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksExpandedRoute(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.btn-group');
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksStandardRoute(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks/standard');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.btn-group');
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksDoesNotShowOwnerFilter(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, $crawler->filter('[data-catalog-owner]')->count(), 'Owner filter should not be present in My Decks.');
+        self::assertSame(0, $crawler->filter('[data-catalog-event]')->count(), 'Event filter should not be present in My Decks.');
+    }
 }
