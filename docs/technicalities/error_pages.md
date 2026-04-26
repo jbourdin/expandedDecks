@@ -26,7 +26,7 @@ The `ExceptionListener` (`src/EventListener/ExceptionListener.php`) intercepts a
 | 403 | Snorlax | `snorlax.png` | "This area is blocked by a Snorlax. You don't have permission to pass!" |
 | 404 | Ditto | `ditto.png` | "Ditto tried to transform into this page, but it doesn't seem to exist!" |
 | 429 | Maushold | `maushold-family-of-four.png` | "Too many requests! The Maushold family keeps inviting themselves in." |
-| 500 | Porygon | `porygon.png` | "A wild bug appeared! Our team is working on catching it." |
+| 500 | Psyduck | `psyduck.png` | "A wild bug appeared! Our team is working on catching it." |
 | Other | Psyduck | `psyduck.png` | "Something unexpected happened. The attack missed!" |
 
 Translation keys: `app.error.{403,404,429,500,generic,back_home}` in `translations/messages.{en,fr}.xlf`.

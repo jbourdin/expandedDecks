@@ -80,7 +80,7 @@ class ExceptionListenerTest extends AbstractFunctionalTest
         self::assertStringContainsString('maushold-family-of-four.png', (string) $this->client->getResponse()->getContent());
 
         $this->client->request('GET', '/test-error/500');
-        self::assertStringContainsString('porygon.png', (string) $this->client->getResponse()->getContent());
+        self::assertStringContainsString('psyduck.png', (string) $this->client->getResponse()->getContent());
 
         $this->client->request('GET', '/test-error/418');
         self::assertStringContainsString('psyduck.png', (string) $this->client->getResponse()->getContent());
