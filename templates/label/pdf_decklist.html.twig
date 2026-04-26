@@ -34,72 +34,52 @@
         /* ── Header ──────────────────────────── */
 
         .header {
-            margin-bottom: 4mm;
-            border-bottom: 0.5mm solid #333;
-            padding-bottom: 3mm;
+            margin-bottom: 3mm;
+            border-bottom: 0.3mm solid #999;
+            padding-bottom: 2mm;
         }
 
-        .header-top {
+        .header-table {
             width: 100%;
         }
 
-        .header-left {
-            width: 20mm;
-            vertical-align: top;
-        }
-
-        .header-center {
-            vertical-align: top;
-            padding-left: 3mm;
-        }
-
-        .header-right {
-            width: 22mm;
-            vertical-align: top;
-            text-align: center;
-        }
-
-        .qr-code {
-            width: 18mm;
-            height: 18mm;
-        }
-
         .gravatar {
-            width: 16mm;
-            height: 16mm;
-            border-radius: 2mm;
+            width: 10mm;
+            height: 10mm;
+            border-radius: 1mm;
+            vertical-align: middle;
+            margin-right: 2mm;
         }
 
         .trigram {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
             letter-spacing: 1pt;
             color: #333;
-            border: 0.4mm solid #999;
-            padding: 2mm 3mm;
+            border: 0.3mm solid #999;
+            padding: 1mm 2mm;
             display: inline-block;
-            min-width: 16mm;
+            min-width: 14mm;
             text-align: center;
+            vertical-align: middle;
         }
 
         .trigram-blank {
-            font-size: 18pt;
-            border: 0.4mm solid #999;
-            padding: 2mm 3mm;
+            border: 0.3mm solid #999;
             display: inline-block;
-            width: 16mm;
-            height: 7mm;
+            width: 14mm;
+            height: 6mm;
+            vertical-align: middle;
         }
 
         .field-label {
-            font-size: 7pt;
-            color: #666;
+            font-size: 6.5pt;
+            color: #888;
             text-transform: uppercase;
-            letter-spacing: 0.3pt;
         }
 
         .field-value {
-            font-size: 9pt;
+            font-size: 8pt;
             font-weight: bold;
             color: #111;
         }
@@ -107,39 +87,37 @@
         .field-blank {
             border-bottom: 0.3mm solid #999;
             display: inline-block;
-            width: 40mm;
-            height: 4mm;
+            width: 25mm;
+            height: 3mm;
         }
 
-        .deck-name {
-            font-size: 8pt;
-            color: #555;
-            font-style: italic;
+        .field-blank-short {
+            border-bottom: 0.3mm solid #999;
+            display: inline-block;
+            width: 12mm;
+            height: 3mm;
         }
 
-        .meta-row {
-            margin-top: 1mm;
-        }
-
-        .meta-badge {
+        .format-badge {
             font-size: 7pt;
-            padding: 0.5mm 2mm;
+            padding: 0.3mm 1.5mm;
             background: #e9e9e9;
             border-radius: 1mm;
             display: inline-block;
+            vertical-align: middle;
         }
 
         /* ── Card Sections ───────────────────── */
 
         .section-header {
-            font-size: {{ fontSize + 1 }}pt;
+            font-size: {{ fontSize }}pt;
             font-weight: bold;
             text-transform: uppercase;
-            background: #333;
-            color: #fff;
-            padding: 1mm 2mm;
-            margin-top: 2mm;
-            margin-bottom: 0.5mm;
+            background: #d0d0d0;
+            color: #222;
+            padding: 0.5mm 2mm;
+            margin-top: 1.5mm;
+            margin-bottom: 0.3mm;
         }
 
         .subtype-header {
@@ -168,19 +146,19 @@
             width: 8mm;
             text-align: center;
             font-weight: bold;
-            vertical-align: top;
+            vertical-align: middle;
             padding: 0.3mm 1mm;
         }
 
         .col-name {
-            vertical-align: top;
+            vertical-align: middle;
             padding: 0.3mm 1mm;
         }
 
         .col-set {
             width: 28mm;
             text-align: right;
-            vertical-align: top;
+            vertical-align: middle;
             padding: 0.3mm 1mm;
             color: #555;
             font-size: {{ fontSize - 0.5 }}pt;
@@ -189,7 +167,7 @@
         .col-check {
             width: 22mm;
             text-align: right;
-            vertical-align: top;
+            vertical-align: middle;
             padding: 0.3mm 1mm;
         }
 
@@ -218,49 +196,40 @@
 </head>
 <body>
 
-    {# ── Header ──────────────────────────────────── #}
+    {# ── Header — single line: gravatar + player info + format + trigram ── #}
     <div class="header">
-        <table class="header-top" cellspacing="0" cellpadding="0">
+        <table class="header-table" cellspacing="0" cellpadding="0">
             <tr>
-                <td class="header-left">
+                <td style="width: 12mm; vertical-align: middle;">
                     {% if gravatarDataUri %}
                         <img class="gravatar" src="{{ gravatarDataUri }}" alt="">
                     {% endif %}
-                    <br>
-                    <img class="qr-code" src="{{ qrCodeDataUri }}" alt="QR">
                 </td>
-                <td class="header-center">
-                    <div>
-                        <span class="field-label">{{ labels.playerName }}</span><br>
-                        {% if mode == 'personal' and playerName %}
-                            <span class="field-value">{{ playerName }}</span>
-                        {% else %}
-                            <span class="field-blank"></span>
-                        {% endif %}
-                    </div>
-                    <div style="margin-top: 1.5mm;">
-                        <span class="field-label">{{ labels.playerId }}</span><br>
-                        {% if mode == 'personal' and playerId %}
-                            <span class="field-value">{{ playerId }}</span>
-                        {% else %}
-                            <span class="field-blank"></span>
-                        {% endif %}
-                    </div>
-                    <div style="margin-top: 1.5mm;">
-                        <span class="field-label">{{ labels.yearOfBirth }}</span><br>
-                        {% if mode == 'personal' and yearOfBirth %}
-                            <span class="field-value">{{ yearOfBirth }}</span>
-                        {% else %}
-                            <span class="field-blank" style="width: 20mm;"></span>
-                        {% endif %}
-                    </div>
-                    <div class="meta-row">
-                        <span class="meta-badge">{{ labels.format }}: {{ format }}</span>
-                        <span class="meta-badge">{{ labels.totalCards }}: {{ totalCardCount }}</span>
-                        <span class="deck-name">{{ deckName }}</span>
-                    </div>
+                <td style="vertical-align: middle; padding-left: 2mm;">
+                    <span class="field-label">{{ labels.playerName }}</span>
+                    {% if mode == 'personal' and playerName %}
+                        <span class="field-value">{{ playerName }}</span>
+                    {% else %}
+                        <span class="field-blank"></span>
+                    {% endif %}
+
+                    <span class="field-label" style="margin-left: 3mm;">{{ labels.playerId }}</span>
+                    {% if mode == 'personal' and playerId %}
+                        <span class="field-value">{{ playerId }}</span>
+                    {% else %}
+                        <span class="field-blank" style="width: 18mm;"></span>
+                    {% endif %}
+
+                    <span class="field-label" style="margin-left: 3mm;">{{ labels.yearOfBirth }}</span>
+                    {% if mode == 'personal' and yearOfBirth %}
+                        <span class="field-value">{{ yearOfBirth }}</span>
+                    {% else %}
+                        <span class="field-blank-short"></span>
+                    {% endif %}
+
+                    <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
                 </td>
-                <td class="header-right">
+                <td style="width: 20mm; text-align: right; vertical-align: middle;">
                     {% if mode == 'personal' and trigram %}
                         <span class="trigram">{{ trigram }}</span>
                     {% else %}

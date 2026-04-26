@@ -21,9 +21,6 @@ use App\Entity\User;
 use App\Repository\TcgdexCardRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -37,8 +34,6 @@ use Twig\Environment;
  */
 class PdfDecklistGenerator
 {
-    private const int QR_CODE_SIZE_PX = 200;
-
     /** @var array<string, string> cached set symbol data URIs within one request */
     private array $symbolCache = [];
 
@@ -47,7 +42,6 @@ class PdfDecklistGenerator
 
     public function __construct(
         private readonly Environment $twig,
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly HttpClientInterface $httpClient,
         private readonly TranslatorInterface $translator,
         private readonly TcgdexCardRepository $tcgdexCardRepository,
@@ -83,21 +77,14 @@ class PdfDecklistGenerator
         $currentVersion = $deck->getCurrentVersion();
         $locale = $user?->getPreferredLocale() ?? 'en';
 
-        $deckUrl = $this->urlGenerator->generate(
-            'app_deck_show',
-            ['short_tag' => $deck->getShortTag()],
-            UrlGeneratorInterface::ABSOLUTE_URL,
-        );
-
         $groupedCards = null !== $currentVersion
             ? $this->groupCardsForDecklist($currentVersion)
             : ['pokemon' => [], 'trainerGroups' => [], 'energy' => []];
 
         $setSymbolDataUris = $this->fetchSetSymbolDataUris($this->collectSetSymbolUrls($groupedCards['pokemon']));
         $gravatarDataUri = null !== $user ? $this->fetchGravatarDataUri($user->getEmail()) : null;
-        $qrCodeDataUri = $this->generateQrCode($deckUrl);
 
-        $templateData = $this->buildTemplateData($deck, $user, $groupedCards, $setSymbolDataUris, $gravatarDataUri, $qrCodeDataUri, $locale);
+        $templateData = $this->buildTemplateData($deck, $user, $groupedCards, $setSymbolDataUris, $gravatarDataUri, $locale);
 
         $html = $this->twig->render('label/pdf_decklist.html.twig', $templateData);
 
@@ -256,21 +243,19 @@ class PdfDecklistGenerator
         array $groupedCards,
         array $setSymbolDataUris,
         ?string $gravatarDataUri,
-        string $qrCodeDataUri,
         string $locale,
     ): array {
         $pokemonCards = $groupedCards['pokemon'];
         $trainerGroups = $groupedCards['trainerGroups'];
         $energyCards = $groupedCards['energy'];
 
-        // Count totals
+        // Count section totals
         $pokemonCount = $this->sumQuantities($pokemonCards);
         $trainerCount = 0;
         foreach ($trainerGroups as $cards) {
             $trainerCount += $this->sumQuantities($cards);
         }
         $energyCount = $this->sumQuantities($energyCards);
-        $totalCardCount = $pokemonCount + $trainerCount + $energyCount;
 
         // Build card view data with English name resolution
         $pokemonRows = $this->buildCardRows($pokemonCards, $locale, true, $setSymbolDataUris);
@@ -297,10 +282,7 @@ class PdfDecklistGenerator
             'yearOfBirth' => $user?->getYearOfBirth(),
             'trigram' => $trigram,
             'gravatarDataUri' => $gravatarDataUri,
-            'qrCodeDataUri' => $qrCodeDataUri,
             'format' => ucfirst($deck->getFormat()->value),
-            'deckName' => $deck->getName(),
-            'totalCardCount' => $totalCardCount,
             'pokemonCount' => $pokemonCount,
             'pokemonRows' => $pokemonRows,
             'trainerCount' => $trainerCount,
@@ -443,8 +425,6 @@ class PdfDecklistGenerator
             'playerName' => $this->translator->trans('app.decklist.player_name', locale: $locale),
             'playerId' => $this->translator->trans('app.decklist.player_id', locale: $locale),
             'yearOfBirth' => $this->translator->trans('app.decklist.year_of_birth', locale: $locale),
-            'format' => $this->translator->trans('app.decklist.format', locale: $locale),
-            'totalCards' => $this->translator->trans('app.decklist.total_cards', locale: $locale),
             'pokemon' => $this->translator->trans('app.decklist.section.pokemon', locale: $locale),
             'trainer' => $this->translator->trans('app.decklist.section.trainer', locale: $locale),
             'energy' => $this->translator->trans('app.decklist.section.energy', locale: $locale),
@@ -500,19 +480,6 @@ class PdfDecklistGenerator
         $localizedName = $names[$locale] ?? null;
 
         return \is_string($localizedName) ? $localizedName : null;
-    }
-
-    private function generateQrCode(string $content): string
-    {
-        $builder = new Builder();
-        $result = $builder->build(
-            data: $content,
-            errorCorrectionLevel: ErrorCorrectionLevel::Medium,
-            size: self::QR_CODE_SIZE_PX,
-            margin: 0,
-        );
-
-        return $result->getDataUri();
     }
 
     private function renderPdf(string $html): string
