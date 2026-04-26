@@ -424,7 +424,7 @@ class DeckRepository extends ServiceEntityRepository
      *
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
      *
-     * @param array{search?: string, archetype?: string, owner?: int, event?: int, selfOwner?: bool} $filters
+     * @param array{search?: string, archetype?: string, owner?: int, event?: int, selfOwner?: bool, format?: string} $filters
      */
     public function createCatalogQueryBuilder(array $filters = []): QueryBuilder
     {
@@ -465,6 +465,14 @@ class DeckRepository extends ServiceEntityRepository
         if (isset($filters['event']) && $filters['event'] > 0) {
             $qb->join('App\Entity\EventDeckRegistration', 'edr', 'WITH', 'edr.deck = d AND edr.event = :event')
                 ->setParameter('event', $filters['event']);
+        }
+
+        if (isset($filters['format']) && '' !== $filters['format']) {
+            $deckFormat = DeckFormat::tryFrom($filters['format']);
+            if (null !== $deckFormat) {
+                $qb->andWhere('d.format = :formatFilter')
+                    ->setParameter('formatFilter', $deckFormat);
+            }
         }
 
         return $qb;

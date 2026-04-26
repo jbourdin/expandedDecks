@@ -107,6 +107,25 @@
         </div>
     </form>
 
+    {# Format toggle — visible only in My Decks view #}
+    {% if filters.selfOwner is defined and filters.selfOwner %}
+        {% set activeFormat = filters.format ?? '' %}
+        <div class="btn-group mb-3" role="group" aria-label="{{ 'app.form.label.deck_format'|trans }}">
+            <a href="{{ path('app_deck_list', {owner: filters.owner}|merge(activeFormat == '' ? {} : {})) }}"
+               class="btn btn-sm {{ activeFormat == '' ? 'btn-primary' : 'btn-outline-primary' }}">
+                {{ 'app.common.all'|trans }}
+            </a>
+            <a href="{{ path('app_deck_list', {owner: filters.owner, format: 'expanded'}) }}"
+               class="btn btn-sm {{ activeFormat == 'expanded' ? 'btn-primary' : 'btn-outline-primary' }}">
+                {{ 'app.deck.format.expanded'|trans }}
+            </a>
+            <a href="{{ path('app_deck_list', {owner: filters.owner, format: 'standard'}) }}"
+               class="btn btn-sm {{ activeFormat == 'standard' ? 'btn-primary' : 'btn-outline-primary' }}">
+                {{ 'app.deck.format.standard'|trans }}
+            </a>
+        </div>
+    {% endif %}
+
     {# Result count #}
     <p class="text-muted mb-3">{{ 'app.deck.results_count'|trans({'%count%': totalItems}) }}</p>
 

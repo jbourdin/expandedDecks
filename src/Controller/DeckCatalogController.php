@@ -44,6 +44,7 @@ class DeckCatalogController extends AbstractController
         $filters = [
             'search' => $request->query->getString('q'),
             'archetype' => $request->query->getString('archetype'),
+            'format' => $request->query->getString('format'),
         ];
 
         // Resolve owner filter + display name (guard against empty string before getInt)
