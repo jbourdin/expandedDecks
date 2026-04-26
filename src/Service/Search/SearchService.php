@@ -47,6 +47,9 @@ class SearchService
     /**
      * Search all indexes and return results grouped by content type.
      *
+     * @param list<string>|null $enabledTypes Content types enabled on the current channel (null = all).
+     *                                        Supported values: 'archetypes', 'variants', 'pages', 'events', 'decks'.
+     *
      * @return array{
      *     archetypes: list<SearchResult>,
      *     variants: list<SearchResult>,
@@ -55,7 +58,7 @@ class SearchService
      *     decks: list<SearchResult>,
      * }
      */
-    public function searchAll(string $query, string $locale, ?string $typeFilter = null, int $limit = self::FULL_SEARCH_LIMIT, int $offset = 0): array
+    public function searchAll(string $query, string $locale, ?string $typeFilter = null, ?array $enabledTypes = null, int $limit = self::FULL_SEARCH_LIMIT, int $offset = 0): array
     {
         $results = [
             'archetypes' => [],
@@ -69,7 +72,7 @@ class SearchService
             return $results;
         }
 
-        $indexes = $this->getIndexesForType($typeFilter);
+        $indexes = $this->getIndexesForType($typeFilter, $enabledTypes);
 
         foreach ($indexes as $indexName) {
             try {
@@ -96,6 +99,8 @@ class SearchService
     /**
      * Quick search for navbar autocomplete — max 3 results per type.
      *
+     * @param list<string>|null $enabledTypes content types enabled on the current channel (null = all)
+     *
      * @return array{
      *     archetypes: list<SearchResult>,
      *     variants: list<SearchResult>,
@@ -104,18 +109,20 @@ class SearchService
      *     decks: list<SearchResult>,
      * }
      */
-    public function quickSearch(string $query, string $locale): array
+    public function quickSearch(string $query, string $locale, ?array $enabledTypes = null): array
     {
-        return $this->searchAll($query, $locale, limit: self::QUICK_SEARCH_LIMIT);
+        return $this->searchAll($query, $locale, enabledTypes: $enabledTypes, limit: self::QUICK_SEARCH_LIMIT);
     }
 
     /**
+     * @param list<string>|null $enabledTypes
+     *
      * @return list<string>
      */
-    private function getIndexesForType(?string $typeFilter): array
+    private function getIndexesForType(?string $typeFilter, ?array $enabledTypes): array
     {
         if (null !== $typeFilter) {
-            return match ($typeFilter) {
+            $indexes = match ($typeFilter) {
                 'archetypes' => [SearchIndexer::INDEX_ARCHETYPES, SearchIndexer::INDEX_VARIANTS],
                 'variants' => [SearchIndexer::INDEX_VARIANTS],
                 'pages' => [SearchIndexer::INDEX_PAGES],
@@ -123,15 +130,33 @@ class SearchService
                 'decks' => [SearchIndexer::INDEX_DECKS],
                 default => [],
             };
+        } else {
+            $indexes = [
+                SearchIndexer::INDEX_ARCHETYPES,
+                SearchIndexer::INDEX_VARIANTS,
+                SearchIndexer::INDEX_PAGES,
+                SearchIndexer::INDEX_EVENTS,
+                SearchIndexer::INDEX_DECKS,
+            ];
         }
 
-        return [
-            SearchIndexer::INDEX_ARCHETYPES,
-            SearchIndexer::INDEX_VARIANTS,
-            SearchIndexer::INDEX_PAGES,
-            SearchIndexer::INDEX_EVENTS,
-            SearchIndexer::INDEX_DECKS,
+        if (null === $enabledTypes) {
+            return $indexes;
+        }
+
+        // Map index names to their parent type for channel filtering
+        $indexTypeMap = [
+            SearchIndexer::INDEX_ARCHETYPES => 'archetypes',
+            SearchIndexer::INDEX_VARIANTS => 'archetypes',
+            SearchIndexer::INDEX_PAGES => 'pages',
+            SearchIndexer::INDEX_EVENTS => 'events',
+            SearchIndexer::INDEX_DECKS => 'decks',
         ];
+
+        return array_values(array_filter(
+            $indexes,
+            static fn (string $index): bool => \in_array($indexTypeMap[$index], $enabledTypes, true),
+        ));
     }
 
     /**
