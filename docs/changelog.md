@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.10] — 2026-04-27
+
+Pokemon HOME 3D sprite upgrade — CDN pull-through proxy architecture.
+
+### Features
+
+- **Pokemon HOME 3D sprites (F2.26)** — Replace PokéSprite pixel art (42×42px) with Pokemon HOME 3D renders (512×512px) via a CDN pull-through proxy. New `PokemonSpriteMapping` entity maps slug → PokeAPI dex ID. `SpriteProxyController` at `/sprites/pokemon/{slug}.png` serves sprites from filesystem cache, fetching from PokeAPI on miss. Container-safe: re-fetches from own CDN on cold start. `app:sprites:sync-mapping` CLI syncs from PokeAPI CSV (1350+ entries) with slug alias support. Admin "Rebuild sprite mapping" button. `PokemonSpriteSelect` React autocomplete fetches slugs from `/api/sprites/slugs` API instead of build-time manifest. ([#483](https://github.com/jbourdin/expandedDecks/pull/483))
+- **Larger sprite display** — Sprite CSS height increased from 40px to 52px, taking advantage of the higher-resolution source. ([#483](https://github.com/jbourdin/expandedDecks/pull/483))
+
+### Infrastructure
+
+- **Removed PokéSprite build pipeline** — No more tarball download, `copy-webpack-plugin`, `assets/vendor/sprites/` directory, or build-time manifest generation. Sprites are served on demand via the proxy controller. ([#483](https://github.com/jbourdin/expandedDecks/pull/483))
+- **`make sprites.sync`** — New Makefile target, integrated into `make fixtures`. ([#483](https://github.com/jbourdin/expandedDecks/pull/483))
+
+---
+
 ## [1.8.9] — 2026-04-26
 
 Standard format personal decks and printable A4 tournament decklist PDF.
