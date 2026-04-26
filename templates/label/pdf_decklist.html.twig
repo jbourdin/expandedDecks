@@ -196,48 +196,56 @@
 </head>
 <body>
 
-    {# ── Header — single line: gravatar + player info + format + trigram ── #}
+    {# ── Header ── #}
     <div class="header">
-        <table class="header-table" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="width: 12mm; vertical-align: middle;">
-                    {% if gravatarDataUri %}
-                        <img class="gravatar" src="{{ gravatarDataUri }}" alt="">
-                    {% endif %}
-                </td>
-                <td style="vertical-align: middle; padding-left: 2mm;">
-                    <span class="field-label">{{ labels.playerName }}</span>
-                    {% if mode == 'personal' and playerName %}
+        {% if mode == 'personal' %}
+            {# Personal: compact single line #}
+            <table class="header-table" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="width: 12mm; vertical-align: middle;">
+                        {% if gravatarDataUri %}
+                            <img class="gravatar" src="{{ gravatarDataUri }}" alt="">
+                        {% endif %}
+                    </td>
+                    <td style="vertical-align: middle; padding-left: 2mm;">
+                        <span class="field-label">{{ labels.playerName }}</span>
                         <span class="field-value">{{ playerName }}</span>
-                    {% else %}
-                        <span class="field-blank"></span>
-                    {% endif %}
 
-                    <span class="field-label" style="margin-left: 3mm;">{{ labels.playerId }}</span>
-                    {% if mode == 'personal' and playerId %}
-                        <span class="field-value">{{ playerId }}</span>
-                    {% else %}
-                        <span class="field-blank" style="width: 18mm;"></span>
-                    {% endif %}
+                        <span class="field-label" style="margin-left: 3mm;">{{ labels.playerId }}</span>
+                        <span class="field-value">{{ playerId ?? '' }}</span>
 
-                    <span class="field-label" style="margin-left: 3mm;">{{ labels.yearOfBirth }}</span>
-                    {% if mode == 'personal' and yearOfBirth %}
-                        <span class="field-value">{{ yearOfBirth }}</span>
-                    {% else %}
-                        <span class="field-blank-short"></span>
-                    {% endif %}
+                        <span class="field-label" style="margin-left: 3mm;">{{ labels.yearOfBirth }}</span>
+                        <span class="field-value">{{ yearOfBirth ?? '' }}</span>
 
-                    <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
-                </td>
-                <td style="width: 20mm; text-align: right; vertical-align: middle;">
-                    {% if mode == 'personal' and trigram %}
+                        <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
+                    </td>
+                    <td style="width: 20mm; text-align: right; vertical-align: middle;">
                         <span class="trigram">{{ trigram }}</span>
-                    {% else %}
+                    </td>
+                </tr>
+            </table>
+        {% else %}
+            {# Anonymous: full-width blanks for handwriting #}
+            <table class="header-table" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="vertical-align: middle;">
+                        <span class="field-label">{{ labels.playerName }}</span>
+                        <span class="field-blank" style="width: 80mm;"></span>
+
+                        <span class="field-label" style="margin-left: 4mm;">{{ labels.playerId }}</span>
+                        <span class="field-blank" style="width: 25mm;"></span>
+
+                        <span class="field-label" style="margin-left: 4mm;">{{ labels.yearOfBirth }}</span>
+                        <span class="field-blank-short"></span>
+
+                        <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
+                    </td>
+                    <td style="width: 20mm; text-align: right; vertical-align: middle;">
                         <span class="trigram-blank"></span>
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
+                    </td>
+                </tr>
+            </table>
+        {% endif %}
     </div>
 
     {# ── Pokemon Section ─────────────────────────── #}
