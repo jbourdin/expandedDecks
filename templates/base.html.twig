@@ -114,7 +114,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {% if channel.enableDecks %}
                                         <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a></li>
-                                        <li><a class="dropdown-item" href="{{ path('app_deck_list', {owner: app.user.id}) }}">{{ 'app.nav.my_decks'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_my_decks') }}">{{ 'app.nav.my_decks'|trans }}</a></li>
                                     {% endif %}
                                     <li><a class="dropdown-item" href="{{ path('app_profile_edit') }}">{{ 'app.nav.profile'|trans }}</a></li>
                                     {% if channel.enableDecks %}

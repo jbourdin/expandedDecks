@@ -168,7 +168,7 @@ class SearchIndexer
 
     public function indexDeck(Deck $deck): void
     {
-        if (!$deck->isPublic() || null === $deck->getOwner() || $deck->getDeletedAt() instanceof \DateTimeImmutable) {
+        if (!$deck->isPublic() || null === $deck->getOwner() || $deck->getDeletedAt() instanceof \DateTimeImmutable || !$deck->getFormat()->isSearchable()) {
             $this->removeDeck($deck);
 
             return;
@@ -450,7 +450,7 @@ class SearchIndexer
             'shortTag' => $deck->getShortTag(),
             'archetypeName' => $deck->getArchetype()?->getName() ?? '',
             'ownerName' => $deck->getOwner()?->getScreenName() ?? '',
-            'format' => $deck->getFormat(),
+            'format' => $deck->getFormat()->value,
         ];
     }
 

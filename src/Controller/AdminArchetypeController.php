@@ -18,6 +18,7 @@ use App\Entity\ArchetypeTranslation;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use App\Form\ArchetypeFormType;
 use App\Form\ArchetypeTranslationFormType;
@@ -270,7 +271,7 @@ class AdminArchetypeController extends AbstractAppController
     ): Response {
         $deck = new Deck();
         $deck->setArchetype($archetype);
-        $deck->setFormat('Expanded');
+        $deck->setFormat(DeckFormat::Expanded);
 
         $form = $this->createForm(ArchetypeVariantFormType::class, $deck, [
             'action' => $this->generateUrl('app_admin_archetype_variant_new', ['id' => $archetype->getId()]),

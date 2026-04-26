@@ -525,6 +525,16 @@
                 <target>Étiquette+</target>
                 <note>Button to download foldable PDF label with deck list on the back</note>
             </trans-unit>
+            <trans-unit id="app.deck.decklist_pdf">
+                <source>app.deck.decklist_pdf</source>
+                <target>Decklist PDF</target>
+                <note>Button to download A4 decklist PDF with player info filled</note>
+            </trans-unit>
+            <trans-unit id="app.deck.decklist_pdf_anonymous">
+                <source>app.deck.decklist_pdf_anonymous</source>
+                <target>Decklist PDF (vierge)</target>
+                <note>Button to download A4 decklist PDF with blank player fields</note>
+            </trans-unit>
             <trans-unit id="app.deck.retire">
                 <source>app.deck.retire</source>
                 <target>Retirer</target>
@@ -677,6 +687,16 @@
                 <source>app.deck.format</source>
                 <target>Format :</target>
                 <note>Label in deck detail info. Includes trailing colon</note>
+            </trans-unit>
+            <trans-unit id="app.deck.format.expanded">
+                <source>app.deck.format.expanded</source>
+                <target>Expanded</target>
+                <note>Deck format: Expanded (competitive lending pool)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.format.standard">
+                <source>app.deck.format.standard</source>
+                <target>Standard</target>
+                <note>Deck format: Standard (personal library only)</note>
             </trans-unit>
             <trans-unit id="app.deck.version">
                 <source>app.deck.version</source>
@@ -2087,6 +2107,11 @@
                 <target>Vous ne pouvez gérer l&apos;inscription que pour vos propres decks.</target>
                 <note>Error when trying to register another user&apos;s deck</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.standard_deck_not_registerable">
+                <source>app.flash.event.standard_deck_not_registerable</source>
+                <target>Les decks au format Standard ne peuvent pas être inscrits à un événement.</target>
+                <note>Error when trying to register a Standard deck for an event</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.deck_registered">
                 <source>app.flash.event.deck_registered</source>
                 <target>« %name% » inscrit pour cet événement.</target>
@@ -2364,6 +2389,11 @@
                 <target>Nom du deck</target>
                 <note>Form label for deck name field</note>
             </trans-unit>
+            <trans-unit id="app.form.label.deck_format">
+                <source>app.form.label.deck_format</source>
+                <target>Format</target>
+                <note>Form label for deck format selector (Expanded/Standard)</note>
+            </trans-unit>
             <trans-unit id="app.form.label.notes">
                 <source>app.form.label.notes</source>
                 <target>Notes (optionnel)</target>
@@ -2521,6 +2551,16 @@
                 <source>app.form.label.player_id</source>
                 <target>ID Pokemon (optionnel)</target>
                 <note>Form label for player ID field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.year_of_birth">
+                <source>app.form.label.year_of_birth</source>
+                <target>Année de naissance (optionnel)</target>
+                <note>Form label for year of birth field in profile</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.year_of_birth">
+                <source>app.form.help.year_of_birth</source>
+                <target>Utilisé sur les decklists PDF de tournoi.</target>
+                <note>Help text for year of birth field</note>
             </trans-unit>
             <trans-unit id="app.form.label.preferred_locale">
                 <source>app.form.label.preferred_locale</source>
@@ -5180,6 +5220,73 @@
                 <source>app.search.navbar_no_results</source>
                 <target>Aucun résultat</target>
                 <note>Navbar autocomplete: empty state</note>
+            </trans-unit>
+
+            <!-- Decklist PDF (F5.13) -->
+            <trans-unit id="app.decklist.player_name">
+                <source>app.decklist.player_name</source>
+                <target>Nom du joueur</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.player_id">
+                <source>app.decklist.player_id</source>
+                <target>ID Joueur</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.year_of_birth">
+                <source>app.decklist.year_of_birth</source>
+                <target>Année de naissance</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.format">
+                <source>app.decklist.format</source>
+                <target>Format</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.total_cards">
+                <source>app.decklist.total_cards</source>
+                <target>Total</target>
+                <note>PDF decklist total card count label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.pokemon">
+                <source>app.decklist.section.pokemon</source>
+                <target>Pokémon</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.trainer">
+                <source>app.decklist.section.trainer</source>
+                <target>Dresseur</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.energy">
+                <source>app.decklist.section.energy</source>
+                <target>Énergie</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.supporter">
+                <source>app.decklist.subtype.supporter</source>
+                <target>Supporter</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.item">
+                <source>app.decklist.subtype.item</source>
+                <target>Objet</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.tool">
+                <source>app.decklist.subtype.tool</source>
+                <target>Outil</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.stadium">
+                <source>app.decklist.subtype.stadium</source>
+                <target>Stade</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.technical machine">
+                <source>app.decklist.subtype.technical machine</source>
+                <target>Machine Technique</target>
+                <note>PDF decklist trainer subtype header</note>
             </trans-unit>
         </body>
     </file>

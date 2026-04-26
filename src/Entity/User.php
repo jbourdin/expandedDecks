@@ -65,6 +65,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 30)]
     private ?string $playerId = null;
 
+    /**
+     * @see docs/features.md F5.13 — Printable A4 decklist PDF
+     */
+    #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 1920, max: 2020)]
+    private ?int $yearOfBirth = null;
+
     #[ORM\Column]
     private string $password = '';
 
@@ -229,6 +236,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlayerId(?string $playerId): static
     {
         $this->playerId = $playerId;
+
+        return $this;
+    }
+
+    public function getYearOfBirth(): ?int
+    {
+        return $this->yearOfBirth;
+    }
+
+    public function setYearOfBirth(?int $yearOfBirth): static
+    {
+        $this->yearOfBirth = $yearOfBirth;
 
         return $this;
     }
@@ -439,6 +458,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->firstName = 'Anonymous';
         $this->lastName = 'User';
         $this->playerId = null;
+        $this->yearOfBirth = null;
         $this->discordUsername = null;
         $this->password = '';
         $this->roles = [];

@@ -28,6 +28,7 @@ use App\Service\DeckList\MinifiedCardView;
 use App\Service\DeckList\MinifiedCardViewBuilder;
 use App\Service\DeckList\OriginalListFormatter;
 use App\Service\DeckListParser;
+use App\Service\Label\PdfDecklistGenerator;
 use App\Service\Label\PdfLabelGenerator;
 use App\Service\Tcgdex\TcgdexApiClient;
 use Doctrine\ORM\EntityManagerInterface;
@@ -152,8 +153,8 @@ class DeckShowController extends AbstractAppController
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            // Only show eligible events if deck is not retired, user is not owner, and deck has a version
-            if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && null !== $currentVersion) {
+            // Only show eligible events if deck is not retired, lendable, user is not owner, and deck has a version
+            if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && $deck->isLendable() && null !== $currentVersion) {
                 $candidates = $eventRepository->findEligibleForBorrow($user, $deck);
 
                 // Filter out events with same-day conflicts
@@ -270,6 +271,38 @@ class DeckShowController extends AbstractAppController
         return new Response($pdf, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => \sprintf('inline; filename="deck-%s-label-foldable.pdf"', $deck->getShortTag()),
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F5.13 — Printable A4 decklist PDF
+     */
+    #[Route('/deck/{short_tag}/decklist.pdf', name: 'app_deck_decklist_pdf', methods: ['GET'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
+    public function decklistPdf(
+        #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
+        PdfDecklistGenerator $decklistGenerator,
+        Request $request,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($deck->getOwner()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (null === $deck->getCurrentVersion()) {
+            throw $this->createNotFoundException('This deck has no version.');
+        }
+
+        $anonymous = $request->query->getBoolean('anonymous', false);
+
+        $pdf = $anonymous
+            ? $decklistGenerator->generateAnonymous($deck)
+            : $decklistGenerator->generatePersonal($deck, $user);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => \sprintf('inline; filename="deck-%s-decklist.pdf"', $deck->getShortTag()),
         ]);
     }
 

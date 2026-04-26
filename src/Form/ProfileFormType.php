@@ -17,6 +17,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -44,6 +45,11 @@ class ProfileFormType extends AbstractType
             ->add('playerId', TextType::class, [
                 'label' => 'app.form.label.player_id',
                 'required' => false,
+            ])
+            ->add('yearOfBirth', IntegerType::class, [
+                'label' => 'app.form.label.year_of_birth',
+                'required' => false,
+                'help' => 'app.form.help.year_of_birth',
             ])
             ->add('discordUsername', TextType::class, [
                 'label' => 'app.form.label.discord_username',

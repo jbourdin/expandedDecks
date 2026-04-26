@@ -16,6 +16,23 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.9] — 2026-04-26
+
+Standard format personal decks and printable A4 tournament decklist PDF.
+
+### Features
+
+- **Standard format personal decks (F2.23)** — `DeckFormat` enum (`Expanded`, `Standard`) with format selector on deck create/edit forms. Standard decks serve as a personal library: visible on show page and "Found this deck", printable labels work, but excluded from search indexes, public catalog, borrow workflow, and event registration. "Standard" badge on deck cards. ([#478](https://github.com/jbourdin/expandedDecks/pull/478))
+- **Dedicated My Decks routes** — `/mydecks` (Expanded) and `/mydecks/standard` with format toggle, simplified filter bar (no owner/event filters), owner column hidden in card grid. All nav links updated. ([#478](https://github.com/jbourdin/expandedDecks/pull/478))
+- **Printable A4 decklist PDF (F5.13)** — tournament-ready A4 PDF generated from deck card data via Dompdf. Two modes: personal (player name, ID, year of birth, Gravatar, trigram auto-filled) and anonymous (wide blank fields for handwriting). Pokemon section shows set symbol icons (fetched from TCGdex CDN). Trainer section sub-grouped by subtype. Localized card names from TCGdex database based on deck language, with English inline when different. Dynamic font sizing adapts to fit any deck on one A4 page. Route: `GET /deck/{short_tag}/decklist.pdf?anonymous=0|1` (owner-only). ([#480](https://github.com/jbourdin/expandedDecks/pull/480))
+- **Year of birth on User entity** — optional `yearOfBirth` field editable via profile form, used on decklist PDFs. GDPR-compliant (cleared on anonymization, included in data export). ([#480](https://github.com/jbourdin/expandedDecks/pull/480))
+
+### Testing & Quality
+
+- **7 new tests** — `DeckFormat` enum convenience methods (3), `/mydecks` route access and filters (4). Test count: 1966 → 1975.
+
+---
+
 ## [1.8.8] — 2026-04-26
 
 Channel-scoped page search results.

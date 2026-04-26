@@ -99,17 +99,23 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertStringContainsString('en', $crawler->text());
     }
 
-    public function testNewDeckFormDoesNotContainFormatField(): void
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testNewDeckFormContainsFormatSelector(): void
     {
         $this->loginAs('admin@example.com');
 
         $crawler = $this->client->request('GET', '/deck/new');
 
         self::assertResponseIsSuccessful();
-        self::assertSame(0, $crawler->filter('#deck_form_format')->count(), 'Format field should not be present.');
+        self::assertSame(1, $crawler->filter('#deck_form_format')->count(), 'Format selector should be present.');
     }
 
-    public function testEditDeckFormDoesNotContainFormatField(): void
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testEditDeckFormContainsFormatSelector(): void
     {
         $this->loginAs('admin@example.com');
 
@@ -121,7 +127,7 @@ class DeckControllerTest extends AbstractFunctionalTest
         $crawler = $this->client->request('GET', '/deck/'.$deck->getId().'/edit');
 
         self::assertResponseIsSuccessful();
-        self::assertSame(0, $crawler->filter('#deck_form_format')->count(), 'Format field should not be present.');
+        self::assertSame(1, $crawler->filter('#deck_form_format')->count(), 'Format selector should be present.');
     }
 
     public function testDeckShowShowsBorrowFormForEligibleUser(): void
@@ -487,5 +493,57 @@ class DeckControllerTest extends AbstractFunctionalTest
         $this->client->request('GET', '/deck/'.$deckId.'/import');
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    // ── My Decks routes (F2.23) ────────────────────────────────────────
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksRequiresAuthentication(): void
+    {
+        $this->client->request('GET', '/mydecks');
+
+        self::assertResponseRedirects();
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksExpandedRoute(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.btn-group');
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksStandardRoute(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks/standard');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.btn-group');
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testMyDecksDoesNotShowOwnerFilter(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/mydecks');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, $crawler->filter('[data-catalog-owner]')->count(), 'Owner filter should not be present in My Decks.');
+        self::assertSame(0, $crawler->filter('[data-catalog-event]')->count(), 'Event filter should not be present in My Decks.');
     }
 }

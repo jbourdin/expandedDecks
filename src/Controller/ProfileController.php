@@ -232,6 +232,7 @@ class ProfileController extends AbstractAppController
                 'lastName' => $user->getLastName(),
                 'playerId' => $user->getPlayerId(),
                 'discordUsername' => $user->getDiscordUsername(),
+                'yearOfBirth' => $user->getYearOfBirth(),
                 'preferredLocale' => $user->getPreferredLocale(),
                 'timezone' => $user->getTimezone(),
                 'createdAt' => $user->getCreatedAt()->format('c'),
@@ -240,7 +241,7 @@ class ProfileController extends AbstractAppController
             'decks' => array_map(static fn ($deck) => [
                 'id' => $deck->getId(),
                 'name' => $deck->getName(),
-                'format' => $deck->getFormat(),
+                'format' => $deck->getFormat()->value,
                 'status' => $deck->getStatus()->value,
                 'createdAt' => $deck->getCreatedAt()->format('c'),
                 'versions' => array_map(static fn ($version) => [
