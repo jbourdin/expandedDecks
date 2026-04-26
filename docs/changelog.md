@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.7] — 2026-04-26
+
+Channel-aware search filtering and comprehensive search test coverage.
+
+### Bug Fixes
+
+- **Channel-aware search** — search results now respect channel feature flags. Archetypes/variants only appear on channels with `enableArchetypes`, decks on `enableDecks`, events on `enableEvents`. Pages always included. Both the search results page and navbar autocomplete API filter by channel. Template type filter tabs are conditionally rendered. ([#472](https://github.com/jbourdin/expandedDecks/pull/472))
+
+### Testing & Quality
+
+- **80 new search tests** — comprehensive coverage of the full search stack: `SearchIndexerIntegrationTest` (17 tests with mocked MeiliSearch client verifying reindex orchestration and per-entity lifecycle), `SearchResultTest` (11), `SearchServiceTest` (18), `SearchRuntimeTest` (6), `SearchIndexListenerTest` (12), `SearchControllerTest` (7), `SearchApiControllerTest` (5), plus 7 additional `SearchIndexerTest` mapper tests. Test count: 1886 → 1966. ([#472](https://github.com/jbourdin/expandedDecks/pull/472))
+
+---
+
 ## [1.8.4] — 2026-04-26
 
 MeiliSearch full-text search engine, Open Graph meta tags, and archetype variant card-based search.
