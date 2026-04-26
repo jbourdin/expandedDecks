@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.8] — 2026-04-26
+
+Channel-scoped page search results.
+
+### Bug Fixes
+
+- **Channel-aware page search** — CMS pages from other channels no longer leak into search results. Added `channelCode` as a filterable attribute on the MeiliSearch pages index; both `SearchController` and `SearchApiController` now pass the current channel code so MeiliSearch filters pages by channel.
+
+---
+
 ## [1.8.7] — 2026-04-26
 
 Channel-aware search filtering and comprehensive search test coverage.
