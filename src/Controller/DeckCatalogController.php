@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\DeckFormat;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
@@ -23,6 +24,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
@@ -107,6 +109,84 @@ class DeckCatalogController extends AbstractController
             'archetypeName' => $archetypeName,
             'eventName' => $eventName,
             'ownerName' => $ownerName,
+        ]);
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    #[Route('/mydecks', name: 'app_my_decks', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function myDecks(
+        Request $request,
+        DeckRepository $deckRepository,
+        ArchetypeRepository $archetypeRepository,
+    ): Response {
+        return $this->renderMyDecks($request, $deckRepository, $archetypeRepository, DeckFormat::Expanded);
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    #[Route('/mydecks/standard', name: 'app_my_decks_standard', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function myDecksStandard(
+        Request $request,
+        DeckRepository $deckRepository,
+        ArchetypeRepository $archetypeRepository,
+    ): Response {
+        return $this->renderMyDecks($request, $deckRepository, $archetypeRepository, DeckFormat::Standard);
+    }
+
+    private function renderMyDecks(
+        Request $request,
+        DeckRepository $deckRepository,
+        ArchetypeRepository $archetypeRepository,
+        DeckFormat $format,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+        $page = max(1, $request->query->getInt('page', 1));
+
+        $filters = [
+            'search' => $request->query->getString('q'),
+            'archetype' => $request->query->getString('archetype'),
+            'owner' => (int) $user->getId(),
+            'selfOwner' => true,
+            'format' => $format->value,
+        ];
+
+        $archetypeName = '';
+        $archetypeSlug = $filters['archetype'];
+        if ('' !== $archetypeSlug) {
+            $archetype = $archetypeRepository->findOneBy(['slug' => $archetypeSlug]);
+            if (null !== $archetype) {
+                $archetypeName = $archetype->getLocalizedName($request->getLocale());
+            }
+        }
+
+        $qb = $deckRepository->createCatalogQueryBuilder($filters);
+        $qb->setFirstResult(($page - 1) * self::PER_PAGE)
+            ->setMaxResults(self::PER_PAGE);
+
+        $paginator = new Paginator($qb, fetchJoinCollection: true);
+        $totalItems = \count($paginator);
+        $totalPages = max(1, (int) ceil($totalItems / self::PER_PAGE));
+
+        $routeName = DeckFormat::Standard === $format ? 'app_my_decks_standard' : 'app_my_decks';
+
+        return $this->render('deck/list.html.twig', [
+            'decks' => $paginator,
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'filters' => $filters,
+            'archetypeName' => $archetypeName,
+            'eventName' => '',
+            'ownerName' => '',
+            'myDecks' => true,
+            'myDecksFormat' => $format,
+            'paginationRoute' => $routeName,
         ]);
     }
 }
