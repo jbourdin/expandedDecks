@@ -153,6 +153,20 @@
         </div>
     </div>
 
+    {# Sprite mapping card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header"><strong>{{ 'app.admin.technical.sprite_mapping.title'|trans }}</strong></div>
+        <div class="card-body">
+            <p class="card-text text-muted mb-2">{{ 'app.admin.technical.sprite_mapping.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_sprite_mapping_rebuild') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-sprite-mapping-rebuild') }}">
+                <button type="submit" class="btn btn-gold">
+                    {{ 'app.admin.technical.sprite_mapping.rebuild_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+
     {# TCGdex database sync card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">

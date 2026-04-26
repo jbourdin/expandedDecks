@@ -16,6 +16,7 @@ namespace App\Service\Label;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\Sprite\SpriteResolver;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\Builder\Builder;
@@ -40,7 +41,7 @@ class PdfLabelGenerator
     public function __construct(
         private readonly Environment $twig,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly string $projectDir,
+        private readonly SpriteResolver $spriteResolver,
     ) {
     }
 
@@ -204,6 +205,7 @@ class PdfLabelGenerator
      * so sprites must be embedded as data URIs.
      *
      * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     * @see docs/features.md F2.26 — Upgrade sprites to Pokemon HOME 3D renders
      *
      * @return list<array{dataUri: string, name: string}>
      */
@@ -213,20 +215,14 @@ class PdfLabelGenerator
         $sprites = [];
 
         foreach ($slugs as $slug) {
-            $path = $this->projectDir.'/public/build/sprites/pokemon/'.$slug.'.png';
+            $dataUri = $this->spriteResolver->resolveAsDataUri($slug);
 
-            if (!file_exists($path)) {
-                continue;
-            }
-
-            $data = file_get_contents($path);
-
-            if (false === $data) {
+            if (null === $dataUri) {
                 continue;
             }
 
             $sprites[] = [
-                'dataUri' => 'data:image/png;base64,'.base64_encode($data),
+                'dataUri' => $dataUri,
                 'name' => ucwords(str_replace('-', ' ', $slug)),
             ];
         }

@@ -13,19 +13,19 @@
 {% block body %}
     <div class="text-center mb-4">
         {% if status_code == 403 %}
-            <img src="/build/sprites/pokemon/snorlax.png" alt="Snorlax" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <img src="/sprites/pokemon/snorlax.png" alt="Snorlax" style="height: 80px;" class="mb-2">
             <p class="text-muted">{{ 'app.error.403'|trans }}</p>
         {% elseif status_code == 404 %}
-            <img src="/build/sprites/pokemon/ditto.png" alt="Ditto" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <img src="/sprites/pokemon/ditto.png" alt="Ditto" style="height: 80px;" class="mb-2">
             <p class="text-muted">{{ 'app.error.404'|trans }}</p>
         {% elseif status_code == 429 %}
-            <img src="/build/sprites/pokemon/maushold-family-of-four.png" alt="Maushold" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <img src="/sprites/pokemon/maushold-family-of-four.png" alt="Maushold" style="height: 80px;" class="mb-2">
             <p class="text-muted">{{ 'app.error.429'|trans }}</p>
         {% elseif status_code == 500 %}
-            <img src="/build/sprites/pokemon/porygon.png" alt="Porygon" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <img src="/sprites/pokemon/porygon.png" alt="Porygon" style="height: 80px;" class="mb-2">
             <p class="text-muted">{{ 'app.error.500'|trans }}</p>
         {% else %}
-            <img src="/build/sprites/pokemon/psyduck.png" alt="Psyduck" style="height: 80px; image-rendering: pixelated;" class="mb-2">
+            <img src="/sprites/pokemon/psyduck.png" alt="Psyduck" style="height: 80px;" class="mb-2">
             <p class="text-muted">{{ 'app.error.generic'|trans }}</p>
         {% endif %}
     </div>

@@ -91,9 +91,9 @@ export default function ArchetypeFilterSelect({
                         {archetype.pokemonSlugs.map((pokemonSlug) => (
                             <img
                                 key={pokemonSlug}
-                                src={`/build/sprites/pokemon/${pokemonSlug}.png`}
+                                src={`/sprites/pokemon/${pokemonSlug}.png`}
                                 alt={pokemonSlug.replace(/-/g, ' ')}
-                                style={{ height: 24, imageRendering: 'pixelated' }}
+                                style={{ height: 24 }}
                                 loading="lazy"
                             />
                         ))}

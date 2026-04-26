@@ -24,6 +24,7 @@ use App\Service\BannedCardsSyncService;
 use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
+use App\Service\Sprite\SpriteMappingSyncService;
 use App\Service\Tcgdex\TcgdexApiThrottle;
 use App\Service\Tcgdex\TcgdexSyncStatusService;
 use App\Twig\Runtime\MenuRuntime;
@@ -199,6 +200,31 @@ class AdminTechnicalController extends AbstractAppController
         $this->messageBus->dispatch(new BuildSetMappingsMessage());
 
         $this->addFlash('success', 'app.admin.technical.set_mappings.dispatched');
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * @see docs/features.md F2.26 — Upgrade sprites to Pokemon HOME 3D renders
+     */
+    #[Route('/sprite-mapping-rebuild', name: 'app_admin_technical_sprite_mapping_rebuild', methods: ['POST'])]
+    public function spriteMappingRebuild(Request $request, SpriteMappingSyncService $syncService): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-sprite-mapping-rebuild', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        try {
+            $result = $syncService->sync();
+            $this->addFlash('success', $this->container->get('translator')->trans(
+                'app.admin.technical.sprite_mapping.synced',
+                ['%inserted%' => $result['inserted'], '%updated%' => $result['updated'], '%total%' => $result['total']],
+            ));
+        } catch (\RuntimeException $exception) {
+            $this->addFlash('danger', $exception->getMessage());
+        }
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

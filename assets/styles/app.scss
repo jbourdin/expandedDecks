@@ -687,16 +687,15 @@ footer {
     }
 }
 
-// Fixed height keeps sprites visually consistent regardless of native
-// dimensions (23×22 Joltik to 73×62 large Pokémon). Width scales
-// proportionally to preserve aspect ratio.
+// Fixed height keeps sprites visually consistent. Width scales
+// proportionally to preserve aspect ratio. HOME 3D renders (512×512)
+// scale down smoothly — no pixelated rendering needed.
 .archetype-sprite {
     display: inline-block;
     vertical-align: middle;
     height: 40px;
     width: auto;
     margin-right: 2px;
-    image-rendering: pixelated;
 }
 
 // --- Footer ---

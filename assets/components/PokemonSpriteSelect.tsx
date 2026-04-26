@@ -7,9 +7,8 @@
  * file that was distributed with this source code.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Combobox, Group, Pill, PillsInput, ScrollArea, useCombobox } from '@mantine/core';
-import spriteManifest from '../generated/pokemon-sprites.json';
 
 /**
  * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
@@ -34,21 +33,28 @@ function slugToName(slug: string): string {
 function SpritePreview({ slug }: { slug: string }) {
     return (
         <img
-            src={`/build/sprites/pokemon/${slug}.png`}
+            src={`/sprites/pokemon/${slug}.png`}
             alt={slugToName(slug)}
-            style={{ width: 20, height: 20, imageRendering: 'pixelated' }}
+            style={{ width: 20, height: 20 }}
         />
     );
 }
 
 export default function PokemonSpriteSelect({ initialValues = [], hiddenInputName, placeholder }: PokemonSpriteSelectProps) {
-    const allSlugs: string[] = spriteManifest;
+    const [allSlugs, setAllSlugs] = useState<string[]>([]);
     const [value, setValue] = useState<string[]>(initialValues);
     const [search, setSearch] = useState('');
     const combobox = useCombobox({
         onDropdownClose: () => combobox.resetSelectedOption(),
         onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
     });
+
+    useEffect(() => {
+        fetch('/api/sprites/slugs')
+            .then((response) => response.json())
+            .then((slugs: string[]) => setAllSlugs(slugs))
+            .catch(() => setAllSlugs([]));
+    }, []);
 
     const syncHidden = (newValue: string[]) => {
         const hiddenInput = document.querySelector<HTMLInputElement>(

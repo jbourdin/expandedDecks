@@ -93,9 +93,10 @@ services:
         arguments:
             $editorUploadStorage: '@editor_upload.storage'
 
-    App\Service\Label\PdfLabelGenerator:
+    App\Service\Sprite\SpriteResolver:
         arguments:
             $projectDir: '%kernel.project_dir%'
+            $spriteCdnBaseUrl: '%env(default::SPRITE_CDN_BASE_URL)%'
 
     App\Command\ImportTcgdexDatabaseCommand:
         arguments:
