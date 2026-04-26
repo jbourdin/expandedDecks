@@ -75,7 +75,7 @@ class PdfDecklistGenerator
     private function generate(Deck $deck, ?User $user): string
     {
         $currentVersion = $deck->getCurrentVersion();
-        $locale = $user?->getPreferredLocale() ?? 'en';
+        $locale = $this->resolveDeckLocale($deck);
 
         $groupedCards = null !== $currentVersion
             ? $this->groupCardsForDecklist($currentVersion)
@@ -439,6 +439,19 @@ class PdfDecklistGenerator
 
         // If the translation key is not found, fall back to titlecase subtype
         return $translated !== $key ? $translated : ucfirst($subtype);
+    }
+
+    /**
+     * Resolve the locale for card names based on the deck's language list.
+     *
+     * If the deck has exactly one language set, use it (e.g. "fr").
+     * If multiple languages or none, default to English.
+     */
+    private function resolveDeckLocale(Deck $deck): string
+    {
+        $languages = $deck->getLanguages();
+
+        return 1 === \count($languages) ? $languages[0] : 'en';
     }
 
     /**
