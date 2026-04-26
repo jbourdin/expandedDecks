@@ -94,7 +94,12 @@ fixtures: ## Load fixture data, enrich, and rebuild search index
 	symfony console app:banned-cards:sync
 	$(MAKE) tcgdex.import
 	symfony console app:enrich:retry
+	$(MAKE) sprites.sync
 	$(MAKE) search.reindex
+
+.PHONY: sprites.sync
+sprites.sync: ## Sync Pokemon sprite slug-to-dex mapping from PokeAPI
+	symfony console app:sprites:sync-mapping
 
 .PHONY: tcgdex.import
 tcgdex.import: ## Import TCGdex card database from local git clone
