@@ -16,6 +16,7 @@ namespace App\Service\Label;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Entity\TcgdexCard;
 use App\Entity\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -317,10 +318,22 @@ class PdfDecklistGenerator
         $rows = [];
 
         foreach ($cards as $card) {
+            $tcgdexCard = $card->getCardPrinting()?->getTcgdexCard();
+
+            // Resolve the display name in the user's locale
+            $displayName = $card->getCardName();
             $englishName = null;
-            if ('en' !== $locale && 'en' !== $card->getCardLocale()) {
-                $nameEn = $card->getCardPrinting()?->getTcgdexCard()?->getNameEn();
-                if (null !== $nameEn && $nameEn !== $card->getCardName()) {
+
+            if ('en' !== $locale && null !== $tcgdexCard) {
+                // Try to get the localized name (e.g. nameFr for French users)
+                $localizedName = $this->getLocalizedCardName($tcgdexCard, $locale);
+                if (null !== $localizedName) {
+                    $displayName = $localizedName;
+                }
+
+                // Show English name as subline if it differs from the displayed name
+                $nameEn = $tcgdexCard->getNameEn();
+                if (null !== $nameEn && $nameEn !== $displayName) {
                     $englishName = $nameEn;
                 }
             }
@@ -336,7 +349,7 @@ class PdfDecklistGenerator
             }
 
             $rows[] = [
-                'name' => $card->getCardName(),
+                'name' => $displayName,
                 'englishName' => $englishName,
                 'quantity' => $card->getQuantity(),
                 'setCode' => $ptcgCode,
@@ -383,8 +396,8 @@ class PdfDecklistGenerator
         $sectionHeaderLines = 3.0;
         $totalLines += $sectionHeaderLines;
 
-        // Available height: A4 (297mm) - margins (20mm) - header (40mm) = ~237mm
-        $availableHeightMm = 237.0;
+        // Available height: A4 (297mm) - margins (22mm) - header (40mm) = ~235mm
+        $availableHeightMm = 235.0;
         $lineHeightFactor = 1.35;
         $ptToMm = 0.353;
 
@@ -445,6 +458,26 @@ class PdfDecklistGenerator
 
         // If the translation key is not found, fall back to titlecase subtype
         return $translated !== $key ? $translated : ucfirst($subtype);
+    }
+
+    /**
+     * Get the card name in the user's locale from TCGdex data.
+     *
+     * Returns null if no localized name is available for the requested locale,
+     * letting the caller fall back to the original DeckCard.cardName.
+     */
+    private function getLocalizedCardName(TcgdexCard $tcgdexCard, string $locale): ?string
+    {
+        $localizedName = $tcgdexCard->getLocalizedName($locale);
+
+        // getLocalizedName falls back to English — only return if we got the requested locale
+        $nameEn = $tcgdexCard->getNameEn();
+        if (null !== $localizedName && $localizedName !== $nameEn) {
+            return $localizedName;
+        }
+
+        // If the localized name equals English, the translation doesn't exist for this locale
+        return null;
     }
 
     private function generateQrCode(string $content): string

@@ -15,7 +15,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 8mm 8mm 6mm 8mm;
+            margin: 12mm 12mm 10mm 12mm;
         }
 
         * {
@@ -160,7 +160,7 @@
         }
 
         .card-row-alt {
-            background: #f8f8f8;
+            background: #eaeaea;
         }
 
         .col-qty {
@@ -186,12 +186,18 @@
         }
 
         .col-check {
-            width: 20mm;
+            width: 22mm;
             text-align: right;
             vertical-align: top;
             padding: 0.3mm 1mm;
-            letter-spacing: 0.5pt;
-            color: #888;
+        }
+
+        .checkbox {
+            display: inline-block;
+            width: 3mm;
+            height: 3mm;
+            border: 0.3mm solid #555;
+            margin-left: 0.8mm;
         }
 
         .english-subline {
@@ -283,7 +289,7 @@
                         {% endif %}
                         {{ row.setCode }}-{{ row.cardNumber }}
                     </td>
-                    <td class="col-check">{% for i in 1..row.quantity %}○{% endfor %}</td>
+                    <td class="col-check">{% for i in 1..row.quantity %}<span class="checkbox"></span>{% endfor %}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -307,7 +313,7 @@
                             {% endif %}
                         </td>
                         <td class="col-set"></td>
-                        <td class="col-check">{% for i in 1..row.quantity %}○{% endfor %}</td>
+                        <td class="col-check">{% for i in 1..row.quantity %}<span class="checkbox"></span>{% endfor %}</td>
                     </tr>
                 {% endfor %}
             </table>
@@ -328,7 +334,7 @@
                         {% endif %}
                     </td>
                     <td class="col-set"></td>
-                    <td class="col-check">{% for i in 1..row.quantity %}○{% endfor %}</td>
+                    <td class="col-check">{% for i in 1..row.quantity %}<span class="checkbox"></span>{% endfor %}</td>
                 </tr>
             {% endfor %}
         </table>
