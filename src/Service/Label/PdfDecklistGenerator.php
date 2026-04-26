@@ -18,6 +18,7 @@ use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
 use App\Entity\TcgdexCard;
 use App\Entity\User;
+use App\Repository\TcgdexCardRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\Builder\Builder;
@@ -41,11 +42,15 @@ class PdfDecklistGenerator
     /** @var array<string, string> cached set symbol data URIs within one request */
     private array $symbolCache = [];
 
+    /** @var array<string, ?TcgdexCard> cached TcgdexCard lookups by tcgdexId */
+    private array $tcgdexCardCache = [];
+
     public function __construct(
         private readonly Environment $twig,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly HttpClientInterface $httpClient,
         private readonly TranslatorInterface $translator,
+        private readonly TcgdexCardRepository $tcgdexCardRepository,
     ) {
     }
 
@@ -164,7 +169,7 @@ class PdfDecklistGenerator
         $urls = [];
 
         foreach ($pokemonCards as $card) {
-            $symbolUrl = $card->getCardPrinting()?->getTcgdexCard()?->getSet()?->getSymbolUrl();
+            $symbolUrl = $this->resolveTcgdexCard($card)?->getSet()?->getSymbolUrl();
             if (null !== $symbolUrl && !isset($urls[$symbolUrl])) {
                 $urls[$symbolUrl] = true;
             }
@@ -192,7 +197,9 @@ class PdfDecklistGenerator
             }
 
             try {
-                $response = $this->httpClient->request('GET', $url, ['timeout' => 3]);
+                // TCGdex symbol URLs are base paths — append .png for the actual image
+                $fetchUrl = str_ends_with($url, '.png') || str_ends_with($url, '.svg') ? $url : $url.'.png';
+                $response = $this->httpClient->request('GET', $fetchUrl, ['timeout' => 3]);
                 $contentType = $response->getHeaders()['content-type'][0] ?? 'image/png';
                 $content = $response->getContent();
 
@@ -318,7 +325,7 @@ class PdfDecklistGenerator
         $rows = [];
 
         foreach ($cards as $card) {
-            $tcgdexCard = $card->getCardPrinting()?->getTcgdexCard();
+            $tcgdexCard = $this->resolveTcgdexCard($card);
 
             // Resolve the display name in the user's locale
             $displayName = $card->getCardName();
@@ -341,11 +348,11 @@ class PdfDecklistGenerator
             $symbolDataUri = null;
             $ptcgCode = $card->getSetCode();
             if ($includeSetInfo) {
-                $symbolUrl = $card->getCardPrinting()?->getTcgdexCard()?->getSet()?->getSymbolUrl();
+                $symbolUrl = $this->resolveTcgdexCard($card)?->getSet()?->getSymbolUrl();
                 if (null !== $symbolUrl) {
                     $symbolDataUri = $setSymbolDataUris[$symbolUrl] ?? null;
                 }
-                $ptcgCode = $card->getCardPrinting()?->getTcgdexCard()?->getSet()?->getPtcgCode() ?? $card->getSetCode();
+                $ptcgCode = $this->resolveTcgdexCard($card)?->getSet()?->getPtcgCode() ?? $card->getSetCode();
             }
 
             $rows[] = [
@@ -461,23 +468,44 @@ class PdfDecklistGenerator
     }
 
     /**
+     * Resolve the TcgdexCard for a DeckCard, using the entity relation first,
+     * then falling back to a repository lookup via the tcgdexId string.
+     */
+    private function resolveTcgdexCard(DeckCard $card): ?TcgdexCard
+    {
+        $tcgdexCard = $card->getCardPrinting()?->getTcgdexCard();
+        if (null !== $tcgdexCard) {
+            return $tcgdexCard;
+        }
+
+        $tcgdexId = $card->getCardPrinting()?->getTcgdexId();
+        if (null === $tcgdexId) {
+            return null;
+        }
+
+        if (\array_key_exists($tcgdexId, $this->tcgdexCardCache)) {
+            return $this->tcgdexCardCache[$tcgdexId];
+        }
+
+        $this->tcgdexCardCache[$tcgdexId] = $this->tcgdexCardRepository->find($tcgdexId);
+
+        return $this->tcgdexCardCache[$tcgdexId];
+    }
+
+    /**
      * Get the card name in the user's locale from TCGdex data.
      *
-     * Returns null if no localized name is available for the requested locale,
+     * Reads directly from the JSON name field for the specific locale key.
+     * Returns null only if no entry exists for the requested locale,
      * letting the caller fall back to the original DeckCard.cardName.
      */
     private function getLocalizedCardName(TcgdexCard $tcgdexCard, string $locale): ?string
     {
-        $localizedName = $tcgdexCard->getLocalizedName($locale);
+        // Access the raw name array to check if the locale key exists explicitly
+        $names = $tcgdexCard->getName();
+        $localizedName = $names[$locale] ?? null;
 
-        // getLocalizedName falls back to English — only return if we got the requested locale
-        $nameEn = $tcgdexCard->getNameEn();
-        if (null !== $localizedName && $localizedName !== $nameEn) {
-            return $localizedName;
-        }
-
-        // If the localized name equals English, the translation doesn't exist for this locale
-        return null;
+        return \is_string($localizedName) ? $localizedName : null;
     }
 
     private function generateQrCode(string $content): string
