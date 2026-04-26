@@ -525,6 +525,16 @@
                 <target>Label+</target>
                 <note>Button to download foldable PDF label with deck list on the back</note>
             </trans-unit>
+            <trans-unit id="app.deck.decklist_pdf">
+                <source>app.deck.decklist_pdf</source>
+                <target>Decklist PDF</target>
+                <note>Button to download A4 decklist PDF with player info filled</note>
+            </trans-unit>
+            <trans-unit id="app.deck.decklist_pdf_anonymous">
+                <source>app.deck.decklist_pdf_anonymous</source>
+                <target>Decklist PDF (blank)</target>
+                <note>Button to download A4 decklist PDF with blank player fields</note>
+            </trans-unit>
             <trans-unit id="app.deck.retire">
                 <source>app.deck.retire</source>
                 <target>Retire</target>
@@ -2556,6 +2566,16 @@
                 <source>app.form.label.player_id</source>
                 <target>Player ID (optional)</target>
                 <note>Form label for player ID field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.year_of_birth">
+                <source>app.form.label.year_of_birth</source>
+                <target>Year of birth (optional)</target>
+                <note>Form label for year of birth field in profile</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.year_of_birth">
+                <source>app.form.help.year_of_birth</source>
+                <target>Used on tournament decklist PDFs.</target>
+                <note>Help text for year of birth field</note>
             </trans-unit>
             <trans-unit id="app.form.label.preferred_locale">
                 <source>app.form.label.preferred_locale</source>
@@ -5237,6 +5257,73 @@
                 <source>app.search.navbar_no_results</source>
                 <target>No results</target>
                 <note>Navbar autocomplete: empty state</note>
+            </trans-unit>
+
+            <!-- Decklist PDF (F5.13) -->
+            <trans-unit id="app.decklist.player_name">
+                <source>app.decklist.player_name</source>
+                <target>Player Name</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.player_id">
+                <source>app.decklist.player_id</source>
+                <target>Player ID</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.year_of_birth">
+                <source>app.decklist.year_of_birth</source>
+                <target>Year of Birth</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.format">
+                <source>app.decklist.format</source>
+                <target>Format</target>
+                <note>PDF decklist field label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.total_cards">
+                <source>app.decklist.total_cards</source>
+                <target>Total</target>
+                <note>PDF decklist total card count label</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.pokemon">
+                <source>app.decklist.section.pokemon</source>
+                <target>Pokemon</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.trainer">
+                <source>app.decklist.section.trainer</source>
+                <target>Trainer</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.section.energy">
+                <source>app.decklist.section.energy</source>
+                <target>Energy</target>
+                <note>PDF decklist section header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.supporter">
+                <source>app.decklist.subtype.supporter</source>
+                <target>Supporter</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.item">
+                <source>app.decklist.subtype.item</source>
+                <target>Item</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.tool">
+                <source>app.decklist.subtype.tool</source>
+                <target>Tool</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.stadium">
+                <source>app.decklist.subtype.stadium</source>
+                <target>Stadium</target>
+                <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.decklist.subtype.technical machine">
+                <source>app.decklist.subtype.technical machine</source>
+                <target>Technical Machine</target>
+                <note>PDF decklist trainer subtype header</note>
             </trans-unit>
         </body>
     </file>

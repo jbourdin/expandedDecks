@@ -117,6 +117,8 @@
                                     <li><a class="dropdown-item" href="{{ path('app_deck_label_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.label_pdf'|trans }}</a></li>
                                     {% if deck.currentVersion %}
                                         <li><a class="dropdown-item" href="{{ path('app_deck_label_foldable_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.label_foldable_pdf'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_deck_decklist_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.decklist_pdf'|trans }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_deck_decklist_pdf', {short_tag: deck.shortTag, anonymous: 1}) }}" target="_blank">{{ 'app.deck.decklist_pdf_anonymous'|trans }}</a></li>
                                     {% endif %}
                                     {% if deck.status.value != 'lent' %}
                                         <li><hr class="dropdown-divider"></li>

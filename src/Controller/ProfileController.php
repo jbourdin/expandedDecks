@@ -232,6 +232,7 @@ class ProfileController extends AbstractAppController
                 'lastName' => $user->getLastName(),
                 'playerId' => $user->getPlayerId(),
                 'discordUsername' => $user->getDiscordUsername(),
+                'yearOfBirth' => $user->getYearOfBirth(),
                 'preferredLocale' => $user->getPreferredLocale(),
                 'timezone' => $user->getTimezone(),
                 'createdAt' => $user->getCreatedAt()->format('c'),
