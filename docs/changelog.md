@@ -24,6 +24,10 @@ Channel-aware search filtering and comprehensive search test coverage.
 
 - **Channel-aware search** — search results now respect channel feature flags. Archetypes/variants only appear on channels with `enableArchetypes`, decks on `enableDecks`, events on `enableEvents`. Pages always included. Both the search results page and navbar autocomplete API filter by channel. Template type filter tabs are conditionally rendered. ([#472](https://github.com/jbourdin/expandedDecks/pull/472))
 
+### Infrastructure
+
+- **Global dependency update** — Symfony 8.0.4–8.0.7 → 8.0.8 (30+ packages), PHPUnit 13.0 → 13.1.7, PHPStan 2.1 → 2.1.51, PHP-CS-Fixer 3.94 → 3.95.1, Twig 3.0 → 3.24, Sentry 5.9 → 5.10, Doctrine ORM 3.6 → 3.6.3, Flysystem 3.32 → 3.33, MeiliSearch PHP 1.16 → 1.16.1. No security advisories.
+
 ### Testing & Quality
 
 - **80 new search tests** — comprehensive coverage of the full search stack: `SearchIndexerIntegrationTest` (17 tests with mocked MeiliSearch client verifying reindex orchestration and per-entity lifecycle), `SearchResultTest` (11), `SearchServiceTest` (18), `SearchRuntimeTest` (6), `SearchIndexListenerTest` (12), `SearchControllerTest` (7), `SearchApiControllerTest` (5), plus 7 additional `SearchIndexerTest` mapper tests. Test count: 1886 → 1966. ([#472](https://github.com/jbourdin/expandedDecks/pull/472))
