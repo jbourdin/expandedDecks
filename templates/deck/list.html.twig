@@ -123,6 +123,9 @@
                                 {% if not deck.public %}
                                     <i class="bi bi-lock-fill text-muted ms-1" title="{{ 'app.deck.not_public'|trans }}"></i>
                                 {% endif %}
+                                {% if deck.standard %}
+                                    <span class="badge bg-info ms-1">{{ 'app.deck.format.standard'|trans }}</span>
+                                {% endif %}
                                 {% if deck.status.value == 'retired' %}
                                     <span class="badge bg-secondary ms-1">{{ 'app.deck.badge_retired'|trans }}</span>
                                 {% endif %}

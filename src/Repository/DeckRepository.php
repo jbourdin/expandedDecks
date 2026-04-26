@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\EventDeckRegistration;
 use App\Entity\User;
+use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -87,8 +88,10 @@ class DeckRepository extends ServiceEntityRepository
             ->where('d.public = :public')
             ->andWhere('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :format')
             ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('format', DeckFormat::Expanded)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -126,9 +129,11 @@ class DeckRepository extends ServiceEntityRepository
             ->andWhere('d.status != :retired')
             ->andWhere('d.archetype = :archetype')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :format')
             ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired)
             ->setParameter('archetype', $archetype)
+            ->setParameter('format', DeckFormat::Expanded)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -150,9 +155,11 @@ class DeckRepository extends ServiceEntityRepository
             ->andWhere('d.status != :retired')
             ->andWhere('d.archetype = :archetype')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :format')
             ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired)
             ->setParameter('archetype', $archetype)
+            ->setParameter('format', DeckFormat::Expanded)
             ->orderBy('d.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
@@ -248,6 +255,7 @@ class DeckRepository extends ServiceEntityRepository
             ->where('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
             ->andWhere('d.currentVersion IS NOT NULL')
+            ->andWhere('d.format = :expandedFormat')
             ->andWhere('d.name LIKE :query OR d.shortTag LIKE :query')
             ->andWhere('NOT EXISTS (
                 SELECT 1 FROM App\Entity\Borrow b
@@ -258,6 +266,7 @@ class DeckRepository extends ServiceEntityRepository
                 AND COALESCE(e2.endDate, e2.date) >= :startOfDay
             )')
             ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('expandedFormat', DeckFormat::Expanded)
             ->setParameter('query', '%'.$query.'%')
             ->setParameter('activeStatuses', BorrowRepository::blockingStatusValues())
             ->setParameter('startOfDay', $startOfDay)
@@ -294,6 +303,7 @@ class DeckRepository extends ServiceEntityRepository
             ->join('App\Entity\EventDeckRegistration', 'r', 'WITH', 'r.deck = d AND r.event = :event')
             ->where('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :expandedFormat')
             ->andWhere('d.owner != :excludeOwner')
             ->andWhere('d.currentVersion IS NOT NULL')
             ->andWhere('NOT EXISTS (
@@ -311,6 +321,7 @@ class DeckRepository extends ServiceEntityRepository
             )')
             ->setParameter('event', $event)
             ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('expandedFormat', DeckFormat::Expanded)
             ->setParameter('excludeOwner', $excludeOwner)
             ->setParameter('activeStatuses', BorrowRepository::blockingStatusValues())
             ->setParameter('startOfDay', $startOfDay)
@@ -337,8 +348,10 @@ class DeckRepository extends ServiceEntityRepository
             ->where('d.public = :public')
             ->andWhere('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :format')
             ->setParameter('public', true)
             ->setParameter('retired', DeckStatus::Retired)
+            ->setParameter('format', DeckFormat::Expanded)
             ->orderBy('d.updatedAt', 'DESC')
             ->addOrderBy('d.createdAt', 'DESC')
             ->getQuery()
@@ -364,7 +377,9 @@ class DeckRepository extends ServiceEntityRepository
             ->where('d.public = :public')
             ->andWhere('d.owner IS NOT NULL')
             ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('d.format = :format')
             ->setParameter('public', true)
+            ->setParameter('format', DeckFormat::Expanded)
             ->orderBy('d.updatedAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -427,7 +442,9 @@ class DeckRepository extends ServiceEntityRepository
             $qb->andWhere('d.status != :retired')
                 ->setParameter('retired', DeckStatus::Retired)
                 ->andWhere('d.public = :public')
-                ->setParameter('public', true);
+                ->setParameter('public', true)
+                ->andWhere('d.format = :format')
+                ->setParameter('format', DeckFormat::Expanded);
         }
 
         if (isset($filters['search']) && '' !== $filters['search']) {

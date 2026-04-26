@@ -17,6 +17,7 @@ use App\Entity\Archetype;
 use App\Entity\Deck;
 use App\Entity\DeckVersion;
 use App\Entity\User;
+use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use PHPUnit\Framework\TestCase;
 
@@ -104,7 +105,7 @@ class DeckTest extends TestCase
 
         self::assertNull($deck->getId());
         self::assertSame('', $deck->getName());
-        self::assertSame('Expanded', $deck->getFormat());
+        self::assertSame(DeckFormat::Expanded, $deck->getFormat());
         self::assertSame(DeckStatus::Available, $deck->getStatus());
         self::assertNull($deck->getArchetype());
         self::assertSame([], $deck->getLanguages());
@@ -141,10 +142,40 @@ class DeckTest extends TestCase
     public function testSetFormat(): void
     {
         $deck = new Deck();
-        $result = $deck->setFormat('Standard');
+        $result = $deck->setFormat(DeckFormat::Standard);
 
-        self::assertSame('Standard', $deck->getFormat());
+        self::assertSame(DeckFormat::Standard, $deck->getFormat());
         self::assertSame($deck, $result);
+    }
+
+    public function testIsStandard(): void
+    {
+        $deck = new Deck();
+
+        self::assertFalse($deck->isStandard());
+
+        $deck->setFormat(DeckFormat::Standard);
+        self::assertTrue($deck->isStandard());
+    }
+
+    public function testIsLendable(): void
+    {
+        $deck = new Deck();
+
+        self::assertTrue($deck->isLendable());
+
+        $deck->setFormat(DeckFormat::Standard);
+        self::assertFalse($deck->isLendable());
+    }
+
+    public function testIsEventRegisterable(): void
+    {
+        $deck = new Deck();
+
+        self::assertTrue($deck->isEventRegisterable());
+
+        $deck->setFormat(DeckFormat::Standard);
+        self::assertFalse($deck->isEventRegisterable());
     }
 
     public function testSetStatus(): void

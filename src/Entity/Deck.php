@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -53,10 +54,11 @@ class Deck
     #[ORM\JoinColumn(nullable: true)]
     private ?User $owner = null;
 
-    #[ORM\Column(length: 30)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 30)]
-    private string $format = 'Expanded';
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    #[ORM\Column(length: 20, enumType: DeckFormat::class)]
+    private DeckFormat $format = DeckFormat::Expanded;
 
     #[ORM\Column(length: 20, enumType: DeckStatus::class)]
     private DeckStatus $status = DeckStatus::Available;
@@ -238,16 +240,40 @@ class Deck
         return null === $this->owner && null !== $this->archetype;
     }
 
-    public function getFormat(): string
+    public function getFormat(): DeckFormat
     {
         return $this->format;
     }
 
-    public function setFormat(string $format): static
+    public function setFormat(DeckFormat $format): static
     {
         $this->format = $format;
 
         return $this;
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function isStandard(): bool
+    {
+        return DeckFormat::Standard === $this->format;
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function isLendable(): bool
+    {
+        return $this->format->isLendable();
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function isEventRegisterable(): bool
+    {
+        return $this->format->isEventRegisterable();
     }
 
     public function getArchetype(): ?Archetype

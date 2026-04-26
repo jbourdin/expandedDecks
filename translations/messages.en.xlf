@@ -678,6 +678,16 @@
                 <target>Format:</target>
                 <note>Label in deck detail info. Includes trailing colon</note>
             </trans-unit>
+            <trans-unit id="app.deck.format.expanded">
+                <source>app.deck.format.expanded</source>
+                <target>Expanded</target>
+                <note>Deck format: Expanded (competitive lending pool)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.format.standard">
+                <source>app.deck.format.standard</source>
+                <target>Standard</target>
+                <note>Deck format: Standard (personal library only)</note>
+            </trans-unit>
             <trans-unit id="app.deck.version">
                 <source>app.deck.version</source>
                 <target>Version:</target>
@@ -2097,6 +2107,11 @@
                 <target>You can only manage registration for your own decks.</target>
                 <note>Error when trying to register another user&apos;s deck</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.standard_deck_not_registerable">
+                <source>app.flash.event.standard_deck_not_registerable</source>
+                <target>Standard format decks cannot be registered for events.</target>
+                <note>Error when trying to register a Standard deck for an event</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.deck_registered">
                 <source>app.flash.event.deck_registered</source>
                 <target>&quot;%name%&quot; registered for this event.</target>
@@ -2378,6 +2393,11 @@
                 <source>app.form.label.deck_name</source>
                 <target>Deck name</target>
                 <note>Form label for deck name field</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.deck_format">
+                <source>app.form.label.deck_format</source>
+                <target>Format</target>
+                <note>Form label for deck format selector (Expanded/Standard)</note>
             </trans-unit>
             <trans-unit id="app.form.label.notes">
                 <source>app.form.label.notes</source>

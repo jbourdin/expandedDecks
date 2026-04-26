@@ -18,6 +18,7 @@ use App\Entity\Event;
 use App\Entity\EventDeckEntry;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
+use App\Enum\DeckFormat;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -94,7 +95,7 @@ class DeckShowControllerCoverageTest extends AbstractFunctionalTest
         $deck = new Deck();
         $deck->setName('No Version Deck');
         $deck->setOwner($entityManager->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']));
-        $deck->setFormat('Expanded');
+        $deck->setFormat(DeckFormat::Expanded);
         $deck->setPublic(true);
         $entityManager->persist($deck);
         $entityManager->flush();

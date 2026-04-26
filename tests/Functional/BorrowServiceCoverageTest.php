@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
+use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use App\Repository\BorrowRepository;
 use App\Repository\DeckRepository;
@@ -135,7 +136,7 @@ class BorrowServiceCoverageTest extends AbstractFunctionalTest
         $deckWithoutVersion = new Deck();
         $deckWithoutVersion->setName('Empty Deck');
         $deckWithoutVersion->setOwner($admin);
-        $deckWithoutVersion->setFormat('Expanded');
+        $deckWithoutVersion->setFormat(DeckFormat::Expanded);
         $deckWithoutVersion->setStatus(DeckStatus::Available);
 
         $entityManager->persist($deckWithoutVersion);
@@ -314,7 +315,7 @@ class BorrowServiceCoverageTest extends AbstractFunctionalTest
         $deckWithoutVersion = new Deck();
         $deckWithoutVersion->setName('Versionless Walkup Deck');
         $deckWithoutVersion->setOwner($admin);
-        $deckWithoutVersion->setFormat('Expanded');
+        $deckWithoutVersion->setFormat(DeckFormat::Expanded);
         $deckWithoutVersion->setStatus(DeckStatus::Available);
         $entityManager->persist($deckWithoutVersion);
         $entityManager->flush();
