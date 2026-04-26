@@ -35,13 +35,27 @@
     </form>
 
     {% if query %}
-        {% set types = {
-            'archetypes': {'label': 'app.search.type.archetypes'|trans, 'icon': 'bi-trophy'},
-            'variants': {'label': 'app.search.type.variants'|trans, 'icon': 'bi-layers'},
-            'pages': {'label': 'app.search.type.pages'|trans, 'icon': 'bi-file-text'},
-            'events': {'label': 'app.search.type.events'|trans, 'icon': 'bi-calendar-event'},
-            'decks': {'label': 'app.search.type.decks'|trans, 'icon': 'bi-collection'}
-        } %}
+        {% set channel = current_channel() %}
+        {% set types = {} %}
+        {% if channel.enableArchetypes %}
+            {% set types = types|merge({
+                'archetypes': {'label': 'app.search.type.archetypes'|trans, 'icon': 'bi-trophy'},
+                'variants': {'label': 'app.search.type.variants'|trans, 'icon': 'bi-layers'}
+            }) %}
+        {% endif %}
+        {% set types = types|merge({
+            'pages': {'label': 'app.search.type.pages'|trans, 'icon': 'bi-file-text'}
+        }) %}
+        {% if channel.enableEvents %}
+            {% set types = types|merge({
+                'events': {'label': 'app.search.type.events'|trans, 'icon': 'bi-calendar-event'}
+            }) %}
+        {% endif %}
+        {% if channel.enableDecks %}
+            {% set types = types|merge({
+                'decks': {'label': 'app.search.type.decks'|trans, 'icon': 'bi-collection'}
+            }) %}
+        {% endif %}
 
         <ul class="nav nav-pills mb-4">
             <li class="nav-item">

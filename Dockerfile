@@ -55,7 +55,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends supervisor && r
 
 # Copy MeiliSearch binary from official image (lightweight Rust binary, ~70MB)
 # Used as a sidecar process for full-text search (F18.1)
+# The official image is Alpine-based (musl libc), so we must also copy
+# the musl dynamic linker and libgcc_s that the binary is linked against.
 COPY --from=getmeili/meilisearch:v1 /bin/meilisearch /usr/local/bin/meilisearch
+COPY --from=getmeili/meilisearch:v1 /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
+COPY --from=getmeili/meilisearch:v1 /usr/lib/libgcc_s.so.1 /usr/lib/libgcc_s.so.1
 
 # Install required PHP extensions
 RUN install-php-extensions \
@@ -141,4 +145,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 EXPOSE 8080
 
-USER www-data
+# Note: the container runs as root so that MeiliSearch (LMDB) can operate
+# without permission errors. Supervisor drops privileges to www-data for
+# FrankenPHP and Messenger workers via per-program "user=www-data" directives.
