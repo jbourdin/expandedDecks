@@ -98,14 +98,6 @@
             height: 3mm;
         }
 
-        .format-badge {
-            font-size: 7pt;
-            padding: 0.3mm 1.5mm;
-            background: #e9e9e9;
-            border-radius: 1mm;
-            display: inline-block;
-            vertical-align: middle;
-        }
 
         /* ── Card Sections ───────────────────── */
 
@@ -216,8 +208,6 @@
 
                         <span class="field-label" style="margin-left: 3mm;">{{ labels.yearOfBirth }}</span>
                         <span class="field-value">{{ yearOfBirth ?? '' }}</span>
-
-                        <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
                     </td>
                     <td style="width: 20mm; text-align: right; vertical-align: middle;">
                         <span class="trigram">{{ trigram }}</span>
@@ -237,8 +227,6 @@
 
                         <span class="field-label" style="margin-left: 4mm;">{{ labels.yearOfBirth }}</span>
                         <span class="field-blank-short"></span>
-
-                        <span class="format-badge" style="margin-left: 3mm;">{{ format }}</span>
                     </td>
                     <td style="width: 20mm; text-align: right; vertical-align: middle;">
                         <span class="trigram-blank"></span>
