@@ -82,9 +82,9 @@ function SpritePreview({ variant }: { variant: VariantOption | undefined }) {
             {variant.sprites.slice(0, 3).map((slug) => (
                 <img
                     key={slug}
-                    src={`/build/sprites/pokemon/${slug}.png`}
+                    src={`/sprites/pokemon/${slug}.png`}
                     alt=""
-                    style={{ height: 22, imageRendering: 'pixelated' }}
+                    style={{ height: 22 }}
                 />
             ))}
         </span>

@@ -4598,6 +4598,28 @@
                 <source>app.admin.technical.set_mappings.rebuild_button</source>
                 <target>Reconstruire les correspondances</target>
             </trans-unit>
+
+            <!-- Sprite mapping (F2.26) -->
+            <trans-unit id="app.admin.technical.sprite_mapping.title">
+                <source>app.admin.technical.sprite_mapping.title</source>
+                <target>Correspondance des sprites Pokémon</target>
+                <note>Admin technical card title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.description">
+                <source>app.admin.technical.sprite_mapping.description</source>
+                <target>Correspondance slug → Pokédex pour les sprites HOME 3D. Données issues du CSV PokeAPI.</target>
+                <note>Admin technical card description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.rebuild_button">
+                <source>app.admin.technical.sprite_mapping.rebuild_button</source>
+                <target>Reconstruire les sprites</target>
+                <note>Admin technical button label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.synced">
+                <source>app.admin.technical.sprite_mapping.synced</source>
+                <target>Sprites synchronisés : %inserted% ajoutés, %updated% mis à jour, %total% au total.</target>
+                <note>Flash message after sprite mapping sync</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.set_mappings.confirm_rebuild">
                 <source>app.admin.technical.set_mappings.confirm_rebuild</source>
                 <target>Cela va supprimer et reconstruire toutes les correspondances en arrière-plan. Continuer ?</target>

@@ -93,9 +93,9 @@ function SpriteList({ slugs, height = 20 }: { slugs: string[]; height?: number }
             {slugs.slice(0, 3).map((slug) => (
                 <img
                     key={slug}
-                    src={`/build/sprites/pokemon/${slug}.png`}
+                    src={`/sprites/pokemon/${slug}.png`}
                     alt={slug}
-                    style={{ height, width: 'auto', marginRight: 2, verticalAlign: 'middle', imageRendering: 'pixelated' }}
+                    style={{ height, width: 'auto', marginRight: 2, verticalAlign: 'middle' }}
                 />
             ))}
         </>

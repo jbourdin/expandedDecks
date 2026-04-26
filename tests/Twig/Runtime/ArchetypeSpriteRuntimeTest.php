@@ -47,7 +47,7 @@ class ArchetypeSpriteRuntimeTest extends TestCase
         $html = $this->runtime->renderSprites($archetype);
 
         self::assertStringContainsString('<span class="archetype-sprites">', $html);
-        self::assertStringContainsString('src="/build/sprites/pokemon/iron-thorns.png"', $html);
+        self::assertStringContainsString('src="/sprites/pokemon/iron-thorns.png"', $html);
         self::assertStringContainsString('alt="Iron Thorns"', $html);
         self::assertStringContainsString('title="Iron Thorns"', $html);
         self::assertStringContainsString('class="archetype-sprite"', $html);
