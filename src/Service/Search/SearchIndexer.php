@@ -278,8 +278,8 @@ class SearchIndexer
         $this->client->createIndex(self::INDEX_PAGES, ['primaryKey' => 'id']);
         $index->updateSettings([
             'searchableAttributes' => ['title', 'content'],
-            'filterableAttributes' => ['locale', 'entityId'],
-            'displayedAttributes' => ['id', 'entityId', 'locale', 'title', 'slug', 'type'],
+            'filterableAttributes' => ['locale', 'entityId', 'channelCode'],
+            'displayedAttributes' => ['id', 'entityId', 'locale', 'title', 'slug', 'type', 'channelCode'],
         ]);
 
         $pages = $this->pageRepository->findPublishedForSearch();
@@ -415,6 +415,7 @@ class SearchIndexer
                 'title' => $translation->getTitle(),
                 'slug' => $page->getSlug(),
                 'content' => $this->stripMarkdown($translation->getContent()),
+                'channelCode' => $page->getChannel()?->getCode(),
             ];
         }
 

@@ -43,8 +43,9 @@ class SearchApiController extends AbstractController
 
         $channel = $request->attributes->get('_channel');
         $enabledTypes = $channel instanceof Channel ? self::getEnabledTypes($channel) : null;
+        $channelCode = $channel instanceof Channel ? $channel->getCode() : null;
 
-        $results = $searchService->quickSearch($query, $locale, $enabledTypes);
+        $results = $searchService->quickSearch($query, $locale, $enabledTypes, $channelCode);
 
         $groups = [];
 

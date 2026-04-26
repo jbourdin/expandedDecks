@@ -58,7 +58,7 @@ class SearchService
      *     decks: list<SearchResult>,
      * }
      */
-    public function searchAll(string $query, string $locale, ?string $typeFilter = null, ?array $enabledTypes = null, int $limit = self::FULL_SEARCH_LIMIT, int $offset = 0): array
+    public function searchAll(string $query, string $locale, ?string $typeFilter = null, ?array $enabledTypes = null, ?string $channelCode = null, int $limit = self::FULL_SEARCH_LIMIT, int $offset = 0): array
     {
         $results = [
             'archetypes' => [],
@@ -76,7 +76,7 @@ class SearchService
 
         foreach ($indexes as $indexName) {
             try {
-                $searchParams = $this->buildSearchParams($indexName, $locale, $limit, $offset);
+                $searchParams = $this->buildSearchParams($indexName, $locale, $channelCode, $limit, $offset);
                 $response = $this->client->index($indexName)->search($query, $searchParams);
 
                 $type = $this->indexToType($indexName);
@@ -109,9 +109,9 @@ class SearchService
      *     decks: list<SearchResult>,
      * }
      */
-    public function quickSearch(string $query, string $locale, ?array $enabledTypes = null): array
+    public function quickSearch(string $query, string $locale, ?array $enabledTypes = null, ?string $channelCode = null): array
     {
-        return $this->searchAll($query, $locale, enabledTypes: $enabledTypes, limit: self::QUICK_SEARCH_LIMIT);
+        return $this->searchAll($query, $locale, enabledTypes: $enabledTypes, channelCode: $channelCode, limit: self::QUICK_SEARCH_LIMIT);
     }
 
     /**
@@ -162,7 +162,7 @@ class SearchService
     /**
      * @return array<string, mixed>
      */
-    private function buildSearchParams(string $indexName, string $locale, int $limit, int $offset): array
+    private function buildSearchParams(string $indexName, string $locale, ?string $channelCode, int $limit, int $offset): array
     {
         $params = [
             'limit' => $limit,
@@ -174,8 +174,18 @@ class SearchService
         ];
 
         // Translatable indexes support locale filtering
+        $filters = [];
         if (\in_array($indexName, [SearchIndexer::INDEX_ARCHETYPES, SearchIndexer::INDEX_PAGES], true)) {
-            $params['filter'] = \sprintf("locale = '%s'", $locale);
+            $filters[] = \sprintf("locale = '%s'", $locale);
+        }
+
+        // Pages are channel-scoped — only return pages belonging to the current channel
+        if (SearchIndexer::INDEX_PAGES === $indexName && null !== $channelCode) {
+            $filters[] = \sprintf("channelCode = '%s'", $channelCode);
+        }
+
+        if ([] !== $filters) {
+            $params['filter'] = implode(' AND ', $filters);
         }
 
         return $params;

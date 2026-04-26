@@ -44,8 +44,9 @@ class SearchController extends AbstractController
 
         $channel = $request->attributes->get('_channel');
         $enabledTypes = $channel instanceof Channel ? self::getEnabledTypes($channel) : null;
+        $channelCode = $channel instanceof Channel ? $channel->getCode() : null;
 
-        $results = '' !== $query ? $searchService->searchAll($query, $locale, $typeFilter, $enabledTypes) : [
+        $results = '' !== $query ? $searchService->searchAll($query, $locale, $typeFilter, $enabledTypes, $channelCode) : [
             'archetypes' => [],
             'variants' => [],
             'pages' => [],

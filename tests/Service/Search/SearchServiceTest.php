@@ -143,7 +143,7 @@ class SearchServiceTest extends TestCase
 
     public function testBuildSearchParamsForArchetypesIncludesLocaleFilter(): void
     {
-        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_ARCHETYPES, 'fr', 10, 0);
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_ARCHETYPES, 'fr', null, 10, 0);
 
         self::assertSame("locale = 'fr'", $params['filter']);
         self::assertSame(10, $params['limit']);
@@ -153,28 +153,42 @@ class SearchServiceTest extends TestCase
 
     public function testBuildSearchParamsForPagesIncludesLocaleFilter(): void
     {
-        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_PAGES, 'en', 20, 5);
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_PAGES, 'en', null, 20, 5);
 
         self::assertSame("locale = 'en'", $params['filter']);
     }
 
     public function testBuildSearchParamsForEventsHasNoLocaleFilter(): void
     {
-        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_EVENTS, 'fr', 10, 0);
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_EVENTS, 'fr', null, 10, 0);
 
         self::assertArrayNotHasKey('filter', $params);
     }
 
     public function testBuildSearchParamsForDecksHasNoLocaleFilter(): void
     {
-        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_DECKS, 'en', 10, 0);
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_DECKS, 'en', null, 10, 0);
 
         self::assertArrayNotHasKey('filter', $params);
     }
 
+    public function testBuildSearchParamsForPagesWithChannelCodeIncludesBothFilters(): void
+    {
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_PAGES, 'en', 'content', 10, 0);
+
+        self::assertSame("locale = 'en' AND channelCode = 'content'", $params['filter']);
+    }
+
+    public function testBuildSearchParamsChannelCodeIgnoredForNonPageIndexes(): void
+    {
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_ARCHETYPES, 'fr', 'content', 10, 0);
+
+        self::assertSame("locale = 'fr'", $params['filter']);
+    }
+
     public function testBuildSearchParamsIncludesRankingScoreThreshold(): void
     {
-        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_DECKS, 'en', 10, 0);
+        $params = $this->invokeBuildSearchParams(SearchIndexer::INDEX_DECKS, 'en', null, 10, 0);
 
         self::assertArrayHasKey('rankingScoreThreshold', $params);
         self::assertIsFloat($params['rankingScoreThreshold']);
@@ -215,12 +229,12 @@ class SearchServiceTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function invokeBuildSearchParams(string $indexName, string $locale, int $limit, int $offset): array
+    private function invokeBuildSearchParams(string $indexName, string $locale, ?string $channelCode, int $limit, int $offset): array
     {
         $method = new \ReflectionMethod(SearchService::class, 'buildSearchParams');
 
         /** @var array<string, mixed> $result */
-        $result = $method->invoke($this->createService(), $indexName, $locale, $limit, $offset);
+        $result = $method->invoke($this->createService(), $indexName, $locale, $channelCode, $limit, $offset);
 
         return $result;
     }
