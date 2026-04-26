@@ -152,8 +152,8 @@ class DeckShowController extends AbstractAppController
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            // Only show eligible events if deck is not retired, user is not owner, and deck has a version
-            if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && null !== $currentVersion) {
+            // Only show eligible events if deck is not retired, lendable, user is not owner, and deck has a version
+            if (!$isOwner && DeckStatus::Retired !== $deck->getStatus() && $deck->isLendable() && null !== $currentVersion) {
                 $candidates = $eventRepository->findEligibleForBorrow($user, $deck);
 
                 // Filter out events with same-day conflicts

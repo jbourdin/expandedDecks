@@ -80,6 +80,10 @@ class BorrowService
             throw new \DomainException('This deck is retired and cannot be borrowed.');
         }
 
+        if (!$deck->isLendable()) {
+            throw new \DomainException('Standard format decks cannot be borrowed.');
+        }
+
         if (null !== $this->borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
             throw new \DomainException('This deck is already approved or lent for this event.');
         }
@@ -280,6 +284,10 @@ class BorrowService
 
         if (DeckStatus::Retired === $deck->getStatus()) {
             throw new \DomainException('This deck is retired and cannot be lent.');
+        }
+
+        if (!$deck->isLendable()) {
+            throw new \DomainException('Standard format decks cannot be lent.');
         }
 
         if (null !== $event->getCancelledAt()) {

@@ -240,7 +240,7 @@ class ProfileController extends AbstractAppController
             'decks' => array_map(static fn ($deck) => [
                 'id' => $deck->getId(),
                 'name' => $deck->getName(),
-                'format' => $deck->getFormat(),
+                'format' => $deck->getFormat()->value,
                 'status' => $deck->getStatus()->value,
                 'createdAt' => $deck->getCreatedAt()->format('c'),
                 'versions' => array_map(static fn ($version) => [

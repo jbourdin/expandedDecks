@@ -8,104 +8,158 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.deck.catalog_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+{% set isMyDecks = myDecks is defined and myDecks %}
+{% set listRoute = isMyDecks ? paginationRoute : 'app_deck_list' %}
+
+{% block title %}{{ (isMyDecks ? 'app.nav.my_decks' : 'app.deck.catalog_title')|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}
-    <link rel="canonical" href="{{ canonical_url('decks', 'app_deck_list') }}">
+    {% if not isMyDecks %}
+        <link rel="canonical" href="{{ canonical_url('decks', 'app_deck_list') }}">
+    {% endif %}
 {% endblock %}
 
 {% block opengraph %}
-    {% set og_title = 'app.deck.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
-    {% set og_url = canonical_url('decks', 'app_deck_list') %}
-    {% include '_partials/opengraph.html.twig' %}
+    {% if not isMyDecks %}
+        {% set og_title = 'app.deck.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+        {% set og_url = canonical_url('decks', 'app_deck_list') %}
+        {% include '_partials/opengraph.html.twig' %}
+    {% endif %}
 {% endblock %}
 
 {% block structured_data %}
-    {% set items = [] %}
-    {% for deck in decks %}
-        {% set items = items|merge([{name: deck.name, url: canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag})}]) %}
-    {% endfor %}
-    <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.deck.catalog_title'|trans, canonical_url('decks', 'app_deck_list'), items)) }}</script>
+    {% if not isMyDecks %}
+        {% set items = [] %}
+        {% for deck in decks %}
+            {% set items = items|merge([{name: deck.name, url: canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag})}]) %}
+        {% endfor %}
+        <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.deck.catalog_title'|trans, canonical_url('decks', 'app_deck_list'), items)) }}</script>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">{{ 'app.deck.catalog_title'|trans }}</h1>
+        <h1 class="mb-0">{{ (isMyDecks ? 'app.nav.my_decks' : 'app.deck.catalog_title')|trans }}</h1>
         {% if is_granted('ROLE_USER') %}
             <div class="d-flex gap-2">
-                <a href="{{ path('app_deck_list', {owner: app.user.id}) }}" class="btn btn-outline-primary">{{ 'app.nav.my_decks'|trans }}</a>
+                {% if not isMyDecks %}
+                    <a href="{{ path('app_my_decks') }}" class="btn btn-outline-primary">{{ 'app.nav.my_decks'|trans }}</a>
+                {% endif %}
                 <a href="{{ path('app_deck_new') }}" class="btn btn-gold">{{ 'app.deck.new_deck'|trans }}</a>
             </div>
         {% endif %}
     </div>
 
-    {# Filter bar #}
-    {% set hasActiveFilters = (filters.archetype ?? '') != '' or (filters.event ?? 0) > 0 or (filters.owner ?? 0) > 0 %}
-    <form method="get" action="{{ path('app_deck_list') }}" class="card shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label for="filter-search" class="form-label">{{ 'app.common.search'|trans }}</label>
-                    <input type="text" id="filter-search" name="q" class="form-control" placeholder="{{ 'app.deck.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
-                </div>
+    {% if isMyDecks %}
+        {# Format toggle for My Decks #}
+        <div class="btn-group mb-3" role="group" aria-label="{{ 'app.form.label.deck_format'|trans }}">
+            <a href="{{ path('app_my_decks') }}"
+               class="btn btn-sm {{ myDecksFormat.value == 'expanded' ? 'btn-primary' : 'btn-outline-primary' }}">
+                {{ 'app.deck.format.expanded'|trans }}
+            </a>
+            <a href="{{ path('app_my_decks_standard') }}"
+               class="btn btn-sm {{ myDecksFormat.value == 'standard' ? 'btn-primary' : 'btn-outline-primary' }}">
+                {{ 'app.deck.format.standard'|trans }}
+            </a>
+        </div>
 
-                {# Toggle button for extra filters — visible only on mobile #}
-                <div class="col-12 d-md-none">
-                    <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#catalog-extra-filters">
-                        {{ 'app.deck.more_filters'|trans }}
-                        {% if hasActiveFilters %}<span class="badge bg-primary ms-1">{{ 'app.common.active'|trans }}</span>{% endif %}
-                    </button>
-                </div>
-
-                {# Extra filters: always visible on md+, collapsible on mobile #}
-                <div class="col-12 col-md-auto flex-md-grow-1 collapse d-md-block {{ hasActiveFilters ? 'show' : '' }}" id="catalog-extra-filters">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label">{{ 'app.deck.archetype_filter'|trans }}</label>
-                            <div data-catalog-archetype
-                                 data-catalog-url="{{ path('app_archetype_catalog') }}"
-                                 data-hidden-input="archetype"
-                                 data-placeholder="{{ 'app.deck.archetype_filter_placeholder'|trans }}"
-                                 {% if (filters.archetype ?? '') != '' %}
-                                     data-initial-value="{{ filters.archetype }}"
-                                     data-initial-label="{{ archetypeName }}"
-                                 {% endif %}
-                            ></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">{{ 'app.common.event'|trans }}</label>
-                            <div data-catalog-event
-                                 data-search-url="{{ path('app_event_search') }}"
-                                 data-hidden-input="event"
-                                 data-placeholder="Search event..."
-                                 {% if (filters.event ?? 0) > 0 %}
-                                     data-initial-value="{{ eventName }}"
-                                     data-initial-id="{{ filters.event }}"
-                                 {% endif %}
-                            ></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">{{ 'app.deck.owner_filter'|trans }}</label>
-                            <div data-catalog-owner
-                                 data-search-url="{{ path('app_deck_owner_search') }}"
-                                 data-hidden-input="owner"
-                                 data-placeholder="Search owner..."
-                                 {% if (filters.owner ?? 0) > 0 %}
-                                     data-initial-value="{{ ownerName }}"
-                                     data-initial-id="{{ filters.owner }}"
-                                 {% endif %}
-                            ></div>
-                        </div>
+        {# Simplified filter bar for My Decks — search + archetype only #}
+        {% set hasActiveFilters = (filters.archetype ?? '') != '' %}
+        <form method="get" action="{{ path(listRoute) }}" class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label for="filter-search" class="form-label">{{ 'app.common.search'|trans }}</label>
+                        <input type="text" id="filter-search" name="q" class="form-control" placeholder="{{ 'app.deck.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ 'app.deck.archetype_filter'|trans }}</label>
+                        <div data-catalog-archetype
+                             data-catalog-url="{{ path('app_archetype_catalog') }}"
+                             data-hidden-input="archetype"
+                             data-placeholder="{{ 'app.deck.archetype_filter_placeholder'|trans }}"
+                             {% if (filters.archetype ?? '') != '' %}
+                                 data-initial-value="{{ filters.archetype }}"
+                                 data-initial-label="{{ archetypeName }}"
+                             {% endif %}
+                        ></div>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-gold">{{ 'app.common.filter'|trans }}</button>
+                        <a href="{{ path(listRoute) }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
                     </div>
                 </div>
+            </div>
+        </form>
+    {% else %}
+        {# Full filter bar for public catalog #}
+        {% set hasActiveFilters = (filters.archetype ?? '') != '' or (filters.event ?? 0) > 0 or (filters.owner ?? 0) > 0 %}
+        <form method="get" action="{{ path('app_deck_list') }}" class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label for="filter-search" class="form-label">{{ 'app.common.search'|trans }}</label>
+                        <input type="text" id="filter-search" name="q" class="form-control" placeholder="{{ 'app.deck.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
+                    </div>
 
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-gold">{{ 'app.common.filter'|trans }}</button>
-                    <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
+                    {# Toggle button for extra filters — visible only on mobile #}
+                    <div class="col-12 d-md-none">
+                        <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#catalog-extra-filters">
+                            {{ 'app.deck.more_filters'|trans }}
+                            {% if hasActiveFilters %}<span class="badge bg-primary ms-1">{{ 'app.common.active'|trans }}</span>{% endif %}
+                        </button>
+                    </div>
+
+                    {# Extra filters: always visible on md+, collapsible on mobile #}
+                    <div class="col-12 col-md-auto flex-md-grow-1 collapse d-md-block {{ hasActiveFilters ? 'show' : '' }}" id="catalog-extra-filters">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">{{ 'app.deck.archetype_filter'|trans }}</label>
+                                <div data-catalog-archetype
+                                     data-catalog-url="{{ path('app_archetype_catalog') }}"
+                                     data-hidden-input="archetype"
+                                     data-placeholder="{{ 'app.deck.archetype_filter_placeholder'|trans }}"
+                                     {% if (filters.archetype ?? '') != '' %}
+                                         data-initial-value="{{ filters.archetype }}"
+                                         data-initial-label="{{ archetypeName }}"
+                                     {% endif %}
+                                ></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{{ 'app.common.event'|trans }}</label>
+                                <div data-catalog-event
+                                     data-search-url="{{ path('app_event_search') }}"
+                                     data-hidden-input="event"
+                                     data-placeholder="Search event..."
+                                     {% if (filters.event ?? 0) > 0 %}
+                                         data-initial-value="{{ eventName }}"
+                                         data-initial-id="{{ filters.event }}"
+                                     {% endif %}
+                                ></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{{ 'app.deck.owner_filter'|trans }}</label>
+                                <div data-catalog-owner
+                                     data-search-url="{{ path('app_deck_owner_search') }}"
+                                     data-hidden-input="owner"
+                                     data-placeholder="Search owner..."
+                                     {% if (filters.owner ?? 0) > 0 %}
+                                         data-initial-value="{{ ownerName }}"
+                                         data-initial-id="{{ filters.owner }}"
+                                     {% endif %}
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-gold">{{ 'app.common.filter'|trans }}</button>
+                        <a href="{{ path('app_deck_list') }}" class="btn btn-outline-secondary">{{ 'app.common.clear'|trans }}</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    {% endif %}
 
     {# Result count #}
     <p class="text-muted mb-3">{{ 'app.deck.results_count'|trans({'%count%': totalItems}) }}</p>
@@ -123,13 +177,18 @@
                                 {% if not deck.public %}
                                     <i class="bi bi-lock-fill text-muted ms-1" title="{{ 'app.deck.not_public'|trans }}"></i>
                                 {% endif %}
+                                {% if deck.standard %}
+                                    <span class="badge bg-info ms-1">{{ 'app.deck.format.standard'|trans }}</span>
+                                {% endif %}
                                 {% if deck.status.value == 'retired' %}
                                     <span class="badge bg-secondary ms-1">{{ 'app.deck.badge_retired'|trans }}</span>
                                 {% endif %}
                             </h5>
-                            <p class="card-text mb-1">
-                                {{ 'app.deck.owner'|trans }} <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
-                            </p>
+                            {% if not isMyDecks %}
+                                <p class="card-text mb-1">
+                                    {{ 'app.deck.owner'|trans }} <a href="{{ path('app_deck_list', filters|merge({owner: deck.owner.id})) }}">{{ deck.owner.screenName }}</a>
+                                </p>
+                            {% endif %}
                             {% if deck.archetype and deck.archetype.deletedAt is null %}
                                 <p class="card-text mb-0">
                                     {{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ feature_url('archetypes', 'app_archetype_show', {slug: deck.archetype.slug}) }}"{{ not current_channel().enableArchetypes ? ' target="_blank" rel="noopener"' }}>{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}
@@ -145,19 +204,20 @@
         </div>
 
         {# Pagination #}
+        {% set paginationFilters = isMyDecks ? {q: filters.search ?? '', archetype: filters.archetype ?? ''} : filters %}
         {% if totalPages > 1 %}
             <nav>
                 <ul class="pagination justify-content-center">
                     <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage - 1})) }}">{{ 'app.common.previous'|trans }}</a>
+                        <a class="page-link" href="{{ path(listRoute, paginationFilters|merge({page: currentPage - 1})) }}">{{ 'app.common.previous'|trans }}</a>
                     </li>
                     {% for p in 1..totalPages %}
                         <li class="page-item {% if p == currentPage %}active{% endif %}">
-                            <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: p})) }}">{{ p }}</a>
+                            <a class="page-link" href="{{ path(listRoute, paginationFilters|merge({page: p})) }}">{{ p }}</a>
                         </li>
                     {% endfor %}
                     <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
-                        <a class="page-link" href="{{ path('app_deck_list', filters|merge({page: currentPage + 1})) }}">{{ 'app.common.next'|trans }}</a>
+                        <a class="page-link" href="{{ path(listRoute, paginationFilters|merge({page: currentPage + 1})) }}">{{ 'app.common.next'|trans }}</a>
                     </li>
                 </ul>
             </nav>

@@ -184,7 +184,8 @@ class EventController extends AbstractAppController
         $ownedDecksWithVersion = array_filter(
             $deckRepository->findByOwner($user),
             static fn (Deck $deck): bool => null !== $deck->getCurrentVersion()
-                && DeckStatus::Retired !== $deck->getStatus(),
+                && DeckStatus::Retired !== $deck->getStatus()
+                && $deck->isEventRegisterable(),
         );
         $ownedDecksWithVersion = array_values($ownedDecksWithVersion);
 
@@ -910,6 +911,12 @@ class EventController extends AbstractAppController
 
         if ($deck->getOwnerOrFail()->getId() !== $user->getId()) {
             $this->addFlash('danger', 'app.flash.event.own_decks_only_registration');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (!$deck->isEventRegisterable()) {
+            $this->addFlash('danger', 'app.flash.event.standard_deck_not_registerable');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }

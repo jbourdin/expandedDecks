@@ -15,6 +15,7 @@ namespace App\Tests\Functional;
 
 use App\Entity\Deck;
 use App\Entity\DeckVersion;
+use App\Enum\DeckFormat;
 use App\Repository\DeckVersionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -173,7 +174,7 @@ class DeckVersionRepositoryTest extends AbstractFunctionalTest
         $emptyDeck = new Deck();
         $emptyDeck->setName('Empty Deck For Test');
         $emptyDeck->setOwner($admin);
-        $emptyDeck->setFormat('Expanded');
+        $emptyDeck->setFormat(DeckFormat::Expanded);
         $entityManager->persist($emptyDeck);
         $entityManager->flush();
 
@@ -193,7 +194,7 @@ class DeckVersionRepositoryTest extends AbstractFunctionalTest
         $deck = new Deck();
         $deck->setName('Multi-Version Deck For Test');
         $deck->setOwner($admin);
-        $deck->setFormat('Expanded');
+        $deck->setFormat(DeckFormat::Expanded);
         $entityManager->persist($deck);
 
         $version1 = new DeckVersion();

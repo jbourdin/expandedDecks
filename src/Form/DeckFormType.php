@@ -15,10 +15,12 @@ namespace App\Form;
 
 use App\Entity\Deck;
 use App\Entity\TcgdexSet;
+use App\Enum\DeckFormat;
 use App\Repository\TcgdexSetRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -28,6 +30,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.13 — Inline deck list import on creation
+ * @see docs/features.md F2.23 — Standard format personal decks
  *
  * @extends AbstractType<Deck>
  */
@@ -39,6 +42,14 @@ class DeckFormType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'app.form.label.deck_name',
                 'attr' => ['placeholder' => 'app.form.placeholder.deck_name'],
+            ])
+            ->add('format', EnumType::class, [
+                'class' => DeckFormat::class,
+                'label' => 'app.form.label.deck_format',
+                'choice_label' => static fn (DeckFormat $format): string => match ($format) {
+                    DeckFormat::Expanded => 'app.deck.format.expanded',
+                    DeckFormat::Standard => 'app.deck.format.standard',
+                },
             ])
             ->add('notes', TextareaType::class, [
                 'label' => 'app.form.label.notes',

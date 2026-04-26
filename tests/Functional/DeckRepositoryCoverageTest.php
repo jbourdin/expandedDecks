@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\User;
+use App\Enum\DeckFormat;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -140,7 +141,7 @@ class DeckRepositoryCoverageTest extends AbstractFunctionalTest
         $noVersionDeck = new \App\Entity\Deck();
         $noVersionDeck->setName('NoVersionTestDeck');
         $noVersionDeck->setOwner($admin);
-        $noVersionDeck->setFormat('Expanded');
+        $noVersionDeck->setFormat(DeckFormat::Expanded);
         $entityManager->persist($noVersionDeck);
         $entityManager->flush();
 
