@@ -4623,6 +4623,28 @@
                 <source>app.admin.technical.set_mappings.rebuild_button</source>
                 <target>Rebuild set mappings</target>
             </trans-unit>
+
+            <!-- Sprite mapping (F2.26) -->
+            <trans-unit id="app.admin.technical.sprite_mapping.title">
+                <source>app.admin.technical.sprite_mapping.title</source>
+                <target>Pokemon Sprite Mapping</target>
+                <note>Admin technical card title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.description">
+                <source>app.admin.technical.sprite_mapping.description</source>
+                <target>Slug-to-Pokedex ID mapping for HOME 3D sprites. Fetched from PokeAPI CSV data.</target>
+                <note>Admin technical card description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.rebuild_button">
+                <source>app.admin.technical.sprite_mapping.rebuild_button</source>
+                <target>Rebuild sprite mapping</target>
+                <note>Admin technical button label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sprite_mapping.synced">
+                <source>app.admin.technical.sprite_mapping.synced</source>
+                <target>Sprite mapping synced: %inserted% inserted, %updated% updated, %total% total.</target>
+                <note>Flash message after sprite mapping sync</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.set_mappings.confirm_rebuild">
                 <source>app.admin.technical.set_mappings.confirm_rebuild</source>
                 <target>This will wipe and rebuild all set mappings in the background. Continue?</target>

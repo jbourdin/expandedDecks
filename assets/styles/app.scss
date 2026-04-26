@@ -683,20 +683,19 @@ footer {
 
     // In table rows, reserve space for up to 3 sprites so names align
     .table & {
-        min-width: 120px; // 3 sprites × (~38px avg width + 2px margin)
+        min-width: 160px; // 3 sprites × (~50px avg width + 4px margin)
     }
 }
 
-// Fixed height keeps sprites visually consistent regardless of native
-// dimensions (23×22 Joltik to 73×62 large Pokémon). Width scales
-// proportionally to preserve aspect ratio.
+// Fixed height keeps sprites visually consistent. Width scales
+// proportionally to preserve aspect ratio. HOME 3D renders (512×512)
+// scale down smoothly at any display size.
 .archetype-sprite {
     display: inline-block;
     vertical-align: middle;
-    height: 40px;
+    height: 52px;
     width: auto;
-    margin-right: 2px;
-    image-rendering: pixelated;
+    margin-right: 4px;
 }
 
 // --- Footer ---

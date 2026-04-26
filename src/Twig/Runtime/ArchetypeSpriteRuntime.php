@@ -22,6 +22,7 @@ use Twig\Extension\RuntimeExtensionInterface;
  *
  * @see docs/features.md F2.12 — Archetype sprite pictograms
  * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+ * @see docs/features.md F2.26 — Upgrade sprites to Pokemon HOME 3D renders
  */
 class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
 {
@@ -57,7 +58,7 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
             $escapedSlug = htmlspecialchars($slug, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
             $name = htmlspecialchars(ucwords(str_replace('-', ' ', $slug)), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
             $images .= \sprintf(
-                '<img src="/build/sprites/pokemon/%s.png" alt="%s" title="%s" class="archetype-sprite" loading="lazy">',
+                '<img src="/sprites/pokemon/%s.png" alt="%s" title="%s" class="archetype-sprite" loading="lazy">',
                 $escapedSlug,
                 $name,
                 $name,
