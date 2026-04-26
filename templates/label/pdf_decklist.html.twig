@@ -202,11 +202,10 @@
             vertical-align: middle;
         }
 
-        .english-subline {
-            font-size: {{ fontSize - 1.5 }}pt;
+        .english-inline {
+            font-size: {{ fontSize - 1 }}pt;
             color: #888;
             font-style: italic;
-            padding-left: 3mm;
         }
 
         .set-symbol {
@@ -280,10 +279,7 @@
                 <tr class="card-row {{ loop.index is odd ? '' : 'card-row-alt' }}">
                     <td class="col-qty">{{ row.quantity }}</td>
                     <td class="col-name">
-                        {{ row.name }}
-                        {% if row.englishName %}
-                            <br><span class="english-subline">({{ row.englishName }})</span>
-                        {% endif %}
+                        {{ row.name }}{% if row.englishName %} <span class="english-inline">({{ row.englishName }})</span>{% endif %}
                     </td>
                     <td class="col-set">
                         {% if row.symbolDataUri %}
@@ -330,10 +326,7 @@
                 <tr class="card-row {{ loop.index is odd ? '' : 'card-row-alt' }}">
                     <td class="col-qty">{{ row.quantity }}</td>
                     <td class="col-name">
-                        {{ row.name }}
-                        {% if row.englishName %}
-                            <br><span class="english-subline">({{ row.englishName }})</span>
-                        {% endif %}
+                        {{ row.name }}{% if row.englishName %} <span class="english-inline">({{ row.englishName }})</span>{% endif %}
                     </td>
                     <td class="col-set"></td>
                     <td class="col-check">{% for i in 1..row.quantity %}<span class="checkbox"></span>{% endfor %}</td>

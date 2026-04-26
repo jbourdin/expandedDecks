@@ -381,23 +381,17 @@ class PdfDecklistGenerator
      */
     private function computeFontSize(array $pokemonRows, array $trainerSections, array $energyRows): float
     {
-        // Count lines: each card = 1 line, each card with English subline = 1.5 lines
+        // Count lines: each card = 1 line (English name is inline, not a subline)
         $totalLines = 0.0;
 
-        foreach ($pokemonRows as $row) {
-            $totalLines += null !== $row['englishName'] ? 1.5 : 1.0;
-        }
+        $totalLines += \count($pokemonRows);
 
         foreach ($trainerSections as $section) {
             $totalLines += 0.5; // subtype header
-            foreach ($section['rows'] as $row) {
-                $totalLines += null !== $row['englishName'] ? 1.5 : 1.0;
-            }
+            $totalLines += \count($section['rows']);
         }
 
-        foreach ($energyRows as $row) {
-            $totalLines += null !== $row['englishName'] ? 1.5 : 1.0;
-        }
+        $totalLines += \count($energyRows);
 
         // Add section headers (Pokemon, Trainer, Energy = 3 headers)
         $sectionHeaderLines = 3.0;
