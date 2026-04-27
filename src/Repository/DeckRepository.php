@@ -237,6 +237,31 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * @see docs/features.md F7.1 — Dashboard
+     *
+     * @return list<Deck>
+     */
+    public function findActiveExpandedByOwner(User $owner): array
+    {
+        /** @var list<Deck> $decks */
+        $decks = $this->createQueryBuilder('d')
+            ->leftJoin('d.currentVersion', 'cv')
+            ->addSelect('cv')
+            ->where('d.owner = :owner')
+            ->andWhere('d.format = :expandedFormat')
+            ->andWhere('d.status != :retired')
+            ->andWhere('d.deletedAt IS NULL')
+            ->setParameter('owner', $owner)
+            ->setParameter('expandedFormat', DeckFormat::Expanded)
+            ->setParameter('retired', DeckStatus::Retired)
+            ->orderBy('d.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $decks;
+    }
+
+    /**
      * @see docs/features.md F4.12 — Walk-up lending (direct lend)
      *
      * @return list<Deck>
