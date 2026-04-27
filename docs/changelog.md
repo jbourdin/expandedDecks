@@ -16,6 +16,25 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.11] — 2026-04-27
+
+Admin sprite mapping fix, error page sprite update, and CI hardening.
+
+### Bug Fixes
+
+- **Admin sprite mapping rebuild** — use injected `TranslatorInterface` instead of service locator in `AdminTechnicalController::spriteMappingRebuild()`. Fixes a runtime error when the translator was not accessible via `$this->container->get()`. ([#485](https://github.com/jbourdin/expandedDecks/pull/485))
+- **Error page sprite** — 500 error page now uses Psyduck sprite instead of Porygon, with increased sprite display size (80px → 120px) on error pages. ([#485](https://github.com/jbourdin/expandedDecks/pull/485))
+
+### Infrastructure
+
+- **Claude Code permissions** — hardened permission rules in `.claude/settings.json`. ([#486](https://github.com/jbourdin/expandedDecks/pull/486))
+
+### Testing & Quality
+
+- **CdnErrorControllerTest** — updated 500 error sprite assertion from Porygon to Psyduck to match template change. ([#485](https://github.com/jbourdin/expandedDecks/pull/485))
+
+---
+
 ## [1.8.10] — 2026-04-27
 
 Pokemon HOME 3D sprite upgrade — CDN pull-through proxy architecture.
