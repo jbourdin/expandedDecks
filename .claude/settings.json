@@ -2,8 +2,24 @@
   "permissions": {
     "allow": [
       "Bash(make *)",
-      "Bash(git *)",
-      "Bash(gh *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git fetch *)",
+      "Bash(git branch *)",
+      "Bash(git stash *)",
+      "Bash(git mv *)",
+      "Bash(git restore *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git merge-tree *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh search *)",
       "Bash(ls *)",
       "Bash(ls)",
       "Bash(pwd)",
@@ -11,16 +27,24 @@
       "Bash(symfony composer *)",
       "Bash(symfony php *)",
       "Bash(symfony server:*)",
-      "Bash(npm install *)",
       "Bash(npm outdated *)",
       "Bash(npm info *)",
+      "Bash(npm run *)",
       "Bash(npx encore *)",
       "Bash(npx vitest *)",
-      "Bash(npx eslint *)",
-      "Bash(docker compose *)"
+      "Bash(npx eslint *)"
     ],
     "ask": [
-      "Bash(gh pr merge *)"
+      "Bash(git push *)",
+      "Bash(git rebase *)",
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(gh run *)",
+      "Bash(gh repo *)",
+      "Bash(gh release *)",
+      "Bash(gh api *)",
+      "Bash(npm install *)",
+      "Bash(docker compose *)"
     ]
   }
 }
