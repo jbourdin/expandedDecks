@@ -143,7 +143,7 @@ class HomeController extends AbstractController
             'newsCategory' => $newsCategory,
             'newsTotalCount' => $newsTotalCount,
             'user' => $user,
-            'ownedDecks' => $user->getOwnedDecks(),
+            'ownedDecks' => $deckRepository->findActiveExpandedByOwner($user),
             'myEvents' => $eventRepository->findUpcomingByEngagement($user),
             'staffingEvents' => $eventRepository->findRecentByOrganizerOrStaff($user),
             'recentBorrows' => $borrowRepository->findRecentByBorrower($user),
