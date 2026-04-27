@@ -218,10 +218,11 @@ class AdminTechnicalController extends AbstractAppController
 
         try {
             $result = $syncService->sync();
-            $this->addFlash('success', $this->container->get('translator')->trans(
-                'app.admin.technical.sprite_mapping.synced',
-                ['%inserted%' => $result['inserted'], '%updated%' => $result['updated'], '%total%' => $result['total']],
-            ));
+            $this->addFlash('success', 'app.admin.technical.sprite_mapping.synced', [
+                '%inserted%' => $result['inserted'],
+                '%updated%' => $result['updated'],
+                '%total%' => $result['total'],
+            ]);
         } catch (\RuntimeException $exception) {
             $this->addFlash('danger', $exception->getMessage());
         }

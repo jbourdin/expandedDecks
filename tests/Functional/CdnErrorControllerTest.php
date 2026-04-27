@@ -39,12 +39,12 @@ class CdnErrorControllerTest extends AbstractFunctionalTest
         self::assertSelectorExists('img[alt="Maushold"]');
     }
 
-    public function testCdnError500Returns200WithPorygonSprite(): void
+    public function testCdnError500Returns200WithPsyduckSprite(): void
     {
         $this->client->request('GET', '/cdn-error/500');
 
         self::assertResponseStatusCodeSame(200);
-        self::assertSelectorExists('img[alt="Porygon"]');
+        self::assertSelectorExists('img[alt="Psyduck"]');
     }
 
     public function testCdnErrorGenericReturns200WithPsyduckSprite(): void
