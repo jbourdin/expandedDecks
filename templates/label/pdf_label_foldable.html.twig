@@ -204,7 +204,7 @@
                 <div class="decklist-section decklist-shade-{{ loop.index0 % 2 }}">
                     {% for card in cards %}
                         <div class="decklist-card">
-                            <span class="decklist-qty">{{ card.quantity }}</span> {{ card.cardName }} <span class="decklist-set">{{ card.setCode }} {{ card.cardNumber }}</span>
+                            <span class="decklist-qty">{{ card.quantity }}</span> {{ card.cardName }} <span class="decklist-set">{{ card.setCode }} {{ card.cardNumber|card_number }}</span>
                         </div>
                     {% endfor %}
                 </div>

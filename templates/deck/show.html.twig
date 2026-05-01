@@ -55,7 +55,7 @@
                                 {% endif %}
                             </td>
                             <td><code>{{ card.setCode }}</code></td>
-                            <td>{{ card.cardNumber }}</td>
+                            <td>{{ card.cardNumber|card_number }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -314,7 +314,7 @@
                 {{ 'app.deck.name_match_warning_body'|trans }}
                 <ul class="mb-0 mt-1">
                     {% for card in nameMatchedCards %}
-                        <li>{{ card.cardName }} ({{ card.setCode }} {{ card.cardNumber }})</li>
+                        <li>{{ card.cardName }} ({{ card.setCode }} {{ card.cardNumber|card_number }})</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -330,7 +330,7 @@
                         cardName: card.cardName,
                         quantity: card.quantity,
                         setCode: card.setCode,
-                        cardNumber: card.cardNumber,
+                        cardNumber: card.cardNumber|card_number,
                         cardType: card.cardType,
                         trainerSubtype: card.trainerSubtype,
                         imageUrl: card.imageUrl,

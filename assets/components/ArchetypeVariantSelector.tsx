@@ -12,6 +12,7 @@ import { ActionIcon, Button, CopyButton, Group, Loader, Select, SegmentedControl
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowsExchange, IconCheck, IconCopy, IconShare } from '@tabler/icons-react';
 import { initCardHover } from '../shared/card-hover';
+import { displayCardNumber } from '../utils/cardNumber';
 import CardImageModal, { type FlatCard } from './CardImageModal';
 import CardMosaicGrid from './CardMosaicGrid';
 
@@ -141,7 +142,7 @@ function CardSection({ title, cards, labels, onCardClick, canCopyTag }: {
                                 )}
                             </td>
                             <td><span className="badge bg-secondary">{card.setCode}</span></td>
-                            <td>{card.cardNumber}</td>
+                            <td>{displayCardNumber(card.cardNumber)}</td>
                             {canCopyTag && (
                                 <td>
                                     <CopyButton value={`[[card:${card.setCode}-${card.cardNumber}]]`} timeout={2000}>
