@@ -79,14 +79,14 @@ class EventCalendarController extends AbstractController
 
     private function buildIcalResponse(string $calendar, string $filename): Response
     {
-        $response = new Response($calendar, Response::HTTP_OK, [
-            'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => \sprintf('inline; filename="%s"', $filename),
-            'Cache-Control' => \sprintf('public, max-age=%d', self::CACHE_MAX_AGE),
-        ]);
+        $response = new Response($calendar);
 
+        $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
+        $response->headers->set('Content-Disposition', \sprintf('inline; filename="%s"', $filename));
         $response->setPublic();
         $response->setMaxAge(self::CACHE_MAX_AGE);
+        $response->setSharedMaxAge(self::CACHE_MAX_AGE);
+        $response->headers->set('Cache-Control', 'public, max-age='.self::CACHE_MAX_AGE);
 
         return $response;
     }

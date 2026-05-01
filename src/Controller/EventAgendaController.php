@@ -116,14 +116,13 @@ class EventAgendaController extends AbstractController
             $translator->trans('app.event.ical.agenda_feed_title', ['%name%' => $user->getScreenName()]),
         );
 
-        $response = new Response($calendar, Response::HTTP_OK, [
-            'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => \sprintf('inline; filename="agenda-%s.ics"', $user->getScreenName()),
-            'Cache-Control' => \sprintf('private, max-age=%d', self::CACHE_MAX_AGE),
-        ]);
+        $response = new Response($calendar);
 
+        $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
+        $response->headers->set('Content-Disposition', \sprintf('inline; filename="agenda-%s.ics"', $user->getScreenName()));
         $response->setPrivate();
         $response->setMaxAge(self::CACHE_MAX_AGE);
+        $response->headers->set('Cache-Control', 'private, max-age='.self::CACHE_MAX_AGE);
 
         return $response;
     }
