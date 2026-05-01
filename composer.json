@@ -45,7 +45,7 @@
         "symfony/runtime": "^8.0.8",
         "symfony/security-bundle": "^8.0.8",
         "symfony/serializer": "^8.0.8",
-        "symfony/stimulus-bundle": "^2.35",
+        "symfony/stimulus-bundle": "^3.0",
         "symfony/string": "^8.0.8",
         "symfony/translation": "^8.0.8",
         "symfony/twig-bundle": "^8.0.8",
