@@ -103,6 +103,20 @@ class EventAgendaControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testRegenerateRejectsInvalidCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/event/agenda');
+        $original = $this->getUserByEmail('admin@example.com')->getCalendarToken();
+
+        $this->client->request('POST', '/event/agenda/regenerate-token', [
+            '_token' => 'definitely-not-the-csrf-token',
+        ]);
+
+        self::assertResponseRedirects('/event/agenda');
+        self::assertSame($original, $this->getUserByEmail('admin@example.com')->getCalendarToken());
+    }
+
     public function testTokenServiceFindsUserByToken(): void
     {
         /** @var PersonalCalendarTokenService $tokenService */
