@@ -107,6 +107,14 @@
                 </div>
             </div>
 
+            {% if event.tags|length > 0 %}
+                <hr>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">{{ 'app.event.tag.label'|trans }}:</span>
+                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                </div>
+            {% endif %}
+
             {% if event.description %}
                 <hr>
                 <p class="mb-0">{{ event.description|nl2br }}</p>

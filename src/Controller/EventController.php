@@ -20,6 +20,7 @@ use App\Entity\EventDeckEntry;
 use App\Entity\EventDeckRegistration;
 use App\Entity\EventEngagement;
 use App\Entity\EventStaff;
+use App\Entity\EventTag;
 use App\Entity\User;
 use App\Enum\BorrowStatus;
 use App\Enum\DeckStatus;
@@ -35,6 +36,7 @@ use App\Repository\DeckRepository;
 use App\Repository\EventDeckEntryRepository;
 use App\Repository\EventDeckRegistrationRepository;
 use App\Repository\EventStaffRepository;
+use App\Repository\EventTagRepository;
 use App\Repository\UserRepository;
 use App\Service\BorrowService;
 use App\Service\EventNotificationService;
@@ -71,7 +73,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, EventTagRepository $tagRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -87,6 +89,7 @@ class EventController extends AbstractAppController
         if ($form->isSubmitted() && $form->isValid()) {
             $event->setOrganizer($user);
             $event->setFormat('Expanded');
+            $this->applyTagsFromForm($event, $form, $tagRepository);
             $em->persist($event);
             $em->flush();
 
@@ -97,6 +100,8 @@ class EventController extends AbstractAppController
 
         return $this->render('event/new.html.twig', [
             'form' => $form,
+            'existingTagNames' => $this->collectExistingTagNames($tagRepository),
+            'initialTagNames' => $this->collectEventTagNames($event),
         ]);
     }
 
@@ -391,7 +396,7 @@ class EventController extends AbstractAppController
      */
     #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ORGANIZER')]
-    public function edit(Event $event, Request $request, EntityManagerInterface $em, EventNotificationService $notificationService): Response
+    public function edit(Event $event, Request $request, EntityManagerInterface $em, EventNotificationService $notificationService, EventTagRepository $tagRepository): Response
     {
         $this->denyAccessUnlessOrganizer($event);
 
@@ -408,6 +413,7 @@ class EventController extends AbstractAppController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event->setFormat('Expanded');
+            $this->applyTagsFromForm($event, $form, $tagRepository);
             $em->flush();
 
             $notificationService->notifyEventUpdated($event);
@@ -420,6 +426,8 @@ class EventController extends AbstractAppController
         return $this->render('event/edit.html.twig', [
             'event' => $event,
             'form' => $form,
+            'existingTagNames' => $this->collectExistingTagNames($tagRepository),
+            'initialTagNames' => $this->collectEventTagNames($event),
         ]);
     }
 
@@ -1264,5 +1272,61 @@ class EventController extends AbstractAppController
         if ($event->getOrganizer()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You are not the organizer of this event.');
         }
+    }
+
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @param \Symfony\Component\Form\FormInterface<Event> $form
+     */
+    private function applyTagsFromForm(Event $event, \Symfony\Component\Form\FormInterface $form, EventTagRepository $tagRepository): void
+    {
+        /** @var string|null $tagsJson */
+        $tagsJson = $form->get('tagsInput')->getData();
+
+        if (null === $tagsJson || '' === $tagsJson) {
+            $event->setTags([]);
+
+            return;
+        }
+
+        $decoded = json_decode($tagsJson, true);
+
+        if (!\is_array($decoded)) {
+            $event->setTags([]);
+
+            return;
+        }
+
+        /** @var list<string> $names */
+        $names = array_values(array_filter($decoded, 'is_string'));
+
+        $event->setTags($tagRepository->resolveByNames($names));
+    }
+
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @return list<string>
+     */
+    private function collectExistingTagNames(EventTagRepository $tagRepository): array
+    {
+        return array_map(static fn (EventTag $tag): string => $tag->getName(), $tagRepository->findAllOrderedByName());
+    }
+
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @return list<string>
+     */
+    private function collectEventTagNames(Event $event): array
+    {
+        $names = [];
+
+        foreach ($event->getTags() as $tag) {
+            $names[] = $tag->getName();
+        }
+
+        return $names;
     }
 }

@@ -54,6 +54,9 @@ security:
         - { path: ^/api/archetype/search$, roles: PUBLIC_ACCESS }
         - { path: ^/api/deck-owner/search$, roles: PUBLIC_ACCESS }
         - { path: ^/event$, roles: PUBLIC_ACCESS }
+        - { path: ^/event\.ics$, roles: PUBLIC_ACCESS }
+        - { path: '^/event/tag/[a-z0-9][a-z0-9-]*$', roles: PUBLIC_ACCESS }
+        - { path: '^/event/tag/[a-z0-9][a-z0-9-]*\.ics$', roles: PUBLIC_ACCESS }
         - { path: ^/events/discover$, roles: PUBLIC_ACCESS }
         - { path: '^/event/\d+/results$', roles: PUBLIC_ACCESS }
         - { path: ^/health, roles: PUBLIC_ACCESS }

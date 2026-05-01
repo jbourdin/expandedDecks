@@ -152,6 +152,16 @@ class Event
     #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'event')]
     private Collection $deckRegistrations;
 
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @var Collection<int, EventTag>
+     */
+    #[ORM\ManyToMany(targetEntity: EventTag::class, inversedBy: 'events', cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'event_event_tag')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $tags;
+
     public function __construct()
     {
         $this->date = new \DateTimeImmutable();
@@ -161,6 +171,7 @@ class Event
         $this->borrows = new ArrayCollection();
         $this->deckEntries = new ArrayCollection();
         $this->deckRegistrations = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -550,6 +561,49 @@ class Event
     public function getDeckRegistrations(): Collection
     {
         return $this->deckRegistrations;
+    }
+
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @return Collection<int, EventTag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(EventTag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(EventTag $tag): static
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * Replace the current tag set with the given collection. Used after the
+     * form resolver returns the desired list of EventTag entities.
+     *
+     * @param iterable<EventTag> $tags
+     */
+    public function setTags(iterable $tags): static
+    {
+        $this->tags->clear();
+
+        foreach ($tags as $tag) {
+            $this->addTag($tag);
+        }
+
+        return $this;
     }
 
     #[ORM\PrePersist]

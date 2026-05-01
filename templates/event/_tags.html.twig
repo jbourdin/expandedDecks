@@ -1,0 +1,16 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F3.12 — Event tags #}
+{% if event.tags|length > 0 %}
+    <div class="event-tag-list d-inline-flex flex-wrap gap-1 align-items-center">
+        {% for tag in event.tags %}
+            <a href="{{ path('app_event_tag', {slug: tag.slug}) }}" class="badge text-bg-light border text-decoration-none">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+{% endif %}

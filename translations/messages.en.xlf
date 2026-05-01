@@ -1198,6 +1198,91 @@
                 <target>No upcoming events.</target>
                 <note>Empty state when no upcoming events</note>
             </trans-unit>
+            <trans-unit id="app.event.tag.label">
+                <source>app.event.tag.label</source>
+                <target>Tags</target>
+                <note>Label for the event tag selector and tag list section</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.placeholder">
+                <source>app.event.tag.placeholder</source>
+                <target>Pick existing tags or type to create…</target>
+                <note>Placeholder inside the event tag selector input</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.help">
+                <source>app.event.tag.help</source>
+                <target>Use tags to group your events (e.g. league, weekend, regional). Type a name and press Enter to create a new one.</target>
+                <note>Helper text shown below the event tag selector</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.filter_label">
+                <source>app.event.tag.filter_label</source>
+                <target>Filter by tag</target>
+                <note>Label for the tag filter row on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.page_title">
+                <source>app.event.tag.page_title</source>
+                <target>Events tagged "%name%"</target>
+                <note>Title of the per-tag event list page</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.back_to_all">
+                <source>app.event.tag.back_to_all</source>
+                <target>All events</target>
+                <note>Back link from a tag-filtered event page to the full list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button">
+                <source>app.event.calendar.button</source>
+                <target>Calendar</target>
+                <note>Button opening calendar subscribe/download options on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button_title">
+                <source>app.event.calendar.button_title</source>
+                <target>Subscribe to or download the event calendar</target>
+                <note>Tooltip on the calendar button</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.help">
+                <source>app.event.calendar.help</source>
+                <target>Add these events to your calendar app — updates automatically when subscribed.</target>
+                <note>Help text in the calendar dropdown menu</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.subscribe">
+                <source>app.event.calendar.subscribe</source>
+                <target>Subscribe (auto-update)</target>
+                <note>Calendar dropdown action: open with the OS calendar app via webcal://</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.download">
+                <source>app.event.calendar.download</source>
+                <target>Download .ics file</target>
+                <note>Calendar dropdown action: download the iCal file</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copy_url">
+                <source>app.event.calendar.copy_url</source>
+                <target>Copy feed URL</target>
+                <note>Calendar dropdown action: copy the absolute iCal URL to the clipboard</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copied">
+                <source>app.event.calendar.copied</source>
+                <target>Copied!</target>
+                <note>Confirmation shown after the calendar URL is copied</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title">
+                <source>app.event.ical.feed_title</source>
+                <target>Expanded Decks — Upcoming events</target>
+                <note>Calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title_tag">
+                <source>app.event.ical.feed_title_tag</source>
+                <target>Expanded Decks — Events tagged "%name%"</target>
+                <note>Per-tag calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.organized_by">
+                <source>app.event.ical.organized_by</source>
+                <target>Organized by %name%</target>
+                <note>First line of the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.structure">
+                <source>app.event.ical.structure</source>
+                <target>Structure: %structure%</target>
+                <note>Tournament structure line in the iCal event description</note>
+            </trans-unit>
             <trans-unit id="app.event.visibility.public">
                 <source>app.event.visibility.public</source>
                 <target>Public</target>

@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -31,6 +32,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @see docs/features.md F3.1 — Create a new event
+ * @see docs/features.md F3.12 — Event tags
  *
  * @extends AbstractType<Event>
  */
@@ -145,6 +147,10 @@ class EventFormType extends AbstractType
             ])
             ->add('isInvitationOnly', CheckboxType::class, [
                 'label' => 'app.form.label.invitation_only',
+                'required' => false,
+            ])
+            ->add('tagsInput', HiddenType::class, [
+                'mapped' => false,
                 'required' => false,
             ]);
     }

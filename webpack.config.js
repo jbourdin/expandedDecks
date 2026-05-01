@@ -44,6 +44,8 @@ Encore
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
     .addEntry('deck_found', './assets/deck-found.tsx')
+    .addEntry('event_form', './assets/event-form.tsx')
+    .addEntry('event_calendar_copy', './assets/event-calendar-copy.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
