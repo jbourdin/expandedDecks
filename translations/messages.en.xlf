@@ -1594,6 +1594,126 @@
                 <target>Delegate</target>
                 <note>Button to delegate deck to staff</note>
             </trans-unit>
+            <trans-unit id="app.event.delegate_disabled_reason">
+                <source>app.event.delegate_disabled_reason</source>
+                <target>The organizer hasn't accepted deck custody for this event.</target>
+                <note>Tooltip on the disabled Delegate button when allow_custody is off</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.section_title">
+                <source>app.event.transfer.section_title</source>
+                <target>Hand over organization</target>
+                <note>Card title for the F3.23 organizer-handover section on the event page</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.help">
+                <source>app.event.transfer.help</source>
+                <target>Pick a user to take over as organizer. They'll need to accept on their side before the transfer takes effect.</target>
+                <note>Helper text above the handover form</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.placeholder">
+                <source>app.event.transfer.placeholder</source>
+                <target>Screen name, email, or Pokemon ID</target>
+                <note>Placeholder for the user-picker on the handover form</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.initiate">
+                <source>app.event.transfer.initiate</source>
+                <target>Send handover request</target>
+                <note>Button that initiates the organizer handover request</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.confirm">
+                <source>app.event.transfer.confirm</source>
+                <target>Send a handover request to this user? You'll stay organizer until they accept.</target>
+                <note>Confirmation prompt before initiating an organizer handover</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.pending_body">
+                <source>app.event.transfer.pending_body</source>
+                <target>Waiting for %name% to accept the handover.</target>
+                <note>Status line on the organizer's handover card while a transfer is pending</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.cancel">
+                <source>app.event.transfer.cancel</source>
+                <target>Cancel handover</target>
+                <note>Button that cancels a pending handover request</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.target_banner_title">
+                <source>app.event.transfer.target_banner_title</source>
+                <target>You've been asked to take over as organizer.</target>
+                <note>Banner shown to the target of a pending handover</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.target_banner_body">
+                <source>app.event.transfer.target_banner_body</source>
+                <target>%name% wants you to manage this event. Accept to take over, decline to leave them as organizer.</target>
+                <note>Body of the target banner</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.accept">
+                <source>app.event.transfer.accept</source>
+                <target>Accept handover</target>
+                <note>Button shown to the transfer target</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.decline">
+                <source>app.event.transfer.decline</source>
+                <target>Decline</target>
+                <note>Button shown to the transfer target</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.initiated">
+                <source>app.flash.event.transfer.initiated</source>
+                <target>Handover request sent to %name%.</target>
+                <note>Flash after the organizer initiates a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.cancelled">
+                <source>app.flash.event.transfer.cancelled</source>
+                <target>Handover request cancelled.</target>
+                <note>Flash after the organizer cancels a pending handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.accepted">
+                <source>app.flash.event.transfer.accepted</source>
+                <target>You're now the organizer of "%name%".</target>
+                <note>Flash to the new organizer after accepting a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.declined">
+                <source>app.flash.event.transfer.declined</source>
+                <target>Handover declined.</target>
+                <note>Flash after the target declines a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.target_required">
+                <source>app.flash.event.transfer.target_required</source>
+                <target>Pick a user to hand the event over to.</target>
+                <note>Flash when the organizer submits the handover form without picking a target</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.target_invalid">
+                <source>app.flash.event.transfer.target_invalid</source>
+                <target>Couldn't find a user matching that name.</target>
+                <note>Flash when the handover target query doesn't resolve to a different user</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_requested_title">
+                <source>app.notification.event.transfer_requested_title</source>
+                <target>Event handover requested</target>
+                <note>Notification title when the user is asked to take over an event</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_requested_message">
+                <source>app.notification.event.transfer_requested_message</source>
+                <target>%name% wants to hand over "%event%" to you. Open the event to accept or decline.</target>
+                <note>Notification body when the user is asked to take over an event</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_accepted_title">
+                <source>app.notification.event.transfer_accepted_title</source>
+                <target>Event handover accepted</target>
+                <note>Notification title to the previous organizer when the target accepts</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_accepted_message">
+                <source>app.notification.event.transfer_accepted_message</source>
+                <target>%name% accepted the handover of "%event%" and is now the organizer.</target>
+                <note>Notification body to the previous organizer when the target accepts</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_declined_title">
+                <source>app.notification.event.transfer_declined_title</source>
+                <target>Event handover declined</target>
+                <note>Notification title when the target declines a handover</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_declined_message">
+                <source>app.notification.event.transfer_declined_message</source>
+                <target>%name% declined the handover of "%event%". You're still the organizer.</target>
+                <note>Notification body when the target declines a handover</note>
+            </trans-unit>
             <trans-unit id="app.event.deck_selection">
                 <source>app.event.deck_selection</source>
                 <target>Deck Selection</target>
@@ -2337,6 +2457,11 @@
                 <target>Staff delegation disabled for &quot;%name%&quot;.</target>
                 <note>Success flash after disabling staff delegation. %name% = deck name</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.delegation_not_allowed">
+                <source>app.flash.event.delegation_not_allowed</source>
+                <target>The organizer hasn't accepted deck custody for this event.</target>
+                <note>Warning flash when a player tries to delegate while allow_custody is off</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.cannot_revoke_delegation_in_custody">
                 <source>app.flash.event.cannot_revoke_delegation_in_custody</source>
                 <target>Cannot revoke delegation for &quot;%name%&quot; — the deck is currently with staff. Staff must return it first.</target>
@@ -2711,6 +2836,16 @@
                 <source>app.form.label.invitation_only</source>
                 <target>Invitation only</target>
                 <note>Form label for invitation-only checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.allow_custody">
+                <source>app.form.label.allow_custody</source>
+                <target>Accept deck custody</target>
+                <note>Event form: organizer agrees to take custody of delegated decks</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.allow_custody">
+                <source>app.form.help.allow_custody</source>
+                <target>If enabled, players can delegate their deck to event staff (you or your team) for the day. Leave off if you don't want to be responsible for player decks.</target>
+                <note>Event form: helper text under allow_custody</note>
             </trans-unit>
             <trans-unit id="app.form.label.visibility">
                 <source>app.form.label.visibility</source>

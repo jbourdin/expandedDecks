@@ -117,6 +117,22 @@ class Event
     #[ORM\Column]
     private bool $isInvitationOnly = false;
 
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $allowCustody = false;
+
+    /**
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $pendingTransferTo = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $pendingTransferRequestedAt = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -418,6 +434,55 @@ class Event
     public function setIsInvitationOnly(bool $isInvitationOnly): static
     {
         $this->isInvitationOnly = $isInvitationOnly;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    public function isAllowCustody(): bool
+    {
+        return $this->allowCustody;
+    }
+
+    public function setAllowCustody(bool $allowCustody): static
+    {
+        $this->allowCustody = $allowCustody;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    public function getPendingTransferTo(): ?User
+    {
+        return $this->pendingTransferTo;
+    }
+
+    public function getPendingTransferRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->pendingTransferRequestedAt;
+    }
+
+    public function hasPendingTransfer(): bool
+    {
+        return null !== $this->pendingTransferTo;
+    }
+
+    public function requestTransferTo(User $target): static
+    {
+        $this->pendingTransferTo = $target;
+        $this->pendingTransferRequestedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function clearPendingTransfer(): static
+    {
+        $this->pendingTransferTo = null;
+        $this->pendingTransferRequestedAt = null;
 
         return $this;
     }

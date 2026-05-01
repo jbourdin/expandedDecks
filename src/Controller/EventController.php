@@ -463,6 +463,154 @@ class EventController extends AbstractAppController
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
+    /**
+     * Initiate handover: organizer picks a target user. The target must
+     * accept on the event page before the transfer takes effect.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[Route('/{id}/transfer/initiate', name: 'app_event_transfer_initiate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function transferInitiate(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        UserRepository $userRepository,
+        EventNotificationService $notificationService,
+    ): Response {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('event-transfer-initiate-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $targetQuery = trim($request->getPayload()->getString('target'));
+
+        if ('' === $targetQuery) {
+            $this->addFlash('warning', 'app.flash.event.transfer.target_required');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $target = $userRepository->findByMultiField($targetQuery);
+
+        /** @var User $currentOrganizer */
+        $currentOrganizer = $this->getUser();
+
+        if (null === $target || $target->getId() === $currentOrganizer->getId()) {
+            $this->addFlash('warning', 'app.flash.event.transfer.target_invalid');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->requestTransferTo($target);
+        $em->flush();
+
+        $notificationService->notifyTransferRequested($event, $target, $currentOrganizer);
+
+        $this->addFlash('success', 'app.flash.event.transfer.initiated', ['%name%' => $target->getScreenName()]);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Current organizer cancels a pending handover.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[Route('/{id}/transfer/cancel', name: 'app_event_transfer_cancel', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function transferCancel(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessOrganizer($event);
+
+        if (!$this->isCsrfTokenValid('event-transfer-cancel-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        if (!$event->hasPendingTransfer()) {
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $event->clearPendingTransfer();
+        $em->flush();
+
+        $this->addFlash('success', 'app.flash.event.transfer.cancelled');
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Target accepts the handover — they become the new organizer.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[Route('/{id}/transfer/accept', name: 'app_event_transfer_accept', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function transferAccept(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        EventNotificationService $notificationService,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+        $this->denyAccessUnlessTransferTarget($event, $user);
+
+        if (!$this->isCsrfTokenValid('event-transfer-accept-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $previousOrganizer = $event->getOrganizer();
+        $event->setOrganizer($user);
+        $event->clearPendingTransfer();
+        $em->flush();
+
+        $notificationService->notifyTransferAccepted($event, $previousOrganizer, $user);
+
+        $this->addFlash('success', 'app.flash.event.transfer.accepted', ['%name%' => $event->getName()]);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
+    /**
+     * Target declines the handover — the previous organizer stays.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[Route('/{id}/transfer/decline', name: 'app_event_transfer_decline', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function transferDecline(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em,
+        EventNotificationService $notificationService,
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+        $this->denyAccessUnlessTransferTarget($event, $user);
+
+        if (!$this->isCsrfTokenValid('event-transfer-decline-'.$event->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.flash.invalid_token');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
+        $organizer = $event->getOrganizer();
+        $event->clearPendingTransfer();
+        $em->flush();
+
+        $notificationService->notifyTransferDeclined($event, $organizer, $user);
+
+        $this->addFlash('success', 'app.flash.event.transfer.declined');
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+    }
+
     #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ADMIN')]
     public function delete(Event $event, Request $request, EntityManagerInterface $em): Response
@@ -1019,6 +1167,13 @@ class EventController extends AbstractAppController
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
+        // Cannot enable delegation when the organizer hasn't accepted custody for this event.
+        if (!$registration->isDelegateToStaff() && !$event->isAllowCustody()) {
+            $this->addFlash('warning', 'app.flash.event.delegation_not_allowed');
+
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
         $registration->setDelegateToStaff(!$registration->isDelegateToStaff());
         $em->flush();
 
@@ -1271,6 +1426,18 @@ class EventController extends AbstractAppController
 
         if ($event->getOrganizer()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You are not the organizer of this event.');
+        }
+    }
+
+    /**
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    private function denyAccessUnlessTransferTarget(Event $event, User $user): void
+    {
+        $target = $event->getPendingTransferTo();
+
+        if (null === $target || $target->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('You are not the recipient of a pending transfer for this event.');
         }
     }
 
