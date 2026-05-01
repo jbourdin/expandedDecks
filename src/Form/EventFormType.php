@@ -149,6 +149,11 @@ class EventFormType extends AbstractType
                 'label' => 'app.form.label.invitation_only',
                 'required' => false,
             ])
+            ->add('allowCustody', CheckboxType::class, [
+                'label' => 'app.form.label.allow_custody',
+                'help' => 'app.form.help.allow_custody',
+                'required' => false,
+            ])
             ->add('tagsInput', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,

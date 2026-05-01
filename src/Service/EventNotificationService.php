@@ -260,6 +260,63 @@ class EventNotificationService
     }
 
     /**
+     * Notify the target that the current organizer wants to hand the event over.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    public function notifyTransferRequested(Event $event, User $target, User $fromOrganizer): void
+    {
+        $this->createNotification(
+            $target,
+            NotificationType::EventTransferRequested,
+            $this->trans('app.notification.event.transfer_requested_title', [], $target),
+            $this->trans('app.notification.event.transfer_requested_message', [
+                '%event%' => $event->getName(),
+                '%name%' => $fromOrganizer->getScreenName(),
+            ], $target),
+            $event,
+        );
+    }
+
+    /**
+     * Notify the previous organizer that the target accepted the handover.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    public function notifyTransferAccepted(Event $event, User $previousOrganizer, User $newOrganizer): void
+    {
+        $this->createNotification(
+            $previousOrganizer,
+            NotificationType::EventTransferAccepted,
+            $this->trans('app.notification.event.transfer_accepted_title', [], $previousOrganizer),
+            $this->trans('app.notification.event.transfer_accepted_message', [
+                '%event%' => $event->getName(),
+                '%name%' => $newOrganizer->getScreenName(),
+            ], $previousOrganizer),
+            $event,
+        );
+    }
+
+    /**
+     * Notify the organizer that the target declined the handover.
+     *
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    public function notifyTransferDeclined(Event $event, User $organizer, User $target): void
+    {
+        $this->createNotification(
+            $organizer,
+            NotificationType::EventTransferDeclined,
+            $this->trans('app.notification.event.transfer_declined_title', [], $organizer),
+            $this->trans('app.notification.event.transfer_declined_message', [
+                '%event%' => $event->getName(),
+                '%name%' => $target->getScreenName(),
+            ], $organizer),
+            $event,
+        );
+    }
+
+    /**
      * @param array<string, string> $params
      */
     private function trans(string $key, array $params, User $recipient): string
