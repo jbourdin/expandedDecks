@@ -50,7 +50,7 @@
         "symfony/translation": "^8.0.8",
         "symfony/twig-bundle": "^8.0.8",
         "symfony/uid": "^8.0.8",
-        "symfony/ux-turbo": "^2.35",
+        "symfony/ux-turbo": "^3.0",
         "symfony/validator": "^8.0.8",
         "symfony/web-link": "^8.0.8",
         "symfony/webpack-encore-bundle": "^2.4",
