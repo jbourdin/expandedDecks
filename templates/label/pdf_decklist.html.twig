@@ -250,7 +250,7 @@
                         {% if row.symbolDataUri %}
                             <img class="set-symbol" src="{{ row.symbolDataUri }}" alt="">
                         {% endif %}
-                        {{ row.setCode }}-{{ row.cardNumber }}
+                        {{ row.setCode }}-{{ row.cardNumber|card_number }}
                     </td>
                     <td class="col-check">{% for i in 1..row.quantity %}<span class="checkbox"></span>{% endfor %}</td>
                 </tr>
