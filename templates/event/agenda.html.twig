@@ -1,0 +1,109 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.event.agenda.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-2">{{ 'app.event.agenda.title'|trans }}</h1>
+    <p class="text-muted">{{ 'app.event.agenda.intro'|trans }}</p>
+
+    {% set webcalUrl = icalAbsoluteUrl|replace({'http://': 'webcal://', 'https://': 'webcal://'}) %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.event.agenda.feed_section_title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-2">{{ 'app.event.agenda.feed_section_help'|trans }}</p>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control font-monospace" readonly value="{{ icalAbsoluteUrl }}">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-event-calendar-copy
+                        data-copy-url="{{ icalAbsoluteUrl }}"
+                        data-label-default="{{ 'app.event.calendar.copy_url'|trans }}"
+                        data-label-copied="{{ 'app.event.calendar.copied'|trans }}">
+                    <i class="bi bi-clipboard" aria-hidden="true"></i>
+                    <span>{{ 'app.event.calendar.copy_url'|trans }}</span>
+                </button>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="{{ webcalUrl }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-calendar2-event" aria-hidden="true"></i>
+                    {{ 'app.event.calendar.subscribe'|trans }}
+                </a>
+                <a href="{{ icalUrl }}" class="btn btn-sm btn-outline-secondary" download>
+                    <i class="bi bi-download" aria-hidden="true"></i>
+                    {{ 'app.event.calendar.download'|trans }}
+                </a>
+            </div>
+            <p class="text-muted small mb-2"><strong>{{ 'app.event.agenda.security_warning_title'|trans }}</strong> {{ 'app.event.agenda.security_warning_body'|trans }}</p>
+            <form method="post" action="{{ path('app_event_agenda_regenerate') }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('event-agenda-regenerate') }}">
+                <button type="submit"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('{{ 'app.event.agenda.regenerate_confirm'|trans|e('js') }}')">
+                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                    {{ 'app.event.agenda.regenerate_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if events|length > 0 %}
+        <div class="row">
+            {% for event in events %}
+                {% set engagement = event.engagementFor(app.user) %}
+                {% set isOrganizer = event.organizer.id == app.user.id %}
+                {% set staff = event.staffFor(app.user) %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a>
+                            </h5>
+                            <p class="text-muted mb-1">
+                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                            </p>
+                            {% if event.location %}
+                                <p class="text-muted mb-1">{{ event.location }}</p>
+                            {% endif %}
+                            <p class="mb-2 d-flex flex-wrap gap-1">
+                                {% if isOrganizer %}
+                                    <span class="badge text-bg-warning">{{ 'app.event.agenda.state.organizing'|trans }}</span>
+                                {% elseif staff %}
+                                    <span class="badge text-bg-warning">{{ 'app.event.agenda.state.staffing'|trans }}</span>
+                                {% endif %}
+                                {% if engagement %}
+                                    <span class="badge text-bg-info">{{ ('app.event.agenda.state.' ~ engagement.state.value)|trans }}</span>
+                                {% endif %}
+                            </p>
+                            {% if event.tags|length > 0 %}
+                                <p class="mb-0">
+                                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <p class="text-muted mb-0">{{ 'app.event.agenda.empty'|trans }}</p>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('event_calendar_copy') }}
+{% endblock %}

@@ -76,6 +76,8 @@
 
                         {{ form_row(form.isDecklistMandatory) }}
 
+                        {% include 'event/_tag_selector.html.twig' with {form: form, existingTagNames: existingTagNames, initialTagNames: initialTagNames} only %}
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-gold">{{ 'app.event.save_button'|trans }}</button>
                             <a href="{{ path('app_event_show', {id: event.id}) }}" class="btn btn-outline-secondary">{{ 'app.common.cancel'|trans }}</a>
@@ -87,7 +89,13 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('event_form') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('event_sync') }}
+    {{ encore_entry_script_tags('event_form') }}
 {% endblock %}

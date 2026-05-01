@@ -13,6 +13,11 @@
                 <target>My Decks</target>
                 <note>User dropdown menu link to own decks</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_agenda">
+                <source>app.nav.my_agenda</source>
+                <target>My Agenda</target>
+                <note>User dropdown menu link to the personal event agenda</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archetypes</target>
@@ -1197,6 +1202,176 @@
                 <source>app.event.no_events</source>
                 <target>No upcoming events.</target>
                 <note>Empty state when no upcoming events</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.label">
+                <source>app.event.tag.label</source>
+                <target>Tags</target>
+                <note>Label for the event tag selector and tag list section</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.placeholder">
+                <source>app.event.tag.placeholder</source>
+                <target>Pick existing tags or type to create…</target>
+                <note>Placeholder inside the event tag selector input</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.help">
+                <source>app.event.tag.help</source>
+                <target>Use tags to group your events (e.g. league, weekend, regional). Type a name and press Enter to create a new one.</target>
+                <note>Helper text shown below the event tag selector</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.filter_label">
+                <source>app.event.tag.filter_label</source>
+                <target>Filter by tag</target>
+                <note>Label for the tag filter row on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.page_title">
+                <source>app.event.tag.page_title</source>
+                <target>Events tagged "%name%"</target>
+                <note>Title of the per-tag event list page</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.back_to_all">
+                <source>app.event.tag.back_to_all</source>
+                <target>All events</target>
+                <note>Back link from a tag-filtered event page to the full list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button">
+                <source>app.event.calendar.button</source>
+                <target>Calendar</target>
+                <note>Button opening calendar subscribe/download options on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button_title">
+                <source>app.event.calendar.button_title</source>
+                <target>Subscribe to or download the event calendar</target>
+                <note>Tooltip on the calendar button</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.help">
+                <source>app.event.calendar.help</source>
+                <target>Add these events to your calendar app — updates automatically when subscribed.</target>
+                <note>Help text in the calendar dropdown menu</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.subscribe">
+                <source>app.event.calendar.subscribe</source>
+                <target>Subscribe (auto-update)</target>
+                <note>Calendar dropdown action: open with the OS calendar app via webcal://</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.download">
+                <source>app.event.calendar.download</source>
+                <target>Download .ics file</target>
+                <note>Calendar dropdown action: download the iCal file</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copy_url">
+                <source>app.event.calendar.copy_url</source>
+                <target>Copy feed URL</target>
+                <note>Calendar dropdown action: copy the absolute iCal URL to the clipboard</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copied">
+                <source>app.event.calendar.copied</source>
+                <target>Copied!</target>
+                <note>Confirmation shown after the calendar URL is copied</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title">
+                <source>app.event.ical.feed_title</source>
+                <target>Expanded Decks — Upcoming events</target>
+                <note>Calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title_tag">
+                <source>app.event.ical.feed_title_tag</source>
+                <target>Expanded Decks — Events tagged "%name%"</target>
+                <note>Per-tag calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.organized_by">
+                <source>app.event.ical.organized_by</source>
+                <target>Organized by %name%</target>
+                <note>First line of the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.structure">
+                <source>app.event.ical.structure</source>
+                <target>Structure: %structure%</target>
+                <note>Tournament structure line in the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.agenda_feed_title">
+                <source>app.event.ical.agenda_feed_title</source>
+                <target>%name%'s Expanded Decks agenda</target>
+                <note>Per-user iCal agenda feed title</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.title">
+                <source>app.event.agenda.title</source>
+                <target>My agenda</target>
+                <note>Title of the personal event agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.intro">
+                <source>app.event.agenda.intro</source>
+                <target>Every upcoming event you're connected to: organizing, staffing, registered to play or spectate, invited, or interested.</target>
+                <note>Intro paragraph on the agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_title">
+                <source>app.event.agenda.feed_section_title</source>
+                <target>Personal calendar feed</target>
+                <note>Section title for the per-user calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_help">
+                <source>app.event.agenda.feed_section_help</source>
+                <target>Subscribe to this URL in your calendar app to keep your Expanded Decks agenda in sync.</target>
+                <note>Help text above the per-user calendar URL field</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_title">
+                <source>app.event.agenda.security_warning_title</source>
+                <target>Keep this URL private.</target>
+                <note>Lead-in for the security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_body">
+                <source>app.event.agenda.security_warning_body</source>
+                <target>Anyone with this link can read your agenda. If you've shared it by mistake, regenerate the URL to invalidate the old one.</target>
+                <note>Security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_button">
+                <source>app.event.agenda.regenerate_button</source>
+                <target>Regenerate URL</target>
+                <note>Button that issues a new calendar token, invalidating the previous URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_confirm">
+                <source>app.event.agenda.regenerate_confirm</source>
+                <target>This will invalidate your current calendar URL. Continue?</target>
+                <note>Confirmation prompt before regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.token_regenerated">
+                <source>app.event.agenda.token_regenerated</source>
+                <target>Your calendar URL has been regenerated. Update your calendar app to subscribe to the new URL.</target>
+                <note>Flash shown after regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.empty">
+                <source>app.event.agenda.empty</source>
+                <target>You have no upcoming events on your agenda.</target>
+                <note>Empty state on the personal agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.interested">
+                <source>app.event.agenda.state.interested</source>
+                <target>Interested</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.invited">
+                <source>app.event.agenda.state.invited</source>
+                <target>Invited</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_playing">
+                <source>app.event.agenda.state.registered_playing</source>
+                <target>Playing</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_spectating">
+                <source>app.event.agenda.state.registered_spectating</source>
+                <target>Spectating</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.organizing">
+                <source>app.event.agenda.state.organizing</source>
+                <target>Organizing</target>
+                <note>Agenda role badge for events the user organizes</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.staffing">
+                <source>app.event.agenda.state.staffing</source>
+                <target>Staffing</target>
+                <note>Agenda role badge for events the user staffs</note>
             </trans-unit>
             <trans-unit id="app.event.visibility.public">
                 <source>app.event.visibility.public</source>

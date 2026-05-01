@@ -1,0 +1,47 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F3.16 — Public iCal feed #}
+{% set absoluteIcalUrl = absolute_url(icalUrl) %}
+{% set webcalUrl = absoluteIcalUrl|replace({'http://': 'webcal://', 'https://': 'webcal://'}) %}
+<div class="dropdown">
+    <button type="button"
+            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="{{ 'app.event.calendar.button_title'|trans }}">
+        <i class="bi bi-calendar-plus" aria-hidden="true"></i>
+        <span class="d-none d-sm-inline">{{ 'app.event.calendar.button'|trans }}</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 280px;">
+        <li class="px-1 pb-2 small text-muted">{{ 'app.event.calendar.help'|trans }}</li>
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="{{ webcalUrl }}">
+                <i class="bi bi-calendar2-event" aria-hidden="true"></i>
+                {{ 'app.event.calendar.subscribe'|trans }}
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="{{ icalUrl }}" download>
+                <i class="bi bi-download" aria-hidden="true"></i>
+                {{ 'app.event.calendar.download'|trans }}
+            </a>
+        </li>
+        <li>
+            <button type="button"
+                    class="dropdown-item d-flex align-items-center gap-2"
+                    data-event-calendar-copy
+                    data-copy-url="{{ absoluteIcalUrl }}"
+                    data-label-default="{{ 'app.event.calendar.copy_url'|trans }}"
+                    data-label-copied="{{ 'app.event.calendar.copied'|trans }}">
+                <i class="bi bi-clipboard" aria-hidden="true"></i>
+                <span>{{ 'app.event.calendar.copy_url'|trans }}</span>
+            </button>
+        </li>
+    </ul>
+</div>
