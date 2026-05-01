@@ -13,6 +13,11 @@
                 <target>Mes Decks</target>
                 <note>User dropdown menu link to own decks</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_agenda">
+                <source>app.nav.my_agenda</source>
+                <target>Mon Agenda</target>
+                <note>User dropdown menu link to the personal event agenda</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archétypes</target>
@@ -1272,6 +1277,91 @@
                 <source>app.event.ical.structure</source>
                 <target>Structure : %structure%</target>
                 <note>Tournament structure line in the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.agenda_feed_title">
+                <source>app.event.ical.agenda_feed_title</source>
+                <target>Agenda Expanded Decks de %name%</target>
+                <note>Per-user iCal agenda feed title</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.title">
+                <source>app.event.agenda.title</source>
+                <target>Mon agenda</target>
+                <note>Title of the personal event agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.intro">
+                <source>app.event.agenda.intro</source>
+                <target>Tous les événements à venir où tu es lié : organisateur(rice), staff, inscrit(e) comme joueur(se) ou spectateur(rice), invité(e) ou intéressé(e).</target>
+                <note>Intro paragraph on the agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_title">
+                <source>app.event.agenda.feed_section_title</source>
+                <target>Flux personnel</target>
+                <note>Section title for the per-user calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_help">
+                <source>app.event.agenda.feed_section_help</source>
+                <target>Abonne-toi à cette URL dans ton agenda pour garder ton planning Expanded Decks à jour.</target>
+                <note>Help text above the per-user calendar URL field</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_title">
+                <source>app.event.agenda.security_warning_title</source>
+                <target>Garde cette URL privée.</target>
+                <note>Lead-in for the security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_body">
+                <source>app.event.agenda.security_warning_body</source>
+                <target>N'importe qui ayant ce lien peut lire ton agenda. Si tu l'as partagé par erreur, régénère l'URL pour invalider l'ancienne.</target>
+                <note>Security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_button">
+                <source>app.event.agenda.regenerate_button</source>
+                <target>Régénérer l'URL</target>
+                <note>Button that issues a new calendar token, invalidating the previous URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_confirm">
+                <source>app.event.agenda.regenerate_confirm</source>
+                <target>Cela invalidera l'URL de calendrier actuelle. Continuer ?</target>
+                <note>Confirmation prompt before regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.token_regenerated">
+                <source>app.event.agenda.token_regenerated</source>
+                <target>Ton URL de calendrier a été régénérée. Mets à jour ton application d'agenda pour t'abonner à la nouvelle URL.</target>
+                <note>Flash shown after regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.empty">
+                <source>app.event.agenda.empty</source>
+                <target>Aucun événement à venir dans ton agenda.</target>
+                <note>Empty state on the personal agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.interested">
+                <source>app.event.agenda.state.interested</source>
+                <target>Intéressé(e)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.invited">
+                <source>app.event.agenda.state.invited</source>
+                <target>Invité(e)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_playing">
+                <source>app.event.agenda.state.registered_playing</source>
+                <target>Joueur(se)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_spectating">
+                <source>app.event.agenda.state.registered_spectating</source>
+                <target>Spectateur(rice)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.organizing">
+                <source>app.event.agenda.state.organizing</source>
+                <target>Organisateur(rice)</target>
+                <note>Agenda role badge for events the user organizes</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.staffing">
+                <source>app.event.agenda.state.staffing</source>
+                <target>Staff</target>
+                <note>Agenda role badge for events the user staffs</note>
             </trans-unit>
             <trans-unit id="app.event.visibility.public">
                 <source>app.event.visibility.public</source>

@@ -31,7 +31,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class EventListController extends AbstractController
 {
-    private const VALID_SCOPES = ['all', 'public', 'staffing'];
+    private const VALID_SCOPES = ['all', 'public'];
 
     /**
      * @see docs/features.md F3.11 — Event visibility
@@ -69,7 +69,6 @@ class EventListController extends AbstractController
         } else {
             $events = match ($scope) {
                 'public' => $eventRepository->findPublicUpcoming(),
-                'staffing' => $eventRepository->findUpcomingByOrganizerOrStaff($user ?? throw new \LogicException()),
                 default => $eventRepository->findVisibleUpcoming($user),
             };
         }

@@ -373,6 +373,36 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * Every upcoming event the user is connected to: organizer, staff, or any
+     * engagement state (interested, invited, registered playing, spectating).
+     *
+     * @see docs/features.md F3.14 — iCal agenda feed
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingForUserAgenda(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->leftJoin('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR eg.id IS NOT NULL OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
      * Upcoming events where the user has any engagement (interested, playing, spectating).
      *
      * @see docs/features.md F7.1 — Dashboard

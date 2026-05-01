@@ -67,6 +67,14 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     }
 
     /**
+     * @see docs/features.md F3.14 — iCal agenda feed
+     */
+    public function findOneByCalendarToken(string $token): ?User
+    {
+        return $this->findOneBy(['calendarToken' => $token]);
+    }
+
+    /**
      * Searches users by screen name, email, or Pokemon ID.
      *
      * @see docs/features.md F3.5 — Assign event staff team

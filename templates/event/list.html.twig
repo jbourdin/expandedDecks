@@ -51,6 +51,9 @@
             {% if icalUrl is defined and icalUrl %}
                 {% include 'event/_calendar_button.html.twig' with {icalUrl: icalUrl} only %}
             {% endif %}
+            {% if app.user %}
+                <a href="{{ path('app_event_agenda') }}" class="btn btn-outline-primary">{{ 'app.nav.my_agenda'|trans }}</a>
+            {% endif %}
             {% if is_granted('ROLE_ORGANIZER') %}
                 <a href="{{ path('app_event_new') }}" class="btn btn-gold">{{ 'app.event.new_event'|trans }}</a>
             {% endif %}
@@ -61,7 +64,6 @@
         <div class="btn-group mb-3" role="group" aria-label="{{ 'app.event.filter_scope'|trans }}">
             <a href="{{ path('app_event_list', {scope: 'all'}) }}" class="btn btn-sm {{ scope|default('all') == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.common.all'|trans }}</a>
             <a href="{{ path('app_event_list', {scope: 'public'}) }}" class="btn btn-sm {{ scope|default('all') == 'public' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_public'|trans }}</a>
-            <a href="{{ path('app_event_list', {scope: 'staffing'}) }}" class="btn btn-sm {{ scope|default('all') == 'staffing' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_staffing'|trans }}</a>
         </div>
     {% endif %}
 

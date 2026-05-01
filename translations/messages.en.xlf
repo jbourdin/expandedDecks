@@ -13,6 +13,11 @@
                 <target>My Decks</target>
                 <note>User dropdown menu link to own decks</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_agenda">
+                <source>app.nav.my_agenda</source>
+                <target>My Agenda</target>
+                <note>User dropdown menu link to the personal event agenda</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archetypes</target>
@@ -1282,6 +1287,91 @@
                 <source>app.event.ical.structure</source>
                 <target>Structure: %structure%</target>
                 <note>Tournament structure line in the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.agenda_feed_title">
+                <source>app.event.ical.agenda_feed_title</source>
+                <target>%name%'s Expanded Decks agenda</target>
+                <note>Per-user iCal agenda feed title</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.title">
+                <source>app.event.agenda.title</source>
+                <target>My agenda</target>
+                <note>Title of the personal event agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.intro">
+                <source>app.event.agenda.intro</source>
+                <target>Every upcoming event you're connected to: organizing, staffing, registered to play or spectate, invited, or interested.</target>
+                <note>Intro paragraph on the agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_title">
+                <source>app.event.agenda.feed_section_title</source>
+                <target>Personal calendar feed</target>
+                <note>Section title for the per-user calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_help">
+                <source>app.event.agenda.feed_section_help</source>
+                <target>Subscribe to this URL in your calendar app to keep your Expanded Decks agenda in sync.</target>
+                <note>Help text above the per-user calendar URL field</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_title">
+                <source>app.event.agenda.security_warning_title</source>
+                <target>Keep this URL private.</target>
+                <note>Lead-in for the security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_body">
+                <source>app.event.agenda.security_warning_body</source>
+                <target>Anyone with this link can read your agenda. If you've shared it by mistake, regenerate the URL to invalidate the old one.</target>
+                <note>Security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_button">
+                <source>app.event.agenda.regenerate_button</source>
+                <target>Regenerate URL</target>
+                <note>Button that issues a new calendar token, invalidating the previous URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_confirm">
+                <source>app.event.agenda.regenerate_confirm</source>
+                <target>This will invalidate your current calendar URL. Continue?</target>
+                <note>Confirmation prompt before regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.token_regenerated">
+                <source>app.event.agenda.token_regenerated</source>
+                <target>Your calendar URL has been regenerated. Update your calendar app to subscribe to the new URL.</target>
+                <note>Flash shown after regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.empty">
+                <source>app.event.agenda.empty</source>
+                <target>You have no upcoming events on your agenda.</target>
+                <note>Empty state on the personal agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.interested">
+                <source>app.event.agenda.state.interested</source>
+                <target>Interested</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.invited">
+                <source>app.event.agenda.state.invited</source>
+                <target>Invited</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_playing">
+                <source>app.event.agenda.state.registered_playing</source>
+                <target>Playing</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_spectating">
+                <source>app.event.agenda.state.registered_spectating</source>
+                <target>Spectating</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.organizing">
+                <source>app.event.agenda.state.organizing</source>
+                <target>Organizing</target>
+                <note>Agenda role badge for events the user organizes</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.staffing">
+                <source>app.event.agenda.state.staffing</source>
+                <target>Staffing</target>
+                <note>Agenda role badge for events the user staffs</note>
             </trans-unit>
             <trans-unit id="app.event.visibility.public">
                 <source>app.event.visibility.public</source>
