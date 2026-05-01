@@ -135,6 +135,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $showCardmarketExport = false;
 
+    /**
+     * @see docs/features.md F3.14 — iCal agenda feed
+     */
+    #[ORM\Column(length: 64, unique: true, nullable: true)]
+    private ?string $calendarToken = null;
+
     /** @var Collection<int, Deck> */
     #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'owner')]
     private Collection $ownedDecks;
@@ -468,6 +474,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->deletionToken = null;
         $this->deletionTokenExpiresAt = null;
         $this->notificationPreferences = null;
+        $this->calendarToken = null;
     }
 
     public function isAnonymized(): bool
@@ -607,6 +614,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setShowCardmarketExport(bool $showCardmarketExport): static
     {
         $this->showCardmarketExport = $showCardmarketExport;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F3.14 — iCal agenda feed
+     */
+    public function getCalendarToken(): ?string
+    {
+        return $this->calendarToken;
+    }
+
+    public function setCalendarToken(?string $calendarToken): static
+    {
+        $this->calendarToken = $calendarToken;
 
         return $this;
     }

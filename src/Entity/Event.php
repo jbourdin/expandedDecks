@@ -117,6 +117,22 @@ class Event
     #[ORM\Column]
     private bool $isInvitationOnly = false;
 
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $allowCustody = false;
+
+    /**
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $pendingTransferTo = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $pendingTransferRequestedAt = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -152,6 +168,16 @@ class Event
     #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'event')]
     private Collection $deckRegistrations;
 
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @var Collection<int, EventTag>
+     */
+    #[ORM\ManyToMany(targetEntity: EventTag::class, inversedBy: 'events', cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'event_event_tag')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $tags;
+
     public function __construct()
     {
         $this->date = new \DateTimeImmutable();
@@ -161,6 +187,7 @@ class Event
         $this->borrows = new ArrayCollection();
         $this->deckEntries = new ArrayCollection();
         $this->deckRegistrations = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -411,6 +438,55 @@ class Event
         return $this;
     }
 
+    /**
+     * @see docs/features.md F4.8 — Staff-delegated lending
+     */
+    public function isAllowCustody(): bool
+    {
+        return $this->allowCustody;
+    }
+
+    public function setAllowCustody(bool $allowCustody): static
+    {
+        $this->allowCustody = $allowCustody;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F3.23 — Organizer handover
+     */
+    public function getPendingTransferTo(): ?User
+    {
+        return $this->pendingTransferTo;
+    }
+
+    public function getPendingTransferRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->pendingTransferRequestedAt;
+    }
+
+    public function hasPendingTransfer(): bool
+    {
+        return null !== $this->pendingTransferTo;
+    }
+
+    public function requestTransferTo(User $target): static
+    {
+        $this->pendingTransferTo = $target;
+        $this->pendingTransferRequestedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function clearPendingTransfer(): static
+    {
+        $this->pendingTransferTo = null;
+        $this->pendingTransferRequestedAt = null;
+
+        return $this;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -550,6 +626,49 @@ class Event
     public function getDeckRegistrations(): Collection
     {
         return $this->deckRegistrations;
+    }
+
+    /**
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @return Collection<int, EventTag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(EventTag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(EventTag $tag): static
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * Replace the current tag set with the given collection. Used after the
+     * form resolver returns the desired list of EventTag entities.
+     *
+     * @param iterable<EventTag> $tags
+     */
+    public function setTags(iterable $tags): static
+    {
+        $this->tags->clear();
+
+        foreach ($tags as $tag) {
+            $this->addTag($tag);
+        }
+
+        return $this;
     }
 
     #[ORM\PrePersist]

@@ -8,15 +8,24 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.event.list_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+{% block title %}{% if activeTag %}{{ 'app.event.tag.page_title'|trans({'%name%': activeTag.name}) }}{% else %}{{ 'app.event.list_title'|trans }}{% endif %} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}
-    <link rel="canonical" href="{{ canonical_url('events', 'app_event_list') }}">
+    {% if activeTag %}
+        <link rel="canonical" href="{{ canonical_url('events', 'app_event_tag', {slug: activeTag.slug}) }}">
+    {% else %}
+        <link rel="canonical" href="{{ canonical_url('events', 'app_event_list') }}">
+    {% endif %}
 {% endblock %}
 
 {% block opengraph %}
-    {% set og_title = 'app.event.list_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
-    {% set og_url = canonical_url('events', 'app_event_list') %}
+    {% if activeTag %}
+        {% set og_title = 'app.event.tag.page_title'|trans({'%name%': activeTag.name}) ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+        {% set og_url = canonical_url('events', 'app_event_tag', {slug: activeTag.slug}) %}
+    {% else %}
+        {% set og_title = 'app.event.list_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+        {% set og_url = canonical_url('events', 'app_event_list') %}
+    {% endif %}
     {% include '_partials/opengraph.html.twig' %}
 {% endblock %}
 
@@ -30,17 +39,41 @@
 
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">{{ 'app.event.list_title'|trans }}</h1>
-        {% if is_granted('ROLE_ORGANIZER') %}
-            <a href="{{ path('app_event_new') }}" class="btn btn-gold">{{ 'app.event.new_event'|trans }}</a>
-        {% endif %}
+        <div>
+            <h1 class="mb-0">
+                {% if activeTag %}{{ 'app.event.tag.page_title'|trans({'%name%': activeTag.name}) }}{% else %}{{ 'app.event.list_title'|trans }}{% endif %}
+            </h1>
+            {% if activeTag %}
+                <a href="{{ path('app_event_list') }}" class="small text-decoration-none">&larr; {{ 'app.event.tag.back_to_all'|trans }}</a>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if icalUrl is defined and icalUrl %}
+                {% include 'event/_calendar_button.html.twig' with {icalUrl: icalUrl} only %}
+            {% endif %}
+            {% if app.user %}
+                <a href="{{ path('app_event_agenda') }}" class="btn btn-outline-primary">{{ 'app.nav.my_agenda'|trans }}</a>
+            {% endif %}
+            {% if is_granted('ROLE_ORGANIZER') %}
+                <a href="{{ path('app_event_new') }}" class="btn btn-gold">{{ 'app.event.new_event'|trans }}</a>
+            {% endif %}
+        </div>
     </div>
 
-    {% if app.user %}
-        <div class="btn-group mb-4" role="group" aria-label="{{ 'app.event.filter_scope'|trans }}">
+    {% if app.user and not activeTag %}
+        <div class="btn-group mb-3" role="group" aria-label="{{ 'app.event.filter_scope'|trans }}">
             <a href="{{ path('app_event_list', {scope: 'all'}) }}" class="btn btn-sm {{ scope|default('all') == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.common.all'|trans }}</a>
             <a href="{{ path('app_event_list', {scope: 'public'}) }}" class="btn btn-sm {{ scope|default('all') == 'public' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_public'|trans }}</a>
-            <a href="{{ path('app_event_list', {scope: 'staffing'}) }}" class="btn btn-sm {{ scope|default('all') == 'staffing' ? 'btn-primary' : 'btn-outline-primary' }}">{{ 'app.event.scope_staffing'|trans }}</a>
+        </div>
+    {% endif %}
+
+    {% if allTags is defined and allTags|length > 0 %}
+        <div class="mb-4 d-flex flex-wrap gap-1 align-items-center">
+            <small class="text-muted me-1">{{ 'app.event.tag.filter_label'|trans }}:</small>
+            <a href="{{ path('app_event_list') }}" class="badge text-decoration-none {{ activeTag is null ? 'text-bg-primary' : 'text-bg-light border' }}">{{ 'app.common.all'|trans }}</a>
+            {% for tag in allTags %}
+                <a href="{{ path('app_event_tag', {slug: tag.slug}) }}" class="badge text-decoration-none {{ activeTag and activeTag.id == tag.id ? 'text-bg-primary' : 'text-bg-light border' }}">{{ tag.name }}</a>
+            {% endfor %}
         </div>
     {% endif %}
 
@@ -67,6 +100,11 @@
                                     {% endif %}
                                 </small>
                             </p>
+                            {% if event.tags|length > 0 %}
+                                <p class="mb-2">
+                                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                                </p>
+                            {% endif %}
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
                                     {{ 'app.event.organized_by'|trans({'%name%': event.organizer.screenName}) }}
@@ -93,4 +131,9 @@
             </div>
         </div>
     {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('event_calendar_copy') }}
 {% endblock %}

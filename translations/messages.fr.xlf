@@ -13,6 +13,11 @@
                 <target>Mes Decks</target>
                 <note>User dropdown menu link to own decks</note>
             </trans-unit>
+            <trans-unit id="app.nav.my_agenda">
+                <source>app.nav.my_agenda</source>
+                <target>Mon Agenda</target>
+                <note>User dropdown menu link to the personal event agenda</note>
+            </trans-unit>
             <trans-unit id="app.nav.archetypes">
                 <source>app.nav.archetypes</source>
                 <target>Archétypes</target>
@@ -1188,6 +1193,176 @@
                 <target>Aucun événement à venir.</target>
                 <note>Empty state when no upcoming events</note>
             </trans-unit>
+            <trans-unit id="app.event.tag.label">
+                <source>app.event.tag.label</source>
+                <target>Tags</target>
+                <note>Label for the event tag selector and tag list section</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.placeholder">
+                <source>app.event.tag.placeholder</source>
+                <target>Choisis des tags ou tape pour en créer…</target>
+                <note>Placeholder inside the event tag selector input</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.help">
+                <source>app.event.tag.help</source>
+                <target>Utilise des tags pour regrouper tes événements (ex. league, week-end, régional). Tape un nom et appuie sur Entrée pour en créer un nouveau.</target>
+                <note>Helper text shown below the event tag selector</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.filter_label">
+                <source>app.event.tag.filter_label</source>
+                <target>Filtrer par tag</target>
+                <note>Label for the tag filter row on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.page_title">
+                <source>app.event.tag.page_title</source>
+                <target>Événements taggés « %name% »</target>
+                <note>Title of the per-tag event list page</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.back_to_all">
+                <source>app.event.tag.back_to_all</source>
+                <target>Tous les événements</target>
+                <note>Back link from a tag-filtered event page to the full list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button">
+                <source>app.event.calendar.button</source>
+                <target>Calendrier</target>
+                <note>Button opening calendar subscribe/download options on the event list</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.button_title">
+                <source>app.event.calendar.button_title</source>
+                <target>S'abonner ou télécharger le calendrier des événements</target>
+                <note>Tooltip on the calendar button</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.help">
+                <source>app.event.calendar.help</source>
+                <target>Ajoute ces événements à ton agenda — mise à jour automatique en mode abonnement.</target>
+                <note>Help text in the calendar dropdown menu</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.subscribe">
+                <source>app.event.calendar.subscribe</source>
+                <target>S'abonner (mise à jour auto)</target>
+                <note>Calendar dropdown action: open with the OS calendar app via webcal://</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.download">
+                <source>app.event.calendar.download</source>
+                <target>Télécharger le fichier .ics</target>
+                <note>Calendar dropdown action: download the iCal file</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copy_url">
+                <source>app.event.calendar.copy_url</source>
+                <target>Copier l'URL du flux</target>
+                <note>Calendar dropdown action: copy the absolute iCal URL to the clipboard</note>
+            </trans-unit>
+            <trans-unit id="app.event.calendar.copied">
+                <source>app.event.calendar.copied</source>
+                <target>Copié !</target>
+                <note>Confirmation shown after the calendar URL is copied</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title">
+                <source>app.event.ical.feed_title</source>
+                <target>Expanded Decks — Événements à venir</target>
+                <note>Calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.feed_title_tag">
+                <source>app.event.ical.feed_title_tag</source>
+                <target>Expanded Decks — Événements taggés « %name% »</target>
+                <note>Per-tag calendar feed title shown by calendar apps</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.organized_by">
+                <source>app.event.ical.organized_by</source>
+                <target>Organisé par %name%</target>
+                <note>First line of the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.structure">
+                <source>app.event.ical.structure</source>
+                <target>Structure : %structure%</target>
+                <note>Tournament structure line in the iCal event description</note>
+            </trans-unit>
+            <trans-unit id="app.event.ical.agenda_feed_title">
+                <source>app.event.ical.agenda_feed_title</source>
+                <target>Agenda Expanded Decks de %name%</target>
+                <note>Per-user iCal agenda feed title</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.title">
+                <source>app.event.agenda.title</source>
+                <target>Mon agenda</target>
+                <note>Title of the personal event agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.intro">
+                <source>app.event.agenda.intro</source>
+                <target>Tous les événements à venir où tu es lié : organisateur(rice), staff, inscrit(e) comme joueur(se) ou spectateur(rice), invité(e) ou intéressé(e).</target>
+                <note>Intro paragraph on the agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_title">
+                <source>app.event.agenda.feed_section_title</source>
+                <target>Flux personnel</target>
+                <note>Section title for the per-user calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.feed_section_help">
+                <source>app.event.agenda.feed_section_help</source>
+                <target>Abonne-toi à cette URL dans ton agenda pour garder ton planning Expanded Decks à jour.</target>
+                <note>Help text above the per-user calendar URL field</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_title">
+                <source>app.event.agenda.security_warning_title</source>
+                <target>Garde cette URL privée.</target>
+                <note>Lead-in for the security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.security_warning_body">
+                <source>app.event.agenda.security_warning_body</source>
+                <target>N'importe qui ayant ce lien peut lire ton agenda. Si tu l'as partagé par erreur, régénère l'URL pour invalider l'ancienne.</target>
+                <note>Security note about the personal calendar URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_button">
+                <source>app.event.agenda.regenerate_button</source>
+                <target>Régénérer l'URL</target>
+                <note>Button that issues a new calendar token, invalidating the previous URL</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.regenerate_confirm">
+                <source>app.event.agenda.regenerate_confirm</source>
+                <target>Cela invalidera l'URL de calendrier actuelle. Continuer ?</target>
+                <note>Confirmation prompt before regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.token_regenerated">
+                <source>app.event.agenda.token_regenerated</source>
+                <target>Ton URL de calendrier a été régénérée. Mets à jour ton application d'agenda pour t'abonner à la nouvelle URL.</target>
+                <note>Flash shown after regenerating the calendar token</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.empty">
+                <source>app.event.agenda.empty</source>
+                <target>Aucun événement à venir dans ton agenda.</target>
+                <note>Empty state on the personal agenda page</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.interested">
+                <source>app.event.agenda.state.interested</source>
+                <target>Intéressé(e)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.invited">
+                <source>app.event.agenda.state.invited</source>
+                <target>Invité(e)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_playing">
+                <source>app.event.agenda.state.registered_playing</source>
+                <target>Joueur(se)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.registered_spectating">
+                <source>app.event.agenda.state.registered_spectating</source>
+                <target>Spectateur(rice)</target>
+                <note>Engagement state badge label</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.organizing">
+                <source>app.event.agenda.state.organizing</source>
+                <target>Organisateur(rice)</target>
+                <note>Agenda role badge for events the user organizes</note>
+            </trans-unit>
+            <trans-unit id="app.event.agenda.state.staffing">
+                <source>app.event.agenda.state.staffing</source>
+                <target>Staff</target>
+                <note>Agenda role badge for events the user staffs</note>
+            </trans-unit>
             <trans-unit id="app.event.visibility.public">
                 <source>app.event.visibility.public</source>
                 <target>Public</target>
@@ -1408,6 +1583,126 @@
                 <source>app.event.delegate</source>
                 <target>Déléguer</target>
                 <note>Button to delegate deck to staff</note>
+            </trans-unit>
+            <trans-unit id="app.event.delegate_disabled_reason">
+                <source>app.event.delegate_disabled_reason</source>
+                <target>L'organisateur n'a pas accepté la garde des decks pour cet événement.</target>
+                <note>Tooltip on the disabled Delegate button when allow_custody is off</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.section_title">
+                <source>app.event.transfer.section_title</source>
+                <target>Transférer l'organisation</target>
+                <note>Card title for the F3.23 organizer-handover section on the event page</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.help">
+                <source>app.event.transfer.help</source>
+                <target>Choisis un utilisateur pour reprendre l'organisation. Il devra accepter de son côté avant que le transfert ne prenne effet.</target>
+                <note>Helper text above the handover form</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.placeholder">
+                <source>app.event.transfer.placeholder</source>
+                <target>Pseudo, e-mail ou Pokemon ID</target>
+                <note>Placeholder for the user-picker on the handover form</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.initiate">
+                <source>app.event.transfer.initiate</source>
+                <target>Envoyer la demande</target>
+                <note>Button that initiates the organizer handover request</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.confirm">
+                <source>app.event.transfer.confirm</source>
+                <target>Envoyer une demande de transfert à cet utilisateur ? Tu restes organisateur tant qu'il n'a pas accepté.</target>
+                <note>Confirmation prompt before initiating an organizer handover</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.pending_body">
+                <source>app.event.transfer.pending_body</source>
+                <target>En attente de la réponse de %name%.</target>
+                <note>Status line on the organizer's handover card while a transfer is pending</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.cancel">
+                <source>app.event.transfer.cancel</source>
+                <target>Annuler le transfert</target>
+                <note>Button that cancels a pending handover request</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.target_banner_title">
+                <source>app.event.transfer.target_banner_title</source>
+                <target>On te propose de reprendre l'organisation.</target>
+                <note>Banner shown to the target of a pending handover</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.target_banner_body">
+                <source>app.event.transfer.target_banner_body</source>
+                <target>%name% souhaite que tu gères cet événement. Accepte pour reprendre, refuse pour le laisser organisateur.</target>
+                <note>Body of the target banner</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.accept">
+                <source>app.event.transfer.accept</source>
+                <target>Accepter</target>
+                <note>Button shown to the transfer target</note>
+            </trans-unit>
+            <trans-unit id="app.event.transfer.decline">
+                <source>app.event.transfer.decline</source>
+                <target>Refuser</target>
+                <note>Button shown to the transfer target</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.initiated">
+                <source>app.flash.event.transfer.initiated</source>
+                <target>Demande de transfert envoyée à %name%.</target>
+                <note>Flash after the organizer initiates a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.cancelled">
+                <source>app.flash.event.transfer.cancelled</source>
+                <target>Demande de transfert annulée.</target>
+                <note>Flash after the organizer cancels a pending handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.accepted">
+                <source>app.flash.event.transfer.accepted</source>
+                <target>Tu es désormais l'organisateur(rice) de « %name% ».</target>
+                <note>Flash to the new organizer after accepting a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.declined">
+                <source>app.flash.event.transfer.declined</source>
+                <target>Transfert refusé.</target>
+                <note>Flash after the target declines a handover</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.target_required">
+                <source>app.flash.event.transfer.target_required</source>
+                <target>Choisis un utilisateur à qui transférer l'événement.</target>
+                <note>Flash when the organizer submits the handover form without picking a target</note>
+            </trans-unit>
+            <trans-unit id="app.flash.event.transfer.target_invalid">
+                <source>app.flash.event.transfer.target_invalid</source>
+                <target>Aucun utilisateur trouvé pour ce nom.</target>
+                <note>Flash when the handover target query doesn't resolve to a different user</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_requested_title">
+                <source>app.notification.event.transfer_requested_title</source>
+                <target>Demande de transfert d'événement</target>
+                <note>Notification title when the user is asked to take over an event</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_requested_message">
+                <source>app.notification.event.transfer_requested_message</source>
+                <target>%name% souhaite te transférer l'événement « %event% ». Ouvre l'événement pour accepter ou refuser.</target>
+                <note>Notification body when the user is asked to take over an event</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_accepted_title">
+                <source>app.notification.event.transfer_accepted_title</source>
+                <target>Transfert accepté</target>
+                <note>Notification title to the previous organizer when the target accepts</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_accepted_message">
+                <source>app.notification.event.transfer_accepted_message</source>
+                <target>%name% a accepté le transfert de « %event% » et en est désormais organisateur(rice).</target>
+                <note>Notification body to the previous organizer when the target accepts</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_declined_title">
+                <source>app.notification.event.transfer_declined_title</source>
+                <target>Transfert refusé</target>
+                <note>Notification title when the target declines a handover</note>
+            </trans-unit>
+            <trans-unit id="app.notification.event.transfer_declined_message">
+                <source>app.notification.event.transfer_declined_message</source>
+                <target>%name% a refusé le transfert de « %event% ». Tu restes organisateur(rice).</target>
+                <note>Notification body when the target declines a handover</note>
             </trans-unit>
             <trans-unit id="app.event.deck_selection">
                 <source>app.event.deck_selection</source>
@@ -2152,6 +2447,11 @@
                 <target>Délégation au staff désactivée pour « %name% ».</target>
                 <note>Success flash after disabling staff delegation. %name% = deck name</note>
             </trans-unit>
+            <trans-unit id="app.flash.event.delegation_not_allowed">
+                <source>app.flash.event.delegation_not_allowed</source>
+                <target>L'organisateur n'a pas accepté la garde des decks pour cet événement.</target>
+                <note>Warning flash when a player tries to delegate while allow_custody is off</note>
+            </trans-unit>
             <trans-unit id="app.flash.event.cannot_revoke_delegation_in_custody">
                 <source>app.flash.event.cannot_revoke_delegation_in_custody</source>
                 <target>Impossible de révoquer la délégation pour « %name% » — le deck est actuellement entre les mains du staff. Le staff doit d&apos;abord le rendre.</target>
@@ -2521,6 +2821,16 @@
                 <source>app.form.label.invitation_only</source>
                 <target>Sur invitation uniquement</target>
                 <note>Form label for invitation-only checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.allow_custody">
+                <source>app.form.label.allow_custody</source>
+                <target>Accepter la garde des decks</target>
+                <note>Event form: organizer agrees to take custody of delegated decks</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.allow_custody">
+                <source>app.form.help.allow_custody</source>
+                <target>Si activé, les joueurs peuvent confier leur deck au staff de l'événement (toi ou ton équipe) pour la journée. Laisse désactivé si tu ne veux pas être responsable des decks des joueurs.</target>
+                <note>Event form: helper text under allow_custody</note>
             </trans-unit>
             <trans-unit id="app.form.label.visibility">
                 <source>app.form.label.visibility</source>

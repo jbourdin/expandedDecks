@@ -74,7 +74,12 @@
                             <div class="col-md-6">{{ form_row(form.entryFeeCurrency) }}</div>
                         </div>
 
+                        {{ form_row(form.visibility) }}
+                        {{ form_row(form.isInvitationOnly) }}
                         {{ form_row(form.isDecklistMandatory) }}
+                        {{ form_row(form.allowCustody) }}
+
+                        {% include 'event/_tag_selector.html.twig' with {form: form, existingTagNames: existingTagNames, initialTagNames: initialTagNames} only %}
 
                         <button type="submit" class="btn btn-gold w-100">{{ 'app.event.create_button'|trans }}</button>
                     {{ form_end(form) }}
@@ -84,7 +89,13 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('event_form') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('event_sync') }}
+    {{ encore_entry_script_tags('event_form') }}
 {% endblock %}

@@ -15,10 +15,12 @@ namespace App\Repository;
 
 use App\Entity\Deck;
 use App\Entity\Event;
+use App\Entity\EventTag;
 use App\Entity\User;
 use App\Enum\EngagementState;
 use App\Enum\EventVisibility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -142,7 +144,70 @@ class EventRepository extends ServiceEntityRepository
     public function findPublicUpcoming(int $limit = 50): array
     {
         /** @var list<Event> $events */
-        $events = $this->createQueryBuilder('e')
+        $events = $this->buildPublicUpcomingQuery(null, $limit)->getQuery()->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Public upcoming events filtered by a single tag.
+     *
+     * @see docs/features.md F3.12 — Event tags
+     * @see docs/features.md F3.16 — Public iCal feed
+     *
+     * @return list<Event>
+     */
+    public function findPublicUpcomingByTag(EventTag $tag, int $limit = 50): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->buildPublicUpcomingQuery($tag, $limit)->getQuery()->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Visible upcoming events filtered by a single tag.
+     *
+     * @see docs/features.md F3.12 — Event tags
+     *
+     * @return list<Event>
+     */
+    public function findVisibleUpcomingByTag(?User $user, EventTag $tag, int $limit = 20): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->join('e.tags', 't')
+            ->where('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->andWhere('t.id = :tagId')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->setParameter('tagId', $tag->getId())
+            ->orderBy('e.date', 'ASC')
+            ->setMaxResults($limit);
+
+        if (null !== $user) {
+            $qb->leftJoin('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+                ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+                ->andWhere('e.visibility = :public OR e.organizer = :user OR eg.id IS NOT NULL OR s.id IS NOT NULL')
+                ->setParameter('user', $user)
+                ->setParameter('public', EventVisibility::Public);
+        } else {
+            $qb->andWhere('e.visibility = :public')
+                ->setParameter('public', EventVisibility::Public);
+        }
+
+        /** @var list<Event> $events */
+        $events = $qb->getQuery()->getResult();
+
+        return $events;
+    }
+
+    private function buildPublicUpcomingQuery(?EventTag $tag, int $limit): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('e')
             ->join('e.organizer', 'o')
             ->addSelect('o')
             ->where('e.date >= :today')
@@ -153,11 +218,15 @@ class EventRepository extends ServiceEntityRepository
             ->setParameter('today', new \DateTimeImmutable('today'))
             ->setParameter('visibility', EventVisibility::Public)
             ->orderBy('e.date', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limit);
 
-        return $events;
+        if (null !== $tag) {
+            $qb->join('e.tags', 't')
+                ->andWhere('t.id = :tagId')
+                ->setParameter('tagId', $tag->getId());
+        }
+
+        return $qb;
     }
 
     /**
@@ -296,6 +365,36 @@ class EventRepository extends ServiceEntityRepository
             ->andWhere('e.deletedAt IS NULL')
             ->setParameter('user', $user)
             ->setParameter('cutoff', new \DateTimeImmutable('-7 days'))
+            ->orderBy('e.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $events;
+    }
+
+    /**
+     * Every upcoming event the user is connected to: organizer, staff, or any
+     * engagement state (interested, invited, registered playing, spectating).
+     *
+     * @see docs/features.md F3.14 — iCal agenda feed
+     *
+     * @return list<Event>
+     */
+    public function findUpcomingForUserAgenda(User $user): array
+    {
+        /** @var list<Event> $events */
+        $events = $this->createQueryBuilder('e')
+            ->join('e.organizer', 'o')
+            ->addSelect('o')
+            ->leftJoin('e.engagements', 'eg', 'WITH', 'eg.user = :user')
+            ->leftJoin('e.staff', 's', 'WITH', 's.user = :user')
+            ->where('e.organizer = :user OR eg.id IS NOT NULL OR s.id IS NOT NULL')
+            ->andWhere('e.date >= :today')
+            ->andWhere('e.cancelledAt IS NULL')
+            ->andWhere('e.finishedAt IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTimeImmutable('today'))
             ->orderBy('e.date', 'ASC')
             ->getQuery()
             ->getResult();

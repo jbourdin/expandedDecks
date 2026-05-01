@@ -107,12 +107,76 @@
                 </div>
             </div>
 
+            {% if event.tags|length > 0 %}
+                <hr>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">{{ 'app.event.tag.label'|trans }}:</span>
+                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                </div>
+            {% endif %}
+
             {% if event.description %}
                 <hr>
                 <p class="mb-0">{{ event.description|nl2br }}</p>
             {% endif %}
         </div>
     </div>
+
+    {# F3.23 — Organizer handover banner / form #}
+    {% if app.user and event.hasPendingTransfer and event.pendingTransferTo.id == app.user.id %}
+        <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+                <strong>{{ 'app.event.transfer.target_banner_title'|trans }}</strong>
+                <div class="small">{{ 'app.event.transfer.target_banner_body'|trans({'%name%': event.organizer.screenName}) }}</div>
+            </div>
+            <div class="d-flex gap-2">
+                <form method="post" action="{{ path('app_event_transfer_accept', {id: event.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('event-transfer-accept-' ~ event.id) }}">
+                    <button type="submit" class="btn btn-sm btn-success">{{ 'app.event.transfer.accept'|trans }}</button>
+                </form>
+                <form method="post" action="{{ path('app_event_transfer_decline', {id: event.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('event-transfer-decline-' ~ event.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.transfer.decline'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if isOrganizer and not event.cancelledAt %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h6 class="mb-0">{{ 'app.event.transfer.section_title'|trans }}</h6>
+            </div>
+            <div class="card-body">
+                {% if event.hasPendingTransfer %}
+                    <p class="mb-2">{{ 'app.event.transfer.pending_body'|trans({'%name%': event.pendingTransferTo.screenName}) }}</p>
+                    <form method="post" action="{{ path('app_event_transfer_cancel', {id: event.id}) }}" class="d-inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('event-transfer-cancel-' ~ event.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'app.event.transfer.cancel'|trans }}</button>
+                    </form>
+                {% else %}
+                    <p class="text-muted small mb-2">{{ 'app.event.transfer.help'|trans }}</p>
+                    <form method="post" action="{{ path('app_event_transfer_initiate', {id: event.id}) }}" class="d-flex gap-2 align-items-start inline-confirm-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('event-transfer-initiate-' ~ event.id) }}">
+                        <div class="flex-grow-1"
+                             data-staff-autocomplete
+                             data-search-url="{{ path('app_user_search') }}"
+                             data-hidden-input="target"
+                             data-placeholder="{{ 'app.event.transfer.placeholder'|trans }}">
+                        </div>
+                        <button type="button" class="btn btn-outline-primary inline-confirm-trigger">
+                            {{ 'app.event.transfer.initiate'|trans }}
+                        </button>
+                        <span class="inline-confirm-actions d-none d-flex gap-1 align-items-center">
+                            <span class="small text-muted me-1">{{ 'app.event.transfer.confirm'|trans }}</span>
+                            <button type="submit" class="btn btn-sm btn-primary">{{ 'app.common.yes'|trans }}</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                        </span>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     {% if isOrganizer and not event.cancelledAt %}
         <div id="staff" class="card shadow-sm mb-3">
@@ -345,7 +409,8 @@
                                                 <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}
                                                     {% if deckWithStaff %}title="Cannot revoke — deck is currently with staff"{% endif %}>{{ 'app.event.revoke'|trans }}</button>
                                             {% else %}
-                                                <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-info" {{ (not isRegistered or not event.allowCustody) ? 'disabled' }}
+                                                    {% if not event.allowCustody %}title="{{ 'app.event.delegate_disabled_reason'|trans }}"{% endif %}>{{ 'app.event.delegate'|trans }}</button>
                                             {% endif %}
                                         </form>
                                     </td>
@@ -415,7 +480,8 @@
                                         {% set deckWithStaff = regInfo.staffReceivedAt and not regInfo.staffReturnedAt %}
                                         <button type="submit" class="btn btn-sm btn-outline-warning" {{ (not isRegistered or deckWithStaff) ? 'disabled' }}>{{ 'app.event.revoke'|trans }}</button>
                                     {% else %}
-                                        <button type="submit" class="btn btn-sm btn-outline-info" {{ not isRegistered ? 'disabled' }}>{{ 'app.event.delegate'|trans }}</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-info" {{ (not isRegistered or not event.allowCustody) ? 'disabled' }}
+                                            {% if not event.allowCustody %}title="{{ 'app.event.delegate_disabled_reason'|trans }}"{% endif %}>{{ 'app.event.delegate'|trans }}</button>
                                     {% endif %}
                                 </form>
                                 {% if isDelegated %}
@@ -919,4 +985,36 @@
         {{ encore_entry_script_tags('staff_autocomplete') }}
     {% endif %}
     {{ encore_entry_script_tags('toggle_private_decks') }}
+    <script>
+        /**
+         * Inline confirmation toggle for destructive actions.
+         * Clicking the trigger hides it and reveals Yes/Cancel buttons.
+         * Cancel or timeout (5 s) resets to the initial state.
+         *
+         * @see docs/features.md F3.23 — Organizer handover
+         */
+        document.querySelectorAll('.inline-confirm-form').forEach((form) => {
+            const trigger = form.querySelector('.inline-confirm-trigger');
+            const actions = form.querySelector('.inline-confirm-actions');
+            const cancel = form.querySelector('.inline-confirm-cancel');
+
+            if (!trigger || !actions || !cancel) return;
+
+            let timeout;
+
+            const reset = () => {
+                trigger.classList.remove('d-none');
+                actions.classList.add('d-none');
+                clearTimeout(timeout);
+            };
+
+            trigger.addEventListener('click', () => {
+                trigger.classList.add('d-none');
+                actions.classList.remove('d-none');
+                timeout = setTimeout(reset, 5000);
+            });
+
+            cancel.addEventListener('click', reset);
+        });
+    </script>
 {% endblock %}

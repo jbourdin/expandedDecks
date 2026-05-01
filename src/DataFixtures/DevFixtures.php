@@ -327,6 +327,7 @@ MARKDOWN;
         $event->setRegistrationLink('https://pokemon-lyon.example.com/events/42');
         $event->setTournamentStructure(TournamentStructure::Swiss);
         $event->setFormat('Expanded');
+        $event->setAllowCustody(true);
 
         $manager->persist($event);
 

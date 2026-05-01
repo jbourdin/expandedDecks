@@ -1,0 +1,19 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{# @see docs/features.md F3.12 — Event tags #}
+<div class="mb-3">
+    <label class="form-label">{{ 'app.event.tag.label'|trans }}</label>
+    <div id="event-tag-select-root"
+         data-existing-tags="{{ existingTagNames|json_encode|e('html_attr') }}"
+         data-values="{{ initialTagNames|json_encode|e('html_attr') }}"
+         data-hidden-input-name="{{ form.tagsInput.vars.full_name }}"
+         data-placeholder="{{ 'app.event.tag.placeholder'|trans }}"></div>
+    <div class="form-text">{{ 'app.event.tag.help'|trans }}</div>
+    {{ form_widget(form.tagsInput) }}
+</div>

@@ -16,6 +16,36 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.13] — 2026-05-01
+
+Event tags, public + personal iCal calendar feeds, organizer handover, and the allow-custody flag for staff delegation.
+
+### Features
+
+- **Event tags (F3.12)** — `EventTag` entity with ManyToMany on `Event` and cascade-persist; Mantine `TagsInput` React island wired to a HiddenType field on the event form (existing tags fed via data attribute, names resolved server-side by slug). Tag chips on the event detail page and on event-list cards link to a new `/event/tag/{slug}` listing, plus a tag-filter row on `/event` with an active-tag highlight. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **Public iCal feed (F3.16)** — `eluceo/ical` 2.16 + `EventIcalBuilder` produce RFC 5545 VCALENDAR/VEVENTs with stable UID, UTC `DTSTART`/`DTEND`, `SUMMARY`, `LOCATION`, `URL`, `STATUS`, plus injected `X-WR-CALNAME` / `NAME` for the human-readable feed name. `GET /event.ics` and `GET /event/tag/{slug}.ics` serve `text/calendar` with `Cache-Control: public, max-age=3600`. Subscribe button on every event list with three actions (Subscribe via `webcal://`, Download `.ics`, Copy feed URL) — URL adapts to the active tag. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **Personal agenda + private iCal feed (F3.14)** — `GET /event/agenda` (ROLE_USER) lists upcoming events where the user is **organizer**, **on staff**, or holds **any engagement** (interested / invited / playing / spectating). One ORed query in `EventRepository::findUpcomingForUserAgenda`. Cards show role and engagement badges. New `User.calendarToken` (varchar 64, unique) generated lazily by `PersonalCalendarTokenService::ensureToken()` (base64url-encoded `random_bytes(32)`); cleared in `User::anonymize()` for GDPR. `GET /calendar/event/{token}.ics` serves the user's calendar to anonymous calendar clients (404 on unknown token). `POST /event/agenda/regenerate-token` (CSRF-protected) rotates the token so a leaked URL can be invalidated. Single feed block on the agenda page combines the URL field, copy / subscribe / download actions, and the regenerate flow. **My Agenda** link added to the user dropdown after **My Decks** and as an outline-primary button in the event list header. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **Organizer handover (F3.23)** — two-step transfer with target confirmation. `Event` gains `pendingTransferTo` + `pendingTransferRequestedAt` and helpers `requestTransferTo()` / `clearPendingTransfer()` / `hasPendingTransfer()`. Four routes under `/event/{id}/transfer/`: `initiate` and `cancel` for the organizer, `accept` and `decline` for the target — protected by a new `denyAccessUnlessTransferTarget` gate. The target must accept on their side before the organizer is swapped; a declined transfer is a no-op. New `NotificationType` cases (`EventTransferRequested` / `EventTransferAccepted` / `EventTransferDeclined`) deliver in-app notifications. The event detail page surfaces a target-side accept/decline banner above the staff card and an organizer-side "Hand over organization" card with a user-picker (reusing the staff autocomplete). The Send button uses the project's inline-confirm pattern (no `confirm()` dialog). ([#495](https://github.com/jbourdin/expandedDecks/pull/495))
+- **Allow custody flag (F4.8 gate)** — new `Event.allowCustody` (default false). When the organizer hasn't accepted custody for an event, players can no longer toggle delegation in `EventController::toggleDelegate` and the **Delegate** button is disabled with an explanatory tooltip. The today-event fixture seeds `allow_custody=true` to keep its delegated registrations consistent. ([#495](https://github.com/jbourdin/expandedDecks/pull/495))
+
+### Bug Fixes
+
+- **Event form rendering** — `Visibility` and `Invitation only` rows no longer leak past the submit button on event/new and event/edit. They're now rendered explicitly between `tournamentStructure` and `isDecklistMandatory`. ([#495](https://github.com/jbourdin/expandedDecks/pull/495))
+- **Event list firewall** — `^/event` was falling through to the `ROLE_USER` rule, so anonymous fetches of `/event.ics` were redirected to the login page (with Apple Calendar then complaining "données non valides"). Added PUBLIC_ACCESS for `/event.ics`, `/event/tag/<slug>(.ics)?`, and `/calendar/event/<token>.ics`. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+
+### Testing & Quality
+
+- **EventTagTest** — slugify cases (including unicode-aware paths) + lifecycle. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventIcalBuilderTest** — VCALENDAR shape, UID/URL, named feed, cancelled status, empty list. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **PersonalCalendarTokenServiceTest** — ensureToken assigns + persists, idempotent on existing token, regenerate replaces, findUserByToken. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventCalendarControllerTest** (functional + unit) — anonymous calendar fetches, tag list/feed 404s, tag-filter query param, plus a no-kernel unit test for cache-header verification (Symfony's SessionListener rewrites them in WebTestCase). ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventAgendaControllerTest** — auth redirect, lazy token assignment, regenerate flow (old token now 404s, new token works anonymously), unknown-token 404, CSRF-rejected regenerate. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventTagRepositoryTest** — resolveByNames creating unknown tags, dedup by slug, ignoring empty / punctuation-only entries, ordered listing. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventControllerTagsTest** — create-with-new-and-existing-tags upserts the EventTag rows, edit replaces the tag set, empty / malformed `tagsInput` payloads clear tags. ([#494](https://github.com/jbourdin/expandedDecks/pull/494))
+- **EventCustodyAndHandoverTest** — custody default off, custody enable via edit, delegation refused / accepted depending on flag, transfer initiate, self-transfer rejection, accept swaps organizer, decline keeps organizer, accept by non-target → 403, cancel clears pending. ([#495](https://github.com/jbourdin/expandedDecks/pull/495))
+
+---
+
 ## [1.8.12] — 2026-05-01
 
 Dashboard "My decks" filter, PTCG Live export padding fix, and CI tooling permissions.
