@@ -242,6 +242,6 @@ class MinifiedListGenerator
 
     private function formatLine(int $quantity, string $name, string $setCode, string $cardNumber): string
     {
-        return \sprintf('%d %s %s %s', $quantity, $name, $setCode, $cardNumber);
+        return \sprintf('%d %s %s %s', $quantity, $name, $setCode, CardNumberFormatter::display($cardNumber));
     }
 }

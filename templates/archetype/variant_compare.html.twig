@@ -109,7 +109,7 @@
                                         {% endif %}
                                     </td>
                                     <td><span class="badge bg-secondary">{{ entry.setCode }}</span></td>
-                                    <td>{{ entry.cardNumber }}</td>
+                                    <td>{{ entry.cardNumber|card_number }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

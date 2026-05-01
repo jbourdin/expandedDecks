@@ -85,7 +85,7 @@ class OriginalListFormatter
                 $currentType = $type;
             }
 
-            $lines[] = \sprintf('%d %s %s %s', $entry['quantity'], $entry['name'], $entry['setCode'], $entry['cardNumber']);
+            $lines[] = \sprintf('%d %s %s %s', $entry['quantity'], $entry['name'], $entry['setCode'], CardNumberFormatter::display($entry['cardNumber']));
         }
 
         $lines[] = '';

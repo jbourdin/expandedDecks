@@ -15,6 +15,7 @@ namespace App\Service;
 
 use App\Entity\DeckCard;
 use App\Entity\DeckVersion;
+use App\Service\DeckList\CardNumberFormatter;
 
 /**
  * @see docs/features.md F2.9 — Deck version history
@@ -106,7 +107,7 @@ final class DeckVersionDiffer
         return [
             'cardName' => $card->getCardName(),
             'setCode' => $card->getSetCode(),
-            'cardNumber' => $card->getCardNumber(),
+            'cardNumber' => CardNumberFormatter::display($card->getCardNumber()),
             'quantity' => $card->getQuantity(),
             'cardType' => $card->getCardType(),
             'trainerSubtype' => $trainerSubtype,

@@ -116,6 +116,19 @@ class OriginalListFormatterTest extends TestCase
         self::assertSame("\nTotal Cards: 0", $result);
     }
 
+    public function testStripsLeadingZerosFromCardNumber(): void
+    {
+        $version = $this->createVersion([
+            ['name' => "Team Rocket's Articuno", 'quantity' => 2, 'set' => 'DRI', 'number' => '051', 'type' => 'pokemon', 'subtype' => null],
+            ['name' => 'Ignition Energy', 'quantity' => 4, 'set' => 'WHT', 'number' => '086', 'type' => 'energy', 'subtype' => null],
+        ]);
+
+        $result = $this->formatter->format($version);
+
+        self::assertStringContainsString("2 Team Rocket's Articuno DRI 51", $result);
+        self::assertStringContainsString('4 Ignition Energy WHT 86', $result);
+    }
+
     /**
      * @param list<array{name: string, quantity: int, set: string, number: string, type: string, subtype: ?string}> $cards
      */

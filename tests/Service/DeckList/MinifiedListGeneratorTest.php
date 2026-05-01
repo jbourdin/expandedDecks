@@ -203,6 +203,18 @@ final class MinifiedListGeneratorTest extends TestCase
         self::assertStringContainsString('2 N NVI 92', $output);
     }
 
+    public function testStripsLeadingZerosFromCardNumber(): void
+    {
+        $card = $this->createDeckCard("Team Rocket's Articuno", 'DRI', '051', 'pokemon', 2);
+
+        $version = $this->createVersionWithCards([$card]);
+
+        $generator = new MinifiedListGenerator($this->printingRepository, $this->identityResolver, $this->logger);
+        $output = $generator->generate($version);
+
+        self::assertStringContainsString("2 Team Rocket's Articuno DRI 51", $output);
+    }
+
     private function createDeckCard(string $name, string $setCode, string $cardNumber, string $cardType, int $quantity): DeckCard
     {
         $card = new DeckCard();
