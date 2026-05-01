@@ -16,6 +16,28 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.8.12] — 2026-05-01
+
+Dashboard "My decks" filter, PTCG Live export padding fix, and CI tooling permissions.
+
+### Features
+
+- **Dashboard "My decks" filter** — `/dashboard` "My decks" section now filters to active Expanded decks only (excludes retired and Standard format decks), matching the dashboard's purpose as a borrow-ready overview. ([#490](https://github.com/jbourdin/expandedDecks/pull/490))
+
+### Bug Fixes
+
+- **PTCG Live export padding** — card numbers were rendered zero-padded (e.g. `DRI 051`, `WHT 086`) in PTCG Live exports and on-screen tables, while TCG Live's text format expects plain numbers (`DRI 51`, `WHT 86`). Pasting the export into TCG Live produced an invalid deck list. New `CardNumberFormatter` PHP helper, `card_number` Twig filter, and `displayCardNumber` JS util applied at every user-facing surface: original + minified text exports, deck show table, archetype variant selector, version-compare diffs, foldable label PDF, and printed decklist PDF. Storage and `[[card:SET-NNN]]` shortcode lookups remain unchanged. ([#492](https://github.com/jbourdin/expandedDecks/pull/492))
+
+### Infrastructure
+
+- **CI tooling permissions** — allow `gh issue view` and `gh project item-list` in `.claude/settings.json` so read-only project board queries don't trigger permission prompts. ([#491](https://github.com/jbourdin/expandedDecks/pull/491))
+
+### Testing & Quality
+
+- **CardNumberFormatter unit tests** — 9 cases covering padded numerics, all-zero collapse, empty input, and alphanumeric forms (`TG14`, `SWSH001`, `001A`, `4a`). Padding-regression cases added to `OriginalListFormatterTest` and `MinifiedListGeneratorTest`. ([#492](https://github.com/jbourdin/expandedDecks/pull/492))
+
+---
+
 ## [1.8.11] — 2026-04-27
 
 Admin sprite mapping fix, error page sprite update, and CI hardening.
