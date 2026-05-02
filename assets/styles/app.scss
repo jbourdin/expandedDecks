@@ -564,7 +564,7 @@ footer {
 
 .card-mosaic-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     gap: 8px;
 
     @include media-breakpoint-down(md) {
