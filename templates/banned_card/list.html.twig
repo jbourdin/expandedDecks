@@ -40,7 +40,7 @@
     <p class="text-muted mb-4">{{ 'app.banned_card.public.subtitle'|trans }}</p>
 
     {% if bannedCards|length > 0 %}
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-9 g-3">
+        <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6 row-cols-lg-9 g-3">
             {% for card in bannedCards %}
                 {% set highResImageUrl = imageUrls[card.id] ?? null %}
                 {% set imageUrl = highResImageUrl ? highResImageUrl|replace({'/high.webp': '/low.webp'}) : null %}
@@ -82,7 +82,9 @@
                         <h5 class="modal-title" id="bannedCardModalLabel"></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body position-relative">
+                        <button type="button" id="bannedCardModalPrev" class="btn btn-sm btn-outline-secondary position-absolute start-0 top-50 translate-middle-y ms-1" style="z-index: 2;" aria-label="{{ 'app.banned_card.modal.previous'|trans }}">&lsaquo;</button>
+                        <button type="button" id="bannedCardModalNext" class="btn btn-sm btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-1" style="z-index: 2;" aria-label="{{ 'app.banned_card.modal.next'|trans }}">&rsaquo;</button>
                         <div class="row g-3">
                             <div class="col-md-5 text-center">
                                 <img id="bannedCardModalImage" src="" alt="" class="img-fluid rounded">
@@ -114,90 +116,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
-        (function() {
-            var modalEl = document.getElementById('bannedCardModal');
-            if (!modalEl) {
-                return;
-            }
-            modalEl.addEventListener('show.bs.modal', function (event) {
-                var trigger = event.relatedTarget;
-                if (!trigger) {
-                    return;
-                }
-                var name = trigger.getAttribute('data-card-name') || '';
-                var image = trigger.getAttribute('data-card-image') || '';
-                var effectiveDate = trigger.getAttribute('data-card-effective-date') || '';
-                var sourceUrl = trigger.getAttribute('data-card-source-url') || '';
-                var explanationHtml = trigger.getAttribute('data-card-explanation') || '';
-                var printingsJson = trigger.getAttribute('data-card-printings') || '[]';
-
-                document.getElementById('bannedCardModalLabel').textContent = name;
-
-                var printings = [];
-                try {
-                    printings = JSON.parse(printingsJson);
-                } catch (err) {
-                    printings = [];
-                }
-                var printingsList = document.getElementById('bannedCardModalPrintings');
-                printingsList.innerHTML = '';
-                printings.forEach(function (printing) {
-                    var li = document.createElement('li');
-                    li.className = 'mb-1';
-                    var code = document.createElement('code');
-                    code.textContent = printing.setCode + ' ' + printing.cardNumber;
-                    li.appendChild(code);
-                    printingsList.appendChild(li);
-                });
-
-                var imageEl = document.getElementById('bannedCardModalImage');
-                if (image) {
-                    imageEl.src = image;
-                    imageEl.alt = name;
-                    imageEl.hidden = false;
-                } else {
-                    imageEl.removeAttribute('src');
-                    imageEl.hidden = true;
-                }
-
-                var effectiveDateLabel = document.getElementById('bannedCardModalEffectiveDateLabel');
-                var effectiveDateEl = document.getElementById('bannedCardModalEffectiveDate');
-                if (effectiveDate) {
-                    effectiveDateEl.textContent = effectiveDate;
-                    effectiveDateLabel.hidden = false;
-                    effectiveDateEl.hidden = false;
-                } else {
-                    effectiveDateLabel.hidden = true;
-                    effectiveDateEl.hidden = true;
-                }
-
-                var sourceLabel = document.getElementById('bannedCardModalSourceLabel');
-                var sourceEl = document.getElementById('bannedCardModalSource');
-                if (sourceUrl) {
-                    sourceEl.href = sourceUrl;
-                    sourceLabel.hidden = false;
-                    sourceEl.parentElement.hidden = false;
-                } else {
-                    sourceLabel.hidden = true;
-                    sourceEl.parentElement.hidden = true;
-                }
-
-                var explanationLabel = document.getElementById('bannedCardModalExplanationLabel');
-                var explanationEl = document.getElementById('bannedCardModalExplanation');
-                var noExplanationEl = document.getElementById('bannedCardModalNoExplanation');
-                if (explanationHtml) {
-                    explanationEl.innerHTML = explanationHtml;
-                    explanationLabel.hidden = false;
-                    explanationEl.hidden = false;
-                    noExplanationEl.hidden = true;
-                } else {
-                    explanationEl.innerHTML = '';
-                    explanationLabel.hidden = true;
-                    explanationEl.hidden = true;
-                    noExplanationEl.hidden = false;
-                }
-            });
-        })();
-    </script>
+    {{ encore_entry_script_tags('banned_card_list') }}
 {% endblock %}
