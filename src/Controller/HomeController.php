@@ -65,6 +65,11 @@ class HomeController extends AbstractController
         if ($this->getUser() && $channel instanceof Channel && $channel->getEnableDecks()) {
             return $this->redirectToRoute('app_dashboard');
         }
+
+        // Channel with nothing enabled and no published page → coming-soon screen
+        if ($channel instanceof Channel && $this->isChannelEmpty($channel, $pageRepository, $menuCategoryRepository)) {
+            return $this->render('home/empty_channel.html.twig');
+        }
         $welcomePage = $pageRepository->findBySlug('welcome');
         $welcomeHtml = null;
         if (null !== $welcomePage && $welcomePage->isPublished()) {
@@ -100,6 +105,35 @@ class HomeController extends AbstractController
             'newsTotalCount' => $newsTotalCount,
             'locale' => $locale,
         ]);
+    }
+
+    /**
+     * A channel is "empty" when none of its feature flags are enabled and it
+     * has no published content (homepage layout already checked by the caller,
+     * plus no published pages assigned to this channel). The coming-soon
+     * landing page is rendered instead of the hardcoded welcome fallback.
+     */
+    private function isChannelEmpty(
+        Channel $channel,
+        PageRepository $pageRepository,
+        MenuCategoryRepository $menuCategoryRepository,
+    ): bool {
+        $hasAnyFeature = $channel->getEnableDecks()
+            || $channel->getEnableEvents()
+            || $channel->getEnableBorrows()
+            || $channel->getEnableArchetypes()
+            || $channel->getEnableBannedCards()
+            || $channel->getEnableRegister();
+
+        if ($hasAnyFeature) {
+            return false;
+        }
+
+        if (\count($pageRepository->findPublishedForSitemap($channel)) > 0) {
+            return false;
+        }
+
+        return 0 === \count($menuCategoryRepository->findBy(['channel' => $channel]));
     }
 
     /**

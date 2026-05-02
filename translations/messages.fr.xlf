@@ -5211,6 +5211,21 @@
                 <target>Retour à l&apos;accueil</target>
                 <note>Error page button to return to homepage</note>
             </trans-unit>
+            <trans-unit id="app.empty_channel.title">
+                <source>app.empty_channel.title</source>
+                <target>Bientôt disponible !</target>
+                <note>Empty-channel landing page heading (channel with no features and no published content)</note>
+            </trans-unit>
+            <trans-unit id="app.empty_channel.lead">
+                <source>app.empty_channel.lead</source>
+                <target>%brand% est encore dans sa Poké Ball.</target>
+                <note>Empty-channel landing page lead — the channel is configured but has nothing to show yet</note>
+            </trans-unit>
+            <trans-unit id="app.empty_channel.message">
+                <source>app.empty_channel.message</source>
+                <target>Même Psykokwak se gratte la tête. De nouveaux decks, événements et nouveautés arrivent — repassez bientôt pour la grande ouverture.</target>
+                <note>Empty-channel landing page message (Pokémon-themed teaser)</note>
+            </trans-unit>
             <trans-unit id="app.event.show_private_decks">
                 <source>app.event.show_private_decks</source>
                 <target>Afficher les decks privés</target>
