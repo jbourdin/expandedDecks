@@ -5255,13 +5255,13 @@
             </trans-unit>
             <trans-unit id="app.empty_channel.lead">
                 <source>app.empty_channel.lead</source>
-                <target>%brand% is still in its Poké Ball.</target>
+                <target>%brand% is still in its Egg.</target>
                 <note>Empty-channel landing page lead — the channel is configured but has nothing to show yet</note>
             </trans-unit>
             <trans-unit id="app.empty_channel.message">
                 <source>app.empty_channel.message</source>
-                <target>Even Psyduck is scratching its head. New decks, events, and stories are on their way — pop back later for the grand opening.</target>
-                <note>Empty-channel landing page message (Pokémon-themed teaser)</note>
+                <target>Togepi is keeping it warm. Something will hatch here soon — pop back later to see what comes out of the shell.</target>
+                <note>Empty-channel landing page message (Pokémon-themed teaser, hatching idea)</note>
             </trans-unit>
             <trans-unit id="app.event.show_private_decks">
                 <source>app.event.show_private_decks</source>

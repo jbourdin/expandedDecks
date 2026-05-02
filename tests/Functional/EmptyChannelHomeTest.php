@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Channel;
+use App\Entity\HomepageLayout;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -58,7 +59,7 @@ class EmptyChannelHomeTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Coming soon');
-        self::assertSelectorExists('img[alt="Psyduck"]');
+        self::assertSelectorExists('img[alt="Togepi"]');
     }
 
     public function testHomeFallsBackToWelcomePageOnNonEmptyChannel(): void
@@ -79,5 +80,24 @@ class EmptyChannelHomeTest extends AbstractFunctionalTest
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Bientôt disponible');
+    }
+
+    public function testEmptyChannelWinsOverPublishedHomepageLayout(): void
+    {
+        $em = $this->getEntityManager();
+        $channel = $this->persistEmptyChannel('empty-with-layout.wip');
+
+        $layout = (new HomepageLayout())
+            ->setChannel($channel)
+            ->setIsPublished(true)
+            ->setBlocks([]);
+        $em->persist($layout);
+        $em->flush();
+
+        $this->client->request('GET', 'https://empty-with-layout.wip/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Coming soon');
+        self::assertSelectorExists('img[alt="Togepi"]');
     }
 }
