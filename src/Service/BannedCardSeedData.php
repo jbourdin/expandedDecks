@@ -140,8 +140,8 @@ final readonly class BannedCardSeedData
         ],
         'Milotic' => [
             'effectiveDate' => '2020-11-27',
-            'sourceUrl' => 'https://www.pokebeach.com/2020/10/resource-management-oranguru-shaymin-ex-sableye-and-energy-grace-milotic-banned-in-the-expanded-format',
-            'explanation' => '"Energy Grace" enables infinite Energy acceleration loops with Scoop Up Net in control / stall decks.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/',
+            'explanation' => "Milotic's Energy Grace Ability doesn't work with Pokémon-EX, but it still works with Pokémon-GX and Pokémon V. This created some undesirable combos, such as the one with Trevenant & Dusknoir-GX and Ace Trainer. As more Pokémon V come out in the future, there's a high likelihood of even more combos with Milotic being discovered.",
         ],
         'Mismagius' => [
             'effectiveDate' => '2019-11-15',
@@ -150,8 +150,8 @@ final readonly class BannedCardSeedData
         ],
         'Oranguru' => [
             'effectiveDate' => '2020-11-27',
-            'sourceUrl' => 'https://www.pokebeach.com/2020/10/resource-management-oranguru-shaymin-ex-sableye-and-energy-grace-milotic-banned-in-the-expanded-format',
-            'explanation' => '"Resource Management" attack recycles 3 cards, enabling infinite control loops with Scoop Up Net.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/',
+            'explanation' => "Oranguru's Resource Management attack and Sableye's Junk Hunt attack allow for infinite resource recursion strategies that are relatively simple to achieve. In an attempt to curb the effectiveness of some of these control and lock strategies, these cards have been banned.",
         ],
         'Puzzle of Time' => [
             'effectiveDate' => '2018-08-17',
@@ -170,8 +170,8 @@ final readonly class BannedCardSeedData
         ],
         'Sableye' => [
             'effectiveDate' => '2020-11-27',
-            'sourceUrl' => 'https://www.pokebeach.com/2020/10/resource-management-oranguru-shaymin-ex-sableye-and-energy-grace-milotic-banned-in-the-expanded-format',
-            'explanation' => '"Junk Hunt" attack recycles Items every turn, enabling effectively infinite resource recursion.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/',
+            'explanation' => "Oranguru's Resource Management attack and Sableye's Junk Hunt attack allow for infinite resource recursion strategies that are relatively simple to achieve. In an attempt to curb the effectiveness of some of these control and lock strategies, these cards have been banned.",
         ],
         'Scoop Up Net' => [
             'effectiveDate' => '2024-02-09',
@@ -180,13 +180,13 @@ final readonly class BannedCardSeedData
         ],
         'Shaymin-EX' => [
             'effectiveDate' => '2020-11-27',
-            'sourceUrl' => 'https://www.pokebeach.com/2020/10/resource-management-oranguru-shaymin-ex-sableye-and-energy-grace-milotic-banned-in-the-expanded-format',
-            'explanation' => '"Set Up" draws to 6 on bench-play; reused via Scoop Up Net for infinite draw and consistency.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/',
+            'explanation' => "The sheer amount of card drawing provided by Shaymin-EX's Set Up Ability allowed dangerous combo decks to function at an alarmingly consistent rate. With the introduction of Scoop Up Net, it became too easy to use Set Up repeatedly in a single turn. Crobat V and Dedenne-GX provide effects similar to Shaymin-EX, so this type of card isn't gone completely, but their Dark Asset and Dedechange Abilities are limited to one use per turn.",
         ],
         'Shaymin EX' => [
             'effectiveDate' => '2020-11-27',
-            'sourceUrl' => 'https://www.pokebeach.com/2020/10/resource-management-oranguru-shaymin-ex-sableye-and-energy-grace-milotic-banned-in-the-expanded-format',
-            'explanation' => '"Set Up" draws to 6 on bench-play; reused via Scoop Up Net for infinite draw and consistency.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/',
+            'explanation' => "The sheer amount of card drawing provided by Shaymin-EX's Set Up Ability allowed dangerous combo decks to function at an alarmingly consistent rate. With the introduction of Scoop Up Net, it became too easy to use Set Up repeatedly in a single turn. Crobat V and Dedenne-GX provide effects similar to Shaymin-EX, so this type of card isn't gone completely, but their Dark Asset and Dedechange Abilities are limited to one use per turn.",
         ],
     ];
 
