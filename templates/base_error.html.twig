@@ -28,7 +28,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="/">Expanded Decks</a>
+                <a class="navbar-brand fw-bold" href="/">{{ channel_param('brand_name', 'Expanded Decks') }}</a>
             </div>
         </nav>
 
@@ -38,7 +38,7 @@
 
         <footer class="footer-pokemon py-3 mt-auto">
             <div class="container text-center">
-                &copy; {{ "now"|date("Y") }} Expanded Decks
+                &copy; {{ "now"|date("Y") }} {{ channel_param('brand_name', 'Expanded Decks') }}
             </div>
         </footer>
 
