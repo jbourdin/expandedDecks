@@ -53,6 +53,10 @@ $table-striped-bg: rgb(0 0 0 / 2%);
 $btn-border-radius: .375rem;
 $font-family-sans-serif: system-ui, -apple-system, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
 
+// Bootstrap ships row-cols-{1..6} by default; bump to 9 so the banned-cards
+// grid can pack more cards per row at lg+.
+$grid-row-columns: 9;
+
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 

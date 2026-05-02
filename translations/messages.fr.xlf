@@ -5223,7 +5223,7 @@
             </trans-unit>
             <trans-unit id="app.empty_channel.message">
                 <source>app.empty_channel.message</source>
-                <target>Togepi le couve bien au chaud. Quelque chose va éclore ici très bientôt — repassez plus tard pour voir ce qui sortira de la coquille.</target>
+                <target>Togepi attend. Quelque chose va éclore ici très bientôt — repassez plus tard pour voir ce qui sortira de la coquille.</target>
                 <note>Empty-channel landing page message (Pokémon-themed teaser, hatching idea)</note>
             </trans-unit>
             <trans-unit id="app.event.show_private_decks">
@@ -5739,6 +5739,16 @@
                 <source>app.banned_card.modal.no_explanation</source>
                 <target>Aucune explication fournie.</target>
                 <note>F6.14 — banned card modal: no-explanation fallback</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.previous">
+                <source>app.banned_card.modal.previous</source>
+                <target>Carte bannie précédente</target>
+                <note>F6.14 — banned card modal: previous-card aria-label</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.next">
+                <source>app.banned_card.modal.next</source>
+                <target>Carte bannie suivante</target>
+                <note>F6.14 — banned card modal: next-card aria-label</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.list_title">
                 <source>app.admin.banned_card.list_title</source>
