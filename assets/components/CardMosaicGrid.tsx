@@ -50,7 +50,7 @@ function toLowRes(imageUrl: string): string {
 }
 
 /**
- * Interactive card mosaic grid — responsive 8-col (desktop) / 4-col (mobile)
+ * Interactive card mosaic grid — responsive 9-col (desktop) / 4-col (mobile)
  * grid of low-res card thumbnails with quantity badges and click-to-zoom modal.
  */
 export default function CardMosaicGrid({ groupedCards, mosaicAltLabel }: CardMosaicGridProps) {

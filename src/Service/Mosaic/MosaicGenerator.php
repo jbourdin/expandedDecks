@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
  */
 class MosaicGenerator
 {
-    private const int CARDS_PER_ROW = 8;
+    private const int CARDS_PER_ROW = 9;
     private const int CARD_WIDTH = 245;
     private const int CARD_HEIGHT = 342;
     private const int PADDING = 12;

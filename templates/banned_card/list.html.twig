@@ -40,13 +40,13 @@
     <p class="text-muted mb-4">{{ 'app.banned_card.public.subtitle'|trans }}</p>
 
     {% if bannedCards|length > 0 %}
-        <div class="row g-3">
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-9 g-3">
             {% for card in bannedCards %}
                 {% set highResImageUrl = imageUrls[card.id] ?? null %}
                 {% set imageUrl = highResImageUrl ? highResImageUrl|replace({'/high.webp': '/low.webp'}) : null %}
                 {% set printingsJson = card.printings|map(p => {setCode: p.setCode, cardNumber: p.cardNumber})|json_encode %}
                 {% set printingsCount = card.printings|length %}
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2" id="card-{{ card.id }}">
+                <div class="col" id="card-{{ card.id }}">
                     <button type="button"
                         class="banned-card-trigger btn p-0 border-0 bg-transparent w-100 position-relative"
                         data-bs-toggle="modal"
