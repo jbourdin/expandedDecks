@@ -80,7 +80,29 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         self::assertGreaterThan(0, $crawler->filter('.banned-card-trigger')->count());
         $trigger = $crawler->filter('.banned-card-trigger')->first();
         self::assertSame('Forest of Giant Plants', $trigger->attr('data-card-name'));
-        self::assertSame('AOR 74', $trigger->attr('data-card-set'));
+        $printings = json_decode((string) $trigger->attr('data-card-printings'), true);
+        self::assertIsArray($printings);
+        self::assertCount(1, $printings);
+        self::assertSame(['setCode' => 'AOR', 'cardNumber' => '74'], $printings[0]);
+    }
+
+    public function testGroupingDeduplicatesByCardName(): void
+    {
+        $this->persistBannedCard('Archeops', 'NVI', '67');
+        $this->persistBannedCard('Archeops', 'DEX', '110');
+
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        $triggers = $crawler->filter('.banned-card-trigger');
+        self::assertSame(1, $triggers->count(), 'Expected a single grouped tile for two banned printings of the same card.');
+
+        $printings = json_decode((string) $triggers->first()->attr('data-card-printings'), true);
+        self::assertIsArray($printings);
+        self::assertCount(2, $printings);
+        $codes = array_map(static fn (array $printing): string => $printing['setCode'].' '.$printing['cardNumber'], $printings);
+        sort($codes);
+        self::assertSame(['DEX 110', 'NVI 67'], $codes);
     }
 
     public function testListExcludesSoftDeletedCards(): void

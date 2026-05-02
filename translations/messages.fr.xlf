@@ -5655,6 +5655,16 @@
                 <target>Voir le détail de %name%</target>
                 <note>F6.14 — accessible label for the banned card thumbnail trigger</note>
             </trans-unit>
+            <trans-unit id="app.banned_card.public.printings_count">
+                <source>app.banned_card.public.printings_count</source>
+                <target>{1}1 édition|]1,Inf[%count% éditions</target>
+                <note>F6.14 — badge showing how many printings of the same card are banned</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.banned_printings">
+                <source>app.banned_card.modal.banned_printings</source>
+                <target>Éditions bannies</target>
+                <note>F6.14 — modal section listing every (set, number) banned for the card</note>
+            </trans-unit>
             <trans-unit id="app.banned_card.modal.set">
                 <source>app.banned_card.modal.set</source>
                 <target>Édition</target>

@@ -29,8 +29,8 @@
 
 {% block structured_data %}
     {% set items = [] %}
-    {% for card in bannedCards %}
-        {% set items = items|merge([{name: card.cardName, url: canonical_url('banned-cards', 'app_banned_card_list') ~ '#card-' ~ card.id}]) %}
+    {% for group in groups %}
+        {% set items = items|merge([{name: group.cardName, url: canonical_url('banned-cards', 'app_banned_card_list') ~ '#card-' ~ group.representative.id}]) %}
     {% endfor %}
     <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.banned_card.public.title'|trans, canonical_url('banned-cards', 'app_banned_card_list'), items)) }}</script>
 {% endblock %}
@@ -39,29 +39,33 @@
     <h1 class="mb-2">{{ 'app.banned_card.public.title'|trans }}</h1>
     <p class="text-muted mb-4">{{ 'app.banned_card.public.subtitle'|trans }}</p>
 
-    {% if bannedCards|length > 0 %}
+    {% if groups|length > 0 %}
         <div class="row g-3">
-            {% for card in bannedCards %}
-                {% set highResImageUrl = imageUrls[card.id] ?? null %}
+            {% for index, group in groups %}
+                {% set highResImageUrl = group.imageUrl %}
                 {% set imageUrl = highResImageUrl ? highResImageUrl|replace({'/high.webp': '/low.webp'}) : null %}
-                <div class="col-6 col-sm-4 col-md-3 col-lg-2" id="card-{{ card.id }}">
+                {% set printingsJson = group.printings|map(p => {setCode: p.setCode, cardNumber: p.cardNumber})|json_encode %}
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2" id="card-{{ group.representative.id }}">
                     <button type="button"
-                        class="banned-card-trigger btn p-0 border-0 bg-transparent w-100"
+                        class="banned-card-trigger btn p-0 border-0 bg-transparent w-100 position-relative"
                         data-bs-toggle="modal"
                         data-bs-target="#bannedCardModal"
-                        data-card-name="{{ card.cardName }}"
-                        data-card-set="{{ card.setCode }} {{ card.cardNumber }}"
+                        data-card-name="{{ group.cardName }}"
                         data-card-image="{{ highResImageUrl ?? '' }}"
-                        data-card-effective-date="{{ card.effectiveDate ? card.effectiveDate|user_date : '' }}"
-                        data-card-source-url="{{ card.sourceUrl ?? '' }}"
-                        data-card-explanation="{{ card.id in renderedExplanations|keys ? renderedExplanations[card.id] : '' }}"
-                        aria-label="{{ 'app.banned_card.public.view_details'|trans({'%name%': card.cardName}) }}">
+                        data-card-effective-date="{{ group.effectiveDate ? group.effectiveDate|user_date : '' }}"
+                        data-card-source-url="{{ group.sourceUrl ?? '' }}"
+                        data-card-explanation="{{ index in renderedExplanations|keys ? renderedExplanations[index] : '' }}"
+                        data-card-printings="{{ printingsJson }}"
+                        aria-label="{{ 'app.banned_card.public.view_details'|trans({'%name%': group.cardName}) }}">
                         {% if imageUrl %}
-                            <img src="{{ imageUrl }}" alt="{{ card.cardName }}" class="img-fluid rounded shadow-sm" loading="lazy">
+                            <img src="{{ imageUrl }}" alt="{{ group.cardName }}" class="img-fluid rounded shadow-sm" loading="lazy">
                         {% else %}
                             <div class="banned-card-placeholder rounded shadow-sm d-flex align-items-center justify-content-center text-center p-3">
-                                <span class="small fw-semibold">{{ card.cardName }}<br><span class="text-muted">{{ card.setCode }} {{ card.cardNumber }}</span></span>
+                                <span class="small fw-semibold">{{ group.cardName }}<br><span class="text-muted">{{ group.representative.setCode }} {{ group.representative.cardNumber }}</span></span>
                             </div>
+                        {% endif %}
+                        {% if group.printings|length > 1 %}
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-1">{{ 'app.banned_card.public.printings_count'|trans({'%count%': group.printings|length}) }}</span>
                         {% endif %}
                     </button>
                 </div>
@@ -82,9 +86,9 @@
                                 <img id="bannedCardModalImage" src="" alt="" class="img-fluid rounded">
                             </div>
                             <div class="col-md-7">
+                                <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>
+                                <ul id="bannedCardModalPrintings" class="list-unstyled mb-3"></ul>
                                 <dl class="row mb-3">
-                                    <dt class="col-sm-5">{{ 'app.banned_card.modal.set'|trans }}</dt>
-                                    <dd class="col-sm-7" id="bannedCardModalSet"></dd>
                                     <dt class="col-sm-5" id="bannedCardModalEffectiveDateLabel" hidden>{{ 'app.banned_card.modal.effective_date'|trans }}</dt>
                                     <dd class="col-sm-7" id="bannedCardModalEffectiveDate" hidden></dd>
                                     <dt class="col-sm-5" id="bannedCardModalSourceLabel" hidden>{{ 'app.banned_card.modal.source'|trans }}</dt>
@@ -120,14 +124,30 @@
                     return;
                 }
                 var name = trigger.getAttribute('data-card-name') || '';
-                var set = trigger.getAttribute('data-card-set') || '';
                 var image = trigger.getAttribute('data-card-image') || '';
                 var effectiveDate = trigger.getAttribute('data-card-effective-date') || '';
                 var sourceUrl = trigger.getAttribute('data-card-source-url') || '';
                 var explanationHtml = trigger.getAttribute('data-card-explanation') || '';
+                var printingsJson = trigger.getAttribute('data-card-printings') || '[]';
 
                 document.getElementById('bannedCardModalLabel').textContent = name;
-                document.getElementById('bannedCardModalSet').textContent = set;
+
+                var printings = [];
+                try {
+                    printings = JSON.parse(printingsJson);
+                } catch (err) {
+                    printings = [];
+                }
+                var printingsList = document.getElementById('bannedCardModalPrintings');
+                printingsList.innerHTML = '';
+                printings.forEach(function (printing) {
+                    var li = document.createElement('li');
+                    li.className = 'mb-1';
+                    var code = document.createElement('code');
+                    code.textContent = printing.setCode + ' ' + printing.cardNumber;
+                    li.appendChild(code);
+                    printingsList.appendChild(li);
+                });
 
                 var imageEl = document.getElementById('bannedCardModalImage');
                 if (image) {
