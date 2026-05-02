@@ -5248,6 +5248,21 @@
                 <target>Back to home</target>
                 <note>Error page button to return to homepage</note>
             </trans-unit>
+            <trans-unit id="app.empty_channel.title">
+                <source>app.empty_channel.title</source>
+                <target>Coming soon!</target>
+                <note>Empty-channel landing page heading (channel with no features and no published content)</note>
+            </trans-unit>
+            <trans-unit id="app.empty_channel.lead">
+                <source>app.empty_channel.lead</source>
+                <target>%brand% is still in its Egg.</target>
+                <note>Empty-channel landing page lead — the channel is configured but has nothing to show yet</note>
+            </trans-unit>
+            <trans-unit id="app.empty_channel.message">
+                <source>app.empty_channel.message</source>
+                <target>Togepi is keeping it warm. Something will hatch here soon — pop back later to see what comes out of the shell.</target>
+                <note>Empty-channel landing page message (Pokémon-themed teaser, hatching idea)</note>
+            </trans-unit>
             <trans-unit id="app.event.show_private_decks">
                 <source>app.event.show_private_decks</source>
                 <target>Show private decks</target>

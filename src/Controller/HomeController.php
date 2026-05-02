@@ -48,9 +48,16 @@ class HomeController extends AbstractController
         HomepageRenderer $homepageRenderer,
     ): Response {
         $locale = $request->getLocale();
+        $channel = $request->attributes->get('_channel');
+
+        // Channel with no feature flags enabled → coming-soon screen, even if
+        // a homepage layout or pages exist. They have nothing meaningful to
+        // link to until at least one feature is turned on.
+        if ($channel instanceof Channel && $this->isChannelEmpty($channel)) {
+            return $this->render('home/empty_channel.html.twig');
+        }
 
         // Use published layout for the current channel if available
-        $channel = $request->attributes->get('_channel');
         $layout = $homepageLayoutRepository->findPublished($channel instanceof Channel ? $channel : null);
         if (null !== $layout) {
             $blocks = $homepageRenderer->resolve($layout, $locale);
@@ -100,6 +107,22 @@ class HomeController extends AbstractController
             'newsTotalCount' => $newsTotalCount,
             'locale' => $locale,
         ]);
+    }
+
+    /**
+     * A channel is "empty" when none of its feature flags are enabled. The
+     * coming-soon screen short-circuits the homepage even if a HomepageLayout
+     * or Pages exist on the channel — they would have nothing meaningful to
+     * link to until at least one feature is turned on.
+     */
+    private function isChannelEmpty(Channel $channel): bool
+    {
+        return !$channel->getEnableDecks()
+            && !$channel->getEnableEvents()
+            && !$channel->getEnableBorrows()
+            && !$channel->getEnableArchetypes()
+            && !$channel->getEnableBannedCards()
+            && !$channel->getEnableRegister();
     }
 
     /**
