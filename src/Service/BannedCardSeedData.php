@@ -110,12 +110,12 @@ final readonly class BannedCardSeedData
         ],
         'Lysandre\'s Trump Card' => [
             'effectiveDate' => '2015-06-15',
-            'sourceUrl' => 'https://www.pokemon.com/us/pokemon-news/lysandres-trump-card-banned/',
+            'sourceUrl' => 'https://bulbanews.bulbagarden.net/wiki/Lysandre%27s_Trump_Card_banned_from_TCG_competitive_play',
             'explanation' => self::LYSANDRE_RATIONALE,
         ],
         "Lysandre\u{2019}s Trump Card" => [
             'effectiveDate' => '2015-06-15',
-            'sourceUrl' => 'https://www.pokemon.com/us/pokemon-news/lysandres-trump-card-banned/',
+            'sourceUrl' => 'https://bulbanews.bulbagarden.net/wiki/Lysandre%27s_Trump_Card_banned_from_TCG_competitive_play',
             'explanation' => self::LYSANDRE_RATIONALE,
         ],
         'Marshadow' => [
