@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 class BannedCardRepositoryTest extends AbstractFunctionalTest
 {
@@ -137,5 +138,77 @@ class BannedCardRepositoryTest extends AbstractFunctionalTest
 
         // Exact match
         self::assertNotNull($repository->findOneBySetCodeAndNumber('CEC', '194'));
+    }
+
+    // ---------------------------------------------------------------
+    // Soft-delete-aware queries
+    // ---------------------------------------------------------------
+
+    public function testFindBannedCardKeysExcludesSoftDeletedRows(): void
+    {
+        $repository = $this->getRepository();
+
+        $active = $this->createBannedCard('Active Card', 'AOR', '74');
+        $deleted = $this->createBannedCard('Deleted Card', 'PHF', '99');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->getEntityManager()->flush();
+
+        $keys = $repository->findBannedCardKeys();
+
+        self::assertArrayHasKey('AOR|74', $keys);
+        self::assertArrayNotHasKey('PHF|99', $keys);
+        self::assertSame($active->getId(), $repository->findOneBySetCodeAndNumber('AOR', '74')?->getId());
+        self::assertNull($repository->findOneBySetCodeAndNumber('PHF', '99'));
+    }
+
+    public function testFindOneIncludingDeletedReturnsSoftDeletedRows(): void
+    {
+        $repository = $this->getRepository();
+
+        $card = $this->createBannedCard('Soft Deleted', 'BKP', '98');
+        $card->setDeletedAt(new \DateTimeImmutable());
+        $this->getEntityManager()->flush();
+
+        $found = $repository->findOneIncludingDeleted('BKP', '98');
+
+        self::assertNotNull($found);
+        self::assertSame($card->getId(), $found->getId());
+        self::assertTrue($found->isDeleted());
+    }
+
+    public function testFindActiveOrderedByEffectiveDateOrdersNewestFirst(): void
+    {
+        $repository = $this->getRepository();
+
+        $oldCard = $this->createBannedCard('Old Ban', 'PHF', '99');
+        $oldCard->setEffectiveDate(new \DateTimeImmutable('2020-01-01'));
+
+        $newCard = $this->createBannedCard('New Ban', 'AOR', '74');
+        $newCard->setEffectiveDate(new \DateTimeImmutable('2024-01-01'));
+
+        $deleted = $this->createBannedCard('Deleted', 'BKP', '98');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->getEntityManager()->flush();
+
+        $rows = $repository->findActiveOrderedByEffectiveDate();
+
+        self::assertCount(2, $rows);
+        self::assertSame($newCard->getId(), $rows[0]->getId());
+        self::assertSame($oldCard->getId(), $rows[1]->getId());
+    }
+
+    public function testFindDeletedOrderedByDeletionDate(): void
+    {
+        $repository = $this->getRepository();
+
+        $active = $this->createBannedCard('Active', 'AOR', '74');
+        $deleted = $this->createBannedCard('Deleted', 'PHF', '99');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->getEntityManager()->flush();
+
+        $rows = $repository->findDeletedOrderedByDeletionDate();
+
+        self::assertCount(1, $rows);
+        self::assertSame($deleted->getId(), $rows[0]->getId());
     }
 }

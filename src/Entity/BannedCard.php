@@ -24,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  * has alternate-art or promo reprints.
  *
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 #[ORM\Entity(repositoryClass: BannedCardRepository::class)]
 #[ORM\Table(name: 'banned_card')]
@@ -49,6 +50,16 @@ class BannedCard
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sourceUrl = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $explanation = null;
+
+    #[ORM\ManyToOne(targetEntity: CardPrinting::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?CardPrinting $cardPrinting = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -126,5 +137,46 @@ class BannedCard
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getExplanation(): ?string
+    {
+        return $this->explanation;
+    }
+
+    public function setExplanation(?string $explanation): static
+    {
+        $this->explanation = $explanation;
+
+        return $this;
+    }
+
+    public function getCardPrinting(): ?CardPrinting
+    {
+        return $this->cardPrinting;
+    }
+
+    public function setCardPrinting(?CardPrinting $cardPrinting): static
+    {
+        $this->cardPrinting = $cardPrinting;
+
+        return $this;
+    }
+
+    public function getDeletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeImmutable $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt instanceof \DateTimeImmutable;
     }
 }

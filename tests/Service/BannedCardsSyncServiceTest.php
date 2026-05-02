@@ -45,8 +45,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::exactly(4))->method('persist');
@@ -75,9 +75,9 @@ class BannedCardsSyncServiceTest extends TestCase
         $existing->setCardNumber('67');
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')
+        $bannedCardRepo->method('findOneIncludingDeleted')
             ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $existing : null);
-        $bannedCardRepo->method('findAll')->willReturn([$existing]);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$existing]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
@@ -110,13 +110,13 @@ class BannedCardsSyncServiceTest extends TestCase
         $oldCard->setCardNumber('999');
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')
+        $bannedCardRepo->method('findOneIncludingDeleted')
             ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $archeops : null);
-        $bannedCardRepo->method('findAll')->willReturn([$archeops, $oldCard]);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$archeops, $oldCard]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
-        $entityManager->expects(self::once())->method('remove')->with($oldCard);
+        $entityManager->expects(self::never())->method('remove');
 
         $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
         $result = $service->sync();
@@ -125,6 +125,40 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertSame(0, $result->added);
         self::assertSame(1, $result->removed);
         self::assertSame(1, $result->unchanged);
+        self::assertNull($archeops->getDeletedAt());
+        self::assertInstanceOf(\DateTimeImmutable::class, $oldCard->getDeletedAt());
+    }
+
+    public function testSyncReactivatesSoftDeletedCards(): void
+    {
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $existing = new BannedCard();
+        $existing->setCardName('Archeops');
+        $existing->setSetCode('NVI');
+        $existing->setCardNumber('67');
+        $existing->setDeletedAt(new \DateTimeImmutable('2024-01-01'));
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findOneIncludingDeleted')
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $existing : null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+        $entityManager->expects(self::never())->method('remove');
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(1, $result->added);
+        self::assertSame(0, $result->unchanged);
+        self::assertNull($existing->getDeletedAt(), 'Soft-deleted card should be reactivated by setting deletedAt to null');
     }
 
     public function testSyncHandlesMultiplePrintingsOfSameCard(): void
@@ -136,8 +170,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::exactly(2))->method('persist');
@@ -161,8 +195,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $persisted = [];
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -204,8 +238,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist');
@@ -245,8 +279,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
@@ -269,8 +303,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
@@ -292,8 +326,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
@@ -316,8 +350,8 @@ class BannedCardsSyncServiceTest extends TestCase
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneBySetCodeAndNumber')->willReturn(null);
-        $bannedCardRepo->method('findAll')->willReturn([]);
+        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist');

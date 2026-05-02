@@ -1,0 +1,62 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ (isEdit ? 'app.admin.banned_card.edit' : 'app.admin.banned_card.new')|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            {{ (isEdit ? 'app.admin.banned_card.edit' : 'app.admin.banned_card.new')|trans }}
+            {% if isEdit and card.deleted %}
+                <span class="badge bg-secondary ms-2">{{ 'app.admin.banned_card.badge.archived'|trans }}</span>
+            {% endif %}
+        </h1>
+        <a href="{{ path('app_admin_banned_card_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            {{ form_start(form) }}
+                {{ form_row(form.cardName) }}
+                <div class="row">
+                    <div class="col-md-6">{{ form_row(form.setCode) }}</div>
+                    <div class="col-md-6">{{ form_row(form.cardNumber) }}</div>
+                </div>
+                {{ form_row(form.effectiveDate) }}
+                {{ form_row(form.sourceUrl) }}
+                {{ form_row(form.explanation) }}
+                <button type="submit" class="btn btn-gold">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if isEdit %}
+        <div class="d-flex justify-content-end">
+            {% if card.deleted %}
+                <form method="post" action="{{ path('app_admin_banned_card_restore', {id: card.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('banned-card-restore-' ~ card.id) }}">
+                    <button type="submit" class="btn btn-outline-success">{{ 'app.admin.banned_card.restore'|trans }}</button>
+                </form>
+            {% else %}
+                <form method="post" action="{{ path('app_admin_banned_card_delete', {id: card.id}) }}" class="d-inline inline-confirm-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('banned-card-delete-' ~ card.id) }}">
+                    <button type="button" class="btn btn-outline-danger inline-confirm-trigger">
+                        {{ 'app.admin.banned_card.delete'|trans }}
+                    </button>
+                    <span class="inline-confirm-actions d-none">
+                        <span class="small text-muted me-1">{{ 'app.admin.banned_card.delete_confirm'|trans }}</span>
+                        <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                    </span>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

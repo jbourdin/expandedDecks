@@ -58,6 +58,9 @@ class Channel
     #[ORM\Column]
     private bool $enableArchetypes = false;
 
+    #[ORM\Column]
+    private bool $enableBannedCards = false;
+
     /**
      * @see docs/features.md F18.28 — Per-channel theme system
      */
@@ -176,6 +179,18 @@ class Channel
     public function setEnableArchetypes(bool $enableArchetypes): static
     {
         $this->enableArchetypes = $enableArchetypes;
+
+        return $this;
+    }
+
+    public function getEnableBannedCards(): bool
+    {
+        return $this->enableBannedCards;
+    }
+
+    public function setEnableBannedCards(bool $enableBannedCards): static
+    {
+        $this->enableBannedCards = $enableBannedCards;
 
         return $this;
     }

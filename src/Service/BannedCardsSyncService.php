@@ -142,10 +142,16 @@ class BannedCardsSyncService
             $key = $entry['setCode'].'|'.$entry['cardNumber'];
             $syncedKeys[$key] = true;
 
-            $existing = $this->bannedCardRepository->findOneBySetCodeAndNumber($entry['setCode'], $entry['cardNumber']);
+            $existing = $this->bannedCardRepository->findOneIncludingDeleted($entry['setCode'], $entry['cardNumber']);
 
-            if (null !== $existing) {
-                ++$unchanged;
+            if ($existing instanceof BannedCard) {
+                if ($existing->isDeleted()) {
+                    $existing->setDeletedAt(null);
+                    $existing->setSourceUrl(self::SOURCE_URL);
+                    ++$added;
+                } else {
+                    ++$unchanged;
+                }
                 continue;
             }
 
@@ -159,13 +165,14 @@ class BannedCardsSyncService
             ++$added;
         }
 
-        $existingCards = $this->bannedCardRepository->findAll();
+        $existingActiveCards = $this->bannedCardRepository->findActiveOrderedByEffectiveDate();
         $removed = 0;
+        $now = new \DateTimeImmutable();
 
-        foreach ($existingCards as $existing) {
+        foreach ($existingActiveCards as $existing) {
             $key = $existing->getSetCode().'|'.$existing->getCardNumber();
             if (!isset($syncedKeys[$key])) {
-                $this->entityManager->remove($existing);
+                $existing->setDeletedAt($now);
                 ++$removed;
             }
         }

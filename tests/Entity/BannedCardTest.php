@@ -14,10 +14,12 @@ declare(strict_types=1);
 namespace App\Tests\Entity;
 
 use App\Entity\BannedCard;
+use App\Entity\CardPrinting;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 class BannedCardTest extends TestCase
 {
@@ -31,6 +33,10 @@ class BannedCardTest extends TestCase
         self::assertSame('', $bannedCard->getCardNumber());
         self::assertNull($bannedCard->getEffectiveDate());
         self::assertNull($bannedCard->getSourceUrl());
+        self::assertNull($bannedCard->getExplanation());
+        self::assertNull($bannedCard->getCardPrinting());
+        self::assertNull($bannedCard->getDeletedAt());
+        self::assertFalse($bannedCard->isDeleted());
         self::assertInstanceOf(\DateTimeImmutable::class, $bannedCard->getCreatedAt());
     }
 
@@ -97,5 +103,41 @@ class BannedCardTest extends TestCase
         $bannedCard->setSourceUrl(null);
 
         self::assertNull($bannedCard->getSourceUrl());
+    }
+
+    public function testSetAndGetExplanation(): void
+    {
+        $bannedCard = new BannedCard();
+        $result = $bannedCard->setExplanation('Enables a turn-1 lock with **Garbodor**.');
+
+        self::assertSame('Enables a turn-1 lock with **Garbodor**.', $bannedCard->getExplanation());
+        self::assertSame($bannedCard, $result);
+    }
+
+    public function testSetAndGetCardPrinting(): void
+    {
+        $bannedCard = new BannedCard();
+        $printing = new CardPrinting();
+
+        $result = $bannedCard->setCardPrinting($printing);
+
+        self::assertSame($printing, $bannedCard->getCardPrinting());
+        self::assertSame($bannedCard, $result);
+    }
+
+    public function testSoftDeleteLifecycle(): void
+    {
+        $bannedCard = new BannedCard();
+        self::assertFalse($bannedCard->isDeleted());
+
+        $deletedAt = new \DateTimeImmutable('2026-04-01 12:00:00');
+        $bannedCard->setDeletedAt($deletedAt);
+
+        self::assertSame($deletedAt, $bannedCard->getDeletedAt());
+        self::assertTrue($bannedCard->isDeleted());
+
+        $bannedCard->setDeletedAt(null);
+        self::assertNull($bannedCard->getDeletedAt());
+        self::assertFalse($bannedCard->isDeleted());
     }
 }

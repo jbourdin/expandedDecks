@@ -21,6 +21,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @extends ServiceEntityRepository<BannedCard>
  *
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 class BannedCardRepository extends ServiceEntityRepository
 {
@@ -30,7 +31,7 @@ class BannedCardRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns the set of all banned card identifiers for fast lookup.
+     * Returns the set of all *active* (non soft-deleted) banned card identifiers for fast lookup.
      *
      * @return array<string, true> keys are "setCode|cardNumber"
      */
@@ -39,6 +40,7 @@ class BannedCardRepository extends ServiceEntityRepository
         /** @var list<array{setCode: string, cardNumber: string}> $rows */
         $rows = $this->createQueryBuilder('b')
             ->select('b.setCode, b.cardNumber')
+            ->andWhere('b.deletedAt IS NULL')
             ->getQuery()
             ->getArrayResult();
 
@@ -50,8 +52,62 @@ class BannedCardRepository extends ServiceEntityRepository
         return $map;
     }
 
+    /**
+     * Active row only (excludes soft-deleted).
+     */
     public function findOneBySetCodeAndNumber(string $setCode, string $cardNumber): ?BannedCard
     {
-        return $this->findOneBy(['setCode' => $setCode, 'cardNumber' => $cardNumber]);
+        return $this->findOneBy([
+            'setCode' => $setCode,
+            'cardNumber' => $cardNumber,
+            'deletedAt' => null,
+        ]);
+    }
+
+    /**
+     * Returns the row matching the (setCode, cardNumber) pair regardless of soft-delete state.
+     * Used by the sync/admin re-ban path to reactivate a previously soft-deleted entry.
+     */
+    public function findOneIncludingDeleted(string $setCode, string $cardNumber): ?BannedCard
+    {
+        return $this->findOneBy([
+            'setCode' => $setCode,
+            'cardNumber' => $cardNumber,
+        ]);
+    }
+
+    /**
+     * Active rows ordered by effectiveDate desc (newest bans first), nulls last.
+     *
+     * @return list<BannedCard>
+     */
+    public function findActiveOrderedByEffectiveDate(): array
+    {
+        /** @var list<BannedCard> $rows */
+        $rows = $this->createQueryBuilder('b')
+            ->andWhere('b.deletedAt IS NULL')
+            ->addOrderBy('b.effectiveDate', 'DESC')
+            ->addOrderBy('b.cardName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $rows;
+    }
+
+    /**
+     * Soft-deleted rows ordered by deletion date desc.
+     *
+     * @return list<BannedCard>
+     */
+    public function findDeletedOrderedByDeletionDate(): array
+    {
+        /** @var list<BannedCard> $rows */
+        $rows = $this->createQueryBuilder('b')
+            ->andWhere('b.deletedAt IS NOT NULL')
+            ->orderBy('b.deletedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $rows;
     }
 }
