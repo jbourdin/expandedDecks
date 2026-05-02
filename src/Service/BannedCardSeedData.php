@@ -134,9 +134,9 @@ final readonly class BannedCardSeedData
             'explanation' => 'Cheats a Stage-1/2 Fighting Pokémon directly into play; Team Up enabled devastating T1 combos.',
         ],
         'Medicham V' => [
-            'effectiveDate' => '2026-04-07',
+            'effectiveDate' => '2026-04-10',
             'sourceUrl' => 'https://www.pokemon.com/us/play-pokemon/about/mega-evolution/mega-evolution-perfect-order-banned-list-and-rule-changes-announcement',
-            'explanation' => 'Yoga Loop + damage-counter abilities enable extra-turn wins. Banned internationally with the Mega Evolution: Perfect Order rule changes (2026-04-07).',
+            'explanation' => 'Yoga Loop attack takes an extra turn and wins quickly. Banned internationally with the Mega Evolution: Perfect Order rule changes (announced 2026-03-12, effective 2026-04-10).',
         ],
         'Milotic' => [
             'effectiveDate' => '2020-11-27',
