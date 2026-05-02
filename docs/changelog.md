@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.9.1] — 2026-05-02
+
+Patch release: respect the channel `brand_name` on every error page.
+
+### Bug Fixes
+
+- **Error page brand name** — `base_error.html.twig` (used by every error page and the empty-channel coming-soon screen) was rendering the literal "Expanded Decks" in the navbar brand link and the footer copyright, ignoring the active channel's `brand_name` parameter. Both now go through `channel_param('brand_name', 'Expanded Decks')`, matching the title block and `base.html.twig`. ([#502](https://github.com/jbourdin/expandedDecks/pull/502))
+
+---
+
 ## [1.9.0] — 2026-05-02
 
 Public banned-cards page with admin CRUD (F6.14), empty-channel coming-soon screen, and a denser 9-per-row card grid across deck mosaics and the banned-cards list.
