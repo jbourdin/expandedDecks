@@ -14,11 +14,14 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\BannedCard;
+use App\Entity\BannedCardPrinting;
+use App\Entity\CardIdentity;
 use App\Repository\BannedCardRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 class BannedCardRepositoryTest extends AbstractFunctionalTest
 {
@@ -38,104 +41,83 @@ class BannedCardRepositoryTest extends AbstractFunctionalTest
         return $entityManager;
     }
 
-    private function createBannedCard(string $cardName, string $setCode, string $cardNumber): BannedCard
+    private function persistBannedCard(string $name, ?CardIdentity $identity = null, ?\DateTimeImmutable $effectiveDate = null): BannedCard
     {
-        $entityManager = $this->getEntityManager();
+        $em = $this->getEntityManager();
+        $card = new BannedCard();
+        $card->setCardName($name);
+        $card->setCardIdentity($identity);
+        if (null !== $effectiveDate) {
+            $card->setEffectiveDate($effectiveDate);
+        }
+        $em->persist($card);
+        $em->flush();
 
-        $bannedCard = new BannedCard();
-        $bannedCard->setCardName($cardName);
-        $bannedCard->setSetCode($setCode);
-        $bannedCard->setCardNumber($cardNumber);
-        $bannedCard->setEffectiveDate(new \DateTimeImmutable());
-        $entityManager->persist($bannedCard);
-        $entityManager->flush();
-
-        return $bannedCard;
+        return $card;
     }
 
-    // ---------------------------------------------------------------
-    // findBannedCardKeys
-    // ---------------------------------------------------------------
-
-    public function testFindBannedCardKeysReturnsEmptyWhenNoBannedCards(): void
+    private function persistPrinting(BannedCard $parent, string $setCode, string $cardNumber): BannedCardPrinting
     {
-        $repository = $this->getRepository();
+        $em = $this->getEntityManager();
+        $printing = new BannedCardPrinting();
+        $printing->setSetCode($setCode);
+        $printing->setCardNumber($cardNumber);
+        $parent->addPrinting($printing);
+        $em->persist($printing);
+        $em->flush();
 
-        $keys = $repository->findBannedCardKeys();
-
-        // No banned cards in fixtures by default
-        self::assertSame([], $keys);
+        return $printing;
     }
 
-    public function testFindBannedCardKeysReturnsCorrectFormat(): void
+    public function testFindBannedPrintingKeysReturnsActiveOnly(): void
     {
-        $repository = $this->getRepository();
+        $active = $this->persistBannedCard('Forest of Giant Plants');
+        $this->persistPrinting($active, 'AOR', '74');
 
-        $this->createBannedCard('Lysandre\'s Trump Card', 'PHF', '99');
-        $this->createBannedCard('Forest of Giant Plants', 'AOR', '74');
+        $deleted = $this->persistBannedCard('Lysandre\'s Trump Card');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->persistPrinting($deleted, 'PHF', '99');
+        $this->getEntityManager()->flush();
 
-        $keys = $repository->findBannedCardKeys();
+        $keys = $this->getRepository()->findBannedPrintingKeys();
 
-        self::assertArrayHasKey('PHF|99', $keys);
         self::assertArrayHasKey('AOR|74', $keys);
-        self::assertTrue($keys['PHF|99']);
-        self::assertTrue($keys['AOR|74']);
+        self::assertArrayNotHasKey('PHF|99', $keys);
     }
 
-    public function testFindBannedCardKeysContainsAllBannedCards(): void
+    public function testFindActiveOrderedByEffectiveDate(): void
     {
-        $repository = $this->getRepository();
+        $old = $this->persistBannedCard('Old Ban', null, new \DateTimeImmutable('2020-01-01'));
+        $this->persistPrinting($old, 'PHF', '99');
 
-        $this->createBannedCard('Delinquent', 'BKP', '98');
-        $this->createBannedCard('Lt. Surge\'s Strategy', 'UNB', '178');
-        $this->createBannedCard('Mismagius', 'UNB', '78');
+        $new = $this->persistBannedCard('New Ban', null, new \DateTimeImmutable('2024-01-01'));
+        $this->persistPrinting($new, 'AOR', '74');
 
-        $keys = $repository->findBannedCardKeys();
+        $deleted = $this->persistBannedCard('Deleted Ban');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->persistPrinting($deleted, 'BKP', '98');
+        $this->getEntityManager()->flush();
 
-        self::assertCount(3, $keys);
+        $rows = $this->getRepository()->findActiveOrderedByEffectiveDate();
+
+        self::assertCount(2, $rows);
+        self::assertSame('New Ban', $rows[0]->getCardName());
+        self::assertSame('Old Ban', $rows[1]->getCardName());
     }
 
-    // ---------------------------------------------------------------
-    // findOneBySetCodeAndNumber
-    // ---------------------------------------------------------------
-
-    public function testFindOneBySetCodeAndNumberReturnsMatchingCard(): void
+    public function testFindDeletedOrderedByDeletionDate(): void
     {
-        $repository = $this->getRepository();
+        $active = $this->persistBannedCard('Active');
+        $this->persistPrinting($active, 'AOR', '74');
 
-        $created = $this->createBannedCard('Chip-Chip Ice Axe', 'UNB', '165');
+        $deleted = $this->persistBannedCard('Deleted');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $this->persistPrinting($deleted, 'PHF', '99');
+        $this->getEntityManager()->flush();
 
-        $found = $repository->findOneBySetCodeAndNumber('UNB', '165');
+        $rows = $this->getRepository()->findDeletedOrderedByDeletionDate();
 
-        self::assertNotNull($found);
-        self::assertSame($created->getId(), $found->getId());
-        self::assertSame('Chip-Chip Ice Axe', $found->getCardName());
-        self::assertSame('UNB', $found->getSetCode());
-        self::assertSame('165', $found->getCardNumber());
-    }
-
-    public function testFindOneBySetCodeAndNumberReturnsNullWhenNotFound(): void
-    {
-        $repository = $this->getRepository();
-
-        $found = $repository->findOneBySetCodeAndNumber('XXX', '999');
-
-        self::assertNull($found);
-    }
-
-    public function testFindOneBySetCodeAndNumberMatchesExactly(): void
-    {
-        $repository = $this->getRepository();
-
-        $this->createBannedCard('Island Challenge Amulet', 'CEC', '194');
-
-        // Same set, different number
-        self::assertNull($repository->findOneBySetCodeAndNumber('CEC', '195'));
-
-        // Same number, different set
-        self::assertNull($repository->findOneBySetCodeAndNumber('PHF', '194'));
-
-        // Exact match
-        self::assertNotNull($repository->findOneBySetCodeAndNumber('CEC', '194'));
+        self::assertCount(1, $rows);
+        self::assertSame('Deleted', $rows[0]->getCardName());
     }
 }

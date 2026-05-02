@@ -1,0 +1,97 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.banned_card.list_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.admin.banned_card.list_title'|trans }}</h1>
+    </div>
+
+    <p class="text-muted small mb-3">{{ 'app.admin.banned_card.list_hint'|trans }}</p>
+
+    <div class="btn-group mb-4" role="group">
+        <a href="{{ path('app_admin_banned_card_list', {view: 'active'}) }}" class="btn {{ currentView == 'active' ? 'btn-gold' : 'btn-outline-secondary' }}">
+            {{ 'app.admin.banned_card.tab.active'|trans }}
+        </a>
+        <a href="{{ path('app_admin_banned_card_list', {view: 'history'}) }}" class="btn {{ currentView == 'history' ? 'btn-gold' : 'btn-outline-secondary' }}">
+            {{ 'app.admin.banned_card.tab.history'|trans }}
+        </a>
+    </div>
+
+    {% if cards is not empty %}
+        <div class="card shadow-sm">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>{{ 'app.admin.banned_card.field.card_name'|trans }}</th>
+                        <th>{{ 'app.admin.banned_card.field.printings'|trans }}</th>
+                        <th>{{ 'app.admin.banned_card.field.effective_date'|trans }}</th>
+                        {% if currentView == 'history' %}
+                            <th>{{ 'app.admin.banned_card.field.deleted_at'|trans }}</th>
+                        {% endif %}
+                        <th class="text-end">{{ 'app.common.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                        <tr>
+                            <td>{{ card.cardName }}</td>
+                            <td class="small text-muted">
+                                {% for printing in card.printings %}
+                                    <code>{{ printing.setCode }} {{ printing.cardNumber }}</code>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ card.effectiveDate ? card.effectiveDate|user_date : '—' }}</td>
+                            {% if currentView == 'history' %}
+                                <td>{{ card.deletedAt|user_date }}</td>
+                            {% endif %}
+                            <td class="text-end">
+                                <span class="d-inline-flex align-items-center gap-1">
+                                    <a href="{{ path('app_admin_banned_card_edit', {id: card.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                        {{ 'app.common.edit'|trans }}
+                                    </a>
+                                    {% if currentView == 'active' %}
+                                        <form method="post" action="{{ path('app_admin_banned_card_delete', {id: card.id}) }}" class="d-inline inline-confirm-form">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('banned-card-delete-' ~ card.id) }}">
+                                            <button type="button" class="btn btn-sm btn-outline-danger inline-confirm-trigger">
+                                                {{ 'app.admin.banned_card.delete'|trans }}
+                                            </button>
+                                            <span class="inline-confirm-actions d-none">
+                                                <span class="small text-muted me-1">{{ 'app.admin.banned_card.delete_confirm'|trans }}</span>
+                                                <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                                            </span>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{{ path('app_admin_banned_card_restore', {id: card.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('banned-card-restore-' ~ card.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                {{ 'app.admin.banned_card.restore'|trans }}
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            {% if currentView == 'history' %}
+                {{ 'app.admin.banned_card.empty.history'|trans }}
+            {% else %}
+                {{ 'app.admin.banned_card.empty.active'|trans }}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base_error.html.twig' %}
+
+{% block title %}{{ 'app.empty_channel.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="text-center" style="max-width: 520px;">
+            <img src="/sprites/pokemon/togepi.png" alt="Togepi" style="height: 140px;" class="mb-3">
+            <h1 class="h3 fw-semibold text-primary mb-3">{{ 'app.empty_channel.title'|trans }}</h1>
+            <p class="lead text-muted mb-3">{{ 'app.empty_channel.lead'|trans({'%brand%': channel_param('brand_name', 'Expanded Decks')}) }}</p>
+            <p class="text-muted mb-4">{{ 'app.empty_channel.message'|trans }}</p>
+        </div>
+    </div>
+{% endblock %}

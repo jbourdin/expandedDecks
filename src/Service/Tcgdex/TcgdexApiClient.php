@@ -137,9 +137,13 @@ class TcgdexApiClient
             return null;
         }
 
-        // Promo sets use era-prefixed card numbers in TCGdex (e.g. XY177, SWSH001)
+        // Promo sets use era-prefixed card numbers in TCGdex (e.g. XY177, SWSH001).
+        // Skip the prepend when the upstream value already includes the prefix
+        // (the official banned-card list ships "PR-SW SWSH022" verbatim).
         $prefix = self::PROMO_CARD_NUMBER_PREFIXES[$setId] ?? null;
-        $lookupNumber = null !== $prefix ? $prefix.$normalizedNumber : $normalizedNumber;
+        $lookupNumber = null !== $prefix && !str_starts_with($normalizedNumber, $prefix)
+            ? $prefix.$normalizedNumber
+            : $normalizedNumber;
 
         // Build candidate local IDs for the fallback chain
         $candidates = [$lookupNumber];
@@ -152,6 +156,13 @@ class TcgdexApiClient
 
         if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
             $candidates[] = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
+        }
+
+        // Strip leading zeros for padded numerics: "022" → "22", "083" → "83".
+        // TCGdex stores some sets (RCL, EVS, …) without leading zeros while
+        // other sources pad to 3 digits.
+        if (ctype_digit($strippedNumber) && \strlen($strippedNumber) > 1 && '0' === $strippedNumber[0]) {
+            $candidates[] = ltrim($strippedNumber, '0') ?: '0';
         }
 
         // Layer 1: Local database lookup

@@ -127,8 +127,8 @@ final class MosaicGeneratorTest extends TestCase
     {
         $version = $this->createVersion(3, 5);
 
-        // 9 cards = 8 in first row + 1 centered in second row
-        for ($i = 1; $i <= 9; ++$i) {
+        // 10 cards = 9 in first row + 1 centered in second row (CARDS_PER_ROW = 9)
+        for ($i = 1; $i <= 10; ++$i) {
             $this->addCard($version, 'Card '.$i, 'pokemon', null, 1);
         }
 
@@ -198,10 +198,10 @@ final class MosaicGeneratorTest extends TestCase
 
     public function testGenerateFromTilesCentersIncompleteLastRow(): void
     {
-        // 9 tiles = 8 in first row + 1 centered in second row (CARDS_PER_ROW = 8)
+        // 10 tiles = 9 in first row + 1 centered in second row (CARDS_PER_ROW = 9)
         $tiles = [];
 
-        for ($i = 1; $i <= 9; ++$i) {
+        for ($i = 1; $i <= 10; ++$i) {
             $tiles[] = new MosaicTile('Tile '.$i, $i, null, 'pokemon', null);
         }
 

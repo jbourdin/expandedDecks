@@ -16,7 +16,7 @@ The mosaic is a **server-generated composite image** of a deck's card list, foll
 
 ## Layout
 
-- **Grid:** fixed-width, 8 cards per row
+- **Grid:** fixed-width, 9 cards per row
 - **Card order:** Pokemon → Trainer → Energy (no section headers, continuous flow); within each type: quantity descending, then name ascending
 - **Background:** transparent (PNG alpha channel)
 - **Quantity badge:** red hexagonal badge centered at the bottom of each tile, white text

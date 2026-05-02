@@ -31,7 +31,7 @@ class DeckListValidatorTest extends TestCase
     protected function setUp(): void
     {
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findBannedCardKeys')->willReturn([
+        $bannedCardRepo->method('findBannedPrintingKeys')->willReturn([
             'AOR|74' => true,   // Forest of Giant Plants
             'PHF|99' => true,   // Lysandre's Trump Card
             'PHF|118' => true,  // Lysandre's Trump Card (full art)
