@@ -80,7 +80,7 @@ final readonly class BannedCardPrintingLinker
         if (null !== $printing) {
             $direct = $printing->getImageUrl();
             if (null !== $direct && '' !== $direct) {
-                return $direct;
+                return $this->normalizeTcgdexCdnUrl($direct);
             }
 
             $tcgdexFallback = $this->buildTcgdexCdnFromPrinting($printing, $locale);
@@ -95,6 +95,27 @@ final readonly class BannedCardPrintingLinker
         }
 
         return $this->buildTcgdexCdnFromSetCode($card, $locale);
+    }
+
+    /**
+     * TCGdex's CDN strips dots from set IDs in URL paths even though the API
+     * exposes IDs with dots ("sm3.5", "swsh4.5"). When a stored imageUrl
+     * preserves the dot the asset 404s — rewrite the set-id segment.
+     */
+    private function normalizeTcgdexCdnUrl(string $url): string
+    {
+        if (!str_starts_with($url, self::TCGDEX_CDN_BASE.'/')) {
+            return $url;
+        }
+
+        // Path layout: /<lang>/<serie>/<setId>/<localId>/<filename>.
+        $normalized = preg_replace_callback(
+            '@^(https://assets\.tcgdex\.net/[^/]+/[^/]+/)([^/]+)(/)@',
+            static fn (array $matches): string => $matches[1].str_replace('.', '', $matches[2]).$matches[3],
+            $url,
+        );
+
+        return $normalized ?? $url;
     }
 
     private function buildTcgdexCdnFromPrinting(CardPrinting $printing, string $locale): ?string
