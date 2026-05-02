@@ -16,7 +16,7 @@ namespace App\Controller;
 use App\Entity\BannedCard;
 use App\Form\BannedCardFormType;
 use App\Repository\BannedCardRepository;
-use App\Service\BannedCardPrintingLinker;
+use App\Service\BannedCardEnricher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +38,7 @@ class AdminBannedCardController extends AbstractAppController
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly BannedCardRepository $bannedCardRepository,
-        private readonly BannedCardPrintingLinker $cardPrintingLinker,
+        private readonly BannedCardEnricher $cardEnricher,
     ) {
         parent::__construct($translator);
     }
@@ -81,7 +81,7 @@ class AdminBannedCardController extends AbstractAppController
                 $existing->setSourceUrl($card->getSourceUrl());
                 $existing->setExplanation($card->getExplanation());
                 $existing->setDeletedAt(null);
-                $this->cardPrintingLinker->linkIfMissing($existing);
+                $this->cardEnricher->enrich($existing);
 
                 $this->entityManager->flush();
 
@@ -90,7 +90,7 @@ class AdminBannedCardController extends AbstractAppController
                 return $this->redirectToRoute('app_admin_banned_card_edit', ['id' => $existing->getId()]);
             }
 
-            $this->cardPrintingLinker->linkIfMissing($card);
+            $this->cardEnricher->enrich($card);
             $this->entityManager->persist($card);
             $this->entityManager->flush();
 
@@ -113,7 +113,7 @@ class AdminBannedCardController extends AbstractAppController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->cardPrintingLinker->linkIfMissing($card);
+            $this->cardEnricher->enrich($card);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'app.admin.banned_card.flash.updated');

@@ -65,12 +65,17 @@ class BannedCardGrouperTest extends TestCase
         return $card;
     }
 
-    private function makePrinting(CardIdentity $identity, int $rarityTier): CardPrinting
+    private function makePrinting(CardIdentity $identity, int $rarityTier, bool $withParsableTcgdexId = true): CardPrinting
     {
         $printing = new CardPrinting();
         $printing->setCardIdentity($identity);
         $printing->setRarityTier($rarityTier);
-        $printing->setTcgdexId('tcgdex-'.bin2hex(random_bytes(4)));
+        // Default tcgdexId has a dash so the linker's PokemonTCG.io fallback can
+        // build a URL. Pass false to opt out (used by "no image anywhere" tests).
+        $tcgdexId = $withParsableTcgdexId
+            ? 'tcgdex-'.bin2hex(random_bytes(4))
+            : 'noimage'.bin2hex(random_bytes(4));
+        $printing->setTcgdexId($tcgdexId);
 
         return $printing;
     }
@@ -116,8 +121,8 @@ class BannedCardGrouperTest extends TestCase
     public function testRepresentativePrefersLowestRarityWithImage(): void
     {
         $identity = new CardIdentity();
-        $cheapNoImage = $this->makePrinting($identity, 1);
-        // Intentionally no imageUrl — common printing missing image data.
+        // Cheap printing whose tcgdexId is non-parsable so no fallback URL applies.
+        $cheapNoImage = $this->makePrinting($identity, 1, withParsableTcgdexId: false);
         $rareWithImage = $this->makePrinting($identity, 5);
         $rareWithImage->setImageUrl('https://example/rare/high.webp');
 
@@ -128,15 +133,15 @@ class BannedCardGrouperTest extends TestCase
         $groups = $grouper->group([$cheapBan, $rareBan], 'en');
 
         self::assertCount(1, $groups);
-        self::assertSame($rareBan, $groups[0]->representative, 'Should skip the cheap printing without an image and use the rarer one that has one.');
+        self::assertSame($rareBan, $groups[0]->representative, 'Should skip the cheap printing without a resolvable image and use the rarer one that has one.');
         self::assertSame('https://example/rare/high.webp', $groups[0]->imageUrl);
     }
 
-    public function testRepresentativeFallsBackToFirstWhenNoneHaveImage(): void
+    public function testRepresentativeFallsBackToLowestTierWhenNoneHaveImage(): void
     {
         $identity = new CardIdentity();
-        $printingA = $this->makePrinting($identity, 5);
-        $printingB = $this->makePrinting($identity, 1);
+        $printingA = $this->makePrinting($identity, 5, withParsableTcgdexId: false);
+        $printingB = $this->makePrinting($identity, 1, withParsableTcgdexId: false);
 
         $a = $this->makeBannedCard('Archeops', 'NVI', '67', $printingA);
         $b = $this->makeBannedCard('Archeops', 'DEX', '110', $printingB);
@@ -145,7 +150,7 @@ class BannedCardGrouperTest extends TestCase
         $groups = $grouper->group([$a, $b], 'en');
 
         self::assertCount(1, $groups);
-        // No image anywhere, so still defaults to the lowest tier.
+        // No image anywhere — fall back to the lowest tier.
         self::assertSame($b, $groups[0]->representative);
         self::assertNull($groups[0]->imageUrl);
     }

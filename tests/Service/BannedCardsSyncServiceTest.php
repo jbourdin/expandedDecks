@@ -15,8 +15,7 @@ namespace App\Tests\Service;
 
 use App\Entity\BannedCard;
 use App\Repository\BannedCardRepository;
-use App\Repository\CardPrintingRepository;
-use App\Service\BannedCardPrintingLinker;
+use App\Service\BannedCardEnricher;
 use App\Service\BannedCardsSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -36,15 +35,20 @@ class BannedCardsSyncServiceTest extends TestCase
             .'</body></html>';
     }
 
-    private function buildLinkerStub(): BannedCardPrintingLinker
+    private function buildLinkerStub(): BannedCardEnricher
     {
-        $cardPrintingRepository = $this->createStub(CardPrintingRepository::class);
+        // Final readonly classes can't be doubled; build a real enricher whose
+        // collaborators all return null so enrich() is a clean no-op.
+        $apiClient = $this->createStub(\App\Service\Tcgdex\TcgdexApiClient::class);
+        $apiClient->method('findCard')->willReturn(null);
+        $apiClient->method('findCardByNameInAliasedSet')->willReturn(null);
+
+        $identityResolver = $this->createStub(\App\Service\CardIdentity\CardIdentityResolver::class);
+
+        $cardPrintingRepository = $this->createStub(\App\Repository\CardPrintingRepository::class);
         $cardPrintingRepository->method('findFirstBySetCodeAndCardNumber')->willReturn(null);
 
-        $tcgdexSetRepository = $this->createStub(\App\Repository\TcgdexSetRepository::class);
-        $tcgdexSetRepository->method('findByPtcgCode')->willReturn(null);
-
-        return new BannedCardPrintingLinker($cardPrintingRepository, $tcgdexSetRepository);
+        return new BannedCardEnricher($apiClient, $identityResolver, $cardPrintingRepository);
     }
 
     public function testSyncAddsNewBannedCards(): void

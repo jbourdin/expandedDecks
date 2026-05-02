@@ -119,7 +119,7 @@ class BannedCardsSyncService
         private readonly HttpClientInterface $httpClient,
         private readonly BannedCardRepository $bannedCardRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly BannedCardPrintingLinker $cardPrintingLinker,
+        private readonly BannedCardEnricher $cardEnricher,
     ) {
     }
 
@@ -153,7 +153,7 @@ class BannedCardsSyncService
                 } else {
                     ++$unchanged;
                 }
-                $this->cardPrintingLinker->linkIfMissing($existing);
+                $this->cardEnricher->enrich($existing);
                 continue;
             }
 
@@ -162,9 +162,9 @@ class BannedCardsSyncService
             $card->setSetCode($entry['setCode']);
             $card->setCardNumber($entry['cardNumber']);
             $card->setSourceUrl(self::SOURCE_URL);
-            $this->cardPrintingLinker->linkIfMissing($card);
 
             $this->entityManager->persist($card);
+            $this->cardEnricher->enrich($card);
             ++$added;
         }
 
