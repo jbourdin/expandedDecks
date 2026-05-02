@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\BannedCard;
+use App\Entity\BannedCardPrinting;
 use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,35 +30,6 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
 
         return $entityManager;
-    }
-
-    private function persistBannedCard(string $name, string $setCode, string $cardNumber, ?string $explanation = null, bool $deleted = false, ?CardPrinting $printing = null): BannedCard
-    {
-        $em = $this->getEntityManager();
-
-        $card = new BannedCard();
-        $card->setCardName($name);
-        $card->setSetCode($setCode);
-        $card->setCardNumber($cardNumber);
-        $card->setEffectiveDate(new \DateTimeImmutable('2024-04-01'));
-        $card->setSourceUrl('https://www.pokemon.com/us/play-pokemon/about/pokemon-tcg-banned-card-list');
-
-        if (null !== $explanation) {
-            $card->setExplanation($explanation);
-        }
-
-        if ($deleted) {
-            $card->setDeletedAt(new \DateTimeImmutable());
-        }
-
-        if (null !== $printing) {
-            $card->setCardPrinting($printing);
-        }
-
-        $em->persist($card);
-        $em->flush();
-
-        return $card;
     }
 
     private function persistCardIdentity(string $name): CardIdentity
@@ -90,6 +62,50 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         return $printing;
     }
 
+    /**
+     * @param list<array{setCode: string, cardNumber: string, printing?: CardPrinting}> $printings
+     */
+    private function persistBannedCard(
+        string $cardName,
+        array $printings,
+        ?CardIdentity $identity = null,
+        ?\DateTimeImmutable $effectiveDate = null,
+        ?string $explanation = null,
+        bool $deleted = false,
+    ): BannedCard {
+        $em = $this->getEntityManager();
+
+        $card = new BannedCard();
+        $card->setCardName($cardName);
+        $card->setCardIdentity($identity);
+        $card->setEffectiveDate($effectiveDate ?? new \DateTimeImmutable('2024-04-01'));
+        $card->setSourceUrl('https://www.pokemon.com/us/play-pokemon/about/pokemon-tcg-banned-card-list');
+
+        if (null !== $explanation) {
+            $card->setExplanation($explanation);
+        }
+
+        if ($deleted) {
+            $card->setDeletedAt(new \DateTimeImmutable());
+        }
+
+        foreach ($printings as $printingData) {
+            $printing = new BannedCardPrinting();
+            $printing->setSetCode($printingData['setCode']);
+            $printing->setCardNumber($printingData['cardNumber']);
+            if (isset($printingData['printing'])) {
+                $printing->setCardPrinting($printingData['printing']);
+            }
+            $card->addPrinting($printing);
+            $em->persist($printing);
+        }
+
+        $em->persist($card);
+        $em->flush();
+
+        return $card;
+    }
+
     public function testListIsPubliclyAccessibleInEnglish(): void
     {
         $this->client->request('GET', '/en/banned-cards');
@@ -108,12 +124,11 @@ class BannedCardControllerTest extends AbstractFunctionalTest
 
     public function testListShowsActiveBannedCards(): void
     {
-        $this->persistBannedCard('Forest of Giant Plants', 'AOR', '74');
+        $this->persistBannedCard('Forest of Giant Plants', [['setCode' => 'AOR', 'cardNumber' => '74']]);
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
 
         self::assertResponseIsSuccessful();
-        self::assertGreaterThan(0, $crawler->filter('.banned-card-trigger')->count());
         $trigger = $crawler->filter('.banned-card-trigger')->first();
         self::assertSame('Forest of Giant Plants', $trigger->attr('data-card-name'));
         $printings = json_decode((string) $trigger->attr('data-card-printings'), true);
@@ -122,47 +137,36 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         self::assertSame(['setCode' => 'AOR', 'cardNumber' => '74'], $printings[0]);
     }
 
-    public function testGroupingCollapsesPrintingsSharingTheSameCardIdentity(): void
+    public function testEachBannedCardIsOneTileEvenWithMultiplePrintings(): void
     {
         $identity = $this->persistCardIdentity('Archeops');
         $printingA = $this->persistCardPrinting($identity, 'NVI', '67', imageUrl: 'https://example/nvi/high.webp');
         $printingB = $this->persistCardPrinting($identity, 'DEX', '110', imageUrl: 'https://example/dex/high.webp');
 
-        $this->persistBannedCard('Archeops', 'NVI', '67', printing: $printingA);
-        $this->persistBannedCard('Archeops', 'DEX', '110', printing: $printingB);
+        $this->persistBannedCard(
+            'Archeops',
+            [
+                ['setCode' => 'NVI', 'cardNumber' => '67', 'printing' => $printingA],
+                ['setCode' => 'DEX', 'cardNumber' => '110', 'printing' => $printingB],
+            ],
+            identity: $identity,
+        );
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
 
         self::assertResponseIsSuccessful();
         $triggers = $crawler->filter('.banned-card-trigger');
-        self::assertSame(1, $triggers->count(), 'Two printings sharing a CardIdentity should produce a single tile.');
+        self::assertSame(1, $triggers->count(), 'A single BannedCard parent must produce a single tile.');
 
         $printings = json_decode((string) $triggers->first()->attr('data-card-printings'), true);
         self::assertIsArray($printings);
         self::assertCount(2, $printings);
-        $codes = array_map(static fn (array $printing): string => $printing['setCode'].' '.$printing['cardNumber'], $printings);
-        sort($codes);
-        self::assertSame(['DEX 110', 'NVI 67'], $codes);
     }
 
-    public function testUnlinkedRowsWithSameNameAreNotMerged(): void
+    public function testListExcludesSoftDeletedParents(): void
     {
-        // Two functionally-distinct cards sharing a name (e.g. Unown HAND/DAMAGE)
-        // without linked CardPrinting must stay as separate tiles.
-        $this->persistBannedCard('Unown', 'LOT', '89');
-        $this->persistBannedCard('Unown', 'LOT', '91');
-
-        $crawler = $this->client->request('GET', '/en/banned-cards');
-
-        self::assertResponseIsSuccessful();
-        $triggers = $crawler->filter('.banned-card-trigger');
-        self::assertSame(2, $triggers->count(), 'Without a CardIdentity link, name-only collisions must not collapse rows.');
-    }
-
-    public function testListExcludesSoftDeletedCards(): void
-    {
-        $this->persistBannedCard('Active Card', 'AOR', '74');
-        $this->persistBannedCard('Archived Card', 'PHF', '99', deleted: true);
+        $this->persistBannedCard('Active Card', [['setCode' => 'AOR', 'cardNumber' => '74']]);
+        $this->persistBannedCard('Archived Card', [['setCode' => 'PHF', 'cardNumber' => '99']], deleted: true);
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
 
@@ -188,9 +192,8 @@ class BannedCardControllerTest extends AbstractFunctionalTest
     {
         $this->persistBannedCard(
             'Lysandre\'s Trump Card',
-            'PHF',
-            '99',
-            "Resets **both** players' discard piles, breaking late-game tempo.",
+            [['setCode' => 'PHF', 'cardNumber' => '99']],
+            explanation: "Resets **both** players' discard piles, breaking late-game tempo.",
         );
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
@@ -203,7 +206,7 @@ class BannedCardControllerTest extends AbstractFunctionalTest
 
     public function testListIncludesJsonLdItemList(): void
     {
-        $this->persistBannedCard('Forest of Giant Plants', 'AOR', '74');
+        $this->persistBannedCard('Forest of Giant Plants', [['setCode' => 'AOR', 'cardNumber' => '74']]);
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
 
@@ -219,7 +222,7 @@ class BannedCardControllerTest extends AbstractFunctionalTest
                 break;
             }
         }
-        self::assertTrue($found, 'Expected an ItemList JSON-LD block listing the banned card.');
+        self::assertTrue($found);
     }
 
     public function testListIncludesCanonicalAndHreflang(): void

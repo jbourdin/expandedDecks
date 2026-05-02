@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\BannedCard;
+use App\Entity\CardIdentity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -31,63 +32,18 @@ class BannedCardRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns the set of all *active* (non soft-deleted) banned card identifiers for fast lookup.
-     *
-     * @return array<string, true> keys are "setCode|cardNumber"
-     */
-    public function findBannedCardKeys(): array
-    {
-        /** @var list<array{setCode: string, cardNumber: string}> $rows */
-        $rows = $this->createQueryBuilder('b')
-            ->select('b.setCode, b.cardNumber')
-            ->andWhere('b.deletedAt IS NULL')
-            ->getQuery()
-            ->getArrayResult();
-
-        $map = [];
-        foreach ($rows as $row) {
-            $map[$row['setCode'].'|'.$row['cardNumber']] = true;
-        }
-
-        return $map;
-    }
-
-    /**
-     * Active row only (excludes soft-deleted).
-     */
-    public function findOneBySetCodeAndNumber(string $setCode, string $cardNumber): ?BannedCard
-    {
-        return $this->findOneBy([
-            'setCode' => $setCode,
-            'cardNumber' => $cardNumber,
-            'deletedAt' => null,
-        ]);
-    }
-
-    /**
-     * Returns the row matching the (setCode, cardNumber) pair regardless of soft-delete state.
-     * Used by the sync/admin re-ban path to reactivate a previously soft-deleted entry.
-     */
-    public function findOneIncludingDeleted(string $setCode, string $cardNumber): ?BannedCard
-    {
-        return $this->findOneBy([
-            'setCode' => $setCode,
-            'cardNumber' => $cardNumber,
-        ]);
-    }
-
-    /**
-     * Active rows ordered by effectiveDate desc (newest bans first), nulls last.
+     * Active rows ordered by effective date desc (newest bans first), nulls last,
+     * then by name. Used by the public list and the admin "active" tab.
      *
      * @return list<BannedCard>
      */
     public function findActiveOrderedByEffectiveDate(): array
     {
         /** @var list<BannedCard> $rows */
-        $rows = $this->createQueryBuilder('b')
-            ->andWhere('b.deletedAt IS NULL')
-            ->addOrderBy('b.effectiveDate', 'DESC')
-            ->addOrderBy('b.cardName', 'ASC')
+        $rows = $this->createQueryBuilder('bc')
+            ->andWhere('bc.deletedAt IS NULL')
+            ->addOrderBy('bc.effectiveDate', 'DESC')
+            ->addOrderBy('bc.cardName', 'ASC')
             ->getQuery()
             ->getResult();
 
@@ -102,12 +58,50 @@ class BannedCardRepository extends ServiceEntityRepository
     public function findDeletedOrderedByDeletionDate(): array
     {
         /** @var list<BannedCard> $rows */
-        $rows = $this->createQueryBuilder('b')
-            ->andWhere('b.deletedAt IS NOT NULL')
-            ->orderBy('b.deletedAt', 'DESC')
+        $rows = $this->createQueryBuilder('bc')
+            ->andWhere('bc.deletedAt IS NOT NULL')
+            ->orderBy('bc.deletedAt', 'DESC')
             ->getQuery()
             ->getResult();
 
         return $rows;
+    }
+
+    /**
+     * Lookup a parent ban by CardIdentity, regardless of soft-delete state.
+     */
+    public function findOneByCardIdentity(CardIdentity $cardIdentity): ?BannedCard
+    {
+        /** @var BannedCard|null $row */
+        $row = $this->findOneBy(['cardIdentity' => $cardIdentity]);
+
+        return $row;
+    }
+
+    /**
+     * Returns the set of all *active* banned (setCode, cardNumber) pairs for
+     * fast deck-list validation. Joins against banned_card_printing through the
+     * parent so soft-deleted parents (whole-card unbanning) are excluded.
+     *
+     * @return array<string, true> keys are "setCode|cardNumber"
+     */
+    public function findBannedPrintingKeys(): array
+    {
+        /** @var list<array{setCode: string, cardNumber: string}> $rows */
+        $rows = $this->getEntityManager()->createQuery(
+            <<<'DQL'
+                SELECT bcp.setCode, bcp.cardNumber
+                FROM App\Entity\BannedCardPrinting bcp
+                INNER JOIN bcp.bannedCard bc
+                WHERE bc.deletedAt IS NULL
+                DQL
+        )->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['setCode'].'|'.$row['cardNumber']] = true;
+        }
+
+        return $map;
     }
 }

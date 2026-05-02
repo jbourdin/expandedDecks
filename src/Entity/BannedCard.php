@@ -14,21 +14,26 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\BannedCardRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A specific card printing banned from the Expanded format.
+ * One ban announcement, keyed by the functional card identity.
  *
- * Each row represents one printing (set code + card number) of a banned card.
- * A single ban announcement may produce multiple rows when the same card
- * has alternate-art or promo reprints.
+ * All printings of a banned functional card share metadata (effective date,
+ * announcement URL, explanation) and are stored as child {@see BannedCardPrinting}
+ * rows under a single BannedCard entry. Admins manage one row per identity.
+ *
+ * `cardIdentity` is nullable so a printing whose CardIdentity hasn't been
+ * resolved yet (e.g. before TCGdex enrichment) still has a placeholder parent.
  *
  * @see docs/features.md F6.5 — Banned card list management
  * @see docs/features.md F6.14 — Banned cards public page
  */
 #[ORM\Entity(repositoryClass: BannedCardRepository::class)]
 #[ORM\Table(name: 'banned_card')]
-#[ORM\UniqueConstraint(name: 'uniq_banned_card', columns: ['set_code', 'card_number'])]
+#[ORM\UniqueConstraint(name: 'uniq_banned_card_identity', columns: ['card_identity_id'])]
 class BannedCard
 {
     #[ORM\Id]
@@ -36,14 +41,14 @@ class BannedCard
     #[ORM\Column]
     private ?int $id = null;
 
+    /** Functional card identity. Null for placeholder rows whose printing has not been enriched yet. */
+    #[ORM\ManyToOne(targetEntity: CardIdentity::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?CardIdentity $cardIdentity = null;
+
+    /** Denormalised display name. Mirrors CardIdentity::name when linked. */
     #[ORM\Column(length: 100)]
     private string $cardName = '';
-
-    #[ORM\Column(length: 20)]
-    private string $setCode = '';
-
-    #[ORM\Column(length: 20)]
-    private string $cardNumber = '';
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $effectiveDate = null;
@@ -54,9 +59,10 @@ class BannedCard
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $explanation = null;
 
+    /** Optional explicit override for the public-page image. Falls back to lowest-rarity printing among children. */
     #[ORM\ManyToOne(targetEntity: CardPrinting::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?CardPrinting $cardPrinting = null;
+    private ?CardPrinting $representativePrinting = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $deletedAt = null;
@@ -64,14 +70,31 @@ class BannedCard
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /** @var Collection<int, BannedCardPrinting> */
+    #[ORM\OneToMany(targetEntity: BannedCardPrinting::class, mappedBy: 'bannedCard', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $printings;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->printings = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCardIdentity(): ?CardIdentity
+    {
+        return $this->cardIdentity;
+    }
+
+    public function setCardIdentity(?CardIdentity $cardIdentity): static
+    {
+        $this->cardIdentity = $cardIdentity;
+
+        return $this;
     }
 
     public function getCardName(): string
@@ -82,30 +105,6 @@ class BannedCard
     public function setCardName(string $cardName): static
     {
         $this->cardName = $cardName;
-
-        return $this;
-    }
-
-    public function getSetCode(): string
-    {
-        return $this->setCode;
-    }
-
-    public function setSetCode(string $setCode): static
-    {
-        $this->setCode = $setCode;
-
-        return $this;
-    }
-
-    public function getCardNumber(): string
-    {
-        return $this->cardNumber;
-    }
-
-    public function setCardNumber(string $cardNumber): static
-    {
-        $this->cardNumber = $cardNumber;
 
         return $this;
     }
@@ -134,11 +133,6 @@ class BannedCard
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
     public function getExplanation(): ?string
     {
         return $this->explanation;
@@ -151,14 +145,14 @@ class BannedCard
         return $this;
     }
 
-    public function getCardPrinting(): ?CardPrinting
+    public function getRepresentativePrinting(): ?CardPrinting
     {
-        return $this->cardPrinting;
+        return $this->representativePrinting;
     }
 
-    public function setCardPrinting(?CardPrinting $cardPrinting): static
+    public function setRepresentativePrinting(?CardPrinting $representativePrinting): static
     {
-        $this->cardPrinting = $cardPrinting;
+        $this->representativePrinting = $representativePrinting;
 
         return $this;
     }
@@ -178,5 +172,37 @@ class BannedCard
     public function isDeleted(): bool
     {
         return $this->deletedAt instanceof \DateTimeImmutable;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @return Collection<int, BannedCardPrinting>
+     */
+    public function getPrintings(): Collection
+    {
+        return $this->printings;
+    }
+
+    public function addPrinting(BannedCardPrinting $printing): static
+    {
+        if (!$this->printings->contains($printing)) {
+            $this->printings->add($printing);
+            $printing->setBannedCard($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrinting(BannedCardPrinting $printing): static
+    {
+        if ($this->printings->removeElement($printing)) {
+            // bannedCard is required, orphanRemoval handles physical deletion.
+        }
+
+        return $this;
     }
 }

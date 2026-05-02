@@ -16,7 +16,6 @@ namespace App\Controller;
 use App\Entity\BannedCard;
 use App\Form\BannedCardFormType;
 use App\Repository\BannedCardRepository;
-use App\Service\BannedCardEnricher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Admin CRUD for the banned card list (soft-delete + reactivate).
+ * Admin CRUD for the banned card list (one row per CardIdentity).
+ *
+ * Printings are managed by the upstream sync service ({@see \App\Service\BannedCardsSyncService})
+ * and the enrichment pipeline; this controller only manages the canonical
+ * metadata of each ban (date, source URL, explanation).
  *
  * @see docs/features.md F6.5 — Banned card list management
  * @see docs/features.md F6.14 — Banned cards public page
@@ -38,7 +41,6 @@ class AdminBannedCardController extends AbstractAppController
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly BannedCardRepository $bannedCardRepository,
-        private readonly BannedCardEnricher $cardEnricher,
     ) {
         parent::__construct($translator);
     }
@@ -61,51 +63,6 @@ class AdminBannedCardController extends AbstractAppController
         ]);
     }
 
-    #[Route('/new', name: 'app_admin_banned_card_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
-    {
-        $card = new BannedCard();
-
-        $form = $this->createForm(BannedCardFormType::class, $card);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $existing = $this->bannedCardRepository->findOneIncludingDeleted(
-                $card->getSetCode(),
-                $card->getCardNumber(),
-            );
-
-            if ($existing instanceof BannedCard) {
-                $existing->setCardName($card->getCardName());
-                $existing->setEffectiveDate($card->getEffectiveDate());
-                $existing->setSourceUrl($card->getSourceUrl());
-                $existing->setExplanation($card->getExplanation());
-                $existing->setDeletedAt(null);
-                $this->cardEnricher->enrich($existing);
-
-                $this->entityManager->flush();
-
-                $this->addFlash('success', 'app.admin.banned_card.flash.reactivated');
-
-                return $this->redirectToRoute('app_admin_banned_card_edit', ['id' => $existing->getId()]);
-            }
-
-            $this->cardEnricher->enrich($card);
-            $this->entityManager->persist($card);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'app.admin.banned_card.flash.created');
-
-            return $this->redirectToRoute('app_admin_banned_card_edit', ['id' => $card->getId()]);
-        }
-
-        return $this->render('admin/banned_card/form.html.twig', [
-            'form' => $form,
-            'card' => $card,
-            'isEdit' => false,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_admin_banned_card_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, BannedCard $card): Response
     {
@@ -113,7 +70,6 @@ class AdminBannedCardController extends AbstractAppController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->cardEnricher->enrich($card);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'app.admin.banned_card.flash.updated');
@@ -124,7 +80,6 @@ class AdminBannedCardController extends AbstractAppController
         return $this->render('admin/banned_card/form.html.twig', [
             'form' => $form,
             'card' => $card,
-            'isEdit' => true,
         ]);
     }
 

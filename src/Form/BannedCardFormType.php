@@ -34,12 +34,7 @@ class BannedCardFormType extends AbstractType
         $builder
             ->add('cardName', TextType::class, [
                 'label' => 'app.admin.banned_card.field.card_name',
-            ])
-            ->add('setCode', TextType::class, [
-                'label' => 'app.admin.banned_card.field.set_code',
-            ])
-            ->add('cardNumber', TextType::class, [
-                'label' => 'app.admin.banned_card.field.card_number',
+                'help' => 'app.admin.banned_card.field.card_name_help',
             ])
             ->add('effectiveDate', DateType::class, [
                 'label' => 'app.admin.banned_card.field.effective_date',

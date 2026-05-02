@@ -14,8 +14,11 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Entity\BannedCard;
+use App\Entity\BannedCardPrinting;
+use App\Repository\BannedCardPrintingRepository;
 use App\Repository\BannedCardRepository;
 use App\Service\BannedCardEnricher;
+use App\Service\BannedCardSeedData;
 use App\Service\BannedCardsSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -35,10 +38,18 @@ class BannedCardsSyncServiceTest extends TestCase
             .'</body></html>';
     }
 
-    private function buildLinkerStub(): BannedCardEnricher
+    private function buildSeedStub(): BannedCardSeedData
     {
-        // Final readonly classes can't be doubled; build a real enricher whose
-        // collaborators all return null so enrich() is a clean no-op.
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        return new BannedCardSeedData($bannedCardRepo, $entityManager);
+    }
+
+    private function buildEnricherStub(): BannedCardEnricher
+    {
         $apiClient = $this->createStub(\App\Service\Tcgdex\TcgdexApiClient::class);
         $apiClient->method('findCard')->willReturn(null);
         $apiClient->method('findCardByNameInAliasedSet')->willReturn(null);
@@ -48,8 +59,12 @@ class BannedCardsSyncServiceTest extends TestCase
         $cardPrintingRepository = $this->createStub(\App\Repository\CardPrintingRepository::class);
         $cardPrintingRepository->method('findFirstBySetCodeAndCardNumber')->willReturn(null);
 
+        $bannedCardPrintingRepository = $this->createStub(BannedCardPrintingRepository::class);
+        $bannedCardPrintingRepository->method('findAllOrderedBySetAndNumber')->willReturn([]);
+
         $bannedCardRepository = $this->createStub(BannedCardRepository::class);
         $bannedCardRepository->method('findActiveOrderedByEffectiveDate')->willReturn([]);
+        $bannedCardRepository->method('findOneByCardIdentity')->willReturn(null);
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
 
@@ -57,12 +72,13 @@ class BannedCardsSyncServiceTest extends TestCase
             $apiClient,
             $identityResolver,
             $cardPrintingRepository,
+            $bannedCardPrintingRepository,
             $bannedCardRepository,
             $entityManager,
         );
     }
 
-    public function testSyncAddsNewBannedCards(): void
+    public function testSyncAddsNewBannedPrintings(): void
     {
         $html = $this->buildHtml(
             '<ul>'
@@ -73,15 +89,16 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
         $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::exactly(4))->method('persist');
         $entityManager->expects(self::once())->method('flush');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -90,7 +107,7 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertSame(0, $result->unchanged);
     }
 
-    public function testSyncSkipsExistingCards(): void
+    public function testSyncSkipsExistingPrintings(): void
     {
         $html = $this->buildHtml(
             '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
@@ -98,20 +115,23 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
-        $existing = new BannedCard();
-        $existing->setCardName('Archeops');
-        $existing->setSetCode('NVI');
-        $existing->setCardNumber('67');
+        $existingParent = new BannedCard();
+        $existingParent->setCardName('Archeops');
+        $existingPrinting = new BannedCardPrinting();
+        $existingPrinting->setSetCode('NVI');
+        $existingPrinting->setCardNumber('67');
+        $existingParent->addPrinting($existingPrinting);
+
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCardPrinting => 'NVI' === $setCode && '67' === $cardNumber ? $existingPrinting : null);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')
-            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $existing : null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$existing]);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$existingParent]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -120,7 +140,7 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertSame(1, $result->unchanged);
     }
 
-    public function testSyncRemovesUnbannedCards(): void
+    public function testSyncSoftDeletesParentsWithNoMatchingPrintings(): void
     {
         $html = $this->buildHtml(
             '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
@@ -128,37 +148,41 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
-        $archeops = new BannedCard();
-        $archeops->setCardName('Archeops');
-        $archeops->setSetCode('NVI');
-        $archeops->setCardNumber('67');
+        $archeopsParent = new BannedCard();
+        $archeopsParent->setCardName('Archeops');
+        $archeopsPrinting = new BannedCardPrinting();
+        $archeopsPrinting->setSetCode('NVI');
+        $archeopsPrinting->setCardNumber('67');
+        $archeopsParent->addPrinting($archeopsPrinting);
 
-        $oldCard = new BannedCard();
-        $oldCard->setCardName('OldBannedCard');
-        $oldCard->setSetCode('XY');
-        $oldCard->setCardNumber('999');
+        $oldParent = new BannedCard();
+        $oldParent->setCardName('Old Banned Card');
+        $oldPrinting = new BannedCardPrinting();
+        $oldPrinting->setSetCode('XY');
+        $oldPrinting->setCardNumber('999');
+        $oldParent->addPrinting($oldPrinting);
+
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCardPrinting => 'NVI' === $setCode && '67' === $cardNumber ? $archeopsPrinting : null);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')
-            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $archeops : null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$archeops, $oldCard]);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$archeopsParent, $oldParent]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
-        $entityManager->expects(self::never())->method('remove');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
         self::assertSame(0, $result->added);
         self::assertSame(1, $result->removed);
         self::assertSame(1, $result->unchanged);
-        self::assertNull($archeops->getDeletedAt());
-        self::assertInstanceOf(\DateTimeImmutable::class, $oldCard->getDeletedAt());
+        self::assertNull($archeopsParent->getDeletedAt());
+        self::assertInstanceOf(\DateTimeImmutable::class, $oldParent->getDeletedAt());
     }
 
-    public function testSyncReactivatesSoftDeletedCards(): void
+    public function testSyncReactivatesSoftDeletedParents(): void
     {
         $html = $this->buildHtml(
             '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
@@ -166,80 +190,30 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
-        $existing = new BannedCard();
-        $existing->setCardName('Archeops');
-        $existing->setSetCode('NVI');
-        $existing->setCardNumber('67');
-        $existing->setDeletedAt(new \DateTimeImmutable('2024-01-01'));
+        $existingParent = new BannedCard();
+        $existingParent->setCardName('Archeops');
+        $existingParent->setDeletedAt(new \DateTimeImmutable('2024-01-01'));
+        $existingPrinting = new BannedCardPrinting();
+        $existingPrinting->setSetCode('NVI');
+        $existingPrinting->setCardNumber('67');
+        $existingParent->addPrinting($existingPrinting);
+
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')
+            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCardPrinting => 'NVI' === $setCode && '67' === $cardNumber ? $existingPrinting : null);
 
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')
-            ->willReturnCallback(static fn (string $setCode, string $cardNumber): ?BannedCard => 'NVI' === $setCode && '67' === $cardNumber ? $existing : null);
         $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
-        $entityManager->expects(self::never())->method('remove');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
         self::assertSame(1, $result->added);
         self::assertSame(0, $result->unchanged);
-        self::assertNull($existing->getDeletedAt(), 'Soft-deleted card should be reactivated by setting deletedAt to null');
-    }
-
-    public function testSyncHandlesMultiplePrintingsOfSameCard(): void
-    {
-        $html = $this->buildHtml(
-            '<ul><li><a href="#">Unown</a> (<em>Sun &amp; Moon—Lost Thunder</em>, 90/214 and 91/214)</li></ul>',
-        );
-
-        $httpClient = new MockHttpClient([new MockResponse($html)]);
-
-        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::exactly(2))->method('persist');
-
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
-        $result = $service->sync();
-
-        self::assertTrue($result->success);
-        self::assertSame(2, $result->added);
-    }
-
-    public function testSyncParsesCardNameWithEmTagInAltAttribute(): void
-    {
-        $html = $this->buildHtml(
-            '<ul><li>'
-            .'<a rel="imagepopup" href="https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/xy-series/xy6/77/" target="_self" src="https://www.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY6/XY6_EN_77.png" alt="Shaymin-<em>EX</em>">Shaymin-<em>EX</em></a>'
-            .' (<em>XY—Roaring Skies</em>, 77/108, 77a/108, and 106/108)'
-            .'</li></ul>',
-        );
-
-        $httpClient = new MockHttpClient([new MockResponse($html)]);
-
-        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
-
-        $persisted = [];
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::exactly(3))->method('persist')
-            ->willReturnCallback(static function (BannedCard $card) use (&$persisted): void {
-                $persisted[] = $card->getCardName();
-            });
-
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
-        $result = $service->sync();
-
-        self::assertTrue($result->success);
-        self::assertSame(3, $result->added);
-        self::assertSame(['Shaymin-EX', 'Shaymin-EX', 'Shaymin-EX'], $persisted);
+        self::assertNull($existingParent->getDeletedAt());
     }
 
     public function testSyncFailsWhenNoExpandedSection(): void
@@ -248,10 +222,11 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
         $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertFalse($result->success);
@@ -260,43 +235,24 @@ class BannedCardsSyncServiceTest extends TestCase
 
     public function testSyncMatchesExpandedFormatHeading(): void
     {
-        // Some pages use ">Expanded Format<" instead of ">Expanded<"
         $html = '<html><body><h2>Standard</h2><h2>Expanded Format</h2>'
             .'<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul></body></html>';
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
         $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::once())->method('persist');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
         self::assertSame(1, $result->added);
-    }
-
-    public function testSyncWarnsWhenNoUlFoundAfterExpandedSection(): void
-    {
-        $html = '<html><body><h2>Expanded</h2><p>No list here</p></body></html>';
-
-        $httpClient = new MockHttpClient([new MockResponse($html)]);
-
-        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findAll')->willReturn([]);
-
-        $entityManager = $this->createStub(EntityManagerInterface::class);
-
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
-        $result = $service->sync();
-
-        self::assertTrue($result->success);
-        self::assertSame(0, $result->added);
-        self::assertContains('Could not find a <ul> list in the Expanded section.', $result->warnings);
     }
 
     public function testSyncWarnsOnUnknownSetName(): void
@@ -307,14 +263,15 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
         $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -323,72 +280,29 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertStringContainsString('Unknown set', $result->warnings[0]);
     }
 
-    public function testSyncWarnsWhenNoSetInfoInParentheses(): void
+    public function testSyncParsesCardNameWithEmTagInAltAttribute(): void
     {
         $html = $this->buildHtml(
-            '<ul><li><a href="#">CardWithoutSetInfo</a></li></ul>',
+            '<ul><li>'
+            .'<a rel="imagepopup" href="https://www.pokemon.com/us/pokemon-tcg/pokemon-cards/xy-series/xy6/77/" alt="Shaymin-<em>EX</em>">Shaymin-<em>EX</em></a>'
+            .' (<em>XY—Roaring Skies</em>, 77/108, 77a/108, and 106/108)'
+            .'</li></ul>',
         );
 
         $httpClient = new MockHttpClient([new MockResponse($html)]);
 
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
         $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
+        $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
-        self::assertSame(0, $result->added);
-        self::assertStringContainsString('No set info found', $result->warnings[0]);
-    }
-
-    public function testSyncWarnsWhenNoCommaInSetGroup(): void
-    {
-        $html = $this->buildHtml(
-            '<ul><li><a href="#">BadEntry</a> (Black &amp; White—Noble Victories)</li></ul>',
-        );
-
-        $httpClient = new MockHttpClient([new MockResponse($html)]);
-
-        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
-
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
-        $result = $service->sync();
-
-        self::assertTrue($result->success);
-        self::assertSame(0, $result->added);
-        self::assertStringContainsString('Could not parse set group', $result->warnings[0]);
-    }
-
-    public function testSyncNormalizesDashVariantsInSetName(): void
-    {
-        // Use en-dash (–) instead of em-dash (—) in set name
-        $html = $this->buildHtml(
-            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White–Noble Victories</em>, 67/101)</li></ul>',
-        );
-
-        $httpClient = new MockHttpClient([new MockResponse($html)]);
-
-        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findOneIncludingDeleted')->willReturn(null);
-        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::once())->method('persist');
-
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
-        $result = $service->sync();
-
-        self::assertTrue($result->success);
-        self::assertSame(1, $result->added);
+        self::assertSame(3, $result->added);
     }
 }

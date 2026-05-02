@@ -5767,10 +5767,35 @@
                 <target>Banned cards (admin)</target>
                 <note>F6.14 — admin banned card list page title</note>
             </trans-unit>
-            <trans-unit id="app.admin.banned_card.new">
-                <source>app.admin.banned_card.new</source>
-                <target>New banned card</target>
-                <note>F6.14 — admin: create banned card button / page title</note>
+            <trans-unit id="app.admin.banned_card.list_hint">
+                <source>app.admin.banned_card.list_hint</source>
+                <target>One row per functional card. Printings are managed automatically by the upstream sync; admins curate the ban metadata (effective date, source link, explanation).</target>
+                <note>F6.14 — admin help text under the list title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.printings">
+                <source>app.admin.banned_card.field.printings</source>
+                <target>Banned printings</target>
+                <note>F6.14 — admin: column / panel listing each (set, number) banned for the card</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.no_printings">
+                <source>app.admin.banned_card.no_printings</source>
+                <target>No printings recorded yet — run a sync to populate them.</target>
+                <note>F6.14 — admin: empty state on the edit page printings panel</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.printings_hint">
+                <source>app.admin.banned_card.printings_hint</source>
+                <target>Printings come from pokemon.com and the TCGdex enrichment pipeline. Use the Technical dashboard to resync or re-enrich.</target>
+                <note>F6.14 — admin: hint under the printings panel</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.printing_unresolved">
+                <source>app.admin.banned_card.printing_unresolved</source>
+                <target>not yet resolved</target>
+                <note>F6.14 — admin: badge for printings without a CardPrinting link</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.card_name_help">
+                <source>app.admin.banned_card.field.card_name_help</source>
+                <target>Display name shown on the public list. Refreshed automatically when a CardIdentity is linked.</target>
+                <note>F6.14 — admin form help text</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.edit">
                 <source>app.admin.banned_card.edit</source>

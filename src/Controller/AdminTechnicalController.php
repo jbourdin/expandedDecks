@@ -64,7 +64,11 @@ class AdminTechnicalController extends AbstractAppController
     {
         $pendingEnrichments = $this->deckVersionRepository->findNotEnriched();
         $pendingMosaics = $this->deckVersionRepository->findEnrichedWithoutMosaic();
-        $bannedCardCount = \count($this->bannedCardRepository->findActiveOrderedByEffectiveDate());
+        $bannedCards = $this->bannedCardRepository->findActiveOrderedByEffectiveDate();
+        $bannedCardCount = 0;
+        foreach ($bannedCards as $bannedCard) {
+            $bannedCardCount += $bannedCard->getPrintings()->count();
+        }
         $setMappingCount = $this->setMappingRepository->count();
 
         return $this->render('admin/technical/dashboard.html.twig', [

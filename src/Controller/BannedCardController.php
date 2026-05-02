@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\BannedCardRepository;
-use App\Service\BannedCardGrouper;
+use App\Service\BannedCardImageResolver;
 use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,21 +35,31 @@ class BannedCardController extends AbstractController
     public function list(
         Request $request,
         BannedCardRepository $bannedCardRepository,
-        BannedCardGrouper $grouper,
+        BannedCardImageResolver $imageResolver,
         MarkdownRenderer $markdownRenderer,
     ): Response {
         $bannedCards = $bannedCardRepository->findActiveOrderedByEffectiveDate();
-        $groups = $grouper->group($bannedCards, $request->getLocale());
+        $locale = $request->getLocale();
 
+        $imageUrls = [];
         $renderedExplanations = [];
-        foreach ($groups as $index => $group) {
-            if (null !== $group->explanation) {
-                $renderedExplanations[$index] = $markdownRenderer->render($group->explanation);
+        foreach ($bannedCards as $card) {
+            $id = $card->getId();
+            if (null === $id) {
+                continue;
+            }
+
+            $imageUrls[$id] = $imageResolver->resolveForBan($card, $locale);
+
+            $explanation = $card->getExplanation();
+            if (null !== $explanation && '' !== trim($explanation)) {
+                $renderedExplanations[$id] = $markdownRenderer->render($explanation);
             }
         }
 
         return $this->render('banned_card/list.html.twig', [
-            'groups' => $groups,
+            'bannedCards' => $bannedCards,
+            'imageUrls' => $imageUrls,
             'renderedExplanations' => $renderedExplanations,
         ]);
     }

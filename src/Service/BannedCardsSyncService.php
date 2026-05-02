@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\BannedCard;
+use App\Entity\BannedCardPrinting;
+use App\Repository\BannedCardPrintingRepository;
 use App\Repository\BannedCardRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -118,8 +120,10 @@ class BannedCardsSyncService
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly BannedCardRepository $bannedCardRepository,
+        private readonly BannedCardPrintingRepository $bannedCardPrintingRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly BannedCardEnricher $cardEnricher,
+        private readonly BannedCardSeedData $seedData,
     ) {
     }
 
@@ -139,43 +143,87 @@ class BannedCardsSyncService
         /** @var array<string, true> $syncedKeys tracks setCode|cardNumber pairs seen in this sync */
         $syncedKeys = [];
 
+        /**
+         * Fresh-parent map by CardIdentity id. The repo query in
+         * reparentByIdentity() can't see entities created earlier in this same
+         * loop until they're flushed — this in-memory cache plugs that gap so
+         * we don't end up with two parents for the same identity (which would
+         * trip the unique constraint).
+         *
+         * @var array<int, BannedCard>
+         */
+        $parentsByIdentityId = [];
+
         foreach ($entries as $entry) {
             $key = $entry['setCode'].'|'.$entry['cardNumber'];
             $syncedKeys[$key] = true;
 
-            $existing = $this->bannedCardRepository->findOneIncludingDeleted($entry['setCode'], $entry['cardNumber']);
+            $printing = $this->bannedCardPrintingRepository->findOneBySetCodeAndCardNumber(
+                $entry['setCode'],
+                $entry['cardNumber'],
+            );
 
-            if ($existing instanceof BannedCard) {
-                if ($existing->isDeleted()) {
-                    $existing->setDeletedAt(null);
-                    $existing->setSourceUrl(self::SOURCE_URL);
+            if ($printing instanceof BannedCardPrinting) {
+                $parent = $printing->getBannedCard();
+
+                if ($parent->isDeleted()) {
+                    $parent->setDeletedAt(null);
                     ++$added;
                 } else {
                     ++$unchanged;
                 }
-                $this->cardEnricher->enrich($existing);
+
+                $this->cardEnricher->enrichPrinting($printing);
+                $this->trackByIdentity($parent, $parentsByIdentityId);
                 continue;
             }
 
-            $card = new BannedCard();
-            $card->setCardName($entry['cardName']);
-            $card->setSetCode($entry['setCode']);
-            $card->setCardNumber($entry['cardNumber']);
-            $card->setSourceUrl(self::SOURCE_URL);
+            // New (setCode, cardNumber) pair — provision a child + parent.
+            // The source URL is intentionally left null so the seed migration
+            // (or an admin) can populate the specific announcement URL.
+            $printing = new BannedCardPrinting();
+            $printing->setSetCode($entry['setCode']);
+            $printing->setCardNumber($entry['cardNumber']);
 
-            $this->entityManager->persist($card);
-            $this->cardEnricher->enrich($card);
+            $parent = new BannedCard();
+            $parent->setCardName($entry['cardName']);
+            $parent->addPrinting($printing);
+
+            $this->entityManager->persist($parent);
+            $this->entityManager->persist($printing);
+
+            // Enrich the printing first so its CardIdentity is known. Then attach to
+            // the right parent (existing one for that identity, if any).
+            $this->cardEnricher->enrichPrinting($printing);
+            $this->reparentByIdentity($printing, $parentsByIdentityId);
+
+            // Apply seed metadata to whichever parent now owns the printing —
+            // identity reparenting may have replaced the placeholder.
+            $this->seedData->applyTo($printing->getBannedCard());
+
             ++$added;
         }
 
-        $existingActiveCards = $this->bannedCardRepository->findActiveOrderedByEffectiveDate();
-        $removed = 0;
         $now = new \DateTimeImmutable();
+        $removed = 0;
 
-        foreach ($existingActiveCards as $existing) {
-            $key = $existing->getSetCode().'|'.$existing->getCardNumber();
-            if (!isset($syncedKeys[$key])) {
-                $existing->setDeletedAt($now);
+        foreach ($this->bannedCardRepository->findActiveOrderedByEffectiveDate() as $bannedCard) {
+            $printings = $bannedCard->getPrintings();
+            if ($printings->isEmpty()) {
+                continue;
+            }
+
+            $allMissing = true;
+            foreach ($printings as $printing) {
+                $printingKey = $printing->getSetCode().'|'.$printing->getCardNumber();
+                if (isset($syncedKeys[$printingKey])) {
+                    $allMissing = false;
+                    break;
+                }
+            }
+
+            if ($allMissing) {
+                $bannedCard->setDeletedAt($now);
                 ++$removed;
             }
         }
@@ -189,6 +237,68 @@ class BannedCardsSyncService
             unchanged: $unchanged,
             warnings: $warnings,
         );
+    }
+
+    /**
+     * After enrichment populates a printing's CardIdentity, move the printing to
+     * the canonical parent for that identity (promoting the placeholder when
+     * none exists yet). The placeholder parent is dropped if it ends up empty.
+     *
+     * @param array<int, BannedCard> $parentsByIdentityId in-memory cache of parents created this run
+     */
+    private function reparentByIdentity(BannedCardPrinting $printing, array &$parentsByIdentityId): void
+    {
+        $cardPrinting = $printing->getCardPrinting();
+        if (null === $cardPrinting) {
+            return;
+        }
+
+        $identity = $cardPrinting->getCardIdentity();
+        $identityId = $identity->getId();
+        $currentParent = $printing->getBannedCard();
+
+        $canonical = (null !== $identityId ? ($parentsByIdentityId[$identityId] ?? null) : null)
+            ?? $this->bannedCardRepository->findOneByCardIdentity($identity);
+
+        if (null === $canonical) {
+            // Promote the placeholder: tag it with the resolved CardIdentity.
+            $currentParent->setCardIdentity($identity);
+            $currentParent->setCardName($identity->getName());
+            $this->trackByIdentity($currentParent, $parentsByIdentityId);
+
+            return;
+        }
+
+        if ($canonical === $currentParent) {
+            $this->trackByIdentity($canonical, $parentsByIdentityId);
+
+            return;
+        }
+
+        // Move the printing under the canonical parent.
+        $currentParent->removePrinting($printing);
+        $canonical->addPrinting($printing);
+
+        if ($currentParent->getPrintings()->isEmpty() && null === $currentParent->getCardIdentity()) {
+            $this->entityManager->remove($currentParent);
+        }
+
+        $this->trackByIdentity($canonical, $parentsByIdentityId);
+    }
+
+    /**
+     * @param array<int, BannedCard> $parentsByIdentityId
+     */
+    private function trackByIdentity(BannedCard $parent, array &$parentsByIdentityId): void
+    {
+        $identity = $parent->getCardIdentity();
+        if (null === $identity) {
+            return;
+        }
+        $id = $identity->getId();
+        if (null !== $id) {
+            $parentsByIdentityId[$id] = $parent;
+        }
     }
 
     /**

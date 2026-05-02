@@ -13,8 +13,9 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.admin.banned_card.list_title'|trans }}</h1>
-        <a href="{{ path('app_admin_banned_card_new') }}" class="btn btn-gold">{{ 'app.admin.banned_card.new'|trans }}</a>
     </div>
+
+    <p class="text-muted small mb-3">{{ 'app.admin.banned_card.list_hint'|trans }}</p>
 
     <div class="btn-group mb-4" role="group">
         <a href="{{ path('app_admin_banned_card_list', {view: 'active'}) }}" class="btn {{ currentView == 'active' ? 'btn-gold' : 'btn-outline-secondary' }}">
@@ -31,8 +32,7 @@
                 <thead>
                     <tr>
                         <th>{{ 'app.admin.banned_card.field.card_name'|trans }}</th>
-                        <th>{{ 'app.admin.banned_card.field.set_code'|trans }}</th>
-                        <th>{{ 'app.admin.banned_card.field.card_number'|trans }}</th>
+                        <th>{{ 'app.admin.banned_card.field.printings'|trans }}</th>
                         <th>{{ 'app.admin.banned_card.field.effective_date'|trans }}</th>
                         {% if currentView == 'history' %}
                             <th>{{ 'app.admin.banned_card.field.deleted_at'|trans }}</th>
@@ -44,8 +44,11 @@
                     {% for card in cards %}
                         <tr>
                             <td>{{ card.cardName }}</td>
-                            <td>{{ card.setCode }}</td>
-                            <td>{{ card.cardNumber }}</td>
+                            <td class="small text-muted">
+                                {% for printing in card.printings %}
+                                    <code>{{ printing.setCode }} {{ printing.cardNumber }}</code>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
                             <td>{{ card.effectiveDate ? card.effectiveDate|user_date : '—' }}</td>
                             {% if currentView == 'history' %}
                                 <td>{{ card.deletedAt|user_date }}</td>
