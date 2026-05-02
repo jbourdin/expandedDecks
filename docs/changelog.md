@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.9.2] — 2026-05-02
+
+Patch release: UX refinements on the public banned-cards page (F6.14) — denser grid that actually packs 9 per row at `lg+`, and a swipable modal.
+
+### Features
+
+- **Swipable banned-card modal (F6.14)** — clicking a card on `/{_locale}/banned-cards` now opens a modal you can navigate without closing: prev/next chevrons inside the modal body, ←/→ keyboard arrows, and a 50 px horizontal-swipe threshold for touch devices, all cycling through the banned cards in grid order. Inline `<script>` extracted into a typed module (`assets/banned-card-list.ts`) that mirrors the deck-card swipe pattern from `shared/card-hover.ts`. ([#504](https://github.com/jbourdin/expandedDecks/pull/504))
+
+### Bug Fixes
+
+- **Banned-cards grid actually 9 per row at `lg+`** — the 1.9.0 attempt to widen the grid to 9 cards per row was a no-op because Bootstrap 5 only ships `row-cols-{1..6}` by default, so `row-cols-lg-9` resolved to nothing and the page stayed at 6 (and dropped to 4 between `md` and `lg`). Bumped `$grid-row-columns: 9` in `assets/styles/app.scss` so the class actually exists, and raised density at `sm`/`md` (3→4, 4→6) so smaller-than-`lg` viewports stop rendering gigantic cards. ([#504](https://github.com/jbourdin/expandedDecks/pull/504))
+
+---
+
 ## [1.9.1] — 2026-05-02
 
 Patch release: respect the channel `brand_name` on every error page.
