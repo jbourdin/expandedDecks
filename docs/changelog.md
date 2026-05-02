@@ -16,6 +16,36 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.9.0] — 2026-05-02
+
+Public banned-cards page with admin CRUD (F6.14), empty-channel coming-soon screen, and a denser 9-per-row card grid across deck mosaics and the banned-cards list.
+
+### Features
+
+- **Banned cards public page (F6.14)** — `/{_locale}/banned-cards` lists every Expanded-format ban as a Bootstrap mosaic with click-to-modal details (full image, all banned set/number printings, effective date, source link, Markdown explanation). Schema split into a parent `BannedCard` (one per `CardIdentity`) and child `BannedCardPrinting` (one per upstream `(setCode, cardNumber)` pair) so admins manage a single row per ban. New `Channel.enableBannedCards` flag drives the navbar link, JSON-LD `ItemList` mirrors the archetype catalog pattern, hreflang covers en/fr. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **TCGdex enrichment for banned cards (F6.14)** — `BannedCardEnricher` walks the existing deck-list enrichment chain (local `CardPrinting` → TCGdex API by setCode+cardNumber → alias-set name search) on every banned printing, populates `CardPrinting` + `CardIdentity`, and reparents the printing under the canonical parent for that identity. `TcgdexApiClient::findCard` gained leading-zero stripping (`022` → `22`) and skips its promo-prefix prepend when the upstream value already includes it (`PR-SW SWSH022` no longer becomes `swshp-SWSHSWSH022`). ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Image fallback chain for banned cards (F6.14)** — `BannedCardImageResolver` returns the lowest-rarity printing with a resolvable URL, walking through stored `CardPrinting.imageUrl` → TCGdex CDN built from `tcgdexId` (with dot-stripped set IDs for `sm3.5` → `sm35`) → PokemonTCG.io CDN → TCGdex CDN built from the upstream PTCG setCode via `TcgdexSet`. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Markdown rationale per ban (F6.14)** — every banned card ships with the verbatim "Details of Changes" wording from the original pokemon.com announcement (Burning Shadows 2017, Celestial Storm 2018, Team Up 2019, Cosmic Eclipse 2019, Vivid Voltage 2020, Paldean Fates 2024, Stellar Crown 2024, Mega Evolution 2025, Mega Evolution: Perfect Order 2026; Bulbanews fallback for the 2015 Lysandre's Trump Card ban whose original pokemon.com URL is dead). Bold on banned card / Ability / attack proper nouns, italics on expansion names — same emphasis the original pages used. The two Unown bans in LOT (DAMAGE 90, HAND 91) carry per-printing seed overrides since they shipped in different announcements. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Banned-card admin CRUD (F6.14)** — `/admin/banned-card` (ROLE_ADMIN) with active / history tabs, soft-delete + restore via the project inline-confirm pattern, Markdown editor (Mantine + tiptap) on the explanation field reusing the existing `_rich_text_editor.html.twig` macro and a new `banned_card_form` Webpack entry. Re-banning a previously soft-deleted entry reactivates it instead of failing on the unique constraint. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Banned-card sync hardening (F6.14)** — `BannedCardsSyncService` now soft-deletes parents that disappear from upstream (audit history preserved), reactivates archived rows when the upstream re-lists them, and dispatches the `BannedCardSeedData` service on every freshly-created parent so the metadata ships with the row. New `app:banned-cards:enrich [--force]` and `app:banned-cards:seed` console commands plus matching admin buttons on the technical dashboard for re-attempting unresolved cards or seeding metadata. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Empty-channel coming-soon screen** — channels with every `enable_*` flag off now render a Pokémon-styled coming-soon page (Togepi sprite + "Something will hatch here soon" hatching teaser) instead of the empty welcome fallback. The check runs **before** the `HomepageLayout` and dashboard-redirect branches so the screen wins even when an admin published a layout but didn't enable any feature yet — the layout would have nothing meaningful to link to anyway. New `home/empty_channel.html.twig` extends `base_error.html.twig` for a no-services lightweight layout, en + fr translations on `app.empty_channel.{title,lead,message}`. ([#499](https://github.com/jbourdin/expandedDecks/pull/499))
+
+### Bug Fixes
+
+- **Banned-card grouper safety (F6.14)** — fall back to per-printing keys instead of card-name when no `CardPrinting` is linked, so two functionally-distinct cards that share a name (Unown HAND vs DAMAGE) stay as separate tiles. The representative printing now prefers the lowest-rarity printing with a resolvable image URL rather than the lowest-rarity printing overall. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+- **Banned-card placeholders never reach the page (F6.14)** — `BannedCardRepository::findActiveOrderedByEffectiveDate` does an `INNER JOIN` on the printings collection and groups by parent id, hiding any parents that ended up without children (e.g. transient placeholders from an interrupted sync). A defence-in-depth migration also deletes pre-existing empty parents. ([#497](https://github.com/jbourdin/expandedDecks/pull/497))
+
+### Refactoring
+
+- **9-per-row card grids** — public banned-cards page now fits 9 cards per row at `lg+` (was 6) via Bootstrap 5 `row-cols-*` classes. The interactive deck card mosaic on the deck show page bumped from 8 → 9 thumbnails per row at `md+`. The server-rendered `MosaicGenerator` (the .webp attached to each deck for sharing) also bumped to 9; existing stored mosaics regenerate on the next enrichment cycle. ([#500](https://github.com/jbourdin/expandedDecks/pull/500))
+
+### Testing & Quality
+
+- **Functional tests** for the new banned-cards public list (one tile per parent, modal data attributes, JSON-LD ItemList, hreflang, soft-delete exclusion, two-Unown collision stays separate) and the empty-channel screen (en + fr renders, regular fallback wins on a non-empty channel, regression test pinning the empty-channel-wins-over-published-layout precedence). ([#497](https://github.com/jbourdin/expandedDecks/pull/497), [#499](https://github.com/jbourdin/expandedDecks/pull/499))
+- **Coverage backfill tracked in [#498](https://github.com/jbourdin/expandedDecks/issues/498)** — Codecov reported 42.75 % patch coverage on the F6.14 PR (308 lines missing on `BannedCardImageResolver`, `BannedCardEnricher`, `AdminBannedCardController`, etc.); follow-up issue lists every uncovered file with a sequenced order of attack to land tests on a future PR.
+
+---
+
 ## [1.8.13] — 2026-05-01
 
 Event tags, public + personal iCal calendar feeds, organizer handover, and the allow-custody flag for staff delegation.
