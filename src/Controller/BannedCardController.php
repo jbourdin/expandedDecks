@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\BannedCardRepository;
+use App\Service\BannedCardPrintingLinker;
 use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -31,22 +33,33 @@ class BannedCardController extends AbstractController
      */
     #[Route('/{_locale}/banned-cards', name: 'app_banned_card_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
     public function list(
+        Request $request,
         BannedCardRepository $bannedCardRepository,
+        BannedCardPrintingLinker $cardPrintingLinker,
         MarkdownRenderer $markdownRenderer,
     ): Response {
         $bannedCards = $bannedCardRepository->findActiveOrderedByEffectiveDate();
+        $locale = $request->getLocale();
 
+        $imageUrls = [];
         $renderedExplanations = [];
         foreach ($bannedCards as $card) {
             $id = $card->getId();
+            if (null === $id) {
+                continue;
+            }
+
+            $imageUrls[$id] = $cardPrintingLinker->resolveImageUrl($card, $locale);
+
             $explanation = $card->getExplanation();
-            if (null !== $id && null !== $explanation && '' !== trim($explanation)) {
+            if (null !== $explanation && '' !== trim($explanation)) {
                 $renderedExplanations[$id] = $markdownRenderer->render($explanation);
             }
         }
 
         return $this->render('banned_card/list.html.twig', [
             'bannedCards' => $bannedCards,
+            'imageUrls' => $imageUrls,
             'renderedExplanations' => $renderedExplanations,
         ]);
     }

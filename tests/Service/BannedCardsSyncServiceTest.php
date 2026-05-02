@@ -15,6 +15,8 @@ namespace App\Tests\Service;
 
 use App\Entity\BannedCard;
 use App\Repository\BannedCardRepository;
+use App\Repository\CardPrintingRepository;
+use App\Service\BannedCardPrintingLinker;
 use App\Service\BannedCardsSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @see docs/features.md F6.5 — Banned card list management
+ * @see docs/features.md F6.14 — Banned cards public page
  */
 class BannedCardsSyncServiceTest extends TestCase
 {
@@ -31,6 +34,17 @@ class BannedCardsSyncServiceTest extends TestCase
         return '<html><body><h2>Standard</h2><ul><li><a>SomeCard</a> (Scarlet &amp; Violet, 1/100)</li></ul>'
             .'<h2>Expanded</h2>'.$expandedSection
             .'</body></html>';
+    }
+
+    private function buildLinkerStub(): BannedCardPrintingLinker
+    {
+        $cardPrintingRepository = $this->createStub(CardPrintingRepository::class);
+        $cardPrintingRepository->method('findFirstBySetCodeAndCardNumber')->willReturn(null);
+
+        $tcgdexSetRepository = $this->createStub(\App\Repository\TcgdexSetRepository::class);
+        $tcgdexSetRepository->method('findByPtcgCode')->willReturn(null);
+
+        return new BannedCardPrintingLinker($cardPrintingRepository, $tcgdexSetRepository);
     }
 
     public function testSyncAddsNewBannedCards(): void
@@ -52,7 +66,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager->expects(self::exactly(4))->method('persist');
         $entityManager->expects(self::once())->method('flush');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -82,7 +96,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -118,7 +132,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager->expects(self::never())->method('persist');
         $entityManager->expects(self::never())->method('remove');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -152,7 +166,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager->expects(self::never())->method('persist');
         $entityManager->expects(self::never())->method('remove');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -176,7 +190,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::exactly(2))->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -205,7 +219,7 @@ class BannedCardsSyncServiceTest extends TestCase
                 $persisted[] = $card->getCardName();
             });
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -222,7 +236,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
         $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertFalse($result->success);
@@ -244,7 +258,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -262,7 +276,7 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -285,7 +299,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -309,7 +323,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -332,7 +346,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);
@@ -356,7 +370,7 @@ class BannedCardsSyncServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist');
 
-        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager);
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $entityManager, $this->buildLinkerStub());
         $result = $service->sync();
 
         self::assertTrue($result->success);

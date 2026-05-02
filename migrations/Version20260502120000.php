@@ -37,6 +37,21 @@ final class Version20260502120000 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_banned_card_deleted_at ON banned_card (deleted_at)');
 
         $this->addSql('ALTER TABLE channel ADD enable_banned_cards TINYINT(1) NOT NULL DEFAULT 0');
+
+        // Backfill: link each banned_card to the lowest-rarity Expanded-legal printing matching its (set_code, card_number).
+        // Uses a correlated subquery instead of UPDATE...JOIN so MySQL can pick the best printing per row.
+        $this->addSql(<<<'SQL'
+            UPDATE banned_card bc
+            SET bc.card_printing_id = (
+                SELECT cp.id
+                FROM card_printing cp
+                WHERE cp.set_code = bc.set_code
+                  AND cp.card_number = bc.card_number
+                ORDER BY cp.is_expanded_legal DESC, cp.rarity_tier ASC, cp.id ASC
+                LIMIT 1
+            )
+            WHERE bc.card_printing_id IS NULL
+            SQL);
     }
 
     public function down(Schema $schema): void

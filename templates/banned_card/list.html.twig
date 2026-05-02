@@ -42,7 +42,7 @@
     {% if bannedCards|length > 0 %}
         <div class="row g-3">
             {% for card in bannedCards %}
-                {% set highResImageUrl = card.cardPrinting and card.cardPrinting.imageUrl ? card.cardPrinting.imageUrl : null %}
+                {% set highResImageUrl = imageUrls[card.id] ?? null %}
                 {% set imageUrl = highResImageUrl ? highResImageUrl|replace({'/high.webp': '/low.webp'}) : null %}
                 <div class="col-6 col-sm-4 col-md-3 col-lg-2" id="card-{{ card.id }}">
                     <button type="button"
