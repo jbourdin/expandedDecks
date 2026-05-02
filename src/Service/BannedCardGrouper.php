@@ -69,7 +69,10 @@ final readonly class BannedCardGrouper
             return 'identity:'.$printing->getCardIdentity()->getId();
         }
 
-        return 'name:'.mb_strtolower($card->getCardName());
+        // No linked printing → treat this row as its own group. Grouping by name
+        // alone is unsafe because cards like Unown share a name across distinct
+        // functional cards (different abilities/attacks).
+        return 'unlinked:'.$card->getSetCode().':'.$card->getCardNumber();
     }
 
     /**
@@ -77,7 +80,7 @@ final readonly class BannedCardGrouper
      */
     private function buildGroup(array $cards, string $locale): BannedCardGroup
     {
-        $representative = $this->pickRepresentative($cards);
+        [$representative, $imageUrl] = $this->pickRepresentative($cards, $locale);
 
         $earliestDate = null;
         $sourceUrl = null;
@@ -114,7 +117,7 @@ final readonly class BannedCardGrouper
         return new BannedCardGroup(
             cardName: $representative->getCardName(),
             representative: $representative,
-            imageUrl: $this->imageResolver->resolveImageUrl($representative, $locale),
+            imageUrl: $imageUrl,
             printings: $printings,
             effectiveDate: $earliestDate,
             sourceUrl: $sourceUrl,
@@ -123,27 +126,47 @@ final readonly class BannedCardGrouper
     }
 
     /**
-     * Pick the card whose linked printing has the lowest rarity tier.
-     * Falls back to the first card when no printings are linked.
+     * Pick the lowest-rarity printing that has a resolvable image URL. If none
+     * have an image, fall back to the lowest-rarity printing overall, then to
+     * the first card. Returns a (card, imageUrl) pair to avoid resolving the
+     * same image twice.
      *
      * @param list<BannedCard> $cards
+     *
+     * @return array{0: BannedCard, 1: ?string}
      */
-    private function pickRepresentative(array $cards): BannedCard
+    private function pickRepresentative(array $cards, string $locale): array
     {
-        $best = null;
-        $bestTier = \PHP_INT_MAX;
+        $bestWithImage = null;
+        $bestWithImageTier = \PHP_INT_MAX;
+        $bestWithImageUrl = null;
+
+        $bestAny = null;
+        $bestAnyTier = \PHP_INT_MAX;
+
         foreach ($cards as $card) {
             $printing = $card->getCardPrinting();
-            if (null === $printing) {
-                continue;
+            $tier = null !== $printing ? $printing->getRarityTier() : \PHP_INT_MAX;
+
+            if ($tier < $bestAnyTier) {
+                $bestAnyTier = $tier;
+                $bestAny = $card;
             }
-            $tier = $printing->getRarityTier();
-            if ($tier < $bestTier) {
-                $bestTier = $tier;
-                $best = $card;
+
+            $imageUrl = $this->imageResolver->resolveImageUrl($card, $locale);
+            if (null !== $imageUrl && $tier < $bestWithImageTier) {
+                $bestWithImageTier = $tier;
+                $bestWithImage = $card;
+                $bestWithImageUrl = $imageUrl;
             }
         }
 
-        return $best ?? $cards[0];
+        if (null !== $bestWithImage) {
+            return [$bestWithImage, $bestWithImageUrl];
+        }
+
+        $fallback = $bestAny ?? $cards[0];
+
+        return [$fallback, $this->imageResolver->resolveImageUrl($fallback, $locale)];
     }
 }

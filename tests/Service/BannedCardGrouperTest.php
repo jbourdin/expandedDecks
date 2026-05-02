@@ -98,7 +98,9 @@ class BannedCardGrouperTest extends TestCase
     {
         $identity = new CardIdentity();
         $rarePrinting = $this->makePrinting($identity, 5);
+        $rarePrinting->setImageUrl('https://example/rare/high.webp');
         $commonPrinting = $this->makePrinting($identity, 1);
+        $commonPrinting->setImageUrl('https://example/common/high.webp');
 
         $rareBan = $this->makeBannedCard('Archeops', 'NVI', '67', $rarePrinting);
         $commonBan = $this->makeBannedCard('Archeops', 'DEX', '110', $commonPrinting);
@@ -108,27 +110,77 @@ class BannedCardGrouperTest extends TestCase
 
         self::assertCount(1, $groups);
         self::assertSame($commonBan, $groups[0]->representative, 'Lowest-tier (cheapest) printing should illustrate the group.');
+        self::assertSame('https://example/common/high.webp', $groups[0]->imageUrl);
     }
 
-    public function testFallsBackToNameGroupingWhenPrintingIsMissing(): void
+    public function testRepresentativePrefersLowestRarityWithImage(): void
     {
+        $identity = new CardIdentity();
+        $cheapNoImage = $this->makePrinting($identity, 1);
+        // Intentionally no imageUrl — common printing missing image data.
+        $rareWithImage = $this->makePrinting($identity, 5);
+        $rareWithImage->setImageUrl('https://example/rare/high.webp');
+
+        $cheapBan = $this->makeBannedCard('Archeops', 'NVI', '67', $cheapNoImage);
+        $rareBan = $this->makeBannedCard('Archeops', 'DEX', '110', $rareWithImage);
+
+        $grouper = new BannedCardGrouper($this->buildLinkerStub());
+        $groups = $grouper->group([$cheapBan, $rareBan], 'en');
+
+        self::assertCount(1, $groups);
+        self::assertSame($rareBan, $groups[0]->representative, 'Should skip the cheap printing without an image and use the rarer one that has one.');
+        self::assertSame('https://example/rare/high.webp', $groups[0]->imageUrl);
+    }
+
+    public function testRepresentativeFallsBackToFirstWhenNoneHaveImage(): void
+    {
+        $identity = new CardIdentity();
+        $printingA = $this->makePrinting($identity, 5);
+        $printingB = $this->makePrinting($identity, 1);
+
+        $a = $this->makeBannedCard('Archeops', 'NVI', '67', $printingA);
+        $b = $this->makeBannedCard('Archeops', 'DEX', '110', $printingB);
+
+        $grouper = new BannedCardGrouper($this->buildLinkerStub());
+        $groups = $grouper->group([$a, $b], 'en');
+
+        self::assertCount(1, $groups);
+        // No image anywhere, so still defaults to the lowest tier.
+        self::assertSame($b, $groups[0]->representative);
+        self::assertNull($groups[0]->imageUrl);
+    }
+
+    public function testUnlinkedRowsAreNotGroupedByNameAlone(): void
+    {
+        // Two functionally-distinct cards that share a name (e.g. Unown HAND vs
+        // Unown DAMAGE) without any linked CardPrinting must NOT be merged.
         $cards = [
-            $this->makeBannedCard('Forest of Giant Plants', 'AOR', '74'),
-            $this->makeBannedCard('Forest of Giant Plants', 'AOR', '75a'),
+            $this->makeBannedCard('Unown', 'LOT', '89'),
+            $this->makeBannedCard('Unown', 'LOT', '91'),
             $this->makeBannedCard('Lysandre\'s Trump Card', 'PHF', '99'),
         ];
 
         $grouper = new BannedCardGrouper($this->buildLinkerStub());
         $groups = $grouper->group($cards, 'en');
 
-        self::assertCount(2, $groups);
-        $byName = [];
-        foreach ($groups as $group) {
-            $byName[$group->cardName] = $group;
-        }
-        self::assertArrayHasKey('Forest of Giant Plants', $byName);
-        self::assertArrayHasKey("Lysandre's Trump Card", $byName);
-        self::assertCount(2, $byName['Forest of Giant Plants']->printings);
+        self::assertCount(3, $groups, 'Each unlinked row must stand on its own to avoid false grouping by name.');
+    }
+
+    public function testUnlinkedRowsCollapseOnceLinkedToSameIdentity(): void
+    {
+        $identity = new CardIdentity();
+        $printing = $this->makePrinting($identity, 3);
+
+        $cards = [
+            $this->makeBannedCard('Forest of Giant Plants', 'AOR', '74', $printing),
+            $this->makeBannedCard('Forest of Giant Plants', 'AOR', '75a', $printing),
+        ];
+
+        $grouper = new BannedCardGrouper($this->buildLinkerStub());
+        $groups = $grouper->group($cards, 'en');
+
+        self::assertCount(1, $groups);
+        self::assertCount(2, $groups[0]->printings);
     }
 
     public function testEffectiveDateIsEarliestInGroup(): void
@@ -199,10 +251,13 @@ class BannedCardGrouperTest extends TestCase
 
     public function testPrintingsAreSortedBySetCodeAndNumber(): void
     {
+        $identity = new CardIdentity();
+        $printing = $this->makePrinting($identity, 3);
+
         $cards = [
-            $this->makeBannedCard('Archeops', 'NVI', '67'),
-            $this->makeBannedCard('Archeops', 'DEX', '110'),
-            $this->makeBannedCard('Archeops', 'DEX', '109'),
+            $this->makeBannedCard('Archeops', 'NVI', '67', $printing),
+            $this->makeBannedCard('Archeops', 'DEX', '110', $printing),
+            $this->makeBannedCard('Archeops', 'DEX', '109', $printing),
         ];
 
         $grouper = new BannedCardGrouper($this->buildLinkerStub());

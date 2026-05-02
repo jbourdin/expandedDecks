@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\BannedCard;
+use App\Entity\CardIdentity;
+use App\Entity\CardPrinting;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -29,7 +31,7 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         return $entityManager;
     }
 
-    private function persistBannedCard(string $name, string $setCode, string $cardNumber, ?string $explanation = null, bool $deleted = false): BannedCard
+    private function persistBannedCard(string $name, string $setCode, string $cardNumber, ?string $explanation = null, bool $deleted = false, ?CardPrinting $printing = null): BannedCard
     {
         $em = $this->getEntityManager();
 
@@ -48,10 +50,44 @@ class BannedCardControllerTest extends AbstractFunctionalTest
             $card->setDeletedAt(new \DateTimeImmutable());
         }
 
+        if (null !== $printing) {
+            $card->setCardPrinting($printing);
+        }
+
         $em->persist($card);
         $em->flush();
 
         return $card;
+    }
+
+    private function persistCardIdentity(string $name): CardIdentity
+    {
+        $em = $this->getEntityManager();
+        $identity = new CardIdentity();
+        $identity->setName($name);
+        $identity->setCategory('trainer');
+        $em->persist($identity);
+        $em->flush();
+
+        return $identity;
+    }
+
+    private function persistCardPrinting(CardIdentity $identity, string $setCode, string $cardNumber, int $rarityTier = 3, ?string $imageUrl = null): CardPrinting
+    {
+        $em = $this->getEntityManager();
+        $printing = new CardPrinting();
+        $printing->setCardIdentity($identity);
+        $printing->setTcgdexId($setCode.'-'.$cardNumber.'-'.bin2hex(random_bytes(2)));
+        $printing->setSetCode($setCode);
+        $printing->setCardNumber($cardNumber);
+        $printing->setRarityTier($rarityTier);
+        if (null !== $imageUrl) {
+            $printing->setImageUrl($imageUrl);
+        }
+        $em->persist($printing);
+        $em->flush();
+
+        return $printing;
     }
 
     public function testListIsPubliclyAccessibleInEnglish(): void
@@ -86,16 +122,20 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         self::assertSame(['setCode' => 'AOR', 'cardNumber' => '74'], $printings[0]);
     }
 
-    public function testGroupingDeduplicatesByCardName(): void
+    public function testGroupingCollapsesPrintingsSharingTheSameCardIdentity(): void
     {
-        $this->persistBannedCard('Archeops', 'NVI', '67');
-        $this->persistBannedCard('Archeops', 'DEX', '110');
+        $identity = $this->persistCardIdentity('Archeops');
+        $printingA = $this->persistCardPrinting($identity, 'NVI', '67', imageUrl: 'https://example/nvi/high.webp');
+        $printingB = $this->persistCardPrinting($identity, 'DEX', '110', imageUrl: 'https://example/dex/high.webp');
+
+        $this->persistBannedCard('Archeops', 'NVI', '67', printing: $printingA);
+        $this->persistBannedCard('Archeops', 'DEX', '110', printing: $printingB);
 
         $crawler = $this->client->request('GET', '/en/banned-cards');
 
         self::assertResponseIsSuccessful();
         $triggers = $crawler->filter('.banned-card-trigger');
-        self::assertSame(1, $triggers->count(), 'Expected a single grouped tile for two banned printings of the same card.');
+        self::assertSame(1, $triggers->count(), 'Two printings sharing a CardIdentity should produce a single tile.');
 
         $printings = json_decode((string) $triggers->first()->attr('data-card-printings'), true);
         self::assertIsArray($printings);
@@ -103,6 +143,20 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         $codes = array_map(static fn (array $printing): string => $printing['setCode'].' '.$printing['cardNumber'], $printings);
         sort($codes);
         self::assertSame(['DEX 110', 'NVI 67'], $codes);
+    }
+
+    public function testUnlinkedRowsWithSameNameAreNotMerged(): void
+    {
+        // Two functionally-distinct cards sharing a name (e.g. Unown HAND/DAMAGE)
+        // without linked CardPrinting must stay as separate tiles.
+        $this->persistBannedCard('Unown', 'LOT', '89');
+        $this->persistBannedCard('Unown', 'LOT', '91');
+
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        $triggers = $crawler->filter('.banned-card-trigger');
+        self::assertSame(2, $triggers->count(), 'Without a CardIdentity link, name-only collisions must not collapse rows.');
     }
 
     public function testListExcludesSoftDeletedCards(): void
