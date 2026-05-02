@@ -51,22 +51,22 @@ final readonly class BannedCardSeedData
         'Chip-Chip Ice Axe' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Manipulates the top of the opponent\'s deck, enabling oppressive hand-disruption / discard-lock combos.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Delinquent' => [
             'effectiveDate' => '2019-02-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => 'Discards the opponent\'s Stadium and three cards; Red Card + Delinquent reduced opponent to 1 card pre-turn.',
+            'explanation' => 'A popular combo with Red Card, Delinquent, and Peeking Red Card created a lot of situations where one player essentially lost the game before taking their first turn. When this kind of strategy can be executed successfully a high percentage of the time and is effective, it creates an unhealthy environment.',
         ],
         'Duskull' => [
             'effectiveDate' => '2024-09-27',
             'sourceUrl' => 'https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-stellar-crown-banned-list-and-rule-changes-announcement',
-            'explanation' => 'Spiritborne Evolution + Dusclops "Cursed Blast" enabled consistent T1 wins (Dusclops Donk).',
+            'explanation' => "Duskull from the Sun & Moon—Cosmic Eclipse expansion was banned from the Expanded format. With the release of Dusclops in Scarlet & Violet—Shrouded Fable, it became very possible to win the game on the first turn when going first by using Duskull's Spiritborne Evolution Ability to evolve into Dusclops. By getting enough Dusclops into play, players can use many Cursed Blast Abilities to Knock Out the opponent's only Pokémon in play and win the game. Many cards are required to assemble the combo that allows this strategy to be dangerous, but Duskull has the lowest overall impact on other strategies that are used in the Expanded format, so it was chosen to be banned.",
         ],
         'Flabébé' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Bench-evolution Ability fueled T1 hand-disruption decks (Marshadow / Red Card / Reset Stamp).',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Flapple' => [
             'effectiveDate' => '2025-10-10',
@@ -91,47 +91,47 @@ final readonly class BannedCardSeedData
         'Island Challenge Amulet' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Reduces a V/GX Pokémon to a 1-Prize attacker, distorting Prize math in stall/control decks.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Jessie & James' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Forces the opponent to discard 2 random cards, oppressive in hand-disruption / first-turn decks.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Lt. Surge\'s Strategy' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Lets you play a second Supporter, breaking the one-Supporter-per-turn balancing rule.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         "Lt. Surge\u{2019}s Strategy" => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Lets you play a second Supporter, breaking the one-Supporter-per-turn balancing rule.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Lysandre\'s Trump Card' => [
             'effectiveDate' => '2015-06-15',
-            'sourceUrl' => 'https://bulbanews.bulbagarden.net/wiki/Lysandre%27s_Trump_Card_banned_from_TCG_competitive_play',
-            'explanation' => 'Shuffles all discard piles back into decks, eliminating deck-out as a win condition and enabling infinite resource loops.',
+            'sourceUrl' => 'https://www.pokemon.com/us/pokemon-news/lysandres-trump-card-banned/',
+            'explanation' => self::LYSANDRE_RATIONALE,
         ],
         "Lysandre\u{2019}s Trump Card" => [
             'effectiveDate' => '2015-06-15',
-            'sourceUrl' => 'https://bulbanews.bulbagarden.net/wiki/Lysandre%27s_Trump_Card_banned_from_TCG_competitive_play',
-            'explanation' => 'Shuffles all discard piles back into decks, eliminating deck-out as a win condition and enabling infinite resource loops.',
+            'sourceUrl' => 'https://www.pokemon.com/us/pokemon-news/lysandres-trump-card-banned/',
+            'explanation' => self::LYSANDRE_RATIONALE,
         ],
         'Marshadow' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => '"Let Loose" Ability force-shuffles both hands to 4, weaponized via Scoop Up Net for repeated T1 disruption.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Maxie\'s Hidden Ball Trick' => [
             'effectiveDate' => '2019-02-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => 'Cheats a Stage-1/2 Fighting Pokémon directly into play; Team Up enabled devastating T1 combos.',
+            'explanation' => "A Fighting-type Pokémon in the Sun & Moon—Team Up expansion would create a potentially devastating combo with Maxie's Hidden Ball Trick that can be achieved on the first turn of the game. Rather than wait and see how this turns out, it was determined that the best course of action was to prevent this combo before it happened.",
         ],
         "Maxie\u{2019}s Hidden Ball Trick" => [
             'effectiveDate' => '2019-02-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => 'Cheats a Stage-1/2 Fighting Pokémon directly into play; Team Up enabled devastating T1 combos.',
+            'explanation' => "A Fighting-type Pokémon in the Sun & Moon—Team Up expansion would create a potentially devastating combo with Maxie's Hidden Ball Trick that can be achieved on the first turn of the game. Rather than wait and see how this turns out, it was determined that the best course of action was to prevent this combo before it happened.",
         ],
         'Medicham V' => [
             'effectiveDate' => '2026-04-10',
@@ -146,7 +146,7 @@ final readonly class BannedCardSeedData
         'Mismagius' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => '"Mysterious Message" draw engine fueled overpowered Ultra Beast / hand-disruption decks.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Oranguru' => [
             'effectiveDate' => '2020-11-27',
@@ -161,12 +161,12 @@ final readonly class BannedCardSeedData
         'Red Card' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Forces the opponent to shuffle their hand and draw 4, central piece of T1 hand-disruption combos.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Reset Stamp' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => 'Sets opponent\'s hand to Prizes-remaining, devastating in late-game disruption.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
         'Sableye' => [
             'effectiveDate' => '2020-11-27',
@@ -176,7 +176,7 @@ final readonly class BannedCardSeedData
         'Scoop Up Net' => [
             'effectiveDate' => '2024-02-09',
             'sourceUrl' => 'https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-paldean-fates-banned-list-and-rule-changes-announcement',
-            'explanation' => 'Returns non-V/GX Pokémon to hand; enabled Iron Valiant ex Tachyon Bits T1 wins and many ability loops.',
+            'explanation' => "Scoop Up Net cannot be used on Pokémon V or Pokémon-GX, but it can be used on other Pokémon with a Rule Box. There are many dangerous combos with this card, and a new one was introduced with the Scarlet & Violet—Paradox Rift expansion. The combination of Iron Valiant ex and Scoop Up Net allows the use of the Tachyon Bits Ability repeatedly, making it very possible to win the game on the first turn when going first. While this strategy isn't guaranteed to be successful, it happens frequently enough to create an undesirable environment for the Expanded format. Scoop Up Net may lead to even more powerful combos in the future, so it is the card that was chosen to be banned.",
         ],
         'Shaymin-EX' => [
             'effectiveDate' => '2020-11-27',
@@ -200,14 +200,29 @@ final readonly class BannedCardSeedData
         'LOT|90' => [
             'effectiveDate' => '2019-02-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => '"DAMAGE" Ability auto-wins with 66+ damage counters on bench, enabling T1/T2 self-damage win combos.',
+            'explanation' => "With multiple combos that exist in the Expanded format, the DAMAGE Ability of Unown could be used to win the game on the first or second turn. Even though these combos haven't yet proven to be successful in tournament play, they will become easier to achieve with the release of new cards, so Unown is being banned as a preventive measure. Note that Unown with the HAND Ability and Unown with the MISSING Ability, also from Sun & Moon—Lost Thunder, are still legal for tournament play.",
         ],
         'LOT|91' => [
             'effectiveDate' => '2019-11-15',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/',
-            'explanation' => '"HAND" Ability auto-wins when holding 35+ cards; combined with draw engines for consistent OTKs.',
+            'explanation' => self::COSMIC_ECLIPSE_RATIONALE,
         ],
     ];
+
+    private const string COSMIC_ECLIPSE_RATIONALE = "These card bans were applied in Japan recently. In an effort to maintain a more global experience for the Expanded format, TPCi has also banned these cards. Most of these card bans are an attempt to weaken strategies that involve disrupting or destroying an opponent's hand. These cards contribute to several combos that result in a player having to discard their entire hand before they get to take a turn. The Expanded format currently has a reputation for being dominated by hand-disruption decks, which many players dislike. Hopefully these card bans will promote a more enjoyable environment and change that reputation.";
+
+    private const string LYSANDRE_RATIONALE = <<<'TEXT'
+        As of June 15, 2015, Lysandre's Trump Card (XY—Phantom Forces, 99/119 and 118/119) will be banned from all sanctioned Play! Pokémon tournaments in most of the world. (The ban will go into effect in Japan on June 20.)
+
+        This card has created an undesirable play environment because it:
+
+        - Eliminates one of your opponent's victory conditions (running out of cards in your deck)
+        - Allows repeated use of powerful Trainer cards
+        - Allows drawing through your deck quickly with minimal repercussions
+        - Extends the time of battles
+
+        All sanctioned tournaments will be affected by this change, including Pokémon National Championships occurring after June 15 (except in Japan) and the Pokémon World Championships in August.
+        TEXT;
 
     public function __construct(
         private BannedCardRepository $bannedCardRepository,
