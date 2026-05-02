@@ -134,9 +134,9 @@ final readonly class BannedCardSeedData
             'explanation' => 'Cheats a Stage-1/2 Fighting Pokémon directly into play; Team Up enabled devastating T1 combos.',
         ],
         'Medicham V' => [
-            'effectiveDate' => null,
-            'sourceUrl' => 'https://www.pokebeach.com/2026/01/medicham-v-banned-from-japans-expanded-format',
-            'explanation' => 'Yoga Loop + damage-counter abilities enable extra-turn wins (banned 2026-02-20 in Japan; international ban not yet announced).',
+            'effectiveDate' => '2026-04-07',
+            'sourceUrl' => null,
+            'explanation' => 'Yoga Loop + damage-counter abilities enable extra-turn wins. Banned internationally with the new TCG rulebook published 2026-04-07; no separate announcement URL.',
         ],
         'Milotic' => [
             'effectiveDate' => '2020-11-27',
