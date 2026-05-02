@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\BannedCard;
+use App\Repository\BannedCardRepository;
 use App\Repository\CardPrintingRepository;
 use App\Service\CardIdentity\CardIdentityResolver;
 use App\Service\Tcgdex\TcgdexApiClient;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Resolves CardPrinting + CardIdentity for a BannedCard so the public list
@@ -39,7 +41,39 @@ final readonly class BannedCardEnricher
         private TcgdexApiClient $apiClient,
         private CardIdentityResolver $identityResolver,
         private CardPrintingRepository $cardPrintingRepository,
+        private BannedCardRepository $bannedCardRepository,
+        private EntityManagerInterface $entityManager,
     ) {
+    }
+
+    /**
+     * Re-enriches every active banned card. Returns [linked, unresolved-list].
+     * When $force is true, drops existing CardPrinting links first so we
+     * re-resolve via TCGdex (useful after the local mirror grew).
+     *
+     * @return array{0: int, 1: list<string>}
+     */
+    public function enrichAllActive(bool $force = false): array
+    {
+        $cards = $this->bannedCardRepository->findActiveOrderedByEffectiveDate();
+
+        $linked = 0;
+        $unresolved = [];
+        foreach ($cards as $card) {
+            if ($force) {
+                $card->setCardPrinting(null);
+            }
+
+            if ($this->enrich($card)) {
+                ++$linked;
+            } else {
+                $unresolved[] = \sprintf('%s (%s %s)', $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
+            }
+        }
+
+        $this->entityManager->flush();
+
+        return [$linked, $unresolved];
     }
 
     /**

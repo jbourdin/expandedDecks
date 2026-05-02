@@ -5046,6 +5046,36 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>Banned cards sync failed. Check the logs for details.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_button">
+                <source>app.admin.technical.banned_cards.enrich_button</source>
+                <target>Enrich identities and images</target>
+                <note>F6.14 — admin button: link CardPrinting + CardIdentity for any unlinked banned card</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_force_button">
+                <source>app.admin.technical.banned_cards.enrich_force_button</source>
+                <target>Force re-enrich (drop links)</target>
+                <note>F6.14 — admin button: drop existing CardPrinting links and re-resolve via TCGdex</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_hint">
+                <source>app.admin.technical.banned_cards.enrich_hint</source>
+                <target>Sync already enriches every row it touches; use these buttons to re-attempt unresolved cards (e.g. after a TCGdex sync) without re-fetching the upstream list.</target>
+                <note>F6.14 — admin help text under the banned cards buttons</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.confirm_enrich_force">
+                <source>app.admin.technical.banned_cards.confirm_enrich_force</source>
+                <target>This will drop every existing CardPrinting link and re-resolve via TCGdex. Continue?</target>
+                <note>F6.14 — confirm prompt for force-enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enriched">
+                <source>app.admin.technical.banned_cards.enriched</source>
+                <target>Enrichment complete: linked %linked% / %total% banned card(s).</target>
+                <note>F6.14 — flash after admin enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_unresolved">
+                <source>app.admin.technical.banned_cards.enrich_unresolved</source>
+                <target>Could not resolve via TCGdex: %cards%</target>
+                <note>F6.14 — flash listing unresolved cards after admin enrich</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.clear_cache.title">
                 <source>app.admin.technical.clear_cache.title</source>
                 <target>Clear Cache</target>

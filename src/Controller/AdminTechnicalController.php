@@ -20,6 +20,7 @@ use App\Message\SyncTcgdexSeriesMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\TcgdexSetMappingRepository;
+use App\Service\BannedCardEnricher;
 use App\Service\BannedCardsSyncService;
 use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
@@ -47,6 +48,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly BannedCardRepository $bannedCardRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly BannedCardsSyncService $bannedCardsSyncService,
+        private readonly BannedCardEnricher $bannedCardEnricher,
         private readonly MosaicRedispatchService $mosaicRedispatchService,
         private readonly EnrichmentFlushService $enrichmentFlushService,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
@@ -281,6 +283,32 @@ class AdminTechnicalController extends AbstractAppController
             $this->addFlash('success', 'app.admin.technical.banned_cards.synced');
         } else {
             $this->addFlash('danger', 'app.admin.technical.banned_cards.failed');
+        }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/banned-cards-enrich', name: 'app_admin_technical_banned_cards_enrich', methods: ['POST'])]
+    public function bannedCardsEnrich(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-banned-cards-enrich', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $force = $request->getPayload()->getBoolean('force');
+        [$linked, $unresolved] = $this->bannedCardEnricher->enrichAllActive($force);
+
+        $this->addFlash('success', 'app.admin.technical.banned_cards.enriched', [
+            '%linked%' => $linked,
+            '%total%' => $linked + \count($unresolved),
+        ]);
+
+        if ([] !== $unresolved) {
+            $this->addFlash('warning', 'app.admin.technical.banned_cards.enrich_unresolved', [
+                '%cards%' => implode(', ', $unresolved),
+            ]);
         }
 
         return $this->redirectToRoute('app_admin_technical_dashboard');

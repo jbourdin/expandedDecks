@@ -5021,6 +5021,36 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_button">
+                <source>app.admin.technical.banned_cards.enrich_button</source>
+                <target>Lier identités et images</target>
+                <note>F6.14 — admin button: link CardPrinting + CardIdentity for any unlinked banned card</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_force_button">
+                <source>app.admin.technical.banned_cards.enrich_force_button</source>
+                <target>Forcer la réindexation (effacer les liens)</target>
+                <note>F6.14 — admin button: drop existing CardPrinting links and re-resolve via TCGdex</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_hint">
+                <source>app.admin.technical.banned_cards.enrich_hint</source>
+                <target>La synchronisation enrichit déjà toutes les lignes qu'elle touche ; utilisez ces boutons pour réessayer les cartes non résolues (par ex. après un sync TCGdex) sans re-télécharger la liste officielle.</target>
+                <note>F6.14 — admin help text under the banned cards buttons</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.confirm_enrich_force">
+                <source>app.admin.technical.banned_cards.confirm_enrich_force</source>
+                <target>Ceci supprimera tous les liens CardPrinting existants pour les recalculer via TCGdex. Continuer ?</target>
+                <note>F6.14 — confirm prompt for force-enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enriched">
+                <source>app.admin.technical.banned_cards.enriched</source>
+                <target>Indexation terminée : %linked% / %total% carte(s) bannie(s) liée(s).</target>
+                <note>F6.14 — flash after admin enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_unresolved">
+                <source>app.admin.technical.banned_cards.enrich_unresolved</source>
+                <target>Non résolues via TCGdex : %cards%</target>
+                <note>F6.14 — flash listing unresolved cards after admin enrich</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.clear_cache.title">
                 <source>app.admin.technical.clear_cache.title</source>
                 <target>Vider le cache</target>

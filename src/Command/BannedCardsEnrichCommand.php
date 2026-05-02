@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Repository\BannedCardRepository;
 use App\Service\BannedCardEnricher;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,9 +35,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class BannedCardsEnrichCommand extends Command
 {
     public function __construct(
-        private readonly BannedCardRepository $bannedCardRepository,
         private readonly BannedCardEnricher $cardEnricher,
-        private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
     }
@@ -59,27 +55,11 @@ class BannedCardsEnrichCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $force = (bool) $input->getOption('force');
 
-        $cards = $this->bannedCardRepository->findActiveOrderedByEffectiveDate();
-        $io->title(\sprintf('Enriching %d active banned card(s)', \count($cards)));
+        [$linked, $unresolved] = $this->cardEnricher->enrichAllActive($force);
+        $total = $linked + \count($unresolved);
 
-        $linked = 0;
-        $unresolved = [];
-        foreach ($cards as $card) {
-            if ($force) {
-                $card->setCardPrinting(null);
-            }
-
-            $ok = $this->cardEnricher->enrich($card);
-            if ($ok) {
-                ++$linked;
-            } else {
-                $unresolved[] = \sprintf('%s (%s %s)', $card->getCardName(), $card->getSetCode(), $card->getCardNumber());
-            }
-        }
-
-        $this->entityManager->flush();
-
-        $io->success(\sprintf('Linked %d / %d banned card(s).', $linked, \count($cards)));
+        $io->title(\sprintf('Enriched %d active banned card(s)', $total));
+        $io->success(\sprintf('Linked %d / %d banned card(s).', $linked, $total));
 
         if ([] !== $unresolved) {
             $io->warning(\sprintf('Could not resolve %d card(s) via TCGdex:', \count($unresolved)));

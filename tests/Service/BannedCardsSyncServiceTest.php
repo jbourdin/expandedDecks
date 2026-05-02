@@ -48,7 +48,18 @@ class BannedCardsSyncServiceTest extends TestCase
         $cardPrintingRepository = $this->createStub(\App\Repository\CardPrintingRepository::class);
         $cardPrintingRepository->method('findFirstBySetCodeAndCardNumber')->willReturn(null);
 
-        return new BannedCardEnricher($apiClient, $identityResolver, $cardPrintingRepository);
+        $bannedCardRepository = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepository->method('findActiveOrderedByEffectiveDate')->willReturn([]);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        return new BannedCardEnricher(
+            $apiClient,
+            $identityResolver,
+            $cardPrintingRepository,
+            $bannedCardRepository,
+            $entityManager,
+        );
     }
 
     public function testSyncAddsNewBannedCards(): void
