@@ -47,6 +47,7 @@ Encore
     .addEntry('event_form', './assets/event-form.tsx')
     .addEntry('event_calendar_copy', './assets/event-calendar-copy.ts')
     .addEntry('banned_card_form', './assets/banned-card-form.tsx')
+    .addEntry('banned_card_list', './assets/banned-card-list.ts')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
