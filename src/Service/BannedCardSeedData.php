@@ -46,7 +46,7 @@ final readonly class BannedCardSeedData
         'Archeops' => [
             'effectiveDate' => '2017-08-18',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-burning-shadows-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => 'Ancient Power Ability locks evolution; a turn-1 Maxie\'s Hidden Ball Trick + Archeops stops the opponent from evolving.',
+            'explanation' => "The existence of Archeops's Ancient Power Ability has a very negative effect on decks that rely on evolved Pokémon. There are ways to combat it—Hex Maniac, Evosoda, or Wobbuffet are a few examples—but decks that focus on evolved Pokémon are forced to use these cards just to evolve their Pokémon. The combination of Maxie's Hidden Ball Trick with Archeops can stop Evolution before the opponent ever gets a chance to evolve their Pokémon, which limits the number of viable strategies.",
         ],
         'Chip-Chip Ice Axe' => [
             'effectiveDate' => '2019-11-15',
@@ -76,7 +76,7 @@ final readonly class BannedCardSeedData
         'Forest of Giant Plants' => [
             'effectiveDate' => '2017-08-18',
             'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-burning-shadows-banned-list-and-rule-changes-quarterly-announcement/',
-            'explanation' => 'Free T1 Grass evolutions enabled Vileplume item-lock and other turn-1 lockdown wins.',
+            'explanation' => "The Forest of Giant Plants Stadium card enables many dangerous strategies with Grass-type Pokémon in the Expanded format. These strategies can range from locking down the opponent's options to winning the game on the first turn, and all of them can happen before the opponent ever gets a chance to play. No single strategy was powerful enough to ban this Stadium card, but so many of them existing at the same time gave sufficient cause to ban it.",
         ],
         'Ghetsis' => [
             'effectiveDate' => '2018-08-17',
