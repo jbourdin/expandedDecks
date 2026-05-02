@@ -135,8 +135,8 @@ final readonly class BannedCardSeedData
         ],
         'Medicham V' => [
             'effectiveDate' => '2026-04-07',
-            'sourceUrl' => null,
-            'explanation' => 'Yoga Loop + damage-counter abilities enable extra-turn wins. Banned internationally with the new TCG rulebook published 2026-04-07; no separate announcement URL.',
+            'sourceUrl' => 'https://www.pokemon.com/us/play-pokemon/about/mega-evolution/mega-evolution-perfect-order-banned-list-and-rule-changes-announcement',
+            'explanation' => 'Yoga Loop + damage-counter abilities enable extra-turn wins. Banned internationally with the Mega Evolution: Perfect Order rule changes (2026-04-07).',
         ],
         'Milotic' => [
             'effectiveDate' => '2020-11-27',
