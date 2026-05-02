@@ -220,13 +220,32 @@
                 {{ 'app.admin.technical.banned_cards.current_count'|trans({'%count%': bannedCardCount}) }}
             </div>
 
-            <form method="post" action="{{ path('app_admin_technical_banned_cards_sync') }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('technical-banned-cards-sync') }}">
-                <button type="submit" class="btn btn-gold"
-                        onclick="return confirm('{{ 'app.admin.technical.banned_cards.confirm_sync'|trans|e('js') }}')">
-                    {{ 'app.admin.technical.banned_cards.sync_button'|trans }}
-                </button>
-            </form>
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" action="{{ path('app_admin_technical_banned_cards_sync') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-banned-cards-sync') }}">
+                    <button type="submit" class="btn btn-gold"
+                            onclick="return confirm('{{ 'app.admin.technical.banned_cards.confirm_sync'|trans|e('js') }}')">
+                        {{ 'app.admin.technical.banned_cards.sync_button'|trans }}
+                    </button>
+                </form>
+
+                <form method="post" action="{{ path('app_admin_technical_banned_cards_enrich') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-banned-cards-enrich') }}">
+                    <button type="submit" class="btn btn-outline-secondary" name="force" value="0">
+                        {{ 'app.admin.technical.banned_cards.enrich_button'|trans }}
+                    </button>
+                </form>
+
+                <form method="post" action="{{ path('app_admin_technical_banned_cards_enrich') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-banned-cards-enrich') }}">
+                    <button type="submit" class="btn btn-outline-warning" name="force" value="1"
+                            onclick="return confirm('{{ 'app.admin.technical.banned_cards.confirm_enrich_force'|trans|e('js') }}')">
+                        {{ 'app.admin.technical.banned_cards.enrich_force_button'|trans }}
+                    </button>
+                </form>
+            </div>
+
+            <p class="form-text mt-2 mb-0">{{ 'app.admin.technical.banned_cards.enrich_hint'|trans }}</p>
         </div>
     </div>
 

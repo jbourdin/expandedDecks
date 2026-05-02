@@ -23,6 +23,16 @@
                 <target>Archétypes</target>
                 <note>Main navigation bar link</note>
             </trans-unit>
+            <trans-unit id="app.nav.banned_cards">
+                <source>app.nav.banned_cards</source>
+                <target>Cartes bannies</target>
+                <note>Main navigation bar link to the public banned-cards page</note>
+            </trans-unit>
+            <trans-unit id="app.nav.admin_banned_cards">
+                <source>app.nav.admin_banned_cards</source>
+                <target>Cartes bannies</target>
+                <note>Admin dropdown link to the banned cards admin CRUD</note>
+            </trans-unit>
             <trans-unit id="app.nav.decks">
                 <source>app.nav.decks</source>
                 <target>Decks</target>
@@ -3691,6 +3701,11 @@
                 <target>Archétypes</target>
                 <note>Channel feature flag label</note>
             </trans-unit>
+            <trans-unit id="app.channel.enable_banned_cards">
+                <source>app.channel.enable_banned_cards</source>
+                <target>Cartes bannies</target>
+                <note>Channel feature flag label — exposes the public banned cards page</note>
+            </trans-unit>
             <trans-unit id="app.channel.theme_name">
                 <source>app.channel.theme_name</source>
                 <target>Thème</target>
@@ -5006,6 +5021,36 @@
                 <source>app.admin.technical.banned_cards.failed</source>
                 <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_button">
+                <source>app.admin.technical.banned_cards.enrich_button</source>
+                <target>Lier identités et images</target>
+                <note>F6.14 — admin button: link CardPrinting + CardIdentity for any unlinked banned card</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_force_button">
+                <source>app.admin.technical.banned_cards.enrich_force_button</source>
+                <target>Forcer la réindexation (effacer les liens)</target>
+                <note>F6.14 — admin button: drop existing CardPrinting links and re-resolve via TCGdex</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_hint">
+                <source>app.admin.technical.banned_cards.enrich_hint</source>
+                <target>La synchronisation enrichit déjà toutes les lignes qu'elle touche ; utilisez ces boutons pour réessayer les cartes non résolues (par ex. après un sync TCGdex) sans re-télécharger la liste officielle.</target>
+                <note>F6.14 — admin help text under the banned cards buttons</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.confirm_enrich_force">
+                <source>app.admin.technical.banned_cards.confirm_enrich_force</source>
+                <target>Ceci supprimera tous les liens CardPrinting existants pour les recalculer via TCGdex. Continuer ?</target>
+                <note>F6.14 — confirm prompt for force-enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enriched">
+                <source>app.admin.technical.banned_cards.enriched</source>
+                <target>Indexation terminée : %linked% / %total% carte(s) bannie(s) liée(s).</target>
+                <note>F6.14 — flash after admin enrich</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.banned_cards.enrich_unresolved">
+                <source>app.admin.technical.banned_cards.enrich_unresolved</source>
+                <target>Non résolues via TCGdex : %cards%</target>
+                <note>F6.14 — flash listing unresolved cards after admin enrich</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.clear_cache.title">
                 <source>app.admin.technical.clear_cache.title</source>
                 <target>Vider le cache</target>
@@ -5619,6 +5664,211 @@
                 <source>app.decklist.subtype.technical machine</source>
                 <target>Machine Technique</target>
                 <note>PDF decklist trainer subtype header</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.public.title">
+                <source>app.banned_card.public.title</source>
+                <target>Cartes bannies</target>
+                <note>F6.14 — public banned cards page heading</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.public.subtitle">
+                <source>app.banned_card.public.subtitle</source>
+                <target>Cartes actuellement bannies du format Étendu. Cliquez sur une carte pour voir le détail et l'annonce officielle.</target>
+                <note>F6.14 — public banned cards page subtitle</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.public.empty">
+                <source>app.banned_card.public.empty</source>
+                <target>Aucune carte n'est actuellement bannie du format Étendu.</target>
+                <note>F6.14 — empty state on the public banned cards page</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.public.view_details">
+                <source>app.banned_card.public.view_details</source>
+                <target>Voir le détail de %name%</target>
+                <note>F6.14 — accessible label for the banned card thumbnail trigger</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.public.printings_count">
+                <source>app.banned_card.public.printings_count</source>
+                <target>{1}1 édition|]1,Inf[%count% éditions</target>
+                <note>F6.14 — badge showing how many printings of the same card are banned</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.banned_printings">
+                <source>app.banned_card.modal.banned_printings</source>
+                <target>Éditions bannies</target>
+                <note>F6.14 — modal section listing every (set, number) banned for the card</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.set">
+                <source>app.banned_card.modal.set</source>
+                <target>Édition</target>
+                <note>F6.14 — banned card modal: set / number row label</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.effective_date">
+                <source>app.banned_card.modal.effective_date</source>
+                <target>Date d'effet</target>
+                <note>F6.14 — banned card modal: effective date label</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.source">
+                <source>app.banned_card.modal.source</source>
+                <target>Source</target>
+                <note>F6.14 — banned card modal: source link row label</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.source_link">
+                <source>app.banned_card.modal.source_link</source>
+                <target>Annonce officielle</target>
+                <note>F6.14 — banned card modal: source link text</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.explanation">
+                <source>app.banned_card.modal.explanation</source>
+                <target>Pourquoi cette carte est-elle bannie ?</target>
+                <note>F6.14 — banned card modal: explanation section heading</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.modal.no_explanation">
+                <source>app.banned_card.modal.no_explanation</source>
+                <target>Aucune explication fournie.</target>
+                <note>F6.14 — banned card modal: no-explanation fallback</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.list_title">
+                <source>app.admin.banned_card.list_title</source>
+                <target>Cartes bannies (admin)</target>
+                <note>F6.14 — admin banned card list page title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.list_hint">
+                <source>app.admin.banned_card.list_hint</source>
+                <target>Une ligne par carte fonctionnelle. Les éditions bannies sont synchronisées automatiquement ; les admins gèrent uniquement les méta-données (date, lien, explication).</target>
+                <note>F6.14 — admin help text under the list title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.printings">
+                <source>app.admin.banned_card.field.printings</source>
+                <target>Éditions bannies</target>
+                <note>F6.14 — admin: column / panel listing each (set, number) banned for the card</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.no_printings">
+                <source>app.admin.banned_card.no_printings</source>
+                <target>Aucune édition enregistrée — lancez une synchronisation pour les peupler.</target>
+                <note>F6.14 — admin: empty state on the edit page printings panel</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.printings_hint">
+                <source>app.admin.banned_card.printings_hint</source>
+                <target>Les éditions proviennent de pokemon.com et de l'enrichissement TCGdex. Utilisez le tableau de bord technique pour resynchroniser ou réindexer.</target>
+                <note>F6.14 — admin: hint under the printings panel</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.printing_unresolved">
+                <source>app.admin.banned_card.printing_unresolved</source>
+                <target>non résolue</target>
+                <note>F6.14 — admin: badge for printings without a CardPrinting link</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.card_name_help">
+                <source>app.admin.banned_card.field.card_name_help</source>
+                <target>Nom affiché sur la page publique. Rafraîchi automatiquement quand un CardIdentity est lié.</target>
+                <note>F6.14 — admin form help text</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.edit">
+                <source>app.admin.banned_card.edit</source>
+                <target>Modifier la carte bannie</target>
+                <note>F6.14 — admin: edit banned card page title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.delete">
+                <source>app.admin.banned_card.delete</source>
+                <target>Supprimer</target>
+                <note>F6.14 — admin: delete (soft) action label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.restore">
+                <source>app.admin.banned_card.restore</source>
+                <target>Restaurer</target>
+                <note>F6.14 — admin: restore action label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.delete_confirm">
+                <source>app.admin.banned_card.delete_confirm</source>
+                <target>Archiver cette carte ?</target>
+                <note>F6.14 — admin: inline confirm prompt for soft-delete</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.tab.active">
+                <source>app.admin.banned_card.tab.active</source>
+                <target>Actives</target>
+                <note>F6.14 — admin: tab label for active rows</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.tab.history">
+                <source>app.admin.banned_card.tab.history</source>
+                <target>Historique</target>
+                <note>F6.14 — admin: tab label for soft-deleted rows</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.empty.active">
+                <source>app.admin.banned_card.empty.active</source>
+                <target>Aucune carte bannie pour le moment.</target>
+                <note>F6.14 — admin: empty active list</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.empty.history">
+                <source>app.admin.banned_card.empty.history</source>
+                <target>Aucune carte bannie archivée pour le moment.</target>
+                <note>F6.14 — admin: empty history list</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.badge.archived">
+                <source>app.admin.banned_card.badge.archived</source>
+                <target>Archivée</target>
+                <note>F6.14 — admin: badge shown on the edit page when row is soft-deleted</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.card_name">
+                <source>app.admin.banned_card.field.card_name</source>
+                <target>Nom de la carte</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.set_code">
+                <source>app.admin.banned_card.field.set_code</source>
+                <target>Code d'édition</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.card_number">
+                <source>app.admin.banned_card.field.card_number</source>
+                <target>Numéro de carte</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.effective_date">
+                <source>app.admin.banned_card.field.effective_date</source>
+                <target>Date d'effet</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.source_url">
+                <source>app.admin.banned_card.field.source_url</source>
+                <target>URL source</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.explanation">
+                <source>app.admin.banned_card.field.explanation</source>
+                <target>Explication</target>
+                <note>F6.14 — admin form field</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.explanation_help">
+                <source>app.admin.banned_card.field.explanation_help</source>
+                <target>Optionnel. Markdown supporté. Affiché dans la modale de la page publique.</target>
+                <note>F6.14 — admin form field help text</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.field.deleted_at">
+                <source>app.admin.banned_card.field.deleted_at</source>
+                <target>Archivée le</target>
+                <note>F6.14 — admin: column label in history view</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.flash.created">
+                <source>app.admin.banned_card.flash.created</source>
+                <target>Carte bannie créée.</target>
+                <note>F6.14 — admin flash on create</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.flash.updated">
+                <source>app.admin.banned_card.flash.updated</source>
+                <target>Carte bannie mise à jour.</target>
+                <note>F6.14 — admin flash on update</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.flash.deleted">
+                <source>app.admin.banned_card.flash.deleted</source>
+                <target>Carte bannie archivée.</target>
+                <note>F6.14 — admin flash on soft-delete</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.flash.restored">
+                <source>app.admin.banned_card.flash.restored</source>
+                <target>Carte bannie restaurée.</target>
+                <note>F6.14 — admin flash on restore</note>
+            </trans-unit>
+            <trans-unit id="app.admin.banned_card.flash.reactivated">
+                <source>app.admin.banned_card.flash.reactivated</source>
+                <target>Une ligne archivée correspondant à ces coordonnées a été réactivée.</target>
+                <note>F6.14 — admin flash when create reactivates a soft-deleted row</note>
             </trans-unit>
         </body>
     </file>

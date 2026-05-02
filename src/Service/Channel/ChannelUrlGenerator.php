@@ -139,6 +139,7 @@ class ChannelUrlGenerator
             'borrows' => $channel->getEnableBorrows(),
             'register' => $channel->getEnableRegister(),
             'archetypes' => $channel->getEnableArchetypes(),
+            'banned-cards' => $channel->getEnableBannedCards(),
             default => true,
         };
     }

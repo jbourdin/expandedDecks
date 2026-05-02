@@ -34,7 +34,7 @@ class DeckListValidatorCoverageTest extends TestCase
     public function testDuplicateBannedCardKeyIsReportedOnlyOnce(): void
     {
         $bannedCardRepo = $this->createStub(BannedCardRepository::class);
-        $bannedCardRepo->method('findBannedCardKeys')->willReturn([
+        $bannedCardRepo->method('findBannedPrintingKeys')->willReturn([
             'AOR|74' => true,
         ]);
 

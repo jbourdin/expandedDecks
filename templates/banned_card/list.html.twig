@@ -1,0 +1,203 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.banned_card.public.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block canonical %}
+    <link rel="canonical" href="{{ canonical_url('banned-cards', 'app_banned_card_list') }}">
+{% endblock %}
+
+{% block hreflang %}
+    {% for locale in current_channel().locales %}
+        <link rel="alternate" hreflang="{{ locale }}" href="{{ canonical_url('banned-cards', 'app_banned_card_list', {_locale: locale}) }}">
+    {% endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_url('banned-cards', 'app_banned_card_list', {_locale: 'en'}) }}">
+{% endblock %}
+
+{% block opengraph %}
+    {% set og_title = 'app.banned_card.public.title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = canonical_url('banned-cards', 'app_banned_card_list') %}
+    {% include '_partials/opengraph.html.twig' %}
+{% endblock %}
+
+{% block structured_data %}
+    {% set items = [] %}
+    {% for card in bannedCards %}
+        {% set items = items|merge([{name: card.cardName, url: canonical_url('banned-cards', 'app_banned_card_list') ~ '#card-' ~ card.id}]) %}
+    {% endfor %}
+    <script type="application/ld+json">{{ json_ld(structured_data().buildCollectionPage('app.banned_card.public.title'|trans, canonical_url('banned-cards', 'app_banned_card_list'), items)) }}</script>
+{% endblock %}
+
+{% block body %}
+    <h1 class="mb-2">{{ 'app.banned_card.public.title'|trans }}</h1>
+    <p class="text-muted mb-4">{{ 'app.banned_card.public.subtitle'|trans }}</p>
+
+    {% if bannedCards|length > 0 %}
+        <div class="row g-3">
+            {% for card in bannedCards %}
+                {% set highResImageUrl = imageUrls[card.id] ?? null %}
+                {% set imageUrl = highResImageUrl ? highResImageUrl|replace({'/high.webp': '/low.webp'}) : null %}
+                {% set printingsJson = card.printings|map(p => {setCode: p.setCode, cardNumber: p.cardNumber})|json_encode %}
+                {% set printingsCount = card.printings|length %}
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2" id="card-{{ card.id }}">
+                    <button type="button"
+                        class="banned-card-trigger btn p-0 border-0 bg-transparent w-100 position-relative"
+                        data-bs-toggle="modal"
+                        data-bs-target="#bannedCardModal"
+                        data-card-name="{{ card.cardName }}"
+                        data-card-image="{{ highResImageUrl ?? '' }}"
+                        data-card-effective-date="{{ card.effectiveDate ? card.effectiveDate|user_date : '' }}"
+                        data-card-source-url="{{ card.sourceUrl ?? '' }}"
+                        data-card-explanation="{{ card.id in renderedExplanations|keys ? renderedExplanations[card.id] : '' }}"
+                        data-card-printings="{{ printingsJson }}"
+                        aria-label="{{ 'app.banned_card.public.view_details'|trans({'%name%': card.cardName}) }}">
+                        {% if imageUrl %}
+                            <img src="{{ imageUrl }}" alt="{{ card.cardName }}" class="img-fluid rounded shadow-sm" loading="lazy">
+                        {% else %}
+                            <div class="banned-card-placeholder rounded shadow-sm d-flex align-items-center justify-content-center text-center p-3">
+                                {% set firstPrinting = card.printings|first %}
+                                <span class="small fw-semibold">{{ card.cardName }}{% if firstPrinting %}<br><span class="text-muted">{{ firstPrinting.setCode }} {{ firstPrinting.cardNumber }}</span>{% endif %}</span>
+                            </div>
+                        {% endif %}
+                        {% if printingsCount > 1 %}
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-1">{{ 'app.banned_card.public.printings_count'|trans({'%count%': printingsCount}) }}</span>
+                        {% endif %}
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Modal — populated from the clicked card's data attributes #}
+        <div class="modal fade" id="bannedCardModal" tabindex="-1" aria-labelledby="bannedCardModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="bannedCardModalLabel"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-5 text-center">
+                                <img id="bannedCardModalImage" src="" alt="" class="img-fluid rounded">
+                            </div>
+                            <div class="col-md-7">
+                                <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>
+                                <ul id="bannedCardModalPrintings" class="list-unstyled mb-3"></ul>
+                                <dl class="row mb-3">
+                                    <dt class="col-sm-5" id="bannedCardModalEffectiveDateLabel" hidden>{{ 'app.banned_card.modal.effective_date'|trans }}</dt>
+                                    <dd class="col-sm-7" id="bannedCardModalEffectiveDate" hidden></dd>
+                                    <dt class="col-sm-5" id="bannedCardModalSourceLabel" hidden>{{ 'app.banned_card.modal.source'|trans }}</dt>
+                                    <dd class="col-sm-7" hidden>
+                                        <a id="bannedCardModalSource" href="" target="_blank" rel="noopener">{{ 'app.banned_card.modal.source_link'|trans }}</a>
+                                    </dd>
+                                </dl>
+                                <h6 id="bannedCardModalExplanationLabel" hidden>{{ 'app.banned_card.modal.explanation'|trans }}</h6>
+                                <div id="bannedCardModalExplanation" class="banned-card-explanation"></div>
+                                <p id="bannedCardModalNoExplanation" class="text-muted fst-italic" hidden>{{ 'app.banned_card.modal.no_explanation'|trans }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">{{ 'app.banned_card.public.empty'|trans }}</div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function() {
+            var modalEl = document.getElementById('bannedCardModal');
+            if (!modalEl) {
+                return;
+            }
+            modalEl.addEventListener('show.bs.modal', function (event) {
+                var trigger = event.relatedTarget;
+                if (!trigger) {
+                    return;
+                }
+                var name = trigger.getAttribute('data-card-name') || '';
+                var image = trigger.getAttribute('data-card-image') || '';
+                var effectiveDate = trigger.getAttribute('data-card-effective-date') || '';
+                var sourceUrl = trigger.getAttribute('data-card-source-url') || '';
+                var explanationHtml = trigger.getAttribute('data-card-explanation') || '';
+                var printingsJson = trigger.getAttribute('data-card-printings') || '[]';
+
+                document.getElementById('bannedCardModalLabel').textContent = name;
+
+                var printings = [];
+                try {
+                    printings = JSON.parse(printingsJson);
+                } catch (err) {
+                    printings = [];
+                }
+                var printingsList = document.getElementById('bannedCardModalPrintings');
+                printingsList.innerHTML = '';
+                printings.forEach(function (printing) {
+                    var li = document.createElement('li');
+                    li.className = 'mb-1';
+                    var code = document.createElement('code');
+                    code.textContent = printing.setCode + ' ' + printing.cardNumber;
+                    li.appendChild(code);
+                    printingsList.appendChild(li);
+                });
+
+                var imageEl = document.getElementById('bannedCardModalImage');
+                if (image) {
+                    imageEl.src = image;
+                    imageEl.alt = name;
+                    imageEl.hidden = false;
+                } else {
+                    imageEl.removeAttribute('src');
+                    imageEl.hidden = true;
+                }
+
+                var effectiveDateLabel = document.getElementById('bannedCardModalEffectiveDateLabel');
+                var effectiveDateEl = document.getElementById('bannedCardModalEffectiveDate');
+                if (effectiveDate) {
+                    effectiveDateEl.textContent = effectiveDate;
+                    effectiveDateLabel.hidden = false;
+                    effectiveDateEl.hidden = false;
+                } else {
+                    effectiveDateLabel.hidden = true;
+                    effectiveDateEl.hidden = true;
+                }
+
+                var sourceLabel = document.getElementById('bannedCardModalSourceLabel');
+                var sourceEl = document.getElementById('bannedCardModalSource');
+                if (sourceUrl) {
+                    sourceEl.href = sourceUrl;
+                    sourceLabel.hidden = false;
+                    sourceEl.parentElement.hidden = false;
+                } else {
+                    sourceLabel.hidden = true;
+                    sourceEl.parentElement.hidden = true;
+                }
+
+                var explanationLabel = document.getElementById('bannedCardModalExplanationLabel');
+                var explanationEl = document.getElementById('bannedCardModalExplanation');
+                var noExplanationEl = document.getElementById('bannedCardModalNoExplanation');
+                if (explanationHtml) {
+                    explanationEl.innerHTML = explanationHtml;
+                    explanationLabel.hidden = false;
+                    explanationEl.hidden = false;
+                    noExplanationEl.hidden = true;
+                } else {
+                    explanationEl.innerHTML = '';
+                    explanationLabel.hidden = true;
+                    explanationEl.hidden = true;
+                    noExplanationEl.hidden = false;
+                }
+            });
+        })();
+    </script>
+{% endblock %}

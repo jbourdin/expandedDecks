@@ -75,7 +75,7 @@ class DeckListValidator
         }
 
         // Check for banned cards (matched by setCode + cardNumber)
-        $bannedKeys = $this->bannedCardRepo->findBannedCardKeys();
+        $bannedKeys = $this->bannedCardRepo->findBannedPrintingKeys();
         $checkedKeys = [];
 
         foreach ($parseResult->cards as $card) {

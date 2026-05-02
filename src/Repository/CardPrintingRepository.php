@@ -40,6 +40,28 @@ class CardPrintingRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find a printing by its set code + card number. Returns the lowest-rarity
+     * Expanded-legal printing if multiple printings share the same coordinates,
+     * since the BannedCard image preview should reflect the canonical Expanded form.
+     */
+    public function findFirstBySetCodeAndCardNumber(string $setCode, string $cardNumber): ?CardPrinting
+    {
+        /** @var CardPrinting|null $result */
+        $result = $this->createQueryBuilder('cp')
+            ->andWhere('cp.setCode = :setCode')
+            ->andWhere('cp.cardNumber = :cardNumber')
+            ->setParameter('setCode', $setCode)
+            ->setParameter('cardNumber', $cardNumber)
+            ->orderBy('cp.isExpandedLegal', 'DESC')
+            ->addOrderBy('cp.rarityTier', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result;
+    }
+
+    /**
      * Find the canonical printing for an identity (already computed and flagged).
      */
     public function findCanonicalForIdentity(CardIdentity $identity): ?CardPrinting
