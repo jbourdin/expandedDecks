@@ -35,13 +35,19 @@ class BannedCardRepository extends ServiceEntityRepository
      * Active rows ordered by effective date desc (newest bans first), nulls last,
      * then by name. Used by the public list and the admin "active" tab.
      *
+     * Empty parents (no child printings yet) are excluded — they're transient
+     * placeholders during sync or stale rows from a manual cleanup, never
+     * something to render.
+     *
      * @return list<BannedCard>
      */
     public function findActiveOrderedByEffectiveDate(): array
     {
         /** @var list<BannedCard> $rows */
         $rows = $this->createQueryBuilder('bc')
+            ->innerJoin('bc.printings', 'bcp')
             ->andWhere('bc.deletedAt IS NULL')
+            ->groupBy('bc.id')
             ->addOrderBy('bc.effectiveDate', 'DESC')
             ->addOrderBy('bc.cardName', 'ASC')
             ->getQuery()
