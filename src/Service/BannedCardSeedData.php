@@ -70,8 +70,8 @@ final readonly class BannedCardSeedData
         ],
         'Flapple' => [
             'effectiveDate' => '2025-10-10',
-            'sourceUrl' => 'https://www.pokebeach.com/2025/09/flapple-banned-from-expanded-format-prism-energy-receives-errata',
-            'explanation' => 'Apple Drop Ability + Forest of Vitality enabled an infinite damage loop winning consistently on T2.',
+            'sourceUrl' => 'https://www.pokemon.com/us/play-pokemon/about/mega-evolution/mega-evolution-banned-list-and-rule-changes-announcement',
+            'explanation' => "Flapple was banned in the Expanded format. In combination with the upcoming Forest of Vitality Stadium card, there are several ways to use Flapple's Apple Drop Ability repeatedly until all of the opponent's Pokémon are Knocked Out. This strategy can be executed consistently on the second turn of the game, which creates an undesirable environment for the Expanded format.",
         ],
         'Forest of Giant Plants' => [
             'effectiveDate' => '2017-08-18',
@@ -80,13 +80,13 @@ final readonly class BannedCardSeedData
         ],
         'Ghetsis' => [
             'effectiveDate' => '2018-08-17',
-            'sourceUrl' => 'https://www.pokebeach.com/2018/07/ghetsis-hex-maniac-and-more-banned-from-expanded-format',
-            'explanation' => 'Discards Item cards from the opponent\'s opening hand, crippling them before their first turn.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-celestial-storm-banned-list-and-rule-changes-quarterly-announcement/',
+            'explanation' => 'The overall goal of the Expanded format is to have a fun environment where players can enjoy using a wide variety of strategies. Ghetsis and Hex Maniac were identified as cards that stifle creativity and prevent several kinds of strategies from being viable. These cards also have the potential to make a major negative impact on an opponent before they get a chance to take their first turn, which can lead to a frustrating experience. Wally enables a combo with Trevenant that creates similar problems, so it falls into this category as well. Without these cards in the environment, hopefully gameplay will become more enjoyable.',
         ],
         'Hex Maniac' => [
             'effectiveDate' => '2018-08-17',
-            'sourceUrl' => 'https://www.pokebeach.com/2018/07/ghetsis-hex-maniac-and-more-banned-from-expanded-format',
-            'explanation' => 'Shuts off all Pokémon Abilities for a turn, enabling oppressive T1 setups while disabling defenses.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-celestial-storm-banned-list-and-rule-changes-quarterly-announcement/',
+            'explanation' => 'The overall goal of the Expanded format is to have a fun environment where players can enjoy using a wide variety of strategies. Ghetsis and Hex Maniac were identified as cards that stifle creativity and prevent several kinds of strategies from being viable. These cards also have the potential to make a major negative impact on an opponent before they get a chance to take their first turn, which can lead to a frustrating experience. Wally enables a combo with Trevenant that creates similar problems, so it falls into this category as well. Without these cards in the environment, hopefully gameplay will become more enjoyable.',
         ],
         'Island Challenge Amulet' => [
             'effectiveDate' => '2019-11-15',
@@ -155,8 +155,8 @@ final readonly class BannedCardSeedData
         ],
         'Puzzle of Time' => [
             'effectiveDate' => '2018-08-17',
-            'sourceUrl' => 'https://www.pokebeach.com/2018/07/ghetsis-hex-maniac-and-more-banned-from-expanded-format',
-            'explanation' => 'Two-card combo recovers any 2 cards from the discard pile, enabling powerful loops in too many archetypes.',
+            'sourceUrl' => 'https://www.pokemon.com/us/sun-moon-celestial-storm-banned-list-and-rule-changes-quarterly-announcement/',
+            'explanation' => 'Puzzle of Time is a flexible card that can be used in a wide variety of strategies. Its usage rate is quite high in popular decks, and it enables a lot of powerful combos. Removing this card from the environment will affect how many decks are constructed, which will hopefully make the Expanded format feel fresh and different.',
         ],
         'Red Card' => [
             'effectiveDate' => '2019-11-15',
