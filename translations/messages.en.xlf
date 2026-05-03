@@ -5260,7 +5260,7 @@
             </trans-unit>
             <trans-unit id="app.empty_channel.message">
                 <source>app.empty_channel.message</source>
-                <target>Togepi is keeping is waiting. Something will hatch here soon — pop back later to see what comes out of the shell.</target>
+                <target>Togepi is waiting. Something will hatch here soon — pop back later to see what comes out of the shell.</target>
                 <note>Empty-channel landing page message (Pokémon-themed teaser, hatching idea)</note>
             </trans-unit>
             <trans-unit id="app.event.show_private_decks">
