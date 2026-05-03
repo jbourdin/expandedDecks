@@ -24,7 +24,7 @@
 {% block opengraph %}
     {% set og_title = 'app.archetype.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = canonical_url('archetypes', 'app_archetype_list') %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -55,7 +55,7 @@
                             {% else %}
                                 {% set newTags = currentTags|merge([tag]) %}
                             {% endif %}
-                            <a href="{{ path('app_archetype_list', {'tags': newTags, sort: currentSort}) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
+                            <a href="{{ path('app_archetype_list', {tags: newTags, sort: currentSort}) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
                                 {{ tag }}
                             </a>
                         {% endfor %}
@@ -69,14 +69,14 @@
                 <div class="col-md-3 ms-auto">
                     <label class="form-label">{{ 'app.archetype.sort_by'|trans }}</label>
                     <select class="form-select form-select-sm" onchange="window.location.href=this.value">
-                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'position'}) }}" {{ currentSort == 'position' ? 'selected' }}>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'position'}) }}" {{ currentSort == 'position' ? 'selected' }}>
                             {{ 'app.archetype.sort_relevance'|trans }}
                         </option>
-                        <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>
                         {% if current_channel().enableDecks %}
-                            <option value="{{ path('app_archetype_list', {'tags': currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
+                            <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
                                 {{ 'app.archetype.sort_decks'|trans }}
                             </option>
                         {% endif %}

@@ -43,6 +43,9 @@ jobs:
       - name: PHP-CS-Fixer (dry-run)
         run: php vendor/bin/php-cs-fixer fix --dry-run --diff
 
+      - name: Twig-CS-Fixer (dry-run)
+        run: php vendor/bin/twig-cs-fixer lint templates/
+
       - name: PHPStan
         run: php vendor/bin/phpstan analyse --memory-limit=512M
         env:

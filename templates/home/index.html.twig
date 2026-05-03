@@ -17,7 +17,7 @@
 {% block opengraph %}
     {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = self_canonical_url('app_home') %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -30,8 +30,8 @@
             <h1 class="display-5 fw-bold hero-title">{{ 'app.home.hero_title'|trans }}</h1>
             <p class="col-md-8 fs-4 hero-text">{{ 'app.home.hero_text'|trans }}</p>
             <div class="d-flex gap-2">
-                <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}" class="btn btn-gold btn-lg">{{ 'app.nav.register'|trans }}</a>
-                <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}" class="btn btn-outline-light-gold btn-lg">{{ 'app.nav.login'|trans }}</a>
+                <a href="{{ path('app_register', {_target_path: app.request.requestUri}) }}" class="btn btn-gold btn-lg">{{ 'app.nav.register'|trans }}</a>
+                <a href="{{ path('app_login', {_target_path: app.request.requestUri}) }}" class="btn btn-outline-light-gold btn-lg">{{ 'app.nav.login'|trans }}</a>
             </div>
         </div>
     </div>

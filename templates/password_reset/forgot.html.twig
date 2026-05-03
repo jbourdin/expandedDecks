@@ -12,7 +12,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {% include 'form/_captcha_scripts.html.twig' %}
+    {{ include('form/_captcha_scripts.html.twig') }}
 {% endblock %}
 
 {% block body %}
@@ -30,7 +30,7 @@
                             <input type="email" name="email" id="inputEmail" class="form-control" required autofocus>
                         </div>
 
-                        {% include 'form/_captcha_widget.html.twig' %}
+                        {{ include('form/_captcha_widget.html.twig') }}
 
                         <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.forgot_password.submit'|trans }}</button>
                     </form>

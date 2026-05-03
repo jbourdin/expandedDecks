@@ -26,7 +26,7 @@
         {% set og_title = 'app.event.list_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
         {% set og_url = canonical_url('events', 'app_event_list') %}
     {% endif %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -49,7 +49,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             {% if icalUrl is defined and icalUrl %}
-                {% include 'event/_calendar_button.html.twig' with {icalUrl: icalUrl} only %}
+                {{ include('event/_calendar_button.html.twig', {icalUrl: icalUrl}, false) }}
             {% endif %}
             {% if app.user %}
                 <a href="{{ path('app_event_agenda') }}" class="btn btn-outline-primary">{{ 'app.nav.my_agenda'|trans }}</a>
@@ -87,7 +87,7 @@
                                 <a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a>
                             </h5>
                             <p class="text-muted mb-1">
-                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                                {{ include('event/_datetime.html.twig', {dt: event.date, tz: event.timezone}) }}
                             </p>
                             {% if event.location %}
                                 <p class="text-muted mb-1">{{ event.location }}</p>
@@ -96,13 +96,13 @@
                                 <small>
                                     <strong>{{ 'app.event.format'|trans }}:</strong> {{ event.format }}
                                     {% if event.tournamentStructure %}
-                                        &middot; {{ event.tournamentStructure.value|replace({'_': ' '})|title }}
+                                        &middot; {{ event.tournamentStructure.value|replace({_: ' '})|title }}
                                     {% endif %}
                                 </small>
                             </p>
                             {% if event.tags|length > 0 %}
                                 <p class="mb-2">
-                                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                                    {{ include('event/_tags.html.twig', {event: event}, false) }}
                                 </p>
                             {% endif %}
                             <div class="d-flex justify-content-between align-items-center">

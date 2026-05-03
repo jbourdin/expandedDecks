@@ -12,7 +12,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {% include 'form/_captcha_scripts.html.twig' %}
+    {{ include('form/_captcha_scripts.html.twig') }}
 {% endblock %}
 
 {% block body %}
@@ -44,7 +44,7 @@
 
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                        {% include 'form/_captcha_widget.html.twig' %}
+                        {{ include('form/_captcha_widget.html.twig') }}
 
                         <button type="submit" class="btn btn-primary w-100">{{ 'app.auth.login.submit'|trans }}</button>
                     </form>
@@ -59,7 +59,7 @@
 
                     {% set targetPath = app.request.query.get('_target_path', '') %}
                     <p class="text-center mb-0">
-                        {{ 'app.auth.login.no_account'|trans }} <a href="{{ path('app_register', targetPath ? {'_target_path': targetPath} : {}) }}">{{ 'app.auth.login.register_link'|trans }}</a>
+                        {{ 'app.auth.login.no_account'|trans }} <a href="{{ path('app_register', targetPath ? {_target_path: targetPath} : {}) }}">{{ 'app.auth.login.register_link'|trans }}</a>
                     </p>
                 </div>
             </div>

@@ -26,10 +26,10 @@
         </div>
         <div class="card-body">
             {% if borrows|length > 0 %}
-                {% include 'borrow/_activity_list.html.twig' with {
+                {{ include('borrow/_activity_list.html.twig', {
                     borrows: borrows,
-                    columns: ['event', 'borrower', 'status', 'date']
-                } only %}
+                    columns: ['event', 'borrower', 'status', 'date'],
+                }, false) }}
             {% else %}
                 <p class="text-muted mb-0">{{ 'app.deck.no_borrow_history'|trans }}</p>
             {% endif %}
