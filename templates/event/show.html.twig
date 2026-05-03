@@ -20,7 +20,7 @@
     {% set og_description = event.location %}
     {% set og_url = canonical_url('events', 'app_event_show', {id: event.id}) %}
     {% set og_type = 'article' %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -56,9 +56,9 @@
                     <dl class="row mb-md-0">
                         <dt class="col-sm-4">{{ 'app.common.date'|trans }}</dt>
                         <dd class="col-sm-8">
-                            {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                            {{ include('event/_datetime.html.twig', {dt: event.date, tz: event.timezone}) }}
                             {% if event.endDate %}
-                                — {% include 'event/_datetime.html.twig' with {dt: event.endDate, tz: event.timezone} %}
+                                — {{ include('event/_datetime.html.twig', {dt: event.endDate, tz: event.timezone}) }}
                             {% endif %}
                         </dd>
                         <dt class="col-sm-4">{{ 'app.event.format'|trans }}</dt>
@@ -79,7 +79,7 @@
                     <dl class="row mb-0">
                         {% if event.tournamentStructure %}
                             <dt class="col-sm-4">{{ 'app.event.structure'|trans }}</dt>
-                            <dd class="col-sm-8">{{ event.tournamentStructure.value|replace({'_': ' '})|title }}</dd>
+                            <dd class="col-sm-8">{{ event.tournamentStructure.value|replace({_: ' '})|title }}</dd>
                         {% endif %}
                         {% if event.minAttendees or event.maxAttendees %}
                             <dt class="col-sm-4">{{ 'app.event.attendees'|trans }}</dt>
@@ -111,7 +111,7 @@
                 <hr>
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small">{{ 'app.event.tag.label'|trans }}:</span>
-                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                    {{ include('event/_tags.html.twig', {event: event}, false) }}
                 </div>
             {% endif %}
 

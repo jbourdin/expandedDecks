@@ -118,7 +118,7 @@ assets.watch: ## Build frontend assets and watch for changes
 ## —— Quality —————————————————————————————————————————————————————————
 
 .PHONY: lint-all
-lint-all: lint-yaml lint-i18n cs-fix eslint-fix stylelint-fix lint-container phpstan ## Run all linters and fixers
+lint-all: lint-yaml lint-i18n cs-fix twig-cs-fix eslint-fix stylelint-fix lint-container phpstan ## Run all linters and fixers
 
 .PHONY: test
 test: ## Run test suite
@@ -151,6 +151,14 @@ cs-fix test.phpcs.fix: ## Fix code style with PHP-CS-Fixer
 .PHONY: cs-check test.phpcs
 cs-check test.phpcs: ## Check code style (dry-run)
 	symfony php vendor/bin/php-cs-fixer fix --dry-run --diff
+
+.PHONY: twig-cs-fix
+twig-cs-fix: ## Fix Twig template style with Twig-CS-Fixer
+	symfony php vendor/bin/twig-cs-fixer lint --fix templates/
+
+.PHONY: twig-cs-check
+twig-cs-check: ## Check Twig template style (dry-run)
+	symfony php vendor/bin/twig-cs-fixer lint templates/
 
 .PHONY: lint-i18n
 lint-i18n: ## Validate translation files (syntax + content)

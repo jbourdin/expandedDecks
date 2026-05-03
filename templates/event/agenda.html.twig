@@ -69,7 +69,7 @@
                                 <a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a>
                             </h5>
                             <p class="text-muted mb-1">
-                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
+                                {{ include('event/_datetime.html.twig', {dt: event.date, tz: event.timezone}) }}
                             </p>
                             {% if event.location %}
                                 <p class="text-muted mb-1">{{ event.location }}</p>
@@ -86,7 +86,7 @@
                             </p>
                             {% if event.tags|length > 0 %}
                                 <p class="mb-0">
-                                    {% include 'event/_tags.html.twig' with {event: event} only %}
+                                    {{ include('event/_tags.html.twig', {event: event}, false) }}
                                 </p>
                             {% endif %}
                         </div>

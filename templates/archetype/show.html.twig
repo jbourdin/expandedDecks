@@ -26,7 +26,7 @@
     {% set og_description = archetype.localizedMetaDescription(app.request.locale) %}
     {% set og_url = canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) %}
     {% set og_type = 'article' %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block meta %}

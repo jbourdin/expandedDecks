@@ -18,7 +18,7 @@
 {% block opengraph %}
     {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = self_canonical_url('app_home') %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -30,16 +30,16 @@
     {% set rowWidth = 0 %}
 
     {% for homepageBlock in blocks %}
-        {% set partial = '_' ~ homepageBlock.type.value|replace({'R': '_r', 'P': '_p', 'D': '_d', 'E': '_e'}) %}
+        {% set partial = '_' ~ homepageBlock.type.value|replace({R: '_r', P: '_p', D: '_d', E: '_e'}) %}
         {# Convert camelCase to snake_case for template name #}
         {% set templateMap = {
-            'hero': '_hero',
-            'richText': '_rich_text',
-            'pageEmbed': '_page_embed',
-            'carousel': '_carousel',
-            'latestPages': '_latest_pages',
-            'featuredDeck': '_featured_deck',
-            'featuredEvent': '_featured_event'
+            hero: '_hero',
+            richText: '_rich_text',
+            pageEmbed: '_page_embed',
+            carousel: '_carousel',
+            latestPages: '_latest_pages',
+            featuredDeck: '_featured_deck',
+            featuredEvent: '_featured_event',
         } %}
         {% set partial = templateMap[homepageBlock.type.value] %}
 
@@ -59,7 +59,7 @@
             {% endif %}
 
             <div class="col-md-{{ homepageBlock.columnWidth }} {{ homepageBlock.cssClasses }}">
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
+                {{ include('home/blocks/' ~ partial ~ '.html.twig', {entry: homepageBlock}) }}
             </div>
             {% set rowWidth = rowWidth + homepageBlock.columnWidth %}
         {% else %}
@@ -72,10 +72,10 @@
 
             {% if homepageBlock.cssClasses is not null %}
                 <div class="{{ homepageBlock.cssClasses }}">
-                    {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
+                    {{ include('home/blocks/' ~ partial ~ '.html.twig', {entry: homepageBlock}) }}
                 </div>
             {% else %}
-                {% include 'home/blocks/' ~ partial ~ '.html.twig' with {entry: homepageBlock} %}
+                {{ include('home/blocks/' ~ partial ~ '.html.twig', {entry: homepageBlock}) }}
             {% endif %}
         {% endif %}
     {% endfor %}

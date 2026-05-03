@@ -18,7 +18,7 @@
     {% set og_url = canonical_url('decks', 'app_deck_show', {short_tag: deck.shortTag}) %}
     {% set og_type = 'article' %}
     {% set og_image = deck.currentVersion ? deck.currentVersion.mosaicImageUrl : null %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block structured_data %}
@@ -209,10 +209,10 @@
                     {% endif %}
 
                     {% if deckBorrows is not empty %}
-                        {% include 'borrow/_activity_list.html.twig' with {
+                        {{ include('borrow/_activity_list.html.twig', {
                             borrows: deckBorrows,
-                            columns: ['event', 'borrower', 'status', 'date']
-                        } only %}
+                            columns: ['event', 'borrower', 'status', 'date'],
+                        }, false) }}
 
                         {% if totalBorrowCount > deckBorrows|length %}
                             <div class="text-center mt-2">
@@ -389,9 +389,9 @@
     {% if not app.user %}
         <p class="text-center text-muted small mt-3">
             {{ 'app.deck.borrow_login_cta'|trans }}
-            <a href="{{ path('app_login', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.login_cta'|trans }}</a>
+            <a href="{{ path('app_login', {_target_path: app.request.requestUri}) }}">{{ 'app.deck.login_cta'|trans }}</a>
             /
-            <a href="{{ path('app_register', {'_target_path': app.request.requestUri}) }}">{{ 'app.deck.register_cta'|trans|lower }}</a>.
+            <a href="{{ path('app_register', {_target_path: app.request.requestUri}) }}">{{ 'app.deck.register_cta'|trans|lower }}</a>.
         </p>
     {% endif %}
 

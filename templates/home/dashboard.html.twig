@@ -27,7 +27,7 @@
                                 <span class="badge {{ borrow.status.value == 'overdue' ? 'bg-danger' : 'bg-info' }} me-2">{{ ('app.borrow.status.' ~ borrow.status.value)|trans }}</span>
                                 {{ 'app.dashboard.reminders.borrow_to_return'|trans({
                                     '%deck%': borrow.deck.name,
-                                    '%event%': borrow.event.name
+                                    '%event%': borrow.event.name,
                                 }) }}
                             </div>
                             <a href="{{ path('app_event_show', {id: borrow.event.id}) }}#borrowing" class="btn btn-sm btn-outline-secondary">{{ 'app.common.view'|trans }}</a>
@@ -39,7 +39,7 @@
                                 <span class="badge bg-warning text-dark me-2">{{ 'app.borrow.status.pending'|trans }}</span>
                                 {{ 'app.dashboard.reminders.pending_request'|trans({
                                     '%deck%': borrow.deck.name,
-                                    '%borrower%': borrow.borrower.screenName
+                                    '%borrower%': borrow.borrower.screenName,
                                 }) }}
                             </div>
                             <a href="{{ path('app_lend_list', {status: 'pending'}) }}" class="btn btn-sm btn-outline-secondary">{{ 'app.dashboard.reminders.review'|trans }}</a>
@@ -177,7 +177,7 @@
                                         <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
                                         <br>
                                         <small class="text-muted">
-                                            {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
+                                            {{ include('event/_datetime.html.twig', {dt: event.date, tz: event.timezone, date_only: true}) }}
                                             {% if event.location %} &mdash; {{ event.location }}{% endif %}
                                         </small>
                                     </div>
@@ -216,7 +216,7 @@
                             <strong><a href="{{ path('app_event_show', {id: event.id}) }}">{{ event.name }}</a></strong>
                             <br>
                             <small class="text-muted">
-                                {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
+                                {{ include('event/_datetime.html.twig', {dt: event.date, tz: event.timezone, date_only: true}) }}
                                 {% if event.location %} &mdash; {{ event.location }}{% endif %}
                             </small>
                         </div>
@@ -237,11 +237,11 @@
             <a href="{{ path('app_borrow_list') }}" class="btn btn-sm btn-outline-light">{{ 'app.common.see_all'|trans }}</a>
         </div>
         <div class="card-body">
-            {% include 'borrow/_activity_list.html.twig' with {
+            {{ include('borrow/_activity_list.html.twig', {
                 borrows: recentBorrows,
                 columns: ['deck', 'event', 'status', 'date'],
-                emptyMessage: 'app.dashboard.no_borrow_activity'|trans
-            } only %}
+                emptyMessage: 'app.dashboard.no_borrow_activity'|trans,
+            }, false) }}
         </div>
     </div>
 
@@ -251,11 +251,11 @@
             <a href="{{ path('app_lend_list') }}" class="btn btn-sm btn-outline-light">{{ 'app.common.see_all'|trans }}</a>
         </div>
         <div class="card-body">
-            {% include 'borrow/_activity_list.html.twig' with {
+            {{ include('borrow/_activity_list.html.twig', {
                 borrows: recentLends,
                 columns: ['deck', 'event', 'borrower', 'status', 'date'],
-                emptyMessage: 'app.dashboard.no_lend_activity'|trans
-            } only %}
+                emptyMessage: 'app.dashboard.no_lend_activity'|trans,
+            }, false) }}
         </div>
     </div>
 
@@ -265,11 +265,11 @@
                 <h5 class="mb-0">{{ 'app.dashboard.event_management_activity'|trans }}</h5>
             </div>
             <div class="card-body">
-                {% include 'borrow/_activity_list.html.twig' with {
+                {{ include('borrow/_activity_list.html.twig', {
                     borrows: recentManagedBorrows,
                     columns: ['deck', 'borrower', 'event', 'status', 'date'],
-                    emptyMessage: 'app.dashboard.no_management_activity'|trans
-                } only %}
+                    emptyMessage: 'app.dashboard.no_management_activity'|trans,
+                }, false) }}
             </div>
         </div>
     {% endif %}

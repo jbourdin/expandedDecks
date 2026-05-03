@@ -79,7 +79,7 @@
                         {{ form_row(form.isDecklistMandatory) }}
                         {{ form_row(form.allowCustody) }}
 
-                        {% include 'event/_tag_selector.html.twig' with {form: form, existingTagNames: existingTagNames, initialTagNames: initialTagNames} only %}
+                        {{ include('event/_tag_selector.html.twig', {form: form, existingTagNames: existingTagNames, initialTagNames: initialTagNames}, false) }}
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-gold">{{ 'app.event.save_button'|trans }}</button>
