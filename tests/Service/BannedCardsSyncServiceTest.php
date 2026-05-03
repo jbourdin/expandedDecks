@@ -350,7 +350,7 @@ class BannedCardsSyncServiceTest extends TestCase
 
         $identityResolver = $this->createStub(\App\Service\CardIdentity\CardIdentityResolver::class);
 
-        $enricher = new \App\Service\BannedCardEnricher(
+        $enricher = new BannedCardEnricher(
             $apiClient,
             $identityResolver,
             $cardPrintingRepository,

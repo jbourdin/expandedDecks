@@ -167,4 +167,56 @@ class AdminTechnicalControllerTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects('/admin/technical');
     }
+
+    public function testBannedCardsEnrichRequiresAuthentication(): void
+    {
+        $this->client->request('POST', '/admin/technical/banned-cards-enrich');
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testBannedCardsEnrichRejectsInvalidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/technical/banned-cards-enrich', [
+            '_token' => 'wrong',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
+    public function testBannedCardsEnrichSucceedsWithValidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/admin/technical');
+        $csrfToken = $this->getCsrfToken('technical-banned-cards-enrich');
+
+        $this->client->request('POST', '/admin/technical/banned-cards-enrich', [
+            '_token' => $csrfToken,
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        // No banned cards in fixtures -> "Linked 0 / 0" success flash, no warning.
+        self::assertSelectorExists('.alert-success');
+    }
+
+    public function testBannedCardsEnrichAcceptsForceFlag(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('GET', '/admin/technical');
+        $csrfToken = $this->getCsrfToken('technical-banned-cards-enrich');
+
+        $this->client->request('POST', '/admin/technical/banned-cards-enrich', [
+            '_token' => $csrfToken,
+            'force' => '1',
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+    }
 }
