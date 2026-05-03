@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.9.3] — 2026-05-03
+
+Patch release: typo fix on the empty-channel coming-soon screen and a CLI memory bump for `cache:clear`.
+
+### Bug Fixes
+
+- **Empty-channel teaser typo** — `app.empty_channel.message` (en) had a stray "keeping is" that read "Togepi is keeping is waiting." Now reads "Togepi is waiting." to mirror the French copy ("Togepi attend."). ([#506](https://github.com/jbourdin/expandedDecks/pull/506))
+
+### Infrastructure
+
+- **Project `php.ini` with 512M memory limit** — the dev container (~1.5k services, 31 entities, ~12k translation units) peaks ~150–170 MB during `cache:clear`'s two-phase compile-and-swap, exceeding the Symfony CLI's default 128M and causing OOMs. The CLI auto-loads a project-root `php.ini`, so a 512M limit unblocks `make` targets that shell out to `bin/console`. ([#506](https://github.com/jbourdin/expandedDecks/pull/506))
+
+---
+
 ## [1.9.2] — 2026-05-02
 
 Patch release: UX refinements on the public banned-cards page (F6.14) — denser grid that actually packs 9 per row at `lg+`, and a swipable modal.
