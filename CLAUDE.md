@@ -189,6 +189,7 @@ Run **before every commit/push**:
 
 ```bash
 make cs-fix        # Fix code style (PHP-CS-Fixer)
+make twig-cs-fix   # Fix Twig template style (Twig-CS-Fixer)
 make eslint-fix    # Fix ESLint issues (TS/JS)
 make stylelint-fix # Fix SCSS/CSS style issues
 make phpstan       # Static analysis
@@ -272,6 +273,8 @@ When creating new features or backlog items, create a GitHub issue with the feat
 | `make test.front`      | Vitest frontend tests                            | Before every commit (frontend changes)   |
 | `make coverage`        | PHPUnit with pcov coverage report                | When coverage data is needed             |
 | `make cs-check`        | PHP-CS-Fixer dry-run (no changes)                | CI / review only                         |
+| `make twig-cs-fix`     | Twig-CS-Fixer — auto-fix template style          | Before every commit (Twig changes)       |
+| `make twig-cs-check`   | Twig-CS-Fixer dry-run (no changes)               | CI / review only                         |
 | `make eslint`          | ESLint on `assets/` (check only)                 | CI / review only                         |
 | `make eslint-fix`      | ESLint on `assets/` with auto-fix                | Before every commit (frontend changes)   |
 | `make stylelint`       | Lint SCSS and CSS files                          | Before every commit (frontend changes)   |

@@ -39,21 +39,21 @@
         {% set types = {} %}
         {% if channel.enableArchetypes %}
             {% set types = types|merge({
-                'archetypes': {'label': 'app.search.type.archetypes'|trans, 'icon': 'bi-trophy'},
-                'variants': {'label': 'app.search.type.variants'|trans, 'icon': 'bi-layers'}
+                archetypes: {label: 'app.search.type.archetypes'|trans, icon: 'bi-trophy'},
+                variants: {label: 'app.search.type.variants'|trans, icon: 'bi-layers'},
             }) %}
         {% endif %}
         {% set types = types|merge({
-            'pages': {'label': 'app.search.type.pages'|trans, 'icon': 'bi-file-text'}
+            pages: {label: 'app.search.type.pages'|trans, icon: 'bi-file-text'},
         }) %}
         {% if channel.enableEvents %}
             {% set types = types|merge({
-                'events': {'label': 'app.search.type.events'|trans, 'icon': 'bi-calendar-event'}
+                events: {label: 'app.search.type.events'|trans, icon: 'bi-calendar-event'},
             }) %}
         {% endif %}
         {% if channel.enableDecks %}
             {% set types = types|merge({
-                'decks': {'label': 'app.search.type.decks'|trans, 'icon': 'bi-collection'}
+                decks: {label: 'app.search.type.decks'|trans, icon: 'bi-collection'},
             }) %}
         {% endif %}
 

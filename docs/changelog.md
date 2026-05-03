@@ -16,6 +16,34 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.9.4] — 2026-05-03
+
+Patch release: a deck-form field-order fix and a project-wide test coverage push from 85.87 % to ~92.4 %.
+
+### Bug Fixes
+
+- **Deck form field order** — `format` (Expanded vs Standard) was missing from the explicit `form_row` list in both `templates/deck/new.html.twig` and `templates/deck/edit.html.twig`, and `latestSet` was missing from the new template. `form_end(form)` was emitting them at the bottom of the form. Both fields now render in their intended positions: `format` right after `name`, `latestSet` between the languages island and the `public` checkbox. ([#514](https://github.com/jbourdin/expandedDecks/pull/514))
+
+### Infrastructure
+
+- **Drop unused `symfony/stimulus-bundle` + `symfony/ux-turbo`** — the project frontend is React/Mantine + Twig/Bootstrap with no Stimulus controllers, no `<turbo-frame>` elements, and no `data-controller` attributes; both bundles were Flex-recipe leftovers that Dependabot kept churning major-bump PRs against. Removed the composer packages, the four orphaned npm deps (`@hotwired/{stimulus,turbo}`, `@symfony/{stimulus-bridge,ux-turbo}`), `config/packages/ux_turbo.yaml`, and the dead Turbo Drive comment boilerplate in `webpack_encore.yaml`. Closed Dependabot PRs #488 and #489. ([#508](https://github.com/jbourdin/expandedDecks/pull/508))
+- **Drop unused `symfony/amazon-sqs-messenger`** — every `MESSENGER_TRANSPORT_*_DSN` defaults to Doctrine; no `sqs://` DSN, no `AsyncAws` imports anywhere. Removed the package and its transitive `async-aws/{sqs,core}`. `aws/aws-sdk-php` stays — it's used by Flysystem for Scaleway S3 storage. ([#508](https://github.com/jbourdin/expandedDecks/pull/508))
+- **Add Twig-CS-Fixer for template style enforcement** — `vincentlanglet/twig-cs-fixer ^3.14` as a dev dep with the default standard, `make twig-cs-fix` / `twig-cs-check` targets wired into `lint-all`, CI Twig dry-run step. Initial pass on 26/103 templates: trailing commas, hash-key quote cleanup (`{'_target_path': ...}` → `{_target_path: ...}`), and `{% include %}` tag → `{{ include() }}` function (closes #467). ([#508](https://github.com/jbourdin/expandedDecks/pull/508))
+- **Composer dependencies refresh** — Symfony 8.0.8 → 8.0.9 across components, doctrine/persistence 4.1.1 → 4.2.0, async-aws/sqs 2.8.1 → 2.9.0 (before removal), phpstan 2.1.54, phpunit 13.1.8, aws-sdk-php 3.379.11, polyfills 1.37. ([#508](https://github.com/jbourdin/expandedDecks/pull/508))
+- **Restore strict_types + license header on `config/bundles.php`** — Flex stripped the project's standard PHP header when unconfiguring stimulus/ux-turbo recipes; PHP-CS-Fixer caught the regression in CI and the header is now back. ([#508](https://github.com/jbourdin/expandedDecks/pull/508))
+
+### Testing & Quality
+
+- **F6.14 banned-card coverage backfill (closes #498)** — 62 new tests across 9 files: `BannedCardImageResolverTest` (14, all four URL-resolution branches + rarity-tier sort + serie-prefix guesses), `BannedCardEnricherTest` (11, local hit / TCGdex API hit / alias fallback / null path / force-mode reset / reparent identity-cache regression), `AdminBannedCardControllerTest` (12, auth + role + active/history tabs + CRUD + CSRF rejection), `BannedCardSeedDataTest` (7, applyTo / per-printing seeds for Unown LOT 90 vs LOT 91 / applyAll counts), `BannedCardsEnrichCommandTest` (3), `BannedCardsSeedCommandTest` (2), `AdminTechnicalControllerTest` extension (4 for banned-cards-enrich), `BannedCardPrintingRepositoryTest` (4), `CardPrintingRepositoryTest` (3 for `findFirstBySetCodeAndCardNumber`), `BannedCardFormTypeTest` (4), plus two extensions to `BannedCardsSyncServiceTest` (in-loop `parentsByIdentityId` cache regression + empty-printings soft-delete branch). Patch coverage on the next touch ≥ 87.48 %. ([#509](https://github.com/jbourdin/expandedDecks/pull/509))
+- **Sprite subsystem coverage (F2.26 — was 0 %)** — `SpriteResolverTest` (10 tests covering cache-hit short-circuit, CDN→PokeAPI fallback, in-memory pokedex-id memoization, exception swallow, data-URI encoding), `SpriteMappingSyncServiceTest` (5 tests for CSV parsing, alias merging, insert/update counts, fetch-failure throw), `SpritesSyncMappingCommandTest` (2), `SpriteProxyControllerTest` (3, 404 on resolver miss + 200 with `image/png` body + JSON slug listing), `PokemonSpriteMappingRepositoryTest` (4). Also added `tests/Form` and `tests/Sentry` to `phpunit.xml.dist`'s unit suite — 17 previously-orphaned tests were not being run by CI. Source-side fix: `str_getcsv($line, escape: '')` to silence a PHP 8.4+ deprecation surfaced once tests started exercising the parser. ([#510](https://github.com/jbourdin/expandedDecks/pull/510))
+- **Admin Page + MenuCategory controller coverage** — 28 new functional tests covering list filters (q/category/channel + view variants), reorder JSON endpoints (valid + invalid payload), new-form submit with channel/category/footer prefill, edit GET + POST round-trip, saveTranslation existing-locale + new-locale + 404, delete + duplicate CSRF rejection, and the cross-translation duplicate clone path. ([#511](https://github.com/jbourdin/expandedDecks/pull/511))
+- **PDF generator coverage (was 0 %, 319 LOC)** — `PdfDecklistGeneratorTest` (15, every data-prep branch + Dompdf rendering on tiny stubbed HTML so `renderPdf` is also exercised), `PdfLabelGeneratorTest` (9, simple + foldable variants, sprite resolution, slug title-casing, font-size auto-fit). Tests stub `Twig::render` with a context-capturing callback to assert on grouping, sorting, font-size, gravatar/symbol embedding without touching real templates. ([#512](https://github.com/jbourdin/expandedDecks/pull/512))
+- **AdminTechnical + DeckShow PDF + mosaic handler branches** — `AdminTechnicalControllerCoverageTest` (16, every action's CSRF reject path plus happy paths for cache-clearing actions where the handler doesn't reach external services), `DeckShowPdfRoutesTest` (9, label/foldable/decklist routes return `application/pdf` for owners and 403 otherwise; re-enrich requires `ROLE_TECHNICAL_ADMIN` + valid CSRF), and 4 new `GenerateMinifiedMosaicHandlerTest` cases (catch branch with logged + rethrown exception, static printing-overrides short-circuit, tile dedup with summed quantity, type+quantity sort order). ([#513](https://github.com/jbourdin/expandedDecks/pull/513))
+
+Project-wide coverage moved from **85.87 % → ~92.4 %** across this batch (about 1,000 newly-covered lines).
+
+---
+
 ## [1.9.3] — 2026-05-03
 
 Patch release: typo fix on the empty-channel coming-soon screen and a CLI memory bump for `cache:clear`.

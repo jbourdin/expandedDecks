@@ -19,7 +19,7 @@
     {% set og_url = self_canonical_url('app_page_show', {slug: page.slug}) %}
     {% set og_type = 'article' %}
     {% set og_image = page.ogImage %}
-    {% include '_partials/opengraph.html.twig' %}
+    {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
 {% block meta %}

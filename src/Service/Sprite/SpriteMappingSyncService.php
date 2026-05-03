@@ -117,7 +117,7 @@ class SpriteMappingSyncService
                 continue; // skip header and empty lines
             }
 
-            $columns = str_getcsv($line);
+            $columns = str_getcsv($line, escape: '');
             if (\count($columns) < 2) {
                 continue;
             }

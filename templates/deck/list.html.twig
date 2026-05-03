@@ -23,7 +23,7 @@
     {% if not isMyDecks %}
         {% set og_title = 'app.deck.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
         {% set og_url = canonical_url('decks', 'app_deck_list') %}
-        {% include '_partials/opengraph.html.twig' %}
+        {{ include('_partials/opengraph.html.twig') }}
     {% endif %}
 {% endblock %}
 

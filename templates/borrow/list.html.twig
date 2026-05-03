@@ -27,7 +27,7 @@
         {% for status in statuses %}
             <a href="{{ path(listRoute, scopeParams|merge({status: status.value})) }}"
                class="btn btn-sm {{ currentStatus is not null and currentStatus.value == status.value ? 'btn-primary' : 'btn-outline-secondary' }}">
-                {{ status.value|replace({'_': ' '})|title }}
+                {{ status.value|replace({_: ' '})|title }}
             </a>
         {% endfor %}
     </div>
@@ -35,7 +35,7 @@
     {% if inboxMode is defined and inboxMode %}
         {# Inbox mode: active borrows grouped by event #}
         {% if eventGroups|length > 0 %}
-            {% include 'borrow/_inbox.html.twig' %}
+            {{ include('borrow/_inbox.html.twig') }}
         {% else %}
             <div class="card shadow-sm">
                 <div class="card-body text-center py-5">

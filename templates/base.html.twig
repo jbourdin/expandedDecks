@@ -96,13 +96,13 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
-                            {% include '_partials/navbar_search.html.twig' %}
+                            {{ include('_partials/navbar_search.html.twig') }}
                             {% if channel.enableDecks %}
                                 <li class="nav-item d-flex align-items-center me-2">
                                     <div id="notification-bell-root"
                                          data-api-url="{{ path('app_notification_api_list') }}"
                                          data-list-url="{{ path('app_notification_list') }}"
-                                         data-mark-read-url-template="{{ path('app_notification_api_mark_read', {id: 0})|replace({'0': '__ID__'}) }}"
+                                         data-mark-read-url-template="{{ path('app_notification_api_mark_read', {id: 0})|replace({0: '__ID__'}) }}"
                                          data-mark-all-read-url="{{ path('app_notification_api_mark_all_read') }}"
                                          data-label-mark-read="{{ 'app.notification.center.mark_read'|trans }}"
                                          data-label-mark-all-read="{{ 'app.notification.center.mark_all_read'|trans }}"
@@ -200,13 +200,13 @@
                                     <a class="nav-link" href="{{ path('app_event_list') }}">{{ 'app.nav.events'|trans }}</a>
                                 </li>
                             {% endif %}
-                            {% include '_partials/navbar_search.html.twig' %}
+                            {{ include('_partials/navbar_search.html.twig') }}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_login', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
+                                <a class="nav-link" href="{{ path('app_login', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
                             </li>
                             {% if channel.enableRegister %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ path('app_register', {'_target_path': app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
+                                    <a class="nav-link" href="{{ path('app_register', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
                                 </li>
                             {% endif %}
                         {% endif %}
@@ -271,7 +271,7 @@
                     <hr class="my-2">
                 {% endif %}
                 <div class="text-center">
-                    {{ channel_param('copyright_footer', '&copy; ' ~ "now"|date("Y") ~ ' ' ~ channel_param('brand_name', 'Expanded Decks'))|raw }}
+                    {{ channel_param('copyright_footer', '&copy; ' ~ 'now'|date('Y') ~ ' ' ~ channel_param('brand_name', 'Expanded Decks'))|raw }}
                     <span class="ms-2" style="font-size: 0.75rem;">{{ app_version }}</span>
                     <span class="ms-2">·</span>
                     <a href="https://github.com/jbourdin/expandedDecks" class="ms-1" target="_blank" rel="noopener">GitHub</a>
