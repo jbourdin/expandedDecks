@@ -270,4 +270,230 @@ final class GenerateMinifiedMosaicHandlerTest extends TestCase
         self::assertSame(2, $tile->quantity);
         self::assertSame($printing, $tile->printing, 'Tile must carry the CardPrinting for fallback-aware image resolution');
     }
+
+    /**
+     * The catch-block re-raises after logging — exercises the error
+     * branch and the rethrow.
+     */
+    public function testExceptionInPipelineIsLoggedAndRethrown(): void
+    {
+        $card = new DeckCard();
+        $card->setCardName('Pikachu');
+        $card->setSetCode('BRS');
+        $card->setCardNumber('50');
+        $card->setCardType('pokemon');
+        $card->setQuantity(2);
+
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+        $version->addCard($card);
+
+        $versionRepository = $this->createStub(DeckVersionRepository::class);
+        $versionRepository->method('find')->willReturn($version);
+
+        $mosaicGenerator = $this->createStub(MosaicGenerator::class);
+        $mosaicGenerator->method('generateFromTiles')->willThrowException(new \RuntimeException('disk full'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error');
+
+        $handler = new GenerateMinifiedMosaicHandler(
+            $mosaicGenerator,
+            $this->createStub(MosaicUrlResolver::class),
+            $this->createStub(CardPrintingRepository::class),
+            $this->createStub(CardIdentityResolver::class),
+            $versionRepository,
+            $this->createStub(EntityManagerInterface::class),
+            $logger,
+            $this->createStub(MinifiedCardViewBuilder::class),
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('disk full');
+
+        $handler(new GenerateMinifiedMosaicMessage(1));
+    }
+
+    /**
+     * MINIFIED_PRINTING_OVERRIDES short-circuits the resolution chain with
+     * a static URL and no CardPrinting.
+     */
+    public function testStaticOverrideShortCircuitsImageResolution(): void
+    {
+        // GEN|73 is in DeckListParser::MINIFIED_PRINTING_OVERRIDES.
+        $card = new DeckCard();
+        $card->setCardName('Energy Switch');
+        $card->setSetCode('GEN');
+        $card->setCardNumber('73');
+        $card->setCardType('trainer');
+        $card->setQuantity(4);
+
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+        $version->addCard($card);
+
+        $versionRepository = $this->createStub(DeckVersionRepository::class);
+        $versionRepository->method('find')->willReturn($version);
+
+        // The override should mean the printingRepository is never asked.
+        $printingRepository = $this->createMock(CardPrintingRepository::class);
+        $printingRepository->expects(self::never())->method('findLowestRarityForIdentity');
+
+        $capturedTiles = null;
+        $mosaicGenerator = $this->createStub(MosaicGenerator::class);
+        $mosaicGenerator->method('generateFromTiles')->willReturnCallback(static function ($v, $tiles) use (&$capturedTiles): string {
+            $capturedTiles = $tiles;
+
+            return 'mosaic/1/1_minified.webp';
+        });
+
+        $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
+        $mosaicUrlResolver->method('resolveForVersion')->willReturn('https://example.com/mosaic.webp');
+
+        $handler = new GenerateMinifiedMosaicHandler(
+            $mosaicGenerator,
+            $mosaicUrlResolver,
+            $printingRepository,
+            $this->createStub(CardIdentityResolver::class),
+            $versionRepository,
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(MinifiedCardViewBuilder::class),
+        );
+
+        $handler(new GenerateMinifiedMosaicMessage(1));
+
+        self::assertNotNull($capturedTiles);
+        self::assertCount(1, $capturedTiles);
+        // Static override: tile.printing is null and image URL is from the override map.
+        self::assertNull($capturedTiles[0]->printing);
+        self::assertNotNull($capturedTiles[0]->imageUrl);
+    }
+
+    /**
+     * Cards sharing the same name + image URL collapse into one tile with
+     * summed quantity. This is the de-dup path in buildMergedTiles.
+     */
+    public function testTilesWithSameImageAndNameMergeWithSummedQuantity(): void
+    {
+        // Two cards with the same name + same override image collapse into one.
+        $cardA = new DeckCard();
+        $cardA->setCardName('Energy Switch');
+        $cardA->setSetCode('GEN');
+        $cardA->setCardNumber('73');
+        $cardA->setCardType('trainer');
+        $cardA->setQuantity(2);
+
+        $cardB = new DeckCard();
+        $cardB->setCardName('Energy Switch');
+        $cardB->setSetCode('GEN');
+        $cardB->setCardNumber('73');
+        $cardB->setCardType('trainer');
+        $cardB->setQuantity(2);
+
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+        $version->addCard($cardA);
+        $version->addCard($cardB);
+
+        $versionRepository = $this->createStub(DeckVersionRepository::class);
+        $versionRepository->method('find')->willReturn($version);
+
+        $capturedTiles = null;
+        $mosaicGenerator = $this->createStub(MosaicGenerator::class);
+        $mosaicGenerator->method('generateFromTiles')->willReturnCallback(static function ($v, $tiles) use (&$capturedTiles): string {
+            $capturedTiles = $tiles;
+
+            return 'mosaic/1/1_minified.webp';
+        });
+
+        $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
+        $mosaicUrlResolver->method('resolveForVersion')->willReturn('https://example.com/mosaic.webp');
+
+        $handler = new GenerateMinifiedMosaicHandler(
+            $mosaicGenerator,
+            $mosaicUrlResolver,
+            $this->createStub(CardPrintingRepository::class),
+            $this->createStub(CardIdentityResolver::class),
+            $versionRepository,
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(MinifiedCardViewBuilder::class),
+        );
+
+        $handler(new GenerateMinifiedMosaicMessage(1));
+
+        self::assertNotNull($capturedTiles);
+        self::assertCount(1, $capturedTiles, 'Two cards with same name + image must merge into one tile.');
+        self::assertSame(4, $capturedTiles[0]->quantity, 'Merged tile carries the summed quantity.');
+    }
+
+    /**
+     * Tile sort order: pokemon (qty desc, name asc) → trainer (no subtype
+     * differentiation here) → energy. Sets the subtype-based ordering
+     * branch via the cardType key alone since trainerSubtype is computed
+     * from CardPrinting -> CardIdentity (out of scope for this assertion).
+     */
+    public function testTilesAreSortedByTypeThenQuantityThenName(): void
+    {
+        $cards = [
+            $this->buildSimpleCard('Lightning', 'energy', 5, 'BRS', 'E1'),
+            $this->buildSimpleCard('Switch', 'trainer', 4, 'BRS', '60'),
+            $this->buildSimpleCard('Boss', 'trainer', 2, 'BRS', '50'),
+            $this->buildSimpleCard('Charizard', 'pokemon', 2, 'BRS', '20'),
+            $this->buildSimpleCard('Bulbasaur', 'pokemon', 4, 'BRS', '10'),
+        ];
+
+        $version = new DeckVersion();
+        $version->setEnrichmentStatus('done');
+        foreach ($cards as $card) {
+            $version->addCard($card);
+        }
+
+        $versionRepository = $this->createStub(DeckVersionRepository::class);
+        $versionRepository->method('find')->willReturn($version);
+
+        $capturedTiles = null;
+        $mosaicGenerator = $this->createStub(MosaicGenerator::class);
+        $mosaicGenerator->method('generateFromTiles')->willReturnCallback(static function ($v, $tiles) use (&$capturedTiles): string {
+            $capturedTiles = $tiles;
+
+            return 'mosaic/1/1_minified.webp';
+        });
+
+        $mosaicUrlResolver = $this->createStub(MosaicUrlResolver::class);
+        $mosaicUrlResolver->method('resolveForVersion')->willReturn('https://example.com/mosaic.webp');
+
+        $handler = new GenerateMinifiedMosaicHandler(
+            $mosaicGenerator,
+            $mosaicUrlResolver,
+            $this->createStub(CardPrintingRepository::class),
+            $this->createStub(CardIdentityResolver::class),
+            $versionRepository,
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(MinifiedCardViewBuilder::class),
+        );
+
+        $handler(new GenerateMinifiedMosaicMessage(1));
+
+        self::assertNotNull($capturedTiles);
+        $names = array_map(static fn (MosaicTile $t): string => $t->cardName, $capturedTiles);
+        // Type order pokemon → trainer → energy.
+        // Within pokemon: qty desc (4 Bulbasaur, 2 Charizard).
+        // Within trainer: qty desc (4 Switch, 2 Boss).
+        self::assertSame(['Bulbasaur', 'Charizard', 'Switch', 'Boss', 'Lightning'], $names);
+    }
+
+    private function buildSimpleCard(string $name, string $type, int $quantity, string $setCode, string $number): DeckCard
+    {
+        $card = new DeckCard();
+        $card->setCardName($name);
+        $card->setCardType($type);
+        $card->setQuantity($quantity);
+        $card->setSetCode($setCode);
+        $card->setCardNumber($number);
+
+        return $card;
+    }
 }
