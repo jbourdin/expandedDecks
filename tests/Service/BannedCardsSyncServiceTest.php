@@ -280,6 +280,109 @@ class BannedCardsSyncServiceTest extends TestCase
         self::assertStringContainsString('Unknown set', $result->warnings[0]);
     }
 
+    public function testSyncSkipsActiveParentsWithEmptyPrintingsDuringSoftDelete(): void
+    {
+        // Parent with an empty printings collection must be skipped during the
+        // soft-delete pass — otherwise findActiveOrderedByEffectiveDate could
+        // return a transient row that gets mistakenly soft-deleted as "all
+        // printings missing".
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Archeops</a> (<em>Black &amp; White—Noble Victories</em>, 67/101)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $emptyParent = new BannedCard();
+        $emptyParent->setCardName('Empty Placeholder');
+
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([$emptyParent]);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+
+        $service = new BannedCardsSyncService($httpClient, $bannedCardRepo, $printingRepo, $entityManager, $this->buildEnricherStub(), $this->buildSeedStub());
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(0, $result->removed);
+        self::assertNull($emptyParent->getDeletedAt());
+    }
+
+    public function testSyncReusesParentForRepeatedIdentityViaInLoopCache(): void
+    {
+        // Two distinct (setCode, cardNumber) entries that, after enrichment,
+        // resolve to the same CardIdentity. The first creates a placeholder
+        // parent, the second must find that parent through the in-memory cache
+        // (the DB lookup still returns null since flush is deferred). Both
+        // printings end up under the same parent — the duplicate placeholder
+        // is dropped.
+        $html = $this->buildHtml(
+            '<ul><li><a href="#">Unown</a> (<em>Sun &amp; Moon—Lost Thunder</em>, 90/214 and 91/214)</li></ul>',
+        );
+
+        $httpClient = new MockHttpClient([new MockResponse($html)]);
+
+        $identity = $this->createStub(\App\Entity\CardIdentity::class);
+        $identity->method('getId')->willReturn(42);
+        $identity->method('getName')->willReturn('Unown');
+
+        $local = $this->createStub(\App\Entity\CardPrinting::class);
+        $local->method('getCardIdentity')->willReturn($identity);
+
+        $printingRepo = $this->createStub(BannedCardPrintingRepository::class);
+        $printingRepo->method('findOneBySetCodeAndCardNumber')->willReturn(null);
+
+        // findOneByCardIdentity always returns null — the in-loop cache is the
+        // only thing that prevents creating two parents for the same identity.
+        $bannedCardRepo = $this->createStub(BannedCardRepository::class);
+        $bannedCardRepo->method('findActiveOrderedByEffectiveDate')->willReturn([]);
+        $bannedCardRepo->method('findOneByCardIdentity')->willReturn(null);
+
+        $cardPrintingRepository = $this->createStub(\App\Repository\CardPrintingRepository::class);
+        $cardPrintingRepository->method('findFirstBySetCodeAndCardNumber')->willReturn($local);
+
+        $apiClient = $this->createStub(\App\Service\Tcgdex\TcgdexApiClient::class);
+        $apiClient->method('findCard')->willReturn(null);
+        $apiClient->method('findCardByNameInAliasedSet')->willReturn(null);
+
+        $identityResolver = $this->createStub(\App\Service\CardIdentity\CardIdentityResolver::class);
+
+        $enricher = new \App\Service\BannedCardEnricher(
+            $apiClient,
+            $identityResolver,
+            $cardPrintingRepository,
+            $printingRepo,
+            $bannedCardRepo,
+            $this->createStub(EntityManagerInterface::class),
+        );
+
+        // Track parent removals — the duplicate placeholder must be dropped.
+        $removed = [];
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('remove')->willReturnCallback(static function (object $entity) use (&$removed): void {
+            $removed[] = $entity;
+        });
+        $entityManager->expects(self::once())->method('flush');
+
+        $service = new BannedCardsSyncService(
+            $httpClient,
+            $bannedCardRepo,
+            $printingRepo,
+            $entityManager,
+            $enricher,
+            $this->buildSeedStub(),
+        );
+
+        $result = $service->sync();
+
+        self::assertTrue($result->success);
+        self::assertSame(2, $result->added);
+        self::assertCount(1, $removed, 'second placeholder parent should be removed after merge');
+    }
+
     public function testSyncParsesCardNameWithEmTagInAltAttribute(): void
     {
         $html = $this->buildHtml(
