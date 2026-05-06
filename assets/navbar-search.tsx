@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import NavbarSearch from './components/NavbarSearch';
 
 import '@mantine/core/styles.css';
@@ -27,7 +27,7 @@ if (root) {
     const labelNoResults = root.dataset.labelNoResults ?? 'No results';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <NavbarSearch
                 searchUrl={searchUrl}
                 searchPageUrl={searchPageUrl}
@@ -37,6 +37,6 @@ if (root) {
                     noResults: labelNoResults,
                 }}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

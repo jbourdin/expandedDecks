@@ -60,6 +60,28 @@ $grid-row-columns: 9;
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 
+// --- Runtime theme tokens ---
+// SCSS variables above feed Bootstrap's compile-time generation for the LIGHT
+// theme. These CSS custom properties mirror them so selectors that should
+// react to the OS color scheme can use var(--ed-*) instead.
+// @see docs/features.md F20.1 — Dark theme following OS preference
+
+:root {
+    --ed-navy: #{$ed-navy};
+    --ed-blue: #{$ed-blue};
+    --ed-gold: #{$ed-gold};
+    --ed-red: #{$ed-red};
+    --ed-bg: #{$ed-bg};
+}
+
+[data-bs-theme="dark"] {
+    --ed-navy: #6478b8;
+    --ed-blue: #6a9bff;
+    --ed-gold: #ffd95e;
+    --ed-red: #ff7080;
+    --ed-bg: #121826;
+}
+
 // --- Layout ---
 
 html, body {
@@ -719,5 +741,67 @@ footer {
         color: rgba(#fff, .85);
         font-weight: 600;
         letter-spacing: .05em;
+    }
+}
+
+// --- Dark theme overrides ---
+// Selectors below paint navy-tinted surfaces over a white body in light mode.
+// On a dark body that recipe inverts (the surface disappears or sits darker
+// than the body), so re-tint them against the dark background.
+// @see docs/features.md F20.1 — Dark theme following OS preference
+
+[data-bs-theme="dark"] {
+    body {
+        background-color: var(--ed-bg);
+        background-image: none;
+    }
+
+    .hero-pokemon {
+        background: linear-gradient(135deg, #1c2538 0%, #2a3552 100%);
+
+        .hero-text {
+            color: rgba(#fff, .8);
+        }
+    }
+
+    .card-header-themed {
+        background-color: rgba(#fff, .06);
+        border-bottom-color: var(--ed-gold);
+
+        .nav-tabs .nav-link.active {
+            color: var(--ed-text, #e6e8ee);
+            background-color: var(--bs-body-bg);
+            border-color: var(--bs-border-color) var(--bs-border-color) transparent;
+        }
+    }
+
+    .table-themed thead {
+        background-color: rgba(#fff, .06);
+    }
+
+    .badge-lent {
+        color: #1a1a1a;
+    }
+
+    .badge-retired {
+        background-color: #555;
+    }
+
+    .cms-content blockquote {
+        border-left-color: rgba(#fff, .3);
+        background-color: rgba(#fff, .05);
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .mantine-RichTextEditor-content,
+    .cms-content {
+        th {
+            background-color: rgba(#fff, .08);
+        }
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .mantine-RichTextEditor-content .selectedCell {
+        background-color: rgba(#fff, .12);
     }
 }

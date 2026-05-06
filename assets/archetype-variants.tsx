@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import '@mantine/core/styles.css';
 import ArchetypeVariantSelector from './components/ArchetypeVariantSelector';
 
@@ -47,8 +47,8 @@ if (root) {
     };
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <ArchetypeVariantSelector variants={variants} labels={labels} archetypeSlug={archetypeSlug} canCopyTag={canCopyTag} />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

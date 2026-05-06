@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import MarkdownEditor from './components/MarkdownEditor';
 import ImageUrlField from './components/ImageUrlField';
 
@@ -33,13 +33,13 @@ editorRoots.forEach((root) => {
     }
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <MarkdownEditor
                 textareaSelector={`#${textareaId}`}
                 initialContent={textarea.value}
                 placeholder={textarea.placeholder}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });
 
@@ -83,8 +83,8 @@ imageUrlRoots.forEach((root) => {
     };
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <ImageUrlFieldWrapper />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

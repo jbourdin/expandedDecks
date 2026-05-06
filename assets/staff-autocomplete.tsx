@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import AsyncAutocomplete from './components/AsyncAutocomplete';
 
 import '@mantine/core/styles.css';
@@ -29,7 +29,7 @@ document.querySelectorAll<HTMLElement>('[data-staff-autocomplete]').forEach((roo
     const placeholder = root.dataset.placeholder ?? 'Screen name, email, or Pokemon ID';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <AsyncAutocomplete
                 searchUrl={searchUrl}
                 hiddenInputName={hiddenInput}
@@ -40,6 +40,6 @@ document.querySelectorAll<HTMLElement>('[data-staff-autocomplete]').forEach((roo
                     secondary: [item.email, item.playerId].filter(Boolean).join(' · '),
                 })}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

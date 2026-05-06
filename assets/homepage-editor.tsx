@@ -12,7 +12,7 @@
  */
 
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import HomepageEditor from './components/HomepageEditor';
 
 import '@mantine/core/styles.css';
@@ -61,7 +61,7 @@ if (root) {
     } catch { /* use default */ }
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <HomepageEditor
                 saveUrl={saveUrl}
                 previewUrl={previewUrl}
@@ -73,6 +73,6 @@ if (root) {
                 blockTypes={blockTypes}
                 labels={labels}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
