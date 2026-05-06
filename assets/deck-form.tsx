@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import ArchetypeSelect from './components/ArchetypeSelect';
 import LanguageSelect from './components/LanguageSelect';
 import PokemonSpriteSelect from './components/PokemonSpriteSelect';
@@ -32,7 +32,7 @@ if (archetypeRoot) {
     const initialName = archetypeRoot.dataset.archetypeName ?? undefined;
 
     createRoot(archetypeRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <ArchetypeSelect
                 searchUrl={searchUrl}
                 createUrl={createUrl}
@@ -40,7 +40,7 @@ if (archetypeRoot) {
                 initialName={initialName}
                 hiddenInputName="deck_form[archetype]"
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
 
@@ -57,12 +57,12 @@ if (languageRoot) {
     }
 
     createRoot(languageRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <LanguageSelect
                 initialLanguages={initialLanguages}
                 hiddenInputName="deck_form[languages]"
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
 
@@ -79,11 +79,11 @@ if (spriteRoot) {
     }
 
     createRoot(spriteRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <PokemonSpriteSelect
                 initialValues={initialSlugs}
                 hiddenInputName="deck_form[pokemonSlugs]"
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

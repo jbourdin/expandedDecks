@@ -12,7 +12,7 @@
  */
 
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import '@mantine/core/styles.css';
 import DeckFoundModal from './components/DeckFoundModal';
 
@@ -26,7 +26,7 @@ if (root) {
     const labels = JSON.parse(root.dataset.labels ?? '{}');
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <DeckFoundModal
                 apiUrl={apiUrl}
                 csrfToken={csrfToken}
@@ -35,6 +35,6 @@ if (root) {
                 sitekey={sitekey}
                 labels={labels}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import DeckVersionCompare from './components/DeckVersionCompare';
 
 import '@mantine/core/styles.css';
@@ -45,8 +45,8 @@ document.querySelectorAll<HTMLElement>('[data-version-compare]').forEach((root) 
     };
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <DeckVersionCompare shortTag={shortTag} compareUrl={compareUrl} versions={versions} labels={labels} />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

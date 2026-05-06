@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import NotificationBell from './components/NotificationBell';
 
 import '@mantine/core/styles.css';
@@ -30,7 +30,7 @@ if (root) {
     const labelEmpty = root.dataset.labelEmpty ?? 'No notifications yet';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <NotificationBell
                 apiUrl={apiUrl}
                 listUrl={listUrl}
@@ -43,6 +43,6 @@ if (root) {
                     empty: labelEmpty,
                 }}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

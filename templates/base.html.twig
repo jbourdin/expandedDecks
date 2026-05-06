@@ -11,6 +11,19 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {# F20.1 — Mirror the OS color scheme onto the document so Bootstrap and Mantine see it before first paint. #}
+        <script>
+            (function () {
+                var media = window.matchMedia('(prefers-color-scheme: dark)');
+                var apply = function (matches) {
+                    var scheme = matches ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-bs-theme', scheme);
+                    document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+                };
+                apply(media.matches);
+                media.addEventListener('change', function (event) { apply(event.matches); });
+            })();
+        </script>
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block canonical %}{% endblock %}
