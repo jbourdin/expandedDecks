@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import PlaystyleTagSelect from './components/PlaystyleTagSelect';
 import PokemonSpriteSelect from './components/PokemonSpriteSelect';
 import MarkdownEditor from './components/MarkdownEditor';
@@ -39,12 +39,12 @@ if (spriteRoot) {
     const hiddenInputName = spriteRoot.dataset.hiddenInputName ?? 'archetype_form[pokemonSlugs]';
 
     createRoot(spriteRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <PokemonSpriteSelect
                 initialValues={initialSlugs}
                 hiddenInputName={hiddenInputName}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
 
@@ -74,14 +74,14 @@ if (playstyleRoot) {
     const placeholder = playstyleRoot.dataset.placeholder ?? undefined;
 
     createRoot(playstyleRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <PlaystyleTagSelect
                 existingTags={existingTags}
                 initialValues={initialValues}
                 hiddenInputName="archetype_form[playstyleTags]"
                 placeholder={placeholder}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
 
@@ -98,12 +98,12 @@ editorRoots.forEach((root) => {
     }
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <MarkdownEditor
                 textareaSelector={`#${textareaId}`}
                 initialContent={textarea.value}
                 placeholder={textarea.placeholder}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

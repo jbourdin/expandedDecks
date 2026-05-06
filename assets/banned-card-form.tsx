@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import MarkdownEditor from './components/MarkdownEditor';
 
 import '@mantine/core/styles.css';
@@ -33,12 +33,12 @@ editorRoots.forEach((root) => {
     }
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <MarkdownEditor
                 textareaSelector={`#${textareaId}`}
                 initialContent={textarea.value}
                 placeholder={textarea.placeholder}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

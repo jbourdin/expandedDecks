@@ -60,6 +60,28 @@ $grid-row-columns: 9;
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 
+// --- Runtime theme tokens ---
+// SCSS variables above feed Bootstrap's compile-time generation for the LIGHT
+// theme. These CSS custom properties mirror them so selectors that should
+// react to the OS color scheme can use var(--ed-*) instead.
+// @see docs/features.md F20.1 — Dark theme following OS preference
+
+:root {
+    --ed-navy: #{$ed-navy};
+    --ed-blue: #{$ed-blue};
+    --ed-gold: #{$ed-gold};
+    --ed-red: #{$ed-red};
+    --ed-bg: #{$ed-bg};
+}
+
+[data-bs-theme="dark"] {
+    --ed-navy: #6478b8;
+    --ed-blue: #6a9bff;
+    --ed-gold: #ffd95e;
+    --ed-red: #ff7080;
+    --ed-bg: #121826;
+}
+
 // --- Layout ---
 
 html, body {
@@ -719,5 +741,122 @@ footer {
         color: rgba(#fff, .85);
         font-weight: 600;
         letter-spacing: .05em;
+    }
+}
+
+// --- Dark theme overrides ---
+// Selectors below paint navy-tinted surfaces over a white body in light mode.
+// On a dark body that recipe inverts (the surface disappears or sits darker
+// than the body), so re-tint them against the dark background.
+// @see docs/features.md F20.1 — Dark theme following OS preference
+
+[data-bs-theme="dark"] {
+    body {
+        background-color: var(--ed-bg);
+        background-image: none;
+    }
+
+    // The SCSS overrides at the top of this file ($card-bg, $card-border-color,
+    // $card-cap-bg, $table-striped-bg, $secondary) hardcode light values into
+    // Bootstrap's component selectors (e.g. `.card { --bs-card-bg: #fff }`),
+    // which has higher specificity than `:root[data-bs-theme="dark"]`. To
+    // restore Bootstrap's native dark mode for those surfaces we re-declare
+    // the CSS custom properties on the component selectors under dark mode.
+    .card {
+        --bs-card-bg: #1a2238;
+        --bs-card-border-color: rgb(255 255 255 / 12%);
+        --bs-card-cap-bg: rgb(255 255 255 / 4%);
+    }
+
+    .dropdown-menu {
+        --bs-dropdown-bg: #1a2238;
+        --bs-dropdown-border-color: rgb(255 255 255 / 12%);
+        --bs-dropdown-link-hover-bg: rgb(255 255 255 / 8%);
+        --bs-dropdown-divider-bg: rgb(255 255 255 / 10%);
+    }
+
+    .modal-content {
+        --bs-modal-bg: #1a2238;
+        --bs-modal-border-color: rgb(255 255 255 / 12%);
+    }
+
+    .popover {
+        --bs-popover-bg: #1a2238;
+        --bs-popover-border-color: rgb(255 255 255 / 12%);
+    }
+
+    .list-group {
+        --bs-list-group-bg: #1a2238;
+        --bs-list-group-border-color: rgb(255 255 255 / 12%);
+        --bs-list-group-action-hover-bg: rgb(255 255 255 / 6%);
+    }
+
+    .table {
+        --bs-table-striped-bg: rgb(255 255 255 / 4%);
+        --bs-table-border-color: rgb(255 255 255 / 12%);
+    }
+
+    .alert {
+        --bs-alert-border-color: rgb(255 255 255 / 12%);
+    }
+
+    .form-control,
+    .form-select {
+        background-color: rgb(255 255 255 / 4%);
+        border-color: rgb(255 255 255 / 15%);
+        color: var(--bs-body-color);
+
+        &:focus {
+            background-color: rgb(255 255 255 / 6%);
+        }
+    }
+
+    .hero-pokemon {
+        background: linear-gradient(135deg, #1c2538 0%, #2a3552 100%);
+
+        .hero-text {
+            color: rgb(255 255 255 / 80%);
+        }
+    }
+
+    .card-header-themed {
+        background-color: rgb(255 255 255 / 6%);
+        border-bottom-color: var(--ed-gold);
+
+        .nav-tabs .nav-link.active {
+            color: var(--bs-body-color);
+            background-color: var(--bs-card-bg);
+            border-color: var(--bs-border-color) var(--bs-border-color) transparent;
+        }
+    }
+
+    .table-themed thead {
+        background-color: rgb(255 255 255 / 6%);
+    }
+
+    .badge-lent {
+        color: #1a1a1a;
+    }
+
+    .badge-retired {
+        background-color: #555;
+    }
+
+    .cms-content blockquote {
+        border-left-color: rgb(255 255 255 / 30%);
+        background-color: rgb(255 255 255 / 5%);
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .mantine-RichTextEditor-content,
+    .cms-content {
+        th {
+            background-color: rgb(255 255 255 / 8%);
+        }
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .mantine-RichTextEditor-content .selectedCell {
+        background-color: rgb(255 255 255 / 12%);
     }
 }

@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import ArchetypeFilterSelect from './components/ArchetypeFilterSelect';
 import AsyncAutocomplete from './components/AsyncAutocomplete';
 
@@ -34,7 +34,7 @@ document.querySelectorAll<HTMLElement>('[data-catalog-archetype]').forEach((root
     const initialLabel = root.dataset.initialLabel ?? '';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <ArchetypeFilterSelect
                 catalogUrl={catalogUrl}
                 hiddenInputName={hiddenInput}
@@ -42,7 +42,7 @@ document.querySelectorAll<HTMLElement>('[data-catalog-archetype]').forEach((root
                 initialValue={initialValue}
                 initialLabel={initialLabel}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });
 
@@ -54,7 +54,7 @@ document.querySelectorAll<HTMLElement>('[data-catalog-event]').forEach((root) =>
     const initialId = root.dataset.initialId ?? '';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <AsyncAutocomplete
                 searchUrl={searchUrl}
                 hiddenInputName={hiddenInput}
@@ -67,7 +67,7 @@ document.querySelectorAll<HTMLElement>('[data-catalog-event]').forEach((root) =>
                     secondary: `${item.date as string} · ${item.location as string}`,
                 })}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });
 
@@ -79,7 +79,7 @@ document.querySelectorAll<HTMLElement>('[data-catalog-owner]').forEach((root) =>
     const initialId = root.dataset.initialId ?? '';
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <AsyncAutocomplete
                 searchUrl={searchUrl}
                 hiddenInputName={hiddenInput}
@@ -91,6 +91,6 @@ document.querySelectorAll<HTMLElement>('[data-catalog-owner]').forEach((root) =>
                     label: item.screenName as string,
                 })}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 });

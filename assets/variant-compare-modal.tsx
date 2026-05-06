@@ -14,7 +14,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import '@mantine/core/styles.css';
 import CardImageModal, { type FlatCard } from './components/CardImageModal';
 
@@ -53,9 +53,9 @@ if (root) {
     const cards = JSON.parse(root.dataset.cards ?? '[]') as FlatCard[];
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <VariantCompareModal cards={cards} />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 
     // Wire up click handlers on card names to dispatch custom event

@@ -132,3 +132,36 @@ a {
         color: rgba(#fff, .85);
     }
 }
+
+// --- Dark theme overrides ---
+// Channel-scoped tweaks for the OS-preference dark mode. The slate and sand
+// hues already work on dark; only the body background and a few accent
+// surfaces need adjustment.
+// @see docs/features.md F20.1 — Dark theme following OS preference
+
+[data-bs-theme="dark"] {
+    body {
+        background-color: #14171c;
+        background-image: none;
+    }
+
+    .hero-pokemon {
+        background: linear-gradient(135deg, #2a2e36 0%, #3d4350 100%);
+    }
+
+    .card-header-themed {
+        background: rgba(#fff, .06);
+        border-bottom: 2px solid $cs-sand;
+    }
+
+    .btn-outline-primary {
+        color: #a8c98a;
+        border-color: #a8c98a;
+
+        &:hover, &:focus {
+            background-color: #a8c98a;
+            border-color: #a8c98a;
+            color: #14171c;
+        }
+    }
+}

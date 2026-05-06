@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import EventTagSelect from './components/EventTagSelect';
 
 import '@mantine/core/styles.css';
@@ -46,13 +46,13 @@ if (tagRoot) {
     const placeholder = tagRoot.dataset.placeholder ?? '';
 
     createRoot(tagRoot).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <EventTagSelect
                 existingTags={existingTags}
                 initialValues={initialValues}
                 hiddenInputName={hiddenInputName}
                 placeholder={placeholder}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import '@mantine/core/styles.css';
 import VariantComparePicker from './components/VariantComparePicker';
 
@@ -22,7 +22,7 @@ if (root) {
     const variants = JSON.parse(root.dataset.variants ?? '[]');
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <VariantComparePicker
                 variants={variants}
                 selectedTagA={root.dataset.selectedTagA ?? ''}
@@ -34,6 +34,6 @@ if (root) {
                 labelGroupCurrent={root.dataset.labelGroupCurrent ?? 'Current'}
                 labelGroupOutdated={root.dataset.labelGroupOutdated ?? 'Outdated'}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }

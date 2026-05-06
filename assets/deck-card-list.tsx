@@ -16,7 +16,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import AppMantineProvider from './components/AppMantineProvider';
 import { DeckCardList, type DeckCardListProps } from './components/DeckCardList';
 
 import '@mantine/core/styles.css';
@@ -55,7 +55,7 @@ if (root) {
     };
 
     createRoot(root).render(
-        <MantineProvider>
+        <AppMantineProvider>
             <DeckCardList
                 originalCards={originalCards}
                 minifiedCards={minifiedCards}
@@ -67,6 +67,6 @@ if (root) {
                 deckName={root.dataset.deckName ?? ''}
                 labels={labels}
             />
-        </MantineProvider>,
+        </AppMantineProvider>,
     );
 }
