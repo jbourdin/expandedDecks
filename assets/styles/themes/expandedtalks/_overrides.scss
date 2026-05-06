@@ -150,7 +150,7 @@ a {
     }
 
     .card-header-themed {
-        background: rgba(#fff, .06);
+        background: var(--ed-overlay-soft);
         border-bottom: 2px solid $cs-sand;
     }
 
