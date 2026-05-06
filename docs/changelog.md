@@ -16,6 +16,24 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.10.0] — 2026-05-06
+
+Minor release: OS-preference dark theme.
+
+### Features
+
+- **F20.1 — Dark theme following OS preference** — auto dark mode that mirrors `prefers-color-scheme` onto `<html data-bs-theme>` and `<html data-mantine-color-scheme>` via an inline `<head>` bridge script in `templates/base.html.twig`. The script runs synchronously before first paint (no flash of light theme) and listens for live OS toggles. Bootstrap 5.3's native dark variables drive framework components; new `--ed-navy/--ed-blue/--ed-gold/--ed-red/--ed-bg` CSS custom properties carry the custom palette and switch under `[data-bs-theme="dark"]`. Custom dark-tinted surfaces (`.hero-pokemon`, `.card-header-themed`, `.table-themed thead`, `.cms-content blockquote`, rich-text tables, status badges) get explicit dark overrides since their light recipes use semi-opaque navy on white. Mantine islands wrap a shared `<AppMantineProvider defaultColorScheme="auto">` so popovers and inputs match the surrounding chrome. Applied to both the default theme and the `expandedtalks` channel theme. Strictly auto: no user toggle, no `User.preferredTheme` field, no localStorage. ([#524](https://github.com/jbourdin/expandedDecks/pull/524))
+
+### Bug Fixes
+
+- **Restore Bootstrap dark mode for cards and other surfaces** — the compile-time SCSS overrides at the top of `app.scss` (`$card-bg: #fff`, `$card-border-color: #ddd`, `$card-cap-bg`, `$table-striped-bg`) get burned into Bootstrap's component selectors as `.card { --bs-card-bg: #fff }`, which has higher specificity than `:root[data-bs-theme="dark"]`. In dark mode body text adapted (light gray) but cards stayed white → light-on-white = invisible. Re-declared the affected CSS custom properties on the component selectors (`.card`, `.dropdown-menu`, `.modal-content`, `.popover`, `.list-group`, `.table`, `.alert`, `.form-control`, `.form-select`) under `[data-bs-theme="dark"]`. ([#524](https://github.com/jbourdin/expandedDecks/pull/524))
+
+### Documentation
+
+- **Drop milestone-based planning guidance** — remove milestone instructions from `CLAUDE.md` (issue creation + board ordering) and the Milestones (Phases) section from `docs/roadmap.md`. The phase milestones in the repo are no longer used as a planning structure; the kanban project board is the planning surface. ([#523](https://github.com/jbourdin/expandedDecks/pull/523))
+
+---
+
 ## [1.9.4] — 2026-05-03
 
 Patch release: a deck-form field-order fix and a project-wide test coverage push from 85.87 % to ~92.4 %.
