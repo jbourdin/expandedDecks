@@ -229,9 +229,9 @@ The project uses a [GitHub Project board](https://github.com/users/jbourdin/proj
 5. **Move the issue** to "Ready for Release" when the user confirms the feature works
 6. **Move the issue** to "Done" only when the release containing it is published
 
-When creating new features or backlog items, create a GitHub issue with the feature ID, assign it to the correct milestone, and add it to the project board. **Always set the status to "Backlog"** when adding an issue to the board — items must never be left without a kanban status.
+When creating new features or backlog items, create a GitHub issue with the feature ID and add it to the project board. **Always set the status to "Backlog"** when adding an issue to the board — items must never be left without a kanban status. Do **not** assign milestones — the phase milestones in the repo are not used as a planning structure.
 
-**Board ordering:** items within each column are manually sorted by **milestone** (Phase A first, then B, C, … J, then no milestone) and then by **priority** (high → medium → low) within a milestone. When adding or moving an issue, place it at the correct position using the `updateProjectV2ItemPosition` GraphQL mutation (`afterId: null` for first position, or `afterId: "<previous-item-id>"` to insert after a specific item).
+**Board ordering:** items within each column are sorted manually by user direction. When adding or moving an issue, place it at the correct position using the `updateProjectV2ItemPosition` GraphQL mutation (`afterId: null` for first position, or `afterId: "<previous-item-id>"` to insert after a specific item).
 
 ## Make Commands
 
