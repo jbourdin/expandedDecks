@@ -80,6 +80,14 @@ $grid-row-columns: 9;
     --ed-gold: #ffd95e;
     --ed-red: #ff7080;
     --ed-bg: #121826;
+
+    // Dark-only surface tokens — used by the Bootstrap-component overrides
+    // and themed surfaces below.
+    --ed-surface-elevated: #1a2238;
+    --ed-border-faint: rgb(255 255 255 / 12%);
+    --ed-overlay-faint: rgb(255 255 255 / 4%);
+    --ed-overlay-soft: rgb(255 255 255 / 6%);
+    --ed-overlay-medium: rgb(255 255 255 / 8%);
 }
 
 // --- Layout ---
@@ -95,7 +103,7 @@ body {
     // Quincunx (staggered) Fairy energy texture on the body background.
     // Two offset layers of the same tile create the honeycomb-like pattern.
     // Cards and panels sit on top with solid white, making them pop.
-    background-color: $ed-bg;
+    background-color: var(--ed-bg);
     background-image: url('../images/bg_fairy_quincunx.png');
     background-size: 96px 80px;
     background-repeat: repeat;
@@ -752,7 +760,6 @@ footer {
 
 [data-bs-theme="dark"] {
     body {
-        background-color: var(--ed-bg);
         background-image: none;
     }
 
@@ -763,51 +770,51 @@ footer {
     // restore Bootstrap's native dark mode for those surfaces we re-declare
     // the CSS custom properties on the component selectors under dark mode.
     .card {
-        --bs-card-bg: #1a2238;
-        --bs-card-border-color: rgb(255 255 255 / 12%);
-        --bs-card-cap-bg: rgb(255 255 255 / 4%);
+        --bs-card-bg: var(--ed-surface-elevated);
+        --bs-card-border-color: var(--ed-border-faint);
+        --bs-card-cap-bg: var(--ed-overlay-faint);
     }
 
     .dropdown-menu {
-        --bs-dropdown-bg: #1a2238;
-        --bs-dropdown-border-color: rgb(255 255 255 / 12%);
-        --bs-dropdown-link-hover-bg: rgb(255 255 255 / 8%);
-        --bs-dropdown-divider-bg: rgb(255 255 255 / 10%);
+        --bs-dropdown-bg: var(--ed-surface-elevated);
+        --bs-dropdown-border-color: var(--ed-border-faint);
+        --bs-dropdown-link-hover-bg: var(--ed-overlay-medium);
+        --bs-dropdown-divider-bg: var(--ed-border-faint);
     }
 
     .modal-content {
-        --bs-modal-bg: #1a2238;
-        --bs-modal-border-color: rgb(255 255 255 / 12%);
+        --bs-modal-bg: var(--ed-surface-elevated);
+        --bs-modal-border-color: var(--ed-border-faint);
     }
 
     .popover {
-        --bs-popover-bg: #1a2238;
-        --bs-popover-border-color: rgb(255 255 255 / 12%);
+        --bs-popover-bg: var(--ed-surface-elevated);
+        --bs-popover-border-color: var(--ed-border-faint);
     }
 
     .list-group {
-        --bs-list-group-bg: #1a2238;
-        --bs-list-group-border-color: rgb(255 255 255 / 12%);
-        --bs-list-group-action-hover-bg: rgb(255 255 255 / 6%);
+        --bs-list-group-bg: var(--ed-surface-elevated);
+        --bs-list-group-border-color: var(--ed-border-faint);
+        --bs-list-group-action-hover-bg: var(--ed-overlay-soft);
     }
 
     .table {
-        --bs-table-striped-bg: rgb(255 255 255 / 4%);
-        --bs-table-border-color: rgb(255 255 255 / 12%);
+        --bs-table-striped-bg: var(--ed-overlay-faint);
+        --bs-table-border-color: var(--ed-border-faint);
     }
 
     .alert {
-        --bs-alert-border-color: rgb(255 255 255 / 12%);
+        --bs-alert-border-color: var(--ed-border-faint);
     }
 
     .form-control,
     .form-select {
-        background-color: rgb(255 255 255 / 4%);
-        border-color: rgb(255 255 255 / 15%);
+        background-color: var(--ed-overlay-faint);
+        border-color: var(--ed-border-faint);
         color: var(--bs-body-color);
 
         &:focus {
-            background-color: rgb(255 255 255 / 6%);
+            background-color: var(--ed-overlay-soft);
         }
     }
 
@@ -820,7 +827,7 @@ footer {
     }
 
     .card-header-themed {
-        background-color: rgb(255 255 255 / 6%);
+        background-color: var(--ed-overlay-soft);
         border-bottom-color: var(--ed-gold);
 
         .nav-tabs .nav-link.active {
@@ -831,7 +838,7 @@ footer {
     }
 
     .table-themed thead {
-        background-color: rgb(255 255 255 / 6%);
+        background-color: var(--ed-overlay-soft);
     }
 
     .badge-lent {
@@ -851,12 +858,12 @@ footer {
     .mantine-RichTextEditor-content,
     .cms-content {
         th {
-            background-color: rgb(255 255 255 / 8%);
+            background-color: var(--ed-overlay-medium);
         }
     }
 
     /* stylelint-disable-next-line selector-class-pattern */
     .mantine-RichTextEditor-content .selectedCell {
-        background-color: rgb(255 255 255 / 12%);
+        background-color: var(--ed-border-faint);
     }
 }
