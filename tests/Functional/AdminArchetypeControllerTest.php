@@ -229,8 +229,8 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects();
 
         $refreshed = $this->getArchetype('Lugia Archeops');
-        self::assertContains('Aggressive', $refreshed->getPlaystyleTags());
-        self::assertContains('Control', $refreshed->getPlaystyleTags());
+        self::assertContains('aggressive', $refreshed->getPlaystyleTags());
+        self::assertContains('control', $refreshed->getPlaystyleTags());
     }
 
     // ---------------------------------------------------------------

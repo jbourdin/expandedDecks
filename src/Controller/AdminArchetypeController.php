@@ -857,16 +857,15 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     /**
-     * Normalize a tag: only alphanumeric and spaces, title case.
+     * Normalize a tag: only alphanumeric and spaces, casing preserved verbatim.
      *
      * @see docs/features.md F2.15 — Archetype playstyle tags
      */
     private static function normalizeTag(string $tag): string
     {
         $cleaned = preg_replace('/[^a-zA-Z0-9 ]/', '', $tag) ?? '';
-        $cleaned = trim(preg_replace('/\s+/', ' ', $cleaned) ?? '');
 
-        return mb_convert_case($cleaned, \MB_CASE_TITLE);
+        return trim(preg_replace('/\s+/', ' ', $cleaned) ?? '');
     }
 
     /**
@@ -905,19 +904,29 @@ class AdminArchetypeController extends AbstractAppController
     }
 
     /**
-     * Collect all unique playstyle tags from existing archetypes.
+     * Collect playstyle tag suggestions from existing archetypes.
+     *
+     * Folds casing variants together: for each case-insensitive key, the most-frequent casing
+     * wins (insertion-order tie-break) so editors see one canonical entry in the autocomplete.
      *
      * @return list<string>
      */
     private function collectExistingTags(ArchetypeRepository $archetypeRepository): array
     {
-        $allTags = [];
+        /** @var array<string, array<string, int>> $buckets */
+        $buckets = [];
         foreach ($archetypeRepository->findBy(['deletedAt' => null]) as $archetype) {
             foreach ($archetype->getPlaystyleTags() as $tag) {
-                $allTags[$tag] = true;
+                $key = mb_strtolower($tag);
+                $buckets[$key][$tag] = ($buckets[$key][$tag] ?? 0) + 1;
             }
         }
-        $tags = array_keys($allTags);
+
+        $tags = [];
+        foreach ($buckets as $casings) {
+            arsort($casings);
+            $tags[] = (string) array_key_first($casings);
+        }
         sort($tags);
 
         return $tags;
