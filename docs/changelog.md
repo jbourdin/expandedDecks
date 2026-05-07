@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.11.0] — 2026-05-07
+
+Minor release: case-sensitive archetype playstyle tags, login button removed from the Expanded Talks navbar via theme override, and a dark-mode SCSS DRY pass.
+
+### Features
+
+- **Case-sensitive archetype playstyle tags (F2.15)** — drop the forced title-case normalization on archetype playstyle tags in both the PHP backend (`AdminArchetypeController::normalizeTag`) and the React `PlaystyleTagSelect` component, so editors keep whatever casing they type. Within an archetype, `Control` and `control` are now two distinct tags (strict byte-comparison); the URL filter `?tags[]=Aggro` and `?tags[]=aggro` return different results. The autocomplete suggestion list folds case variants and surfaces the most-frequent casing per case-folded key (ties go to first-seen) so editors don't see noisy duplicates while existing title-cased rows coexist with new mixed-case input. No DB migration: MySQL JSON columns are stored using `utf8mb4_bin` regardless of the table's default collation, so storage and the existing `LIKE`-based tag filter were already case-sensitive — only the application-side normalizers and suggestion folding changed. Existing rows are intentionally left as-is. ([#527](https://github.com/jbourdin/expandedDecks/pull/527))
+- **Themeable unauthenticated navbar with Expanded Talks override (F18.28)** — extract the unauthenticated navbar items (login + conditional register) from `templates/base.html.twig` into a new `_partials/navbar_unauthenticated.html.twig`, so themes can override the include via the existing channel theme path mechanism. Add an empty override at `templates/themes/expandedtalks/_partials/navbar_unauthenticated.html.twig` — the Expanded Talks channel is content-only (decks/events/registration already disabled) and now renders no user-facing auth UI in its navbar. Default channels keep the exact same login + register markup as before. No new `Channel::enableLogin` flag, no migration, no admin form binding; future themes can ship their own variant of the unauthenticated nav (e.g. a custom CTA in place of login) by dropping a partial in their theme directory. ([#528](https://github.com/jbourdin/expandedDecks/pull/528))
+
+### Refactoring
+
+- **DRY dark-mode surfaces with shared CSS tokens (F20.1)** — promote five repeated dark-surface literals in `assets/styles/app.scss` to CSS custom properties declared once on `:root[data-bs-theme="dark"]`, then reference them throughout the dark-mode block: `--ed-surface-elevated` (#1a2238, replaces 5 literals), `--ed-border-faint` (rgb(255 255 255 / 12%), 7 literals), `--ed-overlay-faint` (4%, 3 literals), `--ed-overlay-soft` (6%, 3 literals), `--ed-overlay-medium` (8%, 2 literals). Drop the redundant body `background-color` override by routing it through `var(--ed-bg)`. Affected selectors: `.card`, `.dropdown-menu`, `.modal-content`, `.popover`, `.list-group`, `.table`, `.alert`, `.form-control`, `.form-select`, `.card-header-themed`, `.table-themed thead`. The `expandedtalks` theme dark `.card-header-themed` now picks up `--ed-overlay-soft` for cross-theme consistency, and `.form-control` border opacity unifies at 12% (was 15%, lone outlier among seven 12% borders). Internal-only change; visual output is identical to 1.10.0. ([#526](https://github.com/jbourdin/expandedDecks/pull/526))
+
+---
+
 ## [1.10.0] — 2026-05-06
 
 Minor release: OS-preference dark theme.
