@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Expanded Decks project.
+ *
+ * (c) Expanded Decks contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace App\Controller;
+
+use App\Constants\CardHotness;
+use App\Constants\StapleCardBucket;
+use App\Repository\StapleCardRepository;
+use App\Service\Channel\ChannelContext;
+use App\Service\MarkdownRenderer;
+use App\Service\StapleCardImageResolver;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+
+/**
+ * Public-facing list of staple cards — editor-curated must-haves grouped by card type.
+ *
+ * @see docs/features.md F6.15 — Staple cards
+ */
+class StapleCardController extends AbstractController
+{
+    #[Route('/{_locale}/staple-cards', name: 'app_staple_card_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
+    public function list(
+        Request $request,
+        ChannelContext $channelContext,
+        StapleCardRepository $stapleCardRepository,
+        StapleCardImageResolver $imageResolver,
+        MarkdownRenderer $markdownRenderer,
+    ): Response {
+        if (!$channelContext->getChannel()->getEnableStaples()) {
+            throw new NotFoundHttpException('Staple cards are not enabled on this channel.');
+        }
+
+        $minHotness = $request->query->getInt('minHotness', CardHotness::STAPLE_THRESHOLD);
+        if ($minHotness < 1) {
+            $minHotness = 1;
+        } elseif ($minHotness > 10) {
+            $minHotness = 10;
+        }
+
+        $locale = $request->getLocale();
+
+        $cardsByBucket = [];
+        $imageUrls = [];
+        $renderedNotes = [];
+
+        foreach (StapleCardBucket::ORDER as $bucket) {
+            $cards = $stapleCardRepository->findActiveByBucket($bucket, $minHotness);
+            $cardsByBucket[$bucket] = $cards;
+
+            foreach ($cards as $card) {
+                $id = $card->getId();
+                if (null === $id) {
+                    continue;
+                }
+
+                $imageUrls[$id] = $imageResolver->resolveForStaple($card, $locale);
+
+                $note = $card->getNote();
+                if (null !== $note && '' !== trim($note)) {
+                    $renderedNotes[$id] = $markdownRenderer->render($note);
+                }
+            }
+        }
+
+        return $this->render('staple_card/list.html.twig', [
+            'cardsByBucket' => $cardsByBucket,
+            'buckets' => StapleCardBucket::ORDER,
+            'imageUrls' => $imageUrls,
+            'renderedNotes' => $renderedNotes,
+            'minHotness' => $minHotness,
+        ]);
+    }
+}

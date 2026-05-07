@@ -61,6 +61,9 @@ class Channel
     #[ORM\Column]
     private bool $enableBannedCards = false;
 
+    #[ORM\Column]
+    private bool $enableStaples = false;
+
     /**
      * @see docs/features.md F18.28 — Per-channel theme system
      */
@@ -191,6 +194,18 @@ class Channel
     public function setEnableBannedCards(bool $enableBannedCards): static
     {
         $this->enableBannedCards = $enableBannedCards;
+
+        return $this;
+    }
+
+    public function getEnableStaples(): bool
+    {
+        return $this->enableStaples;
+    }
+
+    public function setEnableStaples(bool $enableStaples): static
+    {
+        $this->enableStaples = $enableStaples;
 
         return $this;
     }

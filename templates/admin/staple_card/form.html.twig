@@ -1,0 +1,83 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.staple_card.edit'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('banned_card_form') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            {{ card.cardName }}
+            {% if card.deleted %}
+                <span class="badge bg-secondary ms-2">{{ 'app.admin.staple_card.badge.archived'|trans }}</span>
+            {% endif %}
+        </h1>
+        <a href="{{ path('app_admin_staple_card_list', {bucket: card.bucket}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.staple_card.field.printings'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-2"><strong>{{ 'app.admin.staple_card.field.bucket'|trans }}:</strong> {{ ('app.staple_card.bucket.' ~ card.bucket)|trans }}</p>
+            {% if card.printings is empty %}
+                <p class="text-muted mb-0">{{ 'app.admin.staple_card.no_printings'|trans }}</p>
+            {% else %}
+                <ul class="list-unstyled mb-0">
+                    {% for printing in card.printings %}
+                        <li><code>{{ printing.setCode }} {{ printing.cardNumber }}</code>{% if printing.cardPrinting is null %} <span class="badge bg-warning text-dark ms-1">{{ 'app.admin.staple_card.printing_unresolved'|trans }}</span>{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
+            {{ form_start(form) }}
+                {{ form_row(form.hotness) }}
+                {{ rich_text_editor(form.note) }}
+                <button type="submit" class="btn btn-gold">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+        {% if card.deleted %}
+            <form method="post" action="{{ path('app_admin_staple_card_restore', {id: card.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('staple-card-restore-' ~ card.id) }}">
+                <button type="submit" class="btn btn-outline-success">{{ 'app.admin.staple_card.restore'|trans }}</button>
+            </form>
+        {% else %}
+            <form method="post" action="{{ path('app_admin_staple_card_delete', {id: card.id}) }}" class="d-inline inline-confirm-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('staple-card-delete-' ~ card.id) }}">
+                <button type="button" class="btn btn-outline-danger inline-confirm-trigger">
+                    {{ 'app.admin.staple_card.delete'|trans }}
+                </button>
+                <span class="inline-confirm-actions d-none">
+                    <span class="small text-muted me-1">{{ 'app.admin.staple_card.delete_confirm'|trans }}</span>
+                    <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                </span>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('banned_card_form') }}
+{% endblock %}

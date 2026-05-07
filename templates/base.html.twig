@@ -124,6 +124,11 @@
                                     <a class="nav-link" href="{{ path('app_banned_card_list') }}">{{ 'app.nav.banned_cards'|trans }}</a>
                                 </li>
                             {% endif %}
+                            {% if channel.enableStaples %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_staple_card_list') }}">{{ 'app.nav.staple_cards'|trans }}</a>
+                                </li>
+                            {% endif %}
                             {% if channel.enableDecks %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_deck_list') }}">{{ 'app.nav.decks'|trans }}</a>
@@ -226,6 +231,11 @@
                             {% if channel.enableBannedCards %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_banned_card_list') }}">{{ 'app.nav.banned_cards'|trans }}</a>
+                                </li>
+                            {% endif %}
+                            {% if channel.enableStaples %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ path('app_staple_card_list') }}">{{ 'app.nav.staple_cards'|trans }}</a>
                                 </li>
                             {% endif %}
                             {% if channel.enableDecks %}

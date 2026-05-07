@@ -55,6 +55,8 @@ class AdminTechnicalController extends AbstractAppController
         private readonly CardReenrichService $cardReenrichService,
         private readonly TcgdexSyncStatusService $syncStatusService,
         private readonly TcgdexApiThrottle $tcgdexApiThrottle,
+        private readonly \App\Repository\StapleCardRepository $stapleCardRepository,
+        private readonly \App\Service\StapleCardEnricher $stapleCardEnricher,
     ) {
         parent::__construct($translator);
     }
@@ -69,12 +71,14 @@ class AdminTechnicalController extends AbstractAppController
         foreach ($bannedCards as $bannedCard) {
             $bannedCardCount += $bannedCard->getPrintings()->count();
         }
+        $stapleCardCount = \count($this->stapleCardRepository->findAllActive());
         $setMappingCount = $this->setMappingRepository->count();
 
         return $this->render('admin/technical/dashboard.html.twig', [
             'pendingEnrichments' => $pendingEnrichments,
             'pendingMosaics' => $pendingMosaics,
             'bannedCardCount' => $bannedCardCount,
+            'stapleCardCount' => $stapleCardCount,
             'setMappingCount' => $setMappingCount,
             'syncQueueDepth' => $this->syncStatusService->getQueueDepth(),
             'syncLastCompleted' => $this->syncStatusService->getLastSyncTimestamp(),
@@ -311,6 +315,32 @@ class AdminTechnicalController extends AbstractAppController
 
         if ([] !== $unresolved) {
             $this->addFlash('warning', 'app.admin.technical.banned_cards.enrich_unresolved', [
+                '%cards%' => implode(', ', $unresolved),
+            ]);
+        }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    #[Route('/staple-cards-enrich', name: 'app_admin_technical_staple_cards_enrich', methods: ['POST'])]
+    public function stapleCardsEnrich(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-staple-cards-enrich', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $force = $request->getPayload()->getBoolean('force');
+        [$linked, $unresolved] = $this->stapleCardEnricher->enrichAllActive($force);
+
+        $this->addFlash('success', 'app.admin.technical.staple_cards.enriched', [
+            '%linked%' => $linked,
+            '%total%' => $linked + \count($unresolved),
+        ]);
+
+        if ([] !== $unresolved) {
+            $this->addFlash('warning', 'app.admin.technical.staple_cards.enrich_unresolved', [
                 '%cards%' => implode(', ', $unresolved),
             ]);
         }

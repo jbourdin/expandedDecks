@@ -5920,6 +5920,276 @@
                 <target>Sombre</target>
                 <note>Footer theme switcher — dark mode option</note>
             </trans-unit>
+            <trans-unit id="app.nav.staple_cards">
+                <source>app.nav.staple_cards</source>
+                <target>Cartes piliers</target>
+                <note>F6.15 — navbar link to the public staple cards page</note>
+            </trans-unit>
+            <trans-unit id="app.channel.enable_staples">
+                <source>app.channel.enable_staples</source>
+                <target>Activer les cartes piliers</target>
+                <note>F6.15 — channel admin form checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.public.title">
+                <source>app.staple_card.public.title</source>
+                <target>Cartes piliers</target>
+                <note>F6.15 — public list page heading</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.public.subtitle">
+                <source>app.staple_card.public.subtitle</source>
+                <target>Cartes incontournables choisies par les éditeurs, triées par type.</target>
+                <note>F6.15 — public list page subtitle</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.public.empty">
+                <source>app.staple_card.public.empty</source>
+                <target>Aucune carte pilier n'a été ajoutée pour le moment.</target>
+                <note>F6.15 — empty-state message on the public list</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.public.view_details">
+                <source>app.staple_card.public.view_details</source>
+                <target>Voir les détails de %name%</target>
+                <note>F6.15 — aria-label on the modal trigger button</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.pokemon">
+                <source>app.staple_card.bucket.pokemon</source>
+                <target>Pokémon</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.supporter">
+                <source>app.staple_card.bucket.supporter</source>
+                <target>Supporters</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.item">
+                <source>app.staple_card.bucket.item</source>
+                <target>Objets</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.tool">
+                <source>app.staple_card.bucket.tool</source>
+                <target>Outils</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.stadium">
+                <source>app.staple_card.bucket.stadium</source>
+                <target>Stades</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.energy">
+                <source>app.staple_card.bucket.energy</source>
+                <target>Énergies</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.bucket.ace_spec">
+                <source>app.staple_card.bucket.ace_spec</source>
+                <target>Cartes AS</target>
+                <note>F6.15 — bucket label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.modal.printings">
+                <source>app.staple_card.modal.printings</source>
+                <target>Versions disponibles</target>
+                <note>F6.15 — public modal section heading</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.modal.hotness">
+                <source>app.staple_card.modal.hotness</source>
+                <target>Indice de jeu</target>
+                <note>F6.15 — public modal hotness label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.modal.note">
+                <source>app.staple_card.modal.note</source>
+                <target>Note de l'éditeur</target>
+                <note>F6.15 — public modal note section heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.list_title">
+                <source>app.admin.staple_card.list_title</source>
+                <target>Cartes piliers</target>
+                <note>F6.15 — admin list page heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.list_hint">
+                <source>app.admin.staple_card.list_hint</source>
+                <target>Choisissez les cartes les plus jouées. Glissez les lignes pour les réordonner dans chaque catégorie.</target>
+                <note>F6.15 — admin list hint</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.new">
+                <source>app.admin.staple_card.new</source>
+                <target>Nouvelle carte pilier</target>
+                <note>F6.15 — admin "+ New" button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.edit">
+                <source>app.admin.staple_card.edit</source>
+                <target>Modifier</target>
+                <note>F6.15 — admin edit form heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.delete">
+                <source>app.admin.staple_card.delete</source>
+                <target>Supprimer</target>
+                <note>F6.15 — admin delete button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.delete_confirm">
+                <source>app.admin.staple_card.delete_confirm</source>
+                <target>Supprimer cette carte pilier ?</target>
+                <note>F6.15 — inline delete confirm prompt</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.restore">
+                <source>app.admin.staple_card.restore</source>
+                <target>Restaurer</target>
+                <note>F6.15 — admin restore button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.code">
+                <source>app.admin.staple_card.field.code</source>
+                <target>Code de la carte</target>
+                <note>F6.15 — admin form field label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.code_help">
+                <source>app.admin.staple_card.field.code_help</source>
+                <target>Code de l'extension et numéro de carte, ex. LOR-093 ou LOR 093</target>
+                <note>F6.15 — admin form field help text</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.code_invalid">
+                <source>app.admin.staple_card.field.code_invalid</source>
+                <target>Le code doit être au format EXT-NUMÉRO (ex. LOR-093).</target>
+                <note>F6.15 — admin form validation error</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.hotness">
+                <source>app.admin.staple_card.field.hotness</source>
+                <target>Indice de jeu</target>
+                <note>F6.15 — admin form field label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.hotness_help">
+                <source>app.admin.staple_card.field.hotness_help</source>
+                <target>Indice de pertinence choisi par l'éditeur, 1-10. La valeur par défaut est 5 (seuil de pilier).</target>
+                <note>F6.15 — admin form field help text</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.note">
+                <source>app.admin.staple_card.field.note</source>
+                <target>Note</target>
+                <note>F6.15 — admin form field label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.card_name">
+                <source>app.admin.staple_card.field.card_name</source>
+                <target>Nom de la carte</target>
+                <note>F6.15 — admin list column heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.printings">
+                <source>app.admin.staple_card.field.printings</source>
+                <target>Versions</target>
+                <note>F6.15 — admin list/form column heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.bucket">
+                <source>app.admin.staple_card.field.bucket</source>
+                <target>Catégorie</target>
+                <note>F6.15 — admin form/history column label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.field.deleted_at">
+                <source>app.admin.staple_card.field.deleted_at</source>
+                <target>Supprimée le</target>
+                <note>F6.15 — admin history column heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.no_printings">
+                <source>app.admin.staple_card.no_printings</source>
+                <target>Aucune version liée pour le moment.</target>
+                <note>F6.15 — admin form when no printings are linked</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.printing_unresolved">
+                <source>app.admin.staple_card.printing_unresolved</source>
+                <target>Non résolu</target>
+                <note>F6.15 — badge on a printing that has no CardPrinting link</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.tab.history">
+                <source>app.admin.staple_card.tab.history</source>
+                <target>Historique</target>
+                <note>F6.15 — admin history tab label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.empty.history">
+                <source>app.admin.staple_card.empty.history</source>
+                <target>Aucune carte pilier archivée.</target>
+                <note>F6.15 — admin empty-state on history tab</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.empty.bucket">
+                <source>app.admin.staple_card.empty.bucket</source>
+                <target>Aucune carte pilier dans cette catégorie pour le moment.</target>
+                <note>F6.15 — admin empty-state on a bucket tab</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.badge.archived">
+                <source>app.admin.staple_card.badge.archived</source>
+                <target>Archivée</target>
+                <note>F6.15 — admin edit page archived badge</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.created">
+                <source>app.admin.staple_card.flash.created</source>
+                <target>Carte pilier créée.</target>
+                <note>F6.15 — flash after successful create</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.updated">
+                <source>app.admin.staple_card.flash.updated</source>
+                <target>Carte pilier mise à jour.</target>
+                <note>F6.15 — flash after successful update</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.deleted">
+                <source>app.admin.staple_card.flash.deleted</source>
+                <target>Carte pilier archivée.</target>
+                <note>F6.15 — flash after successful delete</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.restored">
+                <source>app.admin.staple_card.flash.restored</source>
+                <target>Carte pilier restaurée.</target>
+                <note>F6.15 — flash after successful restore</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.invalid_code">
+                <source>app.admin.staple_card.flash.invalid_code</source>
+                <target>Format de code invalide.</target>
+                <note>F6.15 — flash when code parsing fails</note>
+            </trans-unit>
+            <trans-unit id="app.admin.staple_card.flash.not_found">
+                <source>app.admin.staple_card.flash.not_found</source>
+                <target>Carte introuvable sur TCGdex.</target>
+                <note>F6.15 — flash when TCGdex lookup fails</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.title">
+                <source>app.admin.technical.staple_cards.title</source>
+                <target>Cartes piliers</target>
+                <note>F6.15 — technical dashboard section heading</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.description">
+                <source>app.admin.technical.staple_cards.description</source>
+                <target>Re-résout les liens CardPrinting + CardIdentity et recalcule les catégories pour chaque carte pilier active. Utile après un import de contenu qui contourne le flux éditeur.</target>
+                <note>F6.15 — technical dashboard section description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.current_count">
+                <source>app.admin.technical.staple_cards.current_count</source>
+                <target>%count% carte(s) pilier(s) en base</target>
+                <note>F6.15 — technical dashboard count line</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.enrich_button">
+                <source>app.admin.technical.staple_cards.enrich_button</source>
+                <target>Ré-enrichir les liens manquants</target>
+                <note>F6.15 — technical dashboard re-enrich button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.enrich_force_button">
+                <source>app.admin.technical.staple_cards.enrich_force_button</source>
+                <target>Forcer la ré-enrichissement (supprime les liens)</target>
+                <note>F6.15 — technical dashboard force re-enrich button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.confirm_enrich_force">
+                <source>app.admin.technical.staple_cards.confirm_enrich_force</source>
+                <target>Ceci supprimera tous les liens CardPrinting existants et les re-résoudra via TCGdex. Continuer ?</target>
+                <note>F6.15 — technical dashboard force re-enrich confirm prompt</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.enrich_hint">
+                <source>app.admin.technical.staple_cards.enrich_hint</source>
+                <target>La variante « forcer » sert à corriger les enrichissements partiels — par exemple, quand un CardPrinting a été lié à la mauvaise identité suite à un changement d'alias d'extension TCGdex.</target>
+                <note>F6.15 — technical dashboard hint</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.enriched">
+                <source>app.admin.technical.staple_cards.enriched</source>
+                <target>Liés : %linked% / %total% versions de pilier.</target>
+                <note>F6.15 — technical re-enrich success flash</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.staple_cards.enrich_unresolved">
+                <source>app.admin.technical.staple_cards.enrich_unresolved</source>
+                <target>Impossible de résoudre : %cards%</target>
+                <note>F6.15 — technical re-enrich partial-success warning flash</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>
