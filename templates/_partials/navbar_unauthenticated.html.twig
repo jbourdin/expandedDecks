@@ -1,0 +1,22 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Default unauthenticated navbar items (login + optional register).
+ # Channels with their own theme can override this partial under
+ # templates/themes/<theme>/_partials/navbar_unauthenticated.html.twig
+ # (see F18.28 — Per-channel theme system).
+ #}
+{% set channel = current_channel() %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ path('app_login', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
+</li>
+{% if channel.enableRegister %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ path('app_register', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
+    </li>
+{% endif %}
