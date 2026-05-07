@@ -214,14 +214,7 @@
                                 </li>
                             {% endif %}
                             {{ include('_partials/navbar_search.html.twig') }}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_login', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.login'|trans }}</a>
-                            </li>
-                            {% if channel.enableRegister %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ path('app_register', {_target_path: app.request.pathInfo}) }}">{{ 'app.nav.register'|trans }}</a>
-                                </li>
-                            {% endif %}
+                            {{ include('_partials/navbar_unauthenticated.html.twig') }}
                         {% endif %}
                         {% if current_channel().locales|length > 1 %}
                             {% set currentLocale = app.request.locale %}
