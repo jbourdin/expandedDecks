@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function populateModal(trigger: HTMLButtonElement): void {
     const name = trigger.dataset.cardName ?? '';
     const image = trigger.dataset.cardImage ?? '';
-    const hotness = trigger.dataset.cardHotness ?? '';
     const noteHtml = trigger.dataset.cardNote ?? '';
     const printingsJson = trigger.dataset.cardPrintings ?? '[]';
 
@@ -89,11 +88,6 @@ function populateModal(trigger: HTMLButtonElement): void {
             imageElement.removeAttribute('src');
             imageElement.hidden = true;
         }
-    }
-
-    const hotnessElement = document.getElementById('stapleCardModalHotness');
-    if (hotnessElement) {
-        hotnessElement.textContent = hotness;
     }
 
     const noteLabel = document.getElementById('stapleCardModalNoteLabel');

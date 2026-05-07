@@ -52,7 +52,6 @@
                                     data-bs-target="#stapleCardModal"
                                     data-card-name="{{ card.cardName }}"
                                     data-card-image="{{ highResImageUrl ?? '' }}"
-                                    data-card-hotness="{{ card.hotness }}"
                                     data-card-note="{{ card.id in renderedNotes|keys ? renderedNotes[card.id] : '' }}"
                                     data-card-printings="{{ printingsJson }}"
                                     aria-label="{{ 'app.staple_card.public.view_details'|trans({'%name%': card.cardName}) }}">
@@ -87,7 +86,6 @@
                             <div class="col-md-7">
                                 <h6 class="mb-2">{{ 'app.staple_card.modal.printings'|trans }}</h6>
                                 <ul id="stapleCardModalPrintings" class="list-unstyled mb-3"></ul>
-                                <p class="mb-3"><strong>{{ 'app.staple_card.modal.hotness'|trans }}:</strong> <span id="stapleCardModalHotness"></span></p>
                                 <h6 id="stapleCardModalNoteLabel" class="mb-2" hidden>{{ 'app.staple_card.modal.note'|trans }}</h6>
                                 <div id="stapleCardModalNote" class="mb-0" hidden></div>
                             </div>

@@ -123,7 +123,7 @@ final readonly class BannedCardImageResolver
                 self::TCGDEX_CDN_BASE,
                 $locale,
                 $set->getSerie()->getId(),
-                str_replace('.', '', $set->getId()),
+                self::setIdForCdn($set->getId()),
                 $tcgdexCard->getLocalId(),
             );
         }
@@ -143,7 +143,7 @@ final readonly class BannedCardImageResolver
             self::TCGDEX_CDN_BASE,
             $locale,
             $serieId,
-            str_replace('.', '', $setId),
+            self::setIdForCdn($setId),
             $localId,
         );
     }
@@ -176,7 +176,7 @@ final readonly class BannedCardImageResolver
             self::TCGDEX_CDN_BASE,
             $locale,
             $set->getSerie()->getId(),
-            str_replace('.', '', $set->getId()),
+            self::setIdForCdn($set->getId()),
             $cardNumber,
         );
     }
@@ -189,11 +189,20 @@ final readonly class BannedCardImageResolver
 
         $normalized = preg_replace_callback(
             '@^(https://assets\.tcgdex\.net/[^/]+/[^/]+/)([^/]+)(/)@',
-            static fn (array $matches): string => $matches[1].str_replace('.', '', $matches[2]).$matches[3],
+            static fn (array $matches): string => $matches[1].self::setIdForCdn($matches[2]).$matches[3],
             $url,
         );
 
         return $normalized ?? $url;
+    }
+
+    /**
+     * TCGdex's CDN strips dots from set IDs in legacy eras (sm/swsh/xy/bw): "sm7.5" → "sm75".
+     * The modern Scarlet & Violet era keeps them: "sv08.5" stays as-is.
+     */
+    private static function setIdForCdn(string $setId): string
+    {
+        return str_starts_with($setId, 'sv') ? $setId : str_replace('.', '', $setId);
     }
 
     /**
