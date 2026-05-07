@@ -22,14 +22,10 @@ interface PlaystyleTagSelectProps {
 }
 
 /**
- * Normalize a tag: only alphanumeric and spaces, title case.
+ * Normalize a tag: only alphanumeric and spaces, casing preserved verbatim.
  */
 function normalizeTag(tag: string): string {
-    const cleaned = tag.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
-
-    return cleaned.replace(/\w\S*/g, (word) =>
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-    );
+    return tag.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 export default function PlaystyleTagSelect({ existingTags, initialValues = [], hiddenInputName, placeholder }: PlaystyleTagSelectProps) {
