@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Service\CardIdentity;
 
+use App\Constants\RuleboxType;
 use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
 use App\Repository\CardIdentityRepository;
@@ -137,10 +138,17 @@ class CardIdentityResolver
             $attackSignature,
         );
 
+        $ruleboxType = self::detectRuleboxType($tcgdexCard);
+
         if (null !== $existing) {
             // Backfill trainerType if missing on existing identity
             if (null === $existing->getTrainerType() && null !== $tcgdexCard->trainerType) {
                 $existing->setTrainerType($tcgdexCard->trainerType);
+            }
+
+            // Backfill ruleboxType if missing on existing identity
+            if (null === $existing->getRuleboxType() && null !== $ruleboxType) {
+                $existing->setRuleboxType($ruleboxType);
             }
 
             return $existing;
@@ -155,10 +163,27 @@ class CardIdentityResolver
         $identity->setAttackSignature($attackSignature);
         $identity->setAttackNames(implode(',', $tcgdexCard->attacks));
         $identity->setTrainerType($tcgdexCard->trainerType);
+        $identity->setRuleboxType($ruleboxType);
 
         $this->entityManager->persist($identity);
 
         return $identity;
+    }
+
+    /**
+     * Detect the rulebox type for a TCGdex card. Returns null for regular cards.
+     *
+     * As of issue #532 PR-1, only ACE_SPEC is detected (via the rarity field). Detection logic for
+     * the other {@see RuleboxType} constants (V/VMAX/VSTAR/ex/EX-classic/G/GX/BREAK/Mega/Radiant/Prism)
+     * is name-pattern based and lands in follow-up PRs.
+     */
+    public static function detectRuleboxType(TcgdexCard $tcgdexCard): ?string
+    {
+        if ('ACE SPEC Rare' === $tcgdexCard->rarity) {
+            return RuleboxType::ACE_SPEC;
+        }
+
+        return null;
     }
 
     private function createPrinting(CardIdentity $identity, TcgdexCard $tcgdexCard): CardPrinting
