@@ -11,17 +11,42 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {# F20.1 — Mirror the OS color scheme onto the document so Bootstrap and Mantine see it before first paint. #}
+        {# F20.1 — Resolve color scheme (stored preference > OS) and mirror it onto the document before first paint. #}
         <script>
             (function () {
+                var STORAGE_KEY = 'ed-theme';
                 var media = window.matchMedia('(prefers-color-scheme: dark)');
-                var apply = function (matches) {
-                    var scheme = matches ? 'dark' : 'light';
+                var readMode = function () {
+                    try {
+                        var stored = window.localStorage.getItem(STORAGE_KEY);
+                        if (stored === 'light' || stored === 'dark' || stored === 'auto') {
+                            return stored;
+                        }
+                    } catch (error) { /* localStorage unavailable (private mode, disabled) — fall through to auto */ }
+                    return 'auto';
+                };
+                var resolve = function (mode) {
+                    if (mode === 'light' || mode === 'dark') { return mode; }
+                    return media.matches ? 'dark' : 'light';
+                };
+                var paint = function (mode) {
+                    var scheme = resolve(mode);
                     document.documentElement.setAttribute('data-bs-theme', scheme);
                     document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
                 };
-                apply(media.matches);
-                media.addEventListener('change', function (event) { apply(event.matches); });
+                var currentMode = readMode();
+                paint(currentMode);
+                media.addEventListener('change', function () {
+                    if (readMode() === 'auto') { paint('auto'); }
+                });
+                window.__edTheme = {
+                    get: readMode,
+                    apply: function (mode) {
+                        if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') { return; }
+                        try { window.localStorage.setItem(STORAGE_KEY, mode); } catch (error) { /* ignore */ }
+                        paint(mode);
+                    }
+                };
             })();
         </script>
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
@@ -258,8 +283,8 @@
         <footer class="footer-pokemon py-4 mt-auto">
             <div class="container">
                 {% set footerCategories = footer_categories() %}
-                {% if footerCategories is not empty %}
-                    <div class="row mb-3">
+                <div class="row mb-3">
+                    {% if footerCategories is not empty %}
                         {% for category in footerCategories %}
                             {% set pages = category.pages|filter(p => p.published)|sort((a, b) => a.position <=> b.position) %}
                             {% if pages is not empty %}
@@ -273,7 +298,23 @@
                                 </div>
                             {% endif %}
                         {% endfor %}
+                    {% endif %}
+                    <div class="col-sm-4 col-md-3 ms-md-auto" data-theme-switcher>
+                        <h6 class="text-uppercase mb-2">{{ 'app.theme.heading'|trans }}</h6>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.theme.aria_label'|trans }}">
+                            <button type="button" class="btn btn-outline-secondary" data-theme-value="light" title="{{ 'app.theme.light'|trans }}" aria-label="{{ 'app.theme.light'|trans }}">
+                                <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" data-theme-value="auto" title="{{ 'app.theme.auto'|trans }}" aria-label="{{ 'app.theme.auto'|trans }}">
+                                <i class="bi bi-circle-half" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" data-theme-value="dark" title="{{ 'app.theme.dark'|trans }}" aria-label="{{ 'app.theme.dark'|trans }}">
+                                <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
+                </div>
+                {% if footerCategories is not empty %}
                     <hr class="my-2">
                 {% endif %}
                 <div class="text-center">
