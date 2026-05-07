@@ -30,10 +30,7 @@
     <h1 class="mb-2">{{ 'app.staple_card.public.title'|trans }}</h1>
     <p class="text-muted mb-4">{{ 'app.staple_card.public.subtitle'|trans }}</p>
 
-    {% set hasAnyCard = false %}
-    {% for bucket in buckets if cardsByBucket[bucket] is not empty %}
-        {% set hasAnyCard = true %}
-    {% endfor %}
+    {% set hasAnyCard = cardsByBucket|filter(cards => cards is not empty)|length > 0 %}
 
     {% if not hasAnyCard %}
         <div class="alert alert-info">{{ 'app.staple_card.public.empty'|trans }}</div>
