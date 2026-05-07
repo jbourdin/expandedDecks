@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.0] — 2026-05-07
+
+Minor release: user-controlled light/dark/auto theme override — visitors can pin the site to light or dark from a footer switcher, or keep the OS-following behavior.
+
+### Features
+
+- **User-controlled theme switcher (F20.1)** — add a Light/Auto/Dark icon button group to the footer as a new `col-sm-4 col-md-3` column pulled bottom-right via `ms-md-auto`, matching the rhythm of the existing CMS category columns (Bootstrap Icons `bi-sun-fill` / `bi-circle-half` / `bi-moon-stars-fill`, no new dependency). The choice persists in `localStorage` under key `ed-theme` (`light` / `dark` / `auto`). The pre-paint inline `<head>` script in `templates/base.html.twig` now resolves *stored preference > `prefers-color-scheme`*, and the OS-change media listener only repaints when the active mode is `auto` — explicit light/dark choices survive OS toggles. A small `window.__edTheme = { get, apply }` bridge exposed by the inline script lets `assets/app.tsx` toggle the mode on click, mark the active button with `.active` + `aria-pressed`, and update `localStorage` without duplicating the resolution logic across the inline script and the bundle. Mantine sync unchanged: even in `auto` mode the inline script writes a concrete `light`/`dark` to `data-mantine-color-scheme`, so React islands keep following the document attribute without provider edits. Five new translation keys (`app.theme.heading`, `aria_label`, `light`, `auto`, `dark`) in `messages.en.xlf` and `messages.fr.xlf`. ([#530](https://github.com/jbourdin/expandedDecks/pull/530))
+
+---
+
 ## [1.11.0] — 2026-05-07
 
 Minor release: case-sensitive archetype playstyle tags, login button removed from the Expanded Talks navbar via theme override, and a dark-mode SCSS DRY pass.
