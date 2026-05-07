@@ -5895,6 +5895,31 @@
                 <target>Une ligne archivée correspondant à ces coordonnées a été réactivée.</target>
                 <note>F6.14 — admin flash when create reactivates a soft-deleted row</note>
             </trans-unit>
+            <trans-unit id="app.theme.heading">
+                <source>app.theme.heading</source>
+                <target>Thème</target>
+                <note>Footer column heading above the light/dark/auto switcher</note>
+            </trans-unit>
+            <trans-unit id="app.theme.aria_label">
+                <source>app.theme.aria_label</source>
+                <target>Thème de couleurs</target>
+                <note>Accessible label for the footer theme switcher button group</note>
+            </trans-unit>
+            <trans-unit id="app.theme.light">
+                <source>app.theme.light</source>
+                <target>Clair</target>
+                <note>Footer theme switcher — light mode option</note>
+            </trans-unit>
+            <trans-unit id="app.theme.auto">
+                <source>app.theme.auto</source>
+                <target>Auto (système)</target>
+                <note>Footer theme switcher — follow OS preference</note>
+            </trans-unit>
+            <trans-unit id="app.theme.dark">
+                <source>app.theme.dark</source>
+                <target>Sombre</target>
+                <note>Footer theme switcher — dark mode option</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>
