@@ -5962,6 +5962,11 @@
                 <target>Staple Cards</target>
                 <note>F6.15 — navbar link to the public staple cards page</note>
             </trans-unit>
+            <trans-unit id="app.nav.admin_staple_cards">
+                <source>app.nav.admin_staple_cards</source>
+                <target>Staple Cards</target>
+                <note>F6.15 — admin dropdown link (under the archetype-editor section)</note>
+            </trans-unit>
             <trans-unit id="app.channel.enable_staples">
                 <source>app.channel.enable_staples</source>
                 <target>Enable staple cards</target>

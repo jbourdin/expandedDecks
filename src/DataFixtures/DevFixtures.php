@@ -2482,6 +2482,7 @@ PTCG;
             ->setEnableBorrows(false)
             ->setEnableArchetypes(true)
             ->setEnableBannedCards(true)
+            ->setEnableStaples(true)
             ->setThemeName('expandedtalks')
             ->setParameters(['brand_name' => 'Expanded Talks']);
 
