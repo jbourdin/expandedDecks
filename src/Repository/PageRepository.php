@@ -200,9 +200,7 @@ class PageRepository extends ServiceEntityRepository
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->leftJoin('p.menuCategory', 'c')
-            ->addSelect('c')
-            ->andWhere('p.slug NOT IN (:reservedSlugs)')
-            ->setParameter('reservedSlugs', ListingIntroPage::SLUGS);
+            ->addSelect('c');
 
         if (null !== $category) {
             $queryBuilder
@@ -211,7 +209,10 @@ class PageRepository extends ServiceEntityRepository
                 ->orderBy('p.position', 'ASC')
                 ->addOrderBy('p.createdAt', 'DESC');
         } else {
-            $queryBuilder->orderBy('p.createdAt', 'DESC');
+            $queryBuilder
+                ->andWhere('p.slug NOT IN (:reservedSlugs)')
+                ->setParameter('reservedSlugs', ListingIntroPage::SLUGS)
+                ->orderBy('p.createdAt', 'DESC');
         }
 
         if (null !== $search && '' !== $search) {

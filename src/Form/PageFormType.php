@@ -43,6 +43,9 @@ class PageFormType extends AbstractType
         /** @var bool $isCreation */
         $isCreation = $options['is_creation'];
 
+        /** @var bool $isListingIntro */
+        $isListingIntro = $options['is_listing_intro'];
+
         if ($isCreation) {
             $builder->add('title', TextType::class, [
                 'label' => 'app.cms.form.title',
@@ -51,40 +54,47 @@ class PageFormType extends AbstractType
             ]);
         }
 
-        $builder
-            ->add('slug', TextType::class, [
-                'label' => 'app.common.slug',
-                'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
-            ])
-            ->add('channel', EntityType::class, [
-                'class' => Channel::class,
-                'choice_label' => 'domain',
-                'label' => 'app.cms.form.channel',
-                'placeholder' => '',
-                'required' => false,
-            ])
-            ->add('menuCategory', EntityType::class, [
-                'class' => MenuCategory::class,
-                'label' => 'app.cms.form.menu_category',
-                'required' => false,
-                'placeholder' => 'app.cms.form.no_category',
-                'choice_label' => static fn (MenuCategory $category): string => $category->getName($locale),
-                'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository->createQueryBuilder('c')
-                    ->orderBy('c.position', 'ASC'),
-            ])
-            ->add('isPublished', CheckboxType::class, [
-                'label' => 'app.common.published',
-                'required' => false,
-            ])
-            ->add('noIndex', CheckboxType::class, [
-                'label' => 'app.cms.form.no_index',
-                'required' => false,
-            ])
-            ->add('ogImage', TextType::class, [
-                'label' => 'app.cms.form.og_image',
-                'required' => false,
-                'empty_data' => null,
-            ]);
+        if (!$isListingIntro) {
+            $builder
+                ->add('slug', TextType::class, [
+                    'label' => 'app.common.slug',
+                    'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
+                ])
+                ->add('channel', EntityType::class, [
+                    'class' => Channel::class,
+                    'choice_label' => 'domain',
+                    'label' => 'app.cms.form.channel',
+                    'placeholder' => '',
+                    'required' => false,
+                ]);
+        }
+
+        $builder->add('menuCategory', EntityType::class, [
+            'class' => MenuCategory::class,
+            'label' => 'app.cms.form.menu_category',
+            'required' => false,
+            'placeholder' => 'app.cms.form.no_category',
+            'choice_label' => static fn (MenuCategory $category): string => $category->getName($locale),
+            'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository->createQueryBuilder('c')
+                ->orderBy('c.position', 'ASC'),
+        ]);
+
+        if (!$isListingIntro) {
+            $builder
+                ->add('isPublished', CheckboxType::class, [
+                    'label' => 'app.common.published',
+                    'required' => false,
+                ])
+                ->add('noIndex', CheckboxType::class, [
+                    'label' => 'app.cms.form.no_index',
+                    'required' => false,
+                ])
+                ->add('ogImage', TextType::class, [
+                    'label' => 'app.cms.form.og_image',
+                    'required' => false,
+                    'empty_data' => null,
+                ]);
+        }
 
         // Filter categories by the selected channel
         $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($locale): void {
@@ -116,9 +126,11 @@ class PageFormType extends AbstractType
             'data_class' => Page::class,
             'locale' => 'en',
             'is_creation' => false,
+            'is_listing_intro' => false,
         ]);
 
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('is_creation', 'bool');
+        $resolver->setAllowedTypes('is_listing_intro', 'bool');
     }
 }

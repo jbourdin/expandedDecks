@@ -29,24 +29,32 @@ class PageTranslationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('title', TextType::class, [
+        /** @var bool $isListingIntro */
+        $isListingIntro = $options['is_listing_intro'];
+
+        if (!$isListingIntro) {
+            $builder->add('title', TextType::class, [
                 'label' => 'app.cms.form.title',
-            ])
-            ->add('content', TextareaType::class, [
-                'label' => 'app.cms.form.content',
-                'required' => false,
-                'attr' => [
-                    'rows' => 15,
-                    'placeholder' => 'app.cms.form.content_placeholder',
-                ],
             ]);
+        }
+
+        $builder->add('content', TextareaType::class, [
+            'label' => 'app.cms.form.content',
+            'required' => false,
+            'attr' => [
+                'rows' => 15,
+                'placeholder' => 'app.cms.form.content_placeholder',
+            ],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => PageTranslation::class,
+            'is_listing_intro' => false,
         ]);
+
+        $resolver->setAllowedTypes('is_listing_intro', 'bool');
     }
 }
