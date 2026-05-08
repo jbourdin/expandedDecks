@@ -19,6 +19,7 @@ import { MantineProvider, MantineColorSchemeManager, MantineColorScheme } from '
  */
 function dataBsThemeColorSchemeManager(): MantineColorSchemeManager {
     let observer: MutationObserver | null = null;
+    let lastNotified: MantineColorScheme | null = null;
 
     const readScheme = (): MantineColorScheme => {
         if (typeof document === 'undefined') {
@@ -29,18 +30,29 @@ function dataBsThemeColorSchemeManager(): MantineColorSchemeManager {
     };
 
     return {
-        get: () => readScheme(),
-        set: (scheme) => {
-            const edTheme = (window as unknown as { __edTheme?: { apply: (mode: string) => void } }).__edTheme;
-            if (edTheme && (scheme === 'light' || scheme === 'dark' || scheme === 'auto')) {
-                edTheme.apply(scheme);
-            }
+        get: () => {
+            const scheme = readScheme();
+            lastNotified = scheme;
+            return scheme;
+        },
+        set: () => {
+            // Intentional no-op. Persistence is owned by `window.__edTheme` (called by
+            // the in-page theme switcher); writing back here would loop because
+            // MutationObserver fires on every `setAttribute` even when the value
+            // is unchanged, and Mantine calls `set` from its post-update effect.
         },
         subscribe: (onUpdate) => {
             if (typeof window === 'undefined') {
                 return;
             }
-            observer = new MutationObserver(() => onUpdate(readScheme()));
+            observer = new MutationObserver(() => {
+                const next = readScheme();
+                if (next === lastNotified) {
+                    return;
+                }
+                lastNotified = next;
+                onUpdate(next);
+            });
             observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
         },
         unsubscribe: () => {
