@@ -24,6 +24,8 @@ Encore
     .addEntry('deck_card_list', './assets/deck-card-list.tsx')
     .addEntry('admin_archetype_list', './assets/admin-archetype-list.ts')
     .addEntry('admin_archetype_edit', './assets/admin-archetype-edit.ts')
+    .addEntry('admin_staple_card_list', './assets/admin-staple-card-list.ts')
+    .addEntry('staple_card_list', './assets/staple-card-list.ts')
     .addEntry('archetype_show', './assets/archetype-show.ts')
     .addEntry('archetype_variants', './assets/archetype-variants.tsx')
     .addEntry('page_show', './assets/page-show.ts')

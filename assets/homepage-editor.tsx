@@ -23,6 +23,11 @@ interface BlockTypeInfo {
     icon: string;
 }
 
+interface CategoryInfo {
+    id: number;
+    name: string;
+}
+
 interface Labels {
     [key: string]: string;
 }
@@ -38,6 +43,7 @@ if (root) {
     let initialBlocks: Record<string, unknown>[] = [];
     let initialTranslations: Record<string, Record<string, Record<string, unknown>>> = {};
     let blockTypes: BlockTypeInfo[] = [];
+    let categories: CategoryInfo[] = [];
     let labels: Labels = {};
 
     try {
@@ -57,6 +63,10 @@ if (root) {
     } catch { /* use default */ }
 
     try {
+        categories = JSON.parse(root.dataset.categories ?? '[]');
+    } catch { /* use default */ }
+
+    try {
         labels = JSON.parse(root.dataset.labels ?? '{}');
     } catch { /* use default */ }
 
@@ -71,6 +81,7 @@ if (root) {
                 initialBlocks={initialBlocks}
                 initialTranslations={initialTranslations}
                 blockTypes={blockTypes}
+                categories={categories}
                 labels={labels}
             />
         </AppMantineProvider>,

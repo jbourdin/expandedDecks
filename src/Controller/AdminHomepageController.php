@@ -45,8 +45,12 @@ class AdminHomepageController extends AbstractAppController
     }
 
     #[Route('', name: 'app_admin_homepage_editor', methods: ['GET'])]
-    public function editor(Request $request, ChannelRepository $channelRepository, ChannelContext $channelContext): Response
-    {
+    public function editor(
+        Request $request,
+        ChannelRepository $channelRepository,
+        ChannelContext $channelContext,
+        \App\Repository\MenuCategoryRepository $menuCategoryRepository,
+    ): Response {
         $channelCode = $request->query->getString('channel', '');
         $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
 
@@ -57,11 +61,21 @@ class AdminHomepageController extends AbstractAppController
         $channels = $channelRepository->findAll();
         $layout = $this->layoutRepository->findPublished($channel);
 
+        // Categories used by the latestPages block selector — scoped to the editor's channel.
+        $categories = [];
+        foreach ($menuCategoryRepository->findAllOrdered($channel) as $category) {
+            $categories[] = [
+                'id' => $category->getId(),
+                'name' => $category->getName('en'),
+            ];
+        }
+
         return $this->render('admin/homepage/editor.html.twig', [
             'layout' => $layout,
             'supportedLocales' => self::SUPPORTED_LOCALES,
             'channels' => $channels,
             'currentChannel' => $channel,
+            'categories' => $categories,
         ]);
     }
 

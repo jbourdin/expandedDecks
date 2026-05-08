@@ -1,0 +1,40 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.staple_card.new'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('banned_card_form') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.admin.staple_card.new'|trans }}</h1>
+        <a href="{{ path('app_admin_staple_card_list') }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
+            {{ form_start(form) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.hotness) }}
+                {{ rich_text_editor(form.note) }}
+                <button type="submit" class="btn btn-gold">{{ 'app.common.save'|trans }}</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('banned_card_form') }}
+{% endblock %}

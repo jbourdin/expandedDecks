@@ -85,6 +85,10 @@ class ChannelFormType extends AbstractType
                 'label' => 'app.channel.enable_banned_cards',
                 'required' => false,
             ])
+            ->add('enableStaples', CheckboxType::class, [
+                'label' => 'app.channel.enable_staples',
+                'required' => false,
+            ])
             ->add('locales', ChoiceType::class, [
                 'label' => 'app.channel.locales',
                 'choices' => [

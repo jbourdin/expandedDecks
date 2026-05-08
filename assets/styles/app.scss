@@ -763,6 +763,15 @@ footer {
         background-image: none;
     }
 
+    // Bootstrap 5.3 sets `--bs-heading-color: inherit` which should propagate
+    // body color into headings, but explicit `color` declarations on intermediate
+    // wrappers (channel-theme overrides, .hero-pokemon, .cms-content) can break
+    // the inherit chain when the theme is set via JS after first paint. Force
+    // headings to follow `--bs-body-color` so titles stay legible in dark mode.
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--bs-body-color);
+    }
+
     // The SCSS overrides at the top of this file ($card-bg, $card-border-color,
     // $card-cap-bg, $table-striped-bg, $secondary) hardcode light values into
     // Bootstrap's component selectors (e.g. `.card { --bs-card-bg: #fff }`),

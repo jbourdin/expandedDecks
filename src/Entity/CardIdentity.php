@@ -65,6 +65,10 @@ class CardIdentity
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $trainerType = null;
 
+    /** Rulebox type from {@see \App\Constants\RuleboxType}. Null for regular cards without a rule box. */
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $ruleboxType = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -175,6 +179,18 @@ class CardIdentity
     public function setTrainerType(?string $trainerType): static
     {
         $this->trainerType = $trainerType;
+
+        return $this;
+    }
+
+    public function getRuleboxType(): ?string
+    {
+        return $this->ruleboxType;
+    }
+
+    public function setRuleboxType(?string $ruleboxType): static
+    {
+        $this->ruleboxType = $ruleboxType;
 
         return $this;
     }
