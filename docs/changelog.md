@@ -36,6 +36,7 @@ Patch release: hardens the **listing-intro CMS pages** that shipped in 1.12.2 �
 ### Infrastructure
 
 - **Bump `fast-uri` to 3.1.2** — clears the GHSA high-severity advisory for `fast-uri < 3.0.6` that Dependabot flagged on `develop`. Transitive via `ajv` → JSON-Schema validation in build tooling; no runtime impact. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Bump `@babel/plugin-transform-modules-systemjs` to 7.29.4** — clears [GHSA-fv7c-fp4j-7gwp](https://github.com/advisories/GHSA-fv7c-fp4j-7gwp) (high severity, arbitrary-code-generation in module compilation). Transitive via `@babel/preset-env`, used at build time only; non-breaking lockfile-only bump applied via `npm audit fix`. ([#547](https://github.com/jbourdin/expandedDecks/pull/547))
 
 ---
 
