@@ -81,15 +81,6 @@ final readonly class BannedCardImageResolver
 
     private function resolveForCardPrinting(CardPrinting $printing, BannedCard $card, string $locale): ?string
     {
-        // TCGdex says "no image for this card" by leaving imageBaseUrl null. The CardPrinting
-        // may still have a synthesized imageUrl that 404s on the CDN (e.g. trainer-kit cards
-        // are catalogued without images). Skip those so the resolver falls through to the
-        // next sibling printing rather than returning a broken URL.
-        $tcgdexCard = $printing->getTcgdexCard();
-        if (null !== $tcgdexCard && null === $tcgdexCard->getImageBaseUrl()) {
-            return null;
-        }
-
         $direct = $printing->getImageUrl();
         if (null !== $direct && '' !== $direct) {
             return $this->normalizeTcgdexCdnUrl($direct);
