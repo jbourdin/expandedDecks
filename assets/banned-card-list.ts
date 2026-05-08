@@ -74,20 +74,11 @@ function initBannedCardModal(modalElement: HTMLElement, triggers: HTMLButtonElem
             touchStartY = touch.clientY;
         }, { passive: true });
 
-        modalBody.addEventListener('touchmove', (event) => {
-            const touch = (event as TouchEvent).touches[0];
-            const deltaX = Math.abs(touch.clientX - touchStartX);
-            const deltaY = Math.abs(touch.clientY - touchStartY);
-            // Block vertical scroll; allow horizontal swipe to drive navigation
-            if (deltaY > deltaX) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-
         modalBody.addEventListener('touchend', (event) => {
-            const touchEndX = (event as TouchEvent).changedTouches[0].clientX;
-            const deltaX = touchEndX - touchStartX;
-            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+            const touch = (event as TouchEvent).changedTouches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
                 navigate(deltaX < 0 ? 1 : -1);
             }
         }, { passive: true });

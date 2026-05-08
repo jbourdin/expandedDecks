@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.4] — 2026-05-09
+
+Patch release: card detail modals on the public **Banned Cards** and **Staple Cards** pages are now scrollable on mobile, so the explanation, source link, and printings list below the card image are reachable.
+
+### Bug Fixes
+
+- **Scroll banned & staple card modals on mobile (F6.14, F6.15)** — the modal-body `touchmove` handler called `event.preventDefault()` whenever vertical drag dominated horizontal drag, which cancels the browser's native scroll on iOS/Android — only the card image was visible, and the textual content sat below the fold without any scroll affordance. Drop the `touchmove` listener entirely so scrolling works natively, and require horizontal dominance (`|deltaX| > |deltaY|` plus the existing `SWIPE_THRESHOLD`) in the `touchend` swipe-detection so left/right swipes still navigate between cards but a fast vertical drag does not spuriously trigger navigation. Add Bootstrap's `modal-dialog-scrollable` class to both modals so `.modal-body` owns the scroll and the close `×` button stays pinned at the top of the dialog on small screens. Net `−18` lines, no SCSS changes. ([#549](https://github.com/jbourdin/expandedDecks/pull/549))
+
+---
+
 ## [1.12.3] — 2026-05-08
 
 Patch release: hardens the **listing-intro CMS pages** that shipped in 1.12.2 — non-editable fields are now locked and hidden, the reserved pages can no longer be deleted, and they route through their menu category when one is set. Plus three Mantine dark-mode fixes and a security bump for `fast-uri`.
