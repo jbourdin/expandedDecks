@@ -132,12 +132,10 @@ function populateModal(trigger: HTMLButtonElement): void {
     if (printingsList) {
         printingsList.innerHTML = '';
         printings.forEach((printing) => {
-            const li = document.createElement('li');
-            li.className = 'mb-1';
-            const code = document.createElement('code');
-            code.textContent = `${printing.setCode} ${printing.cardNumber}`;
-            li.appendChild(code);
-            printingsList.appendChild(li);
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-secondary-subtle text-secondary-emphasis font-monospace';
+            badge.textContent = `${printing.setCode} ${printing.cardNumber}`;
+            printingsList.appendChild(badge);
         });
     }
 
