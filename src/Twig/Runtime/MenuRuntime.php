@@ -13,9 +13,13 @@ declare(strict_types=1);
 
 namespace App\Twig\Runtime;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\MenuCategory;
+use App\Entity\Page;
 use App\Repository\MenuCategoryRepository;
 use App\Service\Channel\ChannelContext;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -32,6 +36,8 @@ class MenuRuntime implements RuntimeExtensionInterface
         private readonly MenuCategoryRepository $menuCategoryRepository,
         private readonly ChannelContext $channelContext,
         private readonly CacheInterface $menuCategoriesCache,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -78,5 +84,53 @@ class MenuRuntime implements RuntimeExtensionInterface
         $this->menuCategoriesCache->delete('menu_categories_content');
         $this->menuCategoriesCache->delete('footer_categories_app');
         $this->menuCategoriesCache->delete('footer_categories_content');
+    }
+
+    /**
+     * Build the public URL for a CMS page.
+     *
+     * Reserved listing-intro slugs (banned/staple) resolve to their canonical
+     * listing route so navigation links don't bounce through a 301 redirect.
+     */
+    public function getPageUrl(Page $page): string
+    {
+        $slug = $page->getSlug();
+        $listingRoute = ListingIntroPage::routeForSlug($slug);
+
+        $parameters = [];
+        $locale = $this->requestStack->getCurrentRequest()?->getLocale();
+        if (null !== $locale) {
+            $parameters['_locale'] = $locale;
+        }
+
+        if (null !== $listingRoute) {
+            return $this->urlGenerator->generate($listingRoute, $parameters);
+        }
+
+        $parameters['slug'] = $slug;
+
+        return $this->urlGenerator->generate('app_page_show', $parameters);
+    }
+
+    /**
+     * Whether a reserved listing-intro slug is currently published AND assigned
+     * to a menu category for the active channel — used to suppress the
+     * hardcoded fallback nav link when the page has been moved into the menu.
+     */
+    public function isListingIntroInMenu(string $slug): bool
+    {
+        if (!ListingIntroPage::isListingSlug($slug)) {
+            return false;
+        }
+
+        foreach ($this->getCategories() as $category) {
+            foreach ($category->getPages() as $page) {
+                if ($page->getSlug() === $slug) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
