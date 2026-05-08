@@ -74,6 +74,15 @@ final readonly class StapleCardImageResolver
 
     private function resolveForCardPrinting(CardPrinting $printing, StapleCard $card, string $locale): ?string
     {
+        // TCGdex says "no image for this card" by leaving imageBaseUrl null. The CardPrinting
+        // may still have a synthesized imageUrl that 404s on the CDN (e.g. trainer-kit cards
+        // are catalogued without images). Skip those so the resolver falls through to the
+        // next sibling printing rather than returning a broken URL.
+        $tcgdexCard = $printing->getTcgdexCard();
+        if (null !== $tcgdexCard && null === $tcgdexCard->getImageBaseUrl()) {
+            return null;
+        }
+
         $direct = $printing->getImageUrl();
         if (null !== $direct && '' !== $direct) {
             return $this->normalizeTcgdexCdnUrl($direct);
@@ -188,12 +197,13 @@ final readonly class StapleCardImageResolver
     }
 
     /**
-     * TCGdex's CDN strips dots from set IDs in legacy eras (sm/swsh/xy/bw): "sm7.5" → "sm75".
-     * The modern Scarlet & Violet era keeps them: "sv08.5" stays as-is.
+     * TCGdex's CDN convention: sm-era strips dots from set IDs ("sm7.5" → "sm75",
+     * "sm3.5" → "sm35"). Every other era — xy / bw / swsh / sv / me — keeps dots
+     * verbatim ("swsh4.5", "sv08.5", "me02.5"). Verified empirically.
      */
     private static function setIdForCdn(string $setId): string
     {
-        return str_starts_with($setId, 'sv') ? $setId : str_replace('.', '', $setId);
+        return str_starts_with($setId, 'sm') ? str_replace('.', '', $setId) : $setId;
     }
 
     /**
