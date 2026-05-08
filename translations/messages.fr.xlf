@@ -6005,6 +6005,16 @@
                 <target>Note de l'éditeur</target>
                 <note>F6.15 — public modal note section heading</note>
             </trans-unit>
+            <trans-unit id="app.staple_card.modal.previous">
+                <source>app.staple_card.modal.previous</source>
+                <target>Staple précédent</target>
+                <note>F6.15 — public modal prev-card chevron aria-label</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.modal.next">
+                <source>app.staple_card.modal.next</source>
+                <target>Staple suivant</target>
+                <note>F6.15 — public modal next-card chevron aria-label</note>
+            </trans-unit>
             <trans-unit id="app.admin.staple_card.list_title">
                 <source>app.admin.staple_card.list_title</source>
                 <target>Staple Cards</target>

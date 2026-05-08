@@ -10,7 +10,9 @@
 /**
  * Staple cards public list — modal interactions.
  *
- * Populates the shared #stapleCardModal from the clicked trigger's data attributes.
+ * Populates the shared #stapleCardModal from the clicked trigger's data
+ * attributes and adds swipe / arrow-key / chevron navigation between
+ * staples (mirrors the banned-card modal in `banned-card-list.ts`).
  *
  * @see docs/features.md F6.15 — Staple cards
  */
@@ -18,26 +20,87 @@
 import './styles/app.scss';
 
 const MODAL_ID = 'stapleCardModal';
+const SWIPE_THRESHOLD = 50;
 
 interface PrintingInfo {
     setCode: string;
     cardNumber: string;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const modalElement = document.getElementById(MODAL_ID);
-    if (!modalElement) {
-        return;
-    }
+const modalElement = document.getElementById(MODAL_ID);
+const triggers = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.staple-card-trigger'),
+);
+
+if (modalElement && triggers.length > 0) {
+    initStapleCardModal(modalElement, triggers);
+}
+
+function initStapleCardModal(modalElement: HTMLElement, triggers: HTMLButtonElement[]): void {
+    let currentIndex = 0;
+
+    const navigate = (direction: number): void => {
+        if (triggers.length <= 1) return;
+        currentIndex = (currentIndex + direction + triggers.length) % triggers.length;
+        populateModal(triggers[currentIndex]);
+    };
 
     modalElement.addEventListener('show.bs.modal', (event) => {
         const trigger = (event as Event & { relatedTarget?: HTMLElement | null }).relatedTarget;
-        if (!(trigger instanceof HTMLButtonElement)) {
-            return;
-        }
+        if (!(trigger instanceof HTMLButtonElement)) return;
+
+        const index = triggers.indexOf(trigger);
+        if (index === -1) return;
+
+        currentIndex = index;
         populateModal(trigger);
     });
-});
+
+    document.getElementById('stapleCardModalPrev')?.addEventListener('click', () => navigate(-1));
+    document.getElementById('stapleCardModalNext')?.addEventListener('click', () => navigate(1));
+
+    const showNavControls = triggers.length > 1;
+    const prevButton = document.getElementById('stapleCardModalPrev');
+    const nextButton = document.getElementById('stapleCardModalNext');
+    if (prevButton) prevButton.style.display = showNavControls ? '' : 'none';
+    if (nextButton) nextButton.style.display = showNavControls ? '' : 'none';
+
+    const modalBody = modalElement.querySelector('.modal-body');
+    if (modalBody) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        modalBody.addEventListener('touchstart', (event) => {
+            const touch = (event as TouchEvent).touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }, { passive: true });
+
+        modalBody.addEventListener('touchmove', (event) => {
+            const touch = (event as TouchEvent).touches[0];
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            // Block vertical scroll; allow horizontal swipe to drive navigation
+            if (deltaY > deltaX) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        modalBody.addEventListener('touchend', (event) => {
+            const touchEndX = (event as TouchEvent).changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                navigate(deltaX < 0 ? 1 : -1);
+            }
+        }, { passive: true });
+    }
+
+    modalElement.addEventListener('keydown', (event) => {
+        const key = (event as KeyboardEvent).key;
+        if (key === 'ArrowLeft') navigate(-1);
+        if (key === 'ArrowRight') navigate(1);
+    });
+}
 
 function populateModal(trigger: HTMLButtonElement): void {
     const name = trigger.dataset.cardName ?? '';

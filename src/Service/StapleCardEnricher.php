@@ -141,7 +141,8 @@ final readonly class StapleCardEnricher
             }
         }
 
-        // Recompute bucket for every active StapleCard whose identity is known.
+        // For every active StapleCard whose identity is known: recompute bucket, expand sibling
+        // printings via TCGdex, and sync StapleCardPrinting children one-per-CardPrinting.
         foreach ($this->stapleCardRepository->findAllActive() as $staple) {
             $identity = $staple->getCardIdentity();
             if (null === $identity) {
@@ -152,6 +153,9 @@ final readonly class StapleCardEnricher
                 $staple->setBucket($newBucket);
                 $staple->setPosition($this->stapleCardRepository->findMaxPositionInBucket($newBucket) + 1);
             }
+
+            $this->identityResolver->expandPrintings($identity);
+            $this->syncChildPrintings($staple, $identity);
         }
 
         $this->entityManager->flush();
