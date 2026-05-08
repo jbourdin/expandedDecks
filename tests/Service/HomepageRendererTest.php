@@ -221,6 +221,99 @@ class HomepageRendererTest extends TestCase
         self::assertSame(1, $result[0]->resolvedData['totalCount']);
     }
 
+    public function testResolveLatestPagesByCategoryIdPrefersIdOverSlug(): void
+    {
+        // Two categories — the renderer must look up by ID, not by name match.
+        $newsCategory = new MenuCategory();
+        $this->setEntityId($newsCategory, 42);
+        $newsTranslation = new MenuCategoryTranslation();
+        $newsTranslation->setLocale('en');
+        $newsTranslation->setName('News');
+        $newsCategory->addTranslation($newsTranslation);
+
+        $rulesCategory = new MenuCategory();
+        $this->setEntityId($rulesCategory, 99);
+        $rulesTranslation = new MenuCategoryTranslation();
+        $rulesTranslation->setLocale('en');
+        $rulesTranslation->setName('Rules');
+        $rulesCategory->addTranslation($rulesTranslation);
+
+        $this->menuCategoryRepository->method('findAllOrdered')->willReturn([$newsCategory, $rulesCategory]);
+
+        $page = new Page();
+        $page->setSlug('breaking-news');
+        $page->setIsPublished(true);
+
+        $this->pageRepository->method('findPublishedByCategory')->willReturn([$page]);
+        $this->pageRepository->method('countPublishedByCategory')->willReturn(1);
+
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            ['type' => 'latestPages', 'startAt' => null, 'endAt' => null, 'columnWidth' => null, 'cssClasses' => null, 'categoryId' => 42, 'limit' => 5],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertCount(1, $result);
+        self::assertSame($newsCategory, $result[0]->resolvedData['category']);
+        self::assertCount(1, $result[0]->resolvedData['pages']);
+    }
+
+    public function testResolveLatestPagesFallsBackToCategorySlugWhenIdAbsent(): void
+    {
+        // Legacy block with only categorySlug (pre-#536 data) — must keep working.
+        $newsCategory = new MenuCategory();
+        $this->setEntityId($newsCategory, 7);
+        $newsTranslation = new MenuCategoryTranslation();
+        $newsTranslation->setLocale('en');
+        $newsTranslation->setName('News');
+        $newsCategory->addTranslation($newsTranslation);
+
+        $this->menuCategoryRepository->method('findAllOrdered')->willReturn([$newsCategory]);
+
+        $page = new Page();
+        $page->setSlug('legacy-news');
+        $this->pageRepository->method('findPublishedByCategory')->willReturn([$page]);
+        $this->pageRepository->method('countPublishedByCategory')->willReturn(1);
+
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            // No categoryId — only legacy categorySlug.
+            ['type' => 'latestPages', 'startAt' => null, 'endAt' => null, 'columnWidth' => null, 'cssClasses' => null, 'categorySlug' => 'news', 'limit' => 5],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertCount(1, $result);
+        self::assertSame($newsCategory, $result[0]->resolvedData['category']);
+    }
+
+    public function testResolveLatestPagesReturnsEmptyWhenNeitherIdNorSlugMatches(): void
+    {
+        $this->menuCategoryRepository->method('findAllOrdered')->willReturn([]);
+
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            ['type' => 'latestPages', 'startAt' => null, 'endAt' => null, 'columnWidth' => null, 'cssClasses' => null, 'categoryId' => 999, 'limit' => 5],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertCount(1, $result);
+        self::assertNull($result[0]->resolvedData['category']);
+        self::assertSame([], $result[0]->resolvedData['pages']);
+        self::assertSame(0, $result[0]->resolvedData['totalCount']);
+    }
+
+    /**
+     * Set the auto-generated id on a Doctrine entity for unit-test purposes.
+     */
+    private function setEntityId(object $entity, int $id): void
+    {
+        $reflection = new \ReflectionProperty($entity::class, 'id');
+        $reflection->setValue($entity, $id);
+    }
+
     public function testResolveFeaturedEventWithValidId(): void
     {
         $event = new \App\Entity\Event();
