@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Channel;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
@@ -218,8 +219,11 @@ class AdminPageController extends AbstractAppController
     #[Route('/{id}', name: 'app_admin_page_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Page $page, MenuRuntime $menuRuntime, ChannelContext $channelContext): Response
     {
+        $isListingIntro = ListingIntroPage::isListingSlug($page->getSlug());
+
         $form = $this->createForm(PageFormType::class, $page, [
             'locale' => $request->getLocale(),
+            'is_listing_intro' => $isListingIntro,
         ]);
         $form->handleRequest($request);
 
@@ -242,6 +246,7 @@ class AdminPageController extends AbstractAppController
             'form' => $form,
             'translationForms' => $translationForms,
             'supportedLocales' => $supportedLocales,
+            'isListingIntro' => $isListingIntro,
         ]);
     }
 
@@ -267,6 +272,9 @@ class AdminPageController extends AbstractAppController
             'page_translation_form_'.$locale,
             PageTranslationFormType::class,
             $translation,
+            [
+                'is_listing_intro' => ListingIntroPage::isListingSlug($page->getSlug()),
+            ],
         );
         $form->handleRequest($request);
 
@@ -291,6 +299,12 @@ class AdminPageController extends AbstractAppController
     #[Route('/{id}/delete', name: 'app_admin_page_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Page $page, MenuRuntime $menuRuntime): Response
     {
+        if (ListingIntroPage::isListingSlug($page->getSlug())) {
+            $this->addFlash('danger', 'app.flash.page.cannot_delete_listing_intro');
+
+            return $this->redirectToRoute('app_admin_page_edit', ['id' => $page->getId()]);
+        }
+
         if (!$this->isCsrfTokenValid('page-delete-'.$page->getId(), $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
 
@@ -348,6 +362,7 @@ class AdminPageController extends AbstractAppController
     private function buildTranslationForms(Page $page, Request $request, array $locales): array
     {
         $forms = [];
+        $isListingIntro = ListingIntroPage::isListingSlug($page->getSlug());
 
         foreach ($locales as $locale) {
             $translation = $page->getTranslation($locale);
@@ -366,6 +381,7 @@ class AdminPageController extends AbstractAppController
                         'id' => $page->getId(),
                         'locale' => $locale,
                     ]),
+                    'is_listing_intro' => $isListingIntro,
                 ],
             );
 

@@ -4359,6 +4359,21 @@
                 <source>app.cms.admin.delete_confirm</source>
                 <target>Êtes-vous sûr de vouloir supprimer cette page ?</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.delete_locked_listing_intro">
+                <source>app.cms.admin.delete_locked_listing_intro</source>
+                <target>Suppression verrouillée</target>
+                <note>Heading shown in place of the danger zone for reserved listing-intro pages</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.listing_intro_locked_fields">
+                <source>app.cms.admin.listing_intro_locked_fields</source>
+                <target>Cette page sert de bloc d'introduction éditable à une liste. Seuls la catégorie de menu et le contenu sont modifiables ; le slug, le channel, le titre, la publication et les champs SEO sont verrouillés pour préserver le routage de la liste.</target>
+                <note>Banner shown on the edit page for reserved listing-intro pages</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_locked_listing_intro_help">
+                <source>app.cms.admin.delete_locked_listing_intro_help</source>
+                <target>Cette page sert de bloc d'introduction éditable à une liste (banned cards ou staples) et ne peut pas être supprimée. Dépubliez-la ou videz son contenu à la place.</target>
+                <note>Help text under the locked-deletion heading</note>
+            </trans-unit>
             <trans-unit id="app.cms.admin.search_placeholder">
                 <source>app.cms.admin.search_placeholder</source>
                 <target>Rechercher par slug ou titre…</target>
@@ -4568,6 +4583,11 @@
                 <source>app.flash.page.deleted</source>
                 <target>Page supprimée.</target>
                 <note>Success flash after soft-deleting a page</note>
+            </trans-unit>
+            <trans-unit id="app.flash.page.cannot_delete_listing_intro">
+                <source>app.flash.page.cannot_delete_listing_intro</source>
+                <target>Cette page sert de bloc d'introduction éditable à une liste et ne peut pas être supprimée.</target>
+                <note>Error flash when an admin tries to delete a reserved listing-intro page</note>
             </trans-unit>
             <trans-unit id="app.cms.category_created">
                 <source>app.cms.category_created</source>

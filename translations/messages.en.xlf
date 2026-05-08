@@ -4384,6 +4384,21 @@
                 <source>app.cms.admin.delete_confirm</source>
                 <target>Are you sure you want to delete this page?</target>
             </trans-unit>
+            <trans-unit id="app.cms.admin.delete_locked_listing_intro">
+                <source>app.cms.admin.delete_locked_listing_intro</source>
+                <target>Deletion locked</target>
+                <note>Heading shown in place of the danger zone for reserved listing-intro pages</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.listing_intro_locked_fields">
+                <source>app.cms.admin.listing_intro_locked_fields</source>
+                <target>This page backs the editable intro block on a listing page. Only the menu category and the content are editable; slug, channel, title, publish state and SEO fields are locked to keep the listing route working.</target>
+                <note>Banner shown on the edit page for reserved listing-intro pages</note>
+            </trans-unit>
+            <trans-unit id="app.cms.admin.delete_locked_listing_intro_help">
+                <source>app.cms.admin.delete_locked_listing_intro_help</source>
+                <target>This page backs the editable intro block on a listing page (banned cards or staple cards) and cannot be deleted. Unpublish it or clear its content instead.</target>
+                <note>Help text under the locked-deletion heading</note>
+            </trans-unit>
             <trans-unit id="app.cms.admin.search_placeholder">
                 <source>app.cms.admin.search_placeholder</source>
                 <target>Search by slug or title…</target>
@@ -4593,6 +4608,11 @@
                 <source>app.flash.page.deleted</source>
                 <target>Page deleted.</target>
                 <note>Success flash after soft-deleting a page</note>
+            </trans-unit>
+            <trans-unit id="app.flash.page.cannot_delete_listing_intro">
+                <source>app.flash.page.cannot_delete_listing_intro</source>
+                <target>This page backs the editable intro block on a listing page and cannot be deleted.</target>
+                <note>Error flash when an admin tries to delete a reserved listing-intro page</note>
             </trans-unit>
             <trans-unit id="app.cms.category_created">
                 <source>app.cms.category_created</source>

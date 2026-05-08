@@ -129,3 +129,16 @@ Pages are served at:
 ```
 
 Where `{slug}` is the `Page.slug` field. Example: `/en/pages/how-to-borrow`, `/fr/pages/how-to-borrow`.
+
+### Reserved listing-intro slugs
+
+Two slugs are reserved (centralised in `App\Constants\ListingIntroPage`) and back the editable intro block on the banned-cards / staple-cards listing pages:
+
+| Slug                  | Canonical route          |
+|-----------------------|--------------------------|
+| `banned-cards-intro`  | `app_banned_card_list`   |
+| `staple-cards-intro`  | `app_staple_card_list`   |
+
+Direct hits to `/{locale}/pages/{reserved-slug}` redirect (HTTP 301) to the canonical listing route, and the navigation Twig helper `cms_page_url(page)` links straight to the listing route to skip the redirect.
+
+**Menu placement.** A reserved-slug page with `menuCategory = null` keeps the listing link in its hardcoded position in `base.html.twig` (between Archetypes and Decks). Assigning a `MenuCategory` makes the link appear inside that category's dropdown — sorted by `position` like any sibling page — and suppresses the hardcoded fallback (controlled by the `listing_intro_in_menu(slug)` helper). The dropdown label is the page's translated title.
