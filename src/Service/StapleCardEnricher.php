@@ -100,6 +100,10 @@ final readonly class StapleCardEnricher
             $this->entityManager->persist($staple);
         }
 
+        // The editor's input is the canonical art — re-submitting with a different printing
+        // (e.g. a different sibling of the same identity) flips the displayed image.
+        $staple->setRepresentativePrinting($cardPrinting);
+
         $this->syncChildPrintings($staple, $identity);
 
         $this->entityManager->flush();
@@ -142,12 +146,21 @@ final readonly class StapleCardEnricher
         }
 
         // For every active StapleCard whose identity is known: recompute bucket, expand sibling
-        // printings via TCGdex, and sync StapleCardPrinting children one-per-CardPrinting.
+        // printings via TCGdex, sync StapleCardPrinting children one-per-CardPrinting, and
+        // refresh representativePrinting from the editor's input.
         foreach ($this->stapleCardRepository->findAllActive() as $staple) {
             $identity = $staple->getCardIdentity();
             if (null === $identity) {
                 continue;
             }
+
+            // `--force` semantics: drop the cached canonical art so we re-derive it from the
+            // (possibly newly enriched) printings. Without force we preserve what's there so
+            // any future admin manual override survives a routine re-enrich.
+            if ($force) {
+                $staple->setRepresentativePrinting(null);
+            }
+
             $newBucket = $this->computeBucketFor($identity);
             if ($newBucket !== $staple->getBucket()) {
                 $staple->setBucket($newBucket);
@@ -156,6 +169,27 @@ final readonly class StapleCardEnricher
 
             $this->identityResolver->expandPrintings($identity);
             $this->syncChildPrintings($staple, $identity);
+
+            // Fill representativePrinting from the editor's input when not already set.
+            // The migration / createFromCode insert the editor's StapleCardPrinting first
+            // (lowest ID per staple); siblings expanded by syncChildPrintings get higher IDs.
+            // Walking by ID ascending and taking the first row with a resolved CardPrinting
+            // gives the editor's choice. createFromCode already sets it explicitly, so this
+            // is a no-op for staples created via the admin form — only the seed path needs it.
+            if (null === $staple->getRepresentativePrinting()) {
+                $printingsByIdAsc = $staple->getPrintings()->toArray();
+                usort(
+                    $printingsByIdAsc,
+                    static fn (StapleCardPrinting $a, StapleCardPrinting $b): int => ($a->getId() ?? \PHP_INT_MAX) <=> ($b->getId() ?? \PHP_INT_MAX),
+                );
+                foreach ($printingsByIdAsc as $editorPrinting) {
+                    $cp = $editorPrinting->getCardPrinting();
+                    if (null !== $cp) {
+                        $staple->setRepresentativePrinting($cp);
+                        break;
+                    }
+                }
+            }
         }
 
         $this->entityManager->flush();
