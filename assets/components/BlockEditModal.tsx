@@ -19,6 +19,7 @@ import {
     TextInput,
     NumberInput,
     SegmentedControl,
+    Select,
     Stack,
     Group,
     Button,
@@ -59,6 +60,11 @@ interface CarouselItem {
     endAt: string | null;
 }
 
+interface CategoryInfo {
+    id: number;
+    name: string;
+}
+
 interface BlockEditModalProps {
     block: BlockData;
     blockIndex: number;
@@ -66,6 +72,7 @@ interface BlockEditModalProps {
     supportedLocales: string[];
     labels: Labels;
     blockTypes: BlockTypeInfo[];
+    categories: CategoryInfo[];
     uploadUrl: string;
     onSave: (updatedBlock: BlockData, updatedTranslations: Record<string, Record<string, unknown>>) => void;
     onClose: () => void;
@@ -78,6 +85,7 @@ export default function BlockEditModal({
     supportedLocales,
     labels,
     blockTypes,
+    categories,
     uploadUrl,
     onSave,
     onClose,
@@ -184,11 +192,16 @@ export default function BlockEditModal({
 
                 {blockType === 'latestPages' && (
                     <Group grow>
-                        <TextInput
-                            label={label('categorySlug')}
-                            value={(editedBlock.categorySlug as string) ?? ''}
-                            onChange={(event) => updateBlock('categorySlug', event.currentTarget.value || null)}
-                            placeholder="news"
+                        <Select
+                            label={label('category')}
+                            value={editedBlock.categoryId !== undefined && editedBlock.categoryId !== null ? String(editedBlock.categoryId) : null}
+                            onChange={(value) => updateBlock('categoryId', value !== null ? parseInt(value, 10) : null)}
+                            data={categories.map((category) => ({
+                                value: String(category.id),
+                                label: category.name,
+                            }))}
+                            placeholder={label('selectCategory')}
+                            clearable
                         />
                         <NumberInput
                             label={label('limit')}

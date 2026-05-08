@@ -4732,6 +4732,16 @@
                 <source>app.homepage.admin.category_slug</source>
                 <target>Category name</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.category">
+                <source>app.homepage.admin.category</source>
+                <target>Category</target>
+                <note>#536 — latest-pages block category-selector label</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.select_category">
+                <source>app.homepage.admin.select_category</source>
+                <target>Select a category…</target>
+                <note>#536 — latest-pages block category-selector placeholder</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.limit">
                 <source>app.homepage.admin.limit</source>
                 <target>Max items</target>

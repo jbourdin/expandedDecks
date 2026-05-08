@@ -184,21 +184,34 @@ class HomepageRenderer
      */
     private function resolveLatestPages(array $block, string $locale): array
     {
-        $categorySlug = $block['categorySlug'] ?? null;
         $limitValue = $block['limit'] ?? 5;
         $limit = \is_int($limitValue) ? $limitValue : 5;
 
-        if (!\is_string($categorySlug) || '' === $categorySlug) {
-            return ['pages' => [], 'totalCount' => 0, 'category' => null, 'locale' => $locale];
+        $channel = $this->channelContext->getChannel();
+        $category = null;
+
+        // Prefer the new `categoryId` field; fall back to legacy `categorySlug` (a category
+        // name match, kept for blocks that haven't been re-saved since #536 landed).
+        $categoryIdValue = $block['categoryId'] ?? null;
+        if (\is_int($categoryIdValue) || (\is_string($categoryIdValue) && ctype_digit($categoryIdValue))) {
+            $categoryId = (int) $categoryIdValue;
+            foreach ($this->menuCategoryRepository->findAllOrdered($channel) as $menuCategory) {
+                if ($menuCategory->getId() === $categoryId) {
+                    $category = $menuCategory;
+                    break;
+                }
+            }
         }
 
-        $channel = $this->channelContext->getChannel();
-
-        $category = null;
-        foreach ($this->menuCategoryRepository->findAllOrdered($channel) as $menuCategory) {
-            if (strtolower($menuCategory->getName('en')) === strtolower($categorySlug)) {
-                $category = $menuCategory;
-                break;
+        if (null === $category) {
+            $categorySlug = $block['categorySlug'] ?? null;
+            if (\is_string($categorySlug) && '' !== $categorySlug) {
+                foreach ($this->menuCategoryRepository->findAllOrdered($channel) as $menuCategory) {
+                    if (strtolower($menuCategory->getName('en')) === strtolower($categorySlug)) {
+                        $category = $menuCategory;
+                        break;
+                    }
+                }
             }
         }
 

@@ -35,6 +35,7 @@
          data-supported-locales="{{ supportedLocales|json_encode }}"
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
+         data-categories="{{ categories|json_encode }}"
          data-block-types="{{ [
              {value: 'hero', label: 'app.homepage.block_type.hero'|trans, icon: 'bi-megaphone'},
              {value: 'richText', label: 'app.homepage.block_type.rich_text'|trans, icon: 'bi-file-richtext'},
@@ -64,7 +65,8 @@
              content: 'app.cms.form.content'|trans,
              description: 'app.homepage.admin.description'|trans,
              pageSlug: 'app.homepage.admin.page_slug'|trans,
-             categorySlug: 'app.homepage.admin.category_slug'|trans,
+             category: 'app.homepage.admin.category'|trans,
+             selectCategory: 'app.homepage.admin.select_category'|trans,
              limit: 'app.homepage.admin.limit'|trans,
              ctaLabel: 'app.homepage.admin.cta_label'|trans,
              ctaRoute: 'app.homepage.admin.cta_route'|trans,
