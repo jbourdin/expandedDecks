@@ -57,6 +57,64 @@ class StapleCardRepository extends ServiceEntityRepository
     }
 
     /**
+     * Active staples across the given buckets, with the relations needed to render the public
+     * list page eager-loaded in a single query. Returns cards grouped by bucket in the order
+     * the buckets were provided, then by position and cardName within each bucket.
+     *
+     * The eager fetch covers: representativePrinting → tcgdexCard → set → serie, and the
+     * printings collection → cardPrinting → tcgdexCard → set → serie. Without this, rendering
+     * the page issues one query per card for each lazy-loaded relation (N+1).
+     *
+     * @param list<string> $buckets
+     *
+     * @return array<string, list<StapleCard>>
+     */
+    public function findActiveGroupedByBucket(array $buckets, ?int $minHotness = null): array
+    {
+        if ([] === $buckets) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('sc')
+            ->addSelect('representativePrinting', 'representativeTcgdexCard', 'representativeSet', 'representativeSerie')
+            ->addSelect('staplePrinting', 'staplePrintingCard', 'staplePrintingTcgdexCard', 'staplePrintingSet', 'staplePrintingSerie')
+            ->leftJoin('sc.representativePrinting', 'representativePrinting')
+            ->leftJoin('representativePrinting.tcgdexCard', 'representativeTcgdexCard')
+            ->leftJoin('representativeTcgdexCard.set', 'representativeSet')
+            ->leftJoin('representativeSet.serie', 'representativeSerie')
+            ->leftJoin('sc.printings', 'staplePrinting')
+            ->leftJoin('staplePrinting.cardPrinting', 'staplePrintingCard')
+            ->leftJoin('staplePrintingCard.tcgdexCard', 'staplePrintingTcgdexCard')
+            ->leftJoin('staplePrintingTcgdexCard.set', 'staplePrintingSet')
+            ->leftJoin('staplePrintingSet.serie', 'staplePrintingSerie')
+            ->andWhere('sc.bucket IN (:buckets)')
+            ->andWhere('sc.deletedAt IS NULL')
+            ->setParameter('buckets', $buckets)
+            ->orderBy('sc.bucket', 'ASC')
+            ->addOrderBy('sc.position', 'ASC')
+            ->addOrderBy('sc.cardName', 'ASC');
+
+        if (null !== $minHotness) {
+            $qb->andWhere('sc.hotness >= :minHotness')
+                ->setParameter('minHotness', $minHotness);
+        }
+
+        /** @var list<StapleCard> $rows */
+        $rows = $qb->getQuery()->getResult();
+
+        /** @var array<string, list<StapleCard>> $grouped */
+        $grouped = array_fill_keys($buckets, []);
+        foreach ($rows as $card) {
+            $bucket = $card->getBucket();
+            if (\array_key_exists($bucket, $grouped)) {
+                $grouped[$bucket][] = $card;
+            }
+        }
+
+        return $grouped;
+    }
+
+    /**
      * Soft-deleted staples ordered by deletion date desc. Used by the admin "history" tab.
      *
      * @return list<StapleCard>
