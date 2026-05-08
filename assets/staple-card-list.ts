@@ -8,16 +8,18 @@
  */
 
 /**
- * Banned cards public list — modal interactions.
+ * Staple cards public list — modal interactions.
  *
- * Populates the shared #bannedCardModal from the clicked trigger's data
- * attributes, and adds swipe / arrow-key / chevron navigation between
- * banned cards (mirrors the deck card modal in `shared/card-hover.ts`).
+ * Populates the shared #stapleCardModal from the clicked trigger's data
+ * attributes and adds swipe / arrow-key / chevron navigation between
+ * staples (mirrors the banned-card modal in `banned-card-list.ts`).
  *
- * @see docs/features.md F6.14 — Banned cards public page
+ * @see docs/features.md F6.15 — Staple cards
  */
 
-const MODAL_ID = 'bannedCardModal';
+import './styles/app.scss';
+
+const MODAL_ID = 'stapleCardModal';
 const SWIPE_THRESHOLD = 50;
 
 interface PrintingInfo {
@@ -27,14 +29,14 @@ interface PrintingInfo {
 
 const modalElement = document.getElementById(MODAL_ID);
 const triggers = Array.from(
-    document.querySelectorAll<HTMLButtonElement>('.banned-card-trigger'),
+    document.querySelectorAll<HTMLButtonElement>('.staple-card-trigger'),
 );
 
 if (modalElement && triggers.length > 0) {
-    initBannedCardModal(modalElement, triggers);
+    initStapleCardModal(modalElement, triggers);
 }
 
-function initBannedCardModal(modalElement: HTMLElement, triggers: HTMLButtonElement[]): void {
+function initStapleCardModal(modalElement: HTMLElement, triggers: HTMLButtonElement[]): void {
     let currentIndex = 0;
 
     const navigate = (direction: number): void => {
@@ -54,12 +56,12 @@ function initBannedCardModal(modalElement: HTMLElement, triggers: HTMLButtonElem
         populateModal(trigger);
     });
 
-    document.getElementById('bannedCardModalPrev')?.addEventListener('click', () => navigate(-1));
-    document.getElementById('bannedCardModalNext')?.addEventListener('click', () => navigate(1));
+    document.getElementById('stapleCardModalPrev')?.addEventListener('click', () => navigate(-1));
+    document.getElementById('stapleCardModalNext')?.addEventListener('click', () => navigate(1));
 
     const showNavControls = triggers.length > 1;
-    const prevButton = document.getElementById('bannedCardModalPrev');
-    const nextButton = document.getElementById('bannedCardModalNext');
+    const prevButton = document.getElementById('stapleCardModalPrev');
+    const nextButton = document.getElementById('stapleCardModalNext');
     if (prevButton) prevButton.style.display = showNavControls ? '' : 'none';
     if (nextButton) nextButton.style.display = showNavControls ? '' : 'none';
 
@@ -103,13 +105,13 @@ function initBannedCardModal(modalElement: HTMLElement, triggers: HTMLButtonElem
 function populateModal(trigger: HTMLButtonElement): void {
     const name = trigger.dataset.cardName ?? '';
     const image = trigger.dataset.cardImage ?? '';
-    const effectiveDate = trigger.dataset.cardEffectiveDate ?? '';
-    const sourceUrl = trigger.dataset.cardSourceUrl ?? '';
-    const explanationHtml = trigger.dataset.cardExplanation ?? '';
+    const noteHtml = trigger.dataset.cardNote ?? '';
     const printingsJson = trigger.dataset.cardPrintings ?? '[]';
 
-    const titleEl = document.getElementById('bannedCardModalLabel');
-    if (titleEl) titleEl.textContent = name;
+    const titleElement = document.getElementById('stapleCardModalLabel');
+    if (titleElement) {
+        titleElement.textContent = name;
+    }
 
     let printings: PrintingInfo[] = [];
     try {
@@ -126,7 +128,7 @@ function populateModal(trigger: HTMLButtonElement): void {
         printings = [];
     }
 
-    const printingsList = document.getElementById('bannedCardModalPrintings');
+    const printingsList = document.getElementById('stapleCardModalPrintings');
     if (printingsList) {
         printingsList.innerHTML = '';
         printings.forEach((printing) => {
@@ -137,58 +139,29 @@ function populateModal(trigger: HTMLButtonElement): void {
         });
     }
 
-    const imageEl = document.getElementById('bannedCardModalImage') as HTMLImageElement | null;
-    if (imageEl) {
+    const imageElement = document.getElementById('stapleCardModalImage') as HTMLImageElement | null;
+    if (imageElement) {
         if (image) {
-            imageEl.src = image;
-            imageEl.alt = name;
-            imageEl.hidden = false;
+            imageElement.src = image;
+            imageElement.alt = name;
+            imageElement.hidden = false;
         } else {
-            imageEl.removeAttribute('src');
-            imageEl.hidden = true;
+            imageElement.removeAttribute('src');
+            imageElement.hidden = true;
         }
     }
 
-    const effectiveDateLabel = document.getElementById('bannedCardModalEffectiveDateLabel');
-    const effectiveDateEl = document.getElementById('bannedCardModalEffectiveDate');
-    if (effectiveDateLabel && effectiveDateEl) {
-        if (effectiveDate) {
-            effectiveDateEl.textContent = effectiveDate;
-            effectiveDateLabel.hidden = false;
-            effectiveDateEl.hidden = false;
+    const noteLabel = document.getElementById('stapleCardModalNoteLabel');
+    const noteElement = document.getElementById('stapleCardModalNote');
+    if (noteLabel && noteElement) {
+        if (noteHtml) {
+            noteElement.innerHTML = noteHtml;
+            noteLabel.hidden = false;
+            noteElement.hidden = false;
         } else {
-            effectiveDateLabel.hidden = true;
-            effectiveDateEl.hidden = true;
-        }
-    }
-
-    const sourceLabel = document.getElementById('bannedCardModalSourceLabel');
-    const sourceEl = document.getElementById('bannedCardModalSource') as HTMLAnchorElement | null;
-    if (sourceLabel && sourceEl?.parentElement) {
-        if (sourceUrl) {
-            sourceEl.href = sourceUrl;
-            sourceLabel.hidden = false;
-            sourceEl.parentElement.hidden = false;
-        } else {
-            sourceLabel.hidden = true;
-            sourceEl.parentElement.hidden = true;
-        }
-    }
-
-    const explanationLabel = document.getElementById('bannedCardModalExplanationLabel');
-    const explanationEl = document.getElementById('bannedCardModalExplanation');
-    const noExplanationEl = document.getElementById('bannedCardModalNoExplanation');
-    if (explanationLabel && explanationEl && noExplanationEl) {
-        if (explanationHtml) {
-            explanationEl.innerHTML = explanationHtml;
-            explanationLabel.hidden = false;
-            explanationEl.hidden = false;
-            noExplanationEl.hidden = true;
-        } else {
-            explanationEl.innerHTML = '';
-            explanationLabel.hidden = true;
-            explanationEl.hidden = true;
-            noExplanationEl.hidden = false;
+            noteElement.innerHTML = '';
+            noteLabel.hidden = true;
+            noteElement.hidden = true;
         }
     }
 }

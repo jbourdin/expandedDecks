@@ -1,0 +1,123 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.staple_card.list_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_staple_card_list') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.admin.staple_card.list_title'|trans }}</h1>
+        <a href="{{ path('app_admin_staple_card_new') }}" class="btn btn-gold">
+            {{ 'app.admin.staple_card.new'|trans }}
+        </a>
+    </div>
+
+    <p class="text-muted small mb-3">{{ 'app.admin.staple_card.list_hint'|trans }}</p>
+
+    <ul class="nav nav-tabs mb-3">
+        {% for bucket in buckets %}
+            <li class="nav-item">
+                <a class="nav-link {{ currentView == 'active' and currentBucket == bucket ? 'active' : '' }}"
+                   href="{{ path('app_admin_staple_card_list', {bucket: bucket}) }}">
+                    {{ ('app.staple_card.bucket.' ~ bucket)|trans }}
+                </a>
+            </li>
+        {% endfor %}
+        <li class="nav-item ms-auto">
+            <a class="nav-link {{ currentView == 'history' ? 'active' : '' }}"
+               href="{{ path('app_admin_staple_card_list', {view: 'history'}) }}">
+                {{ 'app.admin.staple_card.tab.history'|trans }}
+            </a>
+        </li>
+    </ul>
+
+    {% if cards is empty %}
+        <div class="alert alert-info">
+            {% if currentView == 'history' %}
+                {{ 'app.admin.staple_card.empty.history'|trans }}
+            {% else %}
+                {{ 'app.admin.staple_card.empty.bucket'|trans }}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        {% if currentView == 'active' %}
+                            <th style="width: 32px;"></th>
+                        {% endif %}
+                        <th>{{ 'app.admin.staple_card.field.card_name'|trans }}</th>
+                        <th>{{ 'app.admin.staple_card.field.printings'|trans }}</th>
+                        {% if currentView == 'history' %}
+                            <th>{{ 'app.admin.staple_card.field.bucket'|trans }}</th>
+                            <th>{{ 'app.admin.staple_card.field.deleted_at'|trans }}</th>
+                        {% else %}
+                            <th>{{ 'app.admin.staple_card.field.hotness'|trans }}</th>
+                        {% endif %}
+                        <th class="text-end">{{ 'app.common.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody {% if currentView == 'active' %}id="sortable-staples-{{ currentBucket }}" data-reorder-url="{{ path('app_admin_staple_card_reorder', {bucket: currentBucket}) }}"{% endif %}>
+                    {% for card in cards %}
+                        <tr data-staple-id="{{ card.id }}">
+                            {% if currentView == 'active' %}
+                                <td class="text-muted sortable-handle" style="cursor: grab;">⋮⋮</td>
+                            {% endif %}
+                            <td>{{ card.cardName }}</td>
+                            <td class="small text-muted">
+                                {% for printing in card.printings %}
+                                    <code>{{ printing.setCode }} {{ printing.cardNumber }}</code>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% if currentView == 'history' %}
+                                <td>{{ ('app.admin.staple_card.bucket.' ~ card.bucket)|trans }}</td>
+                                <td>{{ card.deletedAt|user_date }}</td>
+                            {% else %}
+                                <td>{{ card.hotness }}</td>
+                            {% endif %}
+                            <td class="text-end">
+                                <span class="d-inline-flex align-items-center gap-1">
+                                    <a href="{{ path('app_admin_staple_card_edit', {id: card.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                        {{ 'app.common.edit'|trans }}
+                                    </a>
+                                    {% if currentView == 'active' %}
+                                        <form method="post" action="{{ path('app_admin_staple_card_delete', {id: card.id}) }}" class="d-inline inline-confirm-form">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('staple-card-delete-' ~ card.id) }}">
+                                            <button type="button" class="btn btn-sm btn-outline-danger inline-confirm-trigger">
+                                                {{ 'app.admin.staple_card.delete'|trans }}
+                                            </button>
+                                            <span class="inline-confirm-actions d-none">
+                                                <span class="small text-muted me-1">{{ 'app.admin.staple_card.delete_confirm'|trans }}</span>
+                                                <button type="submit" class="btn btn-sm btn-danger">{{ 'app.common.yes'|trans }}</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary inline-confirm-cancel">{{ 'app.common.cancel'|trans }}</button>
+                                            </span>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{{ path('app_admin_staple_card_restore', {id: card.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('staple-card-restore-' ~ card.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                {{ 'app.admin.staple_card.restore'|trans }}
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

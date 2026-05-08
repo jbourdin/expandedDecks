@@ -90,8 +90,6 @@
                                 <img id="bannedCardModalImage" src="" alt="" class="img-fluid rounded">
                             </div>
                             <div class="col-md-7">
-                                <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>
-                                <ul id="bannedCardModalPrintings" class="list-unstyled mb-3"></ul>
                                 <dl class="row mb-3">
                                     <dt class="col-sm-5" id="bannedCardModalEffectiveDateLabel" hidden>{{ 'app.banned_card.modal.effective_date'|trans }}</dt>
                                     <dd class="col-sm-7" id="bannedCardModalEffectiveDate" hidden></dd>
@@ -101,8 +99,10 @@
                                     </dd>
                                 </dl>
                                 <h6 id="bannedCardModalExplanationLabel" hidden>{{ 'app.banned_card.modal.explanation'|trans }}</h6>
-                                <div id="bannedCardModalExplanation" class="banned-card-explanation"></div>
-                                <p id="bannedCardModalNoExplanation" class="text-muted fst-italic" hidden>{{ 'app.banned_card.modal.no_explanation'|trans }}</p>
+                                <div id="bannedCardModalExplanation" class="banned-card-explanation mb-3"></div>
+                                <p id="bannedCardModalNoExplanation" class="text-muted fst-italic mb-3" hidden>{{ 'app.banned_card.modal.no_explanation'|trans }}</p>
+                                <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>
+                                <div id="bannedCardModalPrintings" class="d-flex flex-wrap gap-2 mb-0"></div>
                             </div>
                         </div>
                     </div>

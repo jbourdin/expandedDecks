@@ -13,21 +13,19 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Entity\BannedCard;
-use App\Entity\BannedCardPrinting;
 use App\Entity\CardPrinting;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardPrinting;
 use App\Repository\TcgdexSetRepository;
 
 /**
- * Returns a public-facing image URL for a {@see BannedCard}, walking through
- * its printings to find the lowest-rarity printing that resolves to a working
- * URL. The fallback chain mirrors {@see CardImageResolver}: TCGdex CDN
- * (with dot-stripped set IDs), then PokemonTCG.io, then a TCGdex CDN URL
- * derived from the upstream PTCG set code via {@see TcgdexSet}.
+ * Returns a public-facing image URL for a {@see StapleCard}, walking through
+ * its printings to find the lowest-rarity printing that resolves to a working URL.
+ * The fallback chain mirrors {@see BannedCardImageResolver}.
  *
- * @see docs/features.md F6.14 — Banned cards public page
+ * @see docs/features.md F6.15 — Staple cards
  */
-final readonly class BannedCardImageResolver
+final readonly class StapleCardImageResolver
 {
     private const string TCGDEX_CDN_BASE = 'https://assets.tcgdex.net';
     private const string POKEMONTCG_IO_BASE = 'https://images.pokemontcg.io';
@@ -37,12 +35,7 @@ final readonly class BannedCardImageResolver
     ) {
     }
 
-    /**
-     * Resolves the image URL for a banned card. Honors the admin-set
-     * representative printing first, otherwise picks the lowest-rarity child
-     * printing that yields a non-null URL.
-     */
-    public function resolveForBan(BannedCard $card, string $locale = 'en'): ?string
+    public function resolveForStaple(StapleCard $card, string $locale = 'en'): ?string
     {
         $representative = $card->getRepresentativePrinting();
         if (null !== $representative) {
@@ -54,7 +47,7 @@ final readonly class BannedCardImageResolver
 
         $printings = $card->getPrintings()->toArray();
 
-        usort($printings, static function (BannedCardPrinting $a, BannedCardPrinting $b): int {
+        usort($printings, static function (StapleCardPrinting $a, StapleCardPrinting $b): int {
             $tierA = null !== $a->getCardPrinting() ? $a->getCardPrinting()->getRarityTier() : \PHP_INT_MAX;
             $tierB = null !== $b->getCardPrinting() ? $b->getCardPrinting()->getRarityTier() : \PHP_INT_MAX;
 
@@ -79,7 +72,7 @@ final readonly class BannedCardImageResolver
         return null;
     }
 
-    private function resolveForCardPrinting(CardPrinting $printing, BannedCard $card, string $locale): ?string
+    private function resolveForCardPrinting(CardPrinting $printing, StapleCard $card, string $locale): ?string
     {
         $direct = $printing->getImageUrl();
         if (null !== $direct && '' !== $direct) {
@@ -96,13 +89,11 @@ final readonly class BannedCardImageResolver
             return $pokemonTcgIo;
         }
 
-        // Final fallback uses the upstream PTCG set code from any matching printing
-        // on this banned card.
-        foreach ($card->getPrintings() as $bannedPrinting) {
-            if ($bannedPrinting->getCardPrinting() === $printing) {
+        foreach ($card->getPrintings() as $staplePrinting) {
+            if ($staplePrinting->getCardPrinting() === $printing) {
                 return $this->buildTcgdexCdnFromSetCode(
-                    $bannedPrinting->getSetCode(),
-                    $bannedPrinting->getCardNumber(),
+                    $staplePrinting->getSetCode(),
+                    $staplePrinting->getCardNumber(),
                     $locale,
                 );
             }
