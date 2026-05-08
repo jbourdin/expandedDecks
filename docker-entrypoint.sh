@@ -20,6 +20,10 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
     sleep 0.5
 done
 
+# Seed reserved CMS pages backing the banned/staple listing intro blocks.
+# Idempotent: skips channels that already have the page.
+php bin/console app:listings:seed-intros --env=prod --no-debug 2>/dev/null || true
+
 # Rebuild search indexes from MySQL (ephemeral disk — index lost on restart)
 php bin/console app:search:reindex --env=prod --no-debug 2>/dev/null || true
 

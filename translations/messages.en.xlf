@@ -5732,11 +5732,6 @@
                 <target>Banned cards</target>
                 <note>F6.14 — public banned cards page heading</note>
             </trans-unit>
-            <trans-unit id="app.banned_card.public.subtitle">
-                <source>app.banned_card.public.subtitle</source>
-                <target>Cards currently banned in the Expanded format. Click any card for details and the official announcement.</target>
-                <note>F6.14 — public banned cards page subtitle</note>
-            </trans-unit>
             <trans-unit id="app.banned_card.public.empty">
                 <source>app.banned_card.public.empty</source>
                 <target>No cards are currently banned in the Expanded format.</target>
@@ -5986,11 +5981,6 @@
                 <source>app.staple_card.public.title</source>
                 <target>Staple Cards</target>
                 <note>F6.15 — public list page heading</note>
-            </trans-unit>
-            <trans-unit id="app.staple_card.public.subtitle">
-                <source>app.staple_card.public.subtitle</source>
-                <target>Editor-curated cards that anchor most Expanded decks, grouped by card type.</target>
-                <note>F6.15 — public list page subtitle</note>
             </trans-unit>
             <trans-unit id="app.staple_card.public.empty">
                 <source>app.staple_card.public.empty</source>
@@ -6251,6 +6241,36 @@
                 <source>app.admin.technical.staple_cards.enrich_unresolved</source>
                 <target>Could not resolve: %cards%</target>
                 <note>F6.15 — technical re-enrich partial-success warning flash</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.title">
+                <source>app.admin.technical.search.title</source>
+                <target>Search index</target>
+                <note>F18.1 — technical dashboard search reindex card title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.description">
+                <source>app.admin.technical.search.description</source>
+                <target>Rebuild every Meilisearch index from MySQL. Useful when documents drift from the source data, when the sidecar storage is wiped, or right after a structural change to the indexed fields.</target>
+                <note>F18.1 — technical dashboard search reindex description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.reindex_button">
+                <source>app.admin.technical.search.reindex_button</source>
+                <target>Rebuild search indexes</target>
+                <note>F18.1 — technical dashboard search reindex button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.confirm_reindex">
+                <source>app.admin.technical.search.confirm_reindex</source>
+                <target>This drops every Meilisearch index and rebuilds them from the database. Continue?</target>
+                <note>F18.1 — technical dashboard search reindex confirm prompt</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.success">
+                <source>app.admin.technical.search.success</source>
+                <target>Reindexed %total% documents across %indexes% indexes.</target>
+                <note>F18.1 — technical dashboard search reindex success flash</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.search.unreachable">
+                <source>app.admin.technical.search.unreachable</source>
+                <target>Meilisearch is not reachable — reindex skipped.</target>
+                <note>F18.1 — technical dashboard search reindex unreachable warning</note>
             </trans-unit>
         </body>
     </file>

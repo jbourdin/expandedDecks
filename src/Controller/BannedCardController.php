@@ -13,8 +13,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constants\ListingIntroPage;
 use App\Repository\BannedCardRepository;
+use App\Repository\PageRepository;
+use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\BannedCardImageResolver;
+use App\Service\Channel\ChannelContext;
 use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,9 +38,12 @@ class BannedCardController extends AbstractController
     #[Route('/{_locale}/banned-cards', name: 'app_banned_card_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
     public function list(
         Request $request,
+        ChannelContext $channelContext,
         BannedCardRepository $bannedCardRepository,
         BannedCardImageResolver $imageResolver,
         MarkdownRenderer $markdownRenderer,
+        PageRepository $pageRepository,
+        ArchetypeDescriptionRenderer $contentRenderer,
     ): Response {
         $bannedCards = $bannedCardRepository->findActiveOrderedByEffectiveDate();
         $locale = $request->getLocale();
@@ -57,10 +64,17 @@ class BannedCardController extends AbstractController
             }
         }
 
+        $introPage = $pageRepository->findBySlug(ListingIntroPage::BANNED_CARDS_SLUG, $channelContext->getChannel());
+        $introTranslation = $introPage?->getDisplayTranslation($locale);
+        $introContent = $introTranslation?->getContent() ?? '';
+        $introHtml = '' !== trim($introContent) ? $contentRenderer->render($introContent, $locale) : null;
+
         return $this->render('banned_card/list.html.twig', [
             'bannedCards' => $bannedCards,
             'imageUrls' => $imageUrls,
             'renderedExplanations' => $renderedExplanations,
+            'introHtml' => $introHtml,
+            'introPage' => $introPage,
         ]);
     }
 }

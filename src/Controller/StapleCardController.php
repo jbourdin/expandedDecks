@@ -14,8 +14,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constants\CardHotness;
+use App\Constants\ListingIntroPage;
 use App\Constants\StapleCardBucket;
+use App\Repository\PageRepository;
 use App\Repository\StapleCardRepository;
+use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\Channel\ChannelContext;
 use App\Service\MarkdownRenderer;
 use App\Service\StapleCardImageResolver;
@@ -39,6 +42,8 @@ class StapleCardController extends AbstractController
         StapleCardRepository $stapleCardRepository,
         StapleCardImageResolver $imageResolver,
         MarkdownRenderer $markdownRenderer,
+        PageRepository $pageRepository,
+        ArchetypeDescriptionRenderer $contentRenderer,
     ): Response {
         if (!$channelContext->getChannel()->getEnableStaples()) {
             throw new NotFoundHttpException('Staple cards are not enabled on this channel.');
@@ -73,12 +78,19 @@ class StapleCardController extends AbstractController
             }
         }
 
+        $introPage = $pageRepository->findBySlug(ListingIntroPage::STAPLE_CARDS_SLUG, $channelContext->getChannel());
+        $introTranslation = $introPage?->getDisplayTranslation($locale);
+        $introContent = $introTranslation?->getContent() ?? '';
+        $introHtml = '' !== trim($introContent) ? $contentRenderer->render($introContent, $locale) : null;
+
         return $this->render('staple_card/list.html.twig', [
             'cardsByBucket' => $cardsByBucket,
             'buckets' => StapleCardBucket::ORDER,
             'imageUrls' => $imageUrls,
             'renderedNotes' => $renderedNotes,
             'minHotness' => $minHotness,
+            'introHtml' => $introHtml,
+            'introPage' => $introPage,
         ]);
     }
 }

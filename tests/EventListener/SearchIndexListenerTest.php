@@ -21,6 +21,7 @@ use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Entity\User;
 use App\EventListener\SearchIndexListener;
+use App\Repository\PageRepository;
 use App\Service\Search\SearchIndexer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -41,7 +42,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexArchetype')->with($archetype);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($archetype));
     }
 
@@ -52,7 +53,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexPage')->with($page);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postUpdate($this->createPostUpdateArgs($page));
     }
 
@@ -63,7 +64,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexEvent')->with($event);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($event));
     }
 
@@ -75,7 +76,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexDeck')->with($deck);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($deck));
     }
 
@@ -87,7 +88,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexVariant')->with($deck);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($deck));
     }
 
@@ -100,7 +101,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexArchetype')->with($archetype);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($translation));
     }
 
@@ -113,7 +114,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('indexPage')->with($page);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs($translation));
     }
 
@@ -124,7 +125,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('removeArchetype')->with($archetype);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postRemove($this->createPostRemoveArgs($archetype));
     }
 
@@ -135,7 +136,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('removeVariant')->with($deck);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postRemove($this->createPostRemoveArgs($deck));
     }
 
@@ -147,7 +148,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::once())->method('removeDeck')->with($deck);
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postRemove($this->createPostRemoveArgs($deck));
     }
 
@@ -158,7 +159,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createStub(SearchIndexer::class);
         $indexer->method('indexArchetype')->willThrowException(new \RuntimeException('Connection refused'));
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
 
         // Should not throw
         $listener->postPersist($this->createPostPersistArgs($archetype));
@@ -170,7 +171,7 @@ class SearchIndexListenerTest extends TestCase
         $indexer = $this->createMock(SearchIndexer::class);
         $indexer->expects(self::never())->method(self::anything());
 
-        $listener = new SearchIndexListener($indexer, new NullLogger());
+        $listener = new SearchIndexListener($indexer, $this->createStub(PageRepository::class), new NullLogger());
         $listener->postPersist($this->createPostPersistArgs(new \stdClass()));
     }
 

@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.2] — 2026-05-08
+
+Patch release: editable Markdown intro on the public **Banned cards** and **Staple Cards** pages, both listings newly searchable through Meilisearch, plus a one-click search reindex button on the admin technical dashboard.
+
+### Features
+
+- **Editable intro block on banned and staple cards pages (F11.1 + F18.1)** — replaces the previously hardcoded `app.banned_card.public.subtitle` / `app.staple_card.public.subtitle` translations with admin-editable Markdown content backed by reserved-slug `Page` entries (`banned-cards-intro`, `staple-cards-intro`), centralised in `App\Constants\ListingIntroPage`. Listing controllers fetch the page per channel and render through `ArchetypeDescriptionRenderer`, so `[[archetype:]] / [[deck:]] / [[card:]]` tags work inside the new block. Admin-only "Edit" button sits in each listing's `card-header-themed`; reserved slugs are filtered out of `/admin/pages` while staying reachable via direct URL through the in-page edit button. `SearchIndexer::mapPage` augments the Meilisearch document for these reserved slugs by appending every active card name plus stripped-Markdown note/explanation, so a search for any card on the listing surfaces the listing page; `SearchIndexListener` refreshes those documents on `BannedCard` / `StapleCard` / `*Printing` lifecycle events. `SearchRuntime` and `PageController::show` route reserved-slug links to the canonical listing routes (`/banned-cards`, `/staple-cards`) instead of `app_page_show`. Idempotent `app:listings:seed-intros` console command runs at cold start (wired into `docker-entrypoint.sh` next to the existing search reindex) so a fresh deployment renders the previous subtitle copy under the H1; gated per channel by `enableBannedCards` / `enableStaples`. New "Search index" card on `/admin/technical` (`ROLE_TECHNICAL_ADMIN`) exposes `SearchIndexer::reindexAll()` as a CSRF-protected button with a Meilisearch health pre-check, mirroring the existing `app:search:reindex` CLI. Both listing pages restructured into Bootstrap card blocks (`card-header-themed` + `card-body cms-content`) so the editable region and the actual card mosaics inherit properly-themed surfaces in dark mode and shrink the FOUC blast radius. Old `*.public.subtitle` translation keys removed; their copy moved into the seed-command defaults so existing channels see no UX regression. ([#544](https://github.com/jbourdin/expandedDecks/pull/544))
+
+### Testing & Quality
+
+- **SearchIndexer / SearchRuntime / controller coverage for the listing-intro path** — three reflection-driven `SearchIndexerTest` cases verify the augmented indexed `content` for both reserved slugs and a "must not call repos for unreserved slugs" guard; two `SearchRuntimeTest` cases pin reserved-slug → listing-route URL routing; `BannedCardControllerTest` covers the `card-body.cms-content` rendering, anonymous-hidden + editor-visible Edit button states; `AdminPageControllerTest` covers the admin-list slug filter and direct-URL edit-form reachability. ([#544](https://github.com/jbourdin/expandedDecks/pull/544))
+
+---
+
 ## [1.12.1] — 2026-05-08
 
 Patch release: eliminate the N+1 on the public **Staple Cards** page.

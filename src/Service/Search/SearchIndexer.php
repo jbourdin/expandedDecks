@@ -13,15 +13,18 @@ declare(strict_types=1);
 
 namespace App\Service\Search;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Archetype;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\Page;
 use App\Enum\EventVisibility;
 use App\Repository\ArchetypeRepository;
+use App\Repository\BannedCardRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\PageRepository;
+use App\Repository\StapleCardRepository;
 use Meilisearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -56,6 +59,8 @@ class SearchIndexer
         private readonly PageRepository $pageRepository,
         private readonly EventRepository $eventRepository,
         private readonly DeckRepository $deckRepository,
+        private readonly BannedCardRepository $bannedCardRepository,
+        private readonly StapleCardRepository $stapleCardRepository,
         private readonly LoggerInterface $logger,
     ) {
         $this->client = new Client($meilisearchUrl, $meiliMasterKey);
@@ -395,16 +400,26 @@ class SearchIndexer
     /**
      * Map a page to MeiliSearch documents (one per locale).
      *
+     * Pages whose slug is reserved as a listing intro (banned/staple cards) get
+     * their indexed `content` enriched with the matching listing's card names and
+     * notes, so a search for any card on those pages surfaces the page itself.
+     *
      * @return list<array<string, mixed>>
      */
     private function mapPage(Page $page): array
     {
         $documents = [];
+        $listingExtras = $this->collectListingExtras($page->getSlug());
 
         foreach (self::SUPPORTED_LOCALES as $locale) {
             $translation = $page->getTranslation($locale);
             if (null === $translation) {
                 continue;
+            }
+
+            $content = $this->stripMarkdown($translation->getContent());
+            if ('' !== $listingExtras) {
+                $content = '' === $content ? $listingExtras : $content.' '.$listingExtras;
             }
 
             $documents[] = [
@@ -414,12 +429,45 @@ class SearchIndexer
                 'type' => 'page',
                 'title' => $translation->getTitle(),
                 'slug' => $page->getSlug(),
-                'content' => $this->stripMarkdown($translation->getContent()),
+                'content' => $content,
                 'channelCode' => $page->getChannel()?->getCode(),
             ];
         }
 
         return $documents;
+    }
+
+    /**
+     * Concatenate every active banned/staple card name and note into a single
+     * plain-text blob, so the listing page becomes findable through its contents.
+     */
+    private function collectListingExtras(string $slug): string
+    {
+        if (!ListingIntroPage::isListingSlug($slug)) {
+            return '';
+        }
+
+        $tokens = [];
+
+        if (ListingIntroPage::BANNED_CARDS_SLUG === $slug) {
+            foreach ($this->bannedCardRepository->findActiveOrderedByEffectiveDate() as $card) {
+                $tokens[] = $card->getCardName();
+                $explanation = $card->getExplanation();
+                if (null !== $explanation && '' !== trim($explanation)) {
+                    $tokens[] = $this->stripMarkdown($explanation);
+                }
+            }
+        } elseif (ListingIntroPage::STAPLE_CARDS_SLUG === $slug) {
+            foreach ($this->stapleCardRepository->findAllActive() as $card) {
+                $tokens[] = $card->getCardName();
+                $note = $card->getNote();
+                if (null !== $note && '' !== trim($note)) {
+                    $tokens[] = $this->stripMarkdown($note);
+                }
+            }
+        }
+
+        return trim(implode(' ', $tokens));
     }
 
     /**
