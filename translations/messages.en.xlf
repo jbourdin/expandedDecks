@@ -5769,7 +5769,7 @@
             </trans-unit>
             <trans-unit id="app.banned_card.modal.banned_printings">
                 <source>app.banned_card.modal.banned_printings</source>
-                <target>Banned printings</target>
+                <target>Printings</target>
                 <note>F6.14 — modal section listing every (set, number) banned for the card</note>
             </trans-unit>
             <trans-unit id="app.banned_card.modal.set">
@@ -5824,7 +5824,7 @@
             </trans-unit>
             <trans-unit id="app.admin.banned_card.field.printings">
                 <source>app.admin.banned_card.field.printings</source>
-                <target>Banned printings</target>
+                <target>Printings</target>
                 <note>F6.14 — admin: column / panel listing each (set, number) banned for the card</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.no_printings">
@@ -6049,7 +6049,7 @@
             </trans-unit>
             <trans-unit id="app.staple_card.modal.printings">
                 <source>app.staple_card.modal.printings</source>
-                <target>Available printings</target>
+                <target>Printings</target>
                 <note>F6.15 — public modal section heading</note>
             </trans-unit>
             <trans-unit id="app.staple_card.modal.hotness">
