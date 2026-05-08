@@ -183,6 +183,83 @@ class AdminPageControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
+    public function testListingIntroEditFormHidesDangerZone(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = self::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $reserved = new Page();
+        $reserved->setSlug(ListingIntroPage::BANNED_CARDS_SLUG);
+        $reserved->setChannel($channel);
+        $reserved->setIsPublished(true);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Banned cards intro');
+        $translation->setContent('Body.');
+        $reserved->addTranslation($translation);
+
+        $entityManager->persist($reserved);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/admin/pages/'.$reserved->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(
+            0,
+            $crawler->filter('form[action$="/delete"]'),
+            'Reserved listing-intro pages must not render the delete form.',
+        );
+    }
+
+    public function testDeleteOnListingIntroPageIsRefused(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = self::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $reserved = new Page();
+        $reserved->setSlug(ListingIntroPage::BANNED_CARDS_SLUG);
+        $reserved->setChannel($channel);
+        $reserved->setIsPublished(true);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Banned cards intro');
+        $translation->setContent('Body.');
+        $reserved->addTranslation($translation);
+
+        $entityManager->persist($reserved);
+        $entityManager->flush();
+
+        $reservedId = $reserved->getId();
+        self::assertNotNull($reservedId);
+
+        $this->loginAs('admin@example.com');
+
+        // The reserved-slug guard runs before the CSRF check, so we can probe
+        // it without a session-bound token. This also covers the case where
+        // a CLI/curl request bypasses the rendered form entirely.
+        $this->client->request('POST', '/admin/pages/'.$reservedId.'/delete', ['_token' => 'irrelevant']);
+
+        self::assertResponseRedirects('/admin/pages/'.$reservedId);
+
+        $entityManager->clear();
+        $stillThere = $entityManager->getRepository(Page::class)->find($reservedId);
+        self::assertInstanceOf(Page::class, $stillThere);
+        self::assertNull($stillThere->getDeletedAt(), 'Reserved listing-intro page must not be soft-deleted.');
+    }
+
     private function getPageBySlug(string $slug): Page
     {
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);

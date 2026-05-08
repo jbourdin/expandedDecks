@@ -113,6 +113,16 @@ class MenuRuntime implements RuntimeExtensionInterface
     }
 
     /**
+     * Whether a slug belongs to one of the reserved listing-intro pages
+     * (banned-cards-intro / staple-cards-intro). Exposed for templates that
+     * need to gate destructive UI (delete, slug rename) on these pages.
+     */
+    public function isListingIntroSlug(string $slug): bool
+    {
+        return ListingIntroPage::isListingSlug($slug);
+    }
+
+    /**
      * Whether a reserved listing-intro slug is currently published AND assigned
      * to a menu category for the active channel — used to suppress the
      * hardcoded fallback nav link when the page has been moved into the menu.
