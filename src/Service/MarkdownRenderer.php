@@ -17,6 +17,7 @@ use League\CommonMark\Environment\Environment;
 use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\Extension\Attributes\AttributesExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
 
@@ -33,10 +34,20 @@ class MarkdownRenderer
         $environment = new Environment([
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
+            // External links open in a new tab and gain rel="noopener noreferrer" to
+            // prevent tab-nabbing. Internal links (no host or matching one of the
+            // hosts in `internal_hosts`) keep their default in-tab behaviour.
+            'external_link' => [
+                'open_in_new_window' => true,
+                'nofollow' => '',
+                'noopener' => 'external',
+                'noreferrer' => 'external',
+            ],
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new TableExtension());
         $environment->addExtension(new AttributesExtension());
+        $environment->addExtension(new ExternalLinkExtension());
 
         $this->converter = new MarkdownConverter($environment);
     }
