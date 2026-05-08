@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Page;
+use App\Entity\PageTranslation;
+use App\Repository\ChannelRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AdminPageControllerTest extends AbstractFunctionalTest
@@ -113,6 +116,71 @@ class AdminPageControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects();
         $this->client->followRedirect();
         self::assertSelectorExists('.alert-success');
+    }
+
+    public function testListingIntroSlugsAreHiddenFromAdminList(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = self::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $reserved = new Page();
+        $reserved->setSlug(ListingIntroPage::BANNED_CARDS_SLUG);
+        $reserved->setChannel($channel);
+        $reserved->setIsPublished(true);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Banned cards intro');
+        $translation->setContent('Hidden from admin list.');
+        $reserved->addTranslation($translation);
+
+        $entityManager->persist($reserved);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/admin/pages');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringNotContainsString(
+            ListingIntroPage::BANNED_CARDS_SLUG,
+            $crawler->filter('body')->html(),
+            'Reserved listing intro slugs must not appear in the admin pages list.',
+        );
+    }
+
+    public function testListingIntroEditFormIsStillReachableViaDirectUrl(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = self::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $reserved = new Page();
+        $reserved->setSlug(ListingIntroPage::STAPLE_CARDS_SLUG);
+        $reserved->setChannel($channel);
+        $reserved->setIsPublished(true);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Staple cards intro');
+        $translation->setContent('Reachable via the in-page edit button.');
+        $reserved->addTranslation($translation);
+
+        $entityManager->persist($reserved);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/pages/'.$reserved->getId());
+
+        self::assertResponseIsSuccessful();
     }
 
     private function getPageBySlug(string $slug): Page

@@ -282,6 +282,23 @@
         </div>
     </div>
 
+    {# Search reindex card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.search.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.search.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_search_reindex') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-search-reindex') }}">
+                <button type="submit" class="btn btn-gold"
+                        onclick="return confirm('{{ 'app.admin.technical.search.confirm_reindex'|trans|e('js') }}')">
+                    {{ 'app.admin.technical.search.reindex_button'|trans }}
+                </button>
+            </form>
+        </div>
+    </div>
+
     {# Flush & Re-enrich card — danger zone #}
     <div class="card shadow-sm mb-3 border-danger">
         <div class="card-header bg-danger text-white">

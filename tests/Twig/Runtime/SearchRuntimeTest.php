@@ -85,6 +85,26 @@ class SearchRuntimeTest extends TestCase
         self::assertSame('/', $url);
     }
 
+    public function testSearchResultUrlForBannedCardsListingPageGoesToListing(): void
+    {
+        $runtime = $this->createRuntimeWithExpectedRoute('app_banned_card_list', '/en/banned-cards');
+
+        $result = new SearchResult('page', 'Banned cards', '', 'banned-cards-intro');
+        $url = $runtime->searchResultUrl($result);
+
+        self::assertSame('/en/banned-cards', $url);
+    }
+
+    public function testSearchResultUrlForStapleCardsListingPageGoesToListing(): void
+    {
+        $runtime = $this->createRuntimeWithExpectedRoute('app_staple_card_list', '/en/staple-cards');
+
+        $result = new SearchResult('page', 'Staple Cards', '', 'staple-cards-intro');
+        $url = $runtime->searchResultUrl($result);
+
+        self::assertSame('/en/staple-cards', $url);
+    }
+
     private function createRuntime(string $expectedUrl): SearchRuntime
     {
         $request = Request::create('/');
@@ -95,6 +115,28 @@ class SearchRuntimeTest extends TestCase
 
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturn($expectedUrl);
+
+        return new SearchRuntime($urlGenerator, $requestStack);
+    }
+
+    /**
+     * Build a runtime whose URL generator only returns the expected URL when the
+     * matching route is requested — so a regression that calls the wrong route
+     * (e.g. `app_page_show` instead of `app_banned_card_list`) returns an empty
+     * string and fails the assertion.
+     */
+    private function createRuntimeWithExpectedRoute(string $expectedRoute, string $expectedUrl): SearchRuntime
+    {
+        $request = Request::create('/');
+        $request->setLocale('en');
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturnCallback(
+            static fn (string $route): string => $route === $expectedRoute ? $expectedUrl : '',
+        );
 
         return new SearchRuntime($urlGenerator, $requestStack);
     }

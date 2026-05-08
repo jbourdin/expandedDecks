@@ -25,6 +25,7 @@ use App\Service\BannedCardsSyncService;
 use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
+use App\Service\Search\SearchIndexer;
 use App\Service\Sprite\SpriteMappingSyncService;
 use App\Service\Tcgdex\TcgdexApiThrottle;
 use App\Service\Tcgdex\TcgdexSyncStatusService;
@@ -57,6 +58,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly TcgdexApiThrottle $tcgdexApiThrottle,
         private readonly \App\Repository\StapleCardRepository $stapleCardRepository,
         private readonly \App\Service\StapleCardEnricher $stapleCardEnricher,
+        private readonly SearchIndexer $searchIndexer,
     ) {
         parent::__construct($translator);
     }
@@ -344,6 +346,35 @@ class AdminTechnicalController extends AbstractAppController
                 '%cards%' => implode(', ', $unresolved),
             ]);
         }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * @see docs/features.md F18.1 — Full-text search engine (MeiliSearch sidecar)
+     */
+    #[Route('/search-reindex', name: 'app_admin_technical_search_reindex', methods: ['POST'])]
+    public function searchReindex(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-search-reindex', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        if (!$this->searchIndexer->isHealthy()) {
+            $this->addFlash('warning', 'app.admin.technical.search.unreachable');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $counts = $this->searchIndexer->reindexAll();
+        $total = array_sum($counts);
+
+        $this->addFlash('success', 'app.admin.technical.search.success', [
+            '%total%' => $total,
+            '%indexes%' => \count($counts),
+        ]);
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }
