@@ -17,6 +17,9 @@ use App\Entity\BannedCard;
 use App\Entity\BannedCardPrinting;
 use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
+use App\Entity\Page;
+use App\Entity\PageTranslation;
+use App\Repository\ChannelRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -223,6 +226,71 @@ class BannedCardControllerTest extends AbstractFunctionalTest
             }
         }
         self::assertTrue($found);
+    }
+
+    public function testListRendersEditableIntroBlockWhenPagePresent(): void
+    {
+        $this->seedBannedCardsIntroPage();
+
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        $intro = $crawler->filter('.card-body.cms-content');
+        self::assertSame(1, $intro->count(), 'The editable intro block must render once when the Page exists.');
+        self::assertStringContainsString('<strong>friendly</strong>', $intro->html());
+    }
+
+    public function testEditButtonHiddenForAnonymousVisitors(): void
+    {
+        $this->seedBannedCardsIntroPage();
+
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            0,
+            $crawler->filter('a[href*="/admin/pages/"]')->count(),
+            'Anonymous visitors must not see the intro edit button.',
+        );
+    }
+
+    public function testEditButtonVisibleForCmsEditor(): void
+    {
+        $page = $this->seedBannedCardsIntroPage();
+
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        $editLink = $crawler->filter('a[href="/admin/pages/'.$page->getId().'"]');
+        self::assertSame(1, $editLink->count(), 'CMS editors must see an edit link pointing to the intro page.');
+    }
+
+    private function seedBannedCardsIntroPage(): Page
+    {
+        $em = $this->getEntityManager();
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = static::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel, 'A channel fixture must exist for this test.');
+
+        $page = new Page();
+        $page->setSlug('banned-cards-intro');
+        $page->setChannel($channel);
+        $page->setIsPublished(true);
+        $page->setNoIndex(false);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Banned cards');
+        $translation->setContent('A **friendly** intro to the ban list.');
+        $page->addTranslation($translation);
+
+        $em->persist($page);
+        $em->flush();
+
+        return $page;
     }
 
     public function testListIncludesCanonicalAndHreflang(): void

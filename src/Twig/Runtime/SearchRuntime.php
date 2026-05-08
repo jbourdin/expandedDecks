@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Twig\Runtime;
 
+use App\Constants\ListingIntroPage;
 use App\Service\Search\SearchResult;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -32,6 +33,13 @@ class SearchRuntime implements RuntimeExtensionInterface
     public function searchResultUrl(SearchResult $result): string
     {
         $locale = $this->requestStack->getCurrentRequest()?->getLocale() ?? 'en';
+
+        if ('page' === $result->type && ListingIntroPage::isListingSlug($result->slug)) {
+            $route = ListingIntroPage::routeForSlug($result->slug);
+            if (null !== $route) {
+                return $this->urlGenerator->generate($route, ['_locale' => $locale]);
+            }
+        }
 
         return match ($result->type) {
             'archetype' => $this->urlGenerator->generate('app_archetype_show', ['slug' => $result->slug, '_locale' => $locale]),

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Repository\PageRepository;
@@ -76,6 +77,13 @@ class PageController extends AbstractController
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
     ): Response {
+        if (ListingIntroPage::isListingSlug($slug)) {
+            $route = ListingIntroPage::routeForSlug($slug);
+            if (null !== $route) {
+                return $this->redirectToRoute($route, ['_locale' => $request->getLocale()], Response::HTTP_MOVED_PERMANENTLY);
+            }
+        }
+
         $channel = $request->attributes->get('_channel');
         $page = $pageRepository->findBySlug($slug, $channel instanceof Channel ? $channel : null);
 

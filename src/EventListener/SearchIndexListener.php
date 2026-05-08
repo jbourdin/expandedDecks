@@ -13,12 +13,18 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardPrinting;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardPrinting;
+use App\Repository\PageRepository;
 use App\Service\Search\SearchIndexer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -43,6 +49,7 @@ class SearchIndexListener
 {
     public function __construct(
         private readonly SearchIndexer $searchIndexer,
+        private readonly PageRepository $pageRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -73,6 +80,10 @@ class SearchIndexListener
             } else {
                 $this->searchIndexer->removeDeck($entity);
             }
+        } elseif ($entity instanceof BannedCard || $entity instanceof BannedCardPrinting) {
+            $this->refreshListingIntroPage(ListingIntroPage::BANNED_CARDS_SLUG);
+        } elseif ($entity instanceof StapleCard || $entity instanceof StapleCardPrinting) {
+            $this->refreshListingIntroPage(ListingIntroPage::STAPLE_CARDS_SLUG);
         }
     }
 
@@ -95,12 +106,37 @@ class SearchIndexListener
                 $this->searchIndexer->indexArchetype($entity->getArchetype());
             } elseif ($entity instanceof PageTranslation) {
                 $this->searchIndexer->indexPage($entity->getPage());
+            } elseif ($entity instanceof BannedCard || $entity instanceof BannedCardPrinting) {
+                $this->refreshListingIntroPage(ListingIntroPage::BANNED_CARDS_SLUG);
+            } elseif ($entity instanceof StapleCard || $entity instanceof StapleCardPrinting) {
+                $this->refreshListingIntroPage(ListingIntroPage::STAPLE_CARDS_SLUG);
             }
         } catch (\Throwable $exception) {
             // Search index sync should never break the main application flow
             $this->logger->warning('Search index sync failed: {error}', [
                 'error' => $exception->getMessage(),
                 'entity' => $entity::class,
+            ]);
+        }
+    }
+
+    /**
+     * Refresh the augmented Meilisearch document for a listing intro page.
+     *
+     * Banned/staple card lifecycle changes don't index a card directly — they
+     * update the parent listing page's indexed content (which carries every
+     * card name on that page). One re-index per affected channel-scoped page.
+     */
+    private function refreshListingIntroPage(string $slug): void
+    {
+        try {
+            foreach ($this->pageRepository->findAllBySlug($slug) as $page) {
+                $this->searchIndexer->indexPage($page);
+            }
+        } catch (\Throwable $exception) {
+            $this->logger->warning('Failed to refresh listing intro page {slug}: {error}', [
+                'slug' => $slug,
+                'error' => $exception->getMessage(),
             ]);
         }
     }

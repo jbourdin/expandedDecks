@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Constants\ListingIntroPage;
 use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Entity\Page;
@@ -31,6 +32,26 @@ class PageRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Page::class);
+    }
+
+    /**
+     * Find every page sharing a slug across all channels.
+     *
+     * @return list<Page>
+     */
+    public function findAllBySlug(string $slug): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->leftJoin('p.translations', 't')
+            ->addSelect('t')
+            ->where('p.slug = :slug')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
     }
 
     /**
@@ -179,7 +200,9 @@ class PageRepository extends ServiceEntityRepository
             ->leftJoin('p.translations', 't')
             ->addSelect('t')
             ->leftJoin('p.menuCategory', 'c')
-            ->addSelect('c');
+            ->addSelect('c')
+            ->andWhere('p.slug NOT IN (:reservedSlugs)')
+            ->setParameter('reservedSlugs', ListingIntroPage::SLUGS);
 
         if (null !== $category) {
             $queryBuilder
