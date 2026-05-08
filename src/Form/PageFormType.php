@@ -54,45 +54,47 @@ class PageFormType extends AbstractType
             ]);
         }
 
-        $builder
-            ->add('slug', TextType::class, [
-                'label' => 'app.common.slug',
-                'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
-                'disabled' => $isListingIntro,
-            ])
-            ->add('channel', EntityType::class, [
-                'class' => Channel::class,
-                'choice_label' => 'domain',
-                'label' => 'app.cms.form.channel',
-                'placeholder' => '',
-                'required' => false,
-                'disabled' => $isListingIntro,
-            ])
-            ->add('menuCategory', EntityType::class, [
-                'class' => MenuCategory::class,
-                'label' => 'app.cms.form.menu_category',
-                'required' => false,
-                'placeholder' => 'app.cms.form.no_category',
-                'choice_label' => static fn (MenuCategory $category): string => $category->getName($locale),
-                'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository->createQueryBuilder('c')
-                    ->orderBy('c.position', 'ASC'),
-            ])
-            ->add('isPublished', CheckboxType::class, [
-                'label' => 'app.common.published',
-                'required' => false,
-                'disabled' => $isListingIntro,
-            ])
-            ->add('noIndex', CheckboxType::class, [
-                'label' => 'app.cms.form.no_index',
-                'required' => false,
-                'disabled' => $isListingIntro,
-            ])
-            ->add('ogImage', TextType::class, [
-                'label' => 'app.cms.form.og_image',
-                'required' => false,
-                'empty_data' => null,
-                'disabled' => $isListingIntro,
-            ]);
+        if (!$isListingIntro) {
+            $builder
+                ->add('slug', TextType::class, [
+                    'label' => 'app.common.slug',
+                    'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
+                ])
+                ->add('channel', EntityType::class, [
+                    'class' => Channel::class,
+                    'choice_label' => 'domain',
+                    'label' => 'app.cms.form.channel',
+                    'placeholder' => '',
+                    'required' => false,
+                ]);
+        }
+
+        $builder->add('menuCategory', EntityType::class, [
+            'class' => MenuCategory::class,
+            'label' => 'app.cms.form.menu_category',
+            'required' => false,
+            'placeholder' => 'app.cms.form.no_category',
+            'choice_label' => static fn (MenuCategory $category): string => $category->getName($locale),
+            'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository->createQueryBuilder('c')
+                ->orderBy('c.position', 'ASC'),
+        ]);
+
+        if (!$isListingIntro) {
+            $builder
+                ->add('isPublished', CheckboxType::class, [
+                    'label' => 'app.common.published',
+                    'required' => false,
+                ])
+                ->add('noIndex', CheckboxType::class, [
+                    'label' => 'app.cms.form.no_index',
+                    'required' => false,
+                ])
+                ->add('ogImage', TextType::class, [
+                    'label' => 'app.cms.form.og_image',
+                    'required' => false,
+                    'empty_data' => null,
+                ]);
+        }
 
         // Filter categories by the selected channel
         $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($locale): void {

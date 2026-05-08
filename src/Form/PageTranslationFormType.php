@@ -32,19 +32,20 @@ class PageTranslationFormType extends AbstractType
         /** @var bool $isListingIntro */
         $isListingIntro = $options['is_listing_intro'];
 
-        $builder
-            ->add('title', TextType::class, [
+        if (!$isListingIntro) {
+            $builder->add('title', TextType::class, [
                 'label' => 'app.cms.form.title',
-                'disabled' => $isListingIntro,
-            ])
-            ->add('content', TextareaType::class, [
-                'label' => 'app.cms.form.content',
-                'required' => false,
-                'attr' => [
-                    'rows' => 15,
-                    'placeholder' => 'app.cms.form.content_placeholder',
-                ],
             ]);
+        }
+
+        $builder->add('content', TextareaType::class, [
+            'label' => 'app.cms.form.content',
+            'required' => false,
+            'attr' => [
+                'rows' => 15,
+                'placeholder' => 'app.cms.form.content_placeholder',
+            ],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
