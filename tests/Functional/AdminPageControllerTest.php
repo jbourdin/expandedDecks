@@ -218,6 +218,61 @@ class AdminPageControllerTest extends AbstractFunctionalTest
         );
     }
 
+    public function testListingIntroEditFormIgnoresLockedFieldSubmissions(): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = self::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $reserved = new Page();
+        $reserved->setSlug(ListingIntroPage::BANNED_CARDS_SLUG);
+        $reserved->setChannel($channel);
+        $reserved->setIsPublished(true);
+        $reserved->setNoIndex(false);
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Original title');
+        $translation->setContent('Original content.');
+        $reserved->addTranslation($translation);
+
+        $entityManager->persist($reserved);
+        $entityManager->flush();
+
+        $reservedId = $reserved->getId();
+        self::assertNotNull($reservedId);
+
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/admin/pages/'.$reservedId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.alert-info', 'menu category');
+
+        // The settings form button is "Save" — submit it with attacker-controlled
+        // values for every locked field. Symfony's `disabled => true` ignores the
+        // submitted values and the entity's existing values must persist.
+        $form = $crawler->selectButton('Save')->form();
+        $values = $form->getPhpValues()['page_form'] ?? [];
+        $values['slug'] = 'pwned-slug';
+        $values['isPublished'] = '0';
+        $values['noIndex'] = '1';
+        $values['ogImage'] = 'https://attacker.example/x.png';
+
+        $this->client->request('POST', '/admin/pages/'.$reservedId, ['page_form' => $values]);
+        self::assertResponseRedirects();
+
+        $entityManager->clear();
+        $reloaded = $entityManager->getRepository(Page::class)->find($reservedId);
+        self::assertInstanceOf(Page::class, $reloaded);
+        self::assertSame(ListingIntroPage::BANNED_CARDS_SLUG, $reloaded->getSlug(), 'Slug must remain locked.');
+        self::assertTrue($reloaded->isPublished(), 'Published flag must remain locked.');
+        self::assertFalse($reloaded->isNoIndex(), 'noIndex must remain locked.');
+        self::assertNull($reloaded->getOgImage(), 'ogImage must remain locked.');
+    }
+
     public function testDeleteOnListingIntroPageIsRefused(): void
     {
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);

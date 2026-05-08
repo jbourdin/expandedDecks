@@ -43,6 +43,9 @@ class PageFormType extends AbstractType
         /** @var bool $isCreation */
         $isCreation = $options['is_creation'];
 
+        /** @var bool $isListingIntro */
+        $isListingIntro = $options['is_listing_intro'];
+
         if ($isCreation) {
             $builder->add('title', TextType::class, [
                 'label' => 'app.cms.form.title',
@@ -55,6 +58,7 @@ class PageFormType extends AbstractType
             ->add('slug', TextType::class, [
                 'label' => 'app.common.slug',
                 'attr' => ['placeholder' => 'app.cms.form.slug_placeholder'],
+                'disabled' => $isListingIntro,
             ])
             ->add('channel', EntityType::class, [
                 'class' => Channel::class,
@@ -62,6 +66,7 @@ class PageFormType extends AbstractType
                 'label' => 'app.cms.form.channel',
                 'placeholder' => '',
                 'required' => false,
+                'disabled' => $isListingIntro,
             ])
             ->add('menuCategory', EntityType::class, [
                 'class' => MenuCategory::class,
@@ -75,15 +80,18 @@ class PageFormType extends AbstractType
             ->add('isPublished', CheckboxType::class, [
                 'label' => 'app.common.published',
                 'required' => false,
+                'disabled' => $isListingIntro,
             ])
             ->add('noIndex', CheckboxType::class, [
                 'label' => 'app.cms.form.no_index',
                 'required' => false,
+                'disabled' => $isListingIntro,
             ])
             ->add('ogImage', TextType::class, [
                 'label' => 'app.cms.form.og_image',
                 'required' => false,
                 'empty_data' => null,
+                'disabled' => $isListingIntro,
             ]);
 
         // Filter categories by the selected channel
@@ -116,9 +124,11 @@ class PageFormType extends AbstractType
             'data_class' => Page::class,
             'locale' => 'en',
             'is_creation' => false,
+            'is_listing_intro' => false,
         ]);
 
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('is_creation', 'bool');
+        $resolver->setAllowedTypes('is_listing_intro', 'bool');
     }
 }

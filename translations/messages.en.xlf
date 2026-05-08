@@ -4389,6 +4389,11 @@
                 <target>Deletion locked</target>
                 <note>Heading shown in place of the danger zone for reserved listing-intro pages</note>
             </trans-unit>
+            <trans-unit id="app.cms.admin.listing_intro_locked_fields">
+                <source>app.cms.admin.listing_intro_locked_fields</source>
+                <target>This page backs the editable intro block on a listing page. Only the menu category and the content are editable; slug, channel, title, publish state and SEO fields are locked to keep the listing route working.</target>
+                <note>Banner shown on the edit page for reserved listing-intro pages</note>
+            </trans-unit>
             <trans-unit id="app.cms.admin.delete_locked_listing_intro_help">
                 <source>app.cms.admin.delete_locked_listing_intro_help</source>
                 <target>This page backs the editable intro block on a listing page (banned cards or staple cards) and cannot be deleted. Unpublish it or clear its content instead.</target>

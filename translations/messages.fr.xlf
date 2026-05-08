@@ -4364,6 +4364,11 @@
                 <target>Suppression verrouillée</target>
                 <note>Heading shown in place of the danger zone for reserved listing-intro pages</note>
             </trans-unit>
+            <trans-unit id="app.cms.admin.listing_intro_locked_fields">
+                <source>app.cms.admin.listing_intro_locked_fields</source>
+                <target>Cette page sert de bloc d'introduction éditable à une liste. Seuls la catégorie de menu et le contenu sont modifiables ; le slug, le channel, le titre, la publication et les champs SEO sont verrouillés pour préserver le routage de la liste.</target>
+                <note>Banner shown on the edit page for reserved listing-intro pages</note>
+            </trans-unit>
             <trans-unit id="app.cms.admin.delete_locked_listing_intro_help">
                 <source>app.cms.admin.delete_locked_listing_intro_help</source>
                 <target>Cette page sert de bloc d'introduction éditable à une liste (banned cards ou staples) et ne peut pas être supprimée. Dépubliez-la ou videz son contenu à la place.</target>
