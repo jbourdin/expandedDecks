@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.1] — 2026-05-08
+
+Patch release: eliminate the N+1 on the public **Staple Cards** page.
+
+### Performance
+
+- **Eager-load relations on `/staple-cards`** — the public list page issued **83 DB queries** to render a 7-bucket / ~37-card layout, dominated by per-card lazy loads of `representativePrinting`, the `printings` collection, and the `cardPrinting → tcgdexCard → set → serie` walks inside `StapleCardImageResolver`. New `StapleCardRepository::findActiveGroupedByBucket()` fetches every active staple across every bucket in **one** DQL with `LEFT JOIN`s on the full relation graph the controller and image resolver consume; `StapleCardController::list` calls it once instead of looping `findActiveByBucket()` per bucket. Local profile: 83 → **3** queries (-96%), TTFB 180 → 95 ms. On Scaleway managed MySQL the ~80 saved round-trips × ~7 ms RTT shave **~0.5–0.6 s** off page load. Response body is byte-identical pre/post. ([#542](https://github.com/jbourdin/expandedDecks/pull/542))
+
+---
+
 ## [1.12.0] — 2026-05-08
 
 Minor release: editor-curated **Staple Cards** (F6.15) ship as a full feature — admin CRUD, public per-bucket grids, technical re-enrich, 36 seeded entries from the editor team. Plus the user-controlled **light/dark/auto theme switcher** (F20.1 follow-up), four homepage / CMS bug fixes (latest-pages block accuracy, ordering, category selector, rich text new-tab links), and a dark-mode heading fix.
