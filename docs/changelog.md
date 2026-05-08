@@ -16,6 +16,29 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.3] — 2026-05-08
+
+Patch release: hardens the **listing-intro CMS pages** that shipped in 1.12.2 — non-editable fields are now locked and hidden, the reserved pages can no longer be deleted, and they route through their menu category when one is set. Plus three Mantine dark-mode fixes and a security bump for `fast-uri`.
+
+### Features
+
+- **Route listing-intro pages through their menu category (F11.1)** — when a reserved listing-intro page (`banned-cards-intro`, `staple-cards-intro`) has a `MenuCategory` assigned, links to the listing now go through the category's URL instead of the bare `/banned-cards` / `/staple-cards` route. `MenuRuntime` resolves the canonical link via `PageRepository`, falling back to the listing route when no category is bound. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Block deletion of reserved listing-intro pages** — `AdminPageController::delete` now refuses to remove a page whose slug is one of the `ListingIntroPage` reserved constants, with a translated flash message. Closes the obvious data-loss footgun for editors browsing the admin page list. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Lock non-editable fields on listing-intro pages** — `PageFormType` / `PageTranslationFormType` mark slug, status, and channel as locked when editing a reserved-slug page; the form binds them as `disabled` so they survive submit without being mutable. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Hide locked fields on listing-intro pages instead of disabling** — follow-up polish: the locked rows are removed from the rendered template (`templates/admin/page/edit.html.twig`) rather than greyed out, since editors can't act on them anyway. Cleaner edit form for the reserved pages. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+
+### Bug Fixes
+
+- **Mantine RichTextEditor dark-theme overrides** — extend the `[data-bs-theme="dark"]` overrides to the toolbar buttons, content area, and link popover surfaces of the Mantine RichTextEditor so the admin page edit form reads correctly in dark mode. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Bridge Mantine color scheme to `data-bs-theme`** — `AppMantineProvider` now mirrors Mantine's resolved color scheme onto `<html data-bs-theme>` so Bootstrap and Mantine surfaces stay in lock-step when the user switches themes via the footer toggle. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+- **Break feedback loop in Mantine color-scheme manager** — the bridge above caused a write-read-write loop when both Mantine and the inline pre-paint script tried to own `data-bs-theme`. Guard the bridge so it only writes when the resolved scheme actually differs from the current attribute value. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+
+### Infrastructure
+
+- **Bump `fast-uri` to 3.1.2** — clears the GHSA high-severity advisory for `fast-uri < 3.0.6` that Dependabot flagged on `develop`. Transitive via `ajv` → JSON-Schema validation in build tooling; no runtime impact. ([#546](https://github.com/jbourdin/expandedDecks/pull/546))
+
+---
+
 ## [1.12.2] — 2026-05-08
 
 Patch release: editable Markdown intro on the public **Banned cards** and **Staple Cards** pages, both listings newly searchable through Meilisearch, plus a one-click search reindex button on the admin technical dashboard.
