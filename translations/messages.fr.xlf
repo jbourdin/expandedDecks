@@ -4707,6 +4707,16 @@
                 <source>app.homepage.admin.category_slug</source>
                 <target>Nom de catégorie</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.category">
+                <source>app.homepage.admin.category</source>
+                <target>Catégorie</target>
+                <note>#536 — latest-pages block category-selector label</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.select_category">
+                <source>app.homepage.admin.select_category</source>
+                <target>Sélectionner une catégorie…</target>
+                <note>#536 — latest-pages block category-selector placeholder</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.limit">
                 <source>app.homepage.admin.limit</source>
                 <target>Nombre max</target>

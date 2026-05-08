@@ -31,6 +31,11 @@ interface Labels {
 type BlockData = Record<string, unknown>;
 type TranslationsMap = Record<string, Record<string, Record<string, unknown>>>;
 
+interface CategoryInfo {
+    id: number;
+    name: string;
+}
+
 interface HomepageEditorProps {
     saveUrl: string;
     previewUrl: string;
@@ -40,6 +45,7 @@ interface HomepageEditorProps {
     initialBlocks: BlockData[];
     initialTranslations: TranslationsMap;
     blockTypes: BlockTypeInfo[];
+    categories: CategoryInfo[];
     labels: Labels;
 }
 
@@ -51,6 +57,7 @@ export default function HomepageEditor({
     initialBlocks,
     initialTranslations,
     blockTypes,
+    categories,
     labels,
 }: HomepageEditorProps) {
     const [blocks, setBlocks] = useState<BlockData[]>(initialBlocks);
@@ -337,6 +344,7 @@ export default function HomepageEditor({
                     supportedLocales={supportedLocales}
                     labels={labels}
                     blockTypes={blockTypes}
+                    categories={categories}
                     uploadUrl={uploadUrl}
                     onSave={(updatedBlock, updatedTranslations) => handleSaveBlock(editingIndex, updatedBlock, updatedTranslations)}
                     onClose={() => setEditingIndex(null)}

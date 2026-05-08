@@ -98,7 +98,28 @@ class PageRepositoryTest extends AbstractFunctionalTest
 
         $pages = $repository->findPublishedByCategory($newsCategory, 2);
 
-        self::assertLessThanOrEqual(2, \count($pages));
+        // News category has ≥ 8 published pages in fixtures so a limit of 2 must
+        // yield exactly 2 root entities. Before #534 this asserted only `<= 2`
+        // because the JOIN-with-translations + setMaxResults bug could produce
+        // 0-2 pages depending on translation count.
+        self::assertCount(2, $pages);
+    }
+
+    public function testFindPublishedByCategoryRespectsLimitDespiteJoinedTranslations(): void
+    {
+        $repository = $this->getRepository();
+        $newsCategory = $this->getNewsCategoryFromDatabase();
+
+        // With Doctrine's Paginator (fetchJoinCollection), LIMIT applies to root
+        // Page entities, not the joined Page × Translation rows. With 2 translations
+        // per page (en + fr) the legacy `setMaxResults` would have produced ≤ 5/2
+        // pages — this test is the regression-proof for #534.
+        $pages = $repository->findPublishedByCategory($newsCategory, 5);
+
+        self::assertCount(5, $pages);
+        foreach ($pages as $page) {
+            self::assertGreaterThanOrEqual(1, $page->getTranslations()->count());
+        }
     }
 
     public function testFindPublishedByCategoryReturnsAllWhenNoLimit(): void

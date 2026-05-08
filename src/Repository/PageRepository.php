@@ -18,6 +18,7 @@ use App\Entity\MenuCategory;
 use App\Entity\Page;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -57,7 +58,13 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find published pages in a given menu category, ordered by creation date (newest first).
+     * Find published pages in a given menu category, ordered by admin-defined position
+     * (with creation date as tiebreaker), with translations eagerly loaded.
+     *
+     * Uses Doctrine's Paginator when a limit is set so LIMIT applies to root entities
+     * (not SQL rows after the translations JOIN). Without Paginator, `setMaxResults($limit)`
+     * truncates the joined-rows result, yielding fewer than $limit pages once Doctrine
+     * deduplicates by Page.id.
      *
      * @return list<Page>
      */
@@ -70,14 +77,25 @@ class PageRepository extends ServiceEntityRepository
             ->andWhere('p.isPublished = true')
             ->andWhere('p.deletedAt IS NULL')
             ->setParameter('category', $category)
-            ->orderBy('p.createdAt', 'DESC');
+            ->orderBy('p.position', 'ASC')
+            ->addOrderBy('p.createdAt', 'DESC');
 
-        if (null !== $limit) {
-            $queryBuilder->setMaxResults($limit);
+        if (null === $limit) {
+            /** @var list<Page> $pages */
+            $pages = $queryBuilder->getQuery()->getResult();
+
+            return $pages;
         }
 
-        /** @var list<Page> $pages */
-        $pages = $queryBuilder->getQuery()->getResult();
+        $queryBuilder->setMaxResults($limit);
+
+        $paginator = new Paginator($queryBuilder->getQuery(), fetchJoinCollection: true);
+        $pages = [];
+        foreach ($paginator as $page) {
+            if ($page instanceof Page) {
+                $pages[] = $page;
+            }
+        }
 
         return $pages;
     }
