@@ -53,14 +53,11 @@ class StapleCardController extends AbstractController
 
         $locale = $request->getLocale();
 
-        $cardsByBucket = [];
+        $cardsByBucket = $stapleCardRepository->findActiveGroupedByBucket(StapleCardBucket::ORDER, $minHotness);
         $imageUrls = [];
         $renderedNotes = [];
 
-        foreach (StapleCardBucket::ORDER as $bucket) {
-            $cards = $stapleCardRepository->findActiveByBucket($bucket, $minHotness);
-            $cardsByBucket[$bucket] = $cards;
-
+        foreach ($cardsByBucket as $cards) {
             foreach ($cards as $card) {
                 $id = $card->getId();
                 if (null === $id) {
