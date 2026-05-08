@@ -875,4 +875,49 @@ footer {
     .mantine-RichTextEditor-content .selectedCell {
         background-color: var(--ed-border-faint);
     }
+
+    // Mantine RichTextEditor doesn't read Bootstrap's data-bs-theme attribute,
+    // so its surfaces stay white over the dark page. Pin the editor chrome and
+    // the contenteditable area to our theme tokens.
+    /* stylelint-disable selector-class-pattern */
+    .mantine-RichTextEditor-root {
+        background-color: var(--ed-surface-elevated);
+        border-color: var(--ed-border-faint);
+        color: var(--bs-body-color);
+    }
+
+    .mantine-RichTextEditor-toolbar {
+        background-color: var(--ed-overlay-soft);
+        border-color: var(--ed-border-faint);
+        color: var(--bs-body-color);
+    }
+
+    .mantine-RichTextEditor-control {
+        background-color: transparent;
+        border-color: var(--ed-border-faint);
+        color: var(--bs-body-color);
+
+        &:hover {
+            background-color: var(--ed-overlay-medium);
+        }
+
+        &[data-active="true"] {
+            background-color: var(--ed-overlay-medium);
+            color: var(--bs-body-color);
+        }
+    }
+
+    .mantine-RichTextEditor-content {
+        background-color: var(--ed-surface-elevated);
+        color: var(--bs-body-color);
+
+        .ProseMirror {
+            color: var(--bs-body-color);
+        }
+
+        a {
+            color: var(--ed-gold);
+        }
+    }
+    /* stylelint-enable selector-class-pattern */
 }
