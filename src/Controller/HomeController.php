@@ -64,6 +64,7 @@ class HomeController extends AbstractController
 
             return $this->render('home/blocks.html.twig', [
                 'blocks' => $blocks,
+                'ogImage' => $layout->getOgImage(),
             ]);
         }
 

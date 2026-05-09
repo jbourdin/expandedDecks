@@ -17,6 +17,7 @@
 {% block opengraph %}
     {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = self_canonical_url('app_home') %}
+    {% set og_image = channel_param('og_default_image', '') %}
     {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 

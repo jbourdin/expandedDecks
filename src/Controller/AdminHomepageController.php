@@ -82,13 +82,17 @@ class AdminHomepageController extends AbstractAppController
     #[Route('/save', name: 'app_admin_homepage_save', methods: ['POST'])]
     public function save(Request $request, ChannelRepository $channelRepository): JsonResponse
     {
-        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string} $payload */
+        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string, ogImage?: string|null} $payload */
         $payload = json_decode((string) $request->getContent(), true);
 
         $blocks = $payload['blocks'];
         $translations = $payload['translations'];
         $channelCode = $payload['channelCode'] ?? '';
         $channel = '' !== $channelCode ? $channelRepository->findByCode($channelCode) : null;
+        $ogImage = $payload['ogImage'] ?? null;
+        if (\is_string($ogImage)) {
+            $ogImage = '' === trim($ogImage) ? null : $ogImage;
+        }
 
         $layout = $this->layoutRepository->findPublished($channel);
 
@@ -100,6 +104,7 @@ class AdminHomepageController extends AbstractAppController
         }
 
         $layout->setBlocks($blocks);
+        $layout->setOgImage($ogImage);
 
         // Update translations per locale
         foreach (self::SUPPORTED_LOCALES as $locale) {
