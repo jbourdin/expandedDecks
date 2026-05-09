@@ -11,44 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {# F20.1 — Resolve color scheme (stored preference > OS) and mirror it onto the document before first paint. #}
-        <script>
-            (function () {
-                var STORAGE_KEY = 'ed-theme';
-                var media = window.matchMedia('(prefers-color-scheme: dark)');
-                var readMode = function () {
-                    try {
-                        var stored = window.localStorage.getItem(STORAGE_KEY);
-                        if (stored === 'light' || stored === 'dark' || stored === 'auto') {
-                            return stored;
-                        }
-                    } catch (error) { /* localStorage unavailable (private mode, disabled) — fall through to auto */ }
-                    return 'auto';
-                };
-                var resolve = function (mode) {
-                    if (mode === 'light' || mode === 'dark') { return mode; }
-                    return media.matches ? 'dark' : 'light';
-                };
-                var paint = function (mode) {
-                    var scheme = resolve(mode);
-                    document.documentElement.setAttribute('data-bs-theme', scheme);
-                    document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
-                };
-                var currentMode = readMode();
-                paint(currentMode);
-                media.addEventListener('change', function () {
-                    if (readMode() === 'auto') { paint('auto'); }
-                });
-                window.__edTheme = {
-                    get: readMode,
-                    apply: function (mode) {
-                        if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') { return; }
-                        try { window.localStorage.setItem(STORAGE_KEY, mode); } catch (error) { /* ignore */ }
-                        paint(mode);
-                    }
-                };
-            })();
-        </script>
+        {{ include('_partials/theme_color_scheme_script.html.twig') }}
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block canonical %}{% endblock %}
@@ -80,7 +43,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">{{ channel_param('brand_name', 'Expanded Decks') }}</a>
+                {{ include('_partials/navbar_brand.html.twig', {homeUrl: path('app_home')}) }}
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -310,19 +273,8 @@
                             {% endif %}
                         {% endfor %}
                     {% endif %}
-                    <div class="col-sm-4 col-md-3 ms-md-auto" data-theme-switcher>
-                        <h6 class="text-uppercase mb-2">{{ 'app.theme.heading'|trans }}</h6>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.theme.aria_label'|trans }}">
-                            <button type="button" class="btn btn-outline-secondary" data-theme-value="light" title="{{ 'app.theme.light'|trans }}" aria-label="{{ 'app.theme.light'|trans }}">
-                                <i class="bi bi-sun-fill" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" data-theme-value="auto" title="{{ 'app.theme.auto'|trans }}" aria-label="{{ 'app.theme.auto'|trans }}">
-                                <i class="bi bi-circle-half" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" data-theme-value="dark" title="{{ 'app.theme.dark'|trans }}" aria-label="{{ 'app.theme.dark'|trans }}">
-                                <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
-                            </button>
-                        </div>
+                    <div class="col-sm-4 col-md-3 ms-md-auto">
+                        {{ include('_partials/theme_switcher.html.twig') }}
                     </div>
                 </div>
                 {% if footerCategories is not empty %}

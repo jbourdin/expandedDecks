@@ -56,6 +56,12 @@ a {
     color: $cs-sand !important;
 }
 
+.navbar-brand-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
 // Hero
 .hero-pokemon {
     background: linear-gradient(135deg, $cs-slate 0%, color.adjust($cs-slate, $lightness: 10%) 100%);

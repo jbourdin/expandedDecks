@@ -1,0 +1,20 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Renders the Expanded Talks logo to the left of the brand name.
+ # Overrides templates/_partials/navbar_brand.html.twig.
+ #}
+<a class="navbar-brand fw-bold d-inline-flex align-items-center gap-2" href="{{ homeUrl }}">
+    <img src="{{ asset('build/images/themes/expandedtalks/logo.png') }}"
+         alt=""
+         title="Dowsing Machine (ill. Ryo Ueda)"
+         class="navbar-brand-logo"
+         width="48"
+         height="48">
+    <span>{{ channel_param('brand_name', 'Expanded Decks') }}</span>
+</a>

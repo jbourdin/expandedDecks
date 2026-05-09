@@ -1,0 +1,50 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # F20.1 — Resolve color scheme (stored preference > OS) and mirror it onto
+ # the document before first paint. Must be inlined in <head> before any
+ # stylesheet to avoid a flash of wrong-theme. Exposes window.__edTheme as
+ # the contract for the theme switcher buttons (see _partials/theme_switcher).
+ #}
+<script>
+    (function () {
+        var STORAGE_KEY = 'ed-theme';
+        var media = window.matchMedia('(prefers-color-scheme: dark)');
+        var readMode = function () {
+            try {
+                var stored = window.localStorage.getItem(STORAGE_KEY);
+                if (stored === 'light' || stored === 'dark' || stored === 'auto') {
+                    return stored;
+                }
+            } catch (error) { /* localStorage unavailable (private mode, disabled) — fall through to auto */ }
+            return 'auto';
+        };
+        var resolve = function (mode) {
+            if (mode === 'light' || mode === 'dark') { return mode; }
+            return media.matches ? 'dark' : 'light';
+        };
+        var paint = function (mode) {
+            var scheme = resolve(mode);
+            document.documentElement.setAttribute('data-bs-theme', scheme);
+            document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+        };
+        var currentMode = readMode();
+        paint(currentMode);
+        media.addEventListener('change', function () {
+            if (readMode() === 'auto') { paint('auto'); }
+        });
+        window.__edTheme = {
+            get: readMode,
+            apply: function (mode) {
+                if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') { return; }
+                try { window.localStorage.setItem(STORAGE_KEY, mode); } catch (error) { /* ignore */ }
+                paint(mode);
+            }
+        };
+    })();
+</script>

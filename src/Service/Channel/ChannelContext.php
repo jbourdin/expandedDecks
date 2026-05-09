@@ -35,12 +35,18 @@ final readonly class ChannelContext
     /**
      * Returns the Channel for the current HTTP request.
      *
+     * Reads from the *main* request rather than the current one so the
+     * channel remains accessible during exception rendering (Symfony's
+     * ErrorListener handles errors via a sub-request whose attribute bag
+     * is replaced, dropping `_channel`) and inside ESI / render(controller)
+     * fragments that inherit the parent request's channel.
+     *
      * @throws \LogicException if called outside a request context (e.g. CLI)
      *                         or if no channel was resolved by the listener
      */
     public function getChannel(): Channel
     {
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->requestStack->getMainRequest();
 
         if (null === $request) {
             throw new \LogicException('ChannelContext cannot be used outside an HTTP request.');
