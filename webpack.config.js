@@ -54,6 +54,12 @@ Encore
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
 
+    .copyFiles({
+        from: './assets/images',
+        to: 'images/[path][name].[hash:8].[ext]',
+        pattern: /\.(png|jpe?g|svg|webp|gif)$/,
+    })
+
     .cleanupOutputBeforeBuild()
     .enableSourceMaps(!Encore.isProduction())
     .enableVersioning(Encore.isProduction())
