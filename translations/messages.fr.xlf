@@ -4801,6 +4801,26 @@
                 <source>app.homepage.admin.event_id</source>
                 <target>ID de l'événement</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.layout_settings">
+                <source>app.homepage.admin.layout_settings</source>
+                <target>Paramètres de la page d'accueil</target>
+                <note>#554 — heading for the layout-level settings panel above the block list</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_image.label">
+                <source>app.homepage.admin.og_image.label</source>
+                <target>Image Open Graph</target>
+                <note>#554 — admin label for the homepage social-share image</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_image.help">
+                <source>app.homepage.admin.og_image.help</source>
+                <target>Image affichée lorsque la page d'accueil est partagée sur les réseaux sociaux (1200×630 recommandé).</target>
+                <note>#554 — admin helper text under the OG image field</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.og_image_url_format">
+                <source>app.homepage.og_image_url_format</source>
+                <target>L'image Open Graph doit être un chemin relatif ou une URL absolue (http ou https).</target>
+                <note>#554 — validation message mirroring app.cms.og_image_url_format for HomepageLayout.ogImage</note>
+            </trans-unit>
             <trans-unit id="app.homepage.view_deck">
                 <source>app.homepage.view_deck</source>
                 <target>Voir le deck</target>

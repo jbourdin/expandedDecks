@@ -38,6 +38,7 @@ if (root) {
     const previewUrl = root.dataset.previewUrl ?? '';
     const uploadUrl = root.dataset.uploadUrl ?? '';
     const channelCode = root.dataset.channelCode ?? '';
+    const initialOgImage = root.dataset.ogImage ?? '';
 
     let supportedLocales: string[] = ['en', 'fr'];
     let initialBlocks: Record<string, unknown>[] = [];
@@ -80,6 +81,7 @@ if (root) {
                 supportedLocales={supportedLocales}
                 initialBlocks={initialBlocks}
                 initialTranslations={initialTranslations}
+                initialOgImage={initialOgImage}
                 blockTypes={blockTypes}
                 categories={categories}
                 labels={labels}

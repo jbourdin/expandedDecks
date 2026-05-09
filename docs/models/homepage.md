@@ -19,6 +19,8 @@ Stores the ordered list of homepage blocks and their non-translatable settings. 
 | `id`          | `int` (auto)        | No       | Primary key |
 | `blocks`      | `json`              | No       | Ordered list of block definitions (see Block Structure below). |
 | `isPublished` | `bool`              | No       | Whether this layout is the active homepage. Default: `false`. |
+| `channel`     | `Channel\|null`     | Yes      | Channel this layout belongs to (F18.10). |
+| `ogImage`     | `string(255)\|null` | Yes      | Open Graph image URL rendered on the homepage when the layout is published. Validated against `^(/\|https?://)`. Falls back to the channel's `og_default_image` parameter when null (#554). |
 | `createdAt`   | `DateTimeImmutable`  | No      | Creation timestamp. |
 | `updatedAt`   | `DateTimeImmutable`  | Yes     | Last modification timestamp. |
 

@@ -34,6 +34,7 @@
          data-upload-url="{{ path('app_editor_upload_image') }}"
          data-supported-locales="{{ supportedLocales|json_encode }}"
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
+         data-og-image="{{ layout and layout.ogImage ? layout.ogImage : '' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
          data-categories="{{ categories|json_encode }}"
          data-block-types="{{ [
@@ -83,6 +84,9 @@
              addItem: 'app.homepage.admin.add_item'|trans,
              shortTag: 'app.homepage.admin.short_tag'|trans,
              eventId: 'app.homepage.admin.event_id'|trans,
+             ogImage: 'app.homepage.admin.og_image.label'|trans,
+             ogImageHelp: 'app.homepage.admin.og_image.help'|trans,
+             layoutSettings: 'app.homepage.admin.layout_settings'|trans,
          }|json_encode }}">
     </div>
 {% endblock %}

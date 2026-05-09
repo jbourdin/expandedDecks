@@ -17,6 +17,7 @@ use App\Repository\HomepageLayoutRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores the homepage block layout as a JSON structure.
@@ -51,6 +52,11 @@ class HomepageLayout
     #[ORM\ManyToOne(targetEntity: Channel::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Channel $channel = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '#^(/|https?://)#', message: 'app.homepage.og_image_url_format')]
+    private ?string $ogImage = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -111,6 +117,18 @@ class HomepageLayout
     public function setChannel(?Channel $channel): static
     {
         $this->channel = $channel;
+
+        return $this;
+    }
+
+    public function getOgImage(): ?string
+    {
+        return $this->ogImage;
+    }
+
+    public function setOgImage(?string $ogImage): static
+    {
+        $this->ogImage = $ogImage;
 
         return $this;
     }
