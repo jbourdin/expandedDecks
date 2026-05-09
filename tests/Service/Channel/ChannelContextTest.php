@@ -77,4 +77,24 @@ final class ChannelContextTest extends TestCase
 
         $context->getChannel();
     }
+
+    public function testGetChannelReadsFromMainRequestInsideSubRequest(): void
+    {
+        $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip');
+
+        $mainRequest = new Request();
+        $mainRequest->attributes->set('_channel', $channel);
+
+        // Symfony's ErrorListener creates a sub-request with a fresh
+        // attribute bag (replaces, not merges), so `_channel` is absent here.
+        $subRequest = new Request();
+
+        $requestStack = new RequestStack();
+        $requestStack->push($mainRequest);
+        $requestStack->push($subRequest);
+
+        $context = new ChannelContext($requestStack);
+
+        self::assertSame($channel, $context->getChannel());
+    }
 }

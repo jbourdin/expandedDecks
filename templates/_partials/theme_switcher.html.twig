@@ -1,0 +1,27 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # F20.1 — Light / auto / dark theme switcher. Layout-agnostic: the caller
+ # is responsible for its own grid / centering wrapper. The data-theme-switcher
+ # attribute on the inner div is what assets/app.tsx looks for to wire clicks
+ # to window.__edTheme.apply (set up by _partials/theme_color_scheme_script).
+ #}
+<div data-theme-switcher>
+    <h6 class="text-uppercase mb-2">{{ 'app.theme.heading'|trans }}</h6>
+    <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.theme.aria_label'|trans }}">
+        <button type="button" class="btn btn-outline-secondary" data-theme-value="light" title="{{ 'app.theme.light'|trans }}" aria-label="{{ 'app.theme.light'|trans }}">
+            <i class="bi bi-sun-fill" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-theme-value="auto" title="{{ 'app.theme.auto'|trans }}" aria-label="{{ 'app.theme.auto'|trans }}">
+            <i class="bi bi-circle-half" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-theme-value="dark" title="{{ 'app.theme.dark'|trans }}" aria-label="{{ 'app.theme.dark'|trans }}">
+            <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
