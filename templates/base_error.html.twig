@@ -28,7 +28,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="/">{{ channel_param('brand_name', 'Expanded Decks') }}</a>
+                {{ include('_partials/navbar_brand.html.twig', {homeUrl: '/'}) }}
             </div>
         </nav>
 

@@ -80,7 +80,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark navbar-pokemon">
             <div class="container">
-                {{ include('_partials/navbar_brand.html.twig') }}
+                {{ include('_partials/navbar_brand.html.twig', {homeUrl: path('app_home')}) }}
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
