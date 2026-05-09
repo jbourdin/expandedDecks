@@ -15,6 +15,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {{ include('_partials/theme_color_scheme_script.html.twig') }}
         <title>{% block title %}Error — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% block stylesheets %}
@@ -38,10 +39,15 @@
 
         <footer class="footer-pokemon py-3 mt-auto">
             <div class="container text-center">
+                <div class="d-flex justify-content-center mb-2">
+                    {{ include('_partials/theme_switcher.html.twig') }}
+                </div>
                 &copy; {{ 'now'|date('Y') }} {{ channel_param('brand_name', 'Expanded Decks') }}
             </div>
         </footer>
 
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
     </body>
 </html>
