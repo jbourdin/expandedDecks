@@ -3908,6 +3908,21 @@
                 <target>Brouillons</target>
                 <note>Filter button to show only unpublished archetypes (editors only)</note>
             </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.label">
+                <source>app.archetype.tags_mode.label</source>
+                <target>Combiner les tags :</target>
+                <note>#548 — label for the AND/OR toggle on the archetype catalog (visible only when 2+ tags selected)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.and">
+                <source>app.archetype.tags_mode.and</source>
+                <target>Tous</target>
+                <note>#548 — toggle button: archetypes must match every selected tag (default)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.or">
+                <source>app.archetype.tags_mode.or</source>
+                <target>Au moins un</target>
+                <note>#548 — toggle button: archetypes match at least one selected tag</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_by">
                 <source>app.archetype.sort_by</source>
                 <target>Trier par</target>

@@ -38,6 +38,7 @@ class ArchetypeCatalogController extends AbstractController
             $allTags = [];
             $tags = [];
             $sort = 'name';
+            $tagsMode = 'and';
         } else {
             /** @var list<string> $tags */
             $tags = $request->query->all('tags');
@@ -48,7 +49,12 @@ class ArchetypeCatalogController extends AbstractController
                 $sort = 'position';
             }
 
-            $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort);
+            $tagsMode = $request->query->getString('tagsMode', 'and');
+            if (!\in_array($tagsMode, ['and', 'or'], true)) {
+                $tagsMode = 'and';
+            }
+
+            $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort, $tagsMode);
             $allTags = $archetypeRepository->findAllPublishedPlaystyleTags();
         }
 
@@ -57,6 +63,7 @@ class ArchetypeCatalogController extends AbstractController
             'allTags' => $allTags,
             'currentTags' => $tags,
             'currentSort' => $sort,
+            'currentTagsMode' => $tagsMode,
             'showDrafts' => $showDrafts,
         ]);
     }

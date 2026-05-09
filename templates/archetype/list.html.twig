@@ -38,6 +38,14 @@
 {% block body %}
     <h1 class="mb-4">{{ 'app.archetype.catalog_title'|trans }}</h1>
 
+    {#
+     # Build the tagsMode query-string fragment once and reuse it on every
+     # path() that needs to preserve the user's combinator choice. AND is the
+     # default, so we omit it from the URL — only OR is materialised.
+     # @see https://github.com/jbourdin/expandedDecks/issues/548
+     #}
+    {% set tagsModeParam = currentTagsMode == 'or' ? {tagsMode: 'or'} : {} %}
+
     {# Filter / sort bar #}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -55,7 +63,7 @@
                             {% else %}
                                 {% set newTags = currentTags|merge([tag]) %}
                             {% endif %}
-                            <a href="{{ path('app_archetype_list', {tags: newTags, sort: currentSort}) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
+                            <a href="{{ path('app_archetype_list', {tags: newTags, sort: currentSort}|merge(tagsModeParam)) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
                                 {{ tag }}
                             </a>
                         {% endfor %}
@@ -65,18 +73,31 @@
                             </a>
                         {% endif %}
                     </div>
+                    {% if currentTags|length >= 2 %}
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <small class="text-muted">{{ 'app.archetype.tags_mode.label'|trans }}</small>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.archetype.tags_mode.label'|trans }}">
+                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort}) }}" class="btn {{ currentTagsMode == 'and' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                                    {{ 'app.archetype.tags_mode.and'|trans }}
+                                </a>
+                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort, tagsMode: 'or'}) }}" class="btn {{ currentTagsMode == 'or' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                                    {{ 'app.archetype.tags_mode.or'|trans }}
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="col-md-3 ms-auto">
                     <label class="form-label">{{ 'app.archetype.sort_by'|trans }}</label>
                     <select class="form-select form-select-sm" onchange="window.location.href=this.value">
-                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'position'}) }}" {{ currentSort == 'position' ? 'selected' }}>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'position'}|merge(tagsModeParam)) }}" {{ currentSort == 'position' ? 'selected' }}>
                             {{ 'app.archetype.sort_relevance'|trans }}
                         </option>
-                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'name'}) }}" {{ currentSort == 'name' ? 'selected' }}>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'name'}|merge(tagsModeParam)) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>
                         {% if current_channel().enableDecks %}
-                            <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'decks'}) }}" {{ currentSort == 'decks' ? 'selected' }}>
+                            <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'decks'}|merge(tagsModeParam)) }}" {{ currentSort == 'decks' ? 'selected' }}>
                                 {{ 'app.archetype.sort_decks'|trans }}
                             </option>
                         {% endif %}
