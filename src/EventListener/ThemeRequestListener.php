@@ -23,13 +23,15 @@ use Twig\Loader\FilesystemLoader;
 /**
  * Prepends the channel's theme directory to Twig's loader paths.
  *
- * Runs at priority 9: after the channel resolver (10) and before the
- * firewall (8). If a template exists in the theme directory, Twig uses
- * it instead of the default.
+ * Runs at priority 99, after the channel resolver (100) and before the
+ * router (32). Running before the router ensures the theme override
+ * survives 404 / exception rendering — Twig's loader is global, so once
+ * the path is prepended on the main request it remains available to the
+ * exception sub-request that renders base_error.html.twig.
  *
  * @see docs/features.md F18.28 — Per-channel theme system
  */
-#[AsEventListener(event: KernelEvents::REQUEST, priority: 9)]
+#[AsEventListener(event: KernelEvents::REQUEST, priority: 99)]
 final readonly class ThemeRequestListener
 {
     public function __construct(

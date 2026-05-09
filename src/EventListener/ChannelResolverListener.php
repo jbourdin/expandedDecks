@@ -24,12 +24,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Resolves the current Channel from the request's Host header and stores
  * it as a request attribute for ChannelContext to read.
  *
- * Runs at priority 10: after the router (priority 32) but before the
- * firewall (priority 8), so that security decisions can be channel-aware.
+ * Runs at priority 100, before the router (priority 32). This ensures the
+ * channel is set even when the URL doesn't match any route — otherwise
+ * RouterListener would throw NotFoundHttpException at priority 32 and the
+ * resolver would never run, leaving error pages without channel context.
  *
  * @see docs/features.md F18.2 — Channel resolver: request-to-channel matching via domain
  */
-#[AsEventListener(event: KernelEvents::REQUEST, priority: 10)]
+#[AsEventListener(event: KernelEvents::REQUEST, priority: 100)]
 final readonly class ChannelResolverListener
 {
     private const string DEFAULT_CHANNEL_CODE = 'app';
