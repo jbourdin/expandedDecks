@@ -4792,6 +4792,26 @@
                 <source>app.homepage.admin.carousel_items</source>
                 <target>Éléments du carrousel</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.label">
+                <source>app.homepage.admin.carousel_variant.label</source>
+                <target>Disposition</target>
+                <note>#553 — segmented selector above the items list, picks slideshow vs feature_grid</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.slideshow">
+                <source>app.homepage.admin.carousel_variant.slideshow</source>
+                <target>Diaporama</target>
+                <note>#553 — variant option: classic auto-rotating Bootstrap carousel</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.feature_grid">
+                <source>app.homepage.admin.carousel_variant.feature_grid</source>
+                <target>Grille en vedette (1 grand + 2 empilés)</target>
+                <note>#553 — variant option: 2/3 + 1/3 stacked grid layout, requires 3 items</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.needs_three_items">
+                <source>app.homepage.admin.carousel_variant.needs_three_items</source>
+                <target>La grille en vedette ne s'affiche qu'à partir de 3 éléments visibles. Ajoutez des éléments ou programmez-les pour que 3 se chevauchent.</target>
+                <note>#553 — admin warning shown when feature_grid is selected but fewer than 3 items are configured</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.image">
                 <source>app.homepage.admin.image</source>
                 <target>URL de l'image</target>

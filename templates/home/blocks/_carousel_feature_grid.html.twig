@@ -1,0 +1,36 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Carousel "feature_grid" variant: 1 large feature on the left (~2/3) and
+ # two stacked items on the right (~1/3 each). On viewports below `lg` the
+ # cells stack vertically in feature-then-supporters order.
+ #
+ # The renderer guarantees exactly 3 visible items reach this template;
+ # if scheduling drops the count below 3 it routes to the slideshow
+ # partial instead. The defensive check below is belt-and-suspenders.
+ #
+ # @see https://github.com/jbourdin/expandedDecks/issues/553
+ #}
+{% set items = entry.resolvedData.items|default([]) %}
+{% if items|length >= 3 %}
+    <div class="row g-3 mb-4 carousel-feature-grid">
+        <div class="col-12 col-lg-8">
+            <div class="carousel-feature-grid__feature ratio ratio-16x9">
+                {{ include('home/blocks/_carousel_item.html.twig', {item: items[0], imgClass: 'w-100 h-100 object-fit-cover rounded'}) }}
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="carousel-feature-grid__supporter ratio ratio-16x9 flex-fill">
+                {{ include('home/blocks/_carousel_item.html.twig', {item: items[1], imgClass: 'w-100 h-100 object-fit-cover rounded'}) }}
+            </div>
+            <div class="carousel-feature-grid__supporter ratio ratio-16x9 flex-fill">
+                {{ include('home/blocks/_carousel_item.html.twig', {item: items[2], imgClass: 'w-100 h-100 object-fit-cover rounded'}) }}
+            </div>
+        </div>
+    </div>
+{% endif %}

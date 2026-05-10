@@ -435,6 +435,112 @@ class HomepageRendererTest extends TestCase
         self::assertSame('a.jpg', $result[0]->resolvedData['items'][0]['image']);
     }
 
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/553
+     */
+    public function testCarouselDefaultsToSlideshowVariantWhenVariantAbsent(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('slideshow', $result[0]->resolvedData['variant']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/553
+     */
+    public function testCarouselUnknownVariantFallsBackToSlideshow(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'variant' => 'banana',
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('slideshow', $result[0]->resolvedData['variant']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/553
+     */
+    public function testCarouselFeatureGridVariantPreservedWhenThreeItemsVisible(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'variant' => 'feature_grid',
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                    ['image' => 'b.jpg', 'alt' => 'B', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                    ['image' => 'c.jpg', 'alt' => 'C', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('feature_grid', $result[0]->resolvedData['variant']);
+        self::assertCount(3, $result[0]->resolvedData['items']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/553
+     */
+    public function testCarouselFeatureGridFallsBackToSlideshowWhenSchedulingDropsBelowThree(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'variant' => 'feature_grid',
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                    ['image' => 'b.jpg', 'alt' => 'B', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                    // Future-scheduled item — won't be visible at render time, dropping count to 2.
+                    ['image' => 'c.jpg', 'alt' => 'C', 'link' => '/', 'startAt' => '2099-01-01T00:00:00', 'endAt' => null],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('slideshow', $result[0]->resolvedData['variant']);
+        self::assertCount(2, $result[0]->resolvedData['items']);
+    }
+
     public function testTranslationFallsBackToEnglish(): void
     {
         $layout = new HomepageLayout();

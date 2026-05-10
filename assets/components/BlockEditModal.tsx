@@ -243,6 +243,25 @@ export default function BlockEditModal({
                 {blockType === 'carousel' && (
                     <>
                         <Divider />
+                        <div>
+                            <Text size="sm" fw={600} mb="xs">{label('carouselVariant')}</Text>
+                            <SegmentedControl
+                                value={(editedBlock.variant as string) ?? 'slideshow'}
+                                onChange={(value) => updateBlock('variant', value)}
+                                data={[
+                                    { value: 'slideshow', label: label('carouselVariantSlideshow') },
+                                    { value: 'feature_grid', label: label('carouselVariantFeatureGrid') },
+                                ]}
+                                fullWidth
+                            />
+                            {((editedBlock.variant as string) ?? 'slideshow') === 'feature_grid'
+                                && (Array.isArray(editedBlock.items) ? (editedBlock.items as CarouselItem[]).length : 0) < 3 && (
+                                <Text size="xs" c="orange" mt="xs">
+                                    {label('carouselVariantNeedsThreeItems')}
+                                </Text>
+                            )}
+                        </div>
+                        <Divider />
                         <Text size="sm" fw={600}>{label('carouselItems')}</Text>
                         {(Array.isArray(editedBlock.items) ? editedBlock.items as CarouselItem[] : []).map((carouselItem, itemIndex) => (
                             <Card key={itemIndex} withBorder padding="xs">
