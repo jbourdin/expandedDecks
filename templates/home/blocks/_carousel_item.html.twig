@@ -1,0 +1,28 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Shared markup for a single carousel item. Used by both _carousel.html.twig
+ # (slideshow variant) and _carousel_feature_grid.html.twig
+ # (feature_grid variant). The wrapping container decides positioning; this
+ # partial only renders the link / image.
+ #
+ # @see https://github.com/jbourdin/expandedDecks/issues/553
+ #
+ # @var item.image string  required, image URL
+ # @var item.alt   string  optional, alt text
+ # @var item.link  string  optional, click target
+ # @var imgClass   string  optional, extra classes for the <img>
+ #}
+{% set imgClass = imgClass|default('d-block w-100') %}
+{% if item.link is defined and item.link is not empty %}
+    <a href="{{ item.link }}">
+        <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+    </a>
+{% else %}
+    <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+{% endif %}

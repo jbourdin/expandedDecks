@@ -99,7 +99,14 @@ Each entry in `HomepageLayout.blocks` is an object with common and type-specific
 
 **pageEmbed** — `pageSlug` (CMS page slug to embed). Content comes from the referenced page's translation, not from `HomepageLayoutTranslation`.
 
-**carousel** — `items[]` (each with `image`, `alt`, `link`, `startAt`, `endAt`). Translatable: per-item `alt` text.
+**carousel** — `items[]` (each with `image`, `alt`, `link`, `startAt`, `endAt`) and an optional `variant` key controlling the layout. Translatable: per-item `alt` text.
+
+| `variant` value | Behaviour |
+|---|---|
+| `slideshow` (default; absent or unrecognised) | Bootstrap auto-rotating carousel with one item visible at a time. |
+| `feature_grid` | 2/3 + 1/3 stacked grid: first item large on the left, items 2 and 3 stacked on the right. Requires 3 visible items at render time; the renderer falls back to `slideshow` when scheduling drops the count below 3. |
+
+See `App\Enum\HomepageCarouselVariant` for the canonical list.
 
 **latestPages** — `categorySlug` (menu category English name), `limit` (max pages to show).
 

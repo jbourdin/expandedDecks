@@ -22,13 +22,7 @@
         <div class="carousel-inner rounded">
             {% for item in items %}
                 <div class="carousel-item {{ loop.first ? 'active' : '' }}">
-                    {% if item.link is defined and item.link is not empty %}
-                        <a href="{{ item.link }}">
-                            <img src="{{ item.image }}" class="d-block w-100" alt="{{ item.alt|default('') }}">
-                        </a>
-                    {% else %}
-                        <img src="{{ item.image }}" class="d-block w-100" alt="{{ item.alt|default('') }}">
-                    {% endif %}
+                    {{ include('home/blocks/_carousel_item.html.twig', {item: item, imgClass: 'd-block w-100'}) }}
                 </div>
             {% endfor %}
         </div>

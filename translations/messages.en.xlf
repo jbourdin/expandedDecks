@@ -4817,6 +4817,26 @@
                 <source>app.homepage.admin.carousel_items</source>
                 <target>Carousel items</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.label">
+                <source>app.homepage.admin.carousel_variant.label</source>
+                <target>Layout</target>
+                <note>#553 — segmented selector above the items list, picks slideshow vs feature_grid</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.slideshow">
+                <source>app.homepage.admin.carousel_variant.slideshow</source>
+                <target>Slideshow</target>
+                <note>#553 — variant option: classic auto-rotating Bootstrap carousel</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.feature_grid">
+                <source>app.homepage.admin.carousel_variant.feature_grid</source>
+                <target>Feature grid (1 large + 2 stacked)</target>
+                <note>#553 — variant option: 2/3 + 1/3 stacked grid layout, requires 3 items</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.needs_three_items">
+                <source>app.homepage.admin.carousel_variant.needs_three_items</source>
+                <target>Feature grid renders only when at least 3 items are visible. Add more items or schedule them so 3 overlap.</target>
+                <note>#553 — admin warning shown when feature_grid is selected but fewer than 3 items are configured</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.image">
                 <source>app.homepage.admin.image</source>
                 <target>Image URL</target>
