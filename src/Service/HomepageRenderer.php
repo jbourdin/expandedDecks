@@ -16,6 +16,8 @@ namespace App\Service;
 use App\DTO\ResolvedBlock;
 use App\Entity\HomepageLayout;
 use App\Enum\HomepageBlockType;
+use App\Enum\HomepageCarouselCaptionStyle;
+use App\Enum\HomepageCarouselVariant;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\MenuCategoryRepository;
@@ -297,7 +299,12 @@ class HomepageRenderer
     }
 
     /**
-     * Filter carousel items by their own startAt/endAt scheduling.
+     * Filter carousel items by their own startAt/endAt scheduling and resolve
+     * the layout variant. Variants that require a specific item count
+     * gracefully degrade to {@see HomepageCarouselVariant::Slideshow} when
+     * scheduling leaves too few visible items at render time.
+     *
+     * @see https://github.com/jbourdin/expandedDecks/issues/553
      *
      * @param array<string, mixed> $block
      *
@@ -307,7 +314,7 @@ class HomepageRenderer
     {
         $items = $block['items'] ?? [];
         if (!\is_array($items)) {
-            return ['items' => []];
+            return ['items' => [], 'variant' => HomepageCarouselVariant::Slideshow->value];
         }
 
         $now = new \DateTimeImmutable();
@@ -319,10 +326,29 @@ class HomepageRenderer
             }
             /** @var array<string, mixed> $item */
             if ($this->isBlockVisible($item, $now)) {
+                // Normalise captionStyle so the partial can trust whatever it
+                // receives. Unknown / missing values land on the default
+                // preset rather than rendering an undefined CSS class.
+                // @see https://github.com/jbourdin/expandedDecks/issues/555
+                $caption = $item['caption'] ?? null;
+                if (\is_string($caption) && '' !== $caption) {
+                    $rawStyle = $item['captionStyle'] ?? null;
+                    $item['captionStyle'] = HomepageCarouselCaptionStyle::fromStringOrDefault(
+                        \is_string($rawStyle) ? $rawStyle : null,
+                    )->value;
+                }
                 $visibleItems[] = $item;
             }
         }
 
-        return ['items' => $visibleItems];
+        $rawVariant = $block['variant'] ?? null;
+        $variant = HomepageCarouselVariant::fromStringOrDefault(\is_string($rawVariant) ? $rawVariant : null);
+
+        $required = $variant->requiredItemCount();
+        if (null !== $required && \count($visibleItems) < $required) {
+            $variant = HomepageCarouselVariant::Slideshow;
+        }
+
+        return ['items' => $visibleItems, 'variant' => $variant->value];
     }
 }

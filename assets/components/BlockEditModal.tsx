@@ -58,6 +58,8 @@ interface CarouselItem {
     link: string;
     startAt: string | null;
     endAt: string | null;
+    caption?: string;
+    captionStyle?: string;
 }
 
 interface CategoryInfo {
@@ -243,6 +245,25 @@ export default function BlockEditModal({
                 {blockType === 'carousel' && (
                     <>
                         <Divider />
+                        <div>
+                            <Text size="sm" fw={600} mb="xs">{label('carouselVariant')}</Text>
+                            <SegmentedControl
+                                value={(editedBlock.variant as string) ?? 'slideshow'}
+                                onChange={(value) => updateBlock('variant', value)}
+                                data={[
+                                    { value: 'slideshow', label: label('carouselVariantSlideshow') },
+                                    { value: 'feature_grid', label: label('carouselVariantFeatureGrid') },
+                                ]}
+                                fullWidth
+                            />
+                            {((editedBlock.variant as string) ?? 'slideshow') === 'feature_grid'
+                                && (Array.isArray(editedBlock.items) ? (editedBlock.items as CarouselItem[]).length : 0) < 3 && (
+                                <Text size="xs" c="orange" mt="xs">
+                                    {label('carouselVariantNeedsThreeItems')}
+                                </Text>
+                            )}
+                        </div>
+                        <Divider />
                         <Text size="sm" fw={600}>{label('carouselItems')}</Text>
                         {(Array.isArray(editedBlock.items) ? editedBlock.items as CarouselItem[] : []).map((carouselItem, itemIndex) => (
                             <Card key={itemIndex} withBorder padding="xs">
@@ -290,6 +311,36 @@ export default function BlockEditModal({
                                         <IconTrash size={14} />
                                     </ActionIcon>
                                 </Group>
+                                <TextInput
+                                    label={label('carouselCaption')}
+                                    value={carouselItem.caption ?? ''}
+                                    onChange={(event) => {
+                                        const items = [...(editedBlock.items as CarouselItem[])];
+                                        items[itemIndex] = { ...items[itemIndex], caption: event.currentTarget.value };
+                                        updateBlock('items', items);
+                                    }}
+                                    mt="xs"
+                                />
+                                {(carouselItem.caption ?? '') !== '' && (
+                                    <div style={{ marginTop: 8 }}>
+                                        <Text size="xs" c="dimmed" mb={4}>{label('carouselCaptionStyle')}</Text>
+                                        <SegmentedControl
+                                            value={carouselItem.captionStyle ?? 'white_on_black'}
+                                            onChange={(value) => {
+                                                const items = [...(editedBlock.items as CarouselItem[])];
+                                                items[itemIndex] = { ...items[itemIndex], captionStyle: value };
+                                                updateBlock('items', items);
+                                            }}
+                                            data={[
+                                                { value: 'white_on_black', label: label('carouselCaptionStyleWhiteOnBlack') },
+                                                { value: 'black_on_white', label: label('carouselCaptionStyleBlackOnWhite') },
+                                                { value: 'brand', label: label('carouselCaptionStyleBrand') },
+                                            ]}
+                                            fullWidth
+                                            size="xs"
+                                        />
+                                    </div>
+                                )}
                             </Card>
                         ))}
                         <Button

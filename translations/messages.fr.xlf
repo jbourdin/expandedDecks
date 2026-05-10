@@ -3908,6 +3908,21 @@
                 <target>Brouillons</target>
                 <note>Filter button to show only unpublished archetypes (editors only)</note>
             </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.label">
+                <source>app.archetype.tags_mode.label</source>
+                <target>Combiner les tags :</target>
+                <note>#548 — label for the AND/OR toggle on the archetype catalog (visible only when 2+ tags selected)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.and">
+                <source>app.archetype.tags_mode.and</source>
+                <target>Tous</target>
+                <note>#548 — toggle button: archetypes must match every selected tag (default)</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.tags_mode.or">
+                <source>app.archetype.tags_mode.or</source>
+                <target>Au moins un</target>
+                <note>#548 — toggle button: archetypes match at least one selected tag</note>
+            </trans-unit>
             <trans-unit id="app.archetype.sort_by">
                 <source>app.archetype.sort_by</source>
                 <target>Trier par</target>
@@ -4777,6 +4792,51 @@
                 <source>app.homepage.admin.carousel_items</source>
                 <target>Éléments du carrousel</target>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.label">
+                <source>app.homepage.admin.carousel_variant.label</source>
+                <target>Disposition</target>
+                <note>#553 — segmented selector above the items list, picks slideshow vs feature_grid</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.slideshow">
+                <source>app.homepage.admin.carousel_variant.slideshow</source>
+                <target>Diaporama</target>
+                <note>#553 — variant option: classic auto-rotating Bootstrap carousel</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.feature_grid">
+                <source>app.homepage.admin.carousel_variant.feature_grid</source>
+                <target>Grille en vedette (1 grand + 2 empilés)</target>
+                <note>#553 — variant option: 2/3 + 1/3 stacked grid layout, requires 3 items</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_variant.needs_three_items">
+                <source>app.homepage.admin.carousel_variant.needs_three_items</source>
+                <target>La grille en vedette ne s'affiche qu'à partir de 3 éléments visibles. Ajoutez des éléments ou programmez-les pour que 3 se chevauchent.</target>
+                <note>#553 — admin warning shown when feature_grid is selected but fewer than 3 items are configured</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.label">
+                <source>app.homepage.admin.carousel_caption.label</source>
+                <target>Légende</target>
+                <note>#555 — per-item caption text rendered centered over the image</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.label">
+                <source>app.homepage.admin.carousel_caption.style.label</source>
+                <target>Style de la légende</target>
+                <note>#555 — picker label for the per-item caption color preset</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.white_on_black">
+                <source>app.homepage.admin.carousel_caption.style.white_on_black</source>
+                <target>Blanc, contour noir</target>
+                <note>#555 — caption preset best on darker photos</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.black_on_white">
+                <source>app.homepage.admin.carousel_caption.style.black_on_white</source>
+                <target>Noir, contour blanc</target>
+                <note>#555 — caption preset best on lighter photos</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.brand">
+                <source>app.homepage.admin.carousel_caption.style.brand</source>
+                <target>Couleur de marque</target>
+                <note>#555 — caption preset using brand palette colors</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.image">
                 <source>app.homepage.admin.image</source>
                 <target>URL de l'image</target>
@@ -4800,6 +4860,26 @@
             <trans-unit id="app.homepage.admin.event_id">
                 <source>app.homepage.admin.event_id</source>
                 <target>ID de l'événement</target>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.layout_settings">
+                <source>app.homepage.admin.layout_settings</source>
+                <target>Paramètres de la page d'accueil</target>
+                <note>#554 — heading for the layout-level settings panel above the block list</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_image.label">
+                <source>app.homepage.admin.og_image.label</source>
+                <target>Image Open Graph</target>
+                <note>#554 — admin label for the homepage social-share image</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_image.help">
+                <source>app.homepage.admin.og_image.help</source>
+                <target>Image affichée lorsque la page d'accueil est partagée sur les réseaux sociaux (1200×630 recommandé).</target>
+                <note>#554 — admin helper text under the OG image field</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.og_image_url_format">
+                <source>app.homepage.og_image_url_format</source>
+                <target>L'image Open Graph doit être un chemin relatif ou une URL absolue (http ou https).</target>
+                <note>#554 — validation message mirroring app.cms.og_image_url_format for HomepageLayout.ogImage</note>
             </trans-unit>
             <trans-unit id="app.homepage.view_deck">
                 <source>app.homepage.view_deck</source>
@@ -5947,22 +6027,22 @@
             </trans-unit>
             <trans-unit id="app.nav.staple_cards">
                 <source>app.nav.staple_cards</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — navbar link to the public staple cards page</note>
             </trans-unit>
             <trans-unit id="app.nav.admin_staple_cards">
                 <source>app.nav.admin_staple_cards</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — admin dropdown link (under the archetype-editor section)</note>
             </trans-unit>
             <trans-unit id="app.channel.enable_staples">
                 <source>app.channel.enable_staples</source>
-                <target>Activer les Staple Cards</target>
+                <target>Activer les staple cards</target>
                 <note>F6.15 — channel admin form checkbox</note>
             </trans-unit>
             <trans-unit id="app.staple_card.public.title">
                 <source>app.staple_card.public.title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — public list page heading</note>
             </trans-unit>
             <trans-unit id="app.staple_card.public.empty">
@@ -6037,7 +6117,7 @@
             </trans-unit>
             <trans-unit id="app.admin.staple_card.list_title">
                 <source>app.admin.staple_card.list_title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — admin list page heading</note>
             </trans-unit>
             <trans-unit id="app.admin.staple_card.list_hint">
@@ -6182,7 +6262,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.title">
                 <source>app.admin.technical.staple_cards.title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — technical dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.description">

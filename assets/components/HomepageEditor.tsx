@@ -17,6 +17,7 @@ import { IconPlus, IconDeviceFloppy, IconCheck, IconGripVertical, IconTrash, Ico
 import Sortable from 'sortablejs';
 import { useEffect, useRef } from 'react';
 import BlockEditModal from './BlockEditModal';
+import ImageUrlField from './ImageUrlField';
 
 interface BlockTypeInfo {
     value: string;
@@ -44,6 +45,7 @@ interface HomepageEditorProps {
     supportedLocales: string[];
     initialBlocks: BlockData[];
     initialTranslations: TranslationsMap;
+    initialOgImage: string;
     blockTypes: BlockTypeInfo[];
     categories: CategoryInfo[];
     labels: Labels;
@@ -56,12 +58,14 @@ export default function HomepageEditor({
     supportedLocales,
     initialBlocks,
     initialTranslations,
+    initialOgImage,
     blockTypes,
     categories,
     labels,
 }: HomepageEditorProps) {
     const [blocks, setBlocks] = useState<BlockData[]>(initialBlocks);
     const [translations, setTranslations] = useState<TranslationsMap>(initialTranslations);
+    const [ogImage, setOgImage] = useState<string>(initialOgImage);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -197,7 +201,7 @@ export default function HomepageEditor({
             const response = await fetch(saveUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ blocks, translations, channelCode }),
+                body: JSON.stringify({ blocks, translations, channelCode, ogImage }),
             });
             if (response.ok) {
                 setSaved(true);
@@ -213,6 +217,20 @@ export default function HomepageEditor({
 
     return (
         <Stack gap="md">
+            {/* Layout-level settings */}
+            <Card shadow="xs" padding="sm" withBorder>
+                <Text size="sm" fw={500} mb="xs">{label('layoutSettings')}</Text>
+                <ImageUrlField
+                    label={label('ogImage')}
+                    value={ogImage}
+                    onChange={setOgImage}
+                    uploadUrl={uploadUrl}
+                />
+                {labels.ogImageHelp && (
+                    <Text size="xs" c="dimmed" mt={4}>{label('ogImageHelp')}</Text>
+                )}
+            </Card>
+
             {/* Block list */}
             <div ref={sortableRef}>
                 {blocks.map((block, index) => {

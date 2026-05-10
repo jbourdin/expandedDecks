@@ -33,6 +33,11 @@ class ArchetypeCatalogController extends AbstractController
     {
         $showDrafts = $request->query->getBoolean('drafts') && $this->isGranted('ROLE_ARCHETYPE_EDITOR');
 
+        $tagsMode = $request->query->getString('tagsMode', 'and');
+        if (!\in_array($tagsMode, ['and', 'or'], true)) {
+            $tagsMode = 'and';
+        }
+
         if ($showDrafts) {
             $results = $archetypeRepository->findUnpublishedWithDeckCounts();
             $allTags = [];
@@ -48,7 +53,7 @@ class ArchetypeCatalogController extends AbstractController
                 $sort = 'position';
             }
 
-            $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort);
+            $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort, $tagsMode);
             $allTags = $archetypeRepository->findAllPublishedPlaystyleTags();
         }
 
@@ -57,6 +62,7 @@ class ArchetypeCatalogController extends AbstractController
             'allTags' => $allTags,
             'currentTags' => $tags,
             'currentSort' => $sort,
+            'currentTagsMode' => $tagsMode,
             'showDrafts' => $showDrafts,
         ]);
     }

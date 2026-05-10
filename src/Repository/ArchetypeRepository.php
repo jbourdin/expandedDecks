@@ -82,15 +82,20 @@ class ArchetypeRepository extends ServiceEntityRepository
      * Find all published archetypes with their public deck count.
      *
      * Returns an array of [archetype => Archetype, deckCount => int] rows,
-     * optionally filtered by playstyle tags (OR logic) and sorted by the given criteria.
+     * optionally filtered by playstyle tags and sorted by the given criteria.
+     * The tags filter combines selected tags with AND (must match every tag) by
+     * default, or OR (matches any) when `$tagsMode === 'or'`. Any other value is
+     * treated as `'and'`.
      *
      * @see docs/features.md F2.16 — Archetype catalog
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
      *
-     * @param list<string> $tags playstyle tags to filter by (OR: matches any)
+     * @param list<string> $tags     playstyle tags to filter by
+     * @param string       $tagsMode 'and' (default — matches every selected tag) or 'or' (matches any)
      *
      * @return list<array{archetype: Archetype, deckCount: int}>
      */
-    public function findPublishedWithDeckCounts(array $tags = [], string $sort = 'name'): array
+    public function findPublishedWithDeckCounts(array $tags = [], string $sort = 'name', string $tagsMode = 'and'): array
     {
         $qb = $this->createQueryBuilder('a')
             ->select('a AS archetype')
@@ -114,7 +119,8 @@ class ArchetypeRepository extends ServiceEntityRepository
                 $tagConditions[] = 'a.playstyleTags LIKE :'.$paramName;
                 $qb->setParameter($paramName, '%"'.$tag.'"%');
             }
-            $qb->andWhere(implode(' OR ', $tagConditions));
+            $separator = 'or' === $tagsMode ? ' OR ' : ' AND ';
+            $qb->andWhere(implode($separator, $tagConditions));
         }
 
         if ('decks' === $sort) {

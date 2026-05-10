@@ -34,6 +34,7 @@
          data-upload-url="{{ path('app_editor_upload_image') }}"
          data-supported-locales="{{ supportedLocales|json_encode }}"
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
+         data-og-image="{{ layout and layout.ogImage ? layout.ogImage : '' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
          data-categories="{{ categories|json_encode }}"
          data-block-types="{{ [
@@ -77,12 +78,24 @@
              deleteConfirm: 'app.homepage.admin.delete_confirm'|trans,
              gridPreview: 'app.homepage.admin.grid_preview'|trans,
              carouselItems: 'app.homepage.admin.carousel_items'|trans,
+             carouselVariant: 'app.homepage.admin.carousel_variant.label'|trans,
+             carouselVariantSlideshow: 'app.homepage.admin.carousel_variant.slideshow'|trans,
+             carouselVariantFeatureGrid: 'app.homepage.admin.carousel_variant.feature_grid'|trans,
+             carouselVariantNeedsThreeItems: 'app.homepage.admin.carousel_variant.needs_three_items'|trans,
+             carouselCaption: 'app.homepage.admin.carousel_caption.label'|trans,
+             carouselCaptionStyle: 'app.homepage.admin.carousel_caption.style.label'|trans,
+             carouselCaptionStyleWhiteOnBlack: 'app.homepage.admin.carousel_caption.style.white_on_black'|trans,
+             carouselCaptionStyleBlackOnWhite: 'app.homepage.admin.carousel_caption.style.black_on_white'|trans,
+             carouselCaptionStyleBrand: 'app.homepage.admin.carousel_caption.style.brand'|trans,
              image: 'app.homepage.admin.image'|trans,
              altText: 'app.homepage.admin.alt_text'|trans,
              link: 'app.homepage.admin.link'|trans,
              addItem: 'app.homepage.admin.add_item'|trans,
              shortTag: 'app.homepage.admin.short_tag'|trans,
              eventId: 'app.homepage.admin.event_id'|trans,
+             ogImage: 'app.homepage.admin.og_image.label'|trans,
+             ogImageHelp: 'app.homepage.admin.og_image.help'|trans,
+             layoutSettings: 'app.homepage.admin.layout_settings'|trans,
          }|json_encode }}">
     </div>
 {% endblock %}

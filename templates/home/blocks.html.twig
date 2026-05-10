@@ -18,6 +18,7 @@
 {% block opengraph %}
     {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = self_canonical_url('app_home') %}
+    {% set og_image = (ogImage|default('')) ?: channel_param('og_default_image', '') %}
     {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
@@ -42,6 +43,14 @@
             featuredEvent: '_featured_event',
         } %}
         {% set partial = templateMap[homepageBlock.type.value] %}
+
+        {# Carousel variants: render the variant-specific partial when the
+         # renderer resolved a non-default variant. Unknown values fall back
+         # to the slideshow per HomepageCarouselVariant::fromStringOrDefault.
+         # @see https://github.com/jbourdin/expandedDecks/issues/553 #}
+        {% if homepageBlock.type.value == 'carousel' and homepageBlock.resolvedData.variant|default('slideshow') == 'feature_grid' %}
+            {% set partial = '_carousel_feature_grid' %}
+        {% endif %}
 
         {% if homepageBlock.columnWidth is not null %}
             {# Grid block — check if we need to open a new row #}

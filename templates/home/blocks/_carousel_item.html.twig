@@ -1,0 +1,51 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Shared markup for a single carousel item. Used by both _carousel.html.twig
+ # (slideshow variant) and _carousel_feature_grid.html.twig
+ # (feature_grid variant). The wrapping container decides positioning; this
+ # partial only renders the link / image and the optional caption overlay.
+ #
+ # The overlay is rendered as a sibling of the <img>, NOT inside an extra
+ # positioned wrapper — the nearest positioned ancestor is already provided
+ # by `.carousel-item` (slideshow) or by Bootstrap's `.ratio > *` rule
+ # (feature_grid). Adding our own `position-relative` here would override
+ # Bootstrap's `position: absolute; inset: 0` on direct children of
+ # `.ratio.ratio-16x9` and collapse the feature_grid layout.
+ #
+ # @see https://github.com/jbourdin/expandedDecks/issues/553
+ # @see https://github.com/jbourdin/expandedDecks/issues/555
+ #
+ # @var item.image          string  required, image URL
+ # @var item.alt            string  optional, alt text
+ # @var item.link           string  optional, click target
+ # @var item.caption        string  optional, overlay text (#555)
+ # @var item.captionStyle   string  optional, one of HomepageCarouselCaptionStyle (#555);
+ #                                  the renderer normalises invalid values to the default
+ # @var imgClass            string  optional, extra classes for the <img>
+ #}
+{% set imgClass = imgClass|default('d-block w-100') %}
+{% set hasCaption = item.caption is defined and item.caption %}
+
+{% if item.link is defined and item.link is not empty %}
+    <a href="{{ item.link }}">
+        <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+        {% if hasCaption %}
+            <span class="carousel-caption-overlay carousel-caption-overlay--{{ item.captionStyle|default('white_on_black') }}" style="--caption-length: {{ item.caption|length }};">
+                <span class="carousel-caption-overlay-text">{{ item.caption }}</span>
+            </span>
+        {% endif %}
+    </a>
+{% else %}
+    <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+    {% if hasCaption %}
+        <span class="carousel-caption-overlay carousel-caption-overlay--{{ item.captionStyle|default('white_on_black') }}">
+            <span class="carousel-caption-overlay-text">{{ item.caption }}</span>
+        </span>
+    {% endif %}
+{% endif %}
