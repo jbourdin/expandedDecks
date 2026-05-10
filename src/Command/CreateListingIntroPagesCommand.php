@@ -61,11 +61,11 @@ class CreateListingIntroPagesCommand extends Command
         ],
         ListingIntroPage::STAPLE_CARDS_SLUG => [
             'en' => [
-                'title' => 'Staple Cards',
+                'title' => 'Staple cards',
                 'content' => 'Editor-curated cards that anchor most Expanded decks, grouped by card type.',
             ],
             'fr' => [
-                'title' => 'Staple Cards',
+                'title' => 'Staple cards',
                 'content' => 'Cartes incontournables choisies par les éditeurs, triées par type.',
             ],
         ],

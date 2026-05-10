@@ -5982,22 +5982,22 @@
             </trans-unit>
             <trans-unit id="app.nav.staple_cards">
                 <source>app.nav.staple_cards</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — navbar link to the public staple cards page</note>
             </trans-unit>
             <trans-unit id="app.nav.admin_staple_cards">
                 <source>app.nav.admin_staple_cards</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — admin dropdown link (under the archetype-editor section)</note>
             </trans-unit>
             <trans-unit id="app.channel.enable_staples">
                 <source>app.channel.enable_staples</source>
-                <target>Activer les Staple Cards</target>
+                <target>Activer les staple cards</target>
                 <note>F6.15 — channel admin form checkbox</note>
             </trans-unit>
             <trans-unit id="app.staple_card.public.title">
                 <source>app.staple_card.public.title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — public list page heading</note>
             </trans-unit>
             <trans-unit id="app.staple_card.public.empty">
@@ -6072,7 +6072,7 @@
             </trans-unit>
             <trans-unit id="app.admin.staple_card.list_title">
                 <source>app.admin.staple_card.list_title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — admin list page heading</note>
             </trans-unit>
             <trans-unit id="app.admin.staple_card.list_hint">
@@ -6217,7 +6217,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.title">
                 <source>app.admin.technical.staple_cards.title</source>
-                <target>Staple Cards</target>
+                <target>Staple cards</target>
                 <note>F6.15 — technical dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.description">
