@@ -4837,6 +4837,31 @@
                 <target>Feature grid renders only when at least 3 items are visible. Add more items or schedule them so 3 overlap.</target>
                 <note>#553 — admin warning shown when feature_grid is selected but fewer than 3 items are configured</note>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.label">
+                <source>app.homepage.admin.carousel_caption.label</source>
+                <target>Caption</target>
+                <note>#555 — per-item caption text rendered centered over the image</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.label">
+                <source>app.homepage.admin.carousel_caption.style.label</source>
+                <target>Caption style</target>
+                <note>#555 — picker label for the per-item caption color preset</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.white_on_black">
+                <source>app.homepage.admin.carousel_caption.style.white_on_black</source>
+                <target>White, black outline</target>
+                <note>#555 — caption preset best on darker photos</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.black_on_white">
+                <source>app.homepage.admin.carousel_caption.style.black_on_white</source>
+                <target>Black, white outline</target>
+                <note>#555 — caption preset best on lighter photos</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_caption.style.brand">
+                <source>app.homepage.admin.carousel_caption.style.brand</source>
+                <target>Brand</target>
+                <note>#555 — caption preset using brand palette colors</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.image">
                 <source>app.homepage.admin.image</source>
                 <target>Image URL</target>

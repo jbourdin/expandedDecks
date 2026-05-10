@@ -513,6 +513,106 @@ class HomepageRendererTest extends TestCase
     }
 
     /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/555
+     */
+    public function testCarouselItemWithoutCaptionGetsNoCaptionStyleNormalisation(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    // No caption — captionStyle should NOT be normalised, so a
+                    // garbage value passes through unchanged. The partial's
+                    // `if caption` guard prevents the unused style from being
+                    // rendered.
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'captionStyle' => 'banana'],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('banana', $result[0]->resolvedData['items'][0]['captionStyle']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/555
+     */
+    public function testCarouselItemWithCaptionAndUnknownStyleNormalisesToDefault(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'caption' => 'Hello', 'captionStyle' => 'banana'],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('white_on_black', $result[0]->resolvedData['items'][0]['captionStyle']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/555
+     */
+    public function testCarouselItemWithCaptionAndKnownStylePreserved(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'caption' => 'Hello', 'captionStyle' => 'brand'],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('brand', $result[0]->resolvedData['items'][0]['captionStyle']);
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/555
+     */
+    public function testCarouselItemWithCaptionAndMissingStyleNormalisesToDefault(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'caption' => 'Hello'],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame('white_on_black', $result[0]->resolvedData['items'][0]['captionStyle']);
+    }
+
+    /**
      * @see https://github.com/jbourdin/expandedDecks/issues/553
      */
     public function testCarouselFeatureGridFallsBackToSlideshowWhenSchedulingDropsBelowThree(): void

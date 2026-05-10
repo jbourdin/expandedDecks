@@ -99,7 +99,14 @@ Each entry in `HomepageLayout.blocks` is an object with common and type-specific
 
 **pageEmbed** — `pageSlug` (CMS page slug to embed). Content comes from the referenced page's translation, not from `HomepageLayoutTranslation`.
 
-**carousel** — `items[]` (each with `image`, `alt`, `link`, `startAt`, `endAt`) and an optional `variant` key controlling the layout. Translatable: per-item `alt` text.
+**carousel** — `items[]` (each with `image`, `alt`, `link`, `startAt`, `endAt`, plus optional `caption` + `captionStyle`) and an optional `variant` key controlling the layout.
+
+Per-item caption (#555):
+
+| Item key | Type | Description |
+|---|---|---|
+| `caption` | `string` (optional) | Text rendered centered over the image. When empty/absent, no overlay is rendered. |
+| `captionStyle` | `string` (optional, one of `white_on_black`, `black_on_white`, `brand`) | Color preset for the caption text + outline. Defaults to `white_on_black`. The renderer normalises unrecognised values to the default. See `App\Enum\HomepageCarouselCaptionStyle`. |
 
 | `variant` value | Behaviour |
 |---|---|
