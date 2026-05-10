@@ -185,7 +185,7 @@ footer {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 1rem;
+    padding: 1rem min(10%, 24px);
     pointer-events: none;
     container-type: inline-size;
 
@@ -217,7 +217,7 @@ footer {
     font-family: inherit;
     font-weight: 700;
     line-height: 1.2;
-    font-size: clamp(1rem, min(7cqi, calc(80cqi / var(--caption-length, 12))), 3.5rem);
+    font-size: clamp(1.5rem, min(13cqi, calc(150cqi / var(--caption-length, 12))), 7rem);
 }
 
 // --- Buttons ---
