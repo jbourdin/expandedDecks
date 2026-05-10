@@ -91,11 +91,61 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
-    public function testFilterByMultipleTagsUsesOrLogic(): void
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
+     */
+    public function testFilterByMultipleTagsUsesAndLogicByDefault(): void
     {
-        $this->client->request('GET', '/en/archetypes?tags[]=Aggro&tags[]=Control');
+        // Fixture: only "Iron Thorns ex" carries both Aggressive and Spread.
+        $crawler = $this->client->request('GET', '/en/archetypes?tags[]=Aggressive&tags[]=Spread');
 
         self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.col-lg-4 .card-title'));
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
+     */
+    public function testFilterByMultipleTagsWithOrModeMatchesAny(): void
+    {
+        // Fixture: Aggressive ∪ Spread covers Iron Thorns, Ancient Box, Kyurem, Salamence, Charizard Flareon.
+        $crawler = $this->client->request('GET', '/en/archetypes?tags[]=Aggressive&tags[]=Spread&tagsMode=or');
+
+        self::assertResponseIsSuccessful();
+        self::assertGreaterThan(1, $crawler->filter('.col-lg-4 .card-title')->count());
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
+     */
+    public function testInvalidTagsModeFallsBackToAnd(): void
+    {
+        $crawler = $this->client->request('GET', '/en/archetypes?tags[]=Aggressive&tags[]=Spread&tagsMode=banana');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.col-lg-4 .card-title'));
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
+     */
+    public function testTagsModeToggleHiddenWhenFewerThanTwoTagsSelected(): void
+    {
+        $crawler = $this->client->request('GET', '/en/archetypes?tags[]=Aggressive');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('.btn-group [href*="tagsMode=or"]'));
+    }
+
+    /**
+     * @see https://github.com/jbourdin/expandedDecks/issues/548
+     */
+    public function testTagsModeToggleVisibleWithTwoOrMoreTagsSelected(): void
+    {
+        $crawler = $this->client->request('GET', '/en/archetypes?tags[]=Aggressive&tags[]=Spread');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.btn-group [href*="tagsMode=or"]'));
     }
 
     public function testFilterByNonExistentTagShowsEmptyState(): void
