@@ -33,12 +33,16 @@ class ArchetypeCatalogController extends AbstractController
     {
         $showDrafts = $request->query->getBoolean('drafts') && $this->isGranted('ROLE_ARCHETYPE_EDITOR');
 
+        $tagsMode = $request->query->getString('tagsMode', 'and');
+        if (!\in_array($tagsMode, ['and', 'or'], true)) {
+            $tagsMode = 'and';
+        }
+
         if ($showDrafts) {
             $results = $archetypeRepository->findUnpublishedWithDeckCounts();
             $allTags = [];
             $tags = [];
             $sort = 'name';
-            $tagsMode = 'and';
         } else {
             /** @var list<string> $tags */
             $tags = $request->query->all('tags');
@@ -47,11 +51,6 @@ class ArchetypeCatalogController extends AbstractController
 
             if (!\in_array($sort, ['name', 'decks', 'position'], true)) {
                 $sort = 'position';
-            }
-
-            $tagsMode = $request->query->getString('tagsMode', 'and');
-            if (!\in_array($tagsMode, ['and', 'or'], true)) {
-                $tagsMode = 'and';
             }
 
             $results = $archetypeRepository->findPublishedWithDeckCounts($tags, $sort, $tagsMode);
