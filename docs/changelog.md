@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.7] — 2026-05-10
+
+Patch release: refines the homepage **carousel caption** typography shipped in 1.12.6 — the font now grows substantially larger on both the slideshow layout and the narrower supporter cells of the `feature_grid` variant, and the horizontal padding cap is tightened so wider overlays leave more room for the text without losing the breathing-room feel.
+
+### Features
+
+- **Enlarge homepage carousel caption text** — bumps `.carousel-caption-overlay-text`'s `font-size` clamp from `clamp(1rem, min(7cqi, 80cqi / length), 3.5rem)` to `clamp(1.5rem, min(13cqi, 150cqi / length), 7rem)` so longer captions and the narrow supporter cells of `feature_grid` grow proportionally instead of bottoming out near the `1rem` floor. The 1.12.6 formula left supporter-cell captions visually identical to the previous default size; the new scalars produce a ~36% bump across both wide and narrow cells. Horizontal padding on `.carousel-caption-overlay` tightens from `1rem min(10%, 32px)` to `1rem min(10%, 24px)` — the 10% rule still applies on narrow overlays, but the cap drops from 32px to 24px so wider cells dedicate more width to text. Vertical padding stays at `1rem`; markup, enum modifiers, and React code are unchanged. ([#562](https://github.com/jbourdin/expandedDecks/pull/562))
+
+---
+
 ## [1.12.6] — 2026-05-10
 
 Patch release: substantive **homepage block editor** enhancements — the homepage now emits an editor-configurable `og:image` (it previously emitted none at all), the carousel block gains a 2/3 + 1/3 layout variant alongside the existing slideshow, and each carousel item can now carry a centered caption overlay with three colour presets that auto-scales by cell width and text length. Plus an **archetype catalog filter** behavioural change: selecting multiple playstyle tags now defaults to AND ("must match all") with an opt-in OR toggle, replacing the previous implicit OR. Rounded out by a bundled Dependabot deps bump and a sentence-case sweep of the "Staple cards" labels.
