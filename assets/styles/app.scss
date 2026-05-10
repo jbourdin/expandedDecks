@@ -164,6 +164,62 @@ footer {
     color: rgba(#fff, .85);
 }
 
+// --- Homepage carousel caption overlay (issue #555) ---
+// Centered, site-font caption rendered over a carousel item image.
+// Three editor-selectable color presets — the four-corner text-shadow
+// approach is used over -webkit-text-stroke because Firefox renders
+// text-stroke inside-out (eating into glyph paths), losing the small-
+// outline look on photographic backgrounds. Outline offsets use `em`
+// so they stay proportional at every font size.
+// Sizing scales on two axes:
+//   - cell width via `cqi` (the overlay is the container)
+//   - text length via the inline `--caption-length` custom property
+// so the same caption appears smaller in the supporter cells than in
+// the feature cell of the feature_grid layout, and longer captions
+// shrink to fit without truncation.
+
+.carousel-caption-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    pointer-events: none;
+    container-type: inline-size;
+
+    &--white_on_black .carousel-caption-overlay-text {
+        color: #fff;
+        text-shadow:
+            -.04em -.04em 0 #000,  .04em -.04em 0 #000,
+            -.04em  .04em 0 #000,  .04em  .04em 0 #000;
+    }
+
+    &--black_on_white .carousel-caption-overlay-text {
+        color: #000;
+        text-shadow:
+            -.04em -.04em 0 #fff,  .04em -.04em 0 #fff,
+            -.04em  .04em 0 #fff,  .04em  .04em 0 #fff;
+    }
+
+    &--brand .carousel-caption-overlay-text {
+        color: $ed-gold;
+        text-shadow:
+            -.04em -.04em 0 $ed-navy,  .04em -.04em 0 $ed-navy,
+            -.04em  .04em 0 $ed-navy,  .04em  .04em 0 $ed-navy;
+    }
+}
+
+.carousel-caption-overlay-text {
+    display: inline-block;
+    max-width: 100%;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.2;
+    font-size: clamp(1rem, min(7cqi, calc(80cqi / var(--caption-length, 12))), 3.5rem);
+}
+
 // --- Buttons ---
 
 .btn-gold {

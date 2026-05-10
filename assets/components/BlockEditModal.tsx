@@ -58,6 +58,8 @@ interface CarouselItem {
     link: string;
     startAt: string | null;
     endAt: string | null;
+    caption?: string;
+    captionStyle?: string;
 }
 
 interface CategoryInfo {
@@ -309,6 +311,36 @@ export default function BlockEditModal({
                                         <IconTrash size={14} />
                                     </ActionIcon>
                                 </Group>
+                                <TextInput
+                                    label={label('carouselCaption')}
+                                    value={carouselItem.caption ?? ''}
+                                    onChange={(event) => {
+                                        const items = [...(editedBlock.items as CarouselItem[])];
+                                        items[itemIndex] = { ...items[itemIndex], caption: event.currentTarget.value };
+                                        updateBlock('items', items);
+                                    }}
+                                    mt="xs"
+                                />
+                                {(carouselItem.caption ?? '') !== '' && (
+                                    <div style={{ marginTop: 8 }}>
+                                        <Text size="xs" c="dimmed" mb={4}>{label('carouselCaptionStyle')}</Text>
+                                        <SegmentedControl
+                                            value={carouselItem.captionStyle ?? 'white_on_black'}
+                                            onChange={(value) => {
+                                                const items = [...(editedBlock.items as CarouselItem[])];
+                                                items[itemIndex] = { ...items[itemIndex], captionStyle: value };
+                                                updateBlock('items', items);
+                                            }}
+                                            data={[
+                                                { value: 'white_on_black', label: label('carouselCaptionStyleWhiteOnBlack') },
+                                                { value: 'black_on_white', label: label('carouselCaptionStyleBlackOnWhite') },
+                                                { value: 'brand', label: label('carouselCaptionStyleBrand') },
+                                            ]}
+                                            fullWidth
+                                            size="xs"
+                                        />
+                                    </div>
+                                )}
                             </Card>
                         ))}
                         <Button

@@ -16,6 +16,7 @@ namespace App\Service;
 use App\DTO\ResolvedBlock;
 use App\Entity\HomepageLayout;
 use App\Enum\HomepageBlockType;
+use App\Enum\HomepageCarouselCaptionStyle;
 use App\Enum\HomepageCarouselVariant;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
@@ -325,6 +326,17 @@ class HomepageRenderer
             }
             /** @var array<string, mixed> $item */
             if ($this->isBlockVisible($item, $now)) {
+                // Normalise captionStyle so the partial can trust whatever it
+                // receives. Unknown / missing values land on the default
+                // preset rather than rendering an undefined CSS class.
+                // @see https://github.com/jbourdin/expandedDecks/issues/555
+                $caption = $item['caption'] ?? null;
+                if (\is_string($caption) && '' !== $caption) {
+                    $rawStyle = $item['captionStyle'] ?? null;
+                    $item['captionStyle'] = HomepageCarouselCaptionStyle::fromStringOrDefault(
+                        \is_string($rawStyle) ? $rawStyle : null,
+                    )->value;
+                }
                 $visibleItems[] = $item;
             }
         }
