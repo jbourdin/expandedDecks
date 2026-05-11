@@ -9,16 +9,24 @@
 {# @see docs/features.md F10.4 — Homepage rendering service and Twig block partials #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.home.title'|trans }}{% endblock %}
+{% block title %}
+    {%- set homepageTitle = pageTitle|default('') -%}
+    {%- if homepageTitle -%}
+        {{ homepageTitle }}
+    {%- else -%}
+        {{ channel_param('brand_name', 'Expanded Decks') }}
+    {%- endif -%}
+{% endblock %}
 
 {% block canonical %}
     <link rel="canonical" href="{{ self_canonical_url('app_home_localized', {_locale: 'en'}) }}">
 {% endblock %}
 
 {% block opengraph %}
-    {% set og_title = channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_title = (pageTitle|default('')) ?: channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = self_canonical_url('app_home') %}
     {% set og_image = (ogImage|default('')) ?: channel_param('og_default_image', '') %}
+    {% set og_description = ogDescription|default('') %}
     {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 

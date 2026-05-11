@@ -269,11 +269,6 @@
             </trans-unit>
 
             <!-- Homepage -->
-            <trans-unit id="app.home.title">
-                <source>app.home.title</source>
-                <target>Expanded Decks — Shared Pokemon TCG Deck Library</target>
-                <note>HTML page title for anonymous homepage</note>
-            </trans-unit>
             <trans-unit id="app.home.hero_title">
                 <source>app.home.hero_title</source>
                 <target>Expanded Decks</target>
@@ -4910,6 +4905,31 @@
                 <source>app.homepage.admin.og_image.help</source>
                 <target>Image shown when the homepage is shared on social media (recommended 1200×630).</target>
                 <note>#554 — admin helper text under the OG image field</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.metadata">
+                <source>app.homepage.admin.metadata</source>
+                <target>Page metadata</target>
+                <note>Heading for the per-locale page-title and OG-description panel above the block list</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.page_title.label">
+                <source>app.homepage.admin.page_title.label</source>
+                <target>Page title</target>
+                <note>Admin label for the per-locale HTML title and Open Graph title of the homepage</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.page_title.help">
+                <source>app.homepage.admin.page_title.help</source>
+                <target>Used in the browser tab and as the Open Graph title. Leave empty to show only the channel brand name.</target>
+                <note>Helper text under the homepage page-title input</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_description.label">
+                <source>app.homepage.admin.og_description.label</source>
+                <target>Social description</target>
+                <note>Admin label for the per-locale Open Graph description of the homepage</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.og_description.help">
+                <source>app.homepage.admin.og_description.help</source>
+                <target>1–2 sentences shown when the homepage is shared on social media. Recommended 160 characters or fewer.</target>
+                <note>Helper text under the homepage OG-description input</note>
             </trans-unit>
             <trans-unit id="app.homepage.og_image_url_format">
                 <source>app.homepage.og_image_url_format</source>

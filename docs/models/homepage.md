@@ -48,6 +48,8 @@ Per-locale translatable content for homepage blocks. The `blockTranslations` JSO
 | `homepageLayout`    | `HomepageLayout` | No    | Parent layout (FK). |
 | `locale`            | `string(5)`   | No       | ISO 639-1 locale code (e.g. `"en"`, `"fr"`). |
 | `blockTranslations` | `json`        | No       | Per-block translatable content, keyed by block index. |
+| `title`             | `string(255)\|null` | Yes | Per-locale HTML `<title>` and Open Graph title override. When `null`/empty, the rendered title falls back to the channel's `brand_name` parameter. |
+| `ogDescription`     | `text\|null`  | Yes      | Per-locale Open Graph (`og:description`) and Twitter Card (`twitter:description`) text. Empty values omit the meta tag. |
 
 ### Constraints
 

@@ -34,7 +34,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminHomepageController extends AbstractAppController
 {
-    private const array SUPPORTED_LOCALES = ['en', 'fr'];
+    // Fallback when no channel is resolved (e.g. legacy null-channel layouts).
+    // The editor and save endpoints normally use `Channel::getLocales()` so
+    // each channel only edits the languages it actually serves.
+    private const array FALLBACK_LOCALES = ['en'];
 
     public function __construct(
         TranslatorInterface $translator,
@@ -60,6 +63,7 @@ class AdminHomepageController extends AbstractAppController
 
         $channels = $channelRepository->findAll();
         $layout = $this->layoutRepository->findPublished($channel);
+        $locales = $channel->getLocales();
 
         // Categories used by the latestPages block selector — scoped to the editor's channel.
         $categories = [];
@@ -70,19 +74,34 @@ class AdminHomepageController extends AbstractAppController
             ];
         }
 
+        // Seed an empty entry for every channel locale so the React editor
+        // always renders an input per active language, even when the layout
+        // has never been saved yet. Existing translations for locales not in
+        // the channel's current list are intentionally hidden (they remain in
+        // the DB and are preserved on save).
+        $meta = [];
+        foreach ($locales as $locale) {
+            $translation = $layout?->getTranslation($locale);
+            $meta[$locale] = [
+                'title' => $translation?->getTitle() ?? '',
+                'ogDescription' => $translation?->getOgDescription() ?? '',
+            ];
+        }
+
         return $this->render('admin/homepage/editor.html.twig', [
             'layout' => $layout,
-            'supportedLocales' => self::SUPPORTED_LOCALES,
+            'supportedLocales' => $locales,
             'channels' => $channels,
             'currentChannel' => $channel,
             'categories' => $categories,
+            'meta' => $meta,
         ]);
     }
 
     #[Route('/save', name: 'app_admin_homepage_save', methods: ['POST'])]
     public function save(Request $request, ChannelRepository $channelRepository): JsonResponse
     {
-        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string, ogImage?: string|null} $payload */
+        /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string, ogImage?: string|null, meta?: array<string, array{title?: string|null, ogDescription?: string|null}>} $payload */
         $payload = json_decode((string) $request->getContent(), true);
 
         $blocks = $payload['blocks'];
@@ -93,6 +112,7 @@ class AdminHomepageController extends AbstractAppController
         if (\is_string($ogImage)) {
             $ogImage = '' === trim($ogImage) ? null : $ogImage;
         }
+        $meta = $payload['meta'] ?? [];
 
         $layout = $this->layoutRepository->findPublished($channel);
 
@@ -106,8 +126,12 @@ class AdminHomepageController extends AbstractAppController
         $layout->setBlocks($blocks);
         $layout->setOgImage($ogImage);
 
-        // Update translations per locale
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        // Only persist translations for locales the channel actually serves —
+        // this prevents the editor from creating phantom translation rows in
+        // languages the channel does not display.
+        $localesToUpdate = $channel?->getLocales() ?? self::FALLBACK_LOCALES;
+
+        foreach ($localesToUpdate as $locale) {
             $translationEntity = $layout->getTranslation($locale);
 
             if (!$translationEntity instanceof HomepageLayoutTranslation || $translationEntity->getLocale() !== $locale) {
@@ -119,6 +143,12 @@ class AdminHomepageController extends AbstractAppController
             }
 
             $translationEntity->setBlockTranslations($translations[$locale] ?? []);
+
+            $localeMeta = $meta[$locale] ?? [];
+            $title = $localeMeta['title'] ?? null;
+            $ogDescription = $localeMeta['ogDescription'] ?? null;
+            $translationEntity->setTitle(\is_string($title) && '' !== trim($title) ? $title : null);
+            $translationEntity->setOgDescription(\is_string($ogDescription) && '' !== trim($ogDescription) ? $ogDescription : null);
         }
 
         $this->entityManager->flush();

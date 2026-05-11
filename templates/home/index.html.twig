@@ -8,7 +8,7 @@
  #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'app.home.title'|trans }}{% endblock %}
+{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}
     <link rel="canonical" href="{{ self_canonical_url('app_home_localized', {_locale: 'en'}) }}">
