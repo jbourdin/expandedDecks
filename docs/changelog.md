@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.9] — 2026-05-11
+
+Patch release: lets search engines crawl editor-uploaded images. Adds `Allow: /api/editor/image/*` to both channels' robots.txt so the public-read endpoint that serves carousel slides, OG images, and CMS page banners is no longer caught by the broad `Disallow: /api/` rule — longest-match wins per the robots.txt spec, so the rest of `/api/` stays blocked.
+
+### Features
+
+- **Allow editor-uploaded images in robots.txt** — `RobotsTxtController` now emits `Allow: /api/editor/image/*` in both `buildContentChannelRules()` and `buildAppChannelRules()`. Before this change every image served from `GET /api/editor/image/{filename}` (the public-read endpoint behind `ImageUrlField` / `EditorUploadController`) was blocked by the existing `Disallow: /api/`, which kept the homepage carousel slides, OG images, and CMS page banners out of Google Images and other indexers. The new line is more specific than the disallow, so per Google's robots.txt spec it wins on overlap while the rest of `/api/` remains uncrawlable. Pinned by a new `RobotsTxtControllerTest::testEditorImageEndpointIsAllowedOnBothChannels` assertion. ([#566](https://github.com/jbourdin/expandedDecks/pull/566))
+
+---
+
 ## [1.12.8] — 2026-05-11
 
 Patch release: extends the homepage **carousel** with a per-slide image-brightness control. Each item now carries an optional `brightness` percentage that becomes a CSS `filter: brightness(N%)` on the `<img>` only — the caption overlay is a DOM sibling and stays at full brightness, so dimming the image to push a caption forward no longer dulls the text.
