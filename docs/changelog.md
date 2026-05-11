@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.8] — 2026-05-11
+
+Patch release: extends the homepage **carousel** with a per-slide image-brightness control. Each item now carries an optional `brightness` percentage that becomes a CSS `filter: brightness(N%)` on the `<img>` only — the caption overlay is a DOM sibling and stays at full brightness, so dimming the image to push a caption forward no longer dulls the text.
+
+### Features
+
+- **Per-slide brightness filter on carousel images** — adds an optional `brightness` integer (0–200, default `80`) to each carousel item, rendered as inline `filter: brightness(N%)` on the `<img>` in both the `slideshow` and `feature_grid` variants. The caption overlay introduced in 1.12.6 sits as a sibling of the image (not a descendant), so the filter doesn't cascade into it — captions stay crisp over a dimmed background image without any extra CSS gymnastics. `HomepageRenderer::resolveCarousel()` gains a `normaliseBrightness()` helper that clamps the value to `[0, 200]` and falls back to `80` for missing or non-numeric input, keeping the inline `style` attribute deterministic and preventing arbitrary CSS filter functions from being smuggled through a hand-edited JSON payload. The admin block editor exposes a Mantine `NumberInput` (step 5, `%` suffix, range 0–200) per slide, and new slides are seeded with `brightness: 80` so existing layouts keep their current look after the upgrade — no migration needed because the carousel block is plain JSON in `HomepageLayout.blocks`. ([#564](https://github.com/jbourdin/expandedDecks/pull/564))
+
+---
+
 ## [1.12.7] — 2026-05-10
 
 Patch release: refines the homepage **carousel caption** typography shipped in 1.12.6 — the font now grows substantially larger on both the slideshow layout and the narrower supporter cells of the `feature_grid` variant, and the horizontal padding cap is tightened so wider overlays leave more room for the text without losing the breathing-room feel.

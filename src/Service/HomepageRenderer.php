@@ -337,6 +337,11 @@ class HomepageRenderer
                         \is_string($rawStyle) ? $rawStyle : null,
                     )->value;
                 }
+                // Clamp brightness to [0, 200] and default to 80 when missing
+                // or non-numeric. Storing as int keeps the inline `style`
+                // injection deterministic (`brightness(N%)`) and prevents
+                // arbitrary CSS from being smuggled through the JSON payload.
+                $item['brightness'] = $this->normaliseBrightness($item['brightness'] ?? null);
                 $visibleItems[] = $item;
             }
         }
@@ -350,5 +355,26 @@ class HomepageRenderer
         }
 
         return ['items' => $visibleItems, 'variant' => $variant->value];
+    }
+
+    /**
+     * Normalise the per-item brightness percentage applied via `filter:
+     * brightness(N%)` on the carousel image. The default of 80 matches the
+     * historical visual treatment introduced with the per-item caption
+     * overlays so images sit slightly darker than the surrounding page.
+     */
+    private function normaliseBrightness(mixed $value): int
+    {
+        $default = 80;
+
+        if (\is_int($value)) {
+            $number = $value;
+        } elseif (\is_string($value) && '' !== $value && is_numeric($value)) {
+            $number = (int) $value;
+        } else {
+            return $default;
+        }
+
+        return max(0, min(200, $number));
     }
 }
