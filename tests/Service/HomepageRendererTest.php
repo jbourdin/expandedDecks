@@ -612,6 +612,92 @@ class HomepageRendererTest extends TestCase
         self::assertSame('white_on_black', $result[0]->resolvedData['items'][0]['captionStyle']);
     }
 
+    public function testCarouselItemWithMissingBrightnessDefaultsToEighty(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame(80, $result[0]->resolvedData['items'][0]['brightness']);
+    }
+
+    public function testCarouselItemWithValidBrightnessIsPreserved(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'brightness' => 120],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame(120, $result[0]->resolvedData['items'][0]['brightness']);
+    }
+
+    public function testCarouselItemBrightnessIsClampedToTheValidRange(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'brightness' => -50],
+                    ['image' => 'b.jpg', 'alt' => 'B', 'link' => '/', 'startAt' => null, 'endAt' => null, 'brightness' => 999],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame(0, $result[0]->resolvedData['items'][0]['brightness']);
+        self::assertSame(200, $result[0]->resolvedData['items'][1]['brightness']);
+    }
+
+    public function testCarouselItemBrightnessFallsBackToDefaultOnNonNumericInput(): void
+    {
+        $layout = new HomepageLayout();
+        $layout->setBlocks([
+            [
+                'type' => 'carousel',
+                'startAt' => null,
+                'endAt' => null,
+                'columnWidth' => null,
+                'cssClasses' => null,
+                'items' => [
+                    ['image' => 'a.jpg', 'alt' => 'A', 'link' => '/', 'startAt' => null, 'endAt' => null, 'brightness' => 'rgb(255,0,0)'],
+                ],
+            ],
+        ]);
+
+        $result = $this->renderer->resolve($layout, 'en');
+
+        self::assertSame(80, $result[0]->resolvedData['items'][0]['brightness']);
+    }
+
     /**
      * @see https://github.com/jbourdin/expandedDecks/issues/553
      */

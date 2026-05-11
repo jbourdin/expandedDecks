@@ -60,6 +60,7 @@ interface CarouselItem {
     endAt: string | null;
     caption?: string;
     captionStyle?: string;
+    brightness?: number;
 }
 
 interface CategoryInfo {
@@ -341,6 +342,24 @@ export default function BlockEditModal({
                                         />
                                     </div>
                                 )}
+                                <NumberInput
+                                    label={label('carouselBrightness')}
+                                    description={label('carouselBrightnessHelp')}
+                                    value={carouselItem.brightness ?? 80}
+                                    onChange={(value) => {
+                                        const items = [...(editedBlock.items as CarouselItem[])];
+                                        items[itemIndex] = {
+                                            ...items[itemIndex],
+                                            brightness: typeof value === 'number' ? value : 80,
+                                        };
+                                        updateBlock('items', items);
+                                    }}
+                                    min={0}
+                                    max={200}
+                                    step={5}
+                                    suffix="%"
+                                    mt="xs"
+                                />
                             </Card>
                         ))}
                         <Button
@@ -349,7 +368,7 @@ export default function BlockEditModal({
                             leftSection={<IconPlus size={14} />}
                             onClick={() => {
                                 const items = Array.isArray(editedBlock.items) ? [...(editedBlock.items as CarouselItem[])] : [];
-                                items.push({ image: '', alt: '', link: '', startAt: null, endAt: null });
+                                items.push({ image: '', alt: '', link: '', startAt: null, endAt: null, brightness: 80 });
                                 updateBlock('items', items);
                             }}
                         >
