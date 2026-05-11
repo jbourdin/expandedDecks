@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { Button, Group, Stack, Card, Text, Modal, SimpleGrid, UnstyledButton, Alert } from '@mantine/core';
+import { Button, Group, Stack, Card, Text, Modal, SimpleGrid, UnstyledButton, Alert, TextInput, Textarea } from '@mantine/core';
 import { IconPlus, IconDeviceFloppy, IconCheck, IconGripVertical, IconTrash, IconPencil } from '@tabler/icons-react';
 import Sortable from 'sortablejs';
 import { useEffect, useRef } from 'react';
@@ -31,6 +31,7 @@ interface Labels {
 
 type BlockData = Record<string, unknown>;
 type TranslationsMap = Record<string, Record<string, Record<string, unknown>>>;
+type MetaMap = Record<string, { title: string; ogDescription: string }>;
 
 interface CategoryInfo {
     id: number;
@@ -46,6 +47,7 @@ interface HomepageEditorProps {
     initialBlocks: BlockData[];
     initialTranslations: TranslationsMap;
     initialOgImage: string;
+    initialMeta: MetaMap;
     blockTypes: BlockTypeInfo[];
     categories: CategoryInfo[];
     labels: Labels;
@@ -59,6 +61,7 @@ export default function HomepageEditor({
     initialBlocks,
     initialTranslations,
     initialOgImage,
+    initialMeta,
     blockTypes,
     categories,
     labels,
@@ -66,6 +69,7 @@ export default function HomepageEditor({
     const [blocks, setBlocks] = useState<BlockData[]>(initialBlocks);
     const [translations, setTranslations] = useState<TranslationsMap>(initialTranslations);
     const [ogImage, setOgImage] = useState<string>(initialOgImage);
+    const [meta, setMeta] = useState<MetaMap>(initialMeta);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [addModalOpen, setAddModalOpen] = useState(false);
@@ -194,6 +198,17 @@ export default function HomepageEditor({
         setEditingIndex(null);
     };
 
+    const updateMeta = (locale: string, field: 'title' | 'ogDescription', value: string) => {
+        setMeta((previous) => ({
+            ...previous,
+            [locale]: {
+                title: previous[locale]?.title ?? '',
+                ogDescription: previous[locale]?.ogDescription ?? '',
+                [field]: value,
+            },
+        }));
+    };
+
     const handleSave = async () => {
         setSaving(true);
         setSaved(false);
@@ -201,7 +216,7 @@ export default function HomepageEditor({
             const response = await fetch(saveUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ blocks, translations, channelCode, ogImage }),
+                body: JSON.stringify({ blocks, translations, channelCode, ogImage, meta }),
             });
             if (response.ok) {
                 setSaved(true);
@@ -229,6 +244,34 @@ export default function HomepageEditor({
                 {labels.ogImageHelp && (
                     <Text size="xs" c="dimmed" mt={4}>{label('ogImageHelp')}</Text>
                 )}
+            </Card>
+
+            {/* Per-locale page metadata: HTML <title> and Open Graph description */}
+            <Card shadow="xs" padding="sm" withBorder>
+                <Text size="sm" fw={500} mb="xs">{label('metadata')}</Text>
+                <Stack gap="md">
+                    {supportedLocales.map((locale) => (
+                        <Stack key={locale} gap="xs">
+                            <Text size="xs" fw={500} tt="uppercase" c="dimmed">{locale}</Text>
+                            <TextInput
+                                label={label('metaTitle')}
+                                description={labels.metaTitleHelp || undefined}
+                                value={meta[locale]?.title ?? ''}
+                                onChange={(event) => updateMeta(locale, 'title', event.currentTarget.value)}
+                                maxLength={255}
+                            />
+                            <Textarea
+                                label={label('metaOgDescription')}
+                                description={labels.metaOgDescriptionHelp || undefined}
+                                value={meta[locale]?.ogDescription ?? ''}
+                                onChange={(event) => updateMeta(locale, 'ogDescription', event.currentTarget.value)}
+                                autosize
+                                minRows={2}
+                                maxRows={4}
+                            />
+                        </Stack>
+                    ))}
+                </Stack>
             </Card>
 
             {/* Block list */}

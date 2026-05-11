@@ -61,10 +61,13 @@ class HomeController extends AbstractController
         $layout = $homepageLayoutRepository->findPublished($channel instanceof Channel ? $channel : null);
         if (null !== $layout) {
             $blocks = $homepageRenderer->resolve($layout, $locale);
+            $translation = $layout->getTranslation($locale);
 
             return $this->render('home/blocks.html.twig', [
                 'blocks' => $blocks,
                 'ogImage' => $layout->getOgImage(),
+                'pageTitle' => $translation?->getTitle(),
+                'ogDescription' => $translation?->getOgDescription(),
             ]);
         }
 

@@ -36,6 +36,7 @@
          data-blocks="{{ layout ? layout.blocks|json_encode : '[]' }}"
          data-og-image="{{ layout and layout.ogImage ? layout.ogImage : '' }}"
          data-translations="{{ layout ? (layout.translations|reduce((carry, translation) => carry|merge({(translation.locale): translation.blockTranslations}), {})|json_encode) : '{}' }}"
+         data-meta="{{ meta|json_encode }}"
          data-categories="{{ categories|json_encode }}"
          data-block-types="{{ [
              {value: 'hero', label: 'app.homepage.block_type.hero'|trans, icon: 'bi-megaphone'},
@@ -98,6 +99,11 @@
              ogImage: 'app.homepage.admin.og_image.label'|trans,
              ogImageHelp: 'app.homepage.admin.og_image.help'|trans,
              layoutSettings: 'app.homepage.admin.layout_settings'|trans,
+             metadata: 'app.homepage.admin.metadata'|trans,
+             metaTitle: 'app.homepage.admin.page_title.label'|trans,
+             metaTitleHelp: 'app.homepage.admin.page_title.help'|trans,
+             metaOgDescription: 'app.homepage.admin.og_description.label'|trans,
+             metaOgDescriptionHelp: 'app.homepage.admin.og_description.help'|trans,
          }|json_encode }}">
     </div>
 {% endblock %}

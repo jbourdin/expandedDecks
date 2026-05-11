@@ -29,6 +29,24 @@ class HomepageLayoutTranslationTest extends TestCase
         self::assertNull($translation->getId());
         self::assertSame('en', $translation->getLocale());
         self::assertSame([], $translation->getBlockTranslations());
+        self::assertNull($translation->getTitle());
+        self::assertNull($translation->getOgDescription());
+    }
+
+    public function testSetTitle(): void
+    {
+        $translation = new HomepageLayoutTranslation();
+        $translation->setTitle('Welcome to the dowsing machine');
+
+        self::assertSame('Welcome to the dowsing machine', $translation->getTitle());
+    }
+
+    public function testSetOgDescription(): void
+    {
+        $translation = new HomepageLayoutTranslation();
+        $translation->setOgDescription('Browse the shared deck library, find archetypes, borrow for events.');
+
+        self::assertSame('Browse the shared deck library, find archetypes, borrow for events.', $translation->getOgDescription());
     }
 
     public function testSetLocale(): void
