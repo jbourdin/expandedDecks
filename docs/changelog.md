@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.11] — 2026-05-12
+
+Patch release: editor-uploaded images now produce working social-share previews. `og:image` and `twitter:image` were emitting the raw stored value (e.g. `/api/editor/image/banner.png`) — root-relative URLs that Facebook, Twitter, and LinkedIn crawlers don't resolve, so any homepage carousel slide, CMS page banner, or homepage OG image uploaded through the editor showed a blank preview when the URL was shared. Both meta tags are now absolutized at render time against the current channel's domain.
+
+### Bug Fixes
+
+- **Absolutize `og:image` and `twitter:image` to the channel domain** — adds `ChannelUrlGenerator::absolutizeUrl()` (and the `channel_absolute_url()` Twig function that wraps it) that prepends `{scheme}://{current_channel.domain}` to root-relative URLs while passing already-absolute `http(s)://` URLs through unchanged. `_partials/opengraph.html.twig` wraps both `og:image` and `twitter:image` emissions in the new function, fixing previews for every page that sets `og_image` (homepage, CMS pages with `Page.ogImage`, decks with `mosaicImageUrl`). Mirrors the existing `ChannelUrlGenerator::generateAbsoluteUrl()` shape so the canonical channel domain from the DB is used rather than `app.request.host` (which can drift under reverse proxies). Pinned by 5 new unit tests covering root-relative expansion, absolute `https://` and `http://` passthrough, empty-string passthrough, and current-channel domain resolution. ([#585](https://github.com/jbourdin/expandedDecks/pull/585))
+
+---
+
 ## [1.12.10] — 2026-05-12
 
 Patch release: editors can now set a per-locale **page title** and **Open Graph description** on the homepage from the admin block editor, and the secondary channel no longer leaks the app-channel's `"Expanded Decks — Shared Pokemon TCG Deck Library"` literal in its `<title>` tag — both behaviours now derive from `channel_param('brand_name', …)` with the per-page metadata layered on top. The admin editor's locale set also becomes channel-aware: only languages enabled on the current channel are exposed as inputs (and persisted on save), closing a latent gap where editors could translate copy on single-locale channels that would never render.
