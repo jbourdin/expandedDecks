@@ -108,4 +108,17 @@ class ChannelRuntime implements RuntimeExtensionInterface
             return $default;
         }
     }
+
+    /**
+     * Expand a raw URL to an absolute one rooted on the current channel
+     * domain. Already-absolute URLs and empty strings pass through unchanged.
+     * Used by the OG/Twitter Card image meta tags so crawlers can resolve
+     * editor-uploaded image paths like `/api/editor/image/...`.
+     *
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function channelAbsoluteUrl(string $url): string
+    {
+        return $this->channelUrlGenerator->absolutizeUrl($url);
+    }
 }

@@ -175,4 +175,25 @@ class ChannelUrlGenerator
 
         return $scheme.'://'.$targetChannel->getDomain().$path;
     }
+
+    /**
+     * Expand a raw URL value to an absolute URL anchored on the current
+     * channel's domain when it is a root-relative path (`/uploads/x.png`).
+     * Already-absolute `http(s)://...` URLs and empty strings are returned
+     * verbatim. Used for Open Graph and Twitter Card image meta tags, which
+     * require absolute URLs to be resolvable by social-media crawlers.
+     *
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function absolutizeUrl(string $url): string
+    {
+        if ('' === $url || str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+
+        $channel = $this->channelContext->getChannel();
+        $scheme = $this->urlGenerator->getContext()->getScheme();
+
+        return $scheme.'://'.$channel->getDomain().$url;
+    }
 }

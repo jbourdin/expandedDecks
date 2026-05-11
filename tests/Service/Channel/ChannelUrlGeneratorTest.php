@@ -196,6 +196,64 @@ final class ChannelUrlGeneratorTest extends TestCase
     }
 
     /**
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function testAbsolutizeUrlPrependsChannelDomainToRelativePath(): void
+    {
+        $generator = $this->createGenerator($this->contentChannel);
+
+        $result = $generator->absolutizeUrl('/api/editor/image/banner.png');
+
+        self::assertSame('https://expandedtalks.wip/api/editor/image/banner.png', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function testAbsolutizeUrlReturnsAbsoluteHttpsUrlUnchanged(): void
+    {
+        $generator = $this->createGenerator($this->appChannel);
+
+        $result = $generator->absolutizeUrl('https://cdn.example.com/img.png');
+
+        self::assertSame('https://cdn.example.com/img.png', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function testAbsolutizeUrlReturnsAbsoluteHttpUrlUnchanged(): void
+    {
+        $generator = $this->createGenerator($this->appChannel);
+
+        $result = $generator->absolutizeUrl('http://legacy.example.com/img.png');
+
+        self::assertSame('http://legacy.example.com/img.png', $result);
+    }
+
+    /**
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function testAbsolutizeUrlReturnsEmptyStringUnchanged(): void
+    {
+        $generator = $this->createGenerator($this->appChannel);
+
+        self::assertSame('', $generator->absolutizeUrl(''));
+    }
+
+    /**
+     * @see docs/features.md F18.28 — Open Graph and Twitter Card meta tags
+     */
+    public function testAbsolutizeUrlUsesCurrentChannelDomain(): void
+    {
+        $generator = $this->createGenerator($this->appChannel);
+
+        $result = $generator->absolutizeUrl('/uploads/og.png');
+
+        self::assertSame('https://expandeddecks.wip/uploads/og.png', $result);
+    }
+
+    /**
      * @param list<Channel>|null $findAll
      */
     private function createGenerator(
