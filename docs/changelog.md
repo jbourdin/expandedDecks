@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.10] — 2026-05-12
+
+Patch release: editors can now set a per-locale **page title** and **Open Graph description** on the homepage from the admin block editor, and the secondary channel no longer leaks the app-channel's `"Expanded Decks — Shared Pokemon TCG Deck Library"` literal in its `<title>` tag — both behaviours now derive from `channel_param('brand_name', …)` with the per-page metadata layered on top. The admin editor's locale set also becomes channel-aware: only languages enabled on the current channel are exposed as inputs (and persisted on save), closing a latent gap where editors could translate copy on single-locale channels that would never render.
+
+### Features
+
+- **Per-locale homepage title and OG description in the block editor** — adds `title` (VARCHAR 255, nullable) and `og_description` (TEXT, nullable) columns to `homepage_layout_translation` and surfaces them in a new "Page metadata" card in the React admin editor, with one input pair per active channel locale. At render time, an empty `title` falls back to the channel's `brand_name` parameter; a filled title is prepended as `"{title} — {brand_name}"`. An empty `og_description` simply omits the `<meta property="og:description">` tag (the OG partial was already guarded by `is defined and og_description`). The admin save endpoint trims blank inputs back to `null` so the DB never stores whitespace-only metadata. ([#577](https://github.com/jbourdin/expandedDecks/pull/577))
+- **Channel-aware locale set in the homepage admin editor** — the editor and `save()` endpoint now derive the locale list from `Channel::getLocales()` instead of a hardcoded `['en', 'fr']` constant. The content channel (`['en']` only in fixtures) no longer shows or persists FR inputs — neither for the new page-metadata fields nor for the existing block translations. Phantom translation rows can no longer be created on single-locale channels; a `FALLBACK_LOCALES = ['en']` constant guards the legacy null-channel path. Pinned by a `testSaveIgnoresLocalesNotEnabledOnChannel` regression test that posts FR meta against the content channel and asserts no FR row is created. ([#577](https://github.com/jbourdin/expandedDecks/pull/577))
+
+### Bug Fixes
+
+- **Secondary channel no longer leaks app-channel branding in `<title>`** — the two homepage templates (`home/index.html.twig`, `home/blocks.html.twig`) overrode `{% block title %}` with the hardcoded `app.home.title` translation key (`"Expanded Decks — Shared Pokemon TCG Deck Library"`), which rendered on every channel that used those templates — including the content channel. Both templates now resolve the title from `channel_param('brand_name', …)` (the same accessor `base.html.twig` already uses) with an optional per-locale `pageTitle` override from the new homepage metadata field. The obsolete `app.home.title` translation key is removed from both XLF files. ([#577](https://github.com/jbourdin/expandedDecks/pull/577))
+
+---
+
 ## [1.12.9] — 2026-05-11
 
 Patch release: lets search engines crawl editor-uploaded images. Adds `Allow: /api/editor/image/*` to both channels' robots.txt so the public-read endpoint that serves carousel slides, OG images, and CMS page banners is no longer caught by the broad `Disallow: /api/` rule — longest-match wins per the robots.txt spec, so the rest of `/api/` stays blocked.
