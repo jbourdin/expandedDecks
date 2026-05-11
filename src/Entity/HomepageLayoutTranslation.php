@@ -51,6 +51,13 @@ class HomepageLayoutTranslation
     #[ORM\Column(type: 'json')]
     private array $blockTranslations = [];
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $ogDescription = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -116,6 +123,30 @@ class HomepageLayoutTranslation
     public function setBlockTranslation(int $blockIndex, array $translation): static
     {
         $this->blockTranslations[$blockIndex] = $translation;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): static
+    {
+        $this->ogDescription = $ogDescription;
 
         return $this;
     }

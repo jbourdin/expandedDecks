@@ -43,6 +43,7 @@ if (root) {
     let supportedLocales: string[] = ['en', 'fr'];
     let initialBlocks: Record<string, unknown>[] = [];
     let initialTranslations: Record<string, Record<string, Record<string, unknown>>> = {};
+    let initialMeta: Record<string, { title: string; ogDescription: string }> = {};
     let blockTypes: BlockTypeInfo[] = [];
     let categories: CategoryInfo[] = [];
     let labels: Labels = {};
@@ -57,6 +58,10 @@ if (root) {
 
     try {
         initialTranslations = JSON.parse(root.dataset.translations ?? '{}');
+    } catch { /* use default */ }
+
+    try {
+        initialMeta = JSON.parse(root.dataset.meta ?? '{}');
     } catch { /* use default */ }
 
     try {
@@ -82,6 +87,7 @@ if (root) {
                 initialBlocks={initialBlocks}
                 initialTranslations={initialTranslations}
                 initialOgImage={initialOgImage}
+                initialMeta={initialMeta}
                 blockTypes={blockTypes}
                 categories={categories}
                 labels={labels}
