@@ -86,6 +86,10 @@ class RobotsTxtController extends AbstractController
             'Allow: /fr/pages/',
             'Allow: /en/archetypes',
             'Allow: /fr/archetypes',
+            // Public-read endpoint for editor-uploaded images (carousel
+            // slides, CMS page banners, OG images). Longest-match wins over
+            // `Disallow: /api/` below, so only this sub-path is crawlable.
+            'Allow: /api/editor/image/*',
             '',
             'Disallow: /admin/',
             'Disallow: /api/',
@@ -104,6 +108,10 @@ class RobotsTxtController extends AbstractController
             'Allow: /fr/pages/',
             'Allow: /deck/',
             'Allow: /event',
+            // Public-read endpoint for editor-uploaded images (carousel
+            // slides, CMS page banners, OG images). Longest-match wins over
+            // `Disallow: /api/` below, so only this sub-path is crawlable.
+            'Allow: /api/editor/image/*',
             '',
             'Disallow: /admin/',
             'Disallow: /api/',
