@@ -101,6 +101,25 @@ final class RobotsTxtControllerTest extends TestCase
         self::assertStringContainsString('max-age=3600', (string) $response->headers->get('Cache-Control'));
     }
 
+    public function testEditorImageEndpointIsAllowedOnBothChannels(): void
+    {
+        $appChannel = (new Channel())
+            ->setCode('app')
+            ->setDomain('expandeddecks.wip')
+            ->setEnableArchetypes(false);
+
+        $contentChannel = (new Channel())
+            ->setCode('content')
+            ->setDomain('expandedtalks.wip')
+            ->setEnableArchetypes(true);
+
+        $appBody = (string) $this->invokeController($appChannel)->getContent();
+        $contentBody = (string) $this->invokeController($contentChannel)->getContent();
+
+        self::assertStringContainsString('Allow: /api/editor/image/*', $appBody);
+        self::assertStringContainsString('Allow: /api/editor/image/*', $contentBody);
+    }
+
     private function invokeController(Channel $channel): \Symfony\Component\HttpFoundation\Response
     {
         $request = new Request();
