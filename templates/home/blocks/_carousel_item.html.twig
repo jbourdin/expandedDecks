@@ -27,14 +27,18 @@
  # @var item.caption        string  optional, overlay text (#555)
  # @var item.captionStyle   string  optional, one of HomepageCarouselCaptionStyle (#555);
  #                                  the renderer normalises invalid values to the default
+ # @var item.brightness     int     optional, 0–200; CSS `filter: brightness(N%)` applied
+ #                                  to the <img> only. Defaults to 80; the renderer
+ #                                  normalises invalid values to the default.
  # @var imgClass            string  optional, extra classes for the <img>
  #}
 {% set imgClass = imgClass|default('d-block w-100') %}
 {% set hasCaption = item.caption is defined and item.caption %}
+{% set brightness = item.brightness|default(80) %}
 
 {% if item.link is defined and item.link is not empty %}
     <a href="{{ item.link }}">
-        <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+        <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}" style="filter: brightness({{ brightness }}%);">
         {% if hasCaption %}
             <span class="carousel-caption-overlay carousel-caption-overlay--{{ item.captionStyle|default('white_on_black') }}" style="--caption-length: {{ item.caption|length }};">
                 <span class="carousel-caption-overlay-text">{{ item.caption }}</span>
@@ -42,7 +46,7 @@
         {% endif %}
     </a>
 {% else %}
-    <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}">
+    <img src="{{ item.image }}" class="{{ imgClass }}" alt="{{ item.alt|default('') }}" style="filter: brightness({{ brightness }}%);">
     {% if hasCaption %}
         <span class="carousel-caption-overlay carousel-caption-overlay--{{ item.captionStyle|default('white_on_black') }}">
             <span class="carousel-caption-overlay-text">{{ item.caption }}</span>

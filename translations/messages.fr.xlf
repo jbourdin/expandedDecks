@@ -4837,6 +4837,16 @@
                 <target>Couleur de marque</target>
                 <note>#555 — caption preset using brand palette colors</note>
             </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_brightness.label">
+                <source>app.homepage.admin.carousel_brightness.label</source>
+                <target>Luminosité de l'image</target>
+                <note>per-item CSS `filter: brightness()` applied to the image only (not the caption). 0–200%, default 80%.</note>
+            </trans-unit>
+            <trans-unit id="app.homepage.admin.carousel_brightness.help">
+                <source>app.homepage.admin.carousel_brightness.help</source>
+                <target>Pourcentage appliqué via un filtre CSS. 100 % laisse l'image inchangée ; en-dessous l'image est assombrie. Par défaut 80 %.</target>
+                <note>helper text under the brightness input</note>
+            </trans-unit>
             <trans-unit id="app.homepage.admin.image">
                 <source>app.homepage.admin.image</source>
                 <target>URL de l'image</target>
