@@ -139,6 +139,26 @@ footer {
 .navbar-pokemon .dropdown-menu {
     border: 1px solid rgba($ed-navy, .15);
     box-shadow: 0 .25rem .75rem rgb(0 0 0 / 15%);
+
+    .dropdown-item {
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+}
+
+// In the collapsed mobile navbar, Bootstrap positions dropdowns statically,
+// so the menu's intrinsic width would inflate its parent .nav-item and pull
+// the toggle off the right edge. Stretch the .nav-item to fill the navbar
+// instead, and pin the toggle to the right via text-align / justify-content.
+@include media-breakpoint-down(lg) {
+    .navbar-pokemon .navbar-nav .nav-item.dropdown {
+        align-self: stretch;
+
+        > .dropdown-toggle {
+            text-align: end;
+            justify-content: flex-end;
+        }
+    }
 }
 
 // Hide Bootstrap dropdown caret on icon-only toggle buttons (three-dots menus)
