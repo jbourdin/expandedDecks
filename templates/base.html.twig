@@ -13,7 +13,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {{ include('_partials/theme_color_scheme_script.html.twig') }}
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {% if channel_theme() == 'expandedtalks' %}
+            <link rel="icon" href="{{ asset('build/images/themes/expandedtalks/dowsing_favicon.svg') }}" type="image/svg+xml">
+        {% else %}
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {% endif %}
         {% block canonical %}{% endblock %}
         {% block hreflang %}
             {% set routeParams = app.request.attributes.get('_route_params', {}) %}
