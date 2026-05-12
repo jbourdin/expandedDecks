@@ -5753,6 +5753,11 @@
                 <target>Aucun résultat</target>
                 <note>Navbar autocomplete: empty state</note>
             </trans-unit>
+            <trans-unit id="app.search.navbar_open">
+                <source>app.search.navbar_open</source>
+                <target>Ouvrir la recherche</target>
+                <note>Mobile navbar: aria-label on the icon button that expands the search input</note>
+            </trans-unit>
 
             <!-- Decklist PDF (F5.13) -->
             <trans-unit id="app.decklist.player_name">
