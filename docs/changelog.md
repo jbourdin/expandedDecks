@@ -16,6 +16,17 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.12] — 2026-05-12
+
+Patch release: the **Expanded Talks** channel gets its own browser favicon and iOS Home Screen icon — a green Dowsing Machine artwork that replaces the default Expanded Decks favicon whenever the resolved theme is `expandedtalks`. Both assets ship through Encore's content-hashed copy-files pipeline under a theme-scoped path so the two channels' icons cannot collide in Bunny CDN's edge cache.
+
+### Features
+
+- **Per-channel favicon for Expanded Talks** — `base.html.twig` and `base_error.html.twig` now branch on `channel_theme()` to select the favicon: when the resolved theme is `expandedtalks`, the templates emit `<link rel="icon" type="image/svg+xml" href="…/dowsing_favicon.svg">` pointing at a 69 KB SVG that wraps a 256×256 PNG with a real alpha channel. The embedded raster was downscaled from a 1100×1100 transparent master with alpha-aware LANCZOS resampling (Pillow's RGBA mode preserves true `(0,0,0,0)` alpha at corners — the prior export-from-Adobe source PNG had a fully opaque background masquerading as transparent, causing Firefox to render the favicon on a white plate). The default Expanded Decks channel keeps the existing `/favicon.svg`. ([#587](https://github.com/jbourdin/expandedDecks/pull/587))
+- **iOS Home Screen `apple-touch-icon` for Expanded Talks** — adds `<link rel="apple-touch-icon" sizes="180x180" href="…/apple_touch_icon.png">` inside the same `channel_theme() == 'expandedtalks'` branch in both base templates. The 29 KB 180×180 PNG is downscaled from the same transparent master, so an Expanded Talks bookmark added from iOS Safari → Share → Add to Home Screen now shows the green dowsing icon (with iOS auto-rounded corners applied at the system level — no pre-rounding applied client-side) instead of a generic Safari placeholder. The default channel remains unchanged. ([#587](https://github.com/jbourdin/expandedDecks/pull/587))
+
+---
+
 ## [1.12.11] — 2026-05-12
 
 Patch release: editor-uploaded images now produce working social-share previews. `og:image` and `twitter:image` were emitting the raw stored value (e.g. `/api/editor/image/banner.png`) — root-relative URLs that Facebook, Twitter, and LinkedIn crawlers don't resolve, so any homepage carousel slide, CMS page banner, or homepage OG image uploaded through the editor showed a blank preview when the URL was shared. Both meta tags are now absolutized at render time against the current channel's domain.
