@@ -25,6 +25,7 @@ if (root) {
     const labelPlaceholder = root.dataset.labelPlaceholder ?? 'Search…';
     const labelSeeAll = root.dataset.labelSeeAll ?? 'See all results';
     const labelNoResults = root.dataset.labelNoResults ?? 'No results';
+    const labelOpenSearch = root.dataset.labelOpen ?? 'Open search';
 
     createRoot(root).render(
         <AppMantineProvider>
@@ -35,6 +36,7 @@ if (root) {
                     placeholder: labelPlaceholder,
                     seeAll: labelSeeAll,
                     noResults: labelNoResults,
+                    openSearch: labelOpenSearch,
                 }}
             />
         </AppMantineProvider>,
