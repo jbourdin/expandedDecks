@@ -19,6 +19,7 @@
         <title>{% block title %}Error — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         {% if channel_theme() == 'expandedtalks' %}
             <link rel="icon" href="{{ asset('build/images/themes/expandedtalks/dowsing_favicon.svg') }}" type="image/svg+xml">
+            <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/themes/expandedtalks/apple_touch_icon.png') }}">
         {% else %}
             <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         {% endif %}
