@@ -8,8 +8,8 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Combobox, TextInput, useCombobox } from '@mantine/core';
-import { useDebouncedValue } from '@mantine/hooks';
+import { ActionIcon, Combobox, TextInput, useCombobox } from '@mantine/core';
+import { useClickOutside, useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 
 /**
@@ -35,6 +35,7 @@ interface NavbarSearchProps {
         placeholder: string;
         seeAll: string;
         noResults: string;
+        openSearch: string;
     };
 }
 
@@ -51,8 +52,23 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
     const [debouncedQuery] = useDebouncedValue(query, 300);
     const [groups, setGroups] = useState<SearchGroup[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const isMobile = useMediaQuery('(max-width: 991.98px)', false, { getInitialValueInEffect: false });
     const abortRef = useRef<AbortController | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const combobox = useCombobox();
+    const containerRef = useClickOutside(() => {
+        if (isMobile && isExpanded) {
+            setIsExpanded(false);
+            combobox.closeDropdown();
+        }
+    });
+
+    useEffect(() => {
+        if (isExpanded) {
+            inputRef.current?.focus();
+        }
+    }, [isExpanded]);
 
     useEffect(() => {
         if (debouncedQuery.length < 2) {
@@ -102,10 +118,28 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
     const handleKeyDown = (event: React.KeyboardEvent) => {
         if (event.key === 'Enter' && !combobox.dropdownOpened) {
             window.location.href = `${searchPageUrl}?q=${encodeURIComponent(query)}`;
+        } else if (event.key === 'Escape' && isMobile) {
+            setIsExpanded(false);
+            combobox.closeDropdown();
         }
     };
 
+    if (isMobile && !isExpanded) {
+        return (
+            <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="lg"
+                aria-label={labels.openSearch}
+                onClick={() => setIsExpanded(true)}
+            >
+                <IconSearch size={20} />
+            </ActionIcon>
+        );
+    }
+
     return (
+        <div ref={containerRef}>
         <Combobox
             store={combobox}
             onOptionSubmit={handleOptionSubmit}
@@ -113,6 +147,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
         >
             <Combobox.Target>
                 <TextInput
+                    ref={inputRef}
                     placeholder={labels.placeholder}
                     value={query}
                     onChange={(event) => {
@@ -177,6 +212,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
                 </Combobox.Options>
             </Combobox.Dropdown>
         </Combobox>
+        </div>
     );
 };
 

@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.13] — 2026-05-13
+
+Patch release: the post-login redirect becomes channel-aware so users on channels without the deck feature no longer land on `/dashboard` (which 404s there via `ChannelFeatureGateListener`), and the `_target_path` open-redirect filter is consolidated into a single `LoginRedirectResolver` service shared by the form-login success handler and the login / register controllers. The mobile navbar also gets a search-collapse UX where the wide `TextInput` is replaced by an icon below the `lg` breakpoint and expands inline on tap, and long CMS titles in navbar dropdowns now wrap correctly inside the collapsed mobile menu without breaking desktop's shrink-to-fit dropdown sizing.
+
+### Features
+
+- **Channel-aware post-login default redirect** — adds `App\Security\LoginRedirectResolver` that returns `app_dashboard` on channels with `enableDecks=true` and `app_home` (`/`) otherwise. `SafeAuthenticationSuccessHandler` now mutates `$this->options['default_target_path']` per request before delegating to the parent, so authenticated users on a no-decks channel like `expandedtalks.wip` land on `/` instead of `/dashboard` — which `ChannelFeatureGateListener` 404s on those channels. The `_target_path` safety filter that rejects absolute URLs (`://`), protocol-relative paths (`//evil.com`) and nested `_target_path` payloads is consolidated into the same resolver and reused by `SecurityController::login()` and `RegistrationController::register()` (the duplicated `isSafeRedirectPath()` helpers are removed). Pinned by `LoginRedirectResolverTest` covering the safe/unsafe path matrix and channel-aware route choice, plus functional tests against the `expandedtalks.wip` channel and an ad-hoc no-decks-but-register-enabled channel. ([#592](https://github.com/jbourdin/expandedDecks/pull/592))
+- **Collapse navbar search to icon on mobile, expand on tap** — below the navbar's `lg` breakpoint, the wide centred `TextInput` is replaced by a Mantine `ActionIcon`; tapping it swaps in the existing input expanded inline with keyboard focus on, and `Escape` / tap-outside / a successful navigation collapse back to the icon. `useMediaQuery('(max-width: 991.98px)', false, { getInitialValueInEffect: false })` reads the viewport synchronously on first render so the icon paints from the very first frame (no input flicker on mobile), and `useClickOutside` ignores autocomplete dropdown clicks because the Combobox renders with `withinPortal={false}`. Desktop (`>= lg`) is unchanged — the existing inline Combobox + TextInput path stays as-is. New `app.search.navbar_open` translation key wired through the existing `data-label-*` pipeline as the trigger button's `aria-label`. ([#591](https://github.com/jbourdin/expandedDecks/pull/591))
+
+### Bug Fixes
+
+- **Wrap long navbar dropdown items on mobile without breaking desktop** — long CMS page titles (news article headlines, multi-page categories) in navbar dropdowns used to extend past the mobile viewport because Bootstrap's `.dropdown-item` is `white-space: nowrap`. Setting `white-space: normal` + `overflow-wrap: break-word` globally broke desktop, where the dropdown is `position: absolute` and shrink-to-fit — once items can wrap, the width collapses to Bootstrap's `--bs-dropdown-min-width` (10rem) and every news title wraps to a narrow column. The fix scopes both the wrap rule and the `.nav-item.dropdown` full-width stretch (which keeps the toggle pinned to the right edge on mobile) inside `@include media-breakpoint-down(lg)` — desktop reverts to Bootstrap's default `nowrap` shrink-to-fit behaviour, mobile gets a wide containing block that lets items wrap naturally. ([#589](https://github.com/jbourdin/expandedDecks/pull/589))
+
+---
+
 ## [1.12.12] — 2026-05-12
 
 Patch release: the **Expanded Talks** channel gets its own browser favicon and iOS Home Screen icon — a green Dowsing Machine artwork that replaces the default Expanded Decks favicon whenever the resolved theme is `expandedtalks`. Both assets ship through Encore's content-hashed copy-files pipeline under a theme-scoped path so the two channels' icons cannot collide in Bunny CDN's edge cache.
