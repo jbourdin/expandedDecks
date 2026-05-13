@@ -172,6 +172,23 @@ class AuthControllerTest extends AbstractFunctionalTest
         self::assertResponseRedirects('/deck');
     }
 
+    /**
+     * Channels without the deck feature must land authenticated users on the
+     * public home (/) rather than the deck dashboard, which 404s there.
+     *
+     * @see docs/features.md F18.7 — Feature-gate middleware for deck, event, and borrow routes
+     */
+    public function testLoginOnChannelWithoutDecksRedirectsToHome(): void
+    {
+        $this->client->request('GET', 'https://expandedtalks.wip/login');
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
+
+        self::assertResponseRedirects('https://expandedtalks.wip/');
+    }
+
     public function testRegistrationPreservesTargetPathInLoginRedirect(): void
     {
         $this->client->request('GET', '/register?_target_path=/deck/ABC123');
