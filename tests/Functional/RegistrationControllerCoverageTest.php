@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Channel;
+use Doctrine\ORM\EntityManagerInterface;
+
 /**
  * Additional coverage tests for RegistrationController uncovered branches.
  *
@@ -85,5 +88,48 @@ class RegistrationControllerCoverageTest extends AbstractFunctionalTest
         $this->client->request('GET', '/register?_target_path=/login%3F_target_path%3D/register');
 
         self::assertResponseRedirects('/dashboard');
+    }
+
+    /**
+     * On a channel without the deck feature, a logged-in user hitting /register
+     * with no target path lands on the public home (/) instead of the dashboard.
+     *
+     * Uses a custom channel where register stays enabled (so the controller is
+     * reachable) but decks are disabled (so the dashboard would 404).
+     *
+     * @see docs/features.md F18.7 — Feature-gate middleware for deck, event, and borrow routes
+     */
+    public function testRegisterRedirectsToHomeWhenLoggedInOnChannelWithoutDecks(): void
+    {
+        $this->persistNoDecksChannel('register-no-decks.wip');
+
+        $this->client->request('GET', 'https://register-no-decks.wip/login');
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
+        self::assertResponseRedirects('https://register-no-decks.wip/');
+
+        $this->client->request('GET', 'https://register-no-decks.wip/register');
+
+        self::assertResponseRedirects('https://register-no-decks.wip/');
+    }
+
+    private function persistNoDecksChannel(string $domain): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $channel = (new Channel())
+            ->setCode('no-decks-'.bin2hex(random_bytes(3)))
+            ->setDomain($domain)
+            ->setEnableDecks(false)
+            ->setEnableRegister(true)
+            ->setEnableEvents(false)
+            ->setEnableBorrows(false)
+            ->setEnableArchetypes(false)
+            ->setEnableBannedCards(false)
+            ->setLocales(['en']);
+        $entityManager->persist($channel);
+        $entityManager->flush();
     }
 }

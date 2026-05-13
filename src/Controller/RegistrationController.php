@@ -15,6 +15,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Security\LoginRedirectResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -38,18 +39,18 @@ class RegistrationController extends AbstractAppController
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
         MailerInterface $mailer,
+        LoginRedirectResolver $redirectResolver,
         #[Autowire('%app.verification_token_ttl%')] int $tokenTtl,
         #[Autowire('%app.mail_sender%')] string $mailSender,
         #[Autowire('%app.mail_sender_name%')] string $mailSenderName,
     ): Response {
         $targetPath = $request->query->getString('_target_path');
+        $safeTarget = $redirectResolver->isSafePath($targetPath) ? $targetPath : null;
 
         if ($this->getUser()) {
-            if ('' !== $targetPath && $this->isSafeRedirectPath($targetPath)) {
-                return $this->redirect($targetPath);
-            }
-
-            return $this->redirectToRoute('app_dashboard');
+            return null !== $safeTarget
+                ? $this->redirect($safeTarget)
+                : $this->redirectToRoute($redirectResolver->defaultRouteName());
         }
 
         $user = new User();
@@ -89,7 +90,7 @@ class RegistrationController extends AbstractAppController
 
             $this->addFlash('success', 'app.flash.auth.account_created');
 
-            $loginParams = ('' !== $targetPath && $this->isSafeRedirectPath($targetPath)) ? ['_target_path' => $targetPath] : [];
+            $loginParams = null !== $safeTarget ? ['_target_path' => $safeTarget] : [];
 
             return $this->redirectToRoute('app_login', $loginParams);
         }
@@ -97,25 +98,5 @@ class RegistrationController extends AbstractAppController
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
-    }
-
-    private function isSafeRedirectPath(string $path): bool
-    {
-        return str_starts_with($path, '/')
-            && !str_starts_with($path, '//')
-            && !str_contains($path, '://')
-            && !$this->containsNestedTargetPath($path);
-    }
-
-    private function containsNestedTargetPath(string $path): bool
-    {
-        $decoded = $path;
-
-        do {
-            $previous = $decoded;
-            $decoded = urldecode($decoded);
-        } while ($decoded !== $previous);
-
-        return str_contains($decoded, '_target_path');
     }
 }

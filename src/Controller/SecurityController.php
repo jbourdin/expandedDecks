@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Security\LoginRedirectResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,13 +29,18 @@ class SecurityController extends AbstractController
     use TargetPathTrait;
 
     #[Route('/login', name: 'app_login')]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
-    {
+    public function login(
+        Request $request,
+        AuthenticationUtils $authenticationUtils,
+        LoginRedirectResolver $redirectResolver,
+    ): Response {
         $targetPath = $request->query->getString('_target_path');
-        $safeTarget = ('' !== $targetPath && $this->isSafeRedirectPath($targetPath)) ? $targetPath : null;
+        $safeTarget = $redirectResolver->isSafePath($targetPath) ? $targetPath : null;
 
         if ($this->getUser()) {
-            return $this->redirect($safeTarget ?? $this->generateUrl('app_dashboard'));
+            return null !== $safeTarget
+                ? $this->redirect($safeTarget)
+                : $this->redirectToRoute($redirectResolver->defaultRouteName());
         }
 
         if (null !== $safeTarget) {
@@ -45,26 +51,6 @@ class SecurityController extends AbstractController
             'last_email' => $authenticationUtils->getLastUsername(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
-    }
-
-    private function isSafeRedirectPath(string $path): bool
-    {
-        return str_starts_with($path, '/')
-            && !str_starts_with($path, '//')
-            && !str_contains($path, '://')
-            && !$this->containsNestedTargetPath($path);
-    }
-
-    private function containsNestedTargetPath(string $path): bool
-    {
-        $decoded = $path;
-
-        do {
-            $previous = $decoded;
-            $decoded = urldecode($decoded);
-        } while ($decoded !== $previous);
-
-        return str_contains($decoded, '_target_path');
     }
 
     #[Route('/logout', name: 'app_logout')]

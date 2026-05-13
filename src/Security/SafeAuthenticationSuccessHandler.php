@@ -13,24 +13,40 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
+use Symfony\Component\Security\Http\HttpUtils;
 
 /**
- * Sanitizes _target_path to prevent open-redirect attacks.
- *
- * If the request contains an unsafe _target_path (absolute URL, protocol-relative, etc.),
- * it is removed so the parent handler falls through to session/default.
+ * Strips any `_target_path` that would redirect outside of the current site,
+ * then defers to the parent handler. When no safe target path is provided,
+ * the default target is chosen per channel so users on channels without the
+ * deck feature don't land on the deck dashboard (which 404s there).
  *
  * @see docs/features.md F1.2 — Log in / Log out
+ * @see docs/features.md F18.7 — Feature-gate middleware for deck, event, and borrow routes
  */
 class SafeAuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler
 {
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function __construct(
+        HttpUtils $httpUtils,
+        private readonly LoginRedirectResolver $resolver,
+        array $options = [],
+        ?LoggerInterface $logger = null,
+    ) {
+        parent::__construct($httpUtils, $options, $logger);
+    }
+
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): ?Response
     {
         $this->sanitizeTargetPath($request);
+        $this->options['default_target_path'] = $this->resolver->defaultRouteName();
 
         return parent::onAuthenticationSuccess($request, $token);
     }
@@ -39,29 +55,9 @@ class SafeAuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandl
     {
         foreach ([$request->request, $request->query] as $bag) {
             $targetPath = $bag->getString('_target_path');
-            if ('' !== $targetPath && !$this->isSafeRedirectPath($targetPath)) {
+            if ('' !== $targetPath && !$this->resolver->isSafePath($targetPath)) {
                 $bag->remove('_target_path');
             }
         }
-    }
-
-    private function isSafeRedirectPath(string $path): bool
-    {
-        return str_starts_with($path, '/')
-            && !str_starts_with($path, '//')
-            && !str_contains($path, '://')
-            && !$this->containsNestedTargetPath($path);
-    }
-
-    private function containsNestedTargetPath(string $path): bool
-    {
-        $decoded = $path;
-
-        do {
-            $previous = $decoded;
-            $decoded = urldecode($decoded);
-        } while ($decoded !== $previous);
-
-        return str_contains($decoded, '_target_path');
     }
 }

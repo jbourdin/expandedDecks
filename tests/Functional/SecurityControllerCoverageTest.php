@@ -110,4 +110,25 @@ class SecurityControllerCoverageTest extends AbstractFunctionalTest
 
         self::assertResponseRedirects('/dashboard');
     }
+
+    /**
+     * On a channel without the deck feature, a logged-in user visiting /login
+     * with no target path lands on the public home (/) — the dashboard 404s
+     * on that channel because ChannelFeatureGateListener blocks it.
+     *
+     * @see docs/features.md F18.7 — Feature-gate middleware for deck, event, and borrow routes
+     */
+    public function testLoginPageRedirectsToHomeWhenLoggedInOnChannelWithoutDecks(): void
+    {
+        $this->client->request('GET', 'https://expandedtalks.wip/login');
+        $this->client->submitForm('Login', [
+            '_email' => 'admin@example.com',
+            '_password' => 'password',
+        ]);
+        self::assertResponseRedirects('https://expandedtalks.wip/');
+
+        $this->client->request('GET', 'https://expandedtalks.wip/login');
+
+        self::assertResponseRedirects('https://expandedtalks.wip/');
+    }
 }
