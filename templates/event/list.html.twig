@@ -105,20 +105,17 @@
                                     {{ include('event/_tags.html.twig', {event: event}, false) }}
                                 </p>
                             {% endif %}
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    {{ 'app.event.organized_by'|trans({'%name%': event.organizer.screenName}) }}
-                                </small>
-                                {% if app.user and scope|default('all') != 'staffing' %}
-                                    {% set engagement = event.engagementFor(app.user) %}
-                                    {% if engagement is null %}
+                            {% if app.user and scope|default('all') != 'staffing' %}
+                                {% set engagement = event.engagementFor(app.user) %}
+                                {% if engagement is null %}
+                                    <div class="text-end">
                                         <form method="post" action="{{ path('app_event_interested', {id: event.id}) }}" class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('interested-event-' ~ event.id) }}">
                                             <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.interested_button'|trans }}</button>
                                         </form>
-                                    {% endif %}
+                                    </div>
                                 {% endif %}
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

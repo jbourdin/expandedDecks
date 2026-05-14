@@ -63,8 +63,11 @@
                         </dd>
                         <dt class="col-sm-4">{{ 'app.event.format'|trans }}</dt>
                         <dd class="col-sm-8">{{ event.format }}</dd>
-                        <dt class="col-sm-4">{{ 'app.event.organizer'|trans }}</dt>
-                        <dd class="col-sm-8">{{ event.organizer.screenName }}</dd>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            {# Organizer is conceptually the venue/store; the user account is only surfaced for admin verification. #}
+                            <dt class="col-sm-4">{{ 'app.event.organizer'|trans }}</dt>
+                            <dd class="col-sm-8">{{ event.organizer.screenName }}</dd>
+                        {% endif %}
                         {% if event.location %}
                             <dt class="col-sm-4">{{ 'app.event.location'|trans }}</dt>
                             <dd class="col-sm-8">{{ event.location }}</dd>
