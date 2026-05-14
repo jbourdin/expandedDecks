@@ -298,6 +298,7 @@
             {{ encore_entry_script_tags('app') }}
             {{ encore_entry_script_tags('navbar_search') }}
             {{ encore_entry_link_tags('navbar_search') }}
+            {{ encore_entry_script_tags('event_datetime_localize') }}
             {% if app.user and channel is defined and channel.enableDecks %}
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}

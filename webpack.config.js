@@ -48,6 +48,7 @@ Encore
     .addEntry('deck_found', './assets/deck-found.tsx')
     .addEntry('event_form', './assets/event-form.tsx')
     .addEntry('event_calendar_copy', './assets/event-calendar-copy.ts')
+    .addEntry('event_datetime_localize', './assets/event-datetime-localize.ts')
     .addEntry('banned_card_form', './assets/banned-card-form.tsx')
     .addEntry('banned_card_list', './assets/banned-card-list.ts')
 

@@ -327,6 +327,12 @@ footer {
     }
 }
 
+// Reserve space for a 2-line address on every event-list card so the rows
+// below (format, tags, button) align horizontally across the grid.
+.event-card-location {
+    min-height: calc(2 * 1.5em);
+}
+
 // --- Status badges ---
 
 .badge-available {

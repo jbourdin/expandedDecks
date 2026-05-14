@@ -1,22 +1,30 @@
 {#
- # Displays a UTC datetime in the event's timezone, with a tooltip
- # showing the user's local time when their timezone differs.
+ # Displays a UTC datetime in the event's timezone.
+ #
+ # For authenticated users with a saved profile timezone that differs from the event's, a tooltip
+ # icon shows their saved local time. For anonymous viewers (and as a fallback for everyone), the
+ # `event_datetime_localize` script reads the visitor's browser timezone via Intl and rewrites the
+ # visible text to the browser-local form when it differs from the event's timezone — keeping the
+ # original event-timezone string discoverable via the `title` attribute.
+ #
+ # @see docs/features.md F3.25 — Browser-local datetime on event pages
  #
  # Usage:
  #   {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone} %}
  #   {% include 'event/_datetime.html.twig' with {dt: event.date, tz: event.timezone, date_only: true} %}
  #}
-{%- if date_only|default(false) -%}
-    {{- dt|user_date(tz) -}}
+{%- set is_date_only = date_only|default(false) -%}
+{%- if is_date_only -%}
+    {%- set server_rendered = (dt|user_date(tz)) ~ ' ' ~ tz -%}
 {%- else -%}
-    {{- dt|user_datetime(tz) -}}
-{%- endif %} {{ dt|tz_abbr(tz) }}
-{%- set user_tz = app.user ? app.user.timezone : 'UTC' -%}
-{%- if user_tz != tz -%}
-    {%- if date_only|default(false) -%}
-        {%- set local_time = dt|user_date ~ ' ' ~ dt|tz_abbr -%}
+    {%- set server_rendered = (dt|user_datetime(tz)) ~ ' ' ~ tz -%}
+{%- endif -%}
+<time datetime="{{ dt|date('c', tz) }}" data-event-timezone="{{ tz }}"{% if is_date_only %} data-date-only{% endif %}>{{ server_rendered }}</time>
+{%- if app.user and app.user.timezone != tz -%}
+    {%- if is_date_only -%}
+        {%- set local_time = (dt|user_date) ~ ' ' ~ (app.user.timezone) -%}
     {%- else -%}
-        {%- set local_time = dt|user_datetime ~ ' ' ~ dt|tz_abbr -%}
+        {%- set local_time = (dt|user_datetime) ~ ' ' ~ (app.user.timezone) -%}
     {%- endif -%}
     <i class="bi bi-clock ms-1 text-muted small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'app.event.your_time'|trans }}: {{ local_time }}"></i>
 {%- endif -%}
