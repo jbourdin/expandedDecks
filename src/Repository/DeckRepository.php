@@ -306,30 +306,30 @@ class DeckRepository extends ServiceEntityRepository
 
     /**
      * Find decks available to borrow for an event: must be registered at this event
-     * (via EventDeckRegistration), not retired, not owned by the requesting user,
-     * not already being played (via EventDeckEntry), and not already borrowed.
+     * (via EventDeckRegistration), not retired, not owned by the requesting user
+     * (when one is provided — anonymous viewers see all owners), not already being
+     * played (via EventDeckEntry), and not already borrowed.
      *
      * @see docs/features.md F4.1 — Request to borrow a deck
      * @see docs/features.md F4.11 — Borrow conflict detection
+     * @see docs/features.md F3.24 — Public event detail page
      *
      * @return list<Deck>
      */
-    public function findAvailableForEvent(Event $event, User $excludeOwner): array
+    public function findAvailableForEvent(Event $event, ?User $excludeOwner): array
     {
         $eventDate = $event->getDate();
         $startOfDay = new \DateTimeImmutable($eventDate->format('Y-m-d').' 00:00:00');
         $endDate = $event->getEndDate() ?? $eventDate;
         $endOfDay = new \DateTimeImmutable($endDate->format('Y-m-d').' 23:59:59');
 
-        /** @var list<Deck> $decks */
-        $decks = $this->createQueryBuilder('d')
+        $queryBuilder = $this->createQueryBuilder('d')
             ->join('d.owner', 'o')
             ->addSelect('o')
             ->join('App\Entity\EventDeckRegistration', 'r', 'WITH', 'r.deck = d AND r.event = :event')
             ->where('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
             ->andWhere('d.format = :expandedFormat')
-            ->andWhere('d.owner != :excludeOwner')
             ->andWhere('d.currentVersion IS NOT NULL')
             ->andWhere('NOT EXISTS (
                 SELECT 1 FROM App\Entity\EventDeckEntry ede
@@ -347,13 +347,19 @@ class DeckRepository extends ServiceEntityRepository
             ->setParameter('event', $event)
             ->setParameter('retired', DeckStatus::Retired)
             ->setParameter('expandedFormat', DeckFormat::Expanded)
-            ->setParameter('excludeOwner', $excludeOwner)
             ->setParameter('activeStatuses', BorrowRepository::blockingStatusValues())
             ->setParameter('startOfDay', $startOfDay)
             ->setParameter('endOfDay', $endOfDay)
-            ->orderBy('d.name', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('d.name', 'ASC');
+
+        if ($excludeOwner instanceof User) {
+            $queryBuilder
+                ->andWhere('d.owner != :excludeOwner')
+                ->setParameter('excludeOwner', $excludeOwner);
+        }
+
+        /** @var list<Deck> $decks */
+        $decks = $queryBuilder->getQuery()->getResult();
 
         return $decks;
     }

@@ -280,22 +280,35 @@
                     </form>
                 {% else %}
                     {% if not event.finishedAt %}
-                        {% if canRegisterAsPlayer %}
+                        {% if app.user %}
+                            {% if canRegisterAsPlayer %}
+                                <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
+                                    <input type="hidden" name="mode" value="playing">
+                                    <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
+                                </form>
+                            {% endif %}
                             <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
                                 <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
-                                <input type="hidden" name="mode" value="playing">
-                                <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</button>
+                                <input type="hidden" name="mode" value="spectating">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
                             </form>
+                            <form method="post" action="{{ path('app_event_interested', {id: event.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('interested-event-' ~ event.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.interested_button'|trans }}</button>
+                            </form>
+                        {% else %}
+                            {# F3.24 — Anonymous viewers: replace POST forms with sign-in links that return here #}
+                            {% set loginTarget = path('app_login', {_target_path: app.request.requestUri}) %}
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                {% if canRegisterAsPlayer %}
+                                    <a href="{{ loginTarget }}" class="btn btn-sm btn-primary">{{ 'app.event.participation.register_player'|trans }}</a>
+                                {% endif %}
+                                <a href="{{ loginTarget }}" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</a>
+                                <a href="{{ loginTarget }}" class="btn btn-sm btn-outline-secondary">{{ 'app.event.interested_button'|trans }}</a>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0">{{ 'app.event.participation.signin_to_join'|trans }}</p>
                         {% endif %}
-                        <form method="post" action="{{ path('app_event_participate', {id: event.id}) }}" class="d-inline me-1">
-                            <input type="hidden" name="_token" value="{{ csrf_token('participate-event-' ~ event.id) }}">
-                            <input type="hidden" name="mode" value="spectating">
-                            <button type="submit" class="btn btn-sm btn-outline-primary">{{ 'app.event.participation.register_spectator'|trans }}</button>
-                        </form>
-                        <form method="post" action="{{ path('app_event_interested', {id: event.id}) }}" class="d-inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('interested-event-' ~ event.id) }}">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'app.event.interested_button'|trans }}</button>
-                        </form>
                     {% endif %}
                 {% endif %}
 
@@ -761,7 +774,10 @@
     {% endif %}
 
     {% if not event.cancelledAt and not event.finishedAt %}
-        {% set activeBorrows = eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']) %}
+        {# F3.24 — Anonymous viewers have no borrows; skip the filter to avoid dereferencing app.user. #}
+        {% set activeBorrows = app.user
+            ? eventBorrows|filter(b => b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue'])
+            : [] %}
 
         {% if isParticipant and (playableOwnDecks is not empty or activeBorrows is not empty) %}
             <div class="card shadow-sm mb-3" id="deck-selection">
@@ -890,7 +906,13 @@
                     </a>
                 {% endif %}
 
-                {% if not isParticipant %}
+                {# F3.24 — Anonymous viewers see "sign in to browse" copy; participants see the regular browse CTA #}
+                {% if not app.user %}
+                    <p class="text-muted mb-3">{{ 'app.event.participation.signin_to_browse'|trans }}</p>
+                    <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-outline-primary mb-3">
+                        {{ 'app.event.browse_available'|trans }}
+                    </a>
+                {% elseif not isParticipant %}
                     <p class="text-muted mb-3">{{ 'app.event.participation.register_to_browse'|trans }}</p>
                 {% elseif playableOwnDecks is empty and activeBorrows is empty %}
                     <a href="{{ path('app_event_decks', {id: event.id}) }}" class="btn btn-primary mb-3">
@@ -898,7 +920,9 @@
                     </a>
                 {% endif %}
 
-                {% set otherBorrows = eventBorrows|filter(b => not (b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue'])) %}
+                {% set otherBorrows = app.user
+                    ? eventBorrows|filter(b => not (b.borrower.id == app.user.id and b.status.value in ['pending', 'approved', 'lent', 'overdue']))
+                    : eventBorrows %}
                 {% if otherBorrows is not empty %}
                     <table class="table table-sm table-themed mb-0">
                         <thead>
