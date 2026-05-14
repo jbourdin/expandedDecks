@@ -36,16 +36,21 @@
                                     <br>{{ 'app.deck.archetype_label'|trans }} {% if deck.archetype.published %}<a href="{{ feature_url('archetypes', 'app_archetype_show', {slug: deck.archetype.slug}) }}"{{ not current_channel().enableArchetypes ? ' target="_blank" rel="noopener"' }}>{{ deck.archetype.localizedName(app.request.locale) }}</a>{% else %}{{ deck.archetype.localizedName(app.request.locale) }}{% endif %}
                                 {% endif %}
                             </p>
-                            <form method="post" action="{{ path('app_borrow_request') }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('borrow-request-' ~ event.id) }}">
-                                <input type="hidden" name="event_id" value="{{ event.id }}">
-                                <input type="hidden" name="deck_id" value="{{ deck.id }}">
-                                <input type="hidden" name="redirect_to" value="event_decks">
-                                <div class="mb-2">
-                                    <input type="text" name="notes" class="form-control form-control-sm" placeholder="{{ 'app.borrow.notes_label'|trans }}">
-                                </div>
-                                <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.request_to_borrow'|trans }}</button>
-                            </form>
+                            {% if app.user %}
+                                <form method="post" action="{{ path('app_borrow_request') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('borrow-request-' ~ event.id) }}">
+                                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                                    <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                    <input type="hidden" name="redirect_to" value="event_decks">
+                                    <div class="mb-2">
+                                        <input type="text" name="notes" class="form-control form-control-sm" placeholder="{{ 'app.borrow.notes_label'|trans }}">
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">{{ 'app.event.request_to_borrow'|trans }}</button>
+                                </form>
+                            {% else %}
+                                {# F3.24 — Anonymous viewers: redirect borrow CTA through sign-in #}
+                                <a href="{{ path('app_login', {_target_path: app.request.requestUri}) }}" class="btn btn-sm btn-primary">{{ 'app.event.sign_in_to_borrow'|trans }}</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

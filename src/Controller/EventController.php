@@ -65,7 +65,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * @see docs/features.md F4.14 — Staff custody handover tracking
  */
 #[Route('/event')]
-#[IsGranted('ROLE_USER')]
 class EventController extends AbstractAppController
 {
     /**
@@ -109,6 +108,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.3 — Event detail view
      * @see docs/features.md F3.7 — Register played deck for event
      * @see docs/features.md F3.11 — Event visibility
+     * @see docs/features.md F3.24 — Public event detail page
      */
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(
@@ -118,128 +118,132 @@ class EventController extends AbstractAppController
         EventDeckEntryRepository $entryRepository,
         EventDeckRegistrationRepository $registrationRepository,
     ): Response {
-        /** @var User $user */
         $user = $this->getUser();
+        \assert(null === $user || $user instanceof User);
 
-        // Draft/Private events: only visible to organizer, staff, invited users, and admins
-        if (EventVisibility::Public !== $event->getVisibility()
-            && !$event->isOrganizerOrStaff($user)
-            && !$this->isGranted('ROLE_ADMIN')) {
-            $engagement = $event->getEngagementFor($user);
-            if (null === $engagement || null === $engagement->getInvitedBy()) {
+        // Non-public events: anonymous viewers are denied; logged-in viewers must
+        // be organizer, staff, invited, or admin.
+        if (EventVisibility::Public !== $event->getVisibility()) {
+            if (null === $user) {
                 throw $this->createAccessDeniedException();
             }
-        }
-
-        $userEngagement = $event->getEngagementFor($user);
-        $isParticipant = null !== $userEngagement;
-
-        // Build registration map first — needed for both "Your Decks" table and playability filter
-        $deckRegistrationMap = [];
-        foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
-            $deckId = $reg->getDeck()->getId();
-            if (null !== $deckId) {
-                $deckRegistrationMap[$deckId] = [
-                    'registered' => true,
-                    'delegated' => $reg->isDelegateToStaff(),
-                    'registrationId' => $reg->getId(),
-                    'staffReceivedAt' => $reg->getStaffReceivedAt(),
-                    'staffReturnedAt' => $reg->getStaffReturnedAt(),
-                ];
+            if (!$event->isOrganizerOrStaff($user) && !$this->isGranted('ROLE_ADMIN')) {
+                $engagement = $event->getEngagementFor($user);
+                if (null === $engagement || null === $engagement->getInvitedBy()) {
+                    throw $this->createAccessDeniedException();
+                }
             }
         }
 
+        $userEngagement = null;
+        $isParticipant = false;
+        $isOrganizer = false;
+        $isStaff = false;
+        $eventBorrows = [];
         $playableOwnDecks = [];
         $currentDeckEntry = null;
         $canChangeDeck = false;
-
         $deckBorrowBlockMap = [];
         $deckPendingBorrowCountMap = [];
-
-        if ($isParticipant) {
-            $playableOwnDecks = array_filter(
-                $deckRepository->findByOwner($user),
-                static fn (Deck $deck): bool => DeckStatus::Retired !== $deck->getStatus()
-                    && null !== $deck->getCurrentVersion(),
-            );
-            $playableOwnDecks = array_values($playableOwnDecks);
-
-            // Build borrow conflict maps for own decks at this event
-            foreach ($playableOwnDecks as $deck) {
-                $deckId = $deck->getId();
-                if (null === $deckId) {
-                    continue;
-                }
-
-                if (null !== $borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
-                    $deckBorrowBlockMap[$deckId] = true;
-                }
-
-                $pendingCount = \count($borrowRepository->findAllPendingBorrowsForDeckAtEvent($deck, $event));
-                if ($pendingCount > 0) {
-                    $deckPendingBorrowCountMap[$deckId] = $pendingCount;
-                }
-            }
-
-            $currentDeckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
-            $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
-        }
-
-        // Delegation: show owner's decks with version (eligible for registration)
-        $ownedDecksWithVersion = array_filter(
-            $deckRepository->findByOwner($user),
-            static fn (Deck $deck): bool => null !== $deck->getCurrentVersion()
-                && DeckStatus::Retired !== $deck->getStatus()
-                && $deck->isEventRegisterable(),
-        );
-        $ownedDecksWithVersion = array_values($ownedDecksWithVersion);
-
-        $isStaff = $event->isOrganizerOrStaff($user);
-
-        $delegatedRegistrations = $isStaff ? $registrationRepository->findDelegatedByEvent($event) : [];
-
-        // Ending phase banner data
+        $deckRegistrationMap = [];
+        $ownedDecksWithVersion = [];
+        $delegatedBorrows = [];
+        $delegatedRegistrations = [];
         $endingPhaseLentBorrows = 0;
         $endingPhaseOwnerStats = ['inCustody' => 0, 'stillOut' => 0];
         $endingPhaseGlobalStats = ['returned' => 0, 'stillOut' => 0];
 
-        if (null !== $event->getEndingPhaseAt() && null === $event->getFinishedAt()) {
-            // Count user's lent borrows as borrower
-            $lentBorrows = $borrowRepository->findLentBorrowsByEvent($event);
-            foreach ($lentBorrows as $borrow) {
-                if ($borrow->getBorrower()->getId() === $user->getId()) {
-                    ++$endingPhaseLentBorrows;
+        if (null !== $user) {
+            $userEngagement = $event->getEngagementFor($user);
+            $isParticipant = null !== $userEngagement;
+            $isOrganizer = $event->getOrganizer()->getId() === $user->getId();
+            $isStaff = $event->isOrganizerOrStaff($user);
+            $eventBorrows = $borrowRepository->findByEventForUser($event, $user);
+
+            foreach ($registrationRepository->findByEventAndOwner($event, $user) as $reg) {
+                $deckId = $reg->getDeck()->getId();
+                if (null !== $deckId) {
+                    $deckRegistrationMap[$deckId] = [
+                        'registered' => true,
+                        'delegated' => $reg->isDelegateToStaff(),
+                        'registrationId' => $reg->getId(),
+                        'staffReceivedAt' => $reg->getStaffReceivedAt(),
+                        'staffReturnedAt' => $reg->getStaffReturnedAt(),
+                    ];
                 }
             }
 
-            // Owner stats: decks in custody vs still out
-            $userId = $user->getId();
-            foreach ($lentBorrows as $borrow) {
-                if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
-                    ++$endingPhaseOwnerStats['stillOut'];
+            if ($isParticipant) {
+                $playableOwnDecks = array_values(array_filter(
+                    $deckRepository->findByOwner($user),
+                    static fn (Deck $deck): bool => DeckStatus::Retired !== $deck->getStatus()
+                        && null !== $deck->getCurrentVersion(),
+                ));
+
+                foreach ($playableOwnDecks as $deck) {
+                    $deckId = $deck->getId();
+                    if (null === $deckId) {
+                        continue;
+                    }
+
+                    if (null !== $borrowRepository->findBlockingBorrowForDeckAtEvent($deck, $event)) {
+                        $deckBorrowBlockMap[$deckId] = true;
+                    }
+
+                    $pendingCount = \count($borrowRepository->findAllPendingBorrowsForDeckAtEvent($deck, $event));
+                    if ($pendingCount > 0) {
+                        $deckPendingBorrowCountMap[$deckId] = $pendingCount;
+                    }
                 }
-            }
-            $custodyBorrows = $borrowRepository->findInCustodyBorrowsByEvent($event);
-            foreach ($custodyBorrows as $borrow) {
-                if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
-                    ++$endingPhaseOwnerStats['inCustody'];
-                }
+
+                $currentDeckEntry = $entryRepository->findOneByEventAndPlayer($event, $user);
+                $canChangeDeck = !$currentDeckEntry || $event->getDate() > new \DateTimeImmutable();
             }
 
-            // Global stats for organizer/staff
+            $ownedDecksWithVersion = array_values(array_filter(
+                $deckRepository->findByOwner($user),
+                static fn (Deck $deck): bool => null !== $deck->getCurrentVersion()
+                    && DeckStatus::Retired !== $deck->getStatus()
+                    && $deck->isEventRegisterable(),
+            ));
+
             if ($isStaff) {
-                $endingPhaseGlobalStats['stillOut'] = \count($lentBorrows);
-                $endingPhaseGlobalStats['returned'] = \count($custodyBorrows);
+                $delegatedRegistrations = $registrationRepository->findDelegatedByEvent($event);
+                $delegatedBorrows = $borrowRepository->findDelegatedBorrowsByEvent($event);
+            }
+
+            if (null !== $event->getEndingPhaseAt() && null === $event->getFinishedAt()) {
+                $userId = $user->getId();
+                $lentBorrows = $borrowRepository->findLentBorrowsByEvent($event);
+                foreach ($lentBorrows as $borrow) {
+                    if ($borrow->getBorrower()->getId() === $userId) {
+                        ++$endingPhaseLentBorrows;
+                    }
+                    if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
+                        ++$endingPhaseOwnerStats['stillOut'];
+                    }
+                }
+                $custodyBorrows = $borrowRepository->findInCustodyBorrowsByEvent($event);
+                foreach ($custodyBorrows as $borrow) {
+                    if ($borrow->getDeck()->getOwnerOrFail()->getId() === $userId) {
+                        ++$endingPhaseOwnerStats['inCustody'];
+                    }
+                }
+
+                if ($isStaff) {
+                    $endingPhaseGlobalStats['stillOut'] = \count($lentBorrows);
+                    $endingPhaseGlobalStats['returned'] = \count($custodyBorrows);
+                }
             }
         }
 
         return $this->render('event/show.html.twig', [
             'event' => $event,
-            'isOrganizer' => $event->getOrganizer()->getId() === $user->getId(),
+            'isOrganizer' => $isOrganizer,
             'isStaff' => $isStaff,
             'userEngagement' => $userEngagement,
             'isParticipant' => $isParticipant,
-            'eventBorrows' => $borrowRepository->findByEventForUser($event, $user),
+            'eventBorrows' => $eventBorrows,
             'playableOwnDecks' => $playableOwnDecks,
             'currentDeckEntry' => $currentDeckEntry,
             'canChangeDeck' => $canChangeDeck,
@@ -247,7 +251,7 @@ class EventController extends AbstractAppController
             'deckPendingBorrowCountMap' => $deckPendingBorrowCountMap,
             'ownedDecksWithVersion' => $ownedDecksWithVersion,
             'deckRegistrationMap' => $deckRegistrationMap,
-            'delegatedBorrows' => $isStaff ? $borrowRepository->findDelegatedBorrowsByEvent($event) : [],
+            'delegatedBorrows' => $delegatedBorrows,
             'delegatedRegistrations' => $delegatedRegistrations,
             'hasResults' => null !== $event->getFinishedAt() ? $entryRepository->hasResults($event) : false,
             'endingPhaseLentBorrows' => $endingPhaseLentBorrows,
@@ -260,22 +264,27 @@ class EventController extends AbstractAppController
      * Browse decks available to borrow for this event.
      *
      * @see docs/features.md F4.1 — Request to borrow a deck
+     * @see docs/features.md F3.24 — Public event detail page
      */
     #[Route('/{id}/decks', name: 'app_event_decks', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function availableDecks(Event $event, DeckRepository $deckRepository): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
+        \assert(null === $user || $user instanceof User);
+
+        if (EventVisibility::Public !== $event->getVisibility() && null === $user) {
+            throw $this->createAccessDeniedException();
+        }
 
         if (null !== $event->getCancelledAt() || null !== $event->getFinishedAt() || null !== $event->getEndingPhaseAt()) {
-            $this->addFlash('warning', 'app.flash.event.cannot_browse_cancelled');
+            if (null !== $user) {
+                $this->addFlash('warning', 'app.flash.event.cannot_browse_cancelled');
+            }
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
-        $userEngagement = $event->getEngagementFor($user);
-
-        if (null === $userEngagement) {
+        if (null !== $user && null === $event->getEngagementFor($user)) {
             $this->addFlash('warning', 'app.flash.event.register_to_browse');
 
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
@@ -291,6 +300,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.7 — Register played deck for event
      */
     #[Route('/{id}/select-deck', name: 'app_event_select_deck', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function selectDeck(
         Event $event,
         Request $request,
@@ -550,6 +560,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.23 — Organizer handover
      */
     #[Route('/{id}/transfer/accept', name: 'app_event_transfer_accept', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function transferAccept(
         Event $event,
         Request $request,
@@ -584,6 +595,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.23 — Organizer handover
      */
     #[Route('/{id}/transfer/decline', name: 'app_event_transfer_decline', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function transferDecline(
         Event $event,
         Request $request,
@@ -720,6 +732,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
     #[Route('/{id}/participate', name: 'app_event_participate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function participate(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('participate-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
@@ -794,6 +807,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.13 — Player engagement states
      */
     #[Route('/{id}/interested', name: 'app_event_interested', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function interested(Event $event, Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('interested-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
@@ -894,6 +908,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F3.21 — Clear deck selection on withdrawal
      */
     #[Route('/{id}/withdraw', name: 'app_event_withdraw', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function withdraw(Event $event, Request $request, EntityManagerInterface $em, EventDeckEntryRepository $entryRepository): Response
     {
         if (!$this->isCsrfTokenValid('withdraw-event-'.$event->getId(), $request->getPayload()->getString('_token'))) {
@@ -1033,6 +1048,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.8 — Staff-delegated lending
      */
     #[Route('/{id}/toggle-registration', name: 'app_event_toggle_registration', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function toggleDeckRegistration(
         Event $event,
         Request $request,
@@ -1115,6 +1131,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.8 — Staff-delegated lending
      */
     #[Route('/{id}/toggle-delegation', name: 'app_event_toggle_delegation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function toggleDeckDelegation(
         Event $event,
         Request $request,
@@ -1189,6 +1206,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.14 — Staff custody handover tracking
      */
     #[Route('/{id}/custody/{registrationId}/owner-handover', name: 'app_event_custody_owner_handover', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function ownerHandover(
         Event $event,
         int $registrationId,
@@ -1229,6 +1247,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.14 — Staff custody handover tracking
      */
     #[Route('/{id}/custody/{registrationId}/staff-return', name: 'app_event_custody_staff_return', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function staffReturn(
         Event $event,
         int $registrationId,
@@ -1269,6 +1288,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.14 — Staff custody handover tracking
      */
     #[Route('/{id}/custody/{registrationId}/owner-reclaim', name: 'app_event_custody_owner_reclaim', methods: ['POST'], requirements: ['id' => '\d+', 'registrationId' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function ownerReclaim(
         Event $event,
         int $registrationId,
@@ -1307,6 +1327,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.12 — Walk-up lending (direct lend)
      */
     #[Route('/{id}/walk-up', name: 'app_event_walk_up', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function walkUp(Event $event): Response
     {
         /** @var User $user */
@@ -1331,6 +1352,7 @@ class EventController extends AbstractAppController
      * @see docs/features.md F4.12 — Walk-up lending (direct lend)
      */
     #[Route('/{id}/walk-up', name: 'app_event_walk_up_submit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function walkUpSubmit(Event $event, Request $request, BorrowService $borrowService, DeckRepository $deckRepository, UserRepository $userRepository): Response
     {
         /** @var User $user */

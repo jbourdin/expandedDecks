@@ -1494,6 +1494,16 @@
                 <target>Register as a participant to browse and borrow decks.</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
+            <trans-unit id="app.event.participation.signin_to_browse">
+                <source>app.event.participation.signin_to_browse</source>
+                <target>Sign in to register as a participant and browse decks available to borrow.</target>
+                <note>Anonymous visitor prompt on event detail (F3.24)</note>
+            </trans-unit>
+            <trans-unit id="app.event.participation.signin_to_join">
+                <source>app.event.participation.signin_to_join</source>
+                <target>Sign in to register or express interest in this event.</target>
+                <note>Anonymous visitor prompt in participation card (F3.24)</note>
+            </trans-unit>
             <trans-unit id="app.event.participation.interested_count">
                 <source>app.event.participation.interested_count</source>
                 <target>%count% interested</target>
@@ -1783,6 +1793,11 @@
                 <source>app.event.request_to_borrow</source>
                 <target>Request to borrow</target>
                 <note>Button to submit a borrow request from available decks page</note>
+            </trans-unit>
+            <trans-unit id="app.event.sign_in_to_borrow">
+                <source>app.event.sign_in_to_borrow</source>
+                <target>Sign in to borrow</target>
+                <note>Anonymous visitor CTA replacing the borrow form on the available decks page (F3.24)</note>
             </trans-unit>
             <trans-unit id="app.event.staff_custody">
                 <source>app.event.staff_custody</source>
