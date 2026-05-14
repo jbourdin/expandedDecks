@@ -15,16 +15,16 @@
  #}
 {%- set is_date_only = date_only|default(false) -%}
 {%- if is_date_only -%}
-    {%- set server_rendered = (dt|user_date(tz)) ~ ' ' ~ (dt|tz_abbr(tz)) -%}
+    {%- set server_rendered = (dt|user_date(tz)) ~ ' ' ~ tz -%}
 {%- else -%}
-    {%- set server_rendered = (dt|user_datetime(tz)) ~ ' ' ~ (dt|tz_abbr(tz)) -%}
+    {%- set server_rendered = (dt|user_datetime(tz)) ~ ' ' ~ tz -%}
 {%- endif -%}
 <time datetime="{{ dt|date('c', tz) }}" data-event-timezone="{{ tz }}"{% if is_date_only %} data-date-only{% endif %}>{{ server_rendered }}</time>
 {%- if app.user and app.user.timezone != tz -%}
     {%- if is_date_only -%}
-        {%- set local_time = (dt|user_date) ~ ' ' ~ (dt|tz_abbr) -%}
+        {%- set local_time = (dt|user_date) ~ ' ' ~ (app.user.timezone) -%}
     {%- else -%}
-        {%- set local_time = (dt|user_datetime) ~ ' ' ~ (dt|tz_abbr) -%}
+        {%- set local_time = (dt|user_datetime) ~ ' ' ~ (app.user.timezone) -%}
     {%- endif -%}
     <i class="bi bi-clock ms-1 text-muted small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'app.event.your_time'|trans }}: {{ local_time }}"></i>
 {%- endif -%}

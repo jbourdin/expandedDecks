@@ -32,7 +32,6 @@ function buildFormatOptions(timezone: string, dateOnly: boolean): Intl.DateTimeF
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-        timeZoneName: 'short',
     };
     if (dateOnly) {
         return baseOptions;
@@ -67,7 +66,8 @@ function localize(): void {
 
         const dateOnly = element.hasAttribute('data-date-only');
         const eventLocal = element.textContent?.trim() ?? '';
-        const browserLocal = new Intl.DateTimeFormat(locale, buildFormatOptions(browserTimezone, dateOnly)).format(parsed);
+        const formattedDateTime = new Intl.DateTimeFormat(locale, buildFormatOptions(browserTimezone, dateOnly)).format(parsed);
+        const browserLocal = `${formattedDateTime} ${browserTimezone}`;
 
         element.textContent = browserLocal;
         if (eventLocal !== '') {
