@@ -148,4 +148,21 @@ final class WorkerHealthCheckerTest extends TestCase
     {
         self::assertNull(WorkerHealthChecker::parseState(''));
     }
+
+    public function testDefaultRunnerIsExercisedWhenNoRunnerInjected(): void
+    {
+        // Construct the checker WITHOUT injecting a stub runner, so the real
+        // default Process+supervisorctl path runs. On CI's PHP-only runner
+        // supervisorctl is absent, which hits the ProcessException catch
+        // branch; if it happens to be installed, the unix socket is not, so
+        // supervisorctl exits non-zero with parseable error output. Either
+        // way: APP_ENV=test forces a non-'ok' outcome down to 'skipped', so
+        // this assertion holds regardless of the host's supervisor state.
+        $checker = new WorkerHealthChecker('test');
+
+        $result = $checker->check();
+
+        self::assertContains($result['status'], ['ok', 'skipped']);
+        self::assertArrayHasKey('latency_ms', $result);
+    }
 }
