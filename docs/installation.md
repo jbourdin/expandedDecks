@@ -148,8 +148,13 @@ php bin/console doctrine:migrations:migrate --no-interaction
 
 The application exposes health check endpoints for container orchestration:
 
-- **Liveness:** `GET /health` — returns 200 if the application process is running
-- **Readiness:** `GET /health/ready` — returns 200 if the database connection is healthy
+- **Liveness:** `GET /health` — returns 200 if the application process is running.
+- **Readiness:** `GET /health/ready` — returns 200 when all critical checks pass, 503 otherwise. The JSON body has the shape `{ "status": "healthy|unhealthy", "version": "...", "checks": { ... } }` and includes:
+  - `database` — `SELECT 1` round-trip latency. **Critical** (fail ⇒ 503).
+  - `worker` — local Supervisor state of `worker-messenger` via `supervisorctl`. Healthy states: `RUNNING`, `STARTING`. **Critical only when `APP_ENV=prod`**; in dev / CI the check reports `skipped`.
+  - `meilisearch` — search service health. Non-critical (reported, never fails the endpoint).
+
+Point your orchestrator's readiness probe at `/health/ready` to gate new container rollouts on the worker actually being up inside that container.
 
 ---
 

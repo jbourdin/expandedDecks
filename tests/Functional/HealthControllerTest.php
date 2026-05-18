@@ -40,6 +40,24 @@ class HealthControllerTest extends AbstractFunctionalTest
         self::assertArrayHasKey('version', $data);
     }
 
+    public function testReadinessReportsWorkerCheckAsSkippedInTestEnv(): void
+    {
+        $this->client->request('GET', '/health/ready');
+
+        self::assertResponseIsSuccessful();
+
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('checks', $data);
+        self::assertIsArray($data['checks']);
+        self::assertArrayHasKey('worker', $data['checks']);
+        self::assertIsArray($data['checks']['worker']);
+
+        // APP_ENV=test → supervisorctl is unprovisioned → checker returns
+        // 'skipped' rather than 'fail' so local runs and CI stay green.
+        self::assertSame('skipped', $data['checks']['worker']['status']);
+    }
+
     public function testHealthEndpointsAccessibleWithoutAuth(): void
     {
         // No loginAs() call — verify both endpoints work without authentication
