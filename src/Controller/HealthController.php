@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\Health\WorkerHealthChecker;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,6 +25,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Liveness and readiness probes for container orchestration.
  *
  * @see docs/features.md F14.4 — Health check endpoint
+ * @see docs/features.md F14.8 — Worker liveness check on /health/ready
  */
 class HealthController
 {
@@ -31,6 +33,7 @@ class HealthController
         private readonly Connection $connection,
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
+        private readonly WorkerHealthChecker $workerHealthChecker,
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'APP_VERSION')]
         private readonly string $appVersion,
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire(env: 'MEILI_URL')]
@@ -60,6 +63,15 @@ class HealthController
 
         $checks['database'] = $this->checkDatabase();
         if ('ok' !== $checks['database']['status']) {
+            $healthy = false;
+        }
+
+        // Worker is checked locally via supervisorctl so a fresh container with
+        // a crash-looping consumer fails its readiness probe and stays out of
+        // rotation. In non-prod environments the checker returns 'skipped'
+        // (supervisorctl isn't provisioned), so this never breaks local runs.
+        $checks['worker'] = $this->workerHealthChecker->check();
+        if ('fail' === $checks['worker']['status']) {
             $healthy = false;
         }
 
