@@ -135,13 +135,22 @@ RUN mkdir -p /var/lib/meilisearch/data && chown -R www-data:www-data /var/lib/me
 # Supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Supervisord eventlistener: shuts down PID 1 when worker-messenger reaches
+# FATAL so the orchestrator replaces the instance instead of leaving the
+# container alive with a dead consumer.
+COPY supervisor-fatal-listener.sh /usr/local/bin/supervisor-fatal-listener.sh
+RUN chmod +x /usr/local/bin/supervisor-fatal-listener.sh
+
 # Startup script: clears and warms cache, then execs Supervisor
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 
+# Probe the readiness endpoint so a dead worker (state FATAL) surfaces as an
+# unhealthy container locally. Scaleway Serverless Containers ignore this
+# directive; production self-healing is driven by the supervisord eventlistener.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:8080/health/ready || exit 1
 
 EXPOSE 8080
 
