@@ -156,6 +156,12 @@ The application exposes health check endpoints for container orchestration:
 
 Point your orchestrator's readiness probe at `/health/ready` to gate new container rollouts on the worker actually being up inside that container.
 
+### Self-healing on worker failure
+
+The container is designed to self-recycle when the messenger consumer can no longer be revived locally. Supervisor manages `worker-messenger` with `autorestart=true` and `startretries=5`; once that retry budget is exhausted Supervisor marks the program `FATAL` and stops trying. A dedicated supervisord eventlistener (`supervisor-fatal-listener.sh`) subscribes to `PROCESS_STATE_FATAL` and runs `supervisorctl shutdown` when the offending program is `worker-messenger`. That terminates supervisord (PID 1) and exits the container, so the orchestrator — Scaleway Serverless Containers, `docker run --restart=always`, Kubernetes, etc. — spawns a fresh instance with a clean supervisor tree.
+
+No orchestrator-side configuration is required; the recovery path relies only on PID-1 exit semantics. The Dockerfile `HEALTHCHECK` is wired to `/health/ready` for visibility when running under plain Docker.
+
 ---
 
 ## Minimal Production Example
