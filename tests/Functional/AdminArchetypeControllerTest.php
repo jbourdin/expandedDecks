@@ -92,6 +92,29 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('h1', 'Iron Thorns ex');
     }
 
+    /**
+     * Regression guard: the variant table on the admin archetype edit page must
+     * render sprites via the proxy route (`/sprites/pokemon/{slug}.png`), not the
+     * dead legacy `build/sprites/pokemon/` URL — webpack no longer copies the
+     * PokéSprite vendor bundle to `public/build/`, so the legacy path 404s.
+     *
+     * @see docs/features.md F2.26 — Upgrade sprites to Pokemon HOME 3D renders
+     */
+    public function testEditPageDoesNotUseLegacySpriteUrls(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Iron Thorns ex');
+        $this->client->request('GET', '/admin/archetypes/'.$archetype->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertStringNotContainsString(
+            'build/sprites/pokemon/',
+            (string) $this->client->getResponse()->getContent(),
+            'Admin archetype edit page must not emit the dead legacy `build/sprites/pokemon/` URL — use the proxy route instead.',
+        );
+    }
+
     public function testEditUpdatesArchetype(): void
     {
         $this->loginAs('admin@example.com');
