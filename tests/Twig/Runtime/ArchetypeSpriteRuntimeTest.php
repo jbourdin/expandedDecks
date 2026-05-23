@@ -154,4 +154,44 @@ class ArchetypeSpriteRuntimeTest extends TestCase
 
         self::assertSame('', $this->runtime->renderDeckSprites($deck));
     }
+
+    /**
+     * @see docs/features.md F2.12 — Archetype sprite pictograms
+     */
+    public function testRenderSpritesDefaultContextOmitsInlineModifier(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['lugia']);
+
+        $html = $this->runtime->renderSprites($archetype);
+
+        self::assertStringContainsString('class="archetype-sprites"', $html);
+        self::assertStringNotContainsString('archetype-sprites--inline', $html);
+    }
+
+    /**
+     * @see docs/features.md F2.12 — Archetype sprite pictograms
+     */
+    public function testRenderSpritesInlineContextAddsModifier(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setPokemonSlugs(['lugia']);
+
+        $html = $this->runtime->renderSprites($archetype, 'inline');
+
+        self::assertStringContainsString('class="archetype-sprites archetype-sprites--inline"', $html);
+    }
+
+    /**
+     * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
+     */
+    public function testRenderDeckSpritesInlineContextAddsModifier(): void
+    {
+        $deck = new Deck();
+        $deck->setPokemonSlugs(['lugia']);
+
+        $html = $this->runtime->renderDeckSprites($deck, 'inline');
+
+        self::assertStringContainsString('class="archetype-sprites archetype-sprites--inline"', $html);
+    }
 }

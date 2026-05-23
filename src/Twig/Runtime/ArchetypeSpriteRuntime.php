@@ -20,6 +20,11 @@ use Twig\Extension\RuntimeExtensionInterface;
 /**
  * Renders Pokemon box sprite images for an archetype's or deck's pokemonSlugs.
  *
+ * The optional `$context` argument controls rendering size:
+ * - `'block'` (default): fixed pixel height for cards, table rows, page headers.
+ * - `'inline'`: em-relative height for sprites inside prose (RTE-rendered archetype
+ *   descriptions), so the line doesn't stretch around the image.
+ *
  * @see docs/features.md F2.12 — Archetype sprite pictograms
  * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
  * @see docs/features.md F2.26 — Upgrade sprites to Pokemon HOME 3D renders
@@ -28,26 +33,31 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
 {
     /**
      * Renders inline sprite images for the given archetype.
+     *
+     * @param 'block'|'inline' $context
      */
-    public function renderSprites(Archetype $archetype): string
+    public function renderSprites(Archetype $archetype, string $context = 'block'): string
     {
-        return $this->renderSlugs($archetype->getPokemonSlugs());
+        return $this->renderSlugs($archetype->getPokemonSlugs(), $context);
     }
 
     /**
      * Renders inline sprite images for the given deck (deck-level first, archetype fallback).
      *
+     * @param 'block'|'inline' $context
+     *
      * @see docs/features.md F2.22 — Custom Pokemon sprites on decks
      */
-    public function renderDeckSprites(Deck $deck): string
+    public function renderDeckSprites(Deck $deck, string $context = 'block'): string
     {
-        return $this->renderSlugs($deck->getEffectivePokemonSlugs());
+        return $this->renderSlugs($deck->getEffectivePokemonSlugs(), $context);
     }
 
     /**
-     * @param list<string> $slugs
+     * @param list<string>     $slugs
+     * @param 'block'|'inline' $context
      */
-    private function renderSlugs(array $slugs): string
+    private function renderSlugs(array $slugs, string $context = 'block'): string
     {
         if ([] === $slugs) {
             return '';
@@ -65,6 +75,8 @@ class ArchetypeSpriteRuntime implements RuntimeExtensionInterface
             );
         }
 
-        return \sprintf('<span class="archetype-sprites">%s</span> ', $images);
+        $wrapperClass = 'inline' === $context ? 'archetype-sprites archetype-sprites--inline' : 'archetype-sprites';
+
+        return \sprintf('<span class="%s">%s</span> ', $wrapperClass, $images);
     }
 }
