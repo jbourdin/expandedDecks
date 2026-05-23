@@ -115,6 +115,14 @@ class Deck
     #[ORM\Column(options: ['default' => false])]
     private bool $public = false;
 
+    /**
+     * Opt-out from lending and event registration, independent of format and public visibility.
+     *
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $personal = false;
+
     #[ORM\ManyToOne(targetEntity: DeckVersion::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?DeckVersion $currentVersion = null;
@@ -262,18 +270,20 @@ class Deck
 
     /**
      * @see docs/features.md F2.23 — Standard format personal decks
+     * @see docs/features.md F2.30 — Personal deck flag
      */
     public function isLendable(): bool
     {
-        return $this->format->isLendable();
+        return $this->format->isLendable() && !$this->personal;
     }
 
     /**
      * @see docs/features.md F2.23 — Standard format personal decks
+     * @see docs/features.md F2.30 — Personal deck flag
      */
     public function isEventRegisterable(): bool
     {
-        return $this->format->isEventRegisterable();
+        return $this->format->isEventRegisterable() && !$this->personal;
     }
 
     public function getArchetype(): ?Archetype
@@ -396,6 +406,24 @@ class Deck
     public function setPublic(bool $public): static
     {
         $this->public = $public;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function isPersonal(): bool
+    {
+        return $this->personal;
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function setPersonal(bool $personal): static
+    {
+        $this->personal = $personal;
 
         return $this;
     }

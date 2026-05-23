@@ -22,6 +22,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | `status`           | `string(20)`       | No       | Current availability status. See Status enum below. Default: `"available"`. |
 | `notes`            | `text`             | Yes      | Owner's private notes about the deck (e.g. sleeve color, missing cards, condition). |
 | `public`           | `bool`             | No       | Whether the deck is visible in the public catalog and accessible via its shortTag URL to anonymous users. Default: `false`. Cannot be unpublished while the deck has active event registrations. |
+| `personal`         | `bool`             | No       | Owner opt-out from lending and event registration. Default: `false`. **Orthogonal to `public`** — a personal deck can still be public and URL-viewable; only the borrow workflow and event registration are blocked. Cannot toggle on while the deck has active borrows or event registrations. See F2.30. |
 | `currentVersion`   | `DeckVersion`      | Yes      | The latest/active version of this deck. Null only before the first list import. |
 | `createdAt`        | `DateTimeImmutable` | No      | Deck registration timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |

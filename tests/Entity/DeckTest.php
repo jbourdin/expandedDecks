@@ -111,6 +111,7 @@ class DeckTest extends TestCase
         self::assertSame([], $deck->getLanguages());
         self::assertNull($deck->getNotes());
         self::assertFalse($deck->isPublic());
+        self::assertFalse($deck->isPersonal());
         self::assertNull($deck->getCurrentVersion());
         self::assertInstanceOf(\DateTimeImmutable::class, $deck->getCreatedAt());
         self::assertNull($deck->getUpdatedAt());
@@ -243,6 +244,56 @@ class DeckTest extends TestCase
 
         self::assertTrue($deck->isPublic());
         self::assertSame($deck, $result);
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testSetPersonal(): void
+    {
+        $deck = new Deck();
+        $result = $deck->setPersonal(true);
+
+        self::assertTrue($deck->isPersonal());
+        self::assertSame($deck, $result);
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testSetPersonalDoesNotMutatePublic(): void
+    {
+        $deck = new Deck();
+        $deck->setPublic(true);
+
+        $deck->setPersonal(true);
+
+        self::assertTrue($deck->isPublic(), 'Personal must be orthogonal to public — toggling personal must not flip public.');
+        self::assertTrue($deck->isPersonal());
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testIsLendableReturnsFalseWhenPersonal(): void
+    {
+        $deck = new Deck();
+        self::assertTrue($deck->isLendable());
+
+        $deck->setPersonal(true);
+        self::assertFalse($deck->isLendable());
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testIsEventRegisterableReturnsFalseWhenPersonal(): void
+    {
+        $deck = new Deck();
+        self::assertTrue($deck->isEventRegisterable());
+
+        $deck->setPersonal(true);
+        self::assertFalse($deck->isEventRegisterable());
     }
 
     public function testSetCurrentVersion(): void

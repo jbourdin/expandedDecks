@@ -130,6 +130,65 @@ class DeckControllerTest extends AbstractFunctionalTest
         self::assertSame(1, $crawler->filter('#deck_form_format')->count(), 'Format selector should be present.');
     }
 
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testEditDeckFormContainsPersonalCheckbox(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        // Create a fresh deck owned by admin so we know it has no active engagements.
+        /** @var \App\Entity\User $admin */
+        $admin = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'admin@example.com']);
+        $deck = new Deck();
+        $deck->setName('Personal Toggle Test Deck');
+        $deck->setOwner($admin);
+        $em->persist($deck);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/deck/'.$deck->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        $personalCheckbox = $crawler->filter('#deck_form_personal');
+        self::assertSame(1, $personalCheckbox->count(), 'Personal checkbox should be present.');
+        self::assertFalse(
+            'disabled' === $personalCheckbox->attr('disabled'),
+            'Personal checkbox should be enabled for a deck with no active engagements.',
+        );
+    }
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testEditDeckFormDisablesPersonalWhenActiveBorrowsExist(): void
+    {
+        $this->loginAs('lender@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Deck $deck */
+        $deck = $em->getRepository(Deck::class)->findOneBy(['name' => 'Regidrago']);
+
+        $crawler = $this->client->request('GET', '/deck/'.$deck->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        $personalCheckbox = $crawler->filter('#deck_form_personal');
+        self::assertSame(1, $personalCheckbox->count(), 'Personal checkbox should be rendered.');
+        self::assertSame(
+            'disabled',
+            $personalCheckbox->attr('disabled'),
+            'Personal checkbox must be disabled when the deck has an active borrow.',
+        );
+        self::assertStringContainsString(
+            'active borrows or event registrations',
+            $crawler->html(),
+            'Disabled-toggle warning should explain why personal mode cannot be enabled.',
+        );
+    }
+
     public function testDeckShowShowsBorrowFormForEligibleUser(): void
     {
         $this->loginAs('borrower@example.com');

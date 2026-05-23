@@ -748,10 +748,25 @@
                 <target>Retired</target>
                 <note>Status badge on deck card</note>
             </trans-unit>
+            <trans-unit id="app.deck.badge_personal">
+                <source>app.deck.badge_personal</source>
+                <target>Personal</target>
+                <note>Badge on deck card for owner-opted-out-of-lending decks (F2.30)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.personal_tooltip">
+                <source>app.deck.personal_tooltip</source>
+                <target>This deck is not part of the shared lending library. Visibility is independent.</target>
+                <note>Tooltip on the Personal badge (F2.30)</note>
+            </trans-unit>
             <trans-unit id="app.deck.has_active_registrations">
                 <source>app.deck.has_active_registrations</source>
                 <target>This deck has active event registrations and cannot be unpublished.</target>
                 <note>Warning shown when deck cannot be unpublished</note>
+            </trans-unit>
+            <trans-unit id="app.deck.has_active_engagements">
+                <source>app.deck.has_active_engagements</source>
+                <target>This deck has active borrows or event registrations. Personal mode can only be enabled once they are resolved.</target>
+                <note>Warning shown when personal toggle is disabled because active borrows/registrations exist (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.deck.search_placeholder">
                 <source>app.deck.search_placeholder</source>
@@ -2748,6 +2763,16 @@
                 <source>app.form.label.public</source>
                 <target>Public (visible in deck catalog)</target>
                 <note>Form label for public checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.personal">
+                <source>app.form.label.personal</source>
+                <target>Personal deck</target>
+                <note>Form label for the personal opt-out-of-lending checkbox (F2.30)</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.personal">
+                <source>app.form.help.personal</source>
+                <target>Excluded from lending and event registration. Visibility (public/private) is controlled separately by the toggle above. Labels and lost-and-found still work.</target>
+                <note>Help text under the Personal checkbox on the deck edit form (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.form.label.deck_list_optional">
                 <source>app.form.label.deck_list_optional</source>
