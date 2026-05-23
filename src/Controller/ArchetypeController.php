@@ -26,13 +26,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
+ * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
  */
 #[Route('/api/archetype')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_ARCHETYPE_EDITOR')]
 class ArchetypeController extends AbstractController
 {
     /**
      * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
+     * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
      */
     #[Route('', name: 'app_archetype_create', methods: ['POST'])]
     public function create(

@@ -94,4 +94,18 @@ class ArchetypeControllerTest extends AbstractFunctionalTest
 
         self::assertResponseStatusCodeSame(400);
     }
+
+    /**
+     * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
+     */
+    public function testCreateRejectedForNonEditorUser(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $this->client->request('POST', '/api/archetype', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode(['name' => 'Sneaky Catalog Pollution']));
+
+        self::assertResponseStatusCodeSame(403, 'Non-editor users must not be able to POST to /api/archetype.');
+    }
 }
