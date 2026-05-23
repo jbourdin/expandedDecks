@@ -25,7 +25,9 @@ import '@mantine/core/styles.css';
 const archetypeRoot = document.getElementById('archetype-select-root');
 if (archetypeRoot) {
     const searchUrl = archetypeRoot.dataset.searchUrl ?? '';
-    const createUrl = archetypeRoot.dataset.createUrl ?? '';
+    // createUrl is absent for non-editor users (F2.29): the React combobox falls back to
+    // a "no matching archetype, ask an editor" empty state instead of offering inline create.
+    const createUrl = archetypeRoot.dataset.createUrl;
     const initialId = archetypeRoot.dataset.archetypeId
         ? parseInt(archetypeRoot.dataset.archetypeId, 10)
         : undefined;

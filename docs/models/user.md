@@ -36,7 +36,7 @@
 | Role                   | Constant              | Description |
 |------------------------|-----------------------|-------------|
 | `ROLE_PLAYER`          | Default for all users | Register decks, request borrows, attend events |
-| `ROLE_ARCHETYPE_EDITOR`| Granted by admin      | Create, edit, and publish archetype descriptions (F2.6, F2.10) |
+| `ROLE_ARCHETYPE_EDITOR`| Granted by admin      | Create, edit, and publish archetype descriptions (F2.6, F2.10). **Also gates inline archetype creation from the deck form (F2.29)** — non-editors see a "ask an editor" empty state. |
 | `ROLE_CMS_EDITOR`      | Granted by admin      | Create, edit, and publish content pages and menu categories (F11.1, F11.2) |
 | `ROLE_ORGANIZER`       | Granted by admin      | Create events, assign staff teams |
 | `ROLE_ADMIN`           | Granted manually      | Full access: user management, audit log, all operations |

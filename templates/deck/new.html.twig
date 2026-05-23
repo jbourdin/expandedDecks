@@ -23,12 +23,14 @@
                         {{ form_row(form.format) }}
                         {{ form_row(form.notes) }}
 
-                        {# Archetype — React island #}
+                        {# Archetype — React island. data-create-url is only emitted for archetype editors (F2.29). #}
                         <div class="mb-3">
                             <label class="form-label">{{ 'app.deck.archetype_optional'|trans }}</label>
                             <div id="archetype-select-root"
                                  data-search-url="{{ path('app_archetype_search') }}"
-                                 data-create-url="{{ path('app_archetype_create') }}"
+                                 {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                                     data-create-url="{{ path('app_archetype_create') }}"
+                                 {% endif %}
                             ></div>
                             {{ form_widget(form.archetype) }}
                         </div>

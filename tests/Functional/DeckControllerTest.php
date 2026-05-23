@@ -113,6 +113,42 @@ class DeckControllerTest extends AbstractFunctionalTest
     }
 
     /**
+     * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
+     */
+    public function testNewDeckFormEmitsCreateUrlForArchetypeEditor(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        self::assertResponseIsSuccessful();
+        $root = $crawler->filter('#archetype-select-root');
+        self::assertSame(1, $root->count(), 'Archetype select root should be present.');
+        self::assertNotNull(
+            $root->attr('data-create-url'),
+            'data-create-url should be emitted for archetype editors (admin inherits ROLE_ARCHETYPE_EDITOR).',
+        );
+    }
+
+    /**
+     * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
+     */
+    public function testNewDeckFormOmitsCreateUrlForNonEditor(): void
+    {
+        $this->loginAs('borrower@example.com');
+
+        $crawler = $this->client->request('GET', '/deck/new');
+
+        self::assertResponseIsSuccessful();
+        $root = $crawler->filter('#archetype-select-root');
+        self::assertSame(1, $root->count(), 'Archetype select root should still render for non-editors.');
+        self::assertNull(
+            $root->attr('data-create-url'),
+            'data-create-url must not be emitted for non-editors — the React combobox falls back to the empty-state ask.',
+        );
+    }
+
+    /**
      * @see docs/features.md F2.23 — Standard format personal decks
      */
     public function testEditDeckFormContainsFormatSelector(): void
