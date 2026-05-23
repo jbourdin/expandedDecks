@@ -104,6 +104,40 @@ class DeckCardTest extends TestCase
         self::assertSame($card, $result);
     }
 
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortOrderDefaultsToNull(): void
+    {
+        $card = new DeckCard();
+
+        self::assertNull($card->getSortOrder());
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSetSortOrder(): void
+    {
+        $card = new DeckCard();
+        $result = $card->setSortOrder(7);
+
+        self::assertSame(7, $card->getSortOrder());
+        self::assertSame($card, $result);
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSetSortOrderToNull(): void
+    {
+        $card = new DeckCard();
+        $card->setSortOrder(7);
+        $card->setSortOrder(null);
+
+        self::assertNull($card->getSortOrder());
+    }
+
     public function testComputedAccessorsReturnNullWithoutCardPrinting(): void
     {
         $card = new DeckCard();

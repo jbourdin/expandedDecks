@@ -59,6 +59,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly \App\Repository\StapleCardRepository $stapleCardRepository,
         private readonly \App\Service\StapleCardEnricher $stapleCardEnricher,
         private readonly SearchIndexer $searchIndexer,
+        private readonly \App\Service\Deck\DeckCardSortBackfillService $sortBackfillService,
     ) {
         parent::__construct($translator);
     }
@@ -85,7 +86,31 @@ class AdminTechnicalController extends AbstractAppController
             'syncQueueDepth' => $this->syncStatusService->getQueueDepth(),
             'syncLastCompleted' => $this->syncStatusService->getLastSyncTimestamp(),
             'syncInCooldown' => $this->tcgdexApiThrottle->isInCooldown(),
+            'pendingSortOrderBackfill' => $this->sortBackfillService->countPending(),
         ]);
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    #[Route('/sort-order-backfill', name: 'app_admin_technical_sort_order_backfill', methods: ['POST'])]
+    public function sortOrderBackfill(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-sort-order-backfill', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $count = $this->sortBackfillService->redispatch();
+
+        if (0 === $count) {
+            $this->addFlash('info', 'app.admin.technical.sort_order_backfill.none_pending');
+        } else {
+            $this->addFlash('success', 'app.admin.technical.sort_order_backfill.dispatched', ['%count%' => $count]);
+        }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
     }
 
     #[Route('/enrich-retry', name: 'app_admin_technical_enrich_retry', methods: ['POST'])]

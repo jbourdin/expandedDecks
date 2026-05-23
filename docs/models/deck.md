@@ -23,6 +23,10 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 | `notes`            | `text`             | Yes      | Owner's private notes about the deck (e.g. sleeve color, missing cards, condition). |
 | `public`           | `bool`             | No       | Whether the deck is visible in the public catalog and accessible via its shortTag URL to anonymous users. Default: `false`. Cannot be unpublished while the deck has active event registrations. |
 | `personal`         | `bool`             | No       | Owner opt-out from lending and event registration. Default: `false`. **Orthogonal to `public`** — a personal deck can still be public and URL-viewable; only the borrow workflow and event registration are blocked. Cannot toggle on while the deck has active borrows or event registrations. See F2.30. |
+
+#### DeckCard.sortOrder (F2.28)
+
+`DeckCard` gains a nullable `sortOrder` (int) column, indexed on `(deck_version_id, sort_order)`. New imports record the zero-based source-line index of each card in the rawList; historical rows have `null` until the admin dashboard backfill runs. The rendering path stays grouped by default — the "Import order" toggle is a follow-up.
 | `currentVersion`   | `DeckVersion`      | Yes      | The latest/active version of this deck. Null only before the first list import. |
 | `createdAt`        | `DateTimeImmutable` | No      | Deck registration timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
