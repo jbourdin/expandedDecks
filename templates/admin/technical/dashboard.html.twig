@@ -127,6 +127,32 @@
         </div>
     </div>
 
+    {# Imported-order backfill (F2.28) #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.sort_order_backfill.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.sort_order_backfill.description'|trans }}</p>
+
+            {% if pendingSortOrderBackfill > 0 %}
+                <div class="alert alert-warning">
+                    {{ 'app.admin.technical.sort_order_backfill.pending_count'|trans({'%count%': pendingSortOrderBackfill}) }}
+                </div>
+                <form method="post" action="{{ path('app_admin_technical_sort_order_backfill') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-sort-order-backfill') }}">
+                    <button type="submit" class="btn btn-gold">
+                        {{ 'app.admin.technical.sort_order_backfill.run_button'|trans }}
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-success mb-0">
+                    {{ 'app.admin.technical.sort_order_backfill.all_done'|trans }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
     {# TCGdex set mappings card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">

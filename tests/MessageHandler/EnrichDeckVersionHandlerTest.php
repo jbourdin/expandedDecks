@@ -17,6 +17,7 @@ use App\Entity\DeckVersion;
 use App\Message\EnrichDeckVersionMessage;
 use App\MessageHandler\EnrichDeckVersionHandler;
 use App\Repository\DeckVersionRepository;
+use App\Service\Deck\DeckCardSortBackfillService;
 use App\Service\Tcgdex\CardEnricher;
 use App\Service\Tcgdex\CardEnrichmentReport;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +34,7 @@ class EnrichDeckVersionHandlerTest extends TestCase
     private DeckVersionRepository $versionRepository;
     private MessageBusInterface $messageBus;
     private LoggerInterface $logger;
+    private DeckCardSortBackfillService $sortBackfillService;
     private EnrichDeckVersionHandler $handler;
 
     protected function setUp(): void
@@ -42,12 +44,15 @@ class EnrichDeckVersionHandlerTest extends TestCase
         $this->messageBus = $this->createStub(MessageBusInterface::class);
         $this->messageBus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->sortBackfillService = $this->createStub(DeckCardSortBackfillService::class);
+        $this->sortBackfillService->method('backfillVersion')->willReturn(['changed' => 0, 'missing' => 0, 'skipped' => true]);
 
         $this->handler = new EnrichDeckVersionHandler(
             $this->cardEnricher,
             $this->versionRepository,
             $this->messageBus,
             $this->logger,
+            $this->sortBackfillService,
         );
     }
 
@@ -168,5 +173,54 @@ class EnrichDeckVersionHandlerTest extends TestCase
 
         self::assertSame('Not found in TCGdex for DeckVersion #{id}: {cards}', $warningMessages[0]);
         self::assertSame('Legality warnings for DeckVersion #{id}: {warnings}', $warningMessages[1]);
+    }
+
+    /**
+     * Safety-net path (F2.28): when the sort-order backfill populates new values
+     * during enrichment, it should emit a second info log alongside the enrichment
+     * one. Uses a fresh handler instance so the stub returns changed > 0 instead
+     * of the default skipped=true configured in setUp().
+     *
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortBackfillSafetyNetLogsWhenChangesApplied(): void
+    {
+        $version = new DeckVersion();
+        $this->versionRepository->method('find')->willReturn($version);
+
+        $report = new CardEnrichmentReport(
+            enrichedCount: 30,
+            notFoundCount: 0,
+            notFoundCards: [],
+            legalityWarnings: [],
+        );
+        $this->cardEnricher->method('enrichVersion')->willReturn($report);
+
+        $sortBackfillService = $this->createStub(DeckCardSortBackfillService::class);
+        $sortBackfillService->method('backfillVersion')->willReturn([
+            'changed' => 30,
+            'missing' => 0,
+            'skipped' => false,
+        ]);
+
+        $handler = new EnrichDeckVersionHandler(
+            $this->cardEnricher,
+            $this->versionRepository,
+            $this->messageBus,
+            $this->logger,
+            $sortBackfillService,
+        );
+
+        $infoMessages = [];
+        $this->logger->expects(self::exactly(2))
+            ->method('info')
+            ->willReturnCallback(static function (string $message) use (&$infoMessages): void {
+                $infoMessages[] = $message;
+            });
+
+        $handler(new EnrichDeckVersionMessage(11));
+
+        self::assertSame('Enriched DeckVersion #{id}: {enriched} enriched, {notFound} not found.', $infoMessages[0]);
+        self::assertSame('SortOrder populated on DeckVersion #{id}: {changed} updated, {missing} DB cards not found in rawList.', $infoMessages[1]);
     }
 }

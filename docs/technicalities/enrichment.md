@@ -362,7 +362,7 @@ Energy cards matched by name only do not generate "not found" warnings, unlike r
 
 ## Admin Tools
 
-The technical admin dashboard (`/admin/technical`) exposes three enrichment-related actions:
+The technical admin dashboard (`/admin/technical`) exposes four enrichment-related actions:
 
 ### Enrich Retry
 
@@ -387,9 +387,18 @@ After flushing, an enrich retry re-populates everything from scratch.
 
 **Route:** `POST /admin/technical/flush-enrichment`
 
+### Imported Order Backfill (F2.28)
+
+Populates `DeckCard.sortOrder` on historical decks (rows imported before F2.28). For each `DeckVersion` with a stored `rawList` and at least one `DeckCard` whose `sortOrder` is null, dispatches a `BackfillDeckCardSortOrderMessage`. The handler re-parses `rawList` via `DeckListParser`, matches each parsed line against existing `DeckCard` rows by `(setCode, cardNumber, cardName)`, and updates `sortOrder` from the recovered line index. Idempotent (re-running on populated rows is a no-op) and tolerant of DB cards not present in the rawList (logged at info, skipped).
+
+**Route:** `POST /admin/technical/sort-order-backfill`
+
 **Key files:**
 - `src/Controller/AdminTechnicalController.php`
 - `src/Service/EnrichmentFlushService.php`
+- `src/Service/Deck/DeckCardSortBackfillService.php` (F2.28)
+- `src/Message/BackfillDeckCardSortOrderMessage.php` (F2.28)
+- `src/MessageHandler/BackfillDeckCardSortOrderHandler.php` (F2.28)
 
 ---
 

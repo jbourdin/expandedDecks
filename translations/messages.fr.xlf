@@ -5083,6 +5083,41 @@
                 <source>app.admin.technical.mosaic.dispatched</source>
                 <target>%count% message(s) de génération de mosaïque envoyé(s).</target>
             </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.title">
+                <source>app.admin.technical.sort_order_backfill.title</source>
+                <target>Ordre d'import — backfill</target>
+                <note>Admin technical dashboard tile heading (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.description">
+                <source>app.admin.technical.sort_order_backfill.description</source>
+                <target>Re-parse la decklist brute de chaque version pour remplir la nouvelle colonne sortOrder. Les decks importés avant F2.28 n'ont pas enregistré l'ordre des lignes source ; ce backfill le récupère.</target>
+                <note>Admin technical dashboard tile description (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.pending_count">
+                <source>app.admin.technical.sort_order_backfill.pending_count</source>
+                <target>%count% version(s) de deck à backfiller pour l'ordre d'import.</target>
+                <note>Admin technical dashboard pending-count alert (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.run_button">
+                <source>app.admin.technical.sort_order_backfill.run_button</source>
+                <target>Lancer le backfill</target>
+                <note>Admin technical dashboard submit button (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.all_done">
+                <source>app.admin.technical.sort_order_backfill.all_done</source>
+                <target>Toutes les versions de deck ont leur ordre d'import renseigné.</target>
+                <note>Admin technical dashboard success state (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.none_pending">
+                <source>app.admin.technical.sort_order_backfill.none_pending</source>
+                <target>Aucune version de deck ne nécessite de backfill d'ordre d'import.</target>
+                <note>Flash shown when the run button is pressed with no pending versions (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.dispatched">
+                <source>app.admin.technical.sort_order_backfill.dispatched</source>
+                <target>%count% message(s) de backfill d'ordre d'import envoyé(s).</target>
+                <note>Flash shown after dispatching the backfill (F2.28)</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.set_mappings.title">
                 <source>app.admin.technical.set_mappings.title</source>
                 <target>Correspondances TCGdex</target>

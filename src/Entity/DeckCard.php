@@ -20,9 +20,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @see docs/features.md F2.3 — Import deck list (PTCG text format)
  * @see docs/features.md F6.1 — Parse PTCG text format
+ * @see docs/features.md F2.28 — Preserve imported list order
  */
 #[ORM\Entity(repositoryClass: DeckCardRepository::class)]
 #[ORM\UniqueConstraint(name: 'uniq_deck_card', columns: ['deck_version_id', 'set_code', 'card_number'])]
+#[ORM\Index(name: 'idx_deck_card_version_sort_order', columns: ['deck_version_id', 'sort_order'])]
 class DeckCard
 {
     #[ORM\Id]
@@ -65,6 +67,16 @@ class DeckCard
     /** Locale of the original deck list input (e.g. "en", "fr"). */
     #[ORM\Column(length: 5)]
     private string $cardLocale = 'en';
+
+    /**
+     * Zero-based line index in the original rawList, preserving the order
+     * the importer pasted the deck. Nullable because historical rows pre-F2.28
+     * have no recorded order — the admin backfill (F2.28) populates them.
+     *
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    #[ORM\Column(nullable: true)]
+    private ?int $sortOrder = null;
 
     public function getId(): ?int
     {
@@ -163,6 +175,24 @@ class DeckCard
     public function setCardLocale(string $cardLocale): static
     {
         $this->cardLocale = $cardLocale;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function getSortOrder(): ?int
+    {
+        return $this->sortOrder;
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function setSortOrder(?int $sortOrder): static
+    {
+        $this->sortOrder = $sortOrder;
 
         return $this;
     }

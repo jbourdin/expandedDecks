@@ -108,4 +108,44 @@ class DeckVersionRepository extends ServiceEntityRepository
 
         return $max ?? 0;
     }
+
+    /**
+     * Find ids of versions with a rawList but at least one DeckCard missing sortOrder.
+     *
+     * @see docs/features.md F2.28 — Preserve imported list order
+     *
+     * @return list<int>
+     */
+    public function findIdsNeedingSortOrderBackfill(): array
+    {
+        /** @var list<array{id: int}> $rows */
+        $rows = $this->createQueryBuilder('dv')
+            ->select('DISTINCT dv.id AS id')
+            ->innerJoin('dv.cards', 'c')
+            ->where('dv.rawList IS NOT NULL')
+            ->andWhere("dv.rawList != ''")
+            ->andWhere('c.sortOrder IS NULL')
+            ->getQuery()
+            ->getResult();
+
+        return array_map(static fn (array $row): int => $row['id'], $rows);
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function countNeedingSortOrderBackfill(): int
+    {
+        /** @var int $count */
+        $count = $this->createQueryBuilder('dv')
+            ->select('COUNT(DISTINCT dv.id)')
+            ->innerJoin('dv.cards', 'c')
+            ->where('dv.rawList IS NOT NULL')
+            ->andWhere("dv.rawList != ''")
+            ->andWhere('c.sortOrder IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
 }

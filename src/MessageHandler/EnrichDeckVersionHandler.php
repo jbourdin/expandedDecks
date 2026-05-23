@@ -17,6 +17,7 @@ use App\Message\EnrichDeckVersionMessage;
 use App\Message\GenerateDeckMosaicMessage;
 use App\Message\GenerateMinifiedListMessage;
 use App\Repository\DeckVersionRepository;
+use App\Service\Deck\DeckCardSortBackfillService;
 use App\Service\Tcgdex\CardEnricher;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -24,6 +25,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
+ * @see docs/features.md F2.28 — Preserve imported list order
  */
 #[AsMessageHandler]
 class EnrichDeckVersionHandler
@@ -33,6 +35,7 @@ class EnrichDeckVersionHandler
         private readonly DeckVersionRepository $versionRepo,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
+        private readonly DeckCardSortBackfillService $sortBackfillService,
     ) {
     }
 
@@ -55,6 +58,20 @@ class EnrichDeckVersionHandler
             'enriched' => $report->enrichedCount,
             'notFound' => $report->notFoundCount,
         ]);
+
+        // Safety net: ensure DeckCard.sortOrder is populated. Idempotent + cheap
+        // when every card already has a value (the normal-import case from the
+        // controllers), so calling unconditionally is fine. Catches fixtures
+        // and any future code path that creates DeckCard without going through
+        // the parser. See F2.28.
+        $sortReport = $this->sortBackfillService->backfillVersion($version);
+        if (!$sortReport['skipped'] && $sortReport['changed'] > 0) {
+            $this->logger->info('SortOrder populated on DeckVersion #{id}: {changed} updated, {missing} DB cards not found in rawList.', [
+                'id' => $message->deckVersionId,
+                'changed' => $sortReport['changed'],
+                'missing' => $sortReport['missing'],
+            ]);
+        }
 
         if ([] !== $report->notFoundCards) {
             $this->logger->warning('Not found in TCGdex for DeckVersion #{id}: {cards}', [
