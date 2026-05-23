@@ -101,8 +101,26 @@ class ArchetypeDetailController extends AbstractController
                     $groupedCards[$card->getCardType()][] = $card;
                 }
 
+                // Variants are editor-curated: when sortOrder is populated (F2.28),
+                // preserve the editor's pasted order within each section rather than
+                // overriding it with the generic subtype/quantity/name sort.
+                $useImportOrder = false;
+                foreach ($version->getCards() as $card) {
+                    if (null !== $card->getSortOrder()) {
+                        $useImportOrder = true;
+                        break;
+                    }
+                }
+
                 foreach ($groupedCards as $type => &$cards) {
-                    usort($cards, static function (DeckCard $cardA, DeckCard $cardB) use ($type): int {
+                    usort($cards, static function (DeckCard $cardA, DeckCard $cardB) use ($type, $useImportOrder): int {
+                        if ($useImportOrder) {
+                            $orderA = $cardA->getSortOrder() ?? \PHP_INT_MAX;
+                            $orderB = $cardB->getSortOrder() ?? \PHP_INT_MAX;
+
+                            return $orderA <=> $orderB;
+                        }
+
                         if ('trainer' === $type) {
                             $subtypeOrder = ['supporter' => 0, 'item' => 1, 'tool' => 2, 'stadium' => 3];
                             $subtypeA = $subtypeOrder[strtolower((string) $cardA->getTrainerSubtype())] ?? 4;

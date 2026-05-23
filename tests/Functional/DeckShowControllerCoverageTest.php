@@ -269,4 +269,74 @@ class DeckShowControllerCoverageTest extends AbstractFunctionalTest
 
         return $entityManager;
     }
+
+    /**
+     * Variant deck-show pages should respect the editor's pasted card order
+     * within each section (Pokémon / Trainer / Energy), preserving the
+     * intentional ordering an archetype editor used when curating the list.
+     *
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testArchetypeVariantSortsCardsBySortOrderWithinSection(): void
+    {
+        /** @var Deck $variant */
+        $variant = $this->getEntityManager()
+            ->getRepository(Deck::class)
+            ->findOneBy(['name' => 'Regidrago', 'canonical' => true]);
+
+        self::assertNotNull($variant, 'Canonical Regidrago variant fixture should exist.');
+        self::assertTrue($variant->isArchetypeVariant(), 'Fixture must be an owner-null + archetype-set variant.');
+
+        // Variants render on the archetype detail page (the URL pattern the user
+        // reported in production). The data shown to the React variant selector
+        // is JSON-serialized into the `data-variants` attribute by
+        // ArchetypeDetailController::buildVariantsData() — that's the code path
+        // F2.28's variant-default-to-import-order patches.
+        $crawler = $this->client->request('GET', '/en/archetypes/regidrago');
+
+        self::assertResponseIsSuccessful();
+
+        $root = $crawler->filter('#archetype-variant-selector-root');
+        self::assertSame(1, $root->count(), 'Archetype detail page must render the variant selector root.');
+
+        $payload = $root->attr('data-variants');
+        self::assertNotNull($payload, 'data-variants must be present on the variant-selector root.');
+
+        /** @var list<array{shortTag: string, groupedCards: array<string, list<array{cardName: string}>>}>|null $variants */
+        $variants = json_decode((string) $payload, true);
+        self::assertIsArray($variants, 'data-variants must decode to a list of variant records.');
+
+        // Locate the canonical Regidrago variant in the serialized list.
+        $regidragoData = null;
+        foreach ($variants as $variantData) {
+            if ($variantData['shortTag'] === $variant->getShortTag()) {
+                $regidragoData = $variantData;
+                break;
+            }
+        }
+        self::assertNotNull($regidragoData, 'Canonical variant must be present in data-variants.');
+
+        // At least one populated section's order should differ from
+        // strict-alphabetical-by-name, proving the variant branch was hit
+        // (the previous sort was subtype/qty-desc/name-asc; the new sort is
+        // sortOrder ASC, which matches editor paste order).
+        $orderDiffersFromAlphabetical = false;
+        foreach ($regidragoData['groupedCards'] as $section => $cards) {
+            if (\count($cards) < 2) {
+                continue;
+            }
+            $names = array_column($cards, 'cardName');
+            $sorted = $names;
+            sort($sorted);
+            if ($names !== $sorted) {
+                $orderDiffersFromAlphabetical = true;
+                break;
+            }
+        }
+
+        self::assertTrue(
+            $orderDiffersFromAlphabetical,
+            'Variant card sections should preserve editor-paste order, not appear strictly alphabetical-by-name.',
+        );
+    }
 }
