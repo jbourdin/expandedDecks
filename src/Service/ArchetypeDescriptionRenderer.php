@@ -104,10 +104,10 @@ class ArchetypeDescriptionRenderer
                 }
 
                 if (null !== $variant) {
-                    $sprites = $this->spriteRuntime->renderDeckSprites($variant);
+                    $sprites = $this->spriteRuntime->renderDeckSprites($variant, 'inline');
                     $name = htmlspecialchars($variant->getName(), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
                 } else {
-                    $sprites = $this->spriteRuntime->renderSprites($archetype);
+                    $sprites = $this->spriteRuntime->renderSprites($archetype, 'inline');
                     $name = htmlspecialchars($archetype->getLocalizedName($locale), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
                 }
 
