@@ -69,6 +69,13 @@
                             {% endif %}
                         </div>
 
+                        <div class="mb-3">
+                            {{ form_row(form.personal) }}
+                            {% if has_active_engagements is defined and has_active_engagements and not deck.personal %}
+                                <div class="form-text text-warning">{{ 'app.deck.has_active_engagements'|trans }}</div>
+                            {% endif %}
+                        </div>
+
                         <button type="submit" class="btn btn-gold w-100">{{ 'app.deck.save_button'|trans }}</button>
                     {{ form_end(form) }}
 

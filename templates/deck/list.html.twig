@@ -180,6 +180,9 @@
                                 {% if deck.standard %}
                                     <span class="badge bg-info ms-1">{{ 'app.deck.format.standard'|trans }}</span>
                                 {% endif %}
+                                {% if deck.personal %}
+                                    <span class="badge bg-warning text-dark ms-1" title="{{ 'app.deck.personal_tooltip'|trans }}">{{ 'app.deck.badge_personal'|trans }}</span>
+                                {% endif %}
                                 {% if deck.status.value == 'retired' %}
                                     <span class="badge bg-secondary ms-1">{{ 'app.deck.badge_retired'|trans }}</span>
                                 {% endif %}

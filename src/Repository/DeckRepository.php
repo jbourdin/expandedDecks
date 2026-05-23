@@ -281,6 +281,7 @@ class DeckRepository extends ServiceEntityRepository
             ->andWhere('d.deletedAt IS NULL')
             ->andWhere('d.currentVersion IS NOT NULL')
             ->andWhere('d.format = :expandedFormat')
+            ->andWhere('d.personal = false')
             ->andWhere('d.name LIKE :query OR d.shortTag LIKE :query')
             ->andWhere('NOT EXISTS (
                 SELECT 1 FROM App\Entity\Borrow b
@@ -330,6 +331,7 @@ class DeckRepository extends ServiceEntityRepository
             ->where('d.status != :retired')
             ->andWhere('d.deletedAt IS NULL')
             ->andWhere('d.format = :expandedFormat')
+            ->andWhere('d.personal = false')
             ->andWhere('d.currentVersion IS NOT NULL')
             ->andWhere('NOT EXISTS (
                 SELECT 1 FROM App\Entity\EventDeckEntry ede

@@ -116,17 +116,26 @@ class DeckController extends AbstractAppController
     /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
      * @see docs/features.md F2.4 — Deck Catalog (Browse & Search)
+     * @see docs/features.md F2.30 — Personal deck flag
      */
     #[Route('/{id}/edit', name: 'app_deck_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Deck $deck, Request $request, EntityManagerInterface $em, EventDeckRegistrationRepository $registrationRepository): Response
-    {
+    public function edit(
+        Deck $deck,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDeckRegistrationRepository $registrationRepository,
+        BorrowRepository $borrowRepository,
+    ): Response {
         $this->denyAccessUnlessOwner($deck);
 
         $hasActiveRegistrations = $registrationRepository->hasActiveRegistrations($deck);
+        $hasActiveBorrows = $borrowRepository->countActiveBorrowsForDeck($deck) > 0;
+        $hasActiveEngagements = $hasActiveRegistrations || $hasActiveBorrows;
         $wasPublic = $deck->isPublic();
 
         $form = $this->createForm(DeckFormType::class, $deck, [
             'public_disabled' => $hasActiveRegistrations && $wasPublic,
+            'personal_disabled' => $hasActiveEngagements && !$deck->isPersonal(),
         ]);
         $form->handleRequest($request);
 
@@ -143,6 +152,7 @@ class DeckController extends AbstractAppController
             'deck' => $deck,
             'form' => $form,
             'has_active_registrations' => $hasActiveRegistrations,
+            'has_active_engagements' => $hasActiveEngagements,
         ]);
     }
 
