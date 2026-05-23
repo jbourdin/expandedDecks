@@ -260,6 +260,7 @@ class DeckListParser
                     setCode: $matches[3],
                     cardNumber: $matches[4],
                     cardType: $cardType,
+                    sortOrder: $lineNumber,
                 );
 
                 continue;

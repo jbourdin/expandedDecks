@@ -252,4 +252,71 @@ class DeckListParserTest extends TestCase
         self::assertSame('energy', $result->cards[6]->cardType);
         self::assertSame('Psychic Energy', $result->cards[6]->cardName);
     }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortOrderTracksSourceLineIndexAcrossSectionsAndBlanks(): void
+    {
+        // Mix of section headers, blank lines, totals, and card lines.
+        // The parser should set ParsedCard.sortOrder = the zero-based index of the
+        // card's line in the source, regardless of how many header/blank lines
+        // came before.
+        $rawList = <<<'PTCG'
+            Pokémon: 2
+            2 Lugia V SIT 138
+            1 Archeops SIT 147
+
+            Trainer: 1
+            4 Battle VIP Pass FST 225
+
+            Energy: 1
+            3 Psychic Energy SVE 5
+
+            Total Cards: 11
+            PTCG;
+
+        $result = $this->parser->parse($rawList);
+
+        self::assertCount(4, $result->cards);
+
+        // The source has leading indentation stripped by trim() inside parse(), but
+        // the *line indices* are based on the raw exploded array. Concretely:
+        //   line 0: "Pokémon: 2"           ← section header
+        //   line 1: "2 Lugia V SIT 138"    ← card, sortOrder = 1
+        //   line 2: "1 Archeops SIT 147"   ← card, sortOrder = 2
+        //   line 3: ""                     ← blank
+        //   line 4: "Trainer: 1"           ← section header
+        //   line 5: "4 Battle VIP Pass…"   ← card, sortOrder = 5
+        //   line 6: ""                     ← blank
+        //   line 7: "Energy: 1"            ← section header
+        //   line 8: "3 Psychic Energy…"    ← card, sortOrder = 8
+        self::assertSame(1, $result->cards[0]->sortOrder, 'first card sortOrder = source line index 1');
+        self::assertSame(2, $result->cards[1]->sortOrder);
+        self::assertSame(5, $result->cards[2]->sortOrder, 'cards keep increasing index across headers + blanks');
+        self::assertSame(8, $result->cards[3]->sortOrder);
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortOrderIsStrictlyIncreasingAcrossCards(): void
+    {
+        $rawList = <<<'PTCG'
+            Pokémon: 3
+            1 A Card A1 1
+            1 B Card B1 2
+            1 C Card C1 3
+            PTCG;
+
+        $result = $this->parser->parse($rawList);
+
+        self::assertCount(3, $result->cards);
+
+        $previous = -1;
+        foreach ($result->cards as $card) {
+            self::assertGreaterThan($previous, $card->sortOrder, 'sortOrder must strictly increase');
+            $previous = $card->sortOrder;
+        }
+    }
 }

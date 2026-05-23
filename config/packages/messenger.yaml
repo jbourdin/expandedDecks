@@ -82,6 +82,7 @@ framework:
             App\Message\GenerateDeckMosaicMessage: deck_enrichment
             App\Message\GenerateMinifiedListMessage: deck_enrichment
             App\Message\GenerateMinifiedMosaicMessage: deck_enrichment
+            App\Message\BackfillDeckCardSortOrderMessage: deck_enrichment
             App\Message\SyncTcgdexSeriesMessage: tcgdex_sync_series
             App\Message\SyncTcgdexSerieMessage: tcgdex_sync_serie
             App\Message\SyncTcgdexSetMessage: tcgdex_sync_set

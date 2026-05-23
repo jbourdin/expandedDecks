@@ -13,6 +13,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 
 /**
  * @see docs/features.md F2.6 — Archetype management (create, browse, detail)
+ * @see docs/features.md F2.29 — Restrict inline archetype creation to archetype editors
  */
 
 interface Archetype {
@@ -23,13 +24,14 @@ interface Archetype {
 
 interface ArchetypeSelectProps {
     searchUrl: string;
-    createUrl: string;
+    createUrl?: string;
     initialId?: number;
     initialName?: string;
     hiddenInputName: string;
 }
 
 export default function ArchetypeSelect({ searchUrl, createUrl, initialId, initialName, hiddenInputName }: ArchetypeSelectProps) {
+    const canCreate = Boolean(createUrl);
     const [selected, setSelected] = useState<Archetype | null>(
         initialId && initialName ? { id: initialId, name: initialName, slug: '' } : null,
     );
@@ -79,7 +81,7 @@ export default function ArchetypeSelect({ searchUrl, createUrl, initialId, initi
     );
 
     const handleCreate = async () => {
-        if (!createName.trim()) return;
+        if (!createName.trim() || !createUrl) return;
 
         setCreating(true);
         try {
@@ -150,10 +152,15 @@ export default function ArchetypeSelect({ searchUrl, createUrl, initialId, initi
                                 {item.name}
                             </Combobox.Option>
                         ))}
-                        {!hasExactMatch && search.length >= 2 && (
+                        {!hasExactMatch && search.length >= 2 && canCreate && (
                             <Combobox.Option value="__create__">
                                 + Create &quot;{search}&quot;
                             </Combobox.Option>
+                        )}
+                        {!hasExactMatch && search.length >= 2 && !canCreate && options.length === 0 && (
+                            <Combobox.Empty>
+                                No matching archetype. Ask an archetype editor to add it.
+                            </Combobox.Empty>
                         )}
                         {options.length === 0 && search.length >= 2 && hasExactMatch && (
                             <Combobox.Empty>No results</Combobox.Empty>

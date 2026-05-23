@@ -322,4 +322,31 @@ class DeckRepositoryCoverageTest extends AbstractFunctionalTest
             self::assertNotNull($deck->getOwner(), 'findAvailableDecks must never return ownerless (variant) decks.');
         }
     }
+
+    // ---------------------------------------------------------------
+    // Personal flag exclusion (F2.30)
+    // ---------------------------------------------------------------
+
+    /**
+     * @see docs/features.md F2.30 — Personal deck flag
+     */
+    public function testSearchAvailableForEventExcludesPersonalDecks(): void
+    {
+        $deckRepository = $this->getDeckRepository();
+        $eventRepository = $this->getEventRepository();
+        $entityManager = $this->getEntityManager();
+
+        $event = $eventRepository->findOneBy(['name' => 'Expanded Weekly #42']);
+        self::assertNotNull($event);
+
+        $regidrago = $deckRepository->findOneBy(['name' => 'Regidrago']);
+        self::assertNotNull($regidrago);
+        $regidrago->setPersonal(true);
+        $entityManager->flush();
+
+        $decks = $deckRepository->searchAvailableForEvent('Regidrago', $event);
+
+        $deckNames = array_map(static fn ($deck): string => $deck->getName(), $decks);
+        self::assertNotContains('Regidrago', $deckNames, 'Personal decks must be excluded from walk-up lending search.');
+    }
 }

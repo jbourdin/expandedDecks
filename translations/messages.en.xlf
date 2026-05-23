@@ -748,10 +748,25 @@
                 <target>Retired</target>
                 <note>Status badge on deck card</note>
             </trans-unit>
+            <trans-unit id="app.deck.badge_personal">
+                <source>app.deck.badge_personal</source>
+                <target>Personal</target>
+                <note>Badge on deck card for owner-opted-out-of-lending decks (F2.30)</note>
+            </trans-unit>
+            <trans-unit id="app.deck.personal_tooltip">
+                <source>app.deck.personal_tooltip</source>
+                <target>This deck is not part of the shared lending library. Visibility is independent.</target>
+                <note>Tooltip on the Personal badge (F2.30)</note>
+            </trans-unit>
             <trans-unit id="app.deck.has_active_registrations">
                 <source>app.deck.has_active_registrations</source>
                 <target>This deck has active event registrations and cannot be unpublished.</target>
                 <note>Warning shown when deck cannot be unpublished</note>
+            </trans-unit>
+            <trans-unit id="app.deck.has_active_engagements">
+                <source>app.deck.has_active_engagements</source>
+                <target>This deck has active borrows or event registrations. Personal mode can only be enabled once they are resolved.</target>
+                <note>Warning shown when personal toggle is disabled because active borrows/registrations exist (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.deck.search_placeholder">
                 <source>app.deck.search_placeholder</source>
@@ -2748,6 +2763,16 @@
                 <source>app.form.label.public</source>
                 <target>Public (visible in deck catalog)</target>
                 <note>Form label for public checkbox</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.personal">
+                <source>app.form.label.personal</source>
+                <target>Personal deck</target>
+                <note>Form label for the personal opt-out-of-lending checkbox (F2.30)</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.personal">
+                <source>app.form.help.personal</source>
+                <target>Excluded from lending and event registration. Visibility (public/private) is controlled separately by the toggle above. Labels and lost-and-found still work.</target>
+                <note>Help text under the Personal checkbox on the deck edit form (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.form.label.deck_list_optional">
                 <source>app.form.label.deck_list_optional</source>
@@ -5082,6 +5107,41 @@
             <trans-unit id="app.admin.technical.mosaic.dispatched">
                 <source>app.admin.technical.mosaic.dispatched</source>
                 <target>%count% mosaic generation message(s) dispatched.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.title">
+                <source>app.admin.technical.sort_order_backfill.title</source>
+                <target>Imported list order — backfill</target>
+                <note>Admin technical dashboard tile heading (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.description">
+                <source>app.admin.technical.sort_order_backfill.description</source>
+                <target>Re-parses each deck version's stored raw list to populate the new per-card sortOrder column. Pre-F2.28 decks were imported without recording the source-line order; this backfill recovers it.</target>
+                <note>Admin technical dashboard tile description (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.pending_count">
+                <source>app.admin.technical.sort_order_backfill.pending_count</source>
+                <target>%count% deck version(s) still need imported-order backfill.</target>
+                <note>Admin technical dashboard pending-count alert (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.run_button">
+                <source>app.admin.technical.sort_order_backfill.run_button</source>
+                <target>Run backfill</target>
+                <note>Admin technical dashboard submit button (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.all_done">
+                <source>app.admin.technical.sort_order_backfill.all_done</source>
+                <target>All deck versions have their imported-order populated.</target>
+                <note>Admin technical dashboard success state (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.none_pending">
+                <source>app.admin.technical.sort_order_backfill.none_pending</source>
+                <target>No deck versions need imported-order backfill.</target>
+                <note>Flash shown when the run button is pressed with no pending versions (F2.28)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.sort_order_backfill.dispatched">
+                <source>app.admin.technical.sort_order_backfill.dispatched</source>
+                <target>%count% sort-order backfill message(s) dispatched.</target>
+                <note>Flash shown after dispatching the backfill (F2.28)</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.set_mappings.title">
                 <source>app.admin.technical.set_mappings.title</source>

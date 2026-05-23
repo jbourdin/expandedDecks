@@ -23,12 +23,14 @@
                         {{ form_row(form.format) }}
                         {{ form_row(form.notes) }}
 
-                        {# Archetype — React island #}
+                        {# Archetype — React island. data-create-url is only emitted for archetype editors (F2.29). #}
                         <div class="mb-3">
                             <label class="form-label">{{ 'app.deck.archetype_optional'|trans }}</label>
                             <div id="archetype-select-root"
                                  data-search-url="{{ path('app_archetype_search') }}"
-                                 data-create-url="{{ path('app_archetype_create') }}"
+                                 {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                                     data-create-url="{{ path('app_archetype_create') }}"
+                                 {% endif %}
                                  {% if deck.archetype %}
                                      data-archetype-id="{{ deck.archetype.id }}"
                                      data-archetype-name="{{ deck.archetype.localizedName(app.request.locale) }}"
@@ -66,6 +68,13 @@
                             {{ form_row(form.public) }}
                             {% if has_active_registrations is defined and has_active_registrations %}
                                 <div class="form-text text-warning">{{ 'app.deck.has_active_registrations'|trans }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_row(form.personal) }}
+                            {% if has_active_engagements is defined and has_active_engagements and not deck.personal %}
+                                <div class="form-text text-warning">{{ 'app.deck.has_active_engagements'|trans }}</div>
                             {% endif %}
                         </div>
 

@@ -116,6 +116,37 @@ class AdminTechnicalControllerCoverageTest extends AbstractFunctionalTest
         self::assertSelectorExists('.alert-info, .alert-success');
     }
 
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortOrderBackfillRejectsInvalidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('POST', '/admin/technical/sort-order-backfill', ['_token' => 'wrong']);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
+    /**
+     * @see docs/features.md F2.28 — Preserve imported list order
+     */
+    public function testSortOrderBackfillSucceedsWithValidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/technical');
+
+        $this->client->request('POST', '/admin/technical/sort-order-backfill', [
+            '_token' => $this->getCsrfToken('technical-sort-order-backfill'),
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        // Either info (0 pending) or success (N dispatched) — both branches of sortOrderBackfill.
+        self::assertSelectorExists('.alert-info, .alert-success');
+    }
+
     public function testSpriteMappingRebuildRejectsInvalidCsrf(): void
     {
         $this->loginAs('admin@example.com');

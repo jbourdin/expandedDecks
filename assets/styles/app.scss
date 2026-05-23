@@ -817,6 +817,18 @@ footer {
     margin-right: 4px;
 }
 
+// Inline context: sprites embedded in RTE-rendered prose
+// (archetype description tags). Sized in em so they track the
+// surrounding font, with a baseline nudge so the picture doesn't
+// stretch the line box of the paragraph it lives in.
+.archetype-sprites {
+    &--inline .archetype-sprite {
+        height: 1.2em;
+        vertical-align: -0.2em;
+        margin-right: 0.15em;
+    }
+}
+
 // --- Footer ---
 
 .footer-pokemon {

@@ -31,6 +31,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @see docs/features.md F2.1 — Register a new deck (owner)
  * @see docs/features.md F2.13 — Inline deck list import on creation
  * @see docs/features.md F2.23 — Standard format personal decks
+ * @see docs/features.md F2.30 — Personal deck flag
  *
  * @extends AbstractType<Deck>
  */
@@ -87,6 +88,12 @@ class DeckFormType extends AbstractType
                 'label' => 'app.form.label.public',
                 'required' => false,
                 'disabled' => $options['public_disabled'],
+            ])
+            ->add('personal', CheckboxType::class, [
+                'label' => 'app.form.label.personal',
+                'help' => 'app.form.help.personal',
+                'required' => false,
+                'disabled' => $options['personal_disabled'],
             ]);
 
         if ($options['include_raw_list']) {
@@ -107,10 +114,12 @@ class DeckFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Deck::class,
             'public_disabled' => false,
+            'personal_disabled' => false,
             'include_raw_list' => false,
         ]);
 
         $resolver->setAllowedTypes('public_disabled', 'bool');
+        $resolver->setAllowedTypes('personal_disabled', 'bool');
         $resolver->setAllowedTypes('include_raw_list', 'bool');
     }
 }

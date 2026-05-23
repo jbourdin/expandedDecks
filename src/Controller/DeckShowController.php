@@ -360,6 +360,7 @@ class DeckShowController extends AbstractAppController
             $card->setCardNumber($parsedCard->cardNumber);
             $card->setQuantity($parsedCard->quantity);
             $card->setCardType($parsedCard->cardType);
+            $card->setSortOrder($parsedCard->sortOrder);
             $version->addCard($card);
         }
 
