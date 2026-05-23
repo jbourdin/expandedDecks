@@ -132,7 +132,7 @@
                                     </td>
                                     <td>
                                         {% for slug in variant.effectivePokemonSlugs[:3] %}
-                                            <img src="{{ asset('build/sprites/pokemon/' ~ slug ~ '.png') }}" alt="{{ slug }}" class="archetype-sprite" style="height: 24px;">
+                                            <img src="{{ path('app_sprite_pokemon', {slug: slug}) }}" alt="{{ slug }}" class="archetype-sprite" style="height: 24px;">
                                         {% endfor %}
                                         {% if variant.latestSet %}
                                             <span class="badge bg-light text-dark border">{{ variant.latestSet.ptcgCode }}</span>
