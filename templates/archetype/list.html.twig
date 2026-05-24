@@ -96,6 +96,9 @@
                         <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'name'}|merge(tagsModeParam)) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'updatedAt'}|merge(tagsModeParam)) }}" {{ currentSort == 'updatedAt' ? 'selected' }}>
+                            {{ 'app.archetype.sort_updated'|trans }}
+                        </option>
                         {% if current_channel().enableDecks %}
                             <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'decks'}|merge(tagsModeParam)) }}" {{ currentSort == 'decks' ? 'selected' }}>
                                 {{ 'app.archetype.sort_decks'|trans }}

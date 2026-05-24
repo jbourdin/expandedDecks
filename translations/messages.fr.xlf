@@ -3973,6 +3973,11 @@
                 <target>Plus de decks</target>
                 <note>Sort option: by number of available decks descending</note>
             </trans-unit>
+            <trans-unit id="app.archetype.sort_updated">
+                <source>app.archetype.sort_updated</source>
+                <target>Récemment mis à jour</target>
+                <note>Sort option: by latest variant activity (lastPublishedAt) descending</note>
+            </trans-unit>
             <trans-unit id="app.archetype.results_count">
                 <source>app.archetype.results_count</source>
                 <target>%count% archétype trouvé|%count% archétypes trouvés</target>

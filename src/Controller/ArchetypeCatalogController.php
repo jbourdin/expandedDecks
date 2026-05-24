@@ -49,7 +49,7 @@ class ArchetypeCatalogController extends AbstractController
             $tags = array_values(array_filter($tags, static fn (string $tag): bool => '' !== $tag));
             $sort = $request->query->getString('sort', 'position');
 
-            if (!\in_array($sort, ['name', 'decks', 'position'], true)) {
+            if (!\in_array($sort, ['name', 'decks', 'position', 'updatedAt'], true)) {
                 $sort = 'position';
             }
 
