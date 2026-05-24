@@ -40,7 +40,31 @@ final class Version20260524201835 extends AbstractMigration
         // approximation we have since these timestamps weren't recorded historically. Draft rows
         // intentionally stay NULL so they only get stamped the first time they're actually published.
         $this->addSql('UPDATE page SET first_published_at = created_at, last_published_at = COALESCE(updated_at, created_at) WHERE is_published = 1');
-        $this->addSql('UPDATE archetype SET first_published_at = created_at, last_published_at = COALESCE(updated_at, created_at) WHERE is_published = 1');
+
+        // Archetype backfill mirrors the runtime rule (ArchetypeFreshnessListener):
+        // last_published_at is the max of the archetype's own age, the latest variant Deck.updated_at,
+        // and the latest variant DeckVersion.created_at. Variants are decks with `owner_id IS NULL`.
+        // The '1970-01-01' fallbacks neutralize NULL results from MAX() so GREATEST() keeps working
+        // when an archetype has no variants yet.
+        $this->addSql(<<<'SQL'
+            UPDATE archetype a SET
+                first_published_at = a.created_at,
+                last_published_at = GREATEST(
+                    COALESCE(a.updated_at, a.created_at),
+                    COALESCE(
+                        (SELECT MAX(d.updated_at) FROM deck d
+                         WHERE d.archetype_id = a.id AND d.owner_id IS NULL),
+                        '1970-01-01 00:00:00'
+                    ),
+                    COALESCE(
+                        (SELECT MAX(dv.created_at) FROM deck_version dv
+                         INNER JOIN deck d ON dv.deck_id = d.id
+                         WHERE d.archetype_id = a.id AND d.owner_id IS NULL),
+                        '1970-01-01 00:00:00'
+                    )
+                )
+            WHERE a.is_published = 1
+            SQL);
     }
 
     public function down(Schema $schema): void
