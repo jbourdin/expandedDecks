@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\Entity\CardIdentity;
 use App\Entity\CardPrinting;
 use App\Entity\TcgdexCard;
 use App\Entity\TcgdexSerie;
@@ -21,6 +22,7 @@ use App\Service\CardImageResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * @see docs/features.md F6.2 — TCGdex card data enrichment
@@ -31,11 +33,24 @@ class CardImageResolverTest extends TestCase
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
 
+    /** @var list<string> */
+    private array $tempFiles = [];
+
     protected function setUp(): void
     {
         $this->entityManager = $this->createStub(EntityManagerInterface::class);
         $this->logger = $this->createStub(LoggerInterface::class);
         $this->resolver = new CardImageResolver($this->entityManager, $this->logger);
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->tempFiles as $path) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+        $this->tempFiles = [];
     }
 
     public function testReturnsFalseWhenImageUrlIsNull(): void
@@ -146,6 +161,96 @@ class CardImageResolverTest extends TestCase
         self::assertSame('https://images.pokemontcg.io/sm35/7_hires.png', $urls[1]);
     }
 
+    public function testDownloadImageReturnsPrimaryUrlContentsOnSuccess(): void
+    {
+        $path = $this->writeTempFile('primary-bytes');
+
+        // No tcgdex card + no dash in tcgdexId → no HTTP fallbacks would be tried even
+        // if the primary failed, isolating this test from the network.
+        $printing = $this->buildPrinting($path, 'Pikachu');
+
+        self::assertSame('primary-bytes', $this->resolver->downloadImage($printing));
+    }
+
+    public function testDownloadImageUsesLowResolutionUrlWhenRequested(): void
+    {
+        $directory = sys_get_temp_dir().'/'.uniqid('cir-low-', true);
+        mkdir($directory);
+        file_put_contents($directory.'/low.webp', 'low-res-bytes');
+        $this->tempFiles[] = $directory.'/low.webp';
+
+        // The resolver swaps `/high.webp` → `/low.webp` in the primary URL when
+        // resolution=low. Setting a primary URL that only resolves under low.webp
+        // proves the swap happened.
+        $printing = $this->buildPrinting($directory.'/high.webp', 'Pikachu');
+
+        $result = $this->resolver->downloadImage($printing, 'low');
+
+        // Clean up the directory after the assertion runs but before the test exits.
+        rmdir($directory);
+
+        self::assertSame('low-res-bytes', $result);
+    }
+
+    public function testDownloadImageFallsBackToSiblingPrintingWhenAllFallbacksFail(): void
+    {
+        $siblingPath = $this->writeTempFile('sibling-bytes');
+
+        $identity = new CardIdentity();
+        $identity->setName('Pikachu');
+        $identity->setCategory('pokemon');
+
+        $primary = new CardPrinting();
+        $primary->setTcgdexId('nodash'); // no dash → buildFallbackUrls returns []
+        $primary->setImageUrl('/nonexistent/primary.webp');
+        $primary->setCardIdentity($identity);
+        $identity->addPrinting($primary);
+
+        $sibling = new CardPrinting();
+        $sibling->setTcgdexId('also-nodash');
+        $sibling->setImageUrl($siblingPath);
+        $sibling->setCardIdentity($identity);
+        $identity->addPrinting($sibling);
+
+        // The persistFallbackUrl branch should call flush() once to save the rewritten primary URL.
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('flush');
+
+        $resolver = new CardImageResolver($entityManager, new NullLogger());
+
+        self::assertSame('sibling-bytes', $resolver->downloadImage($primary));
+        // The primary's URL is overwritten to point at the sibling that actually worked.
+        self::assertSame($siblingPath, $primary->getImageUrl());
+    }
+
+    public function testDownloadImageSkipsSiblingWithMissingUrlAndReturnsFalseWhenNothingResolves(): void
+    {
+        $identity = new CardIdentity();
+        $identity->setName('Phantom');
+        $identity->setCategory('pokemon');
+
+        $primary = new CardPrinting();
+        $primary->setTcgdexId('nodash'); // no dash → no HTTP fallbacks
+        $primary->setImageUrl('/nonexistent/primary.webp');
+        $primary->setCardIdentity($identity);
+        $identity->addPrinting($primary);
+
+        // Sibling with no image URL — must be skipped (the `continue` branch in tryFromSiblingPrinting).
+        $emptySibling = new CardPrinting();
+        $emptySibling->setTcgdexId('nodash');
+        $emptySibling->setImageUrl(null);
+        $emptySibling->setCardIdentity($identity);
+        $identity->addPrinting($emptySibling);
+
+        // No flush expected — nothing resolved.
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('flush');
+
+        $resolver = new CardImageResolver($entityManager, new NullLogger());
+
+        self::assertFalse($resolver->downloadImage($primary));
+    }
+
     /**
      * Invoke the private buildFallbackUrls method via reflection.
      *
@@ -157,5 +262,30 @@ class CardImageResolverTest extends TestCase
 
         /* @var list<string> */
         return $reflection->invoke($this->resolver, $printing);
+    }
+
+    private function buildPrinting(string $imageUrl, string $cardName): CardPrinting
+    {
+        $identity = new CardIdentity();
+        $identity->setName($cardName);
+        $identity->setCategory('pokemon');
+
+        $printing = new CardPrinting();
+        $printing->setTcgdexId('nodash');
+        $printing->setImageUrl($imageUrl);
+        $printing->setCardIdentity($identity);
+        $identity->addPrinting($printing);
+
+        return $printing;
+    }
+
+    private function writeTempFile(string $content): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'cir-');
+        \assert(false !== $path);
+        file_put_contents($path, $content);
+        $this->tempFiles[] = $path;
+
+        return $path;
     }
 }

@@ -68,6 +68,87 @@ final class ChannelRuntimeTest extends TestCase
         self::assertSame('/deck/AB3K7N', $runtime->featureUrl('decks', 'app_deck_show', ['short_tag' => 'AB3K7N']));
     }
 
+    public function testCanonicalUrlDelegatesToGenerator(): void
+    {
+        $generator = $this->createStub(ChannelUrlGenerator::class);
+        $generator->method('canonicalUrl')->willReturn('https://expanded.wip/decks');
+
+        $runtime = new ChannelRuntime(
+            $this->createChannelContext((new Channel())->setCode('app')),
+            $generator,
+        );
+
+        self::assertSame('https://expanded.wip/decks', $runtime->canonicalUrl('decks', 'app_deck_list'));
+    }
+
+    public function testSelfCanonicalUrlDelegatesToGenerator(): void
+    {
+        $generator = $this->createStub(ChannelUrlGenerator::class);
+        $generator->method('selfCanonicalUrl')->willReturn('https://expandedtalks.wip/archetypes/zard');
+
+        $runtime = new ChannelRuntime(
+            $this->createChannelContext((new Channel())->setCode('content')),
+            $generator,
+        );
+
+        self::assertSame('https://expandedtalks.wip/archetypes/zard', $runtime->selfCanonicalUrl('app_archetype_show', ['slug' => 'zard']));
+    }
+
+    public function testChannelThemeReturnsThemeName(): void
+    {
+        $channel = (new Channel())->setCode('app')->setThemeName('decks');
+        $runtime = $this->createRuntime($channel);
+
+        self::assertSame('decks', $runtime->channelTheme());
+    }
+
+    public function testChannelThemeReturnsNullWhenContextThrowsLogicException(): void
+    {
+        // Mirror of error-page / CLI safety: when no request is bound to the stack,
+        // ChannelContext throws LogicException and the runtime swallows it.
+        $runtime = new ChannelRuntime(
+            new ChannelContext(new RequestStack()),
+            $this->createStub(ChannelUrlGenerator::class),
+        );
+
+        self::assertNull($runtime->channelTheme());
+    }
+
+    public function testChannelParamReturnsParameterValue(): void
+    {
+        $channel = (new Channel())->setCode('app');
+        $channel->setParameters(['brand_name' => 'Expanded Decks']);
+        $runtime = $this->createRuntime($channel);
+
+        self::assertSame('Expanded Decks', $runtime->channelParam('brand_name'));
+    }
+
+    public function testChannelParamReturnsDefaultWhenContextThrowsLogicException(): void
+    {
+        $runtime = new ChannelRuntime(
+            new ChannelContext(new RequestStack()),
+            $this->createStub(ChannelUrlGenerator::class),
+        );
+
+        self::assertSame('fallback', $runtime->channelParam('brand_name', 'fallback'));
+    }
+
+    public function testChannelAbsoluteUrlDelegatesToGenerator(): void
+    {
+        $generator = $this->createStub(ChannelUrlGenerator::class);
+        $generator->method('absolutizeUrl')->willReturn('https://expanded.wip/api/editor/image/123.png');
+
+        $runtime = new ChannelRuntime(
+            $this->createChannelContext((new Channel())->setCode('app')),
+            $generator,
+        );
+
+        self::assertSame(
+            'https://expanded.wip/api/editor/image/123.png',
+            $runtime->channelAbsoluteUrl('/api/editor/image/123.png'),
+        );
+    }
+
     private function createRuntime(Channel $channel): ChannelRuntime
     {
         return new ChannelRuntime(
