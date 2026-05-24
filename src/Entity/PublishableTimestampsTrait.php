@@ -45,7 +45,9 @@ trait PublishableTimestampsTrait
 
     /**
      * Initial-persist hook: if the entity is created already published, stamp
-     * both timestamps to "now". Drafts created via `new` get nothing.
+     * both timestamps to "now". Drafts created via `new` get nothing. Pre-seeded
+     * values (e.g. from fixtures or a data migration) are preserved — the hook
+     * only fills in NULL fields.
      */
     private function stampPublicationOnPersist(): void
     {
@@ -55,7 +57,7 @@ trait PublishableTimestampsTrait
 
         $now = new \DateTimeImmutable();
         $this->firstPublishedAt ??= $now;
-        $this->lastPublishedAt = $now;
+        $this->lastPublishedAt ??= $now;
     }
 
     /**
