@@ -54,6 +54,14 @@
         <div class="card-body cms-content">
             {{ htmlContent|raw }}
         </div>
+        {% if page.firstPublishedAt %}
+            <div class="card-footer text-muted small">
+                {{ 'app.cms.published_on'|trans }} {{ page.firstPublishedAt|format_date('long') }}
+                {% if page.lastPublishedAt and page.lastPublishedAt > page.firstPublishedAt %}
+                    · {{ 'app.cms.updated_on'|trans }} {{ page.lastPublishedAt|format_date('long') }}
+                {% endif %}
+            </div>
+        {% endif %}
     </article>
 
     {# Card image modal for mobile tap-to-show with swipe navigation #}

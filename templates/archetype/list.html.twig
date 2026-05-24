@@ -96,6 +96,9 @@
                         <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'name'}|merge(tagsModeParam)) }}" {{ currentSort == 'name' ? 'selected' }}>
                             {{ 'app.common.name'|trans }}
                         </option>
+                        <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'updatedAt'}|merge(tagsModeParam)) }}" {{ currentSort == 'updatedAt' ? 'selected' }}>
+                            {{ 'app.archetype.sort_updated'|trans }}
+                        </option>
                         {% if current_channel().enableDecks %}
                             <option value="{{ path('app_archetype_list', {tags: currentTags, sort: 'decks'}|merge(tagsModeParam)) }}" {{ currentSort == 'decks' ? 'selected' }}>
                                 {{ 'app.archetype.sort_decks'|trans }}
@@ -136,6 +139,15 @@
                                 {% if current_channel().enableDecks %}
                                     <p class="card-text text-muted mb-0">
                                         {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
+                                    </p>
+                                {% endif %}
+                                {% if archetype.firstPublishedAt %}
+                                    <p class="card-text text-muted small mb-0 mt-1">
+                                        {% if archetype.lastPublishedAt and archetype.lastPublishedAt > archetype.firstPublishedAt %}
+                                            {{ 'app.cms.updated_on'|trans }} {{ archetype.lastPublishedAt|format_date('long') }}
+                                        {% else %}
+                                            {{ 'app.cms.published_on'|trans }} {{ archetype.firstPublishedAt|format_date('long') }}
+                                        {% endif %}
                                     </p>
                                 {% endif %}
                             </div>

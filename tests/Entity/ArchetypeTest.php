@@ -36,7 +36,9 @@ class ArchetypeTest extends TestCase
         self::assertSame('ancient-box', $archetype->getSlug());
 
         $archetype->setName('Ancient Box V2');
-        $archetype->onPreUpdate();
+        $args = $this->createStub(\Doctrine\ORM\Event\PreUpdateEventArgs::class);
+        $args->method('hasChangedField')->willReturn(false);
+        $archetype->onPreUpdate($args);
         self::assertSame('ancient-box-v2', $archetype->getSlug());
         self::assertNotNull($archetype->getUpdatedAt());
     }

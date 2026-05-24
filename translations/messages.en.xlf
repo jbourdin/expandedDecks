@@ -3988,6 +3988,11 @@
                 <target>Most decks</target>
                 <note>Sort option: by number of available decks descending</note>
             </trans-unit>
+            <trans-unit id="app.archetype.sort_updated">
+                <source>app.archetype.sort_updated</source>
+                <target>Most recently updated</target>
+                <note>Sort option: by latest variant activity (lastPublishedAt) descending</note>
+            </trans-unit>
             <trans-unit id="app.archetype.results_count">
                 <source>app.archetype.results_count</source>
                 <target>%count% archetype found|%count% archetypes found</target>
@@ -4689,6 +4694,16 @@
             <trans-unit id="app.cms.draft_notice">
                 <source>app.cms.draft_notice</source>
                 <target>This page is not published yet. Only editors can see it.</target>
+            </trans-unit>
+            <trans-unit id="app.cms.published_on">
+                <source>app.cms.published_on</source>
+                <target>Published on</target>
+                <note>Public-facing freshness signal. Followed by a long-formatted date. Shared with the archetype list.</note>
+            </trans-unit>
+            <trans-unit id="app.cms.updated_on">
+                <source>app.cms.updated_on</source>
+                <target>Updated on</target>
+                <note>Public-facing freshness signal. Followed by a long-formatted date. Shared with the archetype list and the variant selector caption.</note>
             </trans-unit>
 
             <!-- CMS: Validation -->

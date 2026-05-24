@@ -72,11 +72,14 @@ A CMS content page. Non-translatable fields live here; translatable fields (titl
 | `noIndex`      | `bool`             | No       | Whether to add `<meta name="robots" content="noindex">`. Default: `false`. |
 | `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
+| `firstPublishedAt` | `DateTimeImmutable` | Yes  | First time `isPublished` transitioned to true (F11.4). Drafts stay null. Powers the public footer and JSON-LD `datePublished`. |
+| `lastPublishedAt`  | `DateTimeImmutable` | Yes  | Most recent persist while published (F11.4). Drafts and unpublish saves never bump it. Powers the public footer and JSON-LD `dateModified`. |
 
 ### Constraints
 
 - `slug`: required, unique, 1–150 characters, URL-friendly (`[a-z0-9-]+`)
 - `isPublished`: unpublished pages are only visible to admins (preview mode)
+- `firstPublishedAt` / `lastPublishedAt`: managed via [`PublishableTimestampsTrait`](../../src/Entity/PublishableTimestampsTrait.php); shared with [`Archetype`](deck.md#archetype) (F2.27)
 
 ### Relations
 
