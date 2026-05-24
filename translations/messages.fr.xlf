@@ -4665,6 +4665,16 @@
                 <source>app.cms.draft_notice</source>
                 <target>Cette page n'est pas encore publiée. Seuls les éditeurs peuvent la voir.</target>
             </trans-unit>
+            <trans-unit id="app.cms.published_on">
+                <source>app.cms.published_on</source>
+                <target>Publié le</target>
+                <note>Indicateur public de fraîcheur. Suivi d'une date au format long. Partagé avec la liste d'archétypes.</note>
+            </trans-unit>
+            <trans-unit id="app.cms.updated_on">
+                <source>app.cms.updated_on</source>
+                <target>Mis à jour le</target>
+                <note>Indicateur public de fraîcheur. Suivi d'une date au format long. Partagé avec la liste d'archétypes et la légende du sélecteur de variantes.</note>
+            </trans-unit>
 
             <!-- CMS: Validation -->
             <trans-unit id="app.cms.slug_unique">

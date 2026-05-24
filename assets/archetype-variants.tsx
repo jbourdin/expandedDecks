@@ -39,6 +39,7 @@ if (root) {
         groupCurrent: root.dataset.labelGroupCurrent ?? 'Current',
         groupOutdated: root.dataset.labelGroupOutdated ?? 'Outdated',
         shareMosaic: root.dataset.labelShareMosaic ?? 'Share mosaic',
+        updatedOn: root.dataset.labelUpdatedOn ?? 'Updated on',
         enrichmentPending: root.dataset.labelEnrichmentPending ?? 'Card data is being generated…',
         copyTag: root.dataset.labelCopyTag ?? 'Copy reference tag',
         copyTagCopied: root.dataset.labelCopyTagCopied ?? 'Copied!',

@@ -64,6 +64,28 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('Expanded Decks', $data['publisher']['name']);
     }
 
+    public function testBuildWebPageEmitsBothDatesWhenPagePublished(): void
+    {
+        $builder = $this->createBuilder('Expanded Decks');
+
+        $page = new Page();
+        $reflection = new \ReflectionClass($page);
+        $firstField = $reflection->getProperty('firstPublishedAt');
+        $lastField = $reflection->getProperty('lastPublishedAt');
+        $publishedOn = new \DateTimeImmutable('2026-01-15T09:00:00+00:00');
+        $updatedOn = new \DateTimeImmutable('2026-03-02T15:30:00+00:00');
+        $firstField->setValue($page, $publishedOn);
+        $lastField->setValue($page, $updatedOn);
+
+        $translation = new PageTranslation();
+        $translation->setTitle('Release Notes');
+
+        $data = $builder->buildWebPage($translation, $page, 'https://expandeddecks.wip/pages/release-notes');
+
+        self::assertSame($publishedOn->format('c'), $data['datePublished']);
+        self::assertSame($updatedOn->format('c'), $data['dateModified']);
+    }
+
     public function testBuildArticleIncludesHeadlineGenreAndAbout(): void
     {
         $builder = $this->createBuilder('Expanded Talks');
@@ -81,6 +103,25 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertArrayHasKey('datePublished', $data);
         self::assertArrayHasKey('dateModified', $data);
         self::assertArrayNotHasKey('hasPart', $data);
+    }
+
+    public function testBuildArticleUsesPublicationTimestampsWhenAvailable(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $archetype = (new Archetype())->setName('Iron Thorns');
+        $reflection = new \ReflectionClass($archetype);
+        $firstField = $reflection->getProperty('firstPublishedAt');
+        $lastField = $reflection->getProperty('lastPublishedAt');
+        $publishedOn = new \DateTimeImmutable('2026-02-01T08:00:00+00:00');
+        $updatedOn = new \DateTimeImmutable('2026-04-10T12:00:00+00:00');
+        $firstField->setValue($archetype, $publishedOn);
+        $lastField->setValue($archetype, $updatedOn);
+
+        $data = $builder->buildArticle($archetype, 'en', 'https://expandedtalks.wip/archetypes/iron-thorns');
+
+        self::assertSame($publishedOn->format('c'), $data['datePublished']);
+        self::assertSame($updatedOn->format('c'), $data['dateModified']);
     }
 
     public function testBuildArticleVariantsHaveGenreAndDescription(): void

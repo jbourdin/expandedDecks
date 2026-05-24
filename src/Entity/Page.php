@@ -16,6 +16,7 @@ namespace App\Entity;
 use App\Repository\PageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -29,6 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['slug', 'channel'], message: 'app.cms.slug_unique')]
 class Page
 {
+    use PublishableTimestampsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -196,12 +199,14 @@ class Page
     public function setCreatedAtValue(): void
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->stampPublicationOnPersist();
     }
 
     #[ORM\PreUpdate]
-    public function setUpdatedAtValue(): void
+    public function setUpdatedAtValue(PreUpdateEventArgs $args): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+        $this->stampPublicationOnUpdate($args);
     }
 
     /**

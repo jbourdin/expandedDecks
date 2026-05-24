@@ -195,6 +195,50 @@ class DeckRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return, per variant deck id, the freshness signal used by the archetype
+     * variant tile: `max(Deck.updatedAt, latest DeckVersion.createdAt)`. A
+     * variant whose only state is its initial creation (no `updatedAt`, no
+     * versions yet) falls back to `Deck.createdAt` so every entry has a value.
+     *
+     * @see docs/features.md F2.27 — Archetype publication dates
+     *
+     * @param list<int> $deckIds
+     *
+     * @return array<int, \DateTimeImmutable>
+     */
+    public function findEffectiveUpdatedAtByDeckIds(array $deckIds): array
+    {
+        if ([] === $deckIds) {
+            return [];
+        }
+
+        $connection = $this->getEntityManager()->getConnection();
+        $sql = <<<'SQL'
+            SELECT d.id AS deck_id,
+                   GREATEST(
+                       COALESCE(d.updated_at, d.created_at),
+                       COALESCE((SELECT MAX(dv.created_at) FROM deck_version dv WHERE dv.deck_id = d.id), d.created_at)
+                   ) AS effective_updated_at
+            FROM deck d
+            WHERE d.id IN (:ids)
+            SQL;
+
+        /** @var list<array{deck_id: int, effective_updated_at: string}> $rows */
+        $rows = $connection->executeQuery(
+            $sql,
+            ['ids' => $deckIds],
+            ['ids' => \Doctrine\DBAL\ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[(int) $row['deck_id']] = new \DateTimeImmutable($row['effective_updated_at']);
+        }
+
+        return $result;
+    }
+
+    /**
      * @see docs/features.md F2.1 — Register a new deck (owner)
      *
      * @return list<Deck>

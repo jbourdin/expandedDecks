@@ -138,6 +138,15 @@
                                         {{ 'app.archetype.deck_count'|trans({'%count%': deckCount}) }}
                                     </p>
                                 {% endif %}
+                                {% if archetype.firstPublishedAt %}
+                                    <p class="card-text text-muted small mb-0 mt-1">
+                                        {% if archetype.lastPublishedAt and archetype.lastPublishedAt > archetype.firstPublishedAt %}
+                                            {{ 'app.cms.updated_on'|trans }} {{ archetype.lastPublishedAt|format_date('long') }}
+                                        {% else %}
+                                            {{ 'app.cms.published_on'|trans }} {{ archetype.firstPublishedAt|format_date('long') }}
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
                             </div>
                         </a>
                         {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}

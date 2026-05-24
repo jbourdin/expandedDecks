@@ -43,6 +43,7 @@ interface VariantData {
     description: string | null;
     mosaicUrl: string | null;
     rawList: string | null;
+    effectiveUpdatedAt: string | null;
     groupedCards: Record<string, CardData[]>;
 }
 
@@ -63,6 +64,7 @@ interface Labels {
     groupCurrent: string;
     groupOutdated: string;
     shareMosaic: string;
+    updatedOn: string;
     enrichmentPending: string;
     copyTag: string;
     copyTagCopied: string;
@@ -606,6 +608,17 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                         {labels.outdatedBadge}
                     </span>
                 </div>
+            )}
+
+            {/* Freshness caption (F2.27) */}
+            {selectedVariant.effectiveUpdatedAt && (
+                <p className="text-muted small mb-2">
+                    {labels.updatedOn}{' '}
+                    {new Date(selectedVariant.effectiveUpdatedAt).toLocaleDateString(
+                        navigator.language,
+                        { dateStyle: 'long' },
+                    )}
+                </p>
             )}
 
             {/* Description */}
