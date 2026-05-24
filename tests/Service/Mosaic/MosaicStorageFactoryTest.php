@@ -57,4 +57,25 @@ final class MosaicStorageFactoryTest extends TestCase
 
         self::assertInstanceOf(FilesystemOperator::class, $filesystem);
     }
+
+    public function testCreateS3ReturnsFilesystemOperator(): void
+    {
+        // The S3 client is lazy: building it (and the Flysystem adapter on top)
+        // does not contact the bucket. We only assert the factory wires the S3
+        // branch without exploding on bogus credentials.
+        $factory = new MosaicStorageFactory(
+            mosaicStorageAdapter: 's3',
+            mosaicStorageLocalDir: 'var/storage/mosaic',
+            projectDir: sys_get_temp_dir(),
+            scalewayS3Bucket: 'test-bucket',
+            scalewayS3Region: 'fr-par',
+            scalewayS3Endpoint: 'https://s3.fr-par.scw.cloud',
+            scalewayS3AccessKey: 'test-access',
+            scalewayS3SecretKey: 'test-secret',
+        );
+
+        $filesystem = $factory->create();
+
+        self::assertInstanceOf(FilesystemOperator::class, $filesystem);
+    }
 }
