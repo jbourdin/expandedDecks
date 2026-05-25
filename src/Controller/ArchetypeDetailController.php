@@ -87,10 +87,16 @@ class ArchetypeDetailController extends AbstractController
      * @param list<Deck>                     $variants
      * @param array<int, \DateTimeImmutable> $effectiveUpdatedAtMap
      *
-     * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, effectiveUpdatedAt: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
+     * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, effectiveUpdatedAtLabel: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
      */
     private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale, array $effectiveUpdatedAtMap = []): array
     {
+        // Format dates server-side using the request locale and server timezone so they match
+        // the Twig `format_date('long')` output on the archetype list. Doing this in the React
+        // component would mix browser-locale + browser-timezone with the request-locale label,
+        // producing one-day skews near UTC midnight for users in non-UTC timezones.
+        $dateFormatter = \IntlDateFormatter::create($locale, \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
+
         $data = [];
 
         foreach ($variants as $variant) {
@@ -187,7 +193,7 @@ class ArchetypeDetailController extends AbstractController
                 'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),
-                'effectiveUpdatedAt' => isset($effectiveUpdatedAtMap[$variantId]) ? $effectiveUpdatedAtMap[$variantId]->format('c') : null,
+                'effectiveUpdatedAtLabel' => isset($effectiveUpdatedAtMap[$variantId]) && false !== ($formatted = $dateFormatter->format($effectiveUpdatedAtMap[$variantId])) ? $formatted : null,
                 'groupedCards' => $orderedGroups,
             ];
         }

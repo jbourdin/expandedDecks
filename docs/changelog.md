@@ -14,6 +14,10 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **Archetype variant date no longer drifts a day on non-UTC browsers (F2.27 follow-up)** — production users in CEST (and any non-UTC timezone) saw the archetype catalog show "Updated on May 23" while the same archetype's selected variant tile showed "Updated on 24 mai". Two root causes: the React variant selector formatted the ISO timestamp with `new Date(iso).toLocaleDateString(navigator.language, …)` — which uses the **browser's timezone** (CEST shifts UTC midnight forward by 2h) **and** the **browser's locale** (always French on a French browser, regardless of the `/en/…` URL). The Twig list, by contrast, uses `format_date('long')` with the server timezone + request locale. Result: the same timestamp rendered as two different days **and** in two different languages on the same page. `ArchetypeDetailController::buildVariantsData()` now formats the variant's effective updated date server-side via `IntlDateFormatter::create($locale, IntlDateFormatter::LONG, IntlDateFormatter::NONE)` — the same locale + timezone Twig uses on the list — and passes the pre-formatted string as `effectiveUpdatedAtLabel` per variant. `ArchetypeVariantSelector.tsx` drops the `new Date(...).toLocaleDateString(...)` call and just renders the pre-formatted string after the `labels.updatedOn` prefix.
+
 ---
 
 ## [1.12.22] — 2026-05-25
