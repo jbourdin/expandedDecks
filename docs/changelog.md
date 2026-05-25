@@ -14,6 +14,10 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **`rel="nofollow"` on archetype catalog filter buttons** — bot crawlers walking every tag combination on `/archetypes` were creating one anonymous session per permutation (tag set × AND/OR mode × sort option = 2^N × 2 × M URLs), driving up DB IOPS and disk usage from session storage. The "All" reset, every tag toggle, the drafts toggle (admin only), and both AND/OR mode anchors in `templates/archetype/list.html.twig` now carry `rel="nofollow"` so well-behaved crawlers stop traversing the filter space. Same treatment should follow on the deck catalog and event-list filter rows in a later PR.
+
 ---
 
 ## [1.12.23] — 2026-05-25
