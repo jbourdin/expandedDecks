@@ -52,8 +52,15 @@
             <div class="row g-2 align-items-end">
                 <div class="col-md-6">
                     <label class="form-label">{{ 'app.archetype.filter_by_tag'|trans }}</label>
+                    {#
+                     # rel="nofollow" on every filter anchor: tag combinations are
+                     # combinatorial (2^N tags × 2 modes × M sort options), so a
+                     # crawler that walks every link generates a unique URL per
+                     # permutation, each producing an anonymous session. Telling
+                     # bots not to follow these stops the explosion at the source.
+                     #}
                     <div class="d-flex flex-wrap gap-1">
-                        <a href="{{ path('app_archetype_list', {sort: currentSort}) }}" class="btn btn-sm {{ not showDrafts and currentTags|length == 0 ? 'btn-gold' : 'btn-outline-secondary' }}">
+                        <a href="{{ path('app_archetype_list', {sort: currentSort}) }}" rel="nofollow" class="btn btn-sm {{ not showDrafts and currentTags|length == 0 ? 'btn-gold' : 'btn-outline-secondary' }}">
                             {{ 'app.common.all'|trans }}
                         </a>
                         {% for tag in allTags %}
@@ -63,12 +70,12 @@
                             {% else %}
                                 {% set newTags = currentTags|merge([tag]) %}
                             {% endif %}
-                            <a href="{{ path('app_archetype_list', {tags: newTags, sort: currentSort}|merge(tagsModeParam)) }}" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
+                            <a href="{{ path('app_archetype_list', {tags: newTags, sort: currentSort}|merge(tagsModeParam)) }}" rel="nofollow" class="btn btn-sm {{ isActive ? 'btn-gold' : 'btn-outline-secondary' }}">
                                 {{ tag }}
                             </a>
                         {% endfor %}
                         {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
-                            <a href="{{ path('app_archetype_list', {drafts: 1}) }}" class="btn btn-sm {{ showDrafts ? 'btn-warning' : 'btn-outline-warning' }}">
+                            <a href="{{ path('app_archetype_list', {drafts: 1}) }}" rel="nofollow" class="btn btn-sm {{ showDrafts ? 'btn-warning' : 'btn-outline-warning' }}">
                                 <i class="bi bi-eye me-1"></i>{{ 'app.archetype.filter_drafts'|trans }}
                             </a>
                         {% endif %}
@@ -77,10 +84,10 @@
                         <div class="d-flex align-items-center gap-2 mt-2">
                             <small class="text-muted">{{ 'app.archetype.tags_mode.label'|trans }}</small>
                             <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'app.archetype.tags_mode.label'|trans }}">
-                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort}) }}" class="btn {{ currentTagsMode == 'and' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort}) }}" rel="nofollow" class="btn {{ currentTagsMode == 'and' ? 'btn-gold' : 'btn-outline-secondary' }}">
                                     {{ 'app.archetype.tags_mode.and'|trans }}
                                 </a>
-                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort, tagsMode: 'or'}) }}" class="btn {{ currentTagsMode == 'or' ? 'btn-gold' : 'btn-outline-secondary' }}">
+                                <a href="{{ path('app_archetype_list', {tags: currentTags, sort: currentSort, tagsMode: 'or'}) }}" rel="nofollow" class="btn {{ currentTagsMode == 'or' ? 'btn-gold' : 'btn-outline-secondary' }}">
                                     {{ 'app.archetype.tags_mode.or'|trans }}
                                 </a>
                             </div>
