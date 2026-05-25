@@ -34,7 +34,8 @@
       "Bash(npm run *)",
       "Bash(npx encore *)",
       "Bash(npx vitest *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(scw container container redeploy:*)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -47,6 +48,32 @@
       "Bash(gh api *)",
       "Bash(npm install *)",
       "Bash(docker compose *)"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Bash(make *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git fetch *)",
+      "Bash(git branch *)",
+      "Bash(git stash *)",
+      "Bash(git mv *)",
+      "Bash(git restore *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git merge-tree *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh issue view *)",
+      "Bash(gh project item-list *)",
+      "Bash(gh search *)"
     ]
   }
 }
