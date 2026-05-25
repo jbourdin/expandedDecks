@@ -43,7 +43,7 @@ interface VariantData {
     description: string | null;
     mosaicUrl: string | null;
     rawList: string | null;
-    effectiveUpdatedAt: string | null;
+    effectiveUpdatedAtLabel: string | null;
     groupedCards: Record<string, CardData[]>;
 }
 
@@ -610,14 +610,12 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                 </div>
             )}
 
-            {/* Freshness caption (F2.27) */}
-            {selectedVariant.effectiveUpdatedAt && (
+            {/* Freshness caption (F2.27). The label string is fully pre-formatted server-side
+                with the request locale + server timezone so it matches the catalog list — see
+                ArchetypeDetailController::buildVariantsData(). */}
+            {selectedVariant.effectiveUpdatedAtLabel && (
                 <p className="text-muted small mb-2">
-                    {labels.updatedOn}{' '}
-                    {new Date(selectedVariant.effectiveUpdatedAt).toLocaleDateString(
-                        navigator.language,
-                        { dateStyle: 'long' },
-                    )}
+                    {labels.updatedOn} {selectedVariant.effectiveUpdatedAtLabel}
                 </p>
             )}
 
