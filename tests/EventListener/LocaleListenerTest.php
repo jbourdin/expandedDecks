@@ -38,14 +38,19 @@ class LocaleListenerTest extends TestCase
         $localeSwitcher = $this->createMock(LocaleSwitcher::class);
         $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
 
+        // Session cookie must be present for the listener to consult the security
+        // service — in production an authenticated user always carries one.
         $request = $this->createRequestWithSession();
+        $this->addSessionCookie($request);
         $event = $this->createRequestEvent($request);
 
         $listener = new LocaleListener($security, $localeSwitcher);
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
-        self::assertSame('fr', $request->getSession()->get('_locale'));
+        // Listener no longer writes to the session; persisting the user's
+        // preferred locale is now User::preferredLocale's job, kept fresh by
+        // ProfileController on explicit changes.
     }
 
     public function testSessionLocaleUsedForAnonymousUser(): void
@@ -58,6 +63,7 @@ class LocaleListenerTest extends TestCase
 
         $request = $this->createRequestWithSession();
         $request->getSession()->set('_locale', 'fr');
+        $this->addSessionCookie($request);
         $event = $this->createRequestEvent($request);
 
         $listener = new LocaleListener($security, $localeSwitcher);
@@ -82,7 +88,9 @@ class LocaleListenerTest extends TestCase
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
-        self::assertSame('fr', $request->getSession()->get('_locale'));
+        // No session write — anonymous cookieless visitors must stay session-free
+        // so the response can sit behind a CDN.
+        self::assertNull($request->getSession()->get('_locale'));
     }
 
     public function testDefaultLocaleWhenNoSignal(): void
@@ -182,7 +190,7 @@ class LocaleListenerTest extends TestCase
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
-        self::assertSame('en', $request->getSession()->get('_locale'));
+        self::assertNull($request->getSession()->get('_locale'));
     }
 
     public function testNonStringSessionLocaleIsIgnored(): void
@@ -282,6 +290,7 @@ class LocaleListenerTest extends TestCase
         $channel = (new Channel())->setCode('app')->setDomain('expandeddecks.wip')->setLocales(['en', 'fr']);
 
         $request = $this->createRequestWithSession();
+        $this->addSessionCookie($request);
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
@@ -391,6 +400,43 @@ class LocaleListenerTest extends TestCase
         $request->setSession($session);
 
         return $request;
+    }
+
+    /**
+     * Simulate "this request comes from a visitor with prior server-side state"
+     * by attaching a cookie under the configured session name — the trigger
+     * `LocaleListener` uses to decide whether it's safe to consult the security
+     * service / session bag without breaking the anonymous-cacheable contract.
+     */
+    private function addSessionCookie(Request $request): void
+    {
+        $request->cookies->set($request->getSession()->getName(), 'fake-session-id');
+    }
+
+    /**
+     * @see docs/features.md F14.x — anonymous request session-allocation guarantee
+     */
+    public function testAnonymousCookielessRequestStaysSessionFree(): void
+    {
+        $security = $this->createMock(Security::class);
+        // The security service must NOT be consulted on a cookieless request —
+        // calling getUser() would trigger the session-backed token storage and
+        // start a session, defeating the CDN-cacheability contract.
+        $security->expects(self::never())->method('getUser');
+
+        $localeSwitcher = $this->createMock(LocaleSwitcher::class);
+        $localeSwitcher->expects(self::once())->method('setLocale')->with('fr');
+
+        $request = $this->createRequestWithSession();
+        $request->headers->set('Accept-Language', 'fr-FR,fr;q=0.9');
+        // Deliberately no cookie attached.
+        $event = $this->createRequestEvent($request);
+
+        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener($event);
+
+        self::assertSame('fr', $request->getLocale());
+        self::assertNull($request->getSession()->get('_locale'));
     }
 
     private function createRequestEvent(Request $request): RequestEvent

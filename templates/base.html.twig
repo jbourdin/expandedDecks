@@ -55,7 +55,15 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto align-items-end align-items-lg-center">
                         {% set channel = current_channel() %}
-                        {% if app.user %}
+                        {#
+                         # Reading app.user starts the session (TokenStorage consults
+                         # _security_main via SessionTokenStorage), even with a lazy
+                         # firewall. Gate on the actual cookie so cookieless visitors
+                         # render the anonymous navbar without allocating a session.
+                         #}
+                        {% set has_session_cookie = app.request.cookies.has(app.session.name) or app.request.cookies.has('REMEMBERME') %}
+                        {% set current_user = has_session_cookie ? app.user : null %}
+                        {% if current_user %}
                             {% if channel.enableDecks %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('app_dashboard') }}">{{ 'app.nav.dashboard'|trans }}</a>
@@ -124,8 +132,8 @@
                             {% endif %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle nav-link-user d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ gravatar(app.user.email, 64) }}" alt="" width="32" height="32" class="rounded-circle me-1">
-                                    {{ app.user.screenName }}
+                                    <img src="{{ gravatar(current_user.email, 64) }}" alt="" width="32" height="32" class="rounded-circle me-1">
+                                    {{ current_user.screenName }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {% if channel.enableDecks %}
@@ -247,14 +255,20 @@
         </nav>
 
         <main class="container py-4">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label }} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+            {# Iterating app.flashes opens the session bag and forces a session start.
+               Anonymous cookieless visitors cannot have queued flashes (those only
+               exist after a write via $this->addFlash() which itself sets a cookie),
+               so skip the loop entirely when no cookie is present. #}
+            {% if has_session_cookie %}
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+            {% endif %}
 
             {% block body %}{% endblock %}
         </main>
@@ -299,7 +313,7 @@
             {{ encore_entry_script_tags('navbar_search') }}
             {{ encore_entry_link_tags('navbar_search') }}
             {{ encore_entry_script_tags('event_datetime_localize') }}
-            {% if app.user and channel is defined and channel.enableDecks %}
+            {% if current_user and channel is defined and channel.enableDecks %}
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}
             {% endif %}
