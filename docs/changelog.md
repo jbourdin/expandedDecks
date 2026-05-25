@@ -14,6 +14,10 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
+### Performance
+
+- **Anonymous read-only requests no longer allocate a session (#634)** — the same root cause that drove the post-1.12.22 production IOPS / disk climb: every anonymous GET was opening a session row. Two changes close that off. **(1)** `LocaleListener::__invoke()` now refactors `applyLocale()` into a pure `setLocale()` that touches `Request::setLocale()` + `LocaleSwitcher` but never the session bag — the listener was previously calling `getSession()->set('_locale', $locale)` on every request, including locale-prefixed URLs like `/en/archetypes` where the URL is already authoritative. The session is now only *read* (for the `_locale` fallback chain) when a session cookie or `REMEMBERME` cookie says the visitor has prior state; cookieless visitors take the Accept-Language branch without consulting Symfony's session storage at all. `LocaleSwitchController` and `ProfileController` (the explicit user-action paths) keep their own `getSession()->set(...)` calls — by the time those fire the session cookie is already present. **(2)** `base.html.twig` and `home/blocks/_hero.html.twig` gate every `app.user` and `app.flashes` access on the same cookie-presence check via a local `current_user = has_session_cookie ? app.user : null` set at the top of the navbar block. Reading `app.user` consults Symfony's `SessionTokenStorage` even with `lazy: true` on the firewall, which was the second-largest session-starter after `LocaleListener`. The cookie-name check is dynamic — `Session::getName()` server-side, `app.session.name` in Twig — so it works against the production `PHPSESSID` cookie and the test env's `MOCKSESSID` (mock file session factory) without hard-coding either. Verified end-to-end: `DELETE FROM sessions; curl six anonymous URLs;` leaves `sessions` empty and no `Set-Cookie` of the session cookie on any response, which unblocks the next step — emitting `Cache-Control: public, s-maxage=…` on the anonymous public-page response path so a CDN can cache them.
+
 ---
 
 ## [1.12.24] — 2026-05-25
