@@ -14,9 +14,15 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ## [Unreleased]
 
+---
+
+## [1.12.24] — 2026-05-25
+
+Patch release: a crawler-deflection follow-up to the F2.27 freshness UI. After 1.12.22/23 shipped, production showed a sharp DB IOPS and disk-space climb. Best-guess root cause: bot crawlers walking the combinatorial tag-filter space on `/archetypes` (with N tags, 2^N tag subsets × 2 modes × M sort options = exponentially many unique URLs), each anonymous request opening a session row. This release adds `rel="nofollow"` on every filter anchor in the archetype catalog so well-behaved crawlers stop traversing the permutation space. A broader follow-up — skipping session allocation entirely for anonymous read-only requests, and applying the same `rel="nofollow"` treatment to the deck catalog and event-list filter rows — is queued separately.
+
 ### Bug Fixes
 
-- **`rel="nofollow"` on archetype catalog filter buttons** — bot crawlers walking every tag combination on `/archetypes` were creating one anonymous session per permutation (tag set × AND/OR mode × sort option = 2^N × 2 × M URLs), driving up DB IOPS and disk usage from session storage. The "All" reset, every tag toggle, the drafts toggle (admin only), and both AND/OR mode anchors in `templates/archetype/list.html.twig` now carry `rel="nofollow"` so well-behaved crawlers stop traversing the filter space. Same treatment should follow on the deck catalog and event-list filter rows in a later PR.
+- **`rel="nofollow"` on archetype catalog filter buttons** — bot crawlers walking every tag combination on `/archetypes` were creating one anonymous session per permutation (tag set × AND/OR mode × sort option = 2^N × 2 × M URLs), driving up DB IOPS and disk usage from session storage. The "All" reset, every tag toggle, the drafts toggle (admin only), and both AND/OR mode anchors in `templates/archetype/list.html.twig` now carry `rel="nofollow"` so well-behaved crawlers stop traversing the filter space. `noopener` was deliberately not added — it's a `target="_blank"` security shield (window.opener attack) and is a no-op on same-window internal links, so it would have added markup noise without value. Same treatment should follow on the deck catalog and event-list filter rows in a later PR. ([#632](https://github.com/jbourdin/expandedDecks/pull/632))
 
 ---
 
