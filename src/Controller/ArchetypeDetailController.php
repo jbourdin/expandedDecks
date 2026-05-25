@@ -63,7 +63,9 @@ class ArchetypeDetailController extends AbstractController
         $totalDeckCount = $deckRepository->countPublicByArchetype($archetype);
 
         $variants = $deckRepository->findVariantsByArchetype($archetype);
-        $variantsData = $this->buildVariantsData($variants, $descriptionRenderer, $locale);
+        $variantIds = array_values(array_filter(array_map(static fn (Deck $variant): ?int => $variant->getId(), $variants)));
+        $effectiveUpdatedAtMap = $deckRepository->findEffectiveUpdatedAtByDeckIds($variantIds);
+        $variantsData = $this->buildVariantsData($variants, $descriptionRenderer, $locale, $effectiveUpdatedAtMap);
 
         return $this->render('archetype/show.html.twig', [
             'archetype' => $archetype,
@@ -80,12 +82,14 @@ class ArchetypeDetailController extends AbstractController
      *
      * @see docs/features.md F18.16 — Archetype detail: variant selector
      * @see docs/features.md F2.25 — Archetype variant URL anchors & enhanced archetype tags
+     * @see docs/features.md F2.27 — Archetype publication dates
      *
-     * @param list<Deck> $variants
+     * @param list<Deck>                     $variants
+     * @param array<int, \DateTimeImmutable> $effectiveUpdatedAtMap
      *
-     * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
+     * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, effectiveUpdatedAt: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
      */
-    private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale): array
+    private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale, array $effectiveUpdatedAtMap = []): array
     {
         $data = [];
 
@@ -183,6 +187,7 @@ class ArchetypeDetailController extends AbstractController
                 'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),
+                'effectiveUpdatedAt' => isset($effectiveUpdatedAtMap[$variantId]) ? $effectiveUpdatedAtMap[$variantId]->format('c') : null,
                 'groupedCards' => $orderedGroups,
             ];
         }

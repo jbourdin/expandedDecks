@@ -131,7 +131,9 @@ class PageTest extends TestCase
         $page = new Page();
         self::assertNull($page->getUpdatedAt());
 
-        $page->setUpdatedAtValue();
+        $args = $this->createStub(\Doctrine\ORM\Event\PreUpdateEventArgs::class);
+        $args->method('hasChangedField')->willReturn(false);
+        $page->setUpdatedAtValue($args);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $page->getUpdatedAt());
     }

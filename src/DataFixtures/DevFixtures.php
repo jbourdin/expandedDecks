@@ -71,11 +71,14 @@ class DevFixtures extends Fixture
         $this->createInvitationalEvent($manager, $organizer, $admin, $staff2);
         $this->createDraftEvent($manager, $organizer, $admin);
 
-        // Create archetypes (descriptions are now stored as EN translations)
-        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], true, ['Aggressive', 'Spread'], 2);
+        // Create archetypes (descriptions are now stored as EN translations).
+        // The optional first/last publishedAt args showcase the F2.27 freshness UI:
+        // mix archetypes published months ago (some untouched, some recently
+        // updated) with brand-new ones.
+        $archetypeIronThorns = $this->createArchetype($manager, 'Iron Thorns ex', ['iron-thorns'], true, ['Aggressive', 'Spread'], 2, new \DateTimeImmutable('-6 months'), new \DateTimeImmutable('-3 weeks'));
         $this->addArchetypeTranslation($manager, $archetypeIronThorns, 'en', 'Iron Thorns ex', 'A powerful **Iron Thorns ex** deck built around the Paradox Pokemon. Uses heavy energy acceleration and spread damage to overwhelm opponents.');
 
-        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], true, ['Toolbox', 'Aggressive'], 7);
+        $archetypeAncientBox = $this->createArchetype($manager, 'Ancient Box', ['roaring-moon', 'flutter-mane'], true, ['Toolbox', 'Aggressive'], 7, new \DateTimeImmutable('-9 months'));
         $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'en', 'Ancient Box', 'The **Ancient Box** archetype combines multiple Ancient Pokemon to leverage Ancient support cards for a versatile attack strategy.');
         $this->addArchetypeTranslation($manager, $archetypeAncientBox, 'fr', 'Box Anciens', "L'archétype **Box Anciens** combine plusieurs Pokémon Anciens pour tirer parti des cartes de support Anciennes dans une stratégie d'attaque polyvalente.");
 
@@ -86,7 +89,7 @@ Although Regidrago has been a top tier deck for a long time, it has gained many 
 
 It's gotten to the point where many lists are trying unconventional techs to try to get an edge in the mirror match.
 MARKDOWN;
-        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], true, ['Combo', 'Lock', 'Toolbox'], 0);
+        $archetypeRegidrago = $this->createArchetype($manager, 'Regidrago', ['regidrago'], true, ['Combo', 'Lock', 'Toolbox'], 0, new \DateTimeImmutable('-1 year'), new \DateTimeImmutable('-5 days'));
         $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'en', 'Regidrago', $regidragoDescription);
         $regidragoDescriptionFr = <<<'MARKDOWN'
 **Regidrago VSTAR** est généralement considéré comme le meilleur deck du format. Il dispose de toutes les options possibles, et même plus. Il peut verrouiller l'adversaire de multiples façons (blocage d'Objets, blocage de Talents, blocage d'Énergies spéciales...), décimer les bancs de Bases avec [[archetype:kyurem]], mettre KO n'importe quoi avec [[archetype:salamence-ex]], et même prendre un tour supplémentaire avec [[card:UPR-100]].
@@ -97,15 +100,15 @@ On en est au point où de nombreuses listes essaient des techs non conventionnel
 MARKDOWN;
         $this->addArchetypeTranslation($manager, $archetypeRegidrago, 'fr', 'Regidrago', $regidragoDescriptionFr);
 
-        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], true, ['Spread'], 5);
+        $archetypeKyurem = $this->createArchetype($manager, 'Kyurem', ['kyurem'], true, ['Spread'], 5, new \DateTimeImmutable('-4 months'), new \DateTimeImmutable('-2 weeks'));
         $this->addArchetypeTranslation($manager, $archetypeKyurem, 'en', 'Kyurem', 'A **Kyurem** archetype that punishes Basic-heavy boards with its spread attack, often teched into [[archetype:regidrago]] builds.');
 
-        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], true, ['Aggressive'], 4);
+        $archetypeSalamence = $this->createArchetype($manager, 'Salamence ex', ['salamence'], true, ['Aggressive'], 4, new \DateTimeImmutable('-5 months'));
         $this->addArchetypeTranslation($manager, $archetypeSalamence, 'en', 'Salamence ex', 'The **Salamence ex** archetype leverages its massive damage output to oneshot virtually anything. Commonly used as a finisher in [[archetype:regidrago]] lists.');
 
         $archetypeLugia = $this->createArchetype($manager, 'Lugia Archeops', ['lugia', 'archeops'], false, [], 3);
 
-        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], true, ['Aggressive', 'Combo'], 6);
+        $archetypeCharizardEevee = $this->createArchetype($manager, 'Charizard Flareon', ['charizard', 'eevee'], true, ['Aggressive', 'Combo'], 6, new \DateTimeImmutable('-2 weeks'));
         $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'en', 'Charizard Flareon', 'A **Charizard & Flareon** deck that evolves Eevee into Flareon for energy acceleration, fueling Charizard\'s massive fire attacks.');
         $this->addArchetypeTranslation($manager, $archetypeCharizardEevee, 'fr', 'Dracaufeu Pyroli', "Un deck **Dracaufeu & Pyroli** qui fait évoluer Évoli en Pyroli pour l'accélération d'énergie, alimentant les attaques de feu massives de Dracaufeu.");
 
@@ -143,7 +146,7 @@ MARKDOWN;
         $charizardFlareon->setPublic(true);
         $this->createCharizardFlareonDeckVersion($manager, $charizardFlareon);
 
-        $archetypeShadowRider = $this->createArchetype($manager, 'Shadow Rider Calyrex', ['calyrex-shadow-rider'], true, ['Control'], 1);
+        $archetypeShadowRider = $this->createArchetype($manager, 'Shadow Rider Calyrex', ['calyrex-shadow-rider'], true, ['Control'], 1, new \DateTimeImmutable('-7 months'), new \DateTimeImmutable('-2 months'));
         $this->addArchetypeTranslation($manager, $archetypeShadowRider, 'en', 'Shadow Rider Calyrex', 'A **Shadow Rider Calyrex VMAX** control deck that uses hand disruption and item lock to starve the opponent of resources.');
         $shadowRider = $this->createDeck($manager, $admin, 'Shadow Rider Calyrex');
         $shadowRider->setArchetype($archetypeShadowRider);
@@ -565,7 +568,7 @@ MARKDOWN;
      * @param list<string> $pokemonSlugs
      * @param list<string> $playstyleTags
      */
-    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], bool $isPublished = false, array $playstyleTags = [], int $position = 0): Archetype
+    private function createArchetype(ObjectManager $manager, string $name, array $pokemonSlugs = [], bool $isPublished = false, array $playstyleTags = [], int $position = 0, ?\DateTimeImmutable $firstPublishedAt = null, ?\DateTimeImmutable $lastPublishedAt = null): Archetype
     {
         $archetype = new Archetype();
         $archetype->setName($name);
@@ -577,9 +580,29 @@ MARKDOWN;
             $playstyleTags,
         ));
 
+        if ($isPublished && $firstPublishedAt instanceof \DateTimeImmutable) {
+            $this->backdatePublication($archetype, $firstPublishedAt, $lastPublishedAt);
+        }
+
         $manager->persist($archetype);
 
         return $archetype;
+    }
+
+    /**
+     * Reflectively pre-seed the publication timestamps on a fixture entity so
+     * the Doctrine PrePersist hook (which null-coalesces both fields) keeps
+     * them. Lets fixtures showcase the freshness UI with realistic spread —
+     * "published last year, never touched" vs. "republished last week".
+     *
+     * @see docs/features.md F11.4 — CMS publication dates
+     * @see docs/features.md F2.27 — Archetype publication dates
+     */
+    private function backdatePublication(object $entity, \DateTimeImmutable $firstPublishedAt, ?\DateTimeImmutable $lastPublishedAt = null): void
+    {
+        $reflection = new \ReflectionClass($entity);
+        $reflection->getProperty('firstPublishedAt')->setValue($entity, $firstPublishedAt);
+        $reflection->getProperty('lastPublishedAt')->setValue($entity, $lastPublishedAt ?? $firstPublishedAt);
     }
 
     /**
@@ -1544,6 +1567,7 @@ MARKDOWN);
         $welcomePage->setChannel($contentChannel);
         $welcomePage->setSlug('welcome');
         $welcomePage->setIsPublished(true);
+        $this->backdatePublication($welcomePage, new \DateTimeImmutable('-10 months'), new \DateTimeImmutable('-1 month'));
         $manager->persist($welcomePage);
 
         $welcomeEn = new PageTranslation();
@@ -1593,6 +1617,7 @@ MD);
         $news1->setSlug('season-2026-kickoff');
         $news1->setMenuCategory($newsCategory);
         $news1->setIsPublished(true);
+        $this->backdatePublication($news1, new \DateTimeImmutable('-5 months'));
         $manager->persist($news1);
 
         $news1En = new PageTranslation();
@@ -1644,6 +1669,7 @@ MD);
         $news2->setSlug('borrowing-guide');
         $news2->setMenuCategory($newsCategory);
         $news2->setIsPublished(true);
+        $this->backdatePublication($news2, new \DateTimeImmutable('-4 months'), new \DateTimeImmutable('-2 weeks'));
         $manager->persist($news2);
 
         $news2En = new PageTranslation();
@@ -1679,6 +1705,7 @@ MD);
         $news3->setSlug('march-league-challenge');
         $news3->setMenuCategory($newsCategory);
         $news3->setIsPublished(true);
+        $this->backdatePublication($news3, new \DateTimeImmutable('-2 months'));
         $manager->persist($news3);
 
         $news3En = new PageTranslation();
@@ -1724,6 +1751,7 @@ MD);
         $news4->setSlug('new-decks-february');
         $news4->setMenuCategory($newsCategory);
         $news4->setIsPublished(true);
+        $this->backdatePublication($news4, new \DateTimeImmutable('-3 months'), new \DateTimeImmutable('-7 weeks'));
         $manager->persist($news4);
 
         $news4En = new PageTranslation();
@@ -1749,6 +1777,7 @@ MD);
         $news5->setSlug('label-printing-live');
         $news5->setMenuCategory($newsCategory);
         $news5->setIsPublished(true);
+        $this->backdatePublication($news5, new \DateTimeImmutable('-6 weeks'));
         $manager->persist($news5);
 
         $news5En = new PageTranslation();
@@ -1772,6 +1801,7 @@ MD);
         $news6->setSlug('community-guidelines');
         $news6->setMenuCategory($newsCategory);
         $news6->setIsPublished(true);
+        $this->backdatePublication($news6, new \DateTimeImmutable('-3 weeks'), new \DateTimeImmutable('-5 days'));
         $manager->persist($news6);
 
         $news6En = new PageTranslation();
@@ -1796,6 +1826,7 @@ MD);
         $news7->setSlug('spring-tournament-series');
         $news7->setMenuCategory($newsCategory);
         $news7->setIsPublished(true);
+        $this->backdatePublication($news7, new \DateTimeImmutable('-12 days'));
         $manager->persist($news7);
 
         $news7En = new PageTranslation();
@@ -1821,6 +1852,7 @@ MD);
         $news8->setSlug('deck-enrichment-update');
         $news8->setMenuCategory($newsCategory);
         $news8->setIsPublished(true);
+        $this->backdatePublication($news8, new \DateTimeImmutable('-3 days'));
         $manager->persist($news8);
 
         $news8En = new PageTranslation();
@@ -1844,6 +1876,7 @@ MD);
         $rulesPage->setSlug('borrowing-rules');
         $rulesPage->setMenuCategory($rulesCategory);
         $rulesPage->setIsPublished(true);
+        $this->backdatePublication($rulesPage, new \DateTimeImmutable('-11 months'), new \DateTimeImmutable('-2 months'));
         $manager->persist($rulesPage);
 
         $rulesPageEn = new PageTranslation();
@@ -1938,6 +1971,7 @@ MD);
         $philosophyPage->setMenuCategory($projectCategory);
         $philosophyPage->setIsPublished(true);
         $philosophyPage->setPosition(1);
+        $this->backdatePublication($philosophyPage, new \DateTimeImmutable('-1 year'));
         $manager->persist($philosophyPage);
 
         $philosophyEn = new PageTranslation();
@@ -1974,6 +2008,7 @@ MD);
         $teamPage->setMenuCategory($projectCategory);
         $teamPage->setIsPublished(true);
         $teamPage->setPosition(2);
+        $this->backdatePublication($teamPage, new \DateTimeImmutable('-8 months'), new \DateTimeImmutable('-3 weeks'));
         $manager->persist($teamPage);
 
         $teamEn = new PageTranslation();
@@ -2030,6 +2065,7 @@ MD);
         $legalNoticePage->setMenuCategory($legalCategory);
         $legalNoticePage->setIsPublished(true);
         $legalNoticePage->setPosition(1);
+        $this->backdatePublication($legalNoticePage, new \DateTimeImmutable('-13 months'), new \DateTimeImmutable('-4 months'));
         $manager->persist($legalNoticePage);
 
         $legalNoticeEn = new PageTranslation();

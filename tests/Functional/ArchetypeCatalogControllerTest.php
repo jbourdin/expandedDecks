@@ -77,6 +77,17 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
+    /**
+     * @see docs/features.md F2.27 — Archetype publication dates
+     */
+    public function testSortByUpdatedAt(): void
+    {
+        $this->client->request('GET', '/en/archetypes?sort=updatedAt');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('option[selected]', 'Most recently updated');
+    }
+
     public function testInvalidSortDefaultsToName(): void
     {
         $this->client->request('GET', '/en/archetypes?sort=invalid');

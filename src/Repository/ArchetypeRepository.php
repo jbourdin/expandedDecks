@@ -129,6 +129,12 @@ class ArchetypeRepository extends ServiceEntityRepository
         } elseif ('position' === $sort) {
             $qb->orderBy('a.position', 'ASC')
                 ->addOrderBy('a.name', 'ASC');
+        } elseif ('updatedAt' === $sort) {
+            // COALESCE keeps the sort stable for rows that pre-date the F2.27 backfill
+            // or were never republished (lastPublishedAt → firstPublishedAt → createdAt).
+            $qb->addSelect('COALESCE(a.lastPublishedAt, a.firstPublishedAt, a.createdAt) AS HIDDEN effectiveUpdatedAt')
+                ->orderBy('effectiveUpdatedAt', 'DESC')
+                ->addOrderBy('a.name', 'ASC');
         } else {
             $qb->orderBy('a.name', 'ASC');
         }

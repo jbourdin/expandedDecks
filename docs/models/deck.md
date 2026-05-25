@@ -152,12 +152,15 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 | `deletedAt`        | `DateTimeImmutable` | Yes     | Soft-delete timestamp. Null = active. When set, the archetype is hidden from all lists (admin and public) and its detail page returns 404. See Soft-Delete Rules below. |
 | `createdAt`        | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
+| `firstPublishedAt` | `DateTimeImmutable` | Yes     | First time `isPublished` transitioned to true (F2.27). Drafts stay null. Powers the catalog freshness caption and the `Article` JSON-LD `datePublished`. |
+| `lastPublishedAt`  | `DateTimeImmutable` | Yes     | Most recent persist while published (F2.27). Drafts and unpublish saves never bump it. Powers the catalog "Updated on" caption and `Article` JSON-LD `dateModified`. |
 
 ### Constraints
 
 - `name`: required, unique, 2–100 characters
 - `slug`: required, unique, auto-generated from name via `AsciiSlugger`
 - `metaDescription`: max 255 characters
+- `firstPublishedAt` / `lastPublishedAt`: managed via [`PublishableTimestampsTrait`](../../src/Entity/PublishableTimestampsTrait.php); shared with [`Page`](cms.md#page) (F11.4). Variant freshness is computed lazily by `DeckRepository::findEffectiveUpdatedAtByDeckIds()` — no schema change on `Deck`
 - **Soft-delete guard:** an archetype can only be soft-deleted when it has **zero associated decks** (including non-public and retired decks). If any deck references the archetype, deletion is refused with an error message
 
 ### Relations

@@ -64,16 +64,23 @@ final readonly class StructuredDataBuilder
      */
     public function buildWebPage(PageTranslation $translation, Page $page, string $url): array
     {
-        $lastModified = $page->getUpdatedAt() ?? $page->getCreatedAt();
+        $published = $page->getFirstPublishedAt();
+        $modified = $page->getLastPublishedAt() ?? $published ?? $page->getUpdatedAt() ?? $page->getCreatedAt();
 
-        return [
+        $data = [
             '@context' => 'https://schema.org',
             '@type' => 'WebPage',
             'name' => $translation->getTitle(),
             'url' => $url,
-            'dateModified' => $lastModified->format('c'),
+            'dateModified' => $modified->format('c'),
             'publisher' => $this->buildOrganization(),
         ];
+
+        if ($published instanceof \DateTimeImmutable) {
+            $data['datePublished'] = $published->format('c');
+        }
+
+        return $data;
     }
 
     /**
@@ -103,9 +110,10 @@ final readonly class StructuredDataBuilder
             'publisher' => $this->buildOrganization(),
         ];
 
-        $lastModified = $archetype->getUpdatedAt() ?? $archetype->getCreatedAt();
-        $data['dateModified'] = $lastModified->format('c');
-        $data['datePublished'] = $archetype->getCreatedAt()->format('c');
+        $published = $archetype->getFirstPublishedAt() ?? $archetype->getCreatedAt();
+        $modified = $archetype->getLastPublishedAt() ?? $archetype->getUpdatedAt() ?? $published;
+        $data['datePublished'] = $published->format('c');
+        $data['dateModified'] = $modified->format('c');
 
         $description = $archetype->getLocalizedMetaDescription($locale);
         if (null !== $description && '' !== $description) {
