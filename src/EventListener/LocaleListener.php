@@ -25,8 +25,8 @@ use Symfony\Component\Translation\LocaleSwitcher;
 /**
  * Sets the request locale based on (in order of priority):
  * 1. Route-level _locale parameter (e.g. /{_locale}/archetypes)
- * 2. Authenticated user's preferredLocale
- * 3. Existing session locale
+ * 2. Authenticated user's preferredLocale (only consulted when a session cookie is present)
+ * 3. Existing session locale (only consulted when a session cookie is present)
  * 4. Accept-Language header detection
  * 5. Default locale (en)
  *
@@ -34,6 +34,13 @@ use Symfony\Component\Translation\LocaleSwitcher;
  * and uses LocaleSwitcher to propagate the locale to the Translator and all
  * other locale-aware services (since Symfony's LocaleAwareListener already ran
  * at priority 15).
+ *
+ * **Session-allocation contract:** this listener never *writes* to the session.
+ * `LocaleSwitchController` and `ProfileController` are the only places that
+ * persist `_locale` — they fire on an explicit user action, by which point
+ * the request has already produced a session cookie. The session is only
+ * *read* when a session cookie is present, so anonymous cookieless requests
+ * stay 100% session-free here and can be CDN-cached safely.
  *
  * @see docs/features.md F9.1 — User language preference
  * @see docs/features.md F18.29 — Locale-prefixed URL routing
@@ -63,37 +70,41 @@ class LocaleListener
 
         // Route-level _locale takes precedence (e.g. /{_locale}/archetypes).
         // Symfony's router already set this attribute; honour it so the URL
-        // always dictates the rendering language.
+        // always dictates the rendering language. No session touch here so
+        // cookieless visitors stay cacheable.
         $routeLocale = $request->attributes->get('_locale');
         if (\is_string($routeLocale) && \in_array($routeLocale, self::SUPPORTED_LOCALES, true)) {
-            $locale = $this->constrainToChannel($routeLocale, $channelLocales);
-            $this->applyLocale($request, $locale);
+            $this->setLocale($request, $this->constrainToChannel($routeLocale, $channelLocales));
 
             return;
         }
 
-        $user = $this->security->getUser();
+        // Only consult the security token / session bag when a session cookie or
+        // remember-me cookie says the visitor has prior state. Without either,
+        // we MUST stay off the session entirely (Security::getUser() would touch
+        // it via SessionTokenStorage) so the response avoids `Set-Cookie` and
+        // can sit behind a CDN.
+        if ($this->hasSessionCookie($request)) {
+            $user = $this->security->getUser();
 
-        if ($user instanceof User) {
-            $locale = $this->constrainToChannel($user->getPreferredLocale(), $channelLocales);
-            $this->applyLocale($request, $locale);
+            if ($user instanceof User) {
+                $this->setLocale($request, $this->constrainToChannel($user->getPreferredLocale(), $channelLocales));
 
-            return;
+                return;
+            }
+
+            $sessionLocale = $request->getSession()->get('_locale');
+            if (\is_string($sessionLocale) && \in_array($sessionLocale, self::SUPPORTED_LOCALES, true)) {
+                $this->setLocale($request, $this->constrainToChannel($sessionLocale, $channelLocales));
+
+                return;
+            }
         }
 
-        $sessionLocale = $request->getSession()->get('_locale');
-        if (\is_string($sessionLocale) && \in_array($sessionLocale, self::SUPPORTED_LOCALES, true)) {
-            $locale = $this->constrainToChannel($sessionLocale, $channelLocales);
-            $this->applyLocale($request, $locale);
-
-            return;
-        }
-
-        $locale = $this->constrainToChannel(
+        $this->setLocale($request, $this->constrainToChannel(
             $this->detectFromAcceptLanguage($request->headers->get('Accept-Language', '')),
             $channelLocales,
-        );
-        $this->applyLocale($request, $locale);
+        ));
     }
 
     /**
@@ -110,11 +121,23 @@ class LocaleListener
         return $channelLocales[0] ?? self::DEFAULT_LOCALE;
     }
 
-    private function applyLocale(Request $request, string $locale): void
+    private function setLocale(Request $request, string $locale): void
     {
         $request->setLocale($locale);
-        $request->getSession()->set('_locale', $locale);
         $this->localeSwitcher->setLocale($locale);
+    }
+
+    private function hasSessionCookie(Request $request): bool
+    {
+        // Read the configured session cookie name from the storage rather than
+        // hard-coding `PHPSESSID`: production uses the PHP default, the test
+        // env uses `MOCKSESSID` via the mock file session factory, and any
+        // future `framework.session.name` override would silently break a
+        // literal check. Session::getName() does NOT start the session — it
+        // only returns the cookie name from the storage's metadata bag.
+        $sessionName = $request->getSession()->getName();
+
+        return $request->cookies->has($sessionName) || $request->cookies->has('REMEMBERME');
     }
 
     private function detectFromAcceptLanguage(string $header): string
