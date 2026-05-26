@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.26] — 2026-05-26
+
+Patch release: weekly Dependabot sweep, bundled into one PR with the inline lint fix needed to keep Frontend Quality green. 21 npm minor/patch updates + 2 composer minor/patch updates land together; three React fetch-and-setState call sites get inline `react-hooks/set-state-in-effect` disable comments to match the tightened rule shipped in `eslint-plugin-react-hooks` 7.1.1. The Mantine 8 → 9 majors, the `@eslint/js` 9 → 10 (which requires `eslint` 10), and `webpack-cli` 6 → 7 are deliberately deferred so each major can be reviewed in isolation.
+
+### Infrastructure
+
+- **Bundle the weekly Dependabot sweep into one PR + silence the tightened `react-hooks/set-state-in-effect` rule** — collapses the two open grouped Dependabot PRs (#640 npm with 21 updates, #637 composer with 2 updates) into one bundle: Composer side picks up minor/patch bumps that `composer audit` reports as clean; npm side bumps Babel 7.17/7.16/7.28 → 7.29.7 across `core`/`preset-env`/`preset-react`, `@types/react` 19.2.14 → 19.2.15, `core-js` 3.38 → 3.49, `eslint-plugin-react-hooks` 7.0.1 → **7.1.1** (the rule-tightening one), `globals` 17.4 → 17.6, `react`/`react-dom` 19.2.4 → 19.2.6, `sass` 1.99 → 1.100, `stylelint` 17.4 → 17.12, `typescript-eslint` 8.0 → 8.60, `vitest` 4.1.5 → 4.1.7, `webpack` 5.74 → 5.107. `npm audit` reports 0 vulnerabilities. The 7.1.1 bump of `eslint-plugin-react-hooks` tightened `react-hooks/set-state-in-effect` to flag setState calls inside `useEffect` bodies — including the canonical fetch+setState data-loading pattern that the codebase already exempts in `ArchetypeVariantSelector.tsx`. Three call sites tripped the new check and now carry `// eslint-disable-next-line react-hooks/set-state-in-effect -- <justification>` comments matching the existing convention: `ArchetypeSelect.tsx:76` (typeahead fetch driven by debounced search), `DeckVersionCompare.tsx:130` (diff fetch keyed on `(fromVersion, toVersion)`), `NavbarSearch.tsx:75` (synchronous `setGroups([])` clear when query drops below the 2-char threshold so stale results don't stay visible). Deferred from this bundle, queued individually: **#607** (`@eslint/js` 9 → 10) — needs paired `eslint` 9 → 10 bump because `@eslint/js` v10 demands `eslint` v10 peer, ERESOLVE-fails on its own; **#605 / #606** (`@mantine/hooks` and `@mantine/core` 8 → 9) — major API changes worth reviewing standalone; **#520** (`webpack-cli` 6 → 7) — major plus a stale Security Audit failure that needs its own diagnosis. ([#641](https://github.com/jbourdin/expandedDecks/pull/641))
+
+---
+
 ## [1.12.25] — 2026-05-25
 
 Patch release: the durable fix for the IOPS/disk climb that 1.12.24's `rel="nofollow"` only deflected at the surface. Anonymous read-only requests no longer allocate a session row: `LocaleListener` stops writing `_locale` to the session on every request, and `base.html.twig` / `_hero.html.twig` gate every `app.user` and `app.flashes` access on cookie presence so Symfony's `SessionTokenStorage` is never consulted for cookieless visitors. After deploy, the `sessions` table should stop growing for crawler/bot traffic and the public catalog responses won't carry a `Set-Cookie` of the session cookie — which unblocks CDN caching on those URLs (queued for a later PR).
