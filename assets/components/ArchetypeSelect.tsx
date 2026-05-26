@@ -73,6 +73,7 @@ export default function ArchetypeSelect({ searchUrl, createUrl, initialId, initi
     }, [searchUrl]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- typeahead fetch: debouncedSearch drives a fetch+setState cycle, which is the canonical data-fetching pattern the rule's docs explicitly carve out from the "external subscription" case
         fetchOptions(debouncedSearch);
     }, [debouncedSearch, fetchOptions]);
 
