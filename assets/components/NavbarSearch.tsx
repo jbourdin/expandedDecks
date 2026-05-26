@@ -72,6 +72,7 @@ const NavbarSearch: React.FC<NavbarSearchProps> = ({ searchUrl, searchPageUrl, l
 
     useEffect(() => {
         if (debouncedQuery.length < 2) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: when the user shortens the query below the 2-char threshold, the dropdown must clear synchronously so stale results aren't shown until the next keystroke
             setGroups([]);
             return;
         }

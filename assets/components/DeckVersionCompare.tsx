@@ -127,6 +127,7 @@ const DeckVersionCompare: React.FC<DeckVersionCompareProps> = ({ shortTag, compa
     }, [shortTag, compareUrl, fromVersion, toVersion]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- diff fetch keyed on (fromVersion, toVersion); same fetch+setState pattern as ArchetypeSelect — the result has to land in component state after the network round-trip
         void fetchDiff();
     }, [fetchDiff]);
 
