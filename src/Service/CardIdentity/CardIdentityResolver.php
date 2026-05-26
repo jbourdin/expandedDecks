@@ -90,15 +90,17 @@ class CardIdentityResolver
                 continue;
             }
 
-            // For Pokemon, verify same functional card (HP + abilities + attacks)
+            // For Pokemon, verify same functional card (HP + abilities + attacks + type)
             if ('Pokemon' === $identity->getCategory() || 'pokemon' === $identity->getCategory()) {
                 $candidateAbilitySignature = self::computeAbilitySignature($tcgdexCard);
                 $candidateAttackSignature = self::computeAttackSignature($tcgdexCard);
+                $candidatePokemonType = self::computePokemonTypeSignature($tcgdexCard);
                 $candidateHp = $tcgdexCard->hp ?? 0;
 
                 if ($candidateHp !== $identity->getHp()
                     || $candidateAbilitySignature !== $identity->getAbilitySignature()
-                    || $candidateAttackSignature !== $identity->getAttackSignature()) {
+                    || $candidateAttackSignature !== $identity->getAttackSignature()
+                    || $candidatePokemonType !== $identity->getPokemonType()) {
                     continue;
                 }
             }
@@ -129,6 +131,7 @@ class CardIdentityResolver
         $hp = 'pokemon' === $category ? ($tcgdexCard->hp ?? 0) : 0;
         $abilitySignature = 'pokemon' === $category ? self::computeAbilitySignature($tcgdexCard) : '';
         $attackSignature = 'pokemon' === $category ? self::computeAttackSignature($tcgdexCard) : '';
+        $pokemonType = 'pokemon' === $category ? self::computePokemonTypeSignature($tcgdexCard) : '';
 
         $existing = $this->identityRepository->findBySignature(
             $tcgdexCard->name,
@@ -136,6 +139,7 @@ class CardIdentityResolver
             $hp,
             $abilitySignature,
             $attackSignature,
+            $pokemonType,
         );
 
         $ruleboxType = self::detectRuleboxType($tcgdexCard);
@@ -162,6 +166,7 @@ class CardIdentityResolver
         $identity->setAbilityNames(implode(',', $tcgdexCard->abilities));
         $identity->setAttackSignature($attackSignature);
         $identity->setAttackNames(implode(',', $tcgdexCard->attacks));
+        $identity->setPokemonType($pokemonType);
         $identity->setTrainerType($tcgdexCard->trainerType);
         $identity->setRuleboxType($ruleboxType);
 
@@ -235,5 +240,13 @@ class CardIdentityResolver
         sort($attacks);
 
         return implode(',', $attacks);
+    }
+
+    public static function computePokemonTypeSignature(TcgdexCard $tcgdexCard): string
+    {
+        $types = $tcgdexCard->types;
+        sort($types);
+
+        return implode(',', $types);
     }
 }

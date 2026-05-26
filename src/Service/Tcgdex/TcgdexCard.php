@@ -22,6 +22,7 @@ readonly class TcgdexCard
     /**
      * @param list<string> $abilities
      * @param list<string> $attacks
+     * @param list<string> $types
      */
     public function __construct(
         public string $id,
@@ -33,6 +34,7 @@ readonly class TcgdexCard
         public ?int $hp = null,
         public array $abilities = [],
         public array $attacks = [],
+        public array $types = [],
         public ?string $rarity = null,
         public ?string $setReleaseDate = null,
         public ?string $setCode = null,
