@@ -351,6 +351,87 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame(['Energy Mix', 'Psychic Leap'], $card->attacks);
     }
 
+    public function testFindCardParsesPokemonTypes(): void
+    {
+        // The Pokemon `types` field disambiguates mechanically-identical cards across
+        // elemental variants (e.g. Dialga GX Metal vs Dragon). Parser must extract it
+        // verbatim so CardIdentityResolver can sort + signature it downstream.
+        $httpClient = $this->createCardMockClient([
+            'sm6-125' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'sm6-125',
+                    'name' => 'Dialga GX',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/sm/sm6/125',
+                    'legal' => ['expanded' => true],
+                    'hp' => 180,
+                    'types' => ['Metal'],
+                    'attacks' => [
+                        ['cost' => ['Metal', 'Metal'], 'name' => 'Shred', 'damage' => 100],
+                    ],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FLI' => 'sm6']));
+        $card = $client->findCard('FLI', '125');
+
+        self::assertNotNull($card);
+        self::assertSame(['Metal'], $card->types);
+    }
+
+    public function testFindCardParsesDualPokemonTypes(): void
+    {
+        // Dual-type Pokemon return multiple entries in `types`; the parser keeps source
+        // order — sorting happens at signature time in CardIdentityResolver.
+        $httpClient = $this->createCardMockClient([
+            'swsh8-100' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh8-100',
+                    'name' => 'Test Dual',
+                    'category' => 'Pokemon',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/100',
+                    'legal' => ['expanded' => true],
+                    'hp' => 120,
+                    'types' => ['Fire', 'Water'],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
+        $card = $client->findCard('FST', '100');
+
+        self::assertNotNull($card);
+        self::assertSame(['Fire', 'Water'], $card->types);
+    }
+
+    public function testFindCardReturnsEmptyTypesForTrainer(): void
+    {
+        // Non-Pokemon payloads omit `types` entirely; parser must default to an empty list
+        // so CardIdentity gets the empty-string sentinel for non-Pokemon identities.
+        $httpClient = $this->createCardMockClient([
+            'swsh8-225' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'swsh8-225',
+                    'name' => 'Battle VIP Pass',
+                    'category' => 'Trainer',
+                    'trainerType' => 'Item',
+                    'image' => 'https://assets.tcgdex.net/en/swsh/swsh8/225',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['FST' => 'swsh8']));
+        $card = $client->findCard('FST', '225');
+
+        self::assertNotNull($card);
+        self::assertSame([], $card->types);
+    }
+
     public function testFindCardReturnsEmptyAbilitiesAndAttacksForTrainer(): void
     {
         $httpClient = $this->createCardMockClient([
@@ -710,6 +791,44 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame(172, $card->setOfficialCardCount);
         self::assertSame(12345, $card->cardmarketProductId);
         self::assertSame(67890, $card->tcgplayerProductId);
+    }
+
+    public function testFindCardForwardsPokemonTypesFromLocalEntity(): void
+    {
+        // Covers buildDtoFromEntity: when a printing is resolved via the local mirror
+        // (no HTTP call), the entity's `types` JSON must flow into the DTO so the
+        // resolver sees the correct elemental type for Dialga-GX-style cards.
+        $entity = $this->createTcgdexCardEntity(
+            id: 'sm6-125',
+            localId: '125',
+            setId: 'sm6',
+            serieId: 'sm',
+            name: ['en' => 'Dialga GX'],
+            category: 'Pokemon',
+            hp: 180,
+            isExpandedLegal: true,
+            ptcgCode: 'FLI',
+            types: ['Metal'],
+        );
+
+        $cardRepository = $this->createStub(TcgdexCardRepository::class);
+        $cardRepository->method('findBySetAndLocalId')
+            ->willReturnCallback(static function (string $setId, string $localId) use ($entity): ?TcgdexCardEntity {
+                if ('sm6' === $setId && '125' === $localId) {
+                    return $entity;
+                }
+
+                return null;
+            });
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $client = $this->createClientWithCardRepository($httpClient, $this->createRepositoryStub(['FLI' => 'sm6']), $cardRepository);
+        $card = $client->findCard('FLI', '125');
+
+        self::assertNotNull($card);
+        self::assertSame(['Metal'], $card->types);
     }
 
     public function testFindCardLocalLookupTriesStrippedCandidate(): void
@@ -1239,6 +1358,7 @@ class TcgdexApiClientTest extends TestCase
      * @param array<string, mixed>       $name
      * @param list<array<string, mixed>> $abilities
      * @param list<array<string, mixed>> $attacks
+     * @param list<string>               $types
      */
     private function createTcgdexCardEntity(
         string $id,
@@ -1258,6 +1378,7 @@ class TcgdexApiClientTest extends TestCase
         ?int $tcgplayerProductId = null,
         array $abilities = [],
         array $attacks = [],
+        array $types = [],
     ): TcgdexCardEntity {
         $serie = new TcgdexSerie($serieId);
         $set = new TcgdexSet($setId, $serie);
@@ -1276,6 +1397,7 @@ class TcgdexApiClientTest extends TestCase
         $entity->setTcgplayerProductId($tcgplayerProductId);
         $entity->setAbilities($abilities);
         $entity->setAttacks($attacks);
+        $entity->setTypes($types);
 
         return $entity;
     }

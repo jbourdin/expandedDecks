@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.27] — 2026-05-27
+
+Patch release: fixes the Dialga GX duplicate-identity bug surfaced in production where mechanically-identical Pokemon printed with different elemental types (Dialga GX Metal vs Dragon, same name/HP/abilities/attacks) collapsed into a single `CardIdentity` row, plus picks up `symfony/polyfill-intl-idn` 1.38.1 to close CVE-2026-46644 which was published the day before this release.
+
+### Bug Fixes
+
+- **Pokemon type now disambiguates card identities (F6.10 follow-up)** — `CardIdentity` gains a new `pokemonType` column (sorted comma-joined elemental types, e.g. `"Metal"`, `"Dragon"`, `"Fire,Water"`; empty string for Trainer/Energy as the sentinel matching the existing `abilitySignature='' / hp=0` convention) and the unique index widens from `(name, category, hp, ability_signature, attack_signature)` to include it. The TCGdex `data['types']` payload now flows end-to-end: `TcgdexApiClient::parseCardData()` extracts the types array, `TcgdexCard` DTO carries it, `TcgdexApiClient::buildDtoFromEntity()` forwards it from the local mirror, and `CardIdentityResolver::computePokemonTypeSignature()` produces the sorted signature consumed by `findOrCreateIdentity()` and `expandPrintings()`. The data migration `Version20260526230542` walks every Pokemon identity via `card_printing.tcgdex_id` ⨝ `tcgdex_card.types` (joining on the always-populated string identifier, not the often-NULL `tcgdex_card_id` FK), picks the largest type group as the keeper, clones the identity row for each other type group, and repoints those printings to the clone via a single bulk `UPDATE … WHERE id IN (…)`. Printings whose mirror is missing get the empty-sentinel fallback and self-heal through future enrichment. Three new functional tests in `DialgaGxCardIdentityTest` exercise the real Doctrine layer (column, unique constraint, sorted signature) against MySQL: Metal vs Dragon split into distinct identities; same-type printings reuse one identity; dual-type signatures are sort-stable regardless of TCGdex JSON order. Four new parser tests cover the new types extraction (single, dual, missing-for-Trainer, local-mirror passthrough). Three new unit tests on `computePokemonTypeSignature` round out the helper's contract. ([#644](https://github.com/jbourdin/expandedDecks/pull/644))
+
+### Infrastructure
+
+- **Bump `symfony/polyfill-intl-idn` to 1.38.1 to clear CVE-2026-46644** — the advisory (insecure equivalence on `xn--` labels whose Punycode payload decodes to ASCII-only) was published 2026-05-26 against `>=1.17.1,<1.38.1`, breaking `composer audit` across every open PR. The dep update pulled along its sibling Symfony polyfills (`polyfill-intl-grapheme`, `polyfill-mbstring`, `polyfill-php83` to 1.38.1) plus minor patches on `doctrine/orm` 3.6.6 → 3.6.7, `phpstan/phpstan` 2.1.55 → 2.1.56, and `phpunit/phpunit` 13.1.11 → 13.1.12. Bundled into the same PR as the card-identity fix rather than spun off into a separate `chore/deps-bundle` because the Security Audit job blocked CI on every branch until the polyfill landed somewhere. ([#644](https://github.com/jbourdin/expandedDecks/pull/644))
+
+---
+
 ## [1.12.26] — 2026-05-26
 
 Patch release: weekly Dependabot sweep, bundled into one PR with the inline lint fix needed to keep Frontend Quality green. 21 npm minor/patch updates + 2 composer minor/patch updates land together; three React fetch-and-setState call sites get inline `react-hooks/set-state-in-effect` disable comments to match the tightened rule shipped in `eslint-plugin-react-hooks` 7.1.1. The Mantine 8 → 9 majors, the `@eslint/js` 9 → 10 (which requires `eslint` 10), and `webpack-cli` 6 → 7 are deliberately deferred so each major can be reviewed in isolation.
