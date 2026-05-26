@@ -184,11 +184,13 @@ Represents a unique functional card across all sets. Two cards are the "same" if
 - **Name** — exact string match
 - **Category** — `pokemon`, `trainer`, or `energy`
 - **HP** — for Pokemon only (0 for Trainer/Energy as a sentinel)
+- **Ability signature** — sorted comma-joined ability names (empty string for Trainer/Energy)
 - **Attack signature** — sorted comma-joined attack names, e.g. `"Bite,Flare Blitz"` (empty string for Trainer/Energy)
+- **Pokemon type** — sorted comma-joined elemental types, e.g. `"Metal"` or `"Fire,Water"` (empty string for Trainer/Energy). Disambiguates mechanically-identical Pokemon with different elemental types, e.g. Dialga GX exists as both Metal and Dragon variants.
 
-**Unique constraint:** `(name, category, hp, attack_signature)`
+**Unique constraint:** `(name, category, hp, ability_signature, attack_signature, pokemon_type)`
 
-This means two Pokemon with the same name but different HP or attacks (e.g. different evolutions or card versions) are separate identities. All printings of "Professor's Research" (a Trainer) share one identity regardless of set.
+This means two Pokemon with the same name but different HP, attacks, or elemental type (e.g. different evolutions, card versions, or Metal-vs-Dragon variants) are separate identities. All printings of "Professor's Research" (a Trainer) share one identity regardless of set.
 
 ### CardPrinting
 

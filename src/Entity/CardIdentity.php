@@ -21,13 +21,15 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Groups all printings of the same functional card across sets.
  *
- * For Pokemon: identity = name + HP + ability signature + attack signature.
- * For Trainers/Energy: identity = name only (hp=0, abilitySignature='', attackSignature='').
+ * For Pokemon: identity = name + HP + ability signature + attack signature + Pokemon type.
+ * Pokemon type disambiguates mechanically-identical cards printed with different elemental
+ * types (e.g. Dialga GX exists in both Metal and Dragon variants with the same attacks).
+ * For Trainers/Energy: identity = name only (hp=0, abilitySignature='', attackSignature='', pokemonType='').
  *
  * @see docs/features.md F6.10 — Card identity and printing model
  */
 #[ORM\Entity(repositoryClass: CardIdentityRepository::class)]
-#[ORM\UniqueConstraint(name: 'uniq_card_identity', columns: ['name', 'category', 'hp', 'ability_signature', 'attack_signature'])]
+#[ORM\UniqueConstraint(name: 'uniq_card_identity', columns: ['name', 'category', 'hp', 'ability_signature', 'attack_signature', 'pokemon_type'])]
 class CardIdentity
 {
     #[ORM\Id]
@@ -60,6 +62,10 @@ class CardIdentity
     /** Comma-joined attack names in original card order (for Cardmarket export). */
     #[ORM\Column(length: 255)]
     private string $attackNames = '';
+
+    /** Sorted comma-joined Pokemon types (e.g. "Metal", "Dragon", "Fire,Water"). Empty string for non-Pokemon cards. */
+    #[ORM\Column(length: 100)]
+    private string $pokemonType = '';
 
     /** Trainer subtype (e.g. "Supporter", "Item", "Tool", "Stadium"). Null for non-Trainers. */
     #[ORM\Column(length: 30, nullable: true)]
@@ -167,6 +173,18 @@ class CardIdentity
     public function setAttackNames(string $attackNames): static
     {
         $this->attackNames = $attackNames;
+
+        return $this;
+    }
+
+    public function getPokemonType(): string
+    {
+        return $this->pokemonType;
+    }
+
+    public function setPokemonType(string $pokemonType): static
+    {
+        $this->pokemonType = $pokemonType;
 
         return $this;
     }

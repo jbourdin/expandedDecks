@@ -80,6 +80,27 @@ class CardIdentityResolverTest extends TestCase
         self::assertSame('Astral Barrage,Cross Fusion Strike,Max Miracle', CardIdentityResolver::computeAttackSignature($card));
     }
 
+    public function testComputePokemonTypeSignatureSingleType(): void
+    {
+        $card = $this->createTcgdexCard(types: ['Metal']);
+
+        self::assertSame('Metal', CardIdentityResolver::computePokemonTypeSignature($card));
+    }
+
+    public function testComputePokemonTypeSignatureSortsDualType(): void
+    {
+        $card = $this->createTcgdexCard(types: ['Water', 'Fire']);
+
+        self::assertSame('Fire,Water', CardIdentityResolver::computePokemonTypeSignature($card));
+    }
+
+    public function testComputePokemonTypeSignatureReturnsEmptyForNoTypes(): void
+    {
+        $card = $this->createTcgdexCard(types: []);
+
+        self::assertSame('', CardIdentityResolver::computePokemonTypeSignature($card));
+    }
+
     /**
      * Covers resolveFromTcgdexCard when printing already exists (returns early).
      */
@@ -824,8 +845,9 @@ class CardIdentityResolverTest extends TestCase
     /**
      * @param list<string> $abilities
      * @param list<string> $attacks
+     * @param list<string> $types
      */
-    private function createTcgdexCard(array $abilities = [], array $attacks = []): TcgdexCard
+    private function createTcgdexCard(array $abilities = [], array $attacks = [], array $types = []): TcgdexCard
     {
         return new TcgdexCard(
             id: 'test-001',
@@ -837,6 +859,7 @@ class CardIdentityResolverTest extends TestCase
             hp: 100,
             abilities: $abilities,
             attacks: $attacks,
+            types: $types,
         );
     }
 }

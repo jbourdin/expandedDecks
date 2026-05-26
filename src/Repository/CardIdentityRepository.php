@@ -29,8 +29,14 @@ class CardIdentityRepository extends ServiceEntityRepository
         parent::__construct($registry, CardIdentity::class);
     }
 
-    public function findBySignature(string $name, string $category, int $hp, string $abilitySignature, string $attackSignature): ?CardIdentity
-    {
+    public function findBySignature(
+        string $name,
+        string $category,
+        int $hp,
+        string $abilitySignature,
+        string $attackSignature,
+        string $pokemonType,
+    ): ?CardIdentity {
         /** @var CardIdentity|null $result */
         $result = $this->findOneBy([
             'name' => $name,
@@ -38,6 +44,7 @@ class CardIdentityRepository extends ServiceEntityRepository
             'hp' => $hp,
             'abilitySignature' => $abilitySignature,
             'attackSignature' => $attackSignature,
+            'pokemonType' => $pokemonType,
         ]);
 
         return $result;
