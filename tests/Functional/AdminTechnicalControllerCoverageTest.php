@@ -274,4 +274,28 @@ class AdminTechnicalControllerCoverageTest extends AbstractFunctionalTest
         $this->client->followRedirect();
         self::assertSelectorExists('.alert-success');
     }
+
+    public function testCardIdentitySignatureRebuildRejectsInvalidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('POST', '/admin/technical/card-identity-signature-rebuild', ['_token' => 'wrong']);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
+    public function testCardIdentitySignatureRebuildSucceedsWithValidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/technical');
+
+        $this->client->request('POST', '/admin/technical/card-identity-signature-rebuild', [
+            '_token' => $this->getCsrfToken('technical-card-identity-signature-rebuild'),
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+    }
 }

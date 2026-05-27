@@ -54,16 +54,19 @@ class CardIdentityResolverTest extends TestCase
 
     public function testComputeAttackSignatureSortsAlphabetically(): void
     {
-        $card = $this->createTcgdexCard(attacks: ['Shadow Mist', 'Astral Barrage']);
+        $card = $this->createTcgdexCard(
+            attacks: ['Shadow Mist', 'Astral Barrage'],
+            attackDamages: [120, 200],
+        );
 
-        self::assertSame('Astral Barrage,Shadow Mist', CardIdentityResolver::computeAttackSignature($card));
+        self::assertSame('Astral Barrage|200,Shadow Mist|120', CardIdentityResolver::computeAttackSignature($card));
     }
 
     public function testComputeAttackSignatureWithSingleAttack(): void
     {
-        $card = $this->createTcgdexCard(attacks: ['Techno Blast']);
+        $card = $this->createTcgdexCard(attacks: ['Techno Blast'], attackDamages: [80]);
 
-        self::assertSame('Techno Blast', CardIdentityResolver::computeAttackSignature($card));
+        self::assertSame('Techno Blast|80', CardIdentityResolver::computeAttackSignature($card));
     }
 
     public function testComputeAttackSignatureReturnsEmptyForNoAttacks(): void
@@ -75,9 +78,34 @@ class CardIdentityResolverTest extends TestCase
 
     public function testComputeAttackSignatureWithThreeAttacks(): void
     {
-        $card = $this->createTcgdexCard(attacks: ['Cross Fusion Strike', 'Max Miracle', 'Astral Barrage']);
+        $card = $this->createTcgdexCard(
+            attacks: ['Cross Fusion Strike', 'Max Miracle', 'Astral Barrage'],
+            attackDamages: [150, null, 250],
+        );
 
-        self::assertSame('Astral Barrage,Cross Fusion Strike,Max Miracle', CardIdentityResolver::computeAttackSignature($card));
+        self::assertSame(
+            'Astral Barrage|250,Cross Fusion Strike|150,Max Miracle|',
+            CardIdentityResolver::computeAttackSignature($card),
+        );
+    }
+
+    public function testComputeAttackSignatureDistinguishesByDamage(): void
+    {
+        $card20 = $this->createTcgdexCard(attacks: ['Bite'], attackDamages: [20]);
+        $card30 = $this->createTcgdexCard(attacks: ['Bite'], attackDamages: [30]);
+
+        self::assertNotSame(
+            CardIdentityResolver::computeAttackSignature($card20),
+            CardIdentityResolver::computeAttackSignature($card30),
+            'Same attack name with different damage must produce distinct signatures (cross-era reprint disambiguation).',
+        );
+    }
+
+    public function testComputeAttackSignatureHandlesStringDamage(): void
+    {
+        $card = $this->createTcgdexCard(attacks: ['Thunderpunch'], attackDamages: ['30+']);
+
+        self::assertSame('Thunderpunch|30+', CardIdentityResolver::computeAttackSignature($card));
     }
 
     public function testComputePokemonTypeSignatureSingleType(): void
@@ -232,7 +260,7 @@ class CardIdentityResolverTest extends TestCase
         $identity->setCategory('pokemon');
         $identity->setHp(60);
         $identity->setAbilitySignature('');
-        $identity->setAttackSignature('Thunder Shock');
+        $identity->setAttackSignature('Thunder Shock|30');
 
         $printingRepository = $this->createStub(CardPrintingRepository::class);
         $printingRepository->method('findByTcgdexId')->willReturn(null);
@@ -250,6 +278,7 @@ class CardIdentityResolverTest extends TestCase
                 isExpandedLegal: true,
                 hp: 60,
                 attacks: ['Thunder Shock'],
+                attackDamages: [30],
             ),
             new TcgdexCard(
                 id: 'xy1-43',
@@ -260,6 +289,7 @@ class CardIdentityResolverTest extends TestCase
                 isExpandedLegal: true,
                 hp: 130,
                 attacks: ['Thunder Shock', 'Mega Bolt'],
+                attackDamages: [30, 50],
             ),
         ]);
 
@@ -294,7 +324,7 @@ class CardIdentityResolverTest extends TestCase
         $identity->setCategory('Pokemon');
         $identity->setHp(60);
         $identity->setAbilitySignature('');
-        $identity->setAttackSignature('Thunder Shock');
+        $identity->setAttackSignature('Thunder Shock|30');
 
         $printingRepository = $this->createStub(CardPrintingRepository::class);
         $printingRepository->method('findByTcgdexId')->willReturn(null);
@@ -313,6 +343,7 @@ class CardIdentityResolverTest extends TestCase
                 isExpandedLegal: true,
                 hp: 60,
                 attacks: ['Iron Tail'],
+                attackDamages: [40],
             ),
             // Same name but different HP — should be filtered out
             new TcgdexCard(
@@ -324,6 +355,7 @@ class CardIdentityResolverTest extends TestCase
                 isExpandedLegal: true,
                 hp: 70,
                 attacks: ['Thunder Shock'],
+                attackDamages: [30],
             ),
         ]);
 
@@ -843,12 +875,17 @@ class CardIdentityResolverTest extends TestCase
     }
 
     /**
-     * @param list<string> $abilities
-     * @param list<string> $attacks
-     * @param list<string> $types
+     * @param list<string>          $abilities
+     * @param list<string>          $attacks
+     * @param list<int|string|null> $attackDamages
+     * @param list<string>          $types
      */
-    private function createTcgdexCard(array $abilities = [], array $attacks = [], array $types = []): TcgdexCard
-    {
+    private function createTcgdexCard(
+        array $abilities = [],
+        array $attacks = [],
+        array $attackDamages = [],
+        array $types = [],
+    ): TcgdexCard {
         return new TcgdexCard(
             id: 'test-001',
             name: 'Test Card',
@@ -859,6 +896,7 @@ class CardIdentityResolverTest extends TestCase
             hp: 100,
             abilities: $abilities,
             attacks: $attacks,
+            attackDamages: $attackDamages,
             types: $types,
         );
     }
