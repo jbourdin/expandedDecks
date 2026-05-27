@@ -20,9 +20,10 @@ namespace App\Service\Tcgdex;
 readonly class TcgdexCard
 {
     /**
-     * @param list<string> $abilities
-     * @param list<string> $attacks
-     * @param list<string> $types
+     * @param list<string>          $abilities
+     * @param list<string>          $attacks
+     * @param list<int|string|null> $attackDamages Parallel to $attacks: damage value for each attack (int, string like "30+", or null for status-only attacks)
+     * @param list<string>          $types
      */
     public function __construct(
         public string $id,
@@ -34,6 +35,7 @@ readonly class TcgdexCard
         public ?int $hp = null,
         public array $abilities = [],
         public array $attacks = [],
+        public array $attackDamages = [],
         public array $types = [],
         public ?string $rarity = null,
         public ?string $setReleaseDate = null,

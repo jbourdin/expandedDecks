@@ -382,6 +382,31 @@ class TcgdexCard
     }
 
     /**
+     * Extract attack damage values, parallel to {@see getAttackNamesEn}.
+     *
+     * The skip rule is kept in lockstep with getAttackNamesEn so both arrays
+     * stay index-aligned (an attack with no English name is dropped from both).
+     *
+     * @return list<int|string|null>
+     */
+    public function getAttackDamagesEn(): array
+    {
+        $damages = [];
+
+        foreach ($this->attacks as $attack) {
+            $nameObject = $attack['name'] ?? null;
+            $name = \is_array($nameObject) ? ($nameObject['en'] ?? null) : null;
+
+            if (\is_string($name) && '' !== $name) {
+                $damage = $attack['damage'] ?? null;
+                $damages[] = \is_int($damage) || \is_string($damage) ? $damage : null;
+            }
+        }
+
+        return $damages;
+    }
+
+    /**
      * @param list<array<string, mixed>> $attacks
      */
     public function setAttacks(array $attacks): static

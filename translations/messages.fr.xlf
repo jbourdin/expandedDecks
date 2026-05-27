@@ -6430,6 +6430,41 @@
                 <target>Impossible de résoudre : %cards%</target>
                 <note>F6.15 — technical re-enrich partial-success warning flash</note>
             </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.title">
+                <source>app.admin.technical.card_identity_signature.title</source>
+                <target>Signatures d'identités de cartes</target>
+                <note>F6.10 — technical dashboard signature rebuild card title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.description">
+                <source>app.admin.technical.card_identity_signature.description</source>
+                <target>Recalcule la signature d'attaque de chaque CardIdentity Pokemon avec le format incluant les dégâts. Les identités dont toutes les impressions s'accordent sur la nouvelle signature sont mises à jour en place ; celles dont les impressions divergent (reprints inter-générations avec des dégâts retravaillés) sont scindées en identités distinctes, et les impressions sont repointées vers la bonne.</target>
+                <note>F6.10 — technical dashboard signature rebuild description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.rebuild_button">
+                <source>app.admin.technical.card_identity_signature.rebuild_button</source>
+                <target>Reconstruire les signatures</target>
+                <note>F6.10 — technical dashboard signature rebuild button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.confirm_rebuild">
+                <source>app.admin.technical.card_identity_signature.confirm_rebuild</source>
+                <target>Cette action va réécrire la signature d'attaque de chaque CardIdentity Pokemon et peut créer de nouvelles identités par scission. Continuer ?</target>
+                <note>F6.10 — technical dashboard signature rebuild confirmation prompt</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.hint">
+                <source>app.admin.technical.card_identity_signature.hint</source>
+                <target>À lancer une fois après le déploiement de la signature incluant les dégâts. Idempotent — relancer ne fait rien une fois toutes les identités au nouveau format.</target>
+                <note>F6.10 — technical dashboard signature rebuild hint</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.rebuilt">
+                <source>app.admin.technical.card_identity_signature.rebuilt</source>
+                <target>Reconstruction des signatures terminée : %updated% mises à jour en place, %split% identités scindées (%clones% nouvelles identités créées, %reused% existantes réutilisées), %repointed% impressions repointées.</target>
+                <note>F6.10 — technical dashboard signature rebuild success flash</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.missing_data">
+                <source>app.admin.technical.card_identity_signature.missing_data</source>
+                <target>%printings% impression(s) et %identities% identité(s) ignorées faute de données TCGdex liées — lance une synchro TCGdex d'abord pour les couvrir.</target>
+                <note>F6.10 — technical dashboard signature rebuild missing-data warning</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.search.title">
                 <source>app.admin.technical.search.title</source>
                 <target>Index de recherche</target>
