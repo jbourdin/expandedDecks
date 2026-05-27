@@ -126,6 +126,96 @@ class CardIdentitySignatureRebuilderTest extends TestCase
         self::assertSame(1, $result->printingsRepointed);
     }
 
+    public function testAlreadyCorrectIdentityIsLeftUntouched(): void
+    {
+        $identity = $this->makeIdentity('Sandile', 70, attackSignature: 'Bite|20');
+        $this->attachPrinting($identity, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 20, 'cost' => ['Fighting', 'Colorless']],
+        ]);
+
+        $identityRepo = $this->createStub(CardIdentityRepository::class);
+        $identityRepo->method('findBy')->willReturn([$identity]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('persist');
+        $em->expects(self::once())->method('flush');
+
+        $rebuilder = new CardIdentitySignatureRebuilder($identityRepo, $em);
+        $result = $rebuilder->rebuild();
+
+        self::assertSame('Bite|20', $identity->getAttackSignature());
+        self::assertSame(1, $result->alreadyCorrect);
+        self::assertSame(0, $result->updatedInPlace);
+    }
+
+    public function testCloneCacheReusesClonesAcrossSourceIdentities(): void
+    {
+        // Two unrelated source identities each split off a "Bite|30" sibling.
+        // Without the cache, the second source would create a duplicate clone
+        // because the first one is persisted-but-not-flushed.
+        $sourceA = $this->makeIdentity('Sandile', 70, attackSignature: 'Bite');
+        $this->attachPrinting($sourceA, id: 1, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 20],
+        ]);
+        $this->attachPrinting($sourceA, id: 2, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 30],
+        ]);
+
+        $sourceB = $this->makeIdentity('Sandile', 70, attackSignature: 'Bite');
+        $this->attachPrinting($sourceB, id: 3, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 20],
+        ]);
+        $this->attachPrinting($sourceB, id: 4, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 30],
+        ]);
+
+        $identityRepo = $this->createStub(CardIdentityRepository::class);
+        $identityRepo->method('findBy')->willReturn([$sourceA, $sourceB]);
+        $identityRepo->method('findBySignature')->willReturn(null);
+
+        $persistedClones = [];
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('persist')->willReturnCallback(
+            static function (object $entity) use (&$persistedClones): void {
+                $persistedClones[] = $entity;
+            },
+        );
+        $em->expects(self::once())->method('flush');
+
+        $rebuilder = new CardIdentitySignatureRebuilder($identityRepo, $em);
+        $result = $rebuilder->rebuild();
+
+        self::assertCount(1, $persistedClones, 'cache must prevent a second persist for the same signature tuple');
+        self::assertSame(1, $result->clonesCreated);
+        self::assertSame(1, $result->reusedExistingTarget, 'second source reuses the first source\'s clone via the cache');
+    }
+
+    public function testMixedPrintingsCountMissingTcgdexData(): void
+    {
+        $identity = $this->makeIdentity('Sandile', 70, attackSignature: 'Bite');
+        $this->attachPrinting($identity, attacks: [
+            ['name' => ['en' => 'Bite'], 'damage' => 20],
+        ]);
+        $orphan = new CardPrinting();
+        $orphan->setCardIdentity($identity);
+        $orphan->setTcgdexId('lost-001');
+        $identity->addPrinting($orphan);
+
+        $identityRepo = $this->createStub(CardIdentityRepository::class);
+        $identityRepo->method('findBy')->willReturn([$identity]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
+
+        $rebuilder = new CardIdentitySignatureRebuilder($identityRepo, $em);
+        $result = $rebuilder->rebuild();
+
+        self::assertSame('Bite|20', $identity->getAttackSignature(), 'still updates from the data-bearing printing');
+        self::assertSame(1, $result->updatedInPlace);
+        self::assertSame(1, $result->printingsMissingTcgdexData);
+        self::assertSame(0, $result->skippedNoTcgdexData, 'identity is not skipped — only its orphan printing is counted');
+    }
+
     public function testPrintingWithoutLinkedTcgdexCardIsSkipped(): void
     {
         $identity = $this->makeIdentity('Ghost', 60, attackSignature: 'Sneak');
