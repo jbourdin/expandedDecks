@@ -349,6 +349,7 @@ class TcgdexApiClientTest extends TestCase
         self::assertNotNull($card);
         self::assertSame([], $card->abilities);
         self::assertSame(['Energy Mix', 'Psychic Leap'], $card->attacks);
+        self::assertSame([null, 70], $card->attackDamages);
     }
 
     public function testFindCardParsesPokemonTypes(): void

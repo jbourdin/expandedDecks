@@ -264,6 +264,7 @@ class TcgdexApiClient
             hp: $entity->getHp(),
             abilities: $entity->getAbilityNamesEn(),
             attacks: $entity->getAttackNamesEn(),
+            attackDamages: $entity->getAttackDamagesEn(),
             types: $entity->getTypes(),
             rarity: $entity->getRarity(),
             setReleaseDate: $set->getReleaseDate()?->format('Y-m-d'),
@@ -378,11 +379,15 @@ class TcgdexApiClient
 
         /** @var list<string> $attacks */
         $attacks = [];
+        /** @var list<int|string|null> $attackDamages */
+        $attackDamages = [];
 
         if (isset($data['attacks']) && \is_array($data['attacks'])) {
             foreach ($data['attacks'] as $attack) {
                 if (\is_array($attack) && isset($attack['name']) && \is_string($attack['name'])) {
                     $attacks[] = $attack['name'];
+                    $damage = $attack['damage'] ?? null;
+                    $attackDamages[] = \is_int($damage) || \is_string($damage) ? $damage : null;
                 }
             }
         }
@@ -450,6 +455,7 @@ class TcgdexApiClient
             hp: $hp,
             abilities: $abilities,
             attacks: $attacks,
+            attackDamages: $attackDamages,
             types: $types,
             rarity: $rarity,
             setReleaseDate: $setReleaseDate,

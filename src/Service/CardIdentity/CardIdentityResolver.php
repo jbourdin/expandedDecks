@@ -234,12 +234,31 @@ class CardIdentityResolver
         return implode(',', $abilities);
     }
 
+    /**
+     * Attack signature is "name|damage" pairs, sorted, comma-joined.
+     *
+     * Damage is part of the signature because cross-era reprints share attack
+     * names but re-tune damage values (e.g. Sandile Bite is 20 in bw2-60 and
+     * 30 in swsh12-111 — mechanically distinct cards that should not collapse
+     * into one CardIdentity). The "|" separator is used because no TCG attack
+     * name contains it (verified against the local tcgdex_card mirror), while
+     * ":" is unsafe — see "C.O.D.E.: Protect" (sv08-069).
+     */
     public static function computeAttackSignature(TcgdexCard $tcgdexCard): string
     {
         $attacks = $tcgdexCard->attacks;
-        sort($attacks);
+        $damages = $tcgdexCard->attackDamages;
 
-        return implode(',', $attacks);
+        $entries = [];
+
+        foreach ($attacks as $index => $name) {
+            $damage = $damages[$index] ?? null;
+            $entries[] = $name.'|'.(null === $damage ? '' : (string) $damage);
+        }
+
+        sort($entries);
+
+        return implode(',', $entries);
     }
 
     public static function computePokemonTypeSignature(TcgdexCard $tcgdexCard): string
