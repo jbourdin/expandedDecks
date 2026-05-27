@@ -6467,6 +6467,41 @@
                 <target>Could not resolve: %cards%</target>
                 <note>F6.15 — technical re-enrich partial-success warning flash</note>
             </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.title">
+                <source>app.admin.technical.card_identity_signature.title</source>
+                <target>Card identity signatures</target>
+                <note>F6.10 — technical dashboard signature rebuild card title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.description">
+                <source>app.admin.technical.card_identity_signature.description</source>
+                <target>Recomputes every Pokemon card identity's attack signature using the damage-aware format. Identities whose printings all agree on the new signature are updated in place; identities whose printings disagree (cross-era reprints with re-tuned damage values) are split into distinct identities, with printings re-pointed to the appropriate one.</target>
+                <note>F6.10 — technical dashboard signature rebuild description</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.rebuild_button">
+                <source>app.admin.technical.card_identity_signature.rebuild_button</source>
+                <target>Rebuild signatures</target>
+                <note>F6.10 — technical dashboard signature rebuild button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.confirm_rebuild">
+                <source>app.admin.technical.card_identity_signature.confirm_rebuild</source>
+                <target>This will rewrite every Pokemon card identity's attack signature and may split some identities into new rows. Continue?</target>
+                <note>F6.10 — technical dashboard signature rebuild confirmation prompt</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.hint">
+                <source>app.admin.technical.card_identity_signature.hint</source>
+                <target>Run once after the damage-in-signature change ships. Idempotent — re-running does nothing once every identity matches the new format.</target>
+                <note>F6.10 — technical dashboard signature rebuild hint</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.rebuilt">
+                <source>app.admin.technical.card_identity_signature.rebuilt</source>
+                <target>Signature rebuild done: %updated% updated in place, %split% identities split (%clones% new identities created, %reused% existing reused), %repointed% printings re-pointed.</target>
+                <note>F6.10 — technical dashboard signature rebuild success flash</note>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.card_identity_signature.missing_data">
+                <source>app.admin.technical.card_identity_signature.missing_data</source>
+                <target>Skipped %printings% printing(s) and %identities% identity(ies) with no linked TCGdex mirror data — run a TCGdex sync first to cover those.</target>
+                <note>F6.10 — technical dashboard signature rebuild missing-data warning</note>
+            </trans-unit>
             <trans-unit id="app.admin.technical.search.title">
                 <source>app.admin.technical.search.title</source>
                 <target>Search index</target>

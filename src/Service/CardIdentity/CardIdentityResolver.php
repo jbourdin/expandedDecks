@@ -246,12 +246,23 @@ class CardIdentityResolver
      */
     public static function computeAttackSignature(TcgdexCard $tcgdexCard): string
     {
-        $attacks = $tcgdexCard->attacks;
-        $damages = $tcgdexCard->attackDamages;
+        return self::computeAttackSignatureFromParts($tcgdexCard->attacks, $tcgdexCard->attackDamages);
+    }
 
+    /**
+     * Build the attack signature from the two parallel arrays directly.
+     *
+     * Provided so rebuild jobs that walk the local tcgdex_card mirror can
+     * compute signatures without first wrapping the entity in a DTO.
+     *
+     * @param list<string>          $names
+     * @param list<int|string|null> $damages
+     */
+    public static function computeAttackSignatureFromParts(array $names, array $damages): string
+    {
         $entries = [];
 
-        foreach ($attacks as $index => $name) {
+        foreach ($names as $index => $name) {
             $damage = $damages[$index] ?? null;
             $entries[] = $name.'|'.(null === $damage ? '' : (string) $damage);
         }

@@ -22,6 +22,7 @@ use App\Repository\DeckVersionRepository;
 use App\Repository\TcgdexSetMappingRepository;
 use App\Service\BannedCardEnricher;
 use App\Service\BannedCardsSyncService;
+use App\Service\CardIdentity\CardIdentitySignatureRebuilder;
 use App\Service\CardReenrichService;
 use App\Service\EnrichmentFlushService;
 use App\Service\Mosaic\MosaicRedispatchService;
@@ -60,6 +61,7 @@ class AdminTechnicalController extends AbstractAppController
         private readonly \App\Service\StapleCardEnricher $stapleCardEnricher,
         private readonly SearchIndexer $searchIndexer,
         private readonly \App\Service\Deck\DeckCardSortBackfillService $sortBackfillService,
+        private readonly CardIdentitySignatureRebuilder $signatureRebuilder,
     ) {
         parent::__construct($translator);
     }
@@ -369,6 +371,43 @@ class AdminTechnicalController extends AbstractAppController
         if ([] !== $unresolved) {
             $this->addFlash('warning', 'app.admin.technical.staple_cards.enrich_unresolved', [
                 '%cards%' => implode(', ', $unresolved),
+            ]);
+        }
+
+        return $this->redirectToRoute('app_admin_technical_dashboard');
+    }
+
+    /**
+     * Rebuilds every Pokemon CardIdentity's attack signature against the
+     * damage-aware format. Cross-era reprints whose damage values differ are
+     * split off into find-or-created clone identities; printings move with
+     * them. See {@see CardIdentitySignatureRebuilder} for the split rules.
+     *
+     * @see docs/features.md F6.10 — Card identity and printing model
+     */
+    #[Route('/card-identity-signature-rebuild', name: 'app_admin_technical_card_identity_signature_rebuild', methods: ['POST'])]
+    public function cardIdentitySignatureRebuild(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('technical-card-identity-signature-rebuild', $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $result = $this->signatureRebuilder->rebuild();
+
+        $this->addFlash('success', 'app.admin.technical.card_identity_signature.rebuilt', [
+            '%updated%' => $result->updatedInPlace,
+            '%split%' => $result->splitAsPrimary,
+            '%clones%' => $result->clonesCreated,
+            '%reused%' => $result->reusedExistingTarget,
+            '%repointed%' => $result->printingsRepointed,
+        ]);
+
+        if (0 !== $result->printingsMissingTcgdexData || 0 !== $result->skippedNoTcgdexData) {
+            $this->addFlash('warning', 'app.admin.technical.card_identity_signature.missing_data', [
+                '%printings%' => $result->printingsMissingTcgdexData,
+                '%identities%' => $result->skippedNoTcgdexData,
             ]);
         }
 

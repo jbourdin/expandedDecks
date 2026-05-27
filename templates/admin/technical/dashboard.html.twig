@@ -308,6 +308,24 @@
         </div>
     </div>
 
+    {# Card identity signature rebuild card #}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header card-header-themed">
+            <h5 class="mb-0">{{ 'app.admin.technical.card_identity_signature.title'|trans }}</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ 'app.admin.technical.card_identity_signature.description'|trans }}</p>
+            <form method="post" action="{{ path('app_admin_technical_card_identity_signature_rebuild') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('technical-card-identity-signature-rebuild') }}">
+                <button type="submit" class="btn btn-gold"
+                        onclick="return confirm('{{ 'app.admin.technical.card_identity_signature.confirm_rebuild'|trans|e('js') }}')">
+                    {{ 'app.admin.technical.card_identity_signature.rebuild_button'|trans }}
+                </button>
+            </form>
+            <p class="form-text mt-2 mb-0">{{ 'app.admin.technical.card_identity_signature.hint'|trans }}</p>
+        </div>
+    </div>
+
     {# Search reindex card #}
     <div class="card shadow-sm mb-3">
         <div class="card-header card-header-themed">
