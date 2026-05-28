@@ -878,9 +878,9 @@ class CardEnricherTest extends TestCase
 
         self::assertSame(1, $report->enrichedCount);
         self::assertNotNull($card->getCardPrinting());
-        // Should get the MEE fallback image from BASIC_ENERGY_IMAGES
+        // Homogeneous fallback: all 9 basic energies resolve to TCGdex sm1 (Grass → sm1-164)
         self::assertSame(
-            'https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/MEE/MEE_EN_1.png',
+            'https://assets.tcgdex.net/en/sm/sm1/164/high.webp',
             $card->getCardPrinting()->getImageUrl(),
         );
         self::assertSame('energy', $card->getCardPrinting()->getCardIdentity()->getCategory());
