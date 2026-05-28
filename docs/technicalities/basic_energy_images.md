@@ -10,13 +10,18 @@
 
 All known basic energy printings are catalogued in [`data/basic_energies.json`](/data/basic_energies.json). Each entry includes set identification, PTCGL code (when relevant), rarity, release date, an array of image URLs from multiple sources, and a `defaultForMinified` flag indicating which printing to use in the minified deck list export.
 
-**Defaults for minified export:**
+**Defaults for minified export** (`DeckListParser::DEFAULT_BASIC_ENERGY_PRINTINGS`, used by minified list, mosaic, Cardmarket export, and printed labels):
 - 8 standard types (Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal) → **MEE** (Mega Evolution Energy, 2025-09-25) — the latest plain Common basic energy
 - Fairy Energy → **sm1** (Sun & Moon, 2017-02-03) — the latest dated Common Fairy Energy (Fairy type was removed in SWSH era)
 
+**Runtime image fallback for unenriched pasted energies** (`CardEnricher::BASIC_ENERGY_IMAGES`):
+- All 9 basic energy types → **sm1** cards 164–172, via the TCGdex CDN. This is the only TCGdex-deployed set covering all 9 colors today; using it gives a single CDN and a single artwork era for the deck-show fallback. Once TCGdex deploys MEE artwork, the 8 non-Fairy fallbacks can be re-pointed to MEE for modern art.
+
+The two maps deliberately differ for now: the minified-export `setCode` is rendered on physical labels and printed deck lists, where the "MEE 1" identifier carries product meaning, so it has not been swapped in this iteration.
+
 ## Context
 
-TCGdex does not index dedicated energy sets (SVE, SME, XYE, BWE, MEE). These sets are PTCG Live / physical product identifiers, not traditional card sets tracked by TCGdex. The plain basic energy images must be sourced elsewhere.
+TCGdex does not index dedicated energy sets (SVE, SME, XYE, BWE, MEE). These sets are PTCG Live / physical product identifiers, not traditional card sets tracked by TCGdex. Modern energy artwork must still be sourced from `assets.pokemon.com`. However, **regular expansion sets that contain basic energies — including sm1 — are fully covered by the TCGdex CDN**, which is what the runtime image fallback uses today.
 
 ### Image CDNs
 
@@ -40,6 +45,8 @@ The [tcgdex/cards-database](https://github.com/tcgdex/cards-database) repository
 - **MEE** (`data/Mega Evolution/Mega Evolution Energy/`) — 8 cards (#001–008), all Common
 
 However, **images are not yet published** on the TCGdex CDN — all `https://assets.tcgdex.net/en/sv/sve/*/high.webp` and `https://assets.tcgdex.net/en/me/mee/*/high.webp` URLs return 404 as of 2026-03-21. The contributor provided card images in a [Google Drive folder](https://drive.google.com/drive/folders/1QWiOalSdmGDTwZ0LIxBv4BhTrkfqYy1Q) (6 languages) but they haven't been deployed yet.
+
+**Re-checked 2026-05-28** — SVE and MEE images still return 404 on the TCGdex CDN. In contrast, all 9 basic energies in the regular `sm1` set (Sun & Moon base, cards 164–172) **are** deployed on TCGdex (`https://assets.tcgdex.net/en/sm/sm1/{N}/high.webp`, verified 9/9 → HTTP 200) and now serve as the homogeneous runtime fallback in `CardEnricher::BASIC_ENERGY_IMAGES`.
 
 No other dedicated energy sets (SME, XYE, BWE, NRG) exist in the TCGdex source database.
 
@@ -103,17 +110,17 @@ SM-era artwork without "Basic" banner. 9 cards including Fairy. Cards numbered 2
 
 Fairy type was removed starting with Sword & Shield. No dedicated energy set (SVE/MEE) includes it.
 
-| Source          | Set   | URL                                                                                                     |
-|-----------------|-------|---------------------------------------------------------------------------------------------------------|
-| pokemon.com     | NRG   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_34.png`          |
-| pokemon.com     | SM3   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SM3/SM3_EN_169.png`         |
-| pokemon.com     | XY1   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_140.png`         |
-| PokemonTCG.io   | sm1   | `https://images.pokemontcg.io/sm1/172_hires.png`                                                       |
-| PokemonTCG.io   | sm3   | `https://images.pokemontcg.io/sm3/169_hires.png`                                                       |
-| PokemonTCG.io   | xy1   | `https://images.pokemontcg.io/xy1/140_hires.png`                                                       |
-| PokemonTCG.io   | g1    | `https://images.pokemontcg.io/g1/83_hires.png`                                                         |
-| PokemonTCG.io   | xy12  | `https://images.pokemontcg.io/xy12/99_hires.png`                                                       |
-| TCGdex          | sm1   | `https://assets.tcgdex.net/en/sm/sm1/172/high.webp`                                                    |
+| Source                   | Set   | URL                                                                                                     |
+|--------------------------|-------|---------------------------------------------------------------------------------------------------------|
+| **TCGdex (runtime default)** | sm1   | `https://assets.tcgdex.net/en/sm/sm1/172/high.webp`                                                |
+| pokemon.com              | NRG   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/NRG/NRG_EN_34.png`          |
+| pokemon.com              | SM3   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/SM3/SM3_EN_169.png`         |
+| pokemon.com              | XY1   | `https://assets.pokemon.com/static-assets/content-assets/cms2/img/cards/web/XY1/XY1_EN_140.png`         |
+| PokemonTCG.io            | sm1   | `https://images.pokemontcg.io/sm1/172_hires.png`                                                       |
+| PokemonTCG.io            | sm3   | `https://images.pokemontcg.io/sm3/169_hires.png`                                                       |
+| PokemonTCG.io            | xy1   | `https://images.pokemontcg.io/xy1/140_hires.png`                                                       |
+| PokemonTCG.io            | g1    | `https://images.pokemontcg.io/g1/83_hires.png`                                                         |
+| PokemonTCG.io            | xy12  | `https://images.pokemontcg.io/xy12/99_hires.png`                                                       |
 
 ---
 
@@ -129,7 +136,7 @@ These are PTCG Live product codes without corresponding CDN assets.
 
 ## All Basic Energy Printings — CDN Availability
 
-The PokemonTCG.io CDN (`images.pokemontcg.io`) has images for **every basic energy printing** across all eras, from Base Set (1999) to Scarlet & Violet. The pokemon.com CDN has a subset (modern sets only). TCGdex CDN has none of the dedicated energy sets and none of the basic energy cards from regular sets.
+The PokemonTCG.io CDN (`images.pokemontcg.io`) has images for **every basic energy printing** across all eras, from Base Set (1999) to Scarlet & Violet. The pokemon.com CDN has a subset (modern sets only). The TCGdex CDN has none of the dedicated energy sets (SVE/MEE/NRG/…), but does cover regular expansion sets that contain basic energies — in particular `sm1` (164–172), which the runtime fallback uses for all 9 colors.
 
 ### pokemon.com CDN — available sets
 
@@ -152,6 +159,6 @@ URL pattern: `https://images.pokemontcg.io/{set_id}/{card_number}.png` (small) o
 | pokemon.com CDN              | MEE, SVE, SVE2, SVE3, NRG | Partial (modern only) | Yes | Official CDN, no API key. Predictable URL pattern.       |
 | PokemonTCG.io CDN            | SVE (16 cards) | All (base1 to sv6pt5) | Deprecated | Migrated to Scrydex. Image CDN still up. Complete coverage. |
 | PokemonTCG.io data (GitHub)  | SVE         | All core sets        | Yes        | Static JSON, all basic energy printings across all sets.  |
-| TCGdex source (GitHub)       | SVE, MEE    | All core sets        | Yes        | Source data exists but images not deployed to CDN yet.    |
-| TCGdex API/CDN               | None        | None (for energies)  | Yes        | Free API, but no energy set data served.                 |
+| TCGdex source (GitHub)       | SVE, MEE    | All core sets        | Yes        | Source data exists but images not deployed to CDN yet (re-checked 2026-05-28). |
+| TCGdex API/CDN               | None deployed yet | sm1 (164–172), and most regular sets | Yes | All 9 basic energies served via sm1 — **this is the runtime fallback today**. |
 | Scrydex API                  | Likely all  | Likely all           | No         | $29/month minimum. Successor to PokemonTCG.io.          |
