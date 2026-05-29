@@ -68,7 +68,7 @@ A CMS content page. Non-translatable fields live here; translatable fields (titl
 | `slug`         | `string(150)`      | No       | URL slug (e.g. `"how-to-borrow"`). |
 | `menuCategory` | `MenuCategory`     | Yes      | Optional grouping for navigation (F11.2). Null = page not in any menu. |
 | `isPublished`  | `bool`             | No       | Whether the page is publicly visible. Default: `false`. |
-| `ogImage`      | `string(255)`      | Yes      | Open Graph image URL for social sharing. Accepts relative (`/api/editor/image/...`) or absolute URLs. |
+| `ogImage`      | `string(255)`      | Yes      | Open Graph image URL for social sharing — the **parent-level default**. Accepts relative (`/api/editor/image/...`) or absolute URLs. Overridden per-locale by [`PageTranslation.ogImage`](#pagetranslation) when set (F18.31). |
 | `noIndex`      | `bool`             | No       | Whether to add `<meta name="robots" content="noindex">`. Default: `false`. |
 | `createdAt`    | `DateTimeImmutable` | No      | Creation timestamp. |
 | `updatedAt`    | `DateTimeImmutable` | No      | Last modification timestamp. |
@@ -102,6 +102,8 @@ Localized fields for `Page`. One row per locale per page. Contains the page's ti
 | `locale`          | `string(5)`   | No       | ISO 639-1 locale code (e.g. `"en"`, `"fr"`). |
 | `title`           | `string(200)` | No       | Translated page title. |
 | `content`         | `text`        | No       | Page body in **Markdown** format. Rendered to HTML via `league/commonmark` on display. |
+| `ogImage`         | `string(255)` | Yes      | Per-locale override of `Page.ogImage` (F18.31). URL regex matches `Page.ogImage`. When empty, falls back to the parent-level value via `OgMetaResolver::resolveForPage()`. |
+| `ogDescription`   | `text`        | Yes      | Per-locale Open Graph description for social sharing (F18.31). No parent-level equivalent: when empty, no `og:description` tag is emitted. |
 
 ### Constraints
 

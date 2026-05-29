@@ -18,6 +18,7 @@ use App\Entity\DeckCard;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Service\ArchetypeDescriptionRenderer;
+use App\Service\Seo\OgMetaResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,6 +41,7 @@ class ArchetypeDetailController extends AbstractController
         ArchetypeRepository $archetypeRepository,
         DeckRepository $deckRepository,
         ArchetypeDescriptionRenderer $descriptionRenderer,
+        OgMetaResolver $ogMetaResolver,
     ): Response {
         $archetype = $archetypeRepository->findOneBy(['slug' => $slug]);
 
@@ -67,6 +69,8 @@ class ArchetypeDetailController extends AbstractController
         $effectiveUpdatedAtMap = $deckRepository->findEffectiveUpdatedAtByDeckIds($variantIds);
         $variantsData = $this->buildVariantsData($variants, $descriptionRenderer, $locale, $effectiveUpdatedAtMap);
 
+        $ogMeta = $ogMetaResolver->resolveForArchetype($archetype, $locale);
+
         return $this->render('archetype/show.html.twig', [
             'archetype' => $archetype,
             'htmlContent' => $htmlContent,
@@ -74,6 +78,8 @@ class ArchetypeDetailController extends AbstractController
             'totalDeckCount' => $totalDeckCount,
             'variants' => $variants,
             'variantsData' => $variantsData,
+            'ogImage' => $ogMeta['image'],
+            'ogDescription' => $ogMeta['description'],
         ]);
     }
 
