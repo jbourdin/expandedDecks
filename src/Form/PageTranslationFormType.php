@@ -46,6 +46,21 @@ class PageTranslationFormType extends AbstractType
                 'placeholder' => 'app.cms.form.content_placeholder',
             ],
         ]);
+
+        $builder
+            ->add('ogImage', TextType::class, [
+                'label' => 'app.cms.form.og_image_localized',
+                'help' => 'app.cms.form.og_image_localized_help',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => ['maxlength' => 255],
+            ])
+            ->add('ogDescription', TextareaType::class, [
+                'label' => 'app.cms.form.og_description_localized',
+                'help' => 'app.cms.form.og_description_localized_help',
+                'required' => false,
+                'attr' => ['rows' => 3],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

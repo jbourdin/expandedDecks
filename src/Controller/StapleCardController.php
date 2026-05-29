@@ -21,6 +21,7 @@ use App\Repository\StapleCardRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\Channel\ChannelContext;
 use App\Service\MarkdownRenderer;
+use App\Service\Seo\OgMetaResolver;
 use App\Service\StapleCardImageResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +45,7 @@ class StapleCardController extends AbstractController
         MarkdownRenderer $markdownRenderer,
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
+        OgMetaResolver $ogMetaResolver,
     ): Response {
         if (!$channelContext->getChannel()->getEnableStaples()) {
             throw new NotFoundHttpException('Staple cards are not enabled on this channel.');
@@ -83,6 +85,10 @@ class StapleCardController extends AbstractController
         $introContent = $introTranslation?->getContent() ?? '';
         $introHtml = '' !== trim($introContent) ? $contentRenderer->render($introContent, $locale) : null;
 
+        $ogMeta = null !== $introPage
+            ? $ogMetaResolver->resolveForPage($introPage, $locale)
+            : ['image' => null, 'description' => null];
+
         return $this->render('staple_card/list.html.twig', [
             'cardsByBucket' => $cardsByBucket,
             'buckets' => StapleCardBucket::ORDER,
@@ -91,6 +97,8 @@ class StapleCardController extends AbstractController
             'minHotness' => $minHotness,
             'introHtml' => $introHtml,
             'introPage' => $introPage,
+            'ogImage' => $ogMeta['image'],
+            'ogDescription' => $ogMeta['description'],
         ]);
     }
 }

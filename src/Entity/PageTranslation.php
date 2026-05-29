@@ -48,6 +48,20 @@ class PageTranslation
     #[ORM\Column(type: Types::TEXT)]
     private string $content = '';
 
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '#^(/|https?://)#', message: 'app.cms.og_image_url_format')]
+    private ?string $ogImage = null;
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $ogDescription = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -97,6 +111,42 @@ class PageTranslation
     public function setContent(string $content): static
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function getOgImage(): ?string
+    {
+        return $this->ogImage;
+    }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function setOgImage(?string $ogImage): static
+    {
+        $this->ogImage = $ogImage;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function setOgDescription(?string $ogDescription): static
+    {
+        $this->ogDescription = $ogDescription;
 
         return $this;
     }

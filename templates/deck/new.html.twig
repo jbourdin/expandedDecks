@@ -18,10 +18,15 @@
                     <h5 class="mb-0">{{ 'app.deck.new_title'|trans }}</h5>
                 </div>
                 <div class="card-body">
+                    {% from 'admin/_image_url_field.html.twig' import image_url_field %}
                     {{ form_start(form) }}
                         {{ form_row(form.name) }}
                         {{ form_row(form.format) }}
                         {{ form_row(form.notes) }}
+
+                        {# Open Graph metadata — editor-defined social-share image and description (F18.30) #}
+                        {{ image_url_field(form.ogImage) }}
+                        {{ form_row(form.ogDescription) }}
 
                         {# Archetype — React island. data-create-url is only emitted for archetype editors (F2.29). #}
                         <div class="mb-3">

@@ -45,6 +45,19 @@ class ArchetypeTranslationFormType extends AbstractType
                 'label' => 'app.archetype.meta_description_label',
                 'required' => false,
                 'attr' => ['maxlength' => 255],
+            ])
+            ->add('ogImage', TextType::class, [
+                'label' => 'app.archetype.og_image_label',
+                'help' => 'app.archetype.og_image_help',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => ['maxlength' => 255],
+            ])
+            ->add('ogDescription', TextareaType::class, [
+                'label' => 'app.archetype.og_description_label',
+                'help' => 'app.archetype.og_description_help',
+                'required' => false,
+                'attr' => ['rows' => 3],
             ]);
     }
 

@@ -13,6 +13,7 @@ import AppMantineProvider from './components/AppMantineProvider';
 import PlaystyleTagSelect from './components/PlaystyleTagSelect';
 import PokemonSpriteSelect from './components/PokemonSpriteSelect';
 import MarkdownEditor from './components/MarkdownEditor';
+import { mountImageUrlFields } from './shared/mount-image-url-field';
 
 import '@mantine/core/styles.css';
 import '@mantine/tiptap/styles.css';
@@ -84,6 +85,11 @@ if (playstyleRoot) {
         </AppMantineProvider>,
     );
 }
+
+/**
+ * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+ */
+mountImageUrlFields();
 
 const editorRoots = document.querySelectorAll<HTMLDivElement>('.rich-text-editor-root');
 editorRoots.forEach((root) => {

@@ -13,6 +13,7 @@ import AppMantineProvider from './components/AppMantineProvider';
 import ArchetypeSelect from './components/ArchetypeSelect';
 import LanguageSelect from './components/LanguageSelect';
 import PokemonSpriteSelect from './components/PokemonSpriteSelect';
+import { mountImageUrlFields } from './shared/mount-image-url-field';
 
 import '@mantine/core/styles.css';
 
@@ -67,6 +68,11 @@ if (languageRoot) {
         </AppMantineProvider>,
     );
 }
+
+/**
+ * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+ */
+mountImageUrlFields();
 
 const spriteRoot = document.getElementById('pokemon-sprite-select-root');
 if (spriteRoot) {

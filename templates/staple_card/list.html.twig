@@ -21,6 +21,14 @@
     <link rel="alternate" hreflang="x-default" href="{{ canonical_url('staple-cards', 'app_staple_card_list', {_locale: 'en'}) }}">
 {% endblock %}
 
+{% block opengraph %}
+    {% set og_title = 'app.staple_card.public.title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
+    {% set og_url = canonical_url('staple-cards', 'app_staple_card_list') %}
+    {% set og_image = ogImage %}
+    {% set og_description = ogDescription %}
+    {{ include('_partials/opengraph.html.twig') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('staple_card_list') }}
