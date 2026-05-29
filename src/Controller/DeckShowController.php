@@ -30,6 +30,7 @@ use App\Service\DeckList\OriginalListFormatter;
 use App\Service\DeckListParser;
 use App\Service\Label\PdfDecklistGenerator;
 use App\Service\Label\PdfLabelGenerator;
+use App\Service\Seo\OgMetaResolver;
 use App\Service\Tcgdex\TcgdexApiClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -54,6 +55,7 @@ class DeckShowController extends AbstractAppController
     #[Route('/deck/{short_tag}', name: 'app_deck_show', methods: ['GET'], requirements: ['short_tag' => '[A-HJ-NP-Z0-9]{6}'])]
     public function show(
         #[MapEntity(mapping: ['short_tag' => 'shortTag'])] Deck $deck,
+        Request $request,
         BorrowRepository $borrowRepository,
         EventRepository $eventRepository,
         EventDeckEntryRepository $eventDeckEntryRepository,
@@ -62,6 +64,7 @@ class DeckShowController extends AbstractAppController
         OriginalListFormatter $originalListFormatter,
         CardmarketWishlistFormatter $cardmarketWishlistFormatter,
         TcgdexApiClient $tcgdexApiClient,
+        OgMetaResolver $ogMetaResolver,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -210,6 +213,8 @@ class DeckShowController extends AbstractAppController
             ? $cardmarketWishlistFormatter->format($currentVersion)
             : null;
 
+        $ogMeta = $ogMetaResolver->resolveForDeck($deck, $request->getLocale());
+
         return $this->render('deck/show.html.twig', [
             'deck' => $deck,
             'groupedCards' => $orderedGroups,
@@ -223,6 +228,8 @@ class DeckShowController extends AbstractAppController
             'eligibleEvents' => $eligibleEvents,
             'eventStatusOverview' => $eventStatusOverview,
             'versionCount' => $deck->getVersions()->count(),
+            'ogImage' => $ogMeta['image'],
+            'ogDescription' => $ogMeta['description'],
         ]);
     }
 

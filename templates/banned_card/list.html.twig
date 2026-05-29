@@ -24,6 +24,8 @@
 {% block opengraph %}
     {% set og_title = 'app.banned_card.public.title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = canonical_url('banned-cards', 'app_banned_card_list') %}
+    {% set og_image = ogImage %}
+    {% set og_description = ogDescription %}
     {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 

@@ -20,6 +20,7 @@ use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\BannedCardImageResolver;
 use App\Service\Channel\ChannelContext;
 use App\Service\MarkdownRenderer;
+use App\Service\Seo\OgMetaResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +45,7 @@ class BannedCardController extends AbstractController
         MarkdownRenderer $markdownRenderer,
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
+        OgMetaResolver $ogMetaResolver,
     ): Response {
         $bannedCards = $bannedCardRepository->findActiveOrderedByEffectiveDate();
         $locale = $request->getLocale();
@@ -69,12 +71,18 @@ class BannedCardController extends AbstractController
         $introContent = $introTranslation?->getContent() ?? '';
         $introHtml = '' !== trim($introContent) ? $contentRenderer->render($introContent, $locale) : null;
 
+        $ogMeta = null !== $introPage
+            ? $ogMetaResolver->resolveForPage($introPage, $locale)
+            : ['image' => null, 'description' => null];
+
         return $this->render('banned_card/list.html.twig', [
             'bannedCards' => $bannedCards,
             'imageUrls' => $imageUrls,
             'renderedExplanations' => $renderedExplanations,
             'introHtml' => $introHtml,
             'introPage' => $introPage,
+            'ogImage' => $ogMeta['image'],
+            'ogDescription' => $ogMeta['description'],
         ]);
     }
 }

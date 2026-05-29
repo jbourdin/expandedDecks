@@ -89,6 +89,9 @@
                                 {{ form_row(translationForms[locale].title) }}
                             {% endif %}
                             {{ rich_text_editor(translationForms[locale].content) }}
+                            {# Open Graph metadata — per-locale social-share overrides (F18.31) #}
+                            {{ image_url_field(translationForms[locale].ogImage) }}
+                            {{ form_row(translationForms[locale].ogDescription) }}
                             <button type="submit" class="btn btn-gold mt-3">{{ 'app.cms.admin.save_translation'|trans({'%locale%': locale|upper}) }}</button>
                         {{ form_end(translationForms[locale]) }}
                     </div>

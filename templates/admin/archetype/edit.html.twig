@@ -84,10 +84,14 @@
                 {% for locale in supportedLocales %}
                     <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" id="pane-{{ locale }}" role="tabpanel" aria-labelledby="tab-{{ locale }}">
                         {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
+                        {% from 'admin/_image_url_field.html.twig' import image_url_field %}
                         {{ form_start(translationForms[locale]) }}
                             {{ form_row(translationForms[locale].name) }}
                             {{ rich_text_editor(translationForms[locale].description) }}
                             {{ form_row(translationForms[locale].metaDescription) }}
+                            {# Open Graph metadata — per-locale social-share overrides (F18.30) #}
+                            {{ image_url_field(translationForms[locale].ogImage) }}
+                            {{ form_row(translationForms[locale].ogDescription) }}
                             <button type="submit" class="btn btn-gold mt-3">{{ 'app.cms.admin.save_translation'|trans({'%locale%': locale|upper}) }}</button>
                         {{ form_end(translationForms[locale]) }}
                     </div>

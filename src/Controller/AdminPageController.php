@@ -342,6 +342,8 @@ class AdminPageController extends AbstractAppController
             $duplicateTranslation->setLocale($translation->getLocale());
             $duplicateTranslation->setTitle($translation->getTitle().' (copy)');
             $duplicateTranslation->setContent($translation->getContent());
+            $duplicateTranslation->setOgImage($translation->getOgImage());
+            $duplicateTranslation->setOgDescription($translation->getOgDescription());
             $duplicate->addTranslation($duplicateTranslation);
         }
 

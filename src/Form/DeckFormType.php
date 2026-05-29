@@ -60,6 +60,19 @@ class DeckFormType extends AbstractType
                     'placeholder' => 'app.form.placeholder.notes',
                 ],
             ])
+            ->add('ogImage', TextType::class, [
+                'label' => 'app.form.label.og_image',
+                'help' => 'app.form.help.og_image',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => ['maxlength' => 255],
+            ])
+            ->add('ogDescription', TextareaType::class, [
+                'label' => 'app.form.label.og_description',
+                'help' => 'app.form.help.og_description',
+                'required' => false,
+                'attr' => ['rows' => 3],
+            ])
             ->add('archetype', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,

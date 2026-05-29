@@ -301,4 +301,59 @@ class BannedCardControllerTest extends AbstractFunctionalTest
         self::assertGreaterThan(0, $crawler->filter('link[rel="canonical"]')->count());
         self::assertGreaterThan(0, $crawler->filter('link[rel="alternate"][hreflang]')->count());
     }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function testListEmitsEditorDefinedOpenGraphMetaTags(): void
+    {
+        $em = $this->getEntityManager();
+
+        /** @var ChannelRepository $channelRepository */
+        $channelRepository = static::getContainer()->get(ChannelRepository::class);
+        $channel = $channelRepository->findOneBy([]);
+        self::assertNotNull($channel);
+
+        $page = new Page();
+        $page->setSlug('banned-cards-intro');
+        $page->setChannel($channel);
+        $page->setIsPublished(true);
+        $page->setNoIndex(false);
+        $page->setOgImage('/uploads/banned-parent.png');
+
+        $translation = new PageTranslation();
+        $translation->setLocale('en');
+        $translation->setTitle('Banned cards');
+        $translation->setContent('intro');
+        $translation->setOgImage('/uploads/banned-en.png');
+        $translation->setOgDescription('Cards no longer legal in Expanded.');
+        $page->addTranslation($translation);
+
+        $em->persist($page);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        // Per-locale image wins over the parent default.
+        $ogImage = $crawler->filter('meta[property="og:image"]')->attr('content');
+        self::assertNotNull($ogImage);
+        self::assertStringContainsString('/uploads/banned-en.png', $ogImage);
+        // Description renders verbatim.
+        $ogDescription = $crawler->filter('meta[property="og:description"]')->attr('content');
+        self::assertSame('Cards no longer legal in Expanded.', $ogDescription);
+    }
+
+    /**
+     * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
+     */
+    public function testListOmitsOpenGraphImageAndDescriptionWhenIntroFieldsBlank(): void
+    {
+        // No intro page seeded → resolver returns [null, null]; partial guards keep the tags off the page.
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, $crawler->filter('meta[property="og:image"]')->count(), 'No og:image when no intro page is configured.');
+        self::assertSame(0, $crawler->filter('meta[property="og:description"]')->count(), 'No og:description when no intro page is configured.');
+    }
 }

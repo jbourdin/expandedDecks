@@ -112,6 +112,20 @@ class Deck
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Assert\Regex(pattern: '#^(/|https?://)#', message: 'app.cms.og_image_url_format')]
+    private ?string $ogImage = null;
+
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $ogDescription = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $public = false;
 
@@ -394,6 +408,42 @@ class Deck
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    public function getOgImage(): ?string
+    {
+        return $this->ogImage;
+    }
+
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    public function setOgImage(?string $ogImage): static
+    {
+        $this->ogImage = $ogImage;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    /**
+     * @see docs/features.md F18.30 — Editor-defined OG image and description on decks, archetypes, variants
+     */
+    public function setOgDescription(?string $ogDescription): static
+    {
+        $this->ogDescription = $ogDescription;
 
         return $this;
     }

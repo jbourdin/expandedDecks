@@ -2749,6 +2749,26 @@
                 <target>Notes (optional)</target>
                 <note>Form label for notes textarea</note>
             </trans-unit>
+            <trans-unit id="app.form.label.og_image">
+                <source>app.form.label.og_image</source>
+                <target>Open Graph image URL (optional)</target>
+                <note>F18.30 — Deck form: editor-defined OG image URL for social-share previews</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.og_image">
+                <source>app.form.help.og_image</source>
+                <target>Absolute URL or site-relative path. Recommended 1200×630 px. Falls back to the deck mosaic when empty.</target>
+                <note>F18.30 — Deck form: OG image field help text</note>
+            </trans-unit>
+            <trans-unit id="app.form.label.og_description">
+                <source>app.form.label.og_description</source>
+                <target>Open Graph description (optional)</target>
+                <note>F18.30 — Deck form: editor-defined OG description for social-share previews</note>
+            </trans-unit>
+            <trans-unit id="app.form.help.og_description">
+                <source>app.form.help.og_description</source>
+                <target>Short blurb shown by social platforms when the deck is shared. Keep under 200 characters.</target>
+                <note>F18.30 — Deck form: OG description field help text</note>
+            </trans-unit>
             <trans-unit id="app.form.label.latest_set">
                 <source>app.form.label.latest_set</source>
                 <target>Latest expansion set</target>
@@ -3839,6 +3859,26 @@
                 <target>Meta description (SEO)</target>
                 <note>Admin archetype meta description field label</note>
             </trans-unit>
+            <trans-unit id="app.archetype.og_image_label">
+                <source>app.archetype.og_image_label</source>
+                <target>Open Graph image URL (optional)</target>
+                <note>F18.30 — Admin archetype translation: per-locale OG image URL</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.og_image_help">
+                <source>app.archetype.og_image_help</source>
+                <target>Absolute URL or site-relative path. Recommended 1200×630 px. Falls back to none when empty.</target>
+                <note>F18.30 — Admin archetype translation: OG image field help text</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.og_description_label">
+                <source>app.archetype.og_description_label</source>
+                <target>Open Graph description (optional)</target>
+                <note>F18.30 — Admin archetype translation: per-locale OG description</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.og_description_help">
+                <source>app.archetype.og_description_help</source>
+                <target>Tuned for social-share previews. Falls back to the meta description when empty. Keep under 200 characters.</target>
+                <note>F18.30 — Admin archetype translation: OG description field help text</note>
+            </trans-unit>
             <trans-unit id="app.archetype.pokemon_slugs_label">
                 <source>app.archetype.pokemon_slugs_label</source>
                 <target>Pokemon sprites</target>
@@ -4598,6 +4638,26 @@
             <trans-unit id="app.cms.form.og_image">
                 <source>app.cms.form.og_image</source>
                 <target>Open Graph image URL</target>
+            </trans-unit>
+            <trans-unit id="app.cms.form.og_image_localized">
+                <source>app.cms.form.og_image_localized</source>
+                <target>Open Graph image URL (this locale)</target>
+                <note>F18.31 — Per-locale override on PageTranslation; falls back to the parent page OG image when empty</note>
+            </trans-unit>
+            <trans-unit id="app.cms.form.og_image_localized_help">
+                <source>app.cms.form.og_image_localized_help</source>
+                <target>Locale-specific override. Falls back to the parent page Open Graph image when empty. Recommended 1200×630 px.</target>
+                <note>F18.31 — Per-locale OG image field help text</note>
+            </trans-unit>
+            <trans-unit id="app.cms.form.og_description_localized">
+                <source>app.cms.form.og_description_localized</source>
+                <target>Open Graph description (this locale)</target>
+                <note>F18.31 — Per-locale OG description on PageTranslation</note>
+            </trans-unit>
+            <trans-unit id="app.cms.form.og_description_localized_help">
+                <source>app.cms.form.og_description_localized_help</source>
+                <target>Short blurb shown by social platforms when this page is shared. Keep under 200 characters.</target>
+                <note>F18.31 — Per-locale OG description field help text</note>
             </trans-unit>
             <trans-unit id="app.cms.form.category_name">
                 <source>app.cms.form.category_name</source>
