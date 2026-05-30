@@ -31,7 +31,7 @@ Represents a **physical** Pokemon TCG deck — the deck box with a label. A deck
 `DeckCard` gains a nullable `sortOrder` (int) column, indexed on `(deck_version_id, sort_order)`. New imports record the zero-based source-line index of each card in the rawList; historical rows have `null` until the admin dashboard backfill runs. The rendering path stays grouped by default — the "Import order" toggle is a follow-up.
 | `currentVersion`   | `DeckVersion`      | Yes      | The latest/active version of this deck. Null only before the first list import. |
 | `createdAt`        | `DateTimeImmutable` | No      | Deck registration timestamp. |
-| `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
+| `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. A position-only reorder does not bump it (see reorder rule below). |
 
 ### Status Enum: `App\Enum\DeckStatus`
 
@@ -155,7 +155,7 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 | `isPublished`      | `bool`             | No       | Controls visibility of the archetype detail page (F2.10). Default: `false`. |
 | `deletedAt`        | `DateTimeImmutable` | Yes     | Soft-delete timestamp. Null = active. When set, the archetype is hidden from all lists (admin and public) and its detail page returns 404. See Soft-Delete Rules below. |
 | `createdAt`        | `DateTimeImmutable` | No      | Creation timestamp. |
-| `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. |
+| `updatedAt`        | `DateTimeImmutable` | Yes     | Last modification timestamp. A position-only reorder does not bump it (see reorder rule below). |
 | `firstPublishedAt` | `DateTimeImmutable` | Yes     | First time `isPublished` transitioned to true (F2.27). Drafts stay null. Powers the catalog freshness caption and the `Article` JSON-LD `datePublished`. |
 | `lastPublishedAt`  | `DateTimeImmutable` | Yes     | Most recent persist while published (F2.27). Drafts and unpublish saves never bump it. Powers the catalog "Updated on" caption and `Article` JSON-LD `dateModified`. |
 
@@ -165,6 +165,7 @@ A managed archetype entry representing a deck strategy (e.g. "Lugia VSTAR", "Iro
 - `slug`: required, unique, auto-generated from name via `AsciiSlugger`
 - `metaDescription`: max 255 characters
 - `firstPublishedAt` / `lastPublishedAt`: managed via [`PublishableTimestampsTrait`](../../src/Entity/PublishableTimestampsTrait.php); shared with [`Page`](cms.md#page) (F11.4). Variant freshness is computed lazily by `DeckRepository::findEffectiveUpdatedAtByDeckIds()` — no schema change on `Deck`
+- **Reorder rule:** a drag-and-drop reorder that changes only `position` is structural, not a content update, and must not bump `updatedAt` / `lastPublishedAt`. Both `Archetype` and `Deck` use [`StructuralChangeTrait`](../../src/Entity/StructuralChangeTrait.php) in their `#[ORM\PreUpdate]` hook to skip stamping when `position` is the sole changed field; `ArchetypeFreshnessListener` applies the same guard so a variant reorder does not bump the parent archetype's freshness either. Reordering archetypes is F18.11/F18.12; reordering variants within an archetype is F18.19
 - **Soft-delete guard:** an archetype can only be soft-deleted when it has **zero associated decks** (including non-public and retired decks). If any deck references the archetype, deletion is refused with an error message
 
 ### Relations
