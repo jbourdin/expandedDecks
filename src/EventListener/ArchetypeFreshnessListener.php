@@ -19,7 +19,7 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
 /**
@@ -35,10 +35,18 @@ use Doctrine\ORM\Events;
  * @see docs/features.md F2.27 — Archetype publication dates
  */
 #[AsDoctrineListener(event: Events::postPersist)]
-#[AsDoctrineListener(event: Events::postUpdate)]
+#[AsDoctrineListener(event: Events::preUpdate)]
 #[AsDoctrineListener(event: Events::postFlush)]
 final class ArchetypeFreshnessListener
 {
+    /**
+     * Display-ordering fields whose change alone is not variant activity.
+     * Mirrors {@see \App\Entity\StructuralChangeTrait}.
+     *
+     * @var list<string>
+     */
+    private const array STRUCTURAL_ONLY_FIELDS = ['position'];
+
     /** @var array<int, true> */
     private array $pendingArchetypeIds = [];
 
@@ -47,8 +55,17 @@ final class ArchetypeFreshnessListener
         $this->collect($args->getObject());
     }
 
-    public function postUpdate(PostUpdateEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
+        // A pure reorder only moves `position`; it isn't variant activity that
+        // should refresh the archetype's freshness signal (F18.19). The
+        // change-set is read here (preUpdate) because that is where Doctrine
+        // reliably exposes it.
+        $changedFields = array_keys($args->getEntityChangeSet());
+        if ([] !== $changedFields && [] === array_diff($changedFields, self::STRUCTURAL_ONLY_FIELDS)) {
+            return;
+        }
+
         $this->collect($args->getObject());
     }
 
