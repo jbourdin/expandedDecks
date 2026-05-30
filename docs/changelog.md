@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.31] — 2026-05-30
+
+Patch release: drag-and-drop reordering no longer pretends an archetype or deck variant was *updated*. A position-only change now leaves the freshness timestamps untouched, so the catalog "Updated on" caption, the "sort by updated" order, the sitemap `<lastmod>`, and the JSON-LD `dateModified` stop reporting false content changes whenever items are merely re-ranked.
+
+### Bug Fixes
+
+- **Skip freshness timestamps on position-only reorder** — Reordering archetypes (F18.11/F18.12) or deck variants (F18.19) only moves the `position` field, but the `#[ORM\PreUpdate]` hooks re-stamped `updated_at` (and, for published archetypes, `last_published_at` via `PublishableTimestampsTrait`) as if the content had changed — and a variant reorder additionally bumped the *parent* archetype's `last_published_at` through `ArchetypeFreshnessListener`. Three stamping paths were involved, so the fix is applied at each: a new `StructuralChangeTrait` lets `Archetype` and `Deck` early-return from their `PreUpdate` hook when `position` is the sole changed field, and the listener moved its update collection from `postUpdate` to `preUpdate` (where Doctrine reliably exposes the change-set) to apply the same guard — leaving `postPersist` (a genuinely new variant) and the `postFlush` bulk writer intact. A change that touches a real field alongside `position` still bumps as before. Coverage: a unit `StructuralChangeTest` (position-only inert, content and position+content both bump, for both entities) plus functional `ArchetypeFreshnessListenerTest` cases proving a variant reorder bumps neither the deck nor the parent archetype while a variant content edit still bumps both. ([#652](https://github.com/jbourdin/expandedDecks/pull/652))
+
+---
+
 ## [1.12.30] — 2026-05-29
 
 Patch release: editor-defined Open Graph image and description controls land on decks, archetype translations, archetype variants, and the Banned/Staple Cards listing pages. Extends F18.28 (the existing site-wide OG meta tags) with editorial overrides via a single `OgMetaResolver` service that centralises the variant-and-locale fallback chain, and reuses the existing `ImageUrlField` drag-and-drop React component across the three new admin form surfaces.
