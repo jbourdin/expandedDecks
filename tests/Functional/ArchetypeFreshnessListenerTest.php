@@ -100,4 +100,67 @@ class ArchetypeFreshnessListenerTest extends AbstractFunctionalTest
         $em->refresh($archetype);
         self::assertEquals($before, $archetype->getLastPublishedAt());
     }
+
+    /**
+     * A drag-and-drop variant reorder only moves `position`; it must touch
+     * neither the archetype's freshness signal nor the deck's own `updatedAt`.
+     *
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testReorderingAVariantDoesNotBumpTimestamps(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = $em->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+        $em->refresh($archetype);
+        $archetypeBefore = $archetype->getLastPublishedAt();
+        self::assertNotNull($archetypeBefore);
+
+        $variant = $em->getRepository(Deck::class)->findOneBy(['archetype' => $archetype, 'owner' => null]);
+        self::assertNotNull($variant);
+        $deckBefore = $variant->getUpdatedAt();
+
+        sleep(1);
+
+        $variant->setPosition($variant->getPosition() + 100);
+        $em->flush();
+
+        $em->refresh($archetype);
+        $em->refresh($variant);
+
+        self::assertEquals($archetypeBefore, $archetype->getLastPublishedAt());
+        self::assertEquals($deckBefore, $variant->getUpdatedAt());
+    }
+
+    /**
+     * Editing a variant's content (not its position) is real activity and must
+     * still bump both the archetype's freshness signal and the deck timestamp.
+     *
+     * @see docs/features.md F18.19 — Archetype variant ordering
+     */
+    public function testEditingAVariantStillBumpsTimestamps(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = $em->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+        $em->refresh($archetype);
+        $archetypeBefore = $archetype->getLastPublishedAt();
+        self::assertNotNull($archetypeBefore);
+
+        $variant = $em->getRepository(Deck::class)->findOneBy(['archetype' => $archetype, 'owner' => null]);
+        self::assertNotNull($variant);
+
+        sleep(1);
+
+        $variant->setName($variant->getName().' (edited)');
+        $em->flush();
+
+        $em->refresh($archetype);
+        $em->refresh($variant);
+
+        self::assertGreaterThan($archetypeBefore, $archetype->getLastPublishedAt());
+        self::assertNotNull($variant->getUpdatedAt());
+    }
 }

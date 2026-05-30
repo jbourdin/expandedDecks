@@ -19,6 +19,7 @@ use App\Entity\DeckVersion;
 use App\Entity\User;
 use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -94,7 +95,11 @@ class DeckTest extends TestCase
         $deck = new Deck();
         self::assertNull($deck->getUpdatedAt());
 
-        $deck->onPreUpdate();
+        // A content change (here: name) must stamp updatedAt.
+        $args = $this->createStub(PreUpdateEventArgs::class);
+        $args->method('getEntityChangeSet')->willReturn(['name' => ['Old', 'New']]);
+
+        $deck->onPreUpdate($args);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $deck->getUpdatedAt());
     }

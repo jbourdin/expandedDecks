@@ -19,6 +19,7 @@ use App\Repository\DeckRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -29,6 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Deck
 {
+    use StructuralChangeTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -546,8 +549,15 @@ class Deck
     }
 
     #[ORM\PreUpdate]
-    public function onPreUpdate(): void
+    public function onPreUpdate(PreUpdateEventArgs $args): void
     {
+        // Variant reordering only moves `position`; that is not a content
+        // update, so leave `updatedAt` (sitemap lastmod, JSON-LD dateModified)
+        // untouched (F18.19).
+        if ($this->isStructuralOnlyChange($args)) {
+            return;
+        }
+
         $this->updatedAt = new \DateTimeImmutable();
     }
 

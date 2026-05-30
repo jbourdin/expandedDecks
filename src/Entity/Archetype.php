@@ -32,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Archetype
 {
     use PublishableTimestampsTrait;
+    use StructuralChangeTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -311,6 +312,12 @@ class Archetype
     #[ORM\PreUpdate]
     public function onPreUpdate(PreUpdateEventArgs $args): void
     {
+        // A drag-and-drop reorder only moves `position`; that is not a content
+        // update, so leave the freshness timestamps untouched (F18.11).
+        if ($this->isStructuralOnlyChange($args)) {
+            return;
+        }
+
         $this->updatedAt = new \DateTimeImmutable();
         $this->generateSlug();
         $this->stampPublicationOnUpdate($args);
