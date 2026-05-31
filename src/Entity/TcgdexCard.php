@@ -148,6 +148,18 @@ class TcgdexCard
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageBaseUrl = null;
 
+    /**
+     * The TCGdex per-card "updated" timestamp captured on the last API touch.
+     *
+     * Captured now as a baseline so set-level freshness diffing can switch to it once
+     * TCGdex exposes a set-level updated field. Not yet used as a skip-decision input —
+     * the active freshness signal is "is any configured locale still missing?".
+     *
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $tcgdexUpdatedAt = null;
+
     public function __construct(string $id, TcgdexSet $set, string $localId)
     {
         $this->id = $id;
@@ -299,6 +311,68 @@ class TcgdexCard
         $this->imageBaseUrl = $imageBaseUrl;
 
         return $this;
+    }
+
+    public function getTcgdexUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->tcgdexUpdatedAt;
+    }
+
+    public function setTcgdexUpdatedAt(?\DateTimeImmutable $tcgdexUpdatedAt): static
+    {
+        $this->tcgdexUpdatedAt = $tcgdexUpdatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Whether the card name carries a non-empty value for the given locale.
+     *
+     * The name map is the freshness proxy: every card has a name, so a missing
+     * locale key there means the translation has not been fetched yet.
+     *
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function hasLocale(string $locale): bool
+    {
+        $value = $this->name[$locale] ?? null;
+
+        return \is_string($value) && '' !== $value;
+    }
+
+    /**
+     * Whether every configured locale is already populated on the card name.
+     *
+     * Drives the gap-fill skip decision: a card that already has all locales is
+     * skipped with no HTTP call during a gap-fill (Sync mode) run.
+     *
+     * @param list<string> $locales
+     *
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function hasAllLocales(array $locales): bool
+    {
+        foreach ($locales as $locale) {
+            if (!$this->hasLocale($locale)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The configured locales the card name does not yet carry.
+     *
+     * @param list<string> $locales
+     *
+     * @return list<string>
+     *
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function getMissingLocales(array $locales): array
+    {
+        return array_values(array_filter($locales, fn (string $locale): bool => !$this->hasLocale($locale)));
     }
 
     public function isExpandedLegal(): bool

@@ -218,19 +218,29 @@
             </div>
 
             <div class="d-flex gap-2">
-                <form method="post" action="{{ path('app_admin_technical_tcgdex_sync_insert') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('technical-tcgdex-sync-insert') }}">
+                <form method="post" action="{{ path('app_admin_technical_tcgdex_sync') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('technical-tcgdex-sync') }}">
                     <button type="submit" class="btn btn-gold" {{ syncQueueDepth > 0 ? 'disabled' : '' }}>
-                        {{ 'app.admin.technical.tcgdex_sync.insert_button'|trans }}
-                    </button>
-                </form>
-                <form method="post" action="{{ path('app_admin_technical_tcgdex_sync_update') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('technical-tcgdex-sync-update') }}">
-                    <button type="submit" class="btn btn-outline-gold" {{ syncQueueDepth > 0 ? 'disabled' : '' }}>
-                        {{ 'app.admin.technical.tcgdex_sync.update_button'|trans }}
+                        {{ 'app.admin.technical.tcgdex_sync.sync_button'|trans }}
                     </button>
                 </form>
             </div>
+
+            <hr>
+
+            <p class="mb-2">{{ 'app.admin.technical.tcgdex_sync.force_update_description'|trans }}</p>
+            {{ form_start(tcgdexForceUpdateForm, {action: path('app_admin_technical_tcgdex_force_update')}) }}
+                <div class="d-flex gap-2 align-items-end flex-wrap">
+                    <div>
+                        {{ form_label(tcgdexForceUpdateForm.set) }}
+                        {{ form_widget(tcgdexForceUpdateForm.set) }}
+                    </div>
+                    <button type="submit" class="btn btn-outline-gold" {{ syncQueueDepth > 0 ? 'disabled' : '' }}>
+                        {{ 'app.admin.technical.tcgdex_sync.force_update_button'|trans }}
+                    </button>
+                </div>
+                {{ form_errors(tcgdexForceUpdateForm.set) }}
+            {{ form_end(tcgdexForceUpdateForm) }}
         </div>
     </div>
 

@@ -31,9 +31,12 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 final class SyncTcgdexSetHandlerTest extends TestCase
 {
+    private const array LOCALES = ['en', 'fr'];
+
     private HttpClientInterface $httpClient;
     private TcgdexApiThrottle $throttle;
     private EntityManagerInterface $entityManager;
@@ -66,14 +69,36 @@ final class SyncTcgdexSetHandlerTest extends TestCase
             $this->entityManager,
             $bus,
             $this->logger,
+            'https://api.tcgdex.net/v2',
+            self::LOCALES,
         );
     }
 
     private function createSet(): TcgdexSet
     {
-        $serie = new TcgdexSerie('sv');
+        return new TcgdexSet('sv05', new TcgdexSerie('sv'));
+    }
 
-        return new TcgdexSet('sv05', $serie);
+    /**
+     * @param array<string, mixed> $name
+     */
+    private function createCard(array $name = []): TcgdexCard
+    {
+        $card = new TcgdexCard('sv05-001', $this->createSet(), '001');
+        $card->setName($name);
+
+        return $card;
+    }
+
+    /**
+     * @return list<SyncTcgdexCardMessage>
+     */
+    private function dispatchedCardMessages(): array
+    {
+        return array_values(array_filter(
+            $this->dispatchedMessages,
+            static fn (object $message): bool => $message instanceof SyncTcgdexCardMessage,
+        ));
     }
 
     public function testDispatchesCardMessagesForMissingCards(): void
@@ -93,13 +118,12 @@ final class SyncTcgdexSetHandlerTest extends TestCase
 
         ($this->createHandler())(new SyncTcgdexSetMessage('sv05'));
 
-        $cardMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexCardMessage);
-        self::assertCount(2, $cardMessages);
+        self::assertCount(2, $this->dispatchedCardMessages());
     }
 
-    public function testSkipsExistingCardsInInsertMode(): void
+    public function testSkipsCardsWithEveryLocaleInSyncMode(): void
     {
-        $existingCard = $this->createStub(TcgdexCard::class);
+        $completeCard = $this->createCard(['en' => 'Existing', 'fr' => 'Existant']);
 
         $response = $this->createStub(ResponseInterface::class);
         $response->method('toArray')->willReturn([
@@ -111,18 +135,18 @@ final class SyncTcgdexSetHandlerTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
         $this->entityManager->method('find')->willReturnMap([
             [TcgdexSet::class, 'sv05', $this->createSet()],
-            [TcgdexCard::class, 'sv05-001', $existingCard],
+            [TcgdexCard::class, 'sv05-001', $completeCard],
         ]);
 
         ($this->createHandler())(new SyncTcgdexSetMessage('sv05'));
 
-        $cardMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexCardMessage);
-        self::assertCount(0, $cardMessages);
+        self::assertCount(0, $this->dispatchedCardMessages());
     }
 
-    public function testFullModeDispatchesForExistingCards(): void
+    public function testDispatchesForCardsMissingALocaleInSyncMode(): void
     {
-        $existingCard = $this->createStub(TcgdexCard::class);
+        // English-only card is still missing French → the set handler dispatches a gap-fill.
+        $incompleteCard = $this->createCard(['en' => 'Existing']);
 
         $response = $this->createStub(ResponseInterface::class);
         $response->method('toArray')->willReturn([
@@ -134,18 +158,43 @@ final class SyncTcgdexSetHandlerTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
         $this->entityManager->method('find')->willReturnMap([
             [TcgdexSet::class, 'sv05', $this->createSet()],
-            [TcgdexCard::class, 'sv05-001', $existingCard],
+            [TcgdexCard::class, 'sv05-001', $incompleteCard],
         ]);
 
-        ($this->createHandler())(new SyncTcgdexSetMessage('sv05', SyncMode::Full));
+        ($this->createHandler())(new SyncTcgdexSetMessage('sv05'));
 
-        $cardMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexCardMessage);
+        $cardMessages = $this->dispatchedCardMessages();
         self::assertCount(1, $cardMessages);
+        self::assertSame(SyncMode::Sync, $cardMessages[0]->mode);
     }
 
-    public function testUpdateModeUpdatesImageUrlsFromSetResponse(): void
+    public function testForceUpdateModeDispatchesForEveryExistingCard(): void
     {
-        $existingCard = new TcgdexCard('sv05-001', $this->createSet(), '001');
+        $completeCard = $this->createCard(['en' => 'Existing', 'fr' => 'Existant']);
+
+        $response = $this->createStub(ResponseInterface::class);
+        $response->method('toArray')->willReturn([
+            'cards' => [
+                ['id' => 'sv05-001', 'localId' => '001', 'name' => 'Existing', 'image' => 'https://example.com/001'],
+            ],
+        ]);
+
+        $this->httpClient->method('request')->willReturn($response);
+        $this->entityManager->method('find')->willReturnMap([
+            [TcgdexSet::class, 'sv05', $this->createSet()],
+            [TcgdexCard::class, 'sv05-001', $completeCard],
+        ]);
+
+        ($this->createHandler())(new SyncTcgdexSetMessage('sv05', SyncMode::ForceUpdate));
+
+        $cardMessages = $this->dispatchedCardMessages();
+        self::assertCount(1, $cardMessages);
+        self::assertSame(SyncMode::ForceUpdate, $cardMessages[0]->mode);
+    }
+
+    public function testSyncRefreshesImageUrlForCompleteCardsWithoutDispatching(): void
+    {
+        $completeCard = $this->createCard(['en' => 'Card', 'fr' => 'Carte']);
 
         $response = $this->createStub(ResponseInterface::class);
         $response->method('toArray')->willReturn([
@@ -159,18 +208,15 @@ final class SyncTcgdexSetHandlerTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->method('find')->willReturnMap([
             [TcgdexSet::class, 'sv05', $this->createSet()],
-            [TcgdexCard::class, 'sv05-001', $existingCard],
+            [TcgdexCard::class, 'sv05-001', $completeCard],
         ]);
         $entityManager->expects(self::atLeastOnce())->method('flush');
         $this->entityManager = $entityManager;
 
-        ($this->createHandler())(new SyncTcgdexSetMessage('sv05', SyncMode::Update));
+        ($this->createHandler())(new SyncTcgdexSetMessage('sv05'));
 
-        self::assertSame('https://assets.tcgdex.net/en/sv/sv05/001', $existingCard->getImageBaseUrl());
-
-        // Update mode should NOT dispatch card messages for existing cards
-        $cardMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexCardMessage);
-        self::assertCount(0, $cardMessages);
+        self::assertSame('https://assets.tcgdex.net/en/sv/sv05/001', $completeCard->getImageBaseUrl());
+        self::assertCount(0, $this->dispatchedCardMessages());
     }
 
     public function testHttpErrorRedispatches(): void

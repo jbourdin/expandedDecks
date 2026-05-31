@@ -27,22 +27,31 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Syncs a single set: updates metadata and dispatches SyncTcgdexCardMessage
- * for any cards not yet in the local database.
+ * Syncs a single set: updates metadata and dispatches SyncTcgdexCardMessage for any
+ * card that is new, missing a configured locale (gap-fill), or — in ForceUpdate mode —
+ * every card in the set.
+ *
+ * Set discovery uses the base (English) locale; the per-card handler fans out the
+ * remaining locales. Set responses carry no per-card timestamps, so locale freshness
+ * is decided from the locally stored card, not the API stub.
  *
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 #[AsMessageHandler]
 class SyncTcgdexSetHandler
 {
-    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
-
+    /**
+     * @param list<string> $tcgdexLocales
+     */
     public function __construct(
         private readonly HttpClientInterface $tcgdexClient,
         private readonly TcgdexApiThrottle $throttle,
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
+        private readonly string $tcgdexHost,
+        private readonly array $tcgdexLocales,
     ) {
     }
 
@@ -54,7 +63,7 @@ class SyncTcgdexSetHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/sets/'.$setId);
+            $response = $this->tcgdexClient->request('GET', $this->tcgdexHost.'/en/sets/'.$setId);
             /** @var array<string, mixed> $setData */
             $setData = $response->toArray();
         } catch (\Throwable $exception) {
@@ -101,20 +110,26 @@ class SyncTcgdexSetHandler
             $existing = $this->entityManager->find(TcgdexCard::class, $cardId);
 
             if (null === $existing) {
-                // New card — dispatch full hydration
+                // New card — dispatch hydration in the requested mode.
                 $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
                 ++$dispatched;
-            } elseif (SyncMode::Full === $mode) {
-                // Full mode — re-fetch and overwrite entire card via per-card API call
+            } elseif (SyncMode::ForceUpdate === $mode) {
+                // Force update — re-fetch every locale of the card via a per-card API call.
                 $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
                 ++$dispatched;
-            } elseif (SyncMode::Update === $mode) {
-                // Update mode — update imageBaseUrl directly from set response (no per-card API call)
+            } else {
+                // Sync — refresh the locale-independent image URL from the set stub for free,
+                // then dispatch a per-card fetch only when the card still lacks a locale.
                 $imageBaseUrl = $this->extractString($cardData, 'image');
 
                 if (null !== $imageBaseUrl && $imageBaseUrl !== $existing->getImageBaseUrl()) {
                     $existing->setImageBaseUrl($imageBaseUrl);
                     ++$updatedImages;
+                }
+
+                if (!$existing->hasAllLocales($this->tcgdexLocales)) {
+                    $this->messageBus->dispatch(new SyncTcgdexCardMessage($cardId, $setId, $mode));
+                    ++$dispatched;
                 }
             }
         }
