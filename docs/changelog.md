@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.32] — 2026-05-31
+
+Patch release: the incremental TCGdex sync (F6.13) becomes multi-locale. TCGdex publishes a set in English first and adds French (and other) translations over the following days, so production previously never picked up the late-arriving translations. The sync now fetches the locale-independent data plus every configured locale, filling translation gaps as they become available, and captures a per-card `updated` baseline for future set-level freshness diffing.
+
+### Features
+
+- **TCGdex multi-locale sync — gap-fill + force update (F6.17)** — The `SyncMode` enum's three cases (`Insert`/`Update`/`Full`) are replaced by two: `Sync` walks the whole catalogue, inserts anything missing, and for each existing card fetches **only the locales it still lacks** — a card whose every configured locale is already populated is skipped with no HTTP call; `ForceUpdate` targets a single set and re-fetches every card across every configured locale unconditionally. Per-card fetching is now locale-aware: a base-locale (English) call carries the locale-independent fields while each additional locale is merged into the JSON columns by a new `TcgdexCardHydrator::mergeLocaleFields()` (abilities/attacks matched by list position, other locales preserved). 404 handling is split by locale — a base-locale 404 means the card genuinely doesn't exist (stop), while a translation-locale 404 means that translation isn't published yet (skip quietly, refill on a later sync). The locale list is the container parameter `app.tcgdex.locales` (`['en', 'fr']`, first entry is the base) so adding a locale is a one-line config change. A new nullable `tcgdex_updated_at` column on `tcgdex_card` (migration `Version20260531120000`, no backfill) captures the API's per-card `updated` timestamp on every touch — not yet a skip-decision input (locale completeness remains the active freshness signal), but a baseline so set-level diffing can switch to it once TCGdex exposes a set-level timestamp. The admin technical dashboard's two buttons become one **Sync** button plus a **Force update** set-picker form (`TcgdexForceUpdateFormType`); the CLI (`app:tcgdex:sync`) and signed webhook are simplified to gap-fill. The former card-count change-detection heuristic is removed (it could not detect locale gaps), so each Sync now walks every existing set — per-card calls are still avoided by the completeness skip and `TcgdexApiThrottle` rate-limits set discovery. ([#655](https://github.com/jbourdin/expandedDecks/pull/655))
+
+---
+
 ## [1.12.31] — 2026-05-30
 
 Patch release: drag-and-drop reordering no longer pretends an archetype or deck variant was *updated*. A position-only change now leaves the freshness timestamps untouched, so the catalog "Updated on" caption, the "sort by updated" order, the sitemap `<lastmod>`, and the JSON-LD `dateModified` stop reporting false content changes whenever items are merely re-ranked.
