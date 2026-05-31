@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\TcgdexSet;
 use App\Enum\SyncMode;
+use App\Form\TcgdexForceUpdateFormType;
 use App\Message\BuildSetMappingsMessage;
 use App\Message\EnrichDeckVersionMessage;
 use App\Message\SyncTcgdexSeriesMessage;
+use App\Message\SyncTcgdexSetMessage;
 use App\Repository\BannedCardRepository;
 use App\Repository\DeckVersionRepository;
 use App\Repository\TcgdexSetMappingRepository;
@@ -88,6 +91,7 @@ class AdminTechnicalController extends AbstractAppController
             'syncQueueDepth' => $this->syncStatusService->getQueueDepth(),
             'syncLastCompleted' => $this->syncStatusService->getLastSyncTimestamp(),
             'syncInCooldown' => $this->tcgdexApiThrottle->isInCooldown(),
+            'tcgdexForceUpdateForm' => $this->createForm(TcgdexForceUpdateFormType::class)->createView(),
             'pendingSortOrderBackfill' => $this->sortBackfillService->countPending(),
         ]);
     }
@@ -270,37 +274,55 @@ class AdminTechnicalController extends AbstractAppController
     }
 
     /**
+     * Trigger a catalogue-wide gap-fill sync (creates missing data, fills missing locales).
+     *
      * @see docs/features.md F6.13 — Incremental TCGdex database sync
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
      */
-    #[Route('/tcgdex-sync-insert', name: 'app_admin_technical_tcgdex_sync_insert', methods: ['POST'])]
-    public function tcgdexSyncInsert(Request $request): Response
+    #[Route('/tcgdex-sync', name: 'app_admin_technical_tcgdex_sync', methods: ['POST'])]
+    public function tcgdexSync(Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('technical-tcgdex-sync-insert', $request->getPayload()->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('technical-tcgdex-sync', $request->getPayload()->getString('_token'))) {
             $this->addFlash('danger', 'app.common.invalid_csrf');
 
             return $this->redirectToRoute('app_admin_technical_dashboard');
         }
 
-        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Insert));
-        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_insert');
+        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Sync));
+        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_sync');
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }
 
     /**
-     * @see docs/features.md F6.13 — Incremental TCGdex database sync
+     * Force a re-fetch of every card of a chosen set across every configured locale.
+     *
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
      */
-    #[Route('/tcgdex-sync-update', name: 'app_admin_technical_tcgdex_sync_update', methods: ['POST'])]
-    public function tcgdexSyncUpdate(Request $request): Response
+    #[Route('/tcgdex-force-update', name: 'app_admin_technical_tcgdex_force_update', methods: ['POST'])]
+    public function tcgdexForceUpdate(Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('technical-tcgdex-sync-update', $request->getPayload()->getString('_token'))) {
-            $this->addFlash('danger', 'app.common.invalid_csrf');
+        $form = $this->createForm(TcgdexForceUpdateFormType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', 'app.admin.technical.tcgdex_sync.force_update_invalid');
 
             return $this->redirectToRoute('app_admin_technical_dashboard');
         }
 
-        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Update));
-        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_update');
+        $set = $form->get('set')->getData();
+
+        if (!$set instanceof TcgdexSet) {
+            $this->addFlash('danger', 'app.admin.technical.tcgdex_sync.force_update_invalid');
+
+            return $this->redirectToRoute('app_admin_technical_dashboard');
+        }
+
+        $this->messageBus->dispatch(new SyncTcgdexSetMessage($set->getId(), SyncMode::ForceUpdate));
+        $this->addFlash('success', 'app.admin.technical.tcgdex_sync.dispatched_force_update', [
+            '%set%' => $set->getLocalizedName() ?? $set->getId(),
+        ]);
 
         return $this->redirectToRoute('app_admin_technical_dashboard');
     }

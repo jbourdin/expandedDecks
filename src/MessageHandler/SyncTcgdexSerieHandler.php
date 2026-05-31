@@ -15,10 +15,8 @@ namespace App\MessageHandler;
 
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
-use App\Enum\SyncMode;
 use App\Message\SyncTcgdexSerieMessage;
 use App\Message\SyncTcgdexSetMessage;
-use App\Repository\TcgdexCardRepository;
 use App\Service\Tcgdex\TcgdexApiThrottle;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -28,23 +26,23 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Syncs a single serie: fetches set list, creates missing sets, and dispatches
- * SyncTcgdexSetMessage for new or changed sets (sorted by release date DESC).
+ * Syncs a single serie: fetches the set list, creates missing sets, and dispatches
+ * SyncTcgdexSetMessage for every set (sorted by release date DESC) so the set handler
+ * can pick up new cards and fill any missing-locale gaps on existing cards.
  *
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 #[AsMessageHandler]
 class SyncTcgdexSerieHandler
 {
-    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
-
     public function __construct(
         private readonly HttpClientInterface $tcgdexClient,
         private readonly TcgdexApiThrottle $throttle,
-        private readonly TcgdexCardRepository $cardRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
+        private readonly string $tcgdexHost,
     ) {
     }
 
@@ -56,7 +54,7 @@ class SyncTcgdexSerieHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/series/'.$serieId);
+            $response = $this->tcgdexClient->request('GET', $this->tcgdexHost.'/en/series/'.$serieId);
             /** @var array<string, mixed> $serieData */
             $serieData = $response->toArray();
         } catch (\Throwable $exception) {
@@ -129,17 +127,10 @@ class SyncTcgdexSerieHandler
                 ++$created;
 
                 $setsToSync[] = ['setId' => $setId, 'isNew' => true, 'releaseDate' => $releaseDate];
-            } elseif (SyncMode::Insert !== $mode) {
-                // Update/full mode: always sync existing sets (metadata + potential new cards)
-                $setsToSync[] = ['setId' => $setId, 'isNew' => false, 'releaseDate' => $releaseDate];
             } else {
-                // Insert mode: only sync if card count changed
-                $apiCardCount = $this->extractTotalCardCount($setData);
-                $localCardCount = $this->cardRepository->countBySetId($setId);
-
-                if (null !== $apiCardCount && $apiCardCount !== $localCardCount) {
-                    $setsToSync[] = ['setId' => $setId, 'isNew' => false, 'releaseDate' => $releaseDate];
-                }
+                // Existing set: always re-sync so the set handler can detect new cards and
+                // fill missing-locale gaps on existing cards (the set list carries no timestamps).
+                $setsToSync[] = ['setId' => $setId, 'isNew' => false, 'releaseDate' => $releaseDate];
             }
         }
 
@@ -161,24 +152,6 @@ class SyncTcgdexSerieHandler
                 'total' => \count($setsToSync),
             ]);
         }
-    }
-
-    /**
-     * Extract the total card count from the nested cardCount object.
-     *
-     * API format: {"cardCount": {"official": 162, "total": 218}}
-     *
-     * @param array<string, mixed> $setData
-     */
-    private function extractTotalCardCount(array $setData): ?int
-    {
-        if (!isset($setData['cardCount']) || !\is_array($setData['cardCount'])) {
-            return null;
-        }
-
-        $total = $setData['cardCount']['total'] ?? null;
-
-        return \is_int($total) ? $total : null;
     }
 
     /**

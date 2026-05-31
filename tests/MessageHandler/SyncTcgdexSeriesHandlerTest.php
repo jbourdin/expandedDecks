@@ -64,6 +64,7 @@ final class SyncTcgdexSeriesHandlerTest extends TestCase
             $this->entityManager,
             $bus,
             $this->logger,
+            'https://api.tcgdex.net/v2',
         );
     }
 
@@ -160,11 +161,11 @@ final class SyncTcgdexSeriesHandlerTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
         $this->serieRepository->method('findAllIds')->willReturn(['sv']);
 
-        ($this->createHandler())(new SyncTcgdexSeriesMessage(SyncMode::Update));
+        ($this->createHandler())(new SyncTcgdexSeriesMessage(SyncMode::Sync));
 
         $serieMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexSerieMessage);
         $serieMessages = array_values($serieMessages);
-        self::assertSame(SyncMode::Update, $serieMessages[0]->mode);
+        self::assertSame(SyncMode::Sync, $serieMessages[0]->mode);
     }
 
     public function testHttpErrorRedispatchesWithDelay(): void
@@ -180,7 +181,7 @@ final class SyncTcgdexSeriesHandlerTest extends TestCase
         self::assertCount(1, $retries);
     }
 
-    public function testUpdateModeUpdatesExistingSerieLogos(): void
+    public function testRefreshesExistingSerieLogos(): void
     {
         $response = $this->createStub(ResponseInterface::class);
         $response->method('toArray')->willReturn([
@@ -197,6 +198,6 @@ final class SyncTcgdexSeriesHandlerTest extends TestCase
         $entityManager->expects(self::once())->method('flush');
         $this->entityManager = $entityManager;
 
-        ($this->createHandler())(new SyncTcgdexSeriesMessage(SyncMode::Update));
+        ($this->createHandler())(new SyncTcgdexSeriesMessage());
     }
 }

@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 final class TcgdexCardHydratorTest extends TestCase
 {
@@ -184,5 +185,73 @@ final class TcgdexCardHydratorTest extends TestCase
         $card = new TcgdexCard('sv05-001', $this->set, '001');
 
         self::assertSame('https://assets.tcgdex.net/en/sv/sv05/001/high.webp', $card->getImageUrl());
+    }
+
+    public function testMergeLocaleFieldsAddsLocaleWithoutDisturbingOthers(): void
+    {
+        $card = $this->hydrator->hydrateFromApiResponse($this->createApiCardData(), $this->set);
+
+        $frenchData = $this->createApiCardData();
+        $frenchData['name'] = 'Noeunoeuf';
+        $frenchData['abilities'] = [
+            ['name' => 'Propagation', 'effect' => 'Reprend cette carte de la défausse.', 'type' => 'Ability'],
+        ];
+        $frenchData['attacks'] = [
+            ['name' => 'Bombe Graine', 'effect' => '', 'damage' => 20, 'cost' => ['Grass']],
+        ];
+
+        $this->hydrator->mergeLocaleFields($card, 'fr', $frenchData);
+
+        self::assertSame(['en' => 'Exeggcute', 'fr' => 'Noeunoeuf'], $card->getName());
+        self::assertSame(['en' => 'Propagation', 'fr' => 'Propagation'], $card->getAbilities()[0]['name']);
+        self::assertSame(
+            ['en' => 'Put this card from discard to hand.', 'fr' => 'Reprend cette carte de la défausse.'],
+            $card->getAbilities()[0]['effect'],
+        );
+        self::assertSame(['en' => 'Seed Bomb', 'fr' => 'Bombe Graine'], $card->getAttacks()[0]['name']);
+        // Locale-independent attack data stays intact.
+        self::assertSame(['Grass'], $card->getAttacks()[0]['cost']);
+        self::assertSame(20, $card->getAttacks()[0]['damage']);
+    }
+
+    public function testUpdateFromApiResponseRefreshesBaseLocaleWithoutWipingOthers(): void
+    {
+        // Regression guard: refreshing English on a bilingual card must keep the French text.
+        $card = new TcgdexCard('sv05-001', $this->set, '001');
+        $card->setName(['en' => 'Old', 'fr' => 'Ancien']);
+
+        $this->hydrator->updateFromApiResponse($card, $this->createApiCardData());
+
+        self::assertSame(['en' => 'Exeggcute', 'fr' => 'Ancien'], $card->getName());
+    }
+
+    public function testHydrateFromApiResponseHonoursExplicitLocale(): void
+    {
+        $card = $this->hydrator->hydrateFromApiResponse($this->createApiCardData(), $this->set, 'fr');
+
+        self::assertSame(['fr' => 'Exeggcute'], $card->getName());
+    }
+
+    public function testMergeLocaleFieldsCapturesUpdatedTimestamp(): void
+    {
+        $card = new TcgdexCard('sv05-001', $this->set, '001');
+        $data = $this->createApiCardData();
+        $data['updated'] = '2024-01-15T10:30:00.000Z';
+
+        $this->hydrator->mergeLocaleFields($card, 'en', $data);
+
+        self::assertInstanceOf(\DateTimeImmutable::class, $card->getTcgdexUpdatedAt());
+        self::assertSame('2024-01-15', $card->getTcgdexUpdatedAt()->format('Y-m-d'));
+    }
+
+    public function testMergeLocaleFieldsIgnoresInvalidUpdatedTimestamp(): void
+    {
+        $card = new TcgdexCard('sv05-001', $this->set, '001');
+        $data = $this->createApiCardData();
+        $data['updated'] = 'not-a-date';
+
+        $this->hydrator->mergeLocaleFields($card, 'en', $data);
+
+        self::assertNull($card->getTcgdexUpdatedAt());
     }
 }

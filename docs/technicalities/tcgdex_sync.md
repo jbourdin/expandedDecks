@@ -10,7 +10,9 @@
 
 The incremental sync replaces the monolithic `app:tcgdex:import` (which clones the tcgdex/cards-database git repo) with an **API-based cascade** that detects new or changed data and pulls only what is missing. It runs fully async via Symfony Messenger with dedicated Doctrine transports.
 
-**Feature ID:** F6.13 · **Parent issue:** [#411](https://github.com/jbourdin/expandedDecks/issues/411)
+Since F6.17 the sync is **multi-locale**: TCGdex publishes a set in English first and adds French (and other) translations over the following days, so the sync fetches the locale-independent data plus every configured locale, filling translation gaps as they become available.
+
+**Feature IDs:** F6.13 (incremental sync) · F6.17 (multi-locale gap-fill + force update) · **Parent issue:** [#411](https://github.com/jbourdin/expandedDecks/issues/411)
 
 ---
 
@@ -19,19 +21,24 @@ The incremental sync replaces the monolithic `app:tcgdex:import` (which clones t
 ### Message Cascade
 
 ```
-SyncTcgdexSeriesMessage (root trigger)
+SyncTcgdexSeriesMessage (root trigger, Sync mode)
   ├─ GET /v2/en/series → detect missing/existing series (exclude tcgp)
-  ├─ Create missing TcgdexSerie entities (with logoUrl)
+  ├─ Create missing TcgdexSerie entities (with logoUrl); refresh existing logos
   ├─ For each serie (sorted by releaseDate DESC → newest first):
   │     dispatch SyncTcgdexSerieMessage
-  │     ├─ GET /v2/en/series/{id} → detect missing sets, changed card counts
+  │     ├─ GET /v2/en/series/{id} → list sets
   │     ├─ Create missing TcgdexSet entities (with logoUrl + symbolUrl)
-  │     ├─ For each new/changed set (sorted by releaseDate DESC):
+  │     ├─ For each set, new or existing (sorted by releaseDate DESC):
   │     │     dispatch SyncTcgdexSetMessage
-  │     │     ├─ GET /v2/en/sets/{id} → detect missing cards
+  │     │     ├─ GET /v2/en/sets/{id} → list cards
   │     │     ├─ Update TcgdexSet metadata (releaseDate, ptcgCode, cardCount)
-  │     │     └─ For each missing card: dispatch SyncTcgdexCardMessage
-  │     │           └─ GET /v2/en/cards/{id} → persist full TcgdexCard (with imageBaseUrl)
+  │     │     └─ For each card:
+  │     │           • new card → dispatch SyncTcgdexCardMessage
+  │     │           • existing card missing a locale → dispatch SyncTcgdexCardMessage
+  │     │           • existing card with every locale → skip (refresh image URL only)
+  │     │           └─ SyncTcgdexCardMessage:
+  │     │                 ├─ GET /v2/en/cards/{id}  → base locale + locale-independent fields
+  │     │                 └─ GET /v2/fr/cards/{id}  → merge French text (404 = not published yet, skip)
   │     └─ ...
   └─ dispatch SyncTcgdexCompleteMessage (delayed 10 min)
         ├─ Rebuild set mappings (BuildSetMappingsMessage)
@@ -40,19 +47,20 @@ SyncTcgdexSeriesMessage (root trigger)
 
 ### Sync Modes
 
-The `SyncMode` enum propagates through all messages in the cascade:
+The `SyncMode` enum propagates through the cascade. There are two modes:
 
-| Mode | Series & Sets | Existing set metadata | Existing card image URLs | Existing card data |
-|------|--------------|----------------------|--------------------------|-------------------|
-| **Insert** (default) | Create missing only | Skip | Skip | Skip |
-| **Update** | Create missing + update logos | Refresh (releaseDate, ptcgCode, etc.) | Update from `/sets/{id}` response (no per-card API call) | Skip |
-| **Full** | Create missing + update logos | Refresh | Re-fetch via `/cards/{id}` | Re-fetch and overwrite all fields |
+| Mode | Entry point | Series & Sets | Existing cards |
+|------|-------------|---------------|----------------|
+| **Sync** (default) | Series (catalogue-wide) | Create missing, refresh logos/metadata | Fetch only the locales the card still lacks; skip entirely (no HTTP) when every configured locale is present |
+| **ForceUpdate** | Set (single set) | — | Re-fetch every card across **every** configured locale unconditionally, plus any card the set has gained |
 
-**Insert** is designed for periodic automated runs (serverless cron) — lightweight, only fetches genuinely new data.
+**Sync** is the everyday mode — used by the CLI, the webhook (serverless cron), and the admin **Sync** button. It is idempotent and self-healing: late-arriving translations are picked up on the next run because the card still reports the locale as missing. Discovery (series/serie/set lists) always uses the base English locale; only the per-card fetch fans out across locales.
 
-**Update** is the sweet spot for backfilling image URLs and refreshing metadata. The `/sets/{id}` response includes `image` for every card in the set, so updating 20,000 card image URLs costs ~420 API calls (1 series + 20 series details + ~400 set details) instead of 20,000.
+**ForceUpdate** is dispatched as a `SyncTcgdexSetMessage` straight to the set handler (it never enters at the series level). It backs the admin **Force update** set-picker form and is the tool for correcting data-quality issues or repulling a set after an upstream TCGdex change.
 
-**Full** re-fetches every card individually and should only be run from the CLI with `--force`. It is useful for correcting data quality issues or after a TCGdex API schema change.
+### Locales
+
+The configured locales live in the container parameter `app.tcgdex.locales` (`['en', 'fr']` by default). The **first entry is the base discovery locale** — it carries the locale-independent fields (HP, types, rarity, image, legality, marketplace IDs) and is fetched as a probe even when only a later locale is missing. Adding a locale (e.g. German) is a one-line config change; no code or schema change is required because the multilingual columns are locale-keyed JSON.
 
 ### Ordering: Newest First
 
@@ -107,7 +115,7 @@ $this->throttle->reportSuccess();  // Reset failure counter
 
 On HTTP error: the handler logs the error, reports a failure to the throttle, and **redispatches the same message** with a 60-second delay. The message re-enters the queue with a future `available_at` timestamp. No messages reach the dead-letter queue.
 
-**Exception: 404 on cards.** A 404 from `/cards/{id}` means the card genuinely doesn't exist in TCGdex (e.g. unreleased promo). These are logged as warnings but not retried.
+**Exception: 404 on cards is locale-aware.** A 404 on the **base locale** (`/en/cards/{id}`) means the card genuinely doesn't exist in TCGdex (e.g. unreleased promo) — logged as a warning, not retried, and the card is abandoned. A 404 on a **translation locale** (`/fr/cards/{id}`) means that translation simply isn't published yet — logged at info level and skipped, leaving the card with the locales it already has. The gap is refilled automatically on a later sync once the translation lands. A transient (non-404) error on the base locale redispatches the whole card message for retry; a transient error on a translation locale is skipped (the next sync retries it).
 
 ---
 
@@ -116,15 +124,18 @@ On HTTP error: the handler logs the error, reports a failure to the throttle, an
 | Level | Detection | Action |
 |-------|-----------|--------|
 | Serie | Serie ID not in `tcgdex_serie` | Create entity, dispatch `SyncTcgdexSerieMessage` |
-| Serie (existing) | Always synced | Dispatch `SyncTcgdexSerieMessage` (sets may have changed) |
+| Serie (existing) | Always synced | Refresh logo, dispatch `SyncTcgdexSerieMessage` |
 | Set | Set ID not in `tcgdex_set` | Create entity, dispatch `SyncTcgdexSetMessage` |
-| Set (existing, insert mode) | `cardCount.total` from API differs from `TcgdexCardRepository::countBySetId()` | Dispatch `SyncTcgdexSetMessage` (new cards) |
-| Set (existing, update/full mode) | Always synced | Dispatch `SyncTcgdexSetMessage` |
-| Card | Card ID not in `tcgdex_card` | Dispatch `SyncTcgdexCardMessage` |
+| Set (existing) | Always synced | Dispatch `SyncTcgdexSetMessage` (the set list carries no per-card timestamps, so the set must be walked to find new cards and locale gaps) |
+| Card (new) | Card ID not in `tcgdex_card` | Dispatch `SyncTcgdexCardMessage` |
+| Card (existing, Sync) | `TcgdexCard::hasAllLocales(app.tcgdex.locales)` is false | Dispatch `SyncTcgdexCardMessage` to fetch the missing locales |
+| Card (existing, ForceUpdate) | Always | Dispatch `SyncTcgdexCardMessage` to re-fetch every locale |
 
-### Card Count Comparison
+### Locale Gap Detection
 
-The serie API response returns `cardCount` as a nested object: `{"official": 162, "total": 218}`. The `total` field includes secret rares and promos. The handler compares `cardCount.total` against the local `COUNT(*)` for the set. A mismatch means new cards have been added (common for promo sets that grow over time).
+`TcgdexCard::hasAllLocales()` reports whether the card's `name` JSON map carries a non-empty value for every configured locale. The `name` field is the freshness proxy — every card has a name, so a missing locale key there means the translation hasn't been fetched. The check runs twice for efficiency: the **set handler** uses it to decide whether to dispatch a per-card message at all (a cheap DB read, no HTTP), and the **card handler** re-checks before fetching (authoritative, and skips with no HTTP when complete).
+
+The former card-count comparison (`cardCount.total` vs local `COUNT(*)`) was removed: it could not detect locale gaps (the count is unchanged when only a translation is missing), so existing sets are now always walked.
 
 ---
 
@@ -149,21 +160,19 @@ During enrichment, `CardEnricher::resolveImageUrl()` and `CardIdentityResolver::
 ### CLI Command
 
 ```bash
-symfony console app:tcgdex:sync                    # Insert mode (default)
-symfony console app:tcgdex:sync --mode=update       # Update metadata + image URLs
-symfony console app:tcgdex:sync --mode=full --force # Re-fetch everything (dangerous)
+symfony console app:tcgdex:sync   # Gap-fill sync (the only catalogue-wide mode)
 ```
 
-Reports current queue depth and last sync timestamp. Warns if a sync is already in progress.
+Reports current queue depth and last sync timestamp. Warns if a sync is already in progress. There is no CLI force-update: ForceUpdate is set-scoped and exposed through the admin form instead.
 
 ### Admin Dashboard
 
 The technical admin dashboard (`/admin/technical`) has a "TCGdex Database Sync" card with:
 - Last sync timestamp and queue depth badges
 - Cooldown status indicator
-- **"Sync new data"** button (insert mode)
-- **"Sync & update metadata"** button (update mode)
-- Buttons disabled when a sync is in progress
+- **"Sync"** button — catalogue-wide gap-fill (`SyncMode::Sync`)
+- **"Force update"** set-picker form (`TcgdexForceUpdateFormType`) — re-fetches every card of the chosen set across all locales (`SyncMode::ForceUpdate`)
+- Controls disabled when a sync is in progress
 
 ### Webhook
 
@@ -175,7 +184,7 @@ Anonymous endpoint protected by HMAC-SHA256 signature. Designed for periodic ser
 
 - Header: `X-Sync-Signature: sha256=<hex>`
 - Secret: `TCGDEX_SYNC_WEBHOOK_SECRET` env var (empty = endpoint disabled, returns 404)
-- Always dispatches insert mode
+- Always dispatches a gap-fill sync (`SyncMode::Sync`)
 - Idempotent: returns 200 if sync already in progress
 - Returns: 202 (dispatched), 403 (invalid signature), 404 (not configured), 200 (already running)
 
@@ -218,10 +227,13 @@ This ensures that newly synced cards are immediately available for deck enrichme
 ## Edge Cases
 
 - **`tcgp` serie excluded** — Pokemon TCG Pocket is a separate game; its cards are filtered out at the series level.
-- **English-only data** — The REST API returns English-only card names, abilities, and attacks. The hydrator wraps these into multilingual format (`["en" => "..."]`) so `getLocalizedName('en')` and the generated `name_en` column work identically to NDJSON-sourced cards. French translations are not available from the API.
+- **Per-locale API responses** — Each `/v2/{locale}/cards/{id}` call returns that locale's flat strings for name, effect, evolveFrom, and ability/attack text. The hydrator folds each locale into the card's locale-keyed JSON columns (`{"en": "...", "fr": "..."}`) so `getLocalizedName('fr')` and the generated `name_fr` column work identically to NDJSON-sourced cards. Locale-independent fields (HP, types, rarity, image, legality, marketplace IDs) are taken from the base-locale response.
+- **Abilities/attacks merge by position** — The per-locale endpoints return the same abilities/attacks in the same order, just translated, so the hydrator matches them by list index when merging a locale. Non-text fields (type, cost, damage) are refreshed from each response (they are identical across locales).
+- **Translation lag is normal** — A set arrives in English, with French following days later. A card that is English-only is simply incomplete; the next sync fetches French once `/fr/cards/{id}` stops returning 404. No manual intervention is needed.
+- **`tcgdex_updated_at` is a captured baseline** — The column stores the API's per-card `updated` timestamp but is **not yet** a skip-decision input; the active freshness signal is locale completeness. It exists so set-level diffing can switch to it once TCGdex exposes a set-level timestamp (set responses currently carry none).
 - **Dotted set IDs** (e.g. `sm3.5`) — The computed image URL fails for these because TCGdex CDN strips the dot. The `imageBaseUrl` from the API provides the correct URL.
-- **Promo sets grow over time** — Sets like `svp` (SV promos) gain new cards throughout a generation. The card count comparison in insert mode detects this automatically.
-- **Card hydration sources** — `TcgdexCardHydrator` has two methods: `hydrateFromNdjsonRecord()` for the git-based import (multilingual, no image URL) and `hydrateFromApiResponse()` for the API sync (English-only, with `imageBaseUrl`). Both produce identical `TcgdexCard` entities.
+- **Promo sets grow over time** — Sets like `svp` (SV promos) gain new cards throughout a generation. Walking every existing set on each Sync run detects new cards automatically.
+- **Card hydration sources** — `TcgdexCardHydrator` hydrates from two sources: `hydrateFromNdjsonRecord()` for the git-based import (multilingual, no image URL) and `hydrateFromApiResponse()` + `mergeLocaleFields()` for the API sync (per-locale, with `imageBaseUrl`). Both produce identical `TcgdexCard` entities.
 
 ---
 
@@ -229,13 +241,15 @@ This ensures that newly synced cards are immediately available for deck enrichme
 
 | File | Purpose |
 |------|---------|
-| `src/Enum/SyncMode.php` | Insert/Update/Full mode enum |
+| `src/Enum/SyncMode.php` | `Sync` / `ForceUpdate` mode enum |
 | `src/Message/SyncTcgdex*.php` | 5 message classes for the cascade |
 | `src/MessageHandler/SyncTcgdex*Handler.php` | 5 handler classes |
 | `src/Service/Tcgdex/TcgdexApiThrottle.php` | Rate limiting with cooldown |
-| `src/Service/Tcgdex/TcgdexCardHydrator.php` | Card entity hydration (NDJSON + API) |
+| `src/Service/Tcgdex/TcgdexCardHydrator.php` | Card entity hydration (NDJSON + per-locale API merge) |
 | `src/Service/Tcgdex/TcgdexSyncStatusService.php` | Queue depth + last sync tracking |
 | `src/Command/SyncTcgdexCommand.php` | CLI trigger (`app:tcgdex:sync`) |
 | `src/Controller/WebhookTcgdexSyncController.php` | Signed webhook endpoint |
-| `src/Controller/AdminTechnicalController.php` | Admin dashboard actions |
+| `src/Controller/AdminTechnicalController.php` | Admin dashboard actions (Sync + Force update) |
+| `src/Form/TcgdexForceUpdateFormType.php` | Set picker for the admin Force update form |
 | `config/packages/messenger.yaml` | Transport + routing config |
+| `config/services.yaml` | `app.tcgdex.host` + `app.tcgdex.locales` parameters and binds |
