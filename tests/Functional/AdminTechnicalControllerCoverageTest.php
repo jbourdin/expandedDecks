@@ -184,6 +184,59 @@ class AdminTechnicalControllerCoverageTest extends AbstractFunctionalTest
         self::assertSelectorExists('.alert-danger');
     }
 
+    /**
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function testTcgdexSyncSucceedsWithValidCsrf(): void
+    {
+        $this->loginAs('admin@example.com');
+        $this->client->request('GET', '/admin/technical');
+
+        $this->client->request('POST', '/admin/technical/tcgdex-sync', [
+            '_token' => $this->getCsrfToken('technical-tcgdex-sync'),
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        // Gap-fill series sync was dispatched.
+        self::assertSelectorExists('.alert-success');
+    }
+
+    /**
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function testTcgdexForceUpdateSucceedsWithValidSet(): void
+    {
+        // The force-update set list comes from createExpandedSetsQueryBuilder(): a set
+        // needs a release date, a non-promo PTCG code, and an Expanded-era serie.
+        /** @var \Doctrine\ORM\EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $serie = new \App\Entity\TcgdexSerie('sv');
+        $set = new \App\Entity\TcgdexSet('sv05', $serie);
+        $set->setName(['en' => 'Paldea Evolved']);
+        $set->setPtcgCode('PAL');
+        $set->setReleaseDate(new \DateTimeImmutable('2023-06-09'));
+        $entityManager->persist($serie);
+        $entityManager->persist($set);
+        $entityManager->flush();
+
+        $this->loginAs('admin@example.com');
+        // Render the dashboard so the force-update form (and its set choices) is built.
+        $this->client->request('GET', '/admin/technical');
+
+        $this->client->request('POST', '/admin/technical/tcgdex-force-update', [
+            'tcgdex_force_update_form' => [
+                'set' => 'sv05',
+                '_token' => $this->getCsrfToken('technical-tcgdex-force-update'),
+            ],
+        ]);
+
+        self::assertResponseRedirects('/admin/technical');
+        $this->client->followRedirect();
+        // A force-update for the chosen set was dispatched.
+        self::assertSelectorExists('.alert-success');
+    }
+
     public function testBannedCardsSyncRejectsInvalidCsrf(): void
     {
         $this->loginAs('admin@example.com');
