@@ -23,7 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Anonymous webhook endpoint for triggering TCGdex insert-mode sync.
+ * Anonymous webhook endpoint for triggering a TCGdex gap-fill sync.
  *
  * Protected by HMAC-SHA256 signature verification. Designed to be called
  * by a periodic serverless job (cron, Lambda, Scaleway Serverless).
@@ -62,7 +62,7 @@ class WebhookTcgdexSyncController
             ]);
         }
 
-        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Insert));
+        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Sync));
 
         return new JsonResponse(['status' => 'dispatched'], Response::HTTP_ACCEPTED);
     }

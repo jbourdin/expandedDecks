@@ -19,15 +19,19 @@ use App\Service\Tcgdex\TcgdexSyncStatusService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Trigger an incremental sync of the TCGdex database via the API.
+ * Trigger an incremental gap-fill sync of the TCGdex database via the API.
+ *
+ * Catalogue-wide syncs always run in gap-fill mode: missing series/sets/cards are
+ * created and existing cards acquire any locale they still lack. A targeted
+ * force-update of a single set is exposed through the admin dashboard instead.
  *
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 #[AsCommand(
     name: 'app:tcgdex:sync',
@@ -44,30 +48,11 @@ class SyncTcgdexCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->addOption('mode', null, InputOption::VALUE_REQUIRED, 'Sync mode: insert (default), update, or full.', 'insert')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Required for full mode (re-fetches every card).');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-
-        /** @var string $modeValue */
-        $modeValue = $input->getOption('mode');
-        $mode = SyncMode::tryFrom($modeValue);
-
-        if (null === $mode) {
-            $io->error(\sprintf('Invalid sync mode "%s". Valid modes: insert, update, full.', $modeValue));
-
-            return Command::INVALID;
-        }
-
-        if (SyncMode::Full === $mode && !$input->getOption('force')) {
-            $io->error('Full mode re-fetches every card from the API. Pass --force to confirm.');
-
-            return Command::INVALID;
-        }
 
         $queueDepth = $this->syncStatus->getQueueDepth();
 
@@ -75,9 +60,9 @@ class SyncTcgdexCommand extends Command
             $io->warning(\sprintf('A sync is already in progress (%d messages pending). Dispatching anyway.', $queueDepth));
         }
 
-        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage($mode));
+        $this->messageBus->dispatch(new SyncTcgdexSeriesMessage(SyncMode::Sync));
 
-        $io->success(\sprintf('TCGdex sync dispatched in "%s" mode. Run a worker to process: make worker.sync', $mode->value));
+        $io->success('TCGdex gap-fill sync dispatched. Run a worker to process: make worker.sync');
 
         $lastSync = $this->syncStatus->getLastSyncTimestamp();
 

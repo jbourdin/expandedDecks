@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace App\MessageHandler;
 
 use App\Entity\TcgdexSerie;
-use App\Enum\SyncMode;
 use App\Message\SyncTcgdexCompleteMessage;
 use App\Message\SyncTcgdexSerieMessage;
 use App\Message\SyncTcgdexSeriesMessage;
@@ -28,16 +27,15 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Root handler: fetches all series from TCGdex, creates missing entities,
- * and dispatches SyncTcgdexSerieMessage for each (newest first).
+ * Root handler: fetches all series from TCGdex, creates missing entities, refreshes
+ * existing serie metadata, and dispatches SyncTcgdexSerieMessage for each (newest first).
  *
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 #[AsMessageHandler]
 class SyncTcgdexSeriesHandler
 {
-    private const string BASE_URL = 'https://api.tcgdex.net/v2/en';
-
     /** Serie ID to exclude (Pokemon TCG Pocket, not relevant). */
     private const string EXCLUDED_SERIE = 'tcgp';
 
@@ -48,6 +46,7 @@ class SyncTcgdexSeriesHandler
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
+        private readonly string $tcgdexHost,
     ) {
     }
 
@@ -59,7 +58,7 @@ class SyncTcgdexSeriesHandler
         $this->throttle->waitIfNeeded();
 
         try {
-            $response = $this->tcgdexClient->request('GET', self::BASE_URL.'/series');
+            $response = $this->tcgdexClient->request('GET', $this->tcgdexHost.'/en/series');
             /** @var list<array<string, mixed>> $seriesList */
             $seriesList = $response->toArray();
         } catch (\Throwable $exception) {
@@ -98,8 +97,8 @@ class SyncTcgdexSeriesHandler
 
                 $this->entityManager->persist($serie);
                 ++$created;
-            } elseif (SyncMode::Insert !== $mode) {
-                // Update existing serie metadata
+            } else {
+                // Refresh existing serie metadata (logo).
                 $serie = $this->entityManager->find(TcgdexSerie::class, $serieId);
 
                 if (null !== $serie) {

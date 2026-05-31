@@ -14,18 +14,25 @@ declare(strict_types=1);
 namespace App\Enum;
 
 /**
- * Controls the depth of the incremental TCGdex sync.
+ * Controls how the incremental TCGdex sync treats existing data.
  *
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 enum SyncMode: string
 {
-    /** Only create missing entities (series, sets, cards). Default. */
-    case Insert = 'insert';
+    /**
+     * Gap-fill cascade (default). Walks the whole catalogue (series → sets → cards),
+     * inserts anything missing, and fetches only the locales an existing card still
+     * lacks. A card whose every configured locale is already populated is skipped
+     * with no HTTP call.
+     */
+    case Sync = 'sync';
 
-    /** Create missing + update existing series and sets metadata (logos, names, card counts). Cards are only inserted, not updated. */
-    case Update = 'update';
-
-    /** Create missing + update all entities including existing cards (re-fetch and overwrite). */
-    case Full = 'full';
+    /**
+     * Targeted re-fetch of a single set. Re-fetches every card in the set across
+     * every configured locale unconditionally, merging into the JSON columns, and
+     * picks up any card the set gained since the last sync.
+     */
+    case ForceUpdate = 'force_update';
 }

@@ -23,6 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 final class SyncTcgdexCommandTest extends TestCase
 {
@@ -38,49 +39,13 @@ final class SyncTcgdexCommandTest extends TestCase
         return new SyncTcgdexCommand($messageBus, $syncStatus);
     }
 
-    public function testDefaultInsertModeDispatches(): void
+    public function testDispatchesGapFillSync(): void
     {
         $tester = new CommandTester($this->createCommand());
         $tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        self::assertStringContainsString('insert', $tester->getDisplay());
-    }
-
-    public function testUpdateModeDispatches(): void
-    {
-        $tester = new CommandTester($this->createCommand());
-        $tester->execute(['--mode' => 'update']);
-
-        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        self::assertStringContainsString('update', $tester->getDisplay());
-    }
-
-    public function testFullModeRequiresForce(): void
-    {
-        $tester = new CommandTester($this->createCommand());
-        $tester->execute(['--mode' => 'full']);
-
-        self::assertSame(Command::INVALID, $tester->getStatusCode());
-        self::assertStringContainsString('--force', $tester->getDisplay());
-    }
-
-    public function testFullModeWithForceDispatches(): void
-    {
-        $tester = new CommandTester($this->createCommand());
-        $tester->execute(['--mode' => 'full', '--force' => true]);
-
-        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        self::assertStringContainsString('full', $tester->getDisplay());
-    }
-
-    public function testInvalidModeReturnsError(): void
-    {
-        $tester = new CommandTester($this->createCommand());
-        $tester->execute(['--mode' => 'banana']);
-
-        self::assertSame(Command::INVALID, $tester->getStatusCode());
-        self::assertStringContainsString('Invalid sync mode', $tester->getDisplay());
+        self::assertStringContainsString('gap-fill', $tester->getDisplay());
     }
 
     public function testWarnsWhenSyncAlreadyInProgress(): void

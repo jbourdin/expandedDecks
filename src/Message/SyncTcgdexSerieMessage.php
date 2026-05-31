@@ -25,7 +25,7 @@ readonly class SyncTcgdexSerieMessage
 {
     public function __construct(
         public string $serieId,
-        public SyncMode $mode = SyncMode::Insert,
+        public SyncMode $mode = SyncMode::Sync,
     ) {
     }
 }

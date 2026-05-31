@@ -15,11 +15,9 @@ namespace App\Tests\MessageHandler;
 
 use App\Entity\TcgdexSerie;
 use App\Entity\TcgdexSet;
-use App\Enum\SyncMode;
 use App\Message\SyncTcgdexSerieMessage;
 use App\Message\SyncTcgdexSetMessage;
 use App\MessageHandler\SyncTcgdexSerieHandler;
-use App\Repository\TcgdexCardRepository;
 use App\Service\Tcgdex\TcgdexApiThrottle;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,12 +30,12 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @see docs/features.md F6.13 — Incremental TCGdex database sync
+ * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
  */
 final class SyncTcgdexSerieHandlerTest extends TestCase
 {
     private HttpClientInterface $httpClient;
     private TcgdexApiThrottle $throttle;
-    private TcgdexCardRepository $cardRepository;
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
 
@@ -48,7 +46,6 @@ final class SyncTcgdexSerieHandlerTest extends TestCase
     {
         $this->httpClient = $this->createStub(HttpClientInterface::class);
         $this->throttle = $this->createStub(TcgdexApiThrottle::class);
-        $this->cardRepository = $this->createStub(TcgdexCardRepository::class);
         $this->entityManager = $this->createStub(EntityManagerInterface::class);
         $this->logger = $this->createStub(LoggerInterface::class);
         $this->dispatchedMessages = [];
@@ -66,10 +63,10 @@ final class SyncTcgdexSerieHandlerTest extends TestCase
         return new SyncTcgdexSerieHandler(
             $this->httpClient,
             $this->throttle,
-            $this->cardRepository,
             $this->entityManager,
             $bus,
             $this->logger,
+            'https://api.tcgdex.net/v2',
         );
     }
 
@@ -99,8 +96,10 @@ final class SyncTcgdexSerieHandlerTest extends TestCase
         self::assertCount(1, $setMessages);
     }
 
-    public function testDetectsCardCountMismatchInInsertMode(): void
+    public function testReSyncsExistingSetsToFillLocaleGaps(): void
     {
+        // The card-count heuristic is gone: existing sets are always re-synced so the set
+        // handler can detect new cards and fill missing-locale gaps on existing cards.
         $existingSet = $this->createStub(TcgdexSet::class);
         $existingSet->method('getId')->willReturn('sv01');
 
@@ -116,62 +115,12 @@ final class SyncTcgdexSerieHandlerTest extends TestCase
 
         $this->httpClient->method('request')->willReturn($response);
         $this->entityManager->method('find')->willReturn($serie);
-        $this->cardRepository->method('countBySetId')->willReturn(100); // Mismatch: 100 local vs 120 total
 
         ($this->createHandler())(new SyncTcgdexSerieMessage('sv'));
 
-        $setMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexSetMessage);
+        $setMessages = array_values(array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexSetMessage));
         self::assertCount(1, $setMessages);
-    }
-
-    public function testSkipsExistingSetWhenCardCountMatchesInInsertMode(): void
-    {
-        $existingSet = $this->createStub(TcgdexSet::class);
-        $existingSet->method('getId')->willReturn('sv01');
-
-        $serie = $this->createStub(TcgdexSerie::class);
-        $serie->method('getSets')->willReturn(new ArrayCollection([$existingSet]));
-
-        $response = $this->createStub(ResponseInterface::class);
-        $response->method('toArray')->willReturn([
-            'sets' => [
-                ['id' => 'sv01', 'cardCount' => ['official' => 100, 'total' => 120]],
-            ],
-        ]);
-
-        $this->httpClient->method('request')->willReturn($response);
-        $this->entityManager->method('find')->willReturn($serie);
-        $this->cardRepository->method('countBySetId')->willReturn(120); // Matches total
-
-        ($this->createHandler())(new SyncTcgdexSerieMessage('sv'));
-
-        $setMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexSetMessage);
-        self::assertCount(0, $setMessages);
-    }
-
-    public function testUpdateModeSyncsAllExistingSets(): void
-    {
-        $existingSet = $this->createStub(TcgdexSet::class);
-        $existingSet->method('getId')->willReturn('sv01');
-
-        $serie = $this->createStub(TcgdexSerie::class);
-        $serie->method('getSets')->willReturn(new ArrayCollection([$existingSet]));
-
-        $response = $this->createStub(ResponseInterface::class);
-        $response->method('toArray')->willReturn([
-            'sets' => [
-                ['id' => 'sv01', 'cardCount' => ['official' => 100, 'total' => 120]],
-            ],
-        ]);
-
-        $this->httpClient->method('request')->willReturn($response);
-        $this->entityManager->method('find')->willReturn($serie);
-        $this->cardRepository->method('countBySetId')->willReturn(120); // Count matches, but update mode syncs anyway
-
-        ($this->createHandler())(new SyncTcgdexSerieMessage('sv', SyncMode::Update));
-
-        $setMessages = array_filter($this->dispatchedMessages, static fn (object $message): bool => $message instanceof SyncTcgdexSetMessage);
-        self::assertCount(1, $setMessages);
+        self::assertSame('sv01', $setMessages[0]->setId);
     }
 
     public function testHttpErrorRedispatches(): void

@@ -5267,21 +5267,37 @@
                 <source>app.admin.technical.tcgdex_sync.cooldown_active</source>
                 <target>API en pause (cooldown)</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.insert_button">
-                <source>app.admin.technical.tcgdex_sync.insert_button</source>
-                <target>Synchroniser les nouveautés</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.sync_button">
+                <source>app.admin.technical.tcgdex_sync.sync_button</source>
+                <target>Synchroniser</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.update_button">
-                <source>app.admin.technical.tcgdex_sync.update_button</source>
-                <target>Synchroniser et mettre à jour</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_sync">
+                <source>app.admin.technical.tcgdex_sync.dispatched_sync</source>
+                <target>Synchronisation TCGdex lancée. Les cartes et traductions manquantes seront complétées sous peu.</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_insert">
-                <source>app.admin.technical.tcgdex_sync.dispatched_insert</source>
-                <target>Synchronisation TCGdex lancée (mode insertion). Les nouvelles données apparaîtront sous peu.</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_description">
+                <source>app.admin.technical.tcgdex_sync.force_update_description</source>
+                <target>Forcer la récupération de toutes les cartes d'un set, dans toutes les langues configurées. À utiliser lorsque les données d'un set ont changé en amont après sa première synchronisation.</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_update">
-                <source>app.admin.technical.tcgdex_sync.dispatched_update</source>
-                <target>Synchronisation TCGdex lancée (mode mise à jour). Les métadonnées et URLs d'images seront actualisées.</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_set_label">
+                <source>app.admin.technical.tcgdex_sync.force_update_set_label</source>
+                <target>Set à forcer</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_set_placeholder">
+                <source>app.admin.technical.tcgdex_sync.force_update_set_placeholder</source>
+                <target>Choisir un set…</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_button">
+                <source>app.admin.technical.tcgdex_sync.force_update_button</source>
+                <target>Forcer la mise à jour</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_force_update">
+                <source>app.admin.technical.tcgdex_sync.dispatched_force_update</source>
+                <target>Mise à jour forcée lancée pour %set%. Toutes les cartes seront récupérées dans toutes les langues.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_invalid">
+                <source>app.admin.technical.tcgdex_sync.force_update_invalid</source>
+                <target>Veuillez choisir un set valide à forcer.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>

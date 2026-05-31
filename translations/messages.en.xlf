@@ -5292,21 +5292,37 @@
                 <source>app.admin.technical.tcgdex_sync.cooldown_active</source>
                 <target>API cooldown active</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.insert_button">
-                <source>app.admin.technical.tcgdex_sync.insert_button</source>
-                <target>Sync new data</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.sync_button">
+                <source>app.admin.technical.tcgdex_sync.sync_button</source>
+                <target>Sync</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.update_button">
-                <source>app.admin.technical.tcgdex_sync.update_button</source>
-                <target>Sync &amp; update metadata</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_sync">
+                <source>app.admin.technical.tcgdex_sync.dispatched_sync</source>
+                <target>TCGdex sync dispatched. Missing cards and translations will be filled in shortly.</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_insert">
-                <source>app.admin.technical.tcgdex_sync.dispatched_insert</source>
-                <target>TCGdex sync dispatched (insert mode). New data will appear shortly.</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_description">
+                <source>app.admin.technical.tcgdex_sync.force_update_description</source>
+                <target>Force a re-fetch of every card in a single set, across every configured language. Use this when a set's data changed upstream after it was first synced.</target>
             </trans-unit>
-            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_update">
-                <source>app.admin.technical.tcgdex_sync.dispatched_update</source>
-                <target>TCGdex sync dispatched (update mode). Metadata and image URLs will be refreshed.</target>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_set_label">
+                <source>app.admin.technical.tcgdex_sync.force_update_set_label</source>
+                <target>Set to force-update</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_set_placeholder">
+                <source>app.admin.technical.tcgdex_sync.force_update_set_placeholder</source>
+                <target>Choose a set…</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_button">
+                <source>app.admin.technical.tcgdex_sync.force_update_button</source>
+                <target>Force update</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.dispatched_force_update">
+                <source>app.admin.technical.tcgdex_sync.dispatched_force_update</source>
+                <target>Force update dispatched for %set%. Every card will be re-fetched across all languages.</target>
+            </trans-unit>
+            <trans-unit id="app.admin.technical.tcgdex_sync.force_update_invalid">
+                <source>app.admin.technical.tcgdex_sync.force_update_invalid</source>
+                <target>Please choose a valid set to force-update.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>

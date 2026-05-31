@@ -26,7 +26,7 @@ use App\Enum\SyncMode;
 readonly class SyncTcgdexSeriesMessage
 {
     public function __construct(
-        public SyncMode $mode = SyncMode::Insert,
+        public SyncMode $mode = SyncMode::Sync,
     ) {
     }
 }

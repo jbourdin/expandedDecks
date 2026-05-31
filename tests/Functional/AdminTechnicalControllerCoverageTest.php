@@ -84,12 +84,12 @@ class AdminTechnicalControllerCoverageTest extends AbstractFunctionalTest
         self::assertSelectorExists('.alert-danger');
     }
 
-    // Note: flushAndReenrich, setMappingsRebuild, tcgdexSyncInsert, and
-    // tcgdexSyncUpdate dispatch Messenger messages on transports that are
+    // Note: flushAndReenrich, setMappingsRebuild, tcgdexSync, and
+    // tcgdexForceUpdate dispatch Messenger messages on transports that are
     // configured `sync://` in the test env. The handlers reach external
     // services (TCGdex / PokeAPI) and the controller doesn't catch handler
     // exceptions, so happy-path tests for these actions are inherently flaky.
-    // We cover the auth + CSRF-rejection branches only.
+    // We cover the auth + CSRF/invalid-submission rejection branches only.
 
     public function testMosaicGenerateRejectsInvalidCsrf(): void
     {
@@ -157,20 +157,27 @@ class AdminTechnicalControllerCoverageTest extends AbstractFunctionalTest
         self::assertSelectorExists('.alert-danger');
     }
 
-    public function testTcgdexSyncInsertRejectsInvalidCsrf(): void
+    /**
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function testTcgdexSyncRejectsInvalidCsrf(): void
     {
         $this->loginAs('admin@example.com');
-        $this->client->request('POST', '/admin/technical/tcgdex-sync-insert', ['_token' => 'wrong']);
+        $this->client->request('POST', '/admin/technical/tcgdex-sync', ['_token' => 'wrong']);
 
         self::assertResponseRedirects('/admin/technical');
         $this->client->followRedirect();
         self::assertSelectorExists('.alert-danger');
     }
 
-    public function testTcgdexSyncUpdateRejectsInvalidCsrf(): void
+    /**
+     * @see docs/features.md F6.17 — TCGdex multi-locale sync (gap-fill + force update)
+     */
+    public function testTcgdexForceUpdateRejectsInvalidSubmission(): void
     {
         $this->loginAs('admin@example.com');
-        $this->client->request('POST', '/admin/technical/tcgdex-sync-update', ['_token' => 'wrong']);
+        // No form payload → the form is not submitted/valid → invalid-submission branch.
+        $this->client->request('POST', '/admin/technical/tcgdex-force-update', ['_token' => 'wrong']);
 
         self::assertResponseRedirects('/admin/technical');
         $this->client->followRedirect();
