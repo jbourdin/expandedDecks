@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.33] — 2026-06-01
+
+Patch release: editing only a CMS page or archetype *translation* now refreshes the parent's publication date, so the public "Updated on" caption reflects real content edits instead of freezing at the last metadata change.
+
+### Bug Fixes
+
+- **Refresh publication date on translation edits** — The public "Updated on" date is read from `lastPublishedAt`, refreshed only by the entity's `#[ORM\PreUpdate]` hook. But content edits go through a standalone `saveTranslation()` action that mutates **only** the `PageTranslation` / `ArchetypeTranslation` child and flushes — and Doctrine fires `PreUpdate` per-entity, only when *that* entity's own fields are dirty. A child change in a `OneToMany` never dirties the owning `Page`/`Archetype`, so the hook (and the `PublishableTimestampsTrait` refresh) was skipped and the date stayed frozen at the last time a parent-level field changed. A new `PageFreshnessListener` mirrors the existing freshness pattern — on `PageTranslation` insert/update it buffers the parent page id and emits a single guarded bulk `UPDATE page SET last_published_at = :now WHERE id IN (:ids) AND is_published = 1` in `postFlush`, keeping the write off the in-progress UnitOfWork and avoiding any parent lifecycle re-entry. `ArchetypeFreshnessListener` (which already bumped freshness on variant-deck activity) is extended so its `collect()` also reacts to `ArchetypeTranslation` edits, which had the identical latent bug. The `is_published = 1` SQL guard reproduces the trait's "drafts never bump" rule; `firstPublishedAt` is left untouched. This is a behavioral fix with no backfill — after deploy, re-saving an affected translation once sets its date to the current day. Coverage: a new functional `PageFreshnessListenerTest` (published parent bumps, draft does not) plus an added `ArchetypeFreshnessListenerTest` case proving a translation edit bumps the archetype. ([#658](https://github.com/jbourdin/expandedDecks/pull/658))
+
+---
+
 ## [1.12.32] — 2026-05-31
 
 Patch release: the incremental TCGdex sync (F6.13) becomes multi-locale. TCGdex publishes a set in English first and adds French (and other) translations over the following days, so production previously never picked up the late-arriving translations. The sync now fetches the locale-independent data plus every configured locale, filling translation gaps as they become available, and captures a per-card `updated` baseline for future set-level freshness diffing.
