@@ -163,4 +163,33 @@ class ArchetypeFreshnessListenerTest extends AbstractFunctionalTest
         self::assertGreaterThan($archetypeBefore, $archetype->getLastPublishedAt());
         self::assertNotNull($variant->getUpdatedAt());
     }
+
+    /**
+     * Editing a localized name/description dirties only the translation child,
+     * never the owning archetype — the freshness signal must still refresh.
+     *
+     * @see docs/features.md F2.27 — Archetype publication dates
+     */
+    public function testEditingATranslationBumpsArchetypeLastPublishedAt(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = $em->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+        $em->refresh($archetype);
+        $archetypeBefore = $archetype->getLastPublishedAt();
+        self::assertNotNull($archetypeBefore);
+
+        $translation = $archetype->getTranslation('en');
+        self::assertInstanceOf(ArchetypeTranslation::class, $translation);
+
+        sleep(1);
+
+        $translation->setDescription(($translation->getDescription() ?? '').' (edited)');
+        $em->flush();
+
+        $em->refresh($archetype);
+
+        self::assertGreaterThan($archetypeBefore, $archetype->getLastPublishedAt());
+    }
 }
