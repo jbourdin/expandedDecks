@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use App\Entity\Deck;
 use App\Entity\DeckVersion;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -23,9 +25,9 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
 /**
- * Bumps `Archetype.lastPublishedAt` whenever one of its variants is created or
- * modified, so the catalog freshness signal reflects real variant activity
- * rather than only direct edits to the archetype metadata.
+ * Bumps `Archetype.lastPublishedAt` whenever one of its variants or translations
+ * is created or modified, so the catalog freshness signal reflects real variant
+ * and content activity rather than only direct edits to the archetype metadata.
  *
  * Modifications are buffered during flush and emitted as a single bulk SQL
  * `UPDATE` in `postFlush` — this avoids re-entering Archetype's lifecycle
@@ -95,7 +97,27 @@ final class ArchetypeFreshnessListener
 
         if ($entity instanceof DeckVersion) {
             $this->collectFromDeck($entity->getDeck());
+
+            return;
         }
+
+        // Editing a localized name/description is real content activity that
+        // should refresh the catalog freshness signal — the change dirties only
+        // the translation child, never the owning Archetype, so its lifecycle
+        // callbacks would otherwise be skipped.
+        if ($entity instanceof ArchetypeTranslation) {
+            $this->collectArchetype($entity->getArchetype());
+        }
+    }
+
+    private function collectArchetype(Archetype $archetype): void
+    {
+        $archetypeId = $archetype->getId();
+        if (null === $archetypeId) {
+            return;
+        }
+
+        $this->pendingArchetypeIds[$archetypeId] = true;
     }
 
     private function collectFromDeck(Deck $deck): void
@@ -111,11 +133,6 @@ final class ArchetypeFreshnessListener
             return;
         }
 
-        $archetypeId = $archetype->getId();
-        if (null === $archetypeId) {
-            return;
-        }
-
-        $this->pendingArchetypeIds[$archetypeId] = true;
+        $this->collectArchetype($archetype);
     }
 }
