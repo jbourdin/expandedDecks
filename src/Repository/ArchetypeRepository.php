@@ -253,6 +253,37 @@ class ArchetypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find soft-deleted archetypes that still occupy the given name or slug.
+     *
+     * Soft-deleted rows keep their `name` / `slug` unique-constraint slots, so an
+     * editor recreating an archetype with a previously-deleted name collides at
+     * the DB level. This locates the offending rows so they can be renamed out of
+     * the way before the new row is inserted.
+     *
+     * @see docs/features.md F2.31 — Rename soft-deleted name/slug conflicts on creation
+     *
+     * @return list<Archetype>
+     */
+    public function findSoftDeletedByNameOrSlug(string $name, string $slug, ?int $excludeId = null): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->where('a.deletedAt IS NOT NULL')
+            ->andWhere('a.name = :name OR a.slug = :slug')
+            ->setParameter('name', $name)
+            ->setParameter('slug', $slug);
+
+        if (null !== $excludeId) {
+            $qb->andWhere('a.id != :excludeId')
+                ->setParameter('excludeId', $excludeId);
+        }
+
+        /** @var list<Archetype> $archetypes */
+        $archetypes = $qb->getQuery()->getResult();
+
+        return $archetypes;
+    }
+
+    /**
      * @see docs/features.md F2.10 — Archetype detail page
      */
     public function findPublishedBySlug(string $slug): ?Archetype
