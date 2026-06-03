@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.34] — 2026-06-03
+
+Patch release: recreating an archetype whose name or slug is still held by a soft-deleted row now succeeds instead of failing at the database level.
+
+### Features
+
+- **Rename soft-deleted name/slug conflicts on archetype creation (F2.31)** — `Archetype` carries DB-level unique constraints on both `name` and `slug`, and soft-deleted rows (`deletedAt` set) keep occupying those slots. Because the admin list filters out soft-deletes, an editor who deleted an archetype and recreated one with the same name/slug hit an invisible constraint violation. A new `ArchetypeNameCollisionResolver` renames the conflicting soft-deleted row(s) by appending a `__deleted_<6-hex>` suffix to **both** `name` and `slug`, freeing the canonical values for the new archetype. The rename is issued as a direct DQL `UPDATE` — it bypasses the slug-regenerating lifecycle callback so the literal suffix survives on the slug, and it executes **before** the new row's INSERT (Doctrine's unit of work flushes all INSERTs before all UPDATEs, so a shared flush would not free the slot in time). `AdminArchetypeController::new()` and `edit()` wrap the create/edit in `EntityManager::wrapInTransaction()` and call the resolver first, so a failed create rolls the rename back (no partial state); `edit()` excludes the edited row so it can never rename itself. The suffix base is truncated to stay within the 100-char columns while preserving the original prefix for audit, and renamed rows remain restorable. No schema change. ([#666](https://github.com/jbourdin/expandedDecks/pull/666))
+
+---
+
 ## [1.12.33] — 2026-06-01
 
 Patch release: editing only a CMS page or archetype *translation* now refreshes the parent's publication date, so the public "Updated on" caption reflects real content edits instead of freezing at the last metadata change.

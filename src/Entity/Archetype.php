@@ -323,11 +323,23 @@ class Archetype
         $this->stampPublicationOnUpdate($args);
     }
 
+    /**
+     * Derive the URL-friendly slug for a given archetype name.
+     *
+     * Exposed statically so the collision resolver can compute the prospective
+     * slug of a not-yet-persisted archetype without duplicating the slug logic.
+     *
+     * @see docs/features.md F2.31 — Rename soft-deleted name/slug conflicts on creation
+     */
+    public static function slugify(string $name): string
+    {
+        return (new AsciiSlugger())->slug($name)->lower()->toString();
+    }
+
     private function generateSlug(): void
     {
         if ('' !== $this->name) {
-            $slugger = new AsciiSlugger();
-            $this->slug = $slugger->slug($this->name)->lower()->toString();
+            $this->slug = self::slugify($this->name);
         }
     }
 }
