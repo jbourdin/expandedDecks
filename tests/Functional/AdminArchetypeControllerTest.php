@@ -211,6 +211,49 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
     }
 
     /**
+     * Recreating an archetype whose name is still held by a soft-deleted row
+     * must succeed (the conflict is renamed out of the way), not 500.
+     *
+     * @see docs/features.md F2.31 — Rename soft-deleted name/slug conflicts on creation
+     */
+    public function testCreateArchetypeReusingSoftDeletedName(): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        $deleted = new Archetype();
+        $deleted->setName('Recreate Me');
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        $entityManager->persist($deleted);
+        $entityManager->flush();
+        $deletedId = $deleted->getId();
+
+        $this->loginAs('admin@example.com');
+        $crawler = $this->client->request('GET', '/admin/archetypes/new');
+
+        $form = $crawler->selectButton('Create')->form();
+        $form['archetype_form[name]'] = 'Recreate Me';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        $created = $this->getArchetype('Recreate Me');
+        self::assertSame('recreate-me', $created->getSlug());
+        self::assertNull($created->getDeletedAt());
+
+        // The soft-deleted row was renamed and stays deleted. Re-fetch by id
+        // after clearing: the pre-request instance is detached once the kernel
+        // has handled the form submission.
+        $entityManager->clear();
+        $renamed = $entityManager->find(Archetype::class, $deletedId);
+        self::assertNotNull($renamed);
+        self::assertStringStartsWith('Recreate Me__deleted_', $renamed->getName());
+        self::assertNotNull($renamed->getDeletedAt());
+    }
+
+    /**
      * @see docs/features.md F2.15 — Archetype playstyle tags
      */
     public function testPlaystyleTagsInFixtures(): void

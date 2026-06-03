@@ -27,6 +27,7 @@ use App\Message\EnrichDeckVersionMessage;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Repository\DeckVersionRepository;
+use App\Service\ArchetypeNameCollisionResolver;
 use App\Service\DeckListParser;
 use App\Service\DeckVersionDiffer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,6 +56,7 @@ class AdminArchetypeController extends AbstractAppController
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
+        private readonly ArchetypeNameCollisionResolver $collisionResolver,
     ) {
         parent::__construct($translator);
     }
@@ -79,6 +81,7 @@ class AdminArchetypeController extends AbstractAppController
 
     /**
      * @see docs/features.md F2.18 — Admin archetype create/edit form
+     * @see docs/features.md F2.31 — Rename soft-deleted name/slug conflicts on creation
      */
     #[Route('/new', name: 'app_admin_archetype_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ArchetypeRepository $archetypeRepository): Response
@@ -90,8 +93,15 @@ class AdminArchetypeController extends AbstractAppController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handlePokemonSlugs($form, $archetype);
             $this->handlePlaystyleTags($form, $archetype);
-            $this->em->persist($archetype);
-            $this->em->flush();
+
+            // Free up any name/slug still held by a soft-deleted archetype before
+            // the INSERT, atomically — Doctrine flushes INSERTs before UPDATEs, so
+            // the rename has to be committed ahead of the new row (F2.31).
+            $this->em->wrapInTransaction(function () use ($archetype): void {
+                $this->collisionResolver->resolve($archetype->getName());
+                $this->em->persist($archetype);
+                $this->em->flush();
+            });
 
             $this->addFlash('success', 'app.archetype.created', ['%name%' => $archetype->getName()]);
 
@@ -104,6 +114,10 @@ class AdminArchetypeController extends AbstractAppController
         ]);
     }
 
+    /**
+     * @see docs/features.md F2.18 — Admin archetype create/edit form
+     * @see docs/features.md F2.31 — Rename soft-deleted name/slug conflicts on creation
+     */
     #[Route('/{id}', name: 'app_admin_archetype_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Archetype $archetype, ArchetypeRepository $archetypeRepository, DeckRepository $deckRepository): Response
     {
@@ -113,7 +127,13 @@ class AdminArchetypeController extends AbstractAppController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handlePokemonSlugs($form, $archetype);
             $this->handlePlaystyleTags($form, $archetype);
-            $this->em->flush();
+
+            // A rename can collide with a soft-deleted row too; clear it first,
+            // excluding this archetype so it never renames itself (F2.31).
+            $this->em->wrapInTransaction(function () use ($archetype): void {
+                $this->collisionResolver->resolve($archetype->getName(), $archetype->getId());
+                $this->em->flush();
+            });
 
             $this->addFlash('success', 'app.archetype.updated', ['%name%' => $archetype->getName()]);
 
