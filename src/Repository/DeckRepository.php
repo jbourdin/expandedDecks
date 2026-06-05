@@ -522,6 +522,12 @@ class DeckRepository extends ServiceEntityRepository
                 ->setParameter('public', true)
                 ->andWhere('d.format = :format')
                 ->setParameter('format', DeckFormat::Expanded);
+        } elseif (!isset($filters['format']) || '' === $filters['format']) {
+            // Self-owner without an explicit format filter is still browsing the
+            // catalog: Standard decks stay out of /deck and only appear under
+            // /mydecks/standard (F2.23).
+            $qb->andWhere('d.format = :format')
+                ->setParameter('format', DeckFormat::Expanded);
         }
 
         if (isset($filters['search']) && '' !== $filters['search']) {

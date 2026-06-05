@@ -16,6 +16,7 @@ namespace App\Tests\Functional;
 use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\User;
+use App\Enum\DeckFormat;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -330,6 +331,34 @@ class DeckCatalogControllerTest extends AbstractFunctionalTest
         $allText = implode(' ', $cardTitles);
         self::assertStringContainsString('Iron Thorns', $allText);
         self::assertStringContainsString('Ancient Box', $allText);
+    }
+
+    /**
+     * @see docs/features.md F2.23 — Standard format personal decks
+     */
+    public function testSelfOwnerFilterExcludesStandardDecks(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var User $admin */
+        $admin = $em->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']);
+
+        // Make Ancient Box a Standard-format deck — it must disappear from
+        // the catalog even when the owner filters on their own decks
+        /** @var Deck $ancientBox */
+        $ancientBox = $em->getRepository(Deck::class)->findOneBy(['name' => 'Ancient Box']);
+        $ancientBox->setFormat(DeckFormat::Standard);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/deck?owner='.$admin->getId());
+
+        self::assertResponseIsSuccessful();
+        $cardTitles = $crawler->filter('.card-title')->each(static fn ($node) => $node->text());
+        $allText = implode(' ', $cardTitles);
+        self::assertStringContainsString('Iron Thorns', $allText);
+        self::assertStringNotContainsString('Ancient Box', $allText);
     }
 
     public function testOtherOwnerFilterHidesPrivateDecks(): void
