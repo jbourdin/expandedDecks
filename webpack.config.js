@@ -51,6 +51,7 @@ Encore
     .addEntry('event_datetime_localize', './assets/event-datetime-localize.ts')
     .addEntry('banned_card_form', './assets/banned-card-form.tsx')
     .addEntry('banned_card_list', './assets/banned-card-list.ts')
+    .addEntry('og_image_builder', './assets/og-image-builder.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()

@@ -16,7 +16,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 {%- set feedTitle = 'app.archetype.feed.title'|trans({'%brand%': channel_param('brand_name', 'Expanded Decks')}) %}
 {%- set feedLink = url('app_archetype_list') %}
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
     <channel>
         <title>{{ feedTitle }}</title>
         <link>{{ feedLink }}</link>
@@ -36,6 +36,11 @@
             {%- if item.description is not empty %}
             <description>{{ item.description }}</description>
             {%- endif %}
+            {%- if item.image %}
+            <media:content url="{{ channel_absolute_url(item.image) }}" medium="image"/>
+            {%- endif %}
+            {# Interim hardcoded author until a real content-authoring model exists. #}
+            <dc:creator>Luby</dc:creator>
         </item>
         {%- endfor %}
     </channel>

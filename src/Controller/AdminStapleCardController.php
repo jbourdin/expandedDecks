@@ -19,6 +19,7 @@ use App\Form\StapleCardCreateData;
 use App\Form\StapleCardCreateFormType;
 use App\Form\StapleCardFormType;
 use App\Repository\StapleCardRepository;
+use App\Service\CardIdentity\CardCodeResolver;
 use App\Service\StapleCardEnricher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -81,7 +82,7 @@ class AdminStapleCardController extends AbstractAppController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $parsed = self::parseCode($data->code);
+            $parsed = CardCodeResolver::parseCode($data->code);
             if (null === $parsed) {
                 $this->addFlash('danger', 'app.admin.staple_card.flash.invalid_code');
 
@@ -182,20 +183,5 @@ class AdminStapleCardController extends AbstractAppController
         $this->entityManager->flush();
 
         return new JsonResponse(['ok' => true]);
-    }
-
-    /**
-     * Parses a code like "LOR-093" / "LOR 093" / "LOR_093" into [setCode, cardNumber].
-     *
-     * @return array{0: string, 1: string}|null
-     */
-    private static function parseCode(string $code): ?array
-    {
-        $code = trim($code);
-        if (1 === preg_match('/^([A-Za-z0-9]+)[\s\-_]+([A-Za-z0-9]+)$/', $code, $matches)) {
-            return [strtoupper($matches[1]), $matches[2]];
-        }
-
-        return null;
     }
 }

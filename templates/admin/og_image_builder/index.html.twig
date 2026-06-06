@@ -1,0 +1,45 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.admin.og_image_builder.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('og_image_builder') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.admin.og_image_builder.title'|trans }}</h1>
+    </div>
+
+    <p class="text-body-secondary">{{ 'app.admin.og_image_builder.intro'|trans }}</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="og-image-builder-root"
+                 data-generate-url="{{ path('app_admin_og_image_builder_generate') }}"
+                 data-label-codes="{{ 'app.admin.og_image_builder.codes_label'|trans }}"
+                 data-label-codes-help="{{ 'app.admin.og_image_builder.codes_help'|trans }}"
+                 data-label-generate="{{ 'app.admin.og_image_builder.generate'|trans }}"
+                 data-label-copy-url="{{ 'app.admin.og_image_builder.copy_url'|trans }}"
+                 data-label-copied="{{ 'app.admin.og_image_builder.copied'|trans }}"
+                 data-label-not-found="{{ 'app.admin.og_image_builder.not_found'|trans }}"
+                 data-label-error-card-count="{{ 'app.admin.og_image_builder.error_card_count'|trans }}"
+                 data-label-error-none-resolved="{{ 'app.admin.og_image_builder.error_none_resolved'|trans }}"
+                 data-label-error-generic="{{ 'app.admin.og_image_builder.error_generic'|trans }}"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('og_image_builder') }}
+{% endblock %}

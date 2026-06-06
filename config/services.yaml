@@ -99,6 +99,10 @@ services:
         arguments:
             $editorUploadStorage: '@editor_upload.storage'
 
+    App\Controller\OgImageBuilderController:
+        arguments:
+            $editorUploadStorage: '@editor_upload.storage'
+
     App\Service\Sprite\SpriteResolver:
         arguments:
             $projectDir: '%kernel.project_dir%'
