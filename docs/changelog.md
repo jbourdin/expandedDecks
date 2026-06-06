@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.0] — 2026-06-07
+
+Minor release: editors can compose card-fan social-preview images from card codes with a new admin tool, both RSS feeds expose per-item images to feed readers, and social-preview edits no longer disturb publication dates.
+
+### Features
+
+- **Card-fan OG image builder (F18.32)** — New admin tool at `/admin/og-image-builder` (gated `ROLE_CMS_EDITOR` or `ROLE_ARCHETYPE_EDITOR`, linked from the user dropdown): paste 2–6 card codes (e.g. `SIT-136`), generate a **1200×630** social-preview PNG of the cards as a flat overlapping fan — the first code is fully visible at the right edge, the others peek out to the left so their name corner stays readable, and face-down filler cards (Pokemon card back, new `assets/images/card_back.jpg` asset) pad short lists to full width on a transparent background. Code parsing is extracted from the staple-card admin into the shared `CardCodeResolver` (parse → `TcgdexApiClient::findCard()` → `CardIdentityResolver`), and the GD compositor (`CardFanImageGenerator`) mirrors the mosaic generator's alpha-canvas and placeholder patterns. The PNG is stored as `{uuid}.png` on the existing editor upload storage and served by the existing editor image route — no new storage or serving code. The Mantine React island shows per-code resolution chips, a checkerboard-backed preview, and a copy-URL button; the URL pastes into the `ogImage` fields of decks, archetypes (per locale), CMS pages, and — new in this release — **archetype variants**, whose admin form gains `ogImage` + `ogDescription` fields. A CLI counterpart (`app:og-image:card-fan <codes...> --deck=NAME`, deterministic md5 filename) runs the same pipeline; `make fixtures` uses it to give the canonical Regidrago variant a realistic fan in dev. Documented in [docs/technicalities/og_image_builder.md](technicalities/og_image_builder.md). ([#675](https://github.com/jbourdin/expandedDecks/pull/675))
+- **RSS feed item images (F21.1, F21.2)** — Both feeds now emit a `<media:content medium="image">` element (Media RSS namespace) per item, absolutized with `channel_absolute_url()`. The archetype variants feed emits **only an image explicitly set on the variant** — deliberately no archetype-level or mosaic fallback, the 60-card mosaic being too large and irrelevant as a feed thumbnail. Page category feeds resolve `PageTranslation.ogImage` → `Page.ogImage` and omit the element when neither is set. Archetype feed items also carry an interim hardcoded `<dc:creator>` (main content editor) until a real content-authoring model exists. ([#675](https://github.com/jbourdin/expandedDecks/pull/675))
+
+### Bug Fixes
+
+- **Social-preview edits no longer bump publish dates** — Editing `ogImage`/`ogDescription` is metadata tuning, not a content update, but five paths leaked a timestamp bump: `Deck.updatedAt` (sitemap lastmod, JSON-LD `dateModified`), `Page.updatedAt` **and** `Page.lastPublishedAt` ("Updated on" label), and `Archetype.lastPublishedAt`/`Page.lastPublishedAt` via the freshness listeners on variant and translation edits (`PageFreshnessListener` previously had no change-set guard at all). `StructuralChangeTrait` becomes `TimestampExemptChangeTrait` with `position` + `ogImage` + `ogDescription` exempt; `Page` now uses the trait guard and both freshness listeners mirror the extended list. Feed ordering was never affected — `firstPublishedAt`/`createdAt` are stamped once and untouched by updates. ([#676](https://github.com/jbourdin/expandedDecks/pull/676))
+
+---
+
 ## [1.13.1] — 2026-06-06
 
 Patch release: the RSS feed autodiscovery titles introduced in 1.13.0 no longer leak the literal `%brand%` placeholder.
