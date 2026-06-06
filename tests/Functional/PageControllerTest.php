@@ -102,7 +102,12 @@ class PageControllerTest extends AbstractFunctionalTest
         $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
         self::assertNotFalse($xml);
         self::assertSame('en', (string) $xml->channel->language);
-        self::assertNotSame('', (string) $xml->channel->title);
+        // Channel title carries the channel brand for feed readers.
+        self::assertStringContainsString('Expanded Talks', (string) $xml->channel->title);
+        // Themed channels expose their icon as the RSS channel image
+        // (Encore versions the filename, hence the loose match).
+        self::assertStringContainsString('apple_touch_icon', (string) $xml->channel->image->url);
+        self::assertStringEndsWith('.png', (string) $xml->channel->image->url);
         self::assertGreaterThan(0, \count($xml->channel->item));
     }
 
@@ -209,7 +214,7 @@ class PageControllerTest extends AbstractFunctionalTest
         $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
         self::assertNotFalse($xml);
         self::assertSame('fr', (string) $xml->channel->language);
-        self::assertStringContainsString('derniers articles', (string) $xml->channel->title);
+        self::assertStringContainsString('derniers articles', (string) $xml->channel->description);
     }
 
     private function findNewsCategory(): MenuCategory

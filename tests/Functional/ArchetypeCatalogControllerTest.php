@@ -175,4 +175,47 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         $badges = $crawler->filter('.badge.bg-secondary');
         self::assertGreaterThan(0, $badges->count());
     }
+
+    public function testVariantFeedReturnsValidRss(): void
+    {
+        $this->client->request('GET', '/en/archetypes/feed.xml');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'application/rss+xml; charset=UTF-8');
+
+        $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
+        self::assertNotFalse($xml);
+        self::assertSame('en', (string) $xml->channel->language);
+        self::assertGreaterThan(0, \count($xml->channel->item));
+    }
+
+    public function testVariantFeedItemsLinkToArchetypeWithVariantAnchor(): void
+    {
+        $this->client->request('GET', '/en/archetypes/feed.xml');
+
+        self::assertResponseIsSuccessful();
+        $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
+        self::assertNotFalse($xml);
+
+        foreach ($xml->channel->item as $item) {
+            // Absolute archetype URL anchored on the variant short tag.
+            self::assertMatchesRegularExpression('~^https?://[^/]+/en/archetypes/[a-z0-9-]+#\S+$~', (string) $item->link);
+        }
+    }
+
+    public function testVariantFeedItemTitlesIncludeArchetypeAndVariantName(): void
+    {
+        $this->client->request('GET', '/en/archetypes/feed.xml');
+
+        self::assertResponseIsSuccessful();
+        $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
+        self::assertNotFalse($xml);
+
+        $titles = [];
+        foreach ($xml->channel->item as $item) {
+            $titles[] = (string) $item->title;
+        }
+
+        self::assertContains('Regidrago — Alternate Regidrago', $titles);
+    }
 }

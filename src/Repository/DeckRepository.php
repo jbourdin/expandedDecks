@@ -22,6 +22,7 @@ use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -491,6 +492,46 @@ class DeckRepository extends ServiceEntityRepository
             ->getResult();
 
         return $results;
+    }
+
+    /**
+     * Find the most recently published archetype variants, newest first, with
+     * the archetype and its translations eagerly loaded. A variant becomes
+     * publicly visible when its archetype is published, so the effective
+     * publication date is the later of the variant's creation date and the
+     * archetype's first publication date.
+     *
+     * Uses Doctrine's Paginator so LIMIT applies to root entities despite the
+     * to-many translations join.
+     *
+     * @see docs/features.md F21.2 — RSS feed of archetype variants
+     *
+     * @return list<Deck>
+     */
+    public function findLatestPublishedVariants(int $limit): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->addSelect('a', 'at')
+            ->addSelect('CASE WHEN a.firstPublishedAt > d.createdAt THEN a.firstPublishedAt ELSE d.createdAt END AS HIDDEN publicationDate')
+            ->leftJoin('d.archetype', 'a')
+            ->leftJoin('a.translations', 'at')
+            ->where('d.owner IS NULL')
+            ->andWhere('d.archetype IS NOT NULL')
+            ->andWhere('d.deletedAt IS NULL')
+            ->andWhere('a.isPublished = true')
+            ->andWhere('a.deletedAt IS NULL')
+            ->orderBy('publicationDate', 'DESC')
+            ->setMaxResults($limit);
+
+        $paginator = new Paginator($queryBuilder->getQuery(), fetchJoinCollection: true);
+        $variants = [];
+        foreach ($paginator as $variant) {
+            if ($variant instanceof Deck) {
+                $variants[] = $variant;
+            }
+        }
+
+        return $variants;
     }
 
     /**

@@ -6,21 +6,22 @@
  # For the full copyright and license information, please view the LICENSE
  # file that was distributed with this source code.
  #
- # RSS 2.0 feed of the most recently published pages in a menu category.
- # The comment closes with a whitespace-trimming tag so the XML declaration
- # stays at the very first byte of the response (required by the XML spec).
+ # RSS 2.0 feed of the most recently published archetype variants. Items
+ # link to the archetype page anchored on the variant short tag. The comment
+ # closes with a whitespace-trimming tag so the XML declaration stays at the
+ # very first byte of the response (required by the XML spec).
  #
- # @see docs/features.md F21.1 — RSS feed per page category
+ # @see docs/features.md F21.2 — RSS feed of archetype variants
  -#}
 <?xml version="1.0" encoding="UTF-8"?>
-{%- set feedTitle = 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(locale), '%brand%': channel_param('brand_name', 'Expanded Decks')}) %}
-{%- set feedLink = url('app_page_category', {id: category.id}) %}
+{%- set feedTitle = 'app.archetype.feed.title'|trans({'%brand%': channel_param('brand_name', 'Expanded Decks')}) %}
+{%- set feedLink = url('app_archetype_list') %}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>{{ feedTitle }}</title>
         <link>{{ feedLink }}</link>
-        <atom:link href="{{ url('app_page_category_feed', {id: category.id}) }}" rel="self" type="application/rss+xml"/>
-        <description>{{ 'app.cms.feed.description_for_category'|trans({'%category%': category.getName(locale)}) }}</description>
+        <atom:link href="{{ url('app_archetype_feed') }}" rel="self" type="application/rss+xml"/>
+        <description>{{ 'app.archetype.feed.description'|trans({'%brand%': channel_param('brand_name', 'Expanded Decks')}) }}</description>
         <language>{{ locale }}</language>
         {{- include('_partials/feed_image.xml.twig', {imageTitle: feedTitle, imageLink: feedLink}) -}}
         {%- if items|length > 0 %}

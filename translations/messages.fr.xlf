@@ -5052,11 +5052,19 @@
             </trans-unit>
             <trans-unit id="app.cms.feed.title_for_category">
                 <source>app.cms.feed.title_for_category</source>
-                <target>%category% — derniers articles</target>
+                <target>%category% — %brand%</target>
             </trans-unit>
             <trans-unit id="app.cms.feed.description_for_category">
                 <source>app.cms.feed.description_for_category</source>
                 <target>Les derniers articles publiés dans la catégorie %category%.</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.feed.title">
+                <source>app.archetype.feed.title</source>
+                <target>Archétypes &amp; variantes — %brand%</target>
+            </trans-unit>
+            <trans-unit id="app.archetype.feed.description">
+                <source>app.archetype.feed.description</source>
+                <target>Les nouveaux archétypes et variantes de decks publiés sur %brand%.</target>
             </trans-unit>
 
             <!-- Event list: scope filters -->
