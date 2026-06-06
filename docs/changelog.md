@@ -16,6 +16,17 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.13.0] — 2026-06-06
+
+Minor release: content syndication arrives as a new feature family (F21). Readers can subscribe to RSS feeds for each CMS page category and for newly published archetype variants, with branded channels (name + logo) for feed readers and subscribe buttons across the site.
+
+### Features
+
+- **RSS feed per page category (F21.1)** — Each CMS menu category exposes an RSS 2.0 feed at `/{locale}/pages/category/{id}/feed.xml` (`PageController::feed()`), capped at 20 items ordered newest-first by `firstPublishedAt` (fallback `createdAt`) via the new `PageRepository::findLatestPublishedByCategory()`. Items carry the page title, absolute link, permalink GUID, RFC 822 `pubDate`, and a plain-text first-paragraph excerpt produced by the new `MarkdownExcerptGenerator` service — extracted from `SearchIndexer`'s private `stripMarkdown()` (which now delegates to it), so the project's custom `[[archetype:…]]`/`[[deck:…]]`/`[[card:…]]` tags are stripped alongside standard Markdown. The channel is branded for feed readers: translated title carrying the channel brand (`%category% — %brand%`), translated description, `<language>` matching the locale, and an `<image>` exposing the themed channel's apple touch icon (shared `_partials/feed_image.xml.twig`; omitted on the default theme whose only icon is SVG). Discovery: subscribe buttons on the category page header, single-page view header, homepage latest-pages layout block, and the hardcoded latest-news cards on the home and dashboard pages, plus `<link rel="alternate" type="application/rss+xml">` autodiscovery via a new `{% block alternate_feeds %}` in `base.html.twig`. Responses are `application/rss+xml` with `Cache-Control: public, max-age=300`. ([#671](https://github.com/jbourdin/expandedDecks/pull/671))
+- **RSS feed of archetype variants (F21.2)** — A site-wide feed of the most recently published archetype variants at `/{locale}/archetypes/feed.xml` (`ArchetypeCatalogController::feed()`, route priority above the slug route so `feed.xml` never matches as a slug). Items are titled `<archetype localized name> — <variant name>`, link to the archetype page anchored on the variant short tag (`/en/archetypes/{slug}#{shortTag}`), and are dated by the later of the variant's creation date and the archetype's first publication date — a variant only becomes publicly visible when its archetype publishes, and the new `DeckRepository::findLatestPublishedVariants()` orders by that same effective date (DQL `CASE WHEN`, Paginator-guarded against the translations join). Item descriptions are excerpts of the variant's editor notes. Subscribe button and autodiscovery `<link>` on the archetype catalog page; channel branding identical to F21.1 (`app.archetype.feed.*` keys). ([#671](https://github.com/jbourdin/expandedDecks/pull/671))
+
+---
+
 ## [1.12.35] — 2026-06-06
 
 Patch release: the deck catalog no longer leaks Standard decks when filtering on yourself, and the French interface gets a full tone-and-terminology overhaul backed by a new translation standards document.
