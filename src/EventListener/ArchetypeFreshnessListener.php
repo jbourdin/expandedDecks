@@ -42,12 +42,13 @@ use Doctrine\ORM\Events;
 final class ArchetypeFreshnessListener
 {
     /**
-     * Display-ordering fields whose change alone is not variant activity.
-     * Mirrors {@see \App\Entity\StructuralChangeTrait}.
+     * Fields whose change alone is not content activity: display ordering
+     * (`position`) and social-preview metadata (`ogImage`/`ogDescription`).
+     * Mirrors {@see \App\Entity\TimestampExemptChangeTrait}.
      *
      * @var list<string>
      */
-    private const array STRUCTURAL_ONLY_FIELDS = ['position'];
+    private const array TIMESTAMP_EXEMPT_FIELDS = ['position', 'ogImage', 'ogDescription'];
 
     /** @var array<int, true> */
     private array $pendingArchetypeIds = [];
@@ -59,12 +60,13 @@ final class ArchetypeFreshnessListener
 
     public function preUpdate(PreUpdateEventArgs $args): void
     {
-        // A pure reorder only moves `position`; it isn't variant activity that
-        // should refresh the archetype's freshness signal (F18.19). The
-        // change-set is read here (preUpdate) because that is where Doctrine
-        // reliably exposes it.
+        // A pure reorder (`position`, F18.19) or social-preview tuning
+        // (`ogImage`/`ogDescription`, F18.32) isn't content activity that
+        // should refresh the archetype's freshness signal. The change-set is
+        // read here (preUpdate) because that is where Doctrine reliably
+        // exposes it.
         $changedFields = array_keys($args->getEntityChangeSet());
-        if ([] !== $changedFields && [] === array_diff($changedFields, self::STRUCTURAL_ONLY_FIELDS)) {
+        if ([] !== $changedFields && [] === array_diff($changedFields, self::TIMESTAMP_EXEMPT_FIELDS)) {
             return;
         }
 

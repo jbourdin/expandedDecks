@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Archetype
 {
     use PublishableTimestampsTrait;
-    use StructuralChangeTrait;
+    use TimestampExemptChangeTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -312,9 +312,10 @@ class Archetype
     #[ORM\PreUpdate]
     public function onPreUpdate(PreUpdateEventArgs $args): void
     {
-        // A drag-and-drop reorder only moves `position`; that is not a content
-        // update, so leave the freshness timestamps untouched (F18.11).
-        if ($this->isStructuralOnlyChange($args)) {
+        // A drag-and-drop reorder (`position`, F18.11) or social-preview tuning
+        // (`ogImage`/`ogDescription`, F18.32) is not a content update, so leave
+        // the freshness timestamps untouched.
+        if ($this->isTimestampExemptChange($args)) {
             return;
         }
 

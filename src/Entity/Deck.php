@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Deck
 {
-    use StructuralChangeTrait;
+    use TimestampExemptChangeTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -551,10 +551,10 @@ class Deck
     #[ORM\PreUpdate]
     public function onPreUpdate(PreUpdateEventArgs $args): void
     {
-        // Variant reordering only moves `position`; that is not a content
-        // update, so leave `updatedAt` (sitemap lastmod, JSON-LD dateModified)
-        // untouched (F18.19).
-        if ($this->isStructuralOnlyChange($args)) {
+        // Variant reordering (`position`, F18.19) and social-preview tuning
+        // (`ogImage`/`ogDescription`, F18.32) are not content updates, so leave
+        // `updatedAt` (sitemap lastmod, JSON-LD dateModified) untouched.
+        if ($this->isTimestampExemptChange($args)) {
             return;
         }
 
