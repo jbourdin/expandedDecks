@@ -31,6 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Page
 {
     use PublishableTimestampsTrait;
+    use TimestampExemptChangeTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -205,6 +206,12 @@ class Page
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(PreUpdateEventArgs $args): void
     {
+        // Social-preview tuning (`ogImage`, F18.32) is not a content update, so
+        // leave `updatedAt` and the publication timestamps untouched.
+        if ($this->isTimestampExemptChange($args)) {
+            return;
+        }
+
         $this->updatedAt = new \DateTimeImmutable();
         $this->stampPublicationOnUpdate($args);
     }

@@ -25,6 +25,8 @@ The builder produces a URL; the editor pastes it into the `ogImage` field of the
 | Archetype variant | `/admin/archetypes/{id}/variants/{deckId}` | `ArchetypeVariantFormType.ogImage` |
 | CMS page (per locale + parent default) | page edit form | `PageTranslationFormType.ogImage` / `PageFormType.ogImage` |
 
+**Setting OG fields never alters publication or freshness dates.** `ogImage`/`ogDescription` are timestamp-exempt in `TimestampExemptChangeTrait` (used by `Deck`, `Archetype`, `Page` in their `PreUpdate` hooks) and in the mirrored guards of `ArchetypeFreshnessListener` / `PageFreshnessListener` — so an OG edit bumps neither `updatedAt` (sitemap lastmod, JSON-LD `dateModified`) nor `lastPublishedAt` ("Updated on" labels, catalog freshness sort), and feed ordering (`firstPublishedAt` / `createdAt`) was never affected.
+
 ---
 
 ## Pipeline

@@ -46,6 +46,15 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(event: Events::postFlush)]
 final class PageFreshnessListener
 {
+    /**
+     * Fields whose change alone is not content activity: social-preview
+     * metadata (`ogImage`/`ogDescription`).
+     * Mirrors {@see \App\Entity\TimestampExemptChangeTrait}.
+     *
+     * @var list<string>
+     */
+    private const array TIMESTAMP_EXEMPT_FIELDS = ['ogImage', 'ogDescription'];
+
     /** @var array<int, true> */
     private array $pendingPageIds = [];
 
@@ -56,6 +65,14 @@ final class PageFreshnessListener
 
     public function preUpdate(PreUpdateEventArgs $args): void
     {
+        // Social-preview tuning (`ogImage`/`ogDescription` on a translation,
+        // F18.32) isn't content activity that should refresh the page's
+        // "Updated on" date.
+        $changedFields = array_keys($args->getEntityChangeSet());
+        if ([] !== $changedFields && [] === array_diff($changedFields, self::TIMESTAMP_EXEMPT_FIELDS)) {
+            return;
+        }
+
         $this->collect($args->getObject());
     }
 
