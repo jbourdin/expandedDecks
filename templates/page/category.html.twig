@@ -10,8 +10,17 @@
 
 {% block title %}{{ category.getName(app.request.locale) }} — {{ parent() }}{% endblock %}
 
+{% block alternate_feeds %}
+    <link rel="alternate" type="application/rss+xml" title="{{ 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(app.request.locale)}) }}" href="{{ url('app_page_category_feed', {id: category.id}) }}">
+{% endblock %}
+
 {% block body %}
-    <h1 class="mb-4">{{ category.getName(app.request.locale) }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ category.getName(app.request.locale) }}</h1>
+        <a href="{{ path('app_page_category_feed', {id: category.id}) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.cms.feed.subscribe'|trans }}">
+            <i class="bi bi-rss me-1"></i>{{ 'app.cms.feed.subscribe'|trans }}
+        </a>
+    </div>
 
     {% if categoryPages|length > 0 %}
         <div class="list-group mb-4">

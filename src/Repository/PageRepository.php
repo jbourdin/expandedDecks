@@ -122,6 +122,43 @@ class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find the most recently published pages in a given menu category, newest first,
+     * with translations eagerly loaded. Ordering uses the first publication date,
+     * falling back to the creation date for pages published before the publication
+     * timestamps existed.
+     *
+     * Uses Doctrine's Paginator so LIMIT applies to root entities (see
+     * findPublishedByCategory() for the rationale).
+     *
+     * @see docs/features.md F21.1 — RSS feed per page category
+     *
+     * @return list<Page>
+     */
+    public function findLatestPublishedByCategory(MenuCategory $category, int $limit): array
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->addSelect('COALESCE(p.firstPublishedAt, p.createdAt) AS HIDDEN publicationDate')
+            ->leftJoin('p.translations', 't')
+            ->addSelect('t')
+            ->where('p.menuCategory = :category')
+            ->andWhere('p.isPublished = true')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter('category', $category)
+            ->orderBy('publicationDate', 'DESC')
+            ->setMaxResults($limit);
+
+        $paginator = new Paginator($queryBuilder->getQuery(), fetchJoinCollection: true);
+        $pages = [];
+        foreach ($paginator as $page) {
+            if ($page instanceof Page) {
+                $pages[] = $page;
+            }
+        }
+
+        return $pages;
+    }
+
+    /**
      * Count published pages in a given menu category.
      */
     public function countPublishedByCategory(MenuCategory $category): int

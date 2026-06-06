@@ -21,6 +21,10 @@
     <link rel="alternate" hreflang="x-default" href="{{ canonical_url('archetypes', 'app_archetype_list', {_locale: 'en'}) }}">
 {% endblock %}
 
+{% block alternate_feeds %}
+    <link rel="alternate" type="application/rss+xml" title="{{ 'app.archetype.feed.title'|trans({'%brand%': channel_param('brand_name', 'Expanded Decks')}) }}" href="{{ url('app_archetype_feed') }}">
+{% endblock %}
+
 {% block opengraph %}
     {% set og_title = 'app.archetype.catalog_title'|trans ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
     {% set og_url = canonical_url('archetypes', 'app_archetype_list') %}
@@ -36,7 +40,12 @@
 {% endblock %}
 
 {% block body %}
-    <h1 class="mb-4">{{ 'app.archetype.catalog_title'|trans }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.archetype.catalog_title'|trans }}</h1>
+        <a href="{{ path('app_archetype_feed') }}" class="btn btn-sm btn-outline-secondary" title="{{ 'app.cms.feed.subscribe'|trans }}">
+            <i class="bi bi-rss me-1"></i>{{ 'app.cms.feed.subscribe'|trans }}
+        </a>
+    </div>
 
     {#
      # Build the tagsMode query-string fragment once and reuse it on every
