@@ -27,7 +27,11 @@ final class CardFanImageGeneratorTest extends TestCase
 {
     public function testGenerateThrowsOnEmptyPrintings(): void
     {
-        $generator = new CardFanImageGenerator($this->createStub(CardImageResolver::class), new NullLogger());
+        $generator = new CardFanImageGenerator(
+            $this->createStub(CardImageResolver::class),
+            new NullLogger(),
+            \dirname(__DIR__, 3),
+        );
 
         $this->expectException(\InvalidArgumentException::class);
         $generator->generate([]);
@@ -75,12 +79,27 @@ final class CardFanImageGeneratorTest extends TestCase
         self::assertSame(630, $size[1]);
     }
 
+    public function testGenerateSurvivesMissingCardBackAsset(): void
+    {
+        // Project dir without the card back asset — fillers fall back to placeholders.
+        $imageResolver = $this->createStub(CardImageResolver::class);
+        $imageResolver->method('downloadImage')->willReturn(self::createTinyPng());
+        $generator = new CardFanImageGenerator($imageResolver, new NullLogger(), sys_get_temp_dir());
+
+        $size = getimagesizefromstring($generator->generate([$this->createPrinting('Pikachu'), $this->createPrinting('Charizard')]));
+
+        self::assertNotFalse($size);
+        self::assertSame(1200, $size[0]);
+        self::assertSame(630, $size[1]);
+    }
+
     private function createGenerator(string|false $downloadResult): CardFanImageGenerator
     {
         $imageResolver = $this->createStub(CardImageResolver::class);
         $imageResolver->method('downloadImage')->willReturn($downloadResult);
 
-        return new CardFanImageGenerator($imageResolver, new NullLogger());
+        // Real project dir so the committed card back asset is found.
+        return new CardFanImageGenerator($imageResolver, new NullLogger(), \dirname(__DIR__, 3));
     }
 
     private function createPrinting(string $cardName): CardPrinting

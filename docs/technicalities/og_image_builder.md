@@ -14,6 +14,17 @@ The OG image builder is a **standalone admin tool** that composites a few card i
 
 **Why it exists:** the natural OG fallbacks — a lone card image or the 60-card mosaic — read poorly as social previews. A lone card makes the page look like it is *about that card*; the mosaic is unreadable at preview size. A 3–4 card fan communicates "deck" at a glance.
 
+### Where the generated URL goes
+
+The builder produces a URL; the editor pastes it into the `ogImage` field of the target content (all rendered with the `image_url_field` macro, so the field shows a thumbnail preview):
+
+| Target | UI location | Form |
+|--------|-------------|------|
+| Deck | `/decks/{id}/edit` | `DeckFormType.ogImage` |
+| Archetype (per locale) | archetype edit page, translation panels | `ArchetypeTranslationFormType.ogImage` |
+| Archetype variant | `/admin/archetypes/{id}/variants/{deckId}` | `ArchetypeVariantFormType.ogImage` |
+| CMS page (per locale + parent default) | page edit form | `PageTranslationFormType.ogImage` / `PageFormType.ogImage` |
+
 ---
 
 ## Pipeline
@@ -36,7 +47,8 @@ card codes (e.g. "SV08-128", one per line)
 
 - Canvas: 1200×630 (the 1.91:1 ratio recommended for `og:image`), fully transparent — same GD alpha pattern as `MosaicGenerator::createCanvas()`. The transparency is deliberate: platforms composite OG images on their own backdrop, so the floating-card look adapts per platform. The background is a code constant, trivial to switch to solid/gradient if it reads poorly.
 - Cards render at a fixed ~560px height (35px vertical margins), width derived from the mosaic tile ratio (245×342).
-- Horizontal step is **adaptive**: `min(0.45 × cardWidth, (1100 − cardWidth) / (N − 1))`, so 2–6 cards always fit within an 1100px spread, centered. Cards draw left→right, so the rightmost card is fully visible on top.
+- Horizontal step is **adaptive**: `min(0.45 × cardWidth, (1100 − cardWidth) / (N − 1))`, so up to 6 cards always fit within an 1100px spread, centered. The **first card of the list** is fully visible on top at the **right edge** — lead with the deck's signature card; the rest peek out to the left so their **top-left corner (Pokemon name)** stays readable while the HP corner gets covered.
+- Short lists are padded with **face-down filler cards** (the Pokemon card back, committed at `assets/images/card_back.jpg`) so the fan always spans the full spread width instead of floating narrow in the middle; fillers sit deepest at the left edge. If the asset is missing, fillers degrade to neutral placeholders.
 - Image bytes come from `CardImageResolver::downloadImage($printing, 'high')` (full CDN fallback chain); on failure a neutral grey placeholder with the card name keeps positions stable.
 
 ### Storage & serving

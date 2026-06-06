@@ -20,9 +20,11 @@ use Psr\Log\LoggerInterface;
 /**
  * Composites a few card images into an OG-friendly "held hand" spread.
  *
- * Cards are laid out as a flat overlapping fan (each card partially covering
- * the previous one, rightmost fully visible) centered on a transparent
- * 1200×630 canvas. The transparent background is deliberate: social platforms
+ * Cards are laid out as a flat overlapping fan: the first card of the list is
+ * fully visible on top at the right edge, the rest peek out to the left so
+ * their top-left corner (where the Pokemon name is printed) stays readable,
+ * and face-down card backs pad short lists to full width. Centered on a
+ * transparent 1200×630 canvas. The transparent background is deliberate: social platforms
  * composite transparent OG images on their own backdrop, so the floating-card
  * look adapts per platform. Switch BACKGROUND_ALPHA/colors here if it ever
  * reads poorly.
@@ -49,17 +51,24 @@ class CardFanImageGenerator
     /** Maximum total spread width, keeping a horizontal margin within the canvas. */
     private const int MAX_SPREAD_WIDTH = 1100;
 
+    /** Pokemon card back used as face-down filler, relative to the project directory. */
+    private const string CARD_BACK_PATH = 'assets/images/card_back.jpg';
+
+    /** Lazily loaded card back image; false when the asset failed to load. */
+    private \GdImage|false|null $cardBack = null;
+
     public function __construct(
         private readonly CardImageResolver $cardImageResolver,
         private readonly LoggerInterface $logger,
+        private readonly string $projectDir,
     ) {
     }
 
     /**
      * Render the card fan and return the PNG bytes.
      *
-     * @param list<CardPrinting> $printings cards to spread, drawn left to right
-     *                                      (the last printing ends up fully visible on top)
+     * @param list<CardPrinting> $printings cards to spread, left to right
+     *                                      (the first printing ends up fully visible on top)
      */
     public function generate(array $printings): string
     {
@@ -70,21 +79,38 @@ class CardFanImageGenerator
         $cardHeight = self::CARD_HEIGHT;
         $cardWidth = (int) round($cardHeight * self::CARD_SOURCE_WIDTH / self::CARD_SOURCE_HEIGHT);
 
-        $cardCount = \count($printings);
         $desiredStep = (int) round($cardWidth * self::DESIRED_STEP_RATIO);
-        $step = $cardCount > 1
-            ? min($desiredStep, (int) floor((self::MAX_SPREAD_WIDTH - $cardWidth) / ($cardCount - 1)))
+
+        // Pad short lists with face-down filler cards (Pokemon card back) so
+        // the spread always fills the full width instead of floating narrow
+        // in the middle of the canvas.
+        $fullWidthCardCount = (int) ceil((self::MAX_SPREAD_WIDTH - $cardWidth) / $desiredStep) + 1;
+        $realCardCount = \count($printings);
+        $totalCardCount = max($realCardCount, $fullWidthCardCount);
+
+        $step = $totalCardCount > 1
+            ? min($desiredStep, (int) floor((self::MAX_SPREAD_WIDTH - $cardWidth) / ($totalCardCount - 1)))
             : 0;
 
-        $spreadWidth = $cardWidth + ($cardCount - 1) * $step;
+        $spreadWidth = $cardWidth + ($totalCardCount - 1) * $step;
         $offsetX = (int) round((self::CANVAS_WIDTH - $spreadWidth) / 2);
         $offsetY = (int) round((self::CANVAS_HEIGHT - $cardHeight) / 2);
 
         $canvas = $this->createCanvas(self::CANVAS_WIDTH, self::CANVAS_HEIGHT);
 
-        foreach ($printings as $index => $printing) {
-            $x = $offsetX + $index * $step;
-            $this->drawCard($canvas, $printing, $x, $offsetY, $cardWidth, $cardHeight);
+        // The first card of the list sits fully visible on top at the RIGHT
+        // edge; cards underneath peek out to the left, revealing their
+        // top-left corner where the Pokemon name is printed (the HP, top
+        // right, gets covered). Filler card backs sit deepest, leftmost.
+        // Deepest layers draw first, so iterate from the last list index.
+        for ($index = $totalCardCount - 1; $index >= 0; --$index) {
+            $x = $offsetX + ($totalCardCount - 1 - $index) * $step;
+
+            if ($index < $realCardCount) {
+                $this->drawCard($canvas, $printings[$index], $x, $offsetY, $cardWidth, $cardHeight);
+            } else {
+                $this->drawCardBack($canvas, $x, $offsetY, $cardWidth, $cardHeight);
+            }
         }
 
         ob_start();
@@ -155,6 +181,49 @@ class CardFanImageGenerator
             imagesx($source),
             imagesy($source),
         );
+    }
+
+    /**
+     * Draw a face-down filler card (Pokemon card back).
+     */
+    private function drawCardBack(\GdImage $canvas, int $x, int $y, int $width, int $height): void
+    {
+        $back = $this->loadCardBack();
+
+        if (!$back instanceof \GdImage) {
+            $this->drawPlaceholder($canvas, '', $x, $y, $width, $height);
+
+            return;
+        }
+
+        imagecopyresampled(
+            $canvas,
+            $back,
+            $x,
+            $y,
+            0,
+            0,
+            $width,
+            $height,
+            imagesx($back),
+            imagesy($back),
+        );
+    }
+
+    private function loadCardBack(): \GdImage|false
+    {
+        if (null === $this->cardBack) {
+            $imageData = @file_get_contents($this->projectDir.'/'.self::CARD_BACK_PATH);
+            $this->cardBack = false !== $imageData ? @imagecreatefromstring($imageData) : false;
+
+            if (!$this->cardBack instanceof \GdImage) {
+                $this->logger->warning('Card back asset missing or unreadable at "{path}", using placeholder fillers.', [
+                    'path' => self::CARD_BACK_PATH,
+                ]);
+            }
+        }
+
+        return $this->cardBack;
     }
 
     /**
