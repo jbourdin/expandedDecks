@@ -25,6 +25,7 @@ use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\PageRepository;
 use App\Repository\StapleCardRepository;
+use App\Service\MarkdownExcerptGenerator;
 use Meilisearch\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,6 +62,7 @@ class SearchIndexer
         private readonly DeckRepository $deckRepository,
         private readonly BannedCardRepository $bannedCardRepository,
         private readonly StapleCardRepository $stapleCardRepository,
+        private readonly MarkdownExcerptGenerator $markdownExcerptGenerator,
         private readonly LoggerInterface $logger,
     ) {
         $this->client = new Client($meilisearchUrl, $meiliMasterKey);
@@ -389,7 +391,7 @@ class SearchIndexer
                 'type' => 'archetype',
                 'name' => $archetype->getLocalizedName($locale),
                 'slug' => $archetype->getSlug(),
-                'description' => $this->stripMarkdown($archetype->getLocalizedDescription($locale) ?? ''),
+                'description' => $this->markdownExcerptGenerator->toPlainText($archetype->getLocalizedDescription($locale) ?? ''),
                 'metaDescription' => $archetype->getLocalizedMetaDescription($locale) ?? '',
             ];
         }
@@ -417,7 +419,7 @@ class SearchIndexer
                 continue;
             }
 
-            $content = $this->stripMarkdown($translation->getContent());
+            $content = $this->markdownExcerptGenerator->toPlainText($translation->getContent());
             if ('' !== $listingExtras) {
                 $content = '' === $content ? $listingExtras : $content.' '.$listingExtras;
             }
@@ -454,7 +456,7 @@ class SearchIndexer
                 $tokens[] = $card->getCardName();
                 $explanation = $card->getExplanation();
                 if (null !== $explanation && '' !== trim($explanation)) {
-                    $tokens[] = $this->stripMarkdown($explanation);
+                    $tokens[] = $this->markdownExcerptGenerator->toPlainText($explanation);
                 }
             }
         } elseif (ListingIntroPage::STAPLE_CARDS_SLUG === $slug) {
@@ -462,7 +464,7 @@ class SearchIndexer
                 $tokens[] = $card->getCardName();
                 $note = $card->getNote();
                 if (null !== $note && '' !== trim($note)) {
-                    $tokens[] = $this->stripMarkdown($note);
+                    $tokens[] = $this->markdownExcerptGenerator->toPlainText($note);
                 }
             }
         }
@@ -479,7 +481,7 @@ class SearchIndexer
             'id' => (string) $event->getId(),
             'type' => 'event',
             'name' => $event->getName(),
-            'description' => $this->stripMarkdown($event->getDescription() ?? ''),
+            'description' => $this->markdownExcerptGenerator->toPlainText($event->getDescription() ?? ''),
             'location' => $event->getLocation() ?? '',
             'date' => $event->getDate()->format('Y-m-d'),
             'format' => $event->getFormat(),
@@ -524,32 +526,6 @@ class SearchIndexer
             'archetypeSlug' => $variant->getArchetype()?->getSlug() ?? '',
             'cardNames' => implode(' ', array_unique($cardNames)),
         ];
-    }
-
-    /**
-     * Strip Markdown formatting for plain-text indexing.
-     */
-    private function stripMarkdown(string $markdown): string
-    {
-        // Remove archetype/deck/card custom tags: [[archetype:slug]], [[deck:TAG]], [[card:...]]
-        $text = (string) preg_replace('/\[\[(archetype|deck|card):[^\]]+\]\]/', '', $markdown);
-
-        // Remove images ![alt](url) — must run before link and bold/italic removal
-        $text = (string) preg_replace('/!\[[^\]]*\]\([^)]+\)/', '', $text);
-
-        // Remove Markdown links [text](url)
-        $text = (string) preg_replace('/\[([^\]]+)\]\([^)]+\)/', '$1', $text);
-
-        // Remove headings (#, ##, etc.)
-        $text = (string) preg_replace('/^#{1,6}\s+/m', '', $text);
-
-        // Remove bold/italic markers
-        $text = str_replace(['**', '__', '*', '_'], '', $text);
-
-        // Collapse whitespace
-        $text = (string) preg_replace('/\s+/', ' ', $text);
-
-        return trim($text);
     }
 
     /**

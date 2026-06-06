@@ -5045,6 +5045,20 @@
                 <target>Aucune page dans cette catégorie pour le moment.</target>
             </trans-unit>
 
+            <!-- CMS: RSS feed (F21.1) -->
+            <trans-unit id="app.cms.feed.subscribe">
+                <source>app.cms.feed.subscribe</source>
+                <target>S'abonner au flux RSS</target>
+            </trans-unit>
+            <trans-unit id="app.cms.feed.title_for_category">
+                <source>app.cms.feed.title_for_category</source>
+                <target>%category% — derniers articles</target>
+            </trans-unit>
+            <trans-unit id="app.cms.feed.description_for_category">
+                <source>app.cms.feed.description_for_category</source>
+                <target>Les derniers articles publiés dans la catégorie %category%.</target>
+            </trans-unit>
+
             <!-- Event list: scope filters -->
             <trans-unit id="app.event.filter_scope">
                 <source>app.event.filter_scope</source>

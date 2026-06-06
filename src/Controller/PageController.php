@@ -16,13 +16,16 @@ namespace App\Controller;
 use App\Constants\ListingIntroPage;
 use App\Entity\Channel;
 use App\Entity\MenuCategory;
+use App\Entity\PageTranslation;
 use App\Repository\PageRepository;
 use App\Service\ArchetypeDescriptionRenderer;
+use App\Service\MarkdownExcerptGenerator;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @see docs/features.md F11.3 — Page rendering & locale fallback
@@ -30,6 +33,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class PageController extends AbstractController
 {
     private const PER_PAGE = 10;
+    private const FEED_ITEMS = 20;
 
     /**
      * @see docs/features.md F11.2 — Menu categories
@@ -65,6 +69,52 @@ class PageController extends AbstractController
             'currentPage' => $page,
             'totalPages' => $totalPages,
         ]);
+    }
+
+    /**
+     * RSS 2.0 feed of the most recently published pages in a category.
+     *
+     * @see docs/features.md F21.1 — RSS feed per page category
+     */
+    #[Route('/{_locale}/pages/category/{id}/feed.xml', name: 'app_page_category_feed', requirements: ['_locale' => 'en|fr', 'id' => '\d+'])]
+    public function feed(
+        MenuCategory $category,
+        Request $request,
+        PageRepository $pageRepository,
+        MarkdownExcerptGenerator $markdownExcerptGenerator,
+    ): Response {
+        $locale = $request->getLocale();
+        $pages = $pageRepository->findLatestPublishedByCategory($category, self::FEED_ITEMS);
+
+        $items = [];
+        foreach ($pages as $page) {
+            $translation = $page->getDisplayTranslation($locale);
+            if (!$translation instanceof PageTranslation) {
+                continue;
+            }
+
+            $items[] = [
+                'title' => $translation->getTitle(),
+                'url' => $this->generateUrl(
+                    'app_page_show',
+                    ['slug' => $page->getSlug(), '_locale' => $locale],
+                    UrlGeneratorInterface::ABSOLUTE_URL,
+                ),
+                'publishedAt' => $page->getFirstPublishedAt() ?? $page->getCreatedAt(),
+                'description' => $markdownExcerptGenerator->excerpt($translation->getContent()),
+            ];
+        }
+
+        $response = $this->render('page/feed.xml.twig', [
+            'category' => $category,
+            'locale' => $locale,
+            'items' => $items,
+        ]);
+        $response->headers->set('Content-Type', 'application/rss+xml; charset=UTF-8');
+        $response->setPublic();
+        $response->setMaxAge(300);
+
+        return $response;
     }
 
     /**

@@ -1,0 +1,38 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # RSS 2.0 feed of the most recently published pages in a menu category.
+ # The comment closes with a whitespace-trimming tag so the XML declaration
+ # stays at the very first byte of the response (required by the XML spec).
+ #
+ # @see docs/features.md F21.1 — RSS feed per page category
+ -#}
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(locale)}) }}</title>
+        <link>{{ url('app_page_category', {id: category.id}) }}</link>
+        <atom:link href="{{ url('app_page_category_feed', {id: category.id}) }}" rel="self" type="application/rss+xml"/>
+        <description>{{ 'app.cms.feed.description_for_category'|trans({'%category%': category.getName(locale)}) }}</description>
+        <language>{{ locale }}</language>
+        {%- if items|length > 0 %}
+        <lastBuildDate>{{ (items|first).publishedAt|date('r') }}</lastBuildDate>
+        {%- endif %}
+        {%- for item in items %}
+        <item>
+            <title>{{ item.title }}</title>
+            <link>{{ item.url }}</link>
+            <guid isPermaLink="true">{{ item.url }}</guid>
+            <pubDate>{{ item.publishedAt|date('r') }}</pubDate>
+            {%- if item.description is not empty %}
+            <description>{{ item.description }}</description>
+            {%- endif %}
+        </item>
+        {%- endfor %}
+    </channel>
+</rss>

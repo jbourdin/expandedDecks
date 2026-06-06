@@ -341,3 +341,13 @@ OS- and brand-driven visual variants of the application UI.
 | ID      | Feature                                      | Priority | Status | Description |
 |---------|----------------------------------------------|----------|--------|-------------|
 | F20.1   | Dark theme following OS preference           | Medium   | Done   | Auto dark mode that follows `prefers-color-scheme`. An inline `<head>` script in `base.html.twig` mirrors the OS preference onto `<html data-bs-theme="..."` and `data-mantine-color-scheme="..."` before first paint and listens for live OS toggles. Bootstrap 5.3's native dark variables drive framework components; `--ed-navy`, `--ed-blue`, `--ed-gold`, `--ed-red`, `--ed-bg` CSS custom properties carry our custom palette and are overridden under `[data-bs-theme="dark"]`. Custom dark-tinted surfaces (`.hero-pokemon`, `.card-header-themed`, `.table-themed thead`, `.cms-content blockquote`, rich-text tables) get explicit dark overrides since their light recipes use semi-opaque navy on white. Mantine islands wrap a shared `<AppMantineProvider defaultColorScheme="auto">` so popovers and inputs match the surrounding chrome. Applied to both the default theme and the `expandedtalks` channel theme. No user toggle, no persistence — strictly follows OS. |
+
+---
+
+## F21 — Content Syndication
+
+Machine-readable feeds so readers can subscribe to editorial content updates.
+
+| ID      | Feature                                      | Priority | Status | Description |
+|---------|----------------------------------------------|----------|--------|-------------|
+| F21.1   | RSS feed per page category                   | Medium   | Done   | RSS 2.0 feed for each CMS menu category at `/{_locale}/pages/category/{id}/feed.xml` (`app_page_category_feed`, `PageController::feed()`). Channel: translated title/description (`app.cms.feed.*` keys), `<language>` matching the locale, `<atom:link rel="self">`, `<lastBuildDate>`. Items (newest-first by `firstPublishedAt` with `createdAt` fallback, capped at 20 via `PageRepository::findLatestPublishedByCategory()`): title, absolute link, permalink GUID, RFC 822 `<pubDate>`, plain-text first-paragraph excerpt built by `MarkdownExcerptGenerator` (extracted from the search indexer's strip-Markdown logic; also strips `[[archetype:…]]`/`[[deck:…]]`/`[[card:…]]` tags). Rendered by `templates/page/feed.xml.twig`; `Content-Type: application/rss+xml`, `Cache-Control: public, max-age=300`. Discovery: subscribe buttons on the category page header, single-page view header, and homepage latest-pages block, plus `<link rel="alternate" type="application/rss+xml">` autodiscovery via a new `{% block alternate_feeds %}` in `base.html.twig`. |
