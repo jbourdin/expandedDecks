@@ -344,6 +344,7 @@ Pattern: services dispatch messages → handlers process them asynchronously. Ea
 - **Format:** XLIFF (`.xlf`) in `translations/`
 - **Key pattern:** `app.<domain>.<context>.<key>` (e.g. `app.borrow.status.pending`)
 - **Supported locales:** `en` (default), `fr`
+- **French copy rules:** [docs/standards/french_translation.md](docs/standards/french_translation.md) — tutoiement everywhere, no « Veuillez », keep TCG jargon in English (deck, staple, set, top cut), `rendre`/`rendu` not « retourné », point médian inclusive writing (« joueur·euse », « Seul·es les invité·es »)
 - Emails render in the recipient's `preferredLocale`
 - React translations live in `assets/translations/` as JSON, loaded via `react-i18next`
 
@@ -378,6 +379,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/standards/file_headers.md](docs/standards/file_headers.md) — Copyright & license headers
 - [docs/standards/release_process.md](docs/standards/release_process.md) — Release checklist
 - [docs/standards/security.md](docs/standards/security.md) — Dependency vulnerability scanning, Dependabot, CI audit
+- [docs/standards/french_translation.md](docs/standards/french_translation.md) — French tone (tutoiement), TCG glossary, typography
 
 **Frontend**
 - [docs/frontend.md](docs/frontend.md) — Frontend architecture (Twig+Bootstrap layout, Mantine for React islands)

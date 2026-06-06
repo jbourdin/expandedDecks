@@ -1771,7 +1771,7 @@
             </trans-unit>
             <trans-unit id="app.event.pending_borrows">
                 <source>app.event.pending_borrows</source>
-                <target>{1} %count% pending request|]1,Inf[ %count% pending requests</target>
+                <target>{1}%count% pending request|]1,Inf[%count% pending requests</target>
                 <note>Badge showing the number of pending borrow requests on a deck</note>
             </trans-unit>
             <trans-unit id="app.event.confirm_cancel_pending_borrows">

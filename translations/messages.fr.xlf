@@ -10,12 +10,12 @@
             </trans-unit>
             <trans-unit id="app.nav.my_decks">
                 <source>app.nav.my_decks</source>
-                <target>Mes Decks</target>
+                <target>Mes decks</target>
                 <note>User dropdown menu link to own decks</note>
             </trans-unit>
             <trans-unit id="app.nav.my_agenda">
                 <source>app.nav.my_agenda</source>
-                <target>Mon Agenda</target>
+                <target>Mon agenda</target>
                 <note>User dropdown menu link to the personal event agenda</note>
             </trans-unit>
             <trans-unit id="app.nav.archetypes">
@@ -132,7 +132,7 @@
             </trans-unit>
             <trans-unit id="app.common.invalid_csrf">
                 <source>app.common.invalid_csrf</source>
-                <target>Jeton de sécurité invalide. Veuillez réessayer.</target>
+                <target>Jeton de sécurité invalide. Réessaie.</target>
                 <note>Shown when a CSRF token is invalid</note>
             </trans-unit>
             <trans-unit id="app.common.approve">
@@ -276,7 +276,7 @@
             </trans-unit>
             <trans-unit id="app.home.hero_text">
                 <source>app.home.hero_text</source>
-                <target>Une bibliothèque partagée de decks physiques Pokemon TCG au format Étendu. Parcourez les decks disponibles, empruntez-les pour vos événements et gérez votre collection.</target>
+                <target>Une bibliothèque partagée de decks physiques Pokémon TCG au format Expanded. Parcours les decks disponibles, emprunte-les pour tes événements et gère ta collection.</target>
                 <note>Homepage hero banner</note>
             </trans-unit>
             <trans-unit id="app.home.upcoming_events">
@@ -313,12 +313,12 @@
             </trans-unit>
             <trans-unit id="app.dashboard.my_decks">
                 <source>app.dashboard.my_decks</source>
-                <target>Mes Decks</target>
+                <target>Mes decks</target>
                 <note>Dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.dashboard.my_events">
                 <source>app.dashboard.my_events</source>
-                <target>Mes Événements</target>
+                <target>Mes événements</target>
                 <note>Dashboard section heading</note>
             </trans-unit>
             <trans-unit id="app.dashboard.staffing">
@@ -343,7 +343,7 @@
             </trans-unit>
             <trans-unit id="app.dashboard.no_decks">
                 <source>app.dashboard.no_decks</source>
-                <target>Vous ne possédez encore aucun deck.</target>
+                <target>Tu ne possèdes encore aucun deck.</target>
                 <note>Empty state message shown when no items exist</note>
             </trans-unit>
             <trans-unit id="app.dashboard.no_events">
@@ -373,27 +373,27 @@
             </trans-unit>
             <trans-unit id="app.dashboard.badge_playing">
                 <source>app.dashboard.badge_playing</source>
-                <target>Joueur</target>
+                <target>Joueur·euse</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_spectating">
                 <source>app.dashboard.badge_spectating</source>
-                <target>Spectateur</target>
+                <target>Spectateur·rice</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_invited">
                 <source>app.dashboard.badge_invited</source>
-                <target>Invité</target>
+                <target>Invité·e</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_interested">
                 <source>app.dashboard.badge_interested</source>
-                <target>Intéressé</target>
+                <target>Intéressé·e</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_organizer">
                 <source>app.dashboard.badge_organizer</source>
-                <target>Organisateur</target>
+                <target>Organisateur·rice</target>
                 <note>Small status badge shown next to items in dashboard lists</note>
             </trans-unit>
             <trans-unit id="app.dashboard.badge_staff">
@@ -477,17 +477,17 @@
             <!-- Deck catalog, detail, and forms -->
             <trans-unit id="app.deck.catalog_title">
                 <source>app.deck.catalog_title</source>
-                <target>Catalogue de Decks</target>
+                <target>Catalogue de decks</target>
                 <note>Page heading for deck catalog</note>
             </trans-unit>
             <trans-unit id="app.deck.new_title">
                 <source>app.deck.new_title</source>
-                <target>Nouveau Deck</target>
+                <target>Nouveau deck</target>
                 <note>Page heading or button for creating a new deck</note>
             </trans-unit>
             <trans-unit id="app.deck.new_deck">
                 <source>app.deck.new_deck</source>
-                <target>+ Nouveau Deck</target>
+                <target>+ Nouveau deck</target>
                 <note>Page heading or button for creating a new deck</note>
             </trans-unit>
             <trans-unit id="app.deck.edit_title">
@@ -502,7 +502,7 @@
             </trans-unit>
             <trans-unit id="app.deck.import_version">
                 <source>app.deck.import_version</source>
-                <target>Collez votre liste au format PTCG ci-dessous. Cela créera la &lt;strong&gt;version %version%&lt;/strong&gt;.</target>
+                <target>Colle ta liste au format PTCG ci-dessous. Cela créera la &lt;strong&gt;version %version%&lt;/strong&gt;.</target>
                 <note>Import page description. %version% = version number. Contains HTML &lt;strong&gt; tag</note>
             </trans-unit>
             <trans-unit id="app.deck.import_button">
@@ -512,7 +512,7 @@
             </trans-unit>
             <trans-unit id="app.deck.create_button">
                 <source>app.deck.create_button</source>
-                <target>Créer le Deck</target>
+                <target>Créer le deck</target>
                 <note>Submit button on new deck form</note>
             </trans-unit>
             <trans-unit id="app.deck.save_button">
@@ -557,7 +557,7 @@
             </trans-unit>
             <trans-unit id="app.deck.confirm_retire">
                 <source>app.deck.confirm_retire</source>
-                <target>Êtes-vous sûr de vouloir retirer ce deck ? Il ne sera plus disponible pour l'emprunt.</target>
+                <target>Retirer ce deck ? Il ne sera plus disponible à l'emprunt.</target>
                 <note>Confirmation dialog when retiring a deck</note>
             </trans-unit>
             <trans-unit id="app.deck.confirm_retire_with_borrows">
@@ -577,7 +577,7 @@
             </trans-unit>
             <trans-unit id="app.deck.deck_list_help">
                 <source>app.deck.deck_list_help</source>
-                <target>Collez une liste pour l&apos;importer immédiatement. Laissez vide pour en ajouter une plus tard.</target>
+                <target>Colle une liste pour l&apos;importer immédiatement. Laisse vide pour en ajouter une plus tard.</target>
                 <note>Deck list textarea form field</note>
             </trans-unit>
             <trans-unit id="app.deck.name_match_warning_title">
@@ -586,7 +586,7 @@
             </trans-unit>
             <trans-unit id="app.deck.name_match_warning_body">
                 <source>app.deck.name_match_warning_body</source>
-                <target>Les cartes suivantes ont été identifiées par nom uniquement — l'image affichée peut ne pas correspondre à la version exacte de la carte. Veuillez réimporter la liste du deck avec des codes de set internationaux (anglais) pour un résultat précis.</target>
+                <target>Les cartes suivantes ont été identifiées par nom uniquement — l'image affichée peut ne pas correspondre à la version exacte de la carte. Réimporte la liste du deck avec des codes de set internationaux (anglais) pour un résultat précis.</target>
             </trans-unit>
             <trans-unit id="app.deck.variant_toggle">
                 <source>app.deck.variant_toggle</source>
@@ -618,7 +618,7 @@
             </trans-unit>
             <trans-unit id="app.deck.export_minified_tooltip">
                 <source>app.deck.export_minified_tooltip</source>
-                <target>Copier une version économique utilisant les impressions les moins rares</target>
+                <target>Copier une liste économique utilisant les versions les moins rares</target>
             </trans-unit>
             <trans-unit id="app.deck.table_variant_toggle">
                 <source>app.deck.table_variant_toggle</source>
@@ -765,12 +765,12 @@
             </trans-unit>
             <trans-unit id="app.deck.has_active_engagements">
                 <source>app.deck.has_active_engagements</source>
-                <target>Ce deck a des emprunts ou inscriptions à des events actifs. Le mode personnel ne peut être activé qu'après leur résolution.</target>
+                <target>Ce deck a des emprunts ou inscriptions à des événements actifs. Le mode personnel ne peut être activé qu'après leur résolution.</target>
                 <note>Warning shown when personal toggle is disabled because active borrows/registrations exist (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.deck.search_placeholder">
                 <source>app.deck.search_placeholder</source>
-                <target>Nom ou tag court...</target>
+                <target>Nom ou tag court…</target>
                 <note>Placeholder for catalog search input</note>
             </trans-unit>
             <trans-unit id="app.deck.more_filters">
@@ -790,7 +790,7 @@
             </trans-unit>
             <trans-unit id="app.deck.no_results">
                 <source>app.deck.no_results</source>
-                <target>Aucun deck ne correspond à vos critères de recherche.</target>
+                <target>Aucun deck ne correspond à tes critères de recherche.</target>
                 <note>Empty state when catalog search returns nothing</note>
             </trans-unit>
             <trans-unit id="app.deck.not_public">
@@ -819,7 +819,7 @@
             </trans-unit>
             <trans-unit id="app.deck.borrow_login_cta">
                 <source>app.deck.borrow_login_cta</source>
-                <target>Vous souhaitez emprunter ce deck pour un événement ?</target>
+                <target>Envie d'emprunter ce deck pour un événement ?</target>
                 <note>Deck detail borrow section</note>
             </trans-unit>
             <trans-unit id="app.deck.login_cta">
@@ -956,7 +956,7 @@
             </trans-unit>
             <trans-unit id="app.deck.version.delete_confirm">
                 <source>app.deck.version.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer la version %version% ?</target>
+                <target>Supprimer la version %version% ?</target>
             </trans-unit>
             <trans-unit id="app.deck.version.deleted">
                 <source>app.deck.version.deleted</source>
@@ -1060,12 +1060,12 @@
             </trans-unit>
             <trans-unit id="app.event.new_title">
                 <source>app.event.new_title</source>
-                <target>Nouvel Événement</target>
+                <target>Nouvel événement</target>
                 <note>Page heading or button for creating a new event</note>
             </trans-unit>
             <trans-unit id="app.event.new_event">
                 <source>app.event.new_event</source>
-                <target>+ Nouvel Événement</target>
+                <target>+ Nouvel événement</target>
                 <note>Page heading or button for creating a new event</note>
             </trans-unit>
             <trans-unit id="app.event.edit_title">
@@ -1075,7 +1075,7 @@
             </trans-unit>
             <trans-unit id="app.event.create_button">
                 <source>app.event.create_button</source>
-                <target>Créer l&apos;Événement</target>
+                <target>Créer l&apos;événement</target>
                 <note>Submit button on new event form</note>
             </trans-unit>
             <trans-unit id="app.event.save_button">
@@ -1085,12 +1085,12 @@
             </trans-unit>
             <trans-unit id="app.event.cancel_event">
                 <source>app.event.cancel_event</source>
-                <target>Annuler l&apos;Événement</target>
+                <target>Annuler l&apos;événement</target>
                 <note>Button to cancel an event</note>
             </trans-unit>
             <trans-unit id="app.event.cancel_confirm">
                 <source>app.event.cancel_confirm</source>
-                <target>Êtes-vous sûr de vouloir annuler cet événement ? Cette action est irréversible.</target>
+                <target>Annuler cet événement ? Cette action est irréversible.</target>
                 <note>JavaScript confirm dialog when cancelling an event</note>
             </trans-unit>
             <trans-unit id="app.event.delete_button">
@@ -1100,7 +1100,7 @@
             </trans-unit>
             <trans-unit id="app.event.delete_confirm">
                 <source>app.event.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer cet événement ? Il sera masqué de toutes les listes.</target>
+                <target>Supprimer cet événement ? Il sera masqué de toutes les listes.</target>
                 <note>JavaScript confirm dialog when deleting an event</note>
             </trans-unit>
             <trans-unit id="app.event.back_to_events">
@@ -1130,7 +1130,7 @@
             </trans-unit>
             <trans-unit id="app.event.finish_confirm">
                 <source>app.event.finish_confirm</source>
-                <target>Êtes-vous sûr de vouloir marquer cet événement comme terminé ?</target>
+                <target>Marquer cet événement comme terminé ?</target>
                 <note>JavaScript confirm dialog when finishing an event</note>
             </trans-unit>
             <trans-unit id="app.event.timezone">
@@ -1140,7 +1140,7 @@
             </trans-unit>
             <trans-unit id="app.event.your_time">
                 <source>app.event.your_time</source>
-                <target>Votre heure</target>
+                <target>Heure locale</target>
                 <note>Tooltip label shown before user's local time conversion for event dates</note>
             </trans-unit>
             <trans-unit id="app.event.format">
@@ -1150,7 +1150,7 @@
             </trans-unit>
             <trans-unit id="app.event.organizer">
                 <source>app.event.organizer</source>
-                <target>Organisateur</target>
+                <target>Organisateur·rice</target>
                 <note>Table header label in event detail</note>
             </trans-unit>
             <trans-unit id="app.event.location">
@@ -1170,7 +1170,7 @@
             </trans-unit>
             <trans-unit id="app.event.attendees">
                 <source>app.event.attendees</source>
-                <target>Participants</target>
+                <target>Participant·es</target>
                 <note>Table header label for min/max attendees</note>
             </trans-unit>
             <trans-unit id="app.event.min">
@@ -1235,7 +1235,7 @@
             </trans-unit>
             <trans-unit id="app.event.tag.page_title">
                 <source>app.event.tag.page_title</source>
-                <target>Événements taggés « %name% »</target>
+                <target>Événements tagués « %name% »</target>
                 <note>Title of the per-tag event list page</note>
             </trans-unit>
             <trans-unit id="app.event.tag.back_to_all">
@@ -1285,7 +1285,7 @@
             </trans-unit>
             <trans-unit id="app.event.ical.feed_title_tag">
                 <source>app.event.ical.feed_title_tag</source>
-                <target>Expanded Decks — Événements taggés « %name% »</target>
+                <target>Expanded Decks — Événements tagués « %name% »</target>
                 <note>Per-tag calendar feed title shown by calendar apps</note>
             </trans-unit>
             <trans-unit id="app.event.ical.organized_by">
@@ -1310,7 +1310,7 @@
             </trans-unit>
             <trans-unit id="app.event.agenda.intro">
                 <source>app.event.agenda.intro</source>
-                <target>Tous les événements à venir où tu es lié : organisateur(rice), staff, inscrit(e) comme joueur(se) ou spectateur(rice), invité(e) ou intéressé(e).</target>
+                <target>Tous les événements à venir où tu es impliqué·e : organisateur·rice, staff, inscrit·e comme joueur·euse ou spectateur·rice, invité·e ou intéressé·e.</target>
                 <note>Intro paragraph on the agenda page</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.feed_section_title">
@@ -1355,27 +1355,27 @@
             </trans-unit>
             <trans-unit id="app.event.agenda.state.interested">
                 <source>app.event.agenda.state.interested</source>
-                <target>Intéressé(e)</target>
+                <target>Intéressé·e</target>
                 <note>Engagement state badge label</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.state.invited">
                 <source>app.event.agenda.state.invited</source>
-                <target>Invité(e)</target>
+                <target>Invité·e</target>
                 <note>Engagement state badge label</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.state.registered_playing">
                 <source>app.event.agenda.state.registered_playing</source>
-                <target>Joueur(se)</target>
+                <target>Joueur·euse</target>
                 <note>Engagement state badge label</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.state.registered_spectating">
                 <source>app.event.agenda.state.registered_spectating</source>
-                <target>Spectateur(rice)</target>
+                <target>Spectateur·rice</target>
                 <note>Engagement state badge label</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.state.organizing">
                 <source>app.event.agenda.state.organizing</source>
-                <target>Organisateur(rice)</target>
+                <target>Organisateur·rice</target>
                 <note>Agenda role badge for events the user organizes</note>
             </trans-unit>
             <trans-unit id="app.event.agenda.state.staffing">
@@ -1410,13 +1410,13 @@
             </trans-unit>
             <trans-unit id="app.event.philosophy_notice.body">
                 <source>app.event.philosophy_notice.body</source>
-                <target>Expanded Decks est un projet communautaire indépendant conçu pour promouvoir le format Étendu et faciliter sa découverte en permettant aux nouveaux joueurs d&apos;emprunter des decks lors d&apos;événements. Cet outil ne remplace ni ne concurrence les services officiels du Pokemon Organized Play. En créant ou modifiant un événement ici, vous confirmez que vous respecterez l&apos;ensemble des règles et politiques officielles des tournois Pokemon. L&apos;identifiant de tournoi est utilisé uniquement à des fins de référencement — cette plateforme n&apos;a aucune affiliation avec The Pokemon Company.
+                <target>Expanded Decks est un projet communautaire indépendant conçu pour promouvoir le format Expanded et faciliter sa découverte en permettant aux nouvelles et nouveaux joueur·euses d&apos;emprunter des decks lors d&apos;événements. Cet outil ne remplace ni ne concurrence les services officiels du Pokémon Organized Play. En créant ou modifiant un événement ici, tu confirmes que tu respecteras l&apos;ensemble des règles et politiques officielles des tournois Pokémon. L&apos;identifiant de tournoi est utilisé uniquement à des fins de référencement — cette plateforme n&apos;a aucune affiliation avec The Pokémon Company.
 </target>
                 <note>Legal notice shown on event create/edit forms</note>
             </trans-unit>
             <trans-unit id="app.event.philosophy_notice.notice_body">
                 <source>app.event.philosophy_notice.notice_body</source>
-                <target>Les événements créés ici sont destinés à des tournois amicaux et communautaires. Veuillez vous assurer que votre événement respecte les directives du Pokemon Organized Play et favorise une atmosphère accueillante pour tous les joueurs.</target>
+                <target>Les événements créés ici sont destinés à des tournois amicaux et communautaires. Assure-toi que ton événement respecte les directives du Pokémon Organized Play et favorise une ambiance accueillante pour tou·tes les joueur·euses.</target>
                 <note>Legal notice shown on event create/edit forms</note>
             </trans-unit>
             <trans-unit id="app.event.staff.title">
@@ -1441,7 +1441,7 @@
             </trans-unit>
             <trans-unit id="app.event.staff.placeholder">
                 <source>app.event.staff.placeholder</source>
-                <target>Pseudo, email ou ID Pokemon</target>
+                <target>Pseudo, e-mail ou ID joueur</target>
                 <note>Staff management section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.title">
@@ -1451,32 +1451,32 @@
             </trans-unit>
             <trans-unit id="app.event.participation.players">
                 <source>app.event.participation.players</source>
-                <target>{0}%count% joueurs|{1}%count% joueur|]1,Inf[%count% joueurs</target>
+                <target>{0}%count% joueur·euses|{1}%count% joueur·euse|]1,Inf[%count% joueur·euses</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.spectators">
                 <source>app.event.participation.spectators</source>
-                <target>{0}%count% spectateurs|{1}%count% spectateur|]1,Inf[%count% spectateurs</target>
+                <target>{0}%count% spectateur·rices|{1}%count% spectateur·rice|]1,Inf[%count% spectateur·rices</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.registered_playing">
                 <source>app.event.participation.registered_playing</source>
-                <target>Inscrit (Joueur)</target>
+                <target>Inscrit·e (joueur·euse)</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.registered_spectating">
                 <source>app.event.participation.registered_spectating</source>
-                <target>Inscrit (Spectateur)</target>
+                <target>Inscrit·e (spectateur·rice)</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.switch_to_spectator">
                 <source>app.event.participation.switch_to_spectator</source>
-                <target>Passer en Spectateur</target>
+                <target>Passer en spectateur·rice</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.switch_to_player">
                 <source>app.event.participation.switch_to_player</source>
-                <target>Passer en Joueur</target>
+                <target>Passer en joueur·euse</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.withdraw">
@@ -1486,57 +1486,57 @@
             </trans-unit>
             <trans-unit id="app.event.participation.register_player">
                 <source>app.event.participation.register_player</source>
-                <target>S&apos;inscrire en Joueur</target>
+                <target>S&apos;inscrire comme joueur·euse</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.register_spectator">
                 <source>app.event.participation.register_spectator</source>
-                <target>S&apos;inscrire en Spectateur</target>
+                <target>S&apos;inscrire comme spectateur·rice</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.register_to_browse">
                 <source>app.event.participation.register_to_browse</source>
-                <target>Inscrivez-vous en tant que participant pour parcourir et emprunter des decks.</target>
+                <target>Inscris-toi comme participant·e pour parcourir et emprunter des decks.</target>
                 <note>Participation section on event detail</note>
             </trans-unit>
             <trans-unit id="app.event.participation.signin_to_browse">
                 <source>app.event.participation.signin_to_browse</source>
-                <target>Connectez-vous pour vous inscrire en tant que participant et parcourir les decks disponibles à l'emprunt.</target>
+                <target>Connecte-toi pour t'inscrire comme participant·e et parcourir les decks disponibles à l'emprunt.</target>
                 <note>Anonymous visitor prompt on event detail (F3.24)</note>
             </trans-unit>
             <trans-unit id="app.event.participation.signin_to_join">
                 <source>app.event.participation.signin_to_join</source>
-                <target>Connectez-vous pour vous inscrire ou marquer votre intérêt pour cet événement.</target>
+                <target>Connecte-toi pour t'inscrire ou marquer ton intérêt pour cet événement.</target>
                 <note>Anonymous visitor prompt in participation card (F3.24)</note>
             </trans-unit>
             <trans-unit id="app.event.participation.interested_count">
                 <source>app.event.participation.interested_count</source>
-                <target>%count% intéressé(s)</target>
+                <target>{1}%count% intéressé·e|]1,Inf[%count% intéressé·es</target>
                 <note>Participation count for interested users</note>
             </trans-unit>
             <trans-unit id="app.event.participation.invited_count">
                 <source>app.event.participation.invited_count</source>
-                <target>%count% invité(s)</target>
+                <target>{1}%count% invité·e|]1,Inf[%count% invité·es</target>
                 <note>Participation count for invited users</note>
             </trans-unit>
             <trans-unit id="app.event.engagement.interested">
                 <source>app.event.engagement.interested</source>
-                <target>Intéressé</target>
+                <target>Intéressé·e</target>
                 <note>Badge label for interested engagement state</note>
             </trans-unit>
             <trans-unit id="app.event.engagement.invited">
                 <source>app.event.engagement.invited</source>
-                <target>Invité</target>
+                <target>Invité·e</target>
                 <note>Badge label for invited engagement state</note>
             </trans-unit>
             <trans-unit id="app.event.engagement.registered_playing">
                 <source>app.event.engagement.registered_playing</source>
-                <target>Joueur</target>
+                <target>Joueur·euse</target>
                 <note>Badge label for registered playing engagement state</note>
             </trans-unit>
             <trans-unit id="app.event.engagement.registered_spectating">
                 <source>app.event.engagement.registered_spectating</source>
-                <target>Spectateur</target>
+                <target>Spectateur·rice</target>
                 <note>Badge label for registered spectating engagement state</note>
             </trans-unit>
             <trans-unit id="app.event.interested_button">
@@ -1546,12 +1546,12 @@
             </trans-unit>
             <trans-unit id="app.event.participants_list">
                 <source>app.event.participants_list</source>
-                <target>Participants</target>
+                <target>Participant·es</target>
                 <note>Section heading for participants list</note>
             </trans-unit>
             <trans-unit id="app.event.invite_participant">
                 <source>app.event.invite_participant</source>
-                <target>Inviter un participant</target>
+                <target>Inviter un·e participant·e</target>
                 <note>Section heading for invite form</note>
             </trans-unit>
             <trans-unit id="app.event.invite_placeholder">
@@ -1566,12 +1566,12 @@
             </trans-unit>
             <trans-unit id="app.event.your_decks">
                 <source>app.event.your_decks</source>
-                <target>Vos Decks</target>
+                <target>Tes decks</target>
                 <note>Section heading for owner deck registration</note>
             </trans-unit>
             <trans-unit id="app.event.your_decks_help">
                 <source>app.event.your_decks_help</source>
-                <target>Enregistrez vos decks pour cet événement et choisissez si le staff peut les gérer en votre nom.</target>
+                <target>Inscris tes decks pour cet événement et choisis si le staff peut les gérer pour toi.</target>
                 <note>Help text for deck registration section</note>
             </trans-unit>
             <trans-unit id="app.event.deck_status_played">
@@ -1616,7 +1616,7 @@
             </trans-unit>
             <trans-unit id="app.event.delegate_disabled_reason">
                 <source>app.event.delegate_disabled_reason</source>
-                <target>L'organisateur n'a pas accepté la garde des decks pour cet événement.</target>
+                <target>L'organisateur·rice n'a pas accepté la garde des decks pour cet événement.</target>
                 <note>Tooltip on the disabled Delegate button when allow_custody is off</note>
             </trans-unit>
             <trans-unit id="app.event.transfer.section_title">
@@ -1626,12 +1626,12 @@
             </trans-unit>
             <trans-unit id="app.event.transfer.help">
                 <source>app.event.transfer.help</source>
-                <target>Choisis un utilisateur pour reprendre l'organisation. Il devra accepter de son côté avant que le transfert ne prenne effet.</target>
+                <target>Choisis la personne qui reprendra l'organisation. Elle devra accepter de son côté avant que le transfert ne prenne effet.</target>
                 <note>Helper text above the handover form</note>
             </trans-unit>
             <trans-unit id="app.event.transfer.placeholder">
                 <source>app.event.transfer.placeholder</source>
-                <target>Pseudo, e-mail ou Pokemon ID</target>
+                <target>Pseudo, e-mail ou ID joueur</target>
                 <note>Placeholder for the user-picker on the handover form</note>
             </trans-unit>
             <trans-unit id="app.event.transfer.initiate">
@@ -1641,7 +1641,7 @@
             </trans-unit>
             <trans-unit id="app.event.transfer.confirm">
                 <source>app.event.transfer.confirm</source>
-                <target>Envoyer une demande de transfert à cet utilisateur ? Tu restes organisateur tant qu'il n'a pas accepté.</target>
+                <target>Envoyer une demande de transfert à cette personne ? Tu restes organisateur·rice tant qu'elle n'a pas accepté.</target>
                 <note>Confirmation prompt before initiating an organizer handover</note>
             </trans-unit>
             <trans-unit id="app.event.transfer.pending_body">
@@ -1661,7 +1661,7 @@
             </trans-unit>
             <trans-unit id="app.event.transfer.target_banner_body">
                 <source>app.event.transfer.target_banner_body</source>
-                <target>%name% souhaite que tu gères cet événement. Accepte pour reprendre, refuse pour le laisser organisateur.</target>
+                <target>%name% souhaite que tu gères cet événement. Accepte pour reprendre, refuse pour lui laisser l'organisation.</target>
                 <note>Body of the target banner</note>
             </trans-unit>
             <trans-unit id="app.event.transfer.accept">
@@ -1686,7 +1686,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.transfer.accepted">
                 <source>app.flash.event.transfer.accepted</source>
-                <target>Tu es désormais l'organisateur(rice) de « %name% ».</target>
+                <target>Tu es désormais l'organisateur·rice de « %name% ».</target>
                 <note>Flash to the new organizer after accepting a handover</note>
             </trans-unit>
             <trans-unit id="app.flash.event.transfer.declined">
@@ -1696,12 +1696,12 @@
             </trans-unit>
             <trans-unit id="app.flash.event.transfer.target_required">
                 <source>app.flash.event.transfer.target_required</source>
-                <target>Choisis un utilisateur à qui transférer l'événement.</target>
+                <target>Choisis la personne à qui transférer l'événement.</target>
                 <note>Flash when the organizer submits the handover form without picking a target</note>
             </trans-unit>
             <trans-unit id="app.flash.event.transfer.target_invalid">
                 <source>app.flash.event.transfer.target_invalid</source>
-                <target>Aucun utilisateur trouvé pour ce nom.</target>
+                <target>Aucun compte trouvé pour ce nom.</target>
                 <note>Flash when the handover target query doesn't resolve to a different user</note>
             </trans-unit>
             <trans-unit id="app.notification.event.transfer_requested_title">
@@ -1721,7 +1721,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.transfer_accepted_message">
                 <source>app.notification.event.transfer_accepted_message</source>
-                <target>%name% a accepté le transfert de « %event% » et en est désormais organisateur(rice).</target>
+                <target>%name% a accepté le transfert de « %event% » et en est désormais organisateur·rice.</target>
                 <note>Notification body to the previous organizer when the target accepts</note>
             </trans-unit>
             <trans-unit id="app.notification.event.transfer_declined_title">
@@ -1731,7 +1731,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.transfer_declined_message">
                 <source>app.notification.event.transfer_declined_message</source>
-                <target>%name% a refusé le transfert de « %event% ». Tu restes organisateur(rice).</target>
+                <target>%name% a refusé le transfert de « %event% ». Tu restes organisateur·rice.</target>
                 <note>Notification body when the target declines a handover</note>
             </trans-unit>
             <trans-unit id="app.event.deck_selection">
@@ -1761,7 +1761,7 @@
             </trans-unit>
             <trans-unit id="app.event.pending_borrows">
                 <source>app.event.pending_borrows</source>
-                <target>{1} %count% demande en attente|]1,Inf[ %count% demandes en attente</target>
+                <target>{1}%count% demande en attente|]1,Inf[%count% demandes en attente</target>
                 <note>Badge showing the number of pending borrow requests on a deck</note>
             </trans-unit>
             <trans-unit id="app.event.confirm_cancel_pending_borrows">
@@ -1781,7 +1781,7 @@
             </trans-unit>
             <trans-unit id="app.event.available_decks_title">
                 <source>app.event.available_decks_title</source>
-                <target>Decks Disponibles</target>
+                <target>Decks disponibles</target>
                 <note>Available decks page for borrowing</note>
             </trans-unit>
             <trans-unit id="app.event.available_decks_for">
@@ -1816,7 +1816,7 @@
             </trans-unit>
             <trans-unit id="app.event.mark_returned">
                 <source>app.event.mark_returned</source>
-                <target>Marquer retourné</target>
+                <target>Marquer comme rendu</target>
                 <note>Button to mark a deck as returned in staff custody</note>
             </trans-unit>
             <trans-unit id="app.event.deck_borrowing">
@@ -1836,12 +1836,12 @@
             </trans-unit>
             <trans-unit id="app.event.walk_up.description">
                 <source>app.event.walk_up.description</source>
-                <target>Prêter un deck directement à un joueur sans demande d&apos;emprunt préalable.</target>
+                <target>Prêter un deck directement à un·e joueur·euse sans demande d&apos;emprunt préalable.</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
             <trans-unit id="app.event.walk_up.lend_button">
                 <source>app.event.walk_up.lend_button</source>
-                <target>Prêter le Deck</target>
+                <target>Prêter le deck</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
             <trans-unit id="app.event.walk_up.walk_up_lend">
@@ -1851,17 +1851,17 @@
             </trans-unit>
             <trans-unit id="app.event.walk_up.borrower_label">
                 <source>app.event.walk_up.borrower_label</source>
-                <target>Emprunteur</target>
+                <target>Emprunteur·euse</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
             <trans-unit id="app.event.walk_up.deck_placeholder">
                 <source>app.event.walk_up.deck_placeholder</source>
-                <target>Rechercher par nom ou tag du deck...</target>
+                <target>Rechercher par nom ou tag du deck…</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
             <trans-unit id="app.event.walk_up.borrower_placeholder">
                 <source>app.event.walk_up.borrower_placeholder</source>
-                <target>Rechercher par pseudo, email ou ID Pokemon...</target>
+                <target>Rechercher par pseudo, e-mail ou ID joueur…</target>
                 <note>Walk-up lending page for staff</note>
             </trans-unit>
 
@@ -1873,7 +1873,7 @@
             </trans-unit>
             <trans-unit id="app.borrow.select_event">
                 <source>app.borrow.select_event</source>
-                <target>Sélectionner un événement...</target>
+                <target>Sélectionner un événement…</target>
                 <note>Default option in event dropdown on borrow request form</note>
             </trans-unit>
             <trans-unit id="app.borrow.notes_label">
@@ -1918,12 +1918,12 @@
             </trans-unit>
             <trans-unit id="app.borrow.returned">
                 <source>app.borrow.returned</source>
-                <target>Retourné :</target>
+                <target>Rendu :</target>
                 <note>Timeline label. Includes trailing colon</note>
             </trans-unit>
             <trans-unit id="app.borrow.returned_to_owner">
                 <source>app.borrow.returned_to_owner</source>
-                <target>Retourné au propriétaire :</target>
+                <target>Rendu au propriétaire :</target>
                 <note>Timeline label. Includes trailing colon</note>
             </trans-unit>
             <trans-unit id="app.borrow.cancelled">
@@ -1963,7 +1963,7 @@
             </trans-unit>
             <trans-unit id="app.borrow.return_to_owner_button">
                 <source>app.borrow.return_to_owner_button</source>
-                <target>Retourner au propriétaire</target>
+                <target>Rendre au propriétaire</target>
                 <note>Button for staff to return deck to owner</note>
             </trans-unit>
             <trans-unit id="app.borrow.cancel_confirm">
@@ -1998,7 +1998,7 @@
             </trans-unit>
             <trans-unit id="app.borrow.no_managed_borrows">
                 <source>app.borrow.no_managed_borrows</source>
-                <target>Aucun emprunt sur vos événements</target>
+                <target>Aucun emprunt sur tes événements</target>
                 <note>Empty state on managed borrow list page</note>
             </trans-unit>
             <trans-unit id="app.borrow.no_active_borrows">
@@ -2033,12 +2033,12 @@
             </trans-unit>
             <trans-unit id="app.borrow.status.returned">
                 <source>app.borrow.status.returned</source>
-                <target>Retourné</target>
+                <target>Rendu</target>
                 <note>Borrow workflow status badge label</note>
             </trans-unit>
             <trans-unit id="app.borrow.status.returned_to_owner">
                 <source>app.borrow.status.returned_to_owner</source>
-                <target>Retourné au propriétaire</target>
+                <target>Rendu au propriétaire</target>
                 <note>Borrow workflow status badge label</note>
             </trans-unit>
             <trans-unit id="app.borrow.status.cancelled">
@@ -2058,7 +2058,7 @@
             </trans-unit>
             <trans-unit id="app.borrow.table.borrower">
                 <source>app.borrow.table.borrower</source>
-                <target>Emprunteur</target>
+                <target>Emprunteur·euse</target>
                 <note>Column header in borrow/lend tables</note>
             </trans-unit>
             <trans-unit id="app.borrow.table.owner">
@@ -2095,7 +2095,7 @@
             </trans-unit>
             <trans-unit id="app.auth.login.email">
                 <source>app.auth.login.email</source>
-                <target>Email</target>
+                <target>E-mail</target>
                 <note>Login page</note>
             </trans-unit>
             <trans-unit id="app.auth.login.password">
@@ -2120,12 +2120,12 @@
             </trans-unit>
             <trans-unit id="app.auth.login.no_verification">
                 <source>app.auth.login.no_verification</source>
-                <target>Vous n&apos;avez pas reçu d&apos;email de vérification ?</target>
+                <target>Tu n&apos;as pas reçu l&apos;e-mail de vérification ?</target>
                 <note>Login page</note>
             </trans-unit>
             <trans-unit id="app.auth.login.no_account">
                 <source>app.auth.login.no_account</source>
-                <target>Vous n&apos;avez pas de compte ?</target>
+                <target>Pas encore de compte ?</target>
                 <note>Login page</note>
             </trans-unit>
             <trans-unit id="app.auth.login.register_link">
@@ -2145,7 +2145,7 @@
             </trans-unit>
             <trans-unit id="app.auth.register.has_account">
                 <source>app.auth.register.has_account</source>
-                <target>Vous avez déjà un compte ?</target>
+                <target>Déjà un compte ?</target>
                 <note>Registration page</note>
             </trans-unit>
             <trans-unit id="app.auth.register.login_link">
@@ -2160,7 +2160,7 @@
             </trans-unit>
             <trans-unit id="app.auth.forgot_password.description">
                 <source>app.auth.forgot_password.description</source>
-                <target>Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</target>
+                <target>Entre ton adresse e-mail et nous t'enverrons un lien pour réinitialiser ton mot de passe.</target>
                 <note>Forgot password page</note>
             </trans-unit>
             <trans-unit id="app.auth.forgot_password.submit">
@@ -2180,17 +2180,17 @@
             </trans-unit>
             <trans-unit id="app.auth.verification.title">
                 <source>app.auth.verification.title</source>
-                <target>Renvoyer l&apos;email de vérification</target>
+                <target>Renvoyer l&apos;e-mail de vérification</target>
                 <note>Email verification resend page</note>
             </trans-unit>
             <trans-unit id="app.auth.verification.description">
                 <source>app.auth.verification.description</source>
-                <target>Entrez votre adresse email et nous vous enverrons un nouveau lien de vérification.</target>
+                <target>Entre ton adresse e-mail et nous t'enverrons un nouveau lien de vérification.</target>
                 <note>Email verification resend page</note>
             </trans-unit>
             <trans-unit id="app.auth.verification.submit">
                 <source>app.auth.verification.submit</source>
-                <target>Renvoyer l&apos;email</target>
+                <target>Renvoyer l&apos;e-mail</target>
                 <note>Email verification resend page</note>
             </trans-unit>
 
@@ -2214,7 +2214,7 @@
             </trans-unit>
             <trans-unit id="app.flash.borrower_not_found">
                 <source>app.flash.borrower_not_found</source>
-                <target>Emprunteur introuvable.</target>
+                <target>Emprunteur·euse introuvable.</target>
                 <note>Flash error when a borrower user ID does not exist</note>
             </trans-unit>
             <trans-unit id="app.flash.borrow.request_submitted">
@@ -2249,7 +2249,7 @@
             </trans-unit>
             <trans-unit id="app.flash.borrow.returned_to_owner">
                 <source>app.flash.borrow.returned_to_owner</source>
-                <target>Deck retourné au propriétaire.</target>
+                <target>Deck rendu au propriétaire.</target>
                 <note>Success flash after returning deck to owner (staff delegation)</note>
             </trans-unit>
             <trans-unit id="app.flash.event.created">
@@ -2289,12 +2289,12 @@
             </trans-unit>
             <trans-unit id="app.flash.event.register_to_browse">
                 <source>app.flash.event.register_to_browse</source>
-                <target>Inscrivez-vous en tant que participant pour parcourir et emprunter des decks.</target>
+                <target>Inscris-toi comme participant·e pour parcourir et emprunter des decks.</target>
                 <note>Warning when non-participant tries to browse decks</note>
             </trans-unit>
             <trans-unit id="app.flash.event.must_be_participant">
                 <source>app.flash.event.must_be_participant</source>
-                <target>Vous devez être participant pour sélectionner un deck.</target>
+                <target>Tu dois être participant·e pour sélectionner un deck.</target>
                 <note>Warning when non-participant tries to select a deck</note>
             </trans-unit>
             <trans-unit id="app.flash.event.selection_not_available">
@@ -2314,7 +2314,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.pending_borrows_not_confirmed">
                 <source>app.flash.event.pending_borrows_not_confirmed</source>
-                <target>Ce deck a des demandes d'emprunt en attente. Veuillez confirmer l'annulation avant de le sélectionner.</target>
+                <target>Ce deck a des demandes d'emprunt en attente. Confirme l'annulation avant de le sélectionner.</target>
                 <note>Warning when owner tries to select a deck with pending borrows without confirming</note>
             </trans-unit>
             <trans-unit id="app.flash.event.deck_not_available">
@@ -2324,7 +2324,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.playing_with">
                 <source>app.flash.event.playing_with</source>
-                <target>Vous jouez avec « %name% ».</target>
+                <target>Tu joues avec « %name% ».</target>
                 <note>Success flash after selecting a deck to play. %name% = deck name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_register_cancelled">
@@ -2339,17 +2339,17 @@
             </trans-unit>
             <trans-unit id="app.flash.event.deck_selection_cleared">
                 <source>app.flash.event.deck_selection_cleared</source>
-                <target>Votre sélection de deck a été effacée.</target>
+                <target>Ta sélection de deck a été effacée.</target>
                 <note>Info flash when deck selection is auto-cleared (mode switch or withdrawal)</note>
             </trans-unit>
             <trans-unit id="app.flash.event.registered_as_player">
                 <source>app.flash.event.registered_as_player</source>
-                <target>Vous êtes maintenant inscrit en tant que joueur.</target>
+                <target>Tu es maintenant inscrit·e comme joueur·euse.</target>
                 <note>Success flash after registering as player</note>
             </trans-unit>
             <trans-unit id="app.flash.event.registered_as_spectator">
                 <source>app.flash.event.registered_as_spectator</source>
-                <target>Vous êtes maintenant inscrit en tant que spectateur.</target>
+                <target>Tu es maintenant inscrit·e comme spectateur·rice.</target>
                 <note>Success flash after registering as spectator</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_withdraw_cancelled">
@@ -2359,37 +2359,37 @@
             </trans-unit>
             <trans-unit id="app.flash.event.withdrawn">
                 <source>app.flash.event.withdrawn</source>
-                <target>Vous vous êtes retiré de cet événement.</target>
+                <target>Tu t'es retiré·e de cet événement.</target>
                 <note>Success flash after withdrawing from event</note>
             </trans-unit>
             <trans-unit id="app.flash.event.marked_interested">
                 <source>app.flash.event.marked_interested</source>
-                <target>Vous avez indiqué votre intérêt pour cet événement.</target>
+                <target>Tu as indiqué ton intérêt pour cet événement.</target>
                 <note>Success flash after marking interest</note>
             </trans-unit>
             <trans-unit id="app.flash.event.already_engaged">
                 <source>app.flash.event.already_engaged</source>
-                <target>Vous êtes déjà engagé dans cet événement.</target>
+                <target>Tu es déjà engagé·e dans cet événement.</target>
                 <note>Info flash when user is already engaged</note>
             </trans-unit>
             <trans-unit id="app.flash.event.user_invited">
                 <source>app.flash.event.user_invited</source>
-                <target>%name% a été invité à cet événement.</target>
+                <target>%name% a été invité·e à cet événement.</target>
                 <note>Success flash after inviting a user</note>
             </trans-unit>
             <trans-unit id="app.flash.event.user_already_engaged">
                 <source>app.flash.event.user_already_engaged</source>
-                <target>%name% est déjà engagé dans cet événement.</target>
+                <target>%name% est déjà engagé·e dans cet événement.</target>
                 <note>Info flash when inviting already engaged user</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_invite_ended">
                 <source>app.flash.event.cannot_invite_ended</source>
-                <target>Impossible d'inviter des participants à un événement annulé ou terminé.</target>
+                <target>Impossible d'inviter des participant·es à un événement annulé ou terminé.</target>
                 <note>Warning flash when trying to invite to ended event</note>
             </trans-unit>
             <trans-unit id="app.flash.event.invitation_only_player">
                 <source>app.flash.event.invitation_only_player</source>
-                <target>Cet événement est sur invitation uniquement. Seuls les dresseurs invités peuvent s'inscrire en tant que joueurs.</target>
+                <target>Cet événement est sur invitation uniquement. Seul·es les dresseur·euses invité·es peuvent s'inscrire en tant que joueur·euses.</target>
                 <note>Warning flash when non-invited user tries to register as player on invitation-only event</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_assign_staff_cancelled">
@@ -2399,12 +2399,12 @@
             </trans-unit>
             <trans-unit id="app.flash.event.user_not_found">
                 <source>app.flash.event.user_not_found</source>
-                <target>Utilisateur « %name% » introuvable.</target>
+                <target>Utilisateur·rice « %name% » introuvable.</target>
                 <note>Warning when staff search query matches no user. %name% = search query</note>
             </trans-unit>
             <trans-unit id="app.flash.event.organizer_cannot_be_staff">
                 <source>app.flash.event.organizer_cannot_be_staff</source>
-                <target>L&apos;organisateur ne peut pas être assigné comme staff.</target>
+                <target>L&apos;organisateur·rice ne peut pas être assigné·e comme staff.</target>
                 <note>Warning when trying to add organizer as staff</note>
             </trans-unit>
             <trans-unit id="app.flash.event.already_staff">
@@ -2414,7 +2414,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.staff_added">
                 <source>app.flash.event.staff_added</source>
-                <target>« %name% » a été ajouté à l&apos;équipe de staff.</target>
+                <target>« %name% » a été ajouté·e à l&apos;équipe de staff.</target>
                 <note>Success flash after adding staff. %name% = screen name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_remove_staff_cancelled">
@@ -2424,7 +2424,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.staff_removed">
                 <source>app.flash.event.staff_removed</source>
-                <target>« %name% » a été retiré de l&apos;équipe de staff.</target>
+                <target>« %name% » a été retiré·e de l&apos;équipe de staff.</target>
                 <note>Success flash after removing staff. %name% = screen name</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_change_registration">
@@ -2434,7 +2434,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.own_decks_only_registration">
                 <source>app.flash.event.own_decks_only_registration</source>
-                <target>Vous ne pouvez gérer l&apos;inscription que pour vos propres decks.</target>
+                <target>Tu ne peux gérer l&apos;inscription que pour tes propres decks.</target>
                 <note>Error when trying to register another user&apos;s deck</note>
             </trans-unit>
             <trans-unit id="app.flash.event.standard_deck_not_registerable">
@@ -2464,7 +2464,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.own_decks_only_delegation">
                 <source>app.flash.event.own_decks_only_delegation</source>
-                <target>Vous ne pouvez gérer la délégation que pour vos propres decks.</target>
+                <target>Tu ne peux gérer la délégation que pour tes propres decks.</target>
                 <note>Error when trying to delegate another user&apos;s deck</note>
             </trans-unit>
             <trans-unit id="app.flash.event.deck_must_register">
@@ -2484,7 +2484,7 @@
             </trans-unit>
             <trans-unit id="app.flash.event.delegation_not_allowed">
                 <source>app.flash.event.delegation_not_allowed</source>
-                <target>L'organisateur n'a pas accepté la garde des decks pour cet événement.</target>
+                <target>L'organisateur·rice n'a pas accepté la garde des decks pour cet événement.</target>
                 <note>Warning flash when a player tries to delegate while allow_custody is off</note>
             </trans-unit>
             <trans-unit id="app.flash.event.cannot_revoke_delegation_in_custody">
@@ -2579,7 +2579,7 @@
             </trans-unit>
             <trans-unit id="app.deck.delete_confirm">
                 <source>app.deck.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer ce deck ? Il sera masqué du catalogue.</target>
+                <target>Supprimer ce deck ? Il sera masqué du catalogue.</target>
                 <note>JavaScript confirm dialog when deleting a deck</note>
             </trans-unit>
             <trans-unit id="app.deck.delete_button">
@@ -2641,12 +2641,12 @@
             </trans-unit>
             <trans-unit id="app.flash.auth.account_created">
                 <source>app.flash.auth.account_created</source>
-                <target>Votre compte a été créé. Veuillez vérifier votre email pour confirmer votre adresse.</target>
+                <target>Ton compte a été créé. Vérifie ta boîte mail pour confirmer ton adresse.</target>
                 <note>Success flash after registration</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.reset_link_sent">
                 <source>app.flash.auth.reset_link_sent</source>
-                <target>Si un compte existe avec cette adresse email, un lien de réinitialisation a été envoyé.</target>
+                <target>Si un compte existe avec cette adresse e-mail, un lien de réinitialisation a été envoyé.</target>
                 <note>Anti-enumeration success flash for password reset request</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.invalid_reset_link">
@@ -2656,17 +2656,17 @@
             </trans-unit>
             <trans-unit id="app.flash.auth.reset_link_expired">
                 <source>app.flash.auth.reset_link_expired</source>
-                <target>Ce lien de réinitialisation a expiré. Veuillez en demander un nouveau.</target>
+                <target>Ce lien de réinitialisation a expiré. Demandes-en un nouveau.</target>
                 <note>Error when reset token has expired</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.password_reset">
                 <source>app.flash.auth.password_reset</source>
-                <target>Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.</target>
+                <target>Ton mot de passe a été réinitialisé. Tu peux maintenant te connecter avec ton nouveau mot de passe.</target>
                 <note>Success flash after password reset</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.verification_sent">
                 <source>app.flash.auth.verification_sent</source>
-                <target>Si un compte existe avec cette adresse email et n&apos;est pas encore vérifié, un nouvel email de vérification a été envoyé.</target>
+                <target>Si un compte existe avec cette adresse e-mail et n&apos;est pas encore vérifié, un nouvel e-mail de vérification a été envoyé.</target>
                 <note>Anti-enumeration success flash for verification resend</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.invalid_verification">
@@ -2676,12 +2676,12 @@
             </trans-unit>
             <trans-unit id="app.flash.auth.verification_expired">
                 <source>app.flash.auth.verification_expired</source>
-                <target>Ce lien de vérification a expiré. Veuillez en demander un nouveau.</target>
+                <target>Ce lien de vérification a expiré. Demandes-en un nouveau.</target>
                 <note>Error when verification token has expired</note>
             </trans-unit>
             <trans-unit id="app.flash.auth.email_verified">
                 <source>app.flash.auth.email_verified</source>
-                <target>Votre email a été vérifié. Vous pouvez maintenant vous connecter.</target>
+                <target>Ton e-mail a été vérifié. Tu peux maintenant te connecter.</target>
                 <note>Success flash after email verification</note>
             </trans-unit>
 
@@ -2693,15 +2693,15 @@
             </trans-unit>
             <trans-unit id="app.profile.organizer_role_hint">
                 <source>app.profile.organizer_role_hint</source>
-                <target>Activez cette option pour créer et gérer des événements sur la plateforme.</target>
+                <target>Active cette option pour créer et gérer des événements sur la plateforme.</target>
             </trans-unit>
             <trans-unit id="app.profile.organizer_role_locked_hint">
                 <source>app.profile.organizer_role_locked_hint</source>
-                <target>Vous ne pouvez pas désactiver ce rôle tant que vous avez des événements actifs (non terminés ou annulés).</target>
+                <target>Tu ne peux pas désactiver ce rôle tant que tu as des événements actifs (non terminés ou annulés).</target>
             </trans-unit>
             <trans-unit id="app.profile.organizer_role_admin_hint">
                 <source>app.profile.organizer_role_admin_hint</source>
-                <target>Les administrateurs disposent toujours des privilèges d'organisateur.</target>
+                <target>Les administrateur·rices disposent toujours des privilèges d'organisateur·rice.</target>
             </trans-unit>
             <trans-unit id="app.profile.features_section">
                 <source>app.profile.features_section</source>
@@ -2714,7 +2714,7 @@
             </trans-unit>
             <trans-unit id="app.flash.profile.saved">
                 <source>app.flash.profile.saved</source>
-                <target>Votre profil a été mis à jour.</target>
+                <target>Ton profil a été mis à jour.</target>
                 <note>Success flash after saving profile</note>
             </trans-unit>
 
@@ -2776,7 +2776,7 @@
             </trans-unit>
             <trans-unit id="app.form.help.personal">
                 <source>app.form.help.personal</source>
-                <target>Exclu du prêt et de l'inscription aux events. La visibilité (public/privé) reste contrôlée par la case ci-dessus. Les étiquettes et la fonction « deck trouvé » restent actives.</target>
+                <target>Exclu du prêt et de l'inscription aux événements. La visibilité (public/privé) reste contrôlée par la case ci-dessus. Les étiquettes et la fonction « deck trouvé » restent actives.</target>
                 <note>Help text under the Personal checkbox on the deck edit form (F2.30)</note>
             </trans-unit>
             <trans-unit id="app.form.label.deck_list_optional">
@@ -2849,12 +2849,12 @@
             </trans-unit>
             <trans-unit id="app.form.label.min_attendees">
                 <source>app.form.label.min_attendees</source>
-                <target>Participants min. (optionnel)</target>
+                <target>Participant·es min. (optionnel)</target>
                 <note>Form label for minimum attendees</note>
             </trans-unit>
             <trans-unit id="app.form.label.max_attendees">
                 <source>app.form.label.max_attendees</source>
-                <target>Participants max. (optionnel)</target>
+                <target>Participant·es max. (optionnel)</target>
                 <note>Form label for maximum attendees</note>
             </trans-unit>
             <trans-unit id="app.form.label.round_duration">
@@ -2894,7 +2894,7 @@
             </trans-unit>
             <trans-unit id="app.form.help.allow_custody">
                 <source>app.form.help.allow_custody</source>
-                <target>Si activé, les joueurs peuvent confier leur deck au staff de l'événement (toi ou ton équipe) pour la journée. Laisse désactivé si tu ne veux pas être responsable des decks des joueurs.</target>
+                <target>Si activé, les joueur·euses peuvent confier leur deck au staff de l'événement (toi ou ton équipe) pour la journée. Laisse désactivé si tu ne veux pas être responsable des decks des joueur·euses.</target>
                 <note>Event form: helper text under allow_custody</note>
             </trans-unit>
             <trans-unit id="app.form.label.visibility">
@@ -2904,7 +2904,7 @@
             </trans-unit>
             <trans-unit id="app.form.label.email">
                 <source>app.form.label.email</source>
-                <target>Email</target>
+                <target>E-mail</target>
                 <note>Form label for email field</note>
             </trans-unit>
             <trans-unit id="app.form.label.first_name">
@@ -2924,7 +2924,7 @@
             </trans-unit>
             <trans-unit id="app.form.label.player_id">
                 <source>app.form.label.player_id</source>
-                <target>ID Pokemon (optionnel)</target>
+                <target>ID joueur (optionnel)</target>
                 <note>Form label for player ID field</note>
             </trans-unit>
             <trans-unit id="app.form.label.year_of_birth">
@@ -2976,12 +2976,12 @@
             </trans-unit>
             <trans-unit id="app.form.placeholder.notes">
                 <source>app.form.placeholder.notes</source>
-                <target>Notes sur ce deck...</target>
+                <target>Notes sur ce deck…</target>
                 <note>Placeholder for notes textarea</note>
             </trans-unit>
             <trans-unit id="app.form.placeholder.event_name">
                 <source>app.form.placeholder.event_name</source>
-                <target>ex. Ligue Étendu Hebdomadaire</target>
+                <target>ex. Ligue Expanded hebdomadaire</target>
                 <note>Placeholder example for event name input</note>
             </trans-unit>
             <trans-unit id="app.form.placeholder.tournament_id">
@@ -3028,19 +3028,19 @@
             </trans-unit>
             <trans-unit id="app.email.link_fallback">
                 <source>app.email.link_fallback</source>
-                <target>Ou copiez-collez ce lien dans votre navigateur :</target>
+                <target>Ou copie-colle ce lien dans ton navigateur :</target>
                 <note>Fallback text before raw URL in emails</note>
             </trans-unit>
             <trans-unit id="app.email.footer">
                 <source>app.email.footer</source>
-                <target>Expanded Decks — Bibliothèque partagée de decks Pokemon TCG</target>
+                <target>Expanded Decks — Bibliothèque partagée de decks Pokémon TCG</target>
                 <note>Email footer tagline</note>
             </trans-unit>
 
             <!-- Email: verification -->
             <trans-unit id="app.email.verification_subject">
                 <source>app.email.verification_subject</source>
-                <target>Vérifiez votre compte Expanded Decks</target>
+                <target>Vérifie ton compte Expanded Decks</target>
                 <note>Verification email subject line</note>
             </trans-unit>
             <trans-unit id="app.email.verification_heading">
@@ -3050,7 +3050,7 @@
             </trans-unit>
             <trans-unit id="app.email.verification_body">
                 <source>app.email.verification_body</source>
-                <target>Merci pour votre inscription. Veuillez vérifier votre adresse e-mail en cliquant sur le bouton ci-dessous :</target>
+                <target>Merci pour ton inscription. Vérifie ton adresse e-mail en cliquant sur le bouton ci-dessous :</target>
                 <note>Verification email body text</note>
             </trans-unit>
             <trans-unit id="app.email.verification_button">
@@ -3065,14 +3065,14 @@
             </trans-unit>
             <trans-unit id="app.email.verification_ignore">
                 <source>app.email.verification_ignore</source>
-                <target>Si vous n'avez pas créé de compte, vous pouvez ignorer cet e-mail.</target>
+                <target>Si tu n'as pas créé de compte, tu peux ignorer cet e-mail.</target>
                 <note>Verification email ignore notice</note>
             </trans-unit>
 
             <!-- Email: password reset -->
             <trans-unit id="app.email.password_reset_subject">
                 <source>app.email.password_reset_subject</source>
-                <target>Réinitialisez votre mot de passe Expanded Decks</target>
+                <target>Réinitialise ton mot de passe Expanded Decks</target>
                 <note>Password reset email subject line</note>
             </trans-unit>
             <trans-unit id="app.email.password_reset_heading">
@@ -3082,7 +3082,7 @@
             </trans-unit>
             <trans-unit id="app.email.password_reset_body">
                 <source>app.email.password_reset_body</source>
-                <target>Nous avons reçu une demande de réinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous pour en choisir un nouveau :</target>
+                <target>Nous avons reçu une demande de réinitialisation de ton mot de passe. Clique sur le bouton ci-dessous pour en choisir un nouveau :</target>
                 <note>Password reset email body text</note>
             </trans-unit>
             <trans-unit id="app.email.password_reset_button">
@@ -3097,7 +3097,7 @@
             </trans-unit>
             <trans-unit id="app.email.password_reset_ignore">
                 <source>app.email.password_reset_ignore</source>
-                <target>Si vous n'avez pas demandé de réinitialisation, vous pouvez ignorer cet e-mail. Votre mot de passe ne sera pas modifié.</target>
+                <target>Si tu n'as pas demandé de réinitialisation, tu peux ignorer cet e-mail. Ton mot de passe ne sera pas modifié.</target>
                 <note>Password reset email ignore notice</note>
             </trans-unit>
 
@@ -3114,7 +3114,7 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.requested_body">
                 <source>app.email.borrow.requested_body</source>
-                <target>%borrower% souhaite emprunter votre deck « %deck% » pour l'événement %event%.</target>
+                <target>%borrower% souhaite emprunter ton deck « %deck% » pour l'événement %event%.</target>
                 <note>Borrow request email body</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.note">
@@ -3129,7 +3129,7 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.approved_subject">
                 <source>app.email.borrow.approved_subject</source>
-                <target>Votre demande d'emprunt pour « %deck% » a été acceptée</target>
+                <target>Ta demande d'emprunt pour « %deck% » a été acceptée</target>
                 <note>Borrow approval email subject</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.approved_heading">
@@ -3139,12 +3139,12 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.approved_body">
                 <source>app.email.borrow.approved_body</source>
-                <target>Votre demande d'emprunt du deck « %deck% » pour l'événement %event% a été acceptée.</target>
+                <target>Ta demande d'emprunt du deck « %deck% » pour l'événement %event% a été acceptée.</target>
                 <note>Borrow approval email body</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.approved_handoff">
                 <source>app.email.borrow.approved_handoff</source>
-                <target>Le deck vous sera remis lors de l'événement.</target>
+                <target>Le deck te sera remis lors de l'événement.</target>
                 <note>Borrow approval email handoff notice</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.view_borrow">
@@ -3154,7 +3154,7 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.denied_subject">
                 <source>app.email.borrow.denied_subject</source>
-                <target>Votre demande d'emprunt pour « %deck% » a été refusée</target>
+                <target>Ta demande d'emprunt pour « %deck% » a été refusée</target>
                 <note>Borrow denial email subject</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.denied_heading">
@@ -3164,12 +3164,12 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.denied_body">
                 <source>app.email.borrow.denied_body</source>
-                <target>Malheureusement, votre demande d'emprunt du deck « %deck% » pour l'événement %event% a été refusée.</target>
+                <target>Malheureusement, ta demande d'emprunt du deck « %deck% » pour l'événement %event% a été refusée.</target>
                 <note>Borrow denial email body</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.denied_browse">
                 <source>app.email.borrow.denied_browse</source>
-                <target>Vous pouvez parcourir les autres decks disponibles pour cet événement.</target>
+                <target>Tu peux parcourir les autres decks disponibles pour cet événement.</target>
                 <note>Borrow denial email browse suggestion</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.view_details">
@@ -3179,22 +3179,22 @@
             </trans-unit>
             <trans-unit id="app.email.borrow.overdue_subject">
                 <source>app.email.borrow.overdue_subject</source>
-                <target>« %deck% » est en retard de restitution</target>
+                <target>« %deck% » n'a pas encore été rendu</target>
                 <note>Borrow overdue email subject</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.overdue_heading">
                 <source>app.email.borrow.overdue_heading</source>
-                <target>Deck en retard de restitution</target>
+                <target>Deck en retard</target>
                 <note>Borrow overdue email heading</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.overdue_body">
                 <source>app.email.borrow.overdue_body</source>
-                <target>Le deck « %deck% » emprunté pour l'événement %event% est en retard de restitution.</target>
+                <target>Le deck « %deck% » emprunté pour l'événement %event% n'a pas encore été rendu.</target>
                 <note>Borrow overdue email body</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.overdue_action">
                 <source>app.email.borrow.overdue_action</source>
-                <target>Veuillez organiser la restitution du deck dès que possible.</target>
+                <target>Organise son retour dès que possible.</target>
                 <note>Borrow overdue email action prompt</note>
             </trans-unit>
             <trans-unit id="app.email.borrow.cancelled_subject">
@@ -3219,7 +3219,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.staff_assigned_subject">
                 <source>app.email.event.staff_assigned_subject</source>
-                <target>Vous avez été assigné comme staff pour « %event% »</target>
+                <target>Tu as été assigné·e comme staff pour « %event% »</target>
                 <note>Email subject when assigned as event staff</note>
             </trans-unit>
             <trans-unit id="app.email.event.staff_assigned_heading">
@@ -3229,7 +3229,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.staff_assigned_body">
                 <source>app.email.event.staff_assigned_body</source>
-                <target>Vous avez été assigné comme membre du staff pour l'événement « %event% ».</target>
+                <target>Tu as été assigné·e comme membre du staff pour l'événement « %event% ».</target>
                 <note>Email body for staff assignment</note>
             </trans-unit>
             <trans-unit id="app.email.event.updated_subject">
@@ -3244,7 +3244,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.updated_body">
                 <source>app.email.event.updated_body</source>
-                <target>L'événement « %event% » a été mis à jour. Consultez la page de l'événement pour les derniers détails.</target>
+                <target>L'événement « %event% » a été mis à jour. Consulte la page de l'événement pour les derniers détails.</target>
                 <note>Email body for event update</note>
             </trans-unit>
             <trans-unit id="app.email.event.cancelled_subject">
@@ -3264,7 +3264,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.invitation_subject">
                 <source>app.email.event.invitation_subject</source>
-                <target>Vous avez été invité à « %event% »</target>
+                <target>Tu as été invité·e à « %event% »</target>
                 <note>Email subject for event invitation</note>
             </trans-unit>
             <trans-unit id="app.email.event.invitation_heading">
@@ -3274,7 +3274,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.invitation_body">
                 <source>app.email.event.invitation_body</source>
-                <target>%organizer% vous a invité à l'événement « %event% ».</target>
+                <target>%organizer% t'a invité·e à l'événement « %event% ».</target>
                 <note>Email body for event invitation</note>
             </trans-unit>
             <trans-unit id="app.notification.event.staff_assigned_title">
@@ -3284,7 +3284,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.staff_assigned_message">
                 <source>app.notification.event.staff_assigned_message</source>
-                <target>Vous avez été assigné comme staff pour « %event% ».</target>
+                <target>Tu as été assigné·e comme staff pour « %event% ».</target>
                 <note>In-app notification message for staff assignment</note>
             </trans-unit>
             <trans-unit id="app.notification.event.updated_title">
@@ -3314,7 +3314,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.invited_message">
                 <source>app.notification.event.invited_message</source>
-                <target>Vous avez été invité à « %event% ».</target>
+                <target>Tu as été invité·e à « %event% ».</target>
                 <note>In-app notification message for event invitation</note>
             </trans-unit>
 
@@ -3333,7 +3333,7 @@
             </trans-unit>
             <trans-unit id="app.notification_preferences.description">
                 <source>app.notification_preferences.description</source>
-                <target>Choisissez les notifications que vous souhaitez recevoir par e-mail et/ou dans l'application.</target>
+                <target>Choisis les notifications que tu veux recevoir par e-mail et/ou dans l'application.</target>
                 <note>Description text on notification preferences page</note>
             </trans-unit>
             <trans-unit id="app.notification_preferences.group.borrow">
@@ -3358,7 +3358,7 @@
             </trans-unit>
             <trans-unit id="app.notification_preferences.column.in_app">
                 <source>app.notification_preferences.column.in_app</source>
-                <target>In-App</target>
+                <target>Dans l'app</target>
                 <note>Table column header</note>
             </trans-unit>
             <trans-unit id="app.notification_preferences.save_button">
@@ -3388,7 +3388,7 @@
             </trans-unit>
             <trans-unit id="app.notification_preferences.type.borrow_returned">
                 <source>app.notification_preferences.type.borrow_returned</source>
-                <target>Deck retourné</target>
+                <target>Deck rendu</target>
                 <note>Notification type label</note>
             </trans-unit>
             <trans-unit id="app.notification_preferences.type.borrow_overdue">
@@ -3430,7 +3430,7 @@
             <!-- Flash messages: Notification Preferences -->
             <trans-unit id="app.flash.notification_preferences.saved">
                 <source>app.flash.notification_preferences.saved</source>
-                <target>Vos préférences de notification ont été enregistrées.</target>
+                <target>Tes préférences de notification ont été enregistrées.</target>
                 <note>Flash message after saving notification preferences</note>
             </trans-unit>
 
@@ -3447,7 +3447,7 @@
             </trans-unit>
             <trans-unit id="app.event.results.player">
                 <source>app.event.results.player</source>
-                <target>Joueur</target>
+                <target>Joueur·euse</target>
                 <note>Results table header: player</note>
             </trans-unit>
             <trans-unit id="app.event.results.match_record">
@@ -3504,12 +3504,12 @@
             </trans-unit>
             <trans-unit id="app.event.sync.tooltip">
                 <source>app.event.sync.tooltip</source>
-                <target>Récupérer les détails depuis la page officielle de l'événement Pokemon</target>
+                <target>Récupérer les détails depuis la page officielle de l'événement Pokémon</target>
                 <note>Tooltip for the sync button</note>
             </trans-unit>
             <trans-unit id="app.event.sync.error_empty">
                 <source>app.event.sync.error_empty</source>
-                <target>Veuillez d'abord saisir un identifiant de tournoi.</target>
+                <target>Saisis d'abord un identifiant de tournoi.</target>
                 <note>Error when tournament ID field is empty</note>
             </trans-unit>
             <trans-unit id="app.event.sync.confirm_overwrite">
@@ -3594,12 +3594,12 @@
             <!-- Profile: Data & Deletion (GDPR) -->
             <trans-unit id="app.profile.data_title">
                 <source>app.profile.data_title</source>
-                <target>Vos données</target>
+                <target>Tes données</target>
                 <note>Profile section title for data export</note>
             </trans-unit>
             <trans-unit id="app.profile.data_description">
                 <source>app.profile.data_description</source>
-                <target>Téléchargez une copie de toutes vos données personnelles (profil, decks, emprunts, événements) au format JSON.</target>
+                <target>Télécharge une copie de toutes tes données personnelles (profil, decks, emprunts, événements) au format JSON.</target>
                 <note>Profile data export description</note>
             </trans-unit>
             <trans-unit id="app.profile.export_button">
@@ -3609,7 +3609,7 @@
             </trans-unit>
             <trans-unit id="app.profile.delete_description">
                 <source>app.profile.delete_description</source>
-                <target>Demandez la suppression définitive de votre compte. Un e-mail de confirmation sera envoyé. Une fois confirmé, toutes vos données personnelles seront anonymisées et vous ne pourrez plus vous connecter.</target>
+                <target>Demande la suppression définitive de ton compte. Un e-mail de confirmation sera envoyé. Une fois confirmé, toutes tes données personnelles seront anonymisées et tu ne pourras plus te connecter.</target>
                 <note>Profile account deletion description</note>
             </trans-unit>
             <trans-unit id="app.profile.delete_button">
@@ -3619,17 +3619,17 @@
             </trans-unit>
             <trans-unit id="app.profile.confirm_delete">
                 <source>app.profile.confirm_delete</source>
-                <target>Êtes-vous sûr ? Un e-mail de confirmation sera envoyé pour finaliser la suppression.</target>
+                <target>Supprimer ton compte ? Un e-mail de confirmation sera envoyé pour finaliser la suppression.</target>
                 <note>Confirmation prompt for account deletion request</note>
             </trans-unit>
             <trans-unit id="app.profile.unsettled_borrows">
                 <source>app.profile.unsettled_borrows</source>
-                <target>Vous ne pouvez pas supprimer votre compte tant que vous avez des emprunts actifs (en attente, approuvés, prêtés ou en retard). Veuillez d'abord régler tous vos emprunts.</target>
+                <target>Tu ne peux pas supprimer ton compte tant que tu as des emprunts actifs (en attente, approuvés, prêtés ou en retard). Règle d'abord tous tes emprunts.</target>
                 <note>Error when user tries to delete account with unsettled borrows</note>
             </trans-unit>
             <trans-unit id="app.profile.deletion_requested">
                 <source>app.profile.deletion_requested</source>
-                <target>Un e-mail de confirmation a été envoyé. Vérifiez votre boîte de réception pour finaliser la suppression du compte.</target>
+                <target>Un e-mail de confirmation a été envoyé. Vérifie ta boîte de réception pour finaliser la suppression du compte.</target>
                 <note>Flash message after requesting account deletion</note>
             </trans-unit>
             <trans-unit id="app.profile.deletion_invalid_link">
@@ -3639,18 +3639,18 @@
             </trans-unit>
             <trans-unit id="app.profile.deletion_link_expired">
                 <source>app.profile.deletion_link_expired</source>
-                <target>Ce lien de suppression a expiré. Veuillez en demander un nouveau depuis votre profil.</target>
+                <target>Ce lien de suppression a expiré. Demandes-en un nouveau depuis ton profil.</target>
                 <note>Flash message for expired deletion token</note>
             </trans-unit>
             <trans-unit id="app.profile.deletion_confirmed">
                 <source>app.profile.deletion_confirmed</source>
-                <target>Votre compte a été définitivement supprimé et toutes les données personnelles ont été anonymisées.</target>
+                <target>Ton compte a été définitivement supprimé et toutes les données personnelles ont été anonymisées.</target>
                 <note>Flash message after successful account deletion</note>
             </trans-unit>
             <!-- Email: Account Deletion -->
             <trans-unit id="app.email.deletion_subject">
                 <source>app.email.deletion_subject</source>
-                <target>Confirmez la suppression de votre compte — Expanded Decks</target>
+                <target>Confirme la suppression de ton compte — Expanded Decks</target>
                 <note>Subject line for account deletion confirmation email</note>
             </trans-unit>
             <trans-unit id="app.email.deletion_heading">
@@ -3660,7 +3660,7 @@
             </trans-unit>
             <trans-unit id="app.email.deletion_body">
                 <source>app.email.deletion_body</source>
-                <target>Vous avez demandé la suppression de votre compte Expanded Decks. Cliquez sur le bouton ci-dessous pour confirmer. Cette action est irréversible — toutes vos données personnelles seront définitivement anonymisées.</target>
+                <target>Tu as demandé la suppression de ton compte Expanded Decks. Clique sur le bouton ci-dessous pour confirmer. Cette action est irréversible — toutes tes données personnelles seront définitivement anonymisées.</target>
                 <note>Body text in deletion confirmation email</note>
             </trans-unit>
             <trans-unit id="app.email.deletion_button">
@@ -3670,18 +3670,18 @@
             </trans-unit>
             <trans-unit id="app.email.deletion_expires">
                 <source>app.email.deletion_expires</source>
-                <target>Ce lien expire dans %hours% heures.</target>
+                <target>Ce lien expire dans %hours% heure(s).</target>
                 <note>Expiry notice in deletion confirmation email</note>
             </trans-unit>
             <trans-unit id="app.email.deletion_ignore">
                 <source>app.email.deletion_ignore</source>
-                <target>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail. Votre compte restera actif.</target>
+                <target>Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail. Ton compte restera actif.</target>
                 <note>Ignore notice in deletion confirmation email</note>
             </trans-unit>
             <!-- Admin: Navigation -->
             <trans-unit id="app.nav.admin_users">
                 <source>app.nav.admin_users</source>
-                <target>Gérer les utilisateurs</target>
+                <target>Gérer les utilisateur·rices</target>
                 <note>Admin dropdown link to user management</note>
             </trans-unit>
             <trans-unit id="app.nav.admin_archetypes">
@@ -3831,7 +3831,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.description_placeholder">
                 <source>app.archetype.description_placeholder</source>
-                <target>Description Markdown pour la page de détail de l'archétype...</target>
+                <target>Description Markdown pour la page de détail de l'archétype…</target>
                 <note>Admin archetype description placeholder</note>
             </trans-unit>
             <trans-unit id="app.archetype.description_help">
@@ -3866,7 +3866,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.pokemon_slugs_label">
                 <source>app.archetype.pokemon_slugs_label</source>
-                <target>Sprites Pokemon</target>
+                <target>Sprites Pokémon</target>
                 <note>Admin archetype pokemon slugs field label</note>
             </trans-unit>
             <trans-unit id="app.archetype.pokemon_slugs_placeholder">
@@ -3876,12 +3876,12 @@
             </trans-unit>
             <trans-unit id="app.archetype.pokemon_slugs_help">
                 <source>app.archetype.pokemon_slugs_help</source>
-                <target>Slugs Pokemon séparés par des virgules pour l'affichage des sprites (ex. iron-thorns, mew). Les sprites apparaîtront à côté du nom de l'archétype.</target>
+                <target>Slugs Pokémon séparés par des virgules pour l'affichage des sprites (ex. iron-thorns, mew). Les sprites apparaîtront à côté du nom de l'archétype.</target>
                 <note>Admin archetype pokemon slugs help text</note>
             </trans-unit>
             <trans-unit id="app.admin.archetype.delete_confirm">
                 <source>app.admin.archetype.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer cet archétype ? Il n&apos;apparaîtra plus dans le catalogue.</target>
+                <target>Supprimer cet archétype ? Il n&apos;apparaîtra plus dans le catalogue.</target>
                 <note>JavaScript confirm dialog when deleting an archetype</note>
             </trans-unit>
             <trans-unit id="app.admin.archetype.delete_button">
@@ -3891,7 +3891,7 @@
             </trans-unit>
             <trans-unit id="app.admin.archetype.delete_has_decks">
                 <source>app.admin.archetype.delete_has_decks</source>
-                <target>Cet archétype ne peut pas être supprimé car des decks lui sont encore associés. Retirez ou réaffectez ces decks d&apos;abord.</target>
+                <target>Cet archétype ne peut pas être supprimé car des decks lui sont encore associés. Retire ou réaffecte ces decks d&apos;abord.</target>
                 <note>Error flash when trying to delete an archetype that has decks</note>
             </trans-unit>
             <trans-unit id="app.flash.archetype.deleted">
@@ -3931,7 +3931,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.playstyle_tags_placeholder">
                 <source>app.archetype.playstyle_tags_placeholder</source>
-                <target>Sélectionner des tags...</target>
+                <target>Sélectionner des tags…</target>
                 <note>Admin archetype playstyle tags placeholder</note>
             </trans-unit>
             <trans-unit id="app.archetype.no_archetypes">
@@ -3941,7 +3941,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.table.pokemon">
                 <source>app.archetype.table.pokemon</source>
-                <target>Pokemon</target>
+                <target>Pokémon</target>
                 <note>Admin archetype table column header</note>
             </trans-unit>
             <trans-unit id="app.archetype.table.decks">
@@ -3953,7 +3953,7 @@
             <!-- Archetype detail page (F2.10) -->
             <trans-unit id="app.archetype.draft_notice">
                 <source>app.archetype.draft_notice</source>
-                <target>Cet archétype n'est pas encore publié. Seuls les administrateurs peuvent voir cette page.</target>
+                <target>Cet archétype n'est pas encore publié. Seul·es les administrateur·rices peuvent voir cette page.</target>
                 <note>Draft notice for unpublished archetype detail page</note>
             </trans-unit>
             <trans-unit id="app.archetype.decks_title">
@@ -3975,7 +3975,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.filter_by_tag">
                 <source>app.archetype.filter_by_tag</source>
-                <target>Étiquette</target>
+                <target>Tag</target>
                 <note>Label for tag filter on archetype catalog</note>
             </trans-unit>
             <trans-unit id="app.archetype.filter_drafts">
@@ -4030,7 +4030,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.no_results">
                 <source>app.archetype.no_results</source>
-                <target>Aucun archétype ne correspond à votre filtre.</target>
+                <target>Aucun archétype ne correspond à tes filtres.</target>
                 <note>Empty state on archetype catalog when filters yield no results</note>
             </trans-unit>
 
@@ -4047,7 +4047,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.variant.none">
                 <source>app.archetype.variant.none</source>
-                <target>Aucune variante. Ajoutez-en une pour afficher des decklists sur la page de l'archétype.</target>
+                <target>Aucune variante. Ajoute-en une pour afficher des decklists sur la page de l'archétype.</target>
                 <note>Empty state when archetype has no variant decks</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.name">
@@ -4072,7 +4072,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.variant.raw_list_placeholder">
                 <source>app.archetype.variant.raw_list_placeholder</source>
-                <target>Collez une decklist au format texte PTCG ici…</target>
+                <target>Colle une decklist au format texte PTCG ici…</target>
                 <note>Placeholder for raw list field</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.description">
@@ -4102,7 +4102,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.variant.paste_to_replace">
                 <source>app.archetype.variant.paste_to_replace</source>
-                <target>Collez une nouvelle liste ci-dessus pour créer une nouvelle version</target>
+                <target>Colle une nouvelle liste ci-dessus pour créer une nouvelle version</target>
                 <note>Help text for replacing existing decklist</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.latest_set">
@@ -4172,7 +4172,7 @@
             </trans-unit>
             <trans-unit id="app.archetype.variant.delete_confirm">
                 <source>app.archetype.variant.delete_confirm</source>
-                <target>Voulez-vous vraiment supprimer cette variante ?</target>
+                <target>Supprimer cette variante ?</target>
                 <note>Confirmation dialog for variant deletion</note>
             </trans-unit>
             <trans-unit id="app.archetype.variant.copy_tag">
@@ -4234,7 +4234,7 @@
             <!-- Admin: User management -->
             <trans-unit id="app.admin.user.list_title">
                 <source>app.admin.user.list_title</source>
-                <target>Gestion des utilisateurs</target>
+                <target>Gestion des utilisateur·rices</target>
                 <note>Admin user list page title</note>
             </trans-unit>
             <trans-unit id="app.admin.user.search_placeholder">
@@ -4244,7 +4244,7 @@
             </trans-unit>
             <trans-unit id="app.admin.user.no_results">
                 <source>app.admin.user.no_results</source>
-                <target>Aucun utilisateur trouvé.</target>
+                <target>Aucun·e utilisateur·rice trouvé·e.</target>
                 <note>Admin user list empty state</note>
             </trans-unit>
             <trans-unit id="app.admin.user.table.screen_name">
@@ -4349,12 +4349,12 @@
             </trans-unit>
             <trans-unit id="app.admin.user.confirm_disable">
                 <source>app.admin.user.confirm_disable</source>
-                <target>Désactiver ce compte ? L'utilisateur ne pourra plus se connecter.</target>
+                <target>Désactiver ce compte ? La personne ne pourra plus se connecter.</target>
                 <note>Confirmation prompt for disabling a user</note>
             </trans-unit>
             <trans-unit id="app.admin.user.confirm_anonymize">
                 <source>app.admin.user.confirm_anonymize</source>
-                <target>Anonymiser cet utilisateur ? Toutes les données personnelles seront définitivement supprimées. Cette action est irréversible.</target>
+                <target>Anonymiser ce compte ? Toutes les données personnelles seront définitivement supprimées. Cette action est irréversible.</target>
                 <note>Confirmation prompt for anonymizing a user</note>
             </trans-unit>
             <trans-unit id="app.admin.user.disabled">
@@ -4452,7 +4452,7 @@
             </trans-unit>
             <trans-unit id="app.cms.admin.delete_confirm">
                 <source>app.cms.admin.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer cette page ?</target>
+                <target>Supprimer cette page ?</target>
             </trans-unit>
             <trans-unit id="app.cms.admin.delete_locked_listing_intro">
                 <source>app.cms.admin.delete_locked_listing_intro</source>
@@ -4466,7 +4466,7 @@
             </trans-unit>
             <trans-unit id="app.cms.admin.delete_locked_listing_intro_help">
                 <source>app.cms.admin.delete_locked_listing_intro_help</source>
-                <target>Cette page sert de bloc d'introduction éditable à une liste (banned cards ou staples) et ne peut pas être supprimée. Dépubliez-la ou videz son contenu à la place.</target>
+                <target>Cette page sert de bloc d'introduction éditable à une liste (banned cards ou staples) et ne peut pas être supprimée. Dépublie-la ou vide son contenu à la place.</target>
                 <note>Help text under the locked-deletion heading</note>
             </trans-unit>
             <trans-unit id="app.cms.admin.search_placeholder">
@@ -4514,7 +4514,7 @@
             </trans-unit>
             <trans-unit id="app.cms.admin.delete_category_confirm">
                 <source>app.cms.admin.delete_category_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer cette catégorie ?</target>
+                <target>Supprimer cette catégorie ?</target>
             </trans-unit>
             <trans-unit id="app.cms.admin.no_categories">
                 <source>app.cms.admin.no_categories</source>
@@ -4600,7 +4600,7 @@
             </trans-unit>
             <trans-unit id="app.cms.form.content_placeholder">
                 <source>app.cms.form.content_placeholder</source>
-                <target>Rédigez votre contenu en Markdown…</target>
+                <target>Rédige ton contenu en Markdown…</target>
             </trans-unit>
             <trans-unit id="app.cms.form.meta_title">
                 <source>app.cms.form.meta_title</source>
@@ -4728,7 +4728,7 @@
             <!-- CMS: Public page -->
             <trans-unit id="app.cms.draft_notice">
                 <source>app.cms.draft_notice</source>
-                <target>Cette page n'est pas encore publiée. Seuls les éditeurs peuvent la voir.</target>
+                <target>Cette page n'est pas encore publiée. Seul·es les éditeur·rices peuvent la voir.</target>
             </trans-unit>
             <trans-unit id="app.cms.published_on">
                 <source>app.cms.published_on</source>
@@ -4888,11 +4888,11 @@
             </trans-unit>
             <trans-unit id="app.homepage.admin.no_blocks">
                 <source>app.homepage.admin.no_blocks</source>
-                <target>Aucun bloc. Ajoutez votre premier bloc pour commencer.</target>
+                <target>Aucun bloc. Ajoute ton premier bloc pour commencer.</target>
             </trans-unit>
             <trans-unit id="app.homepage.admin.delete_confirm">
                 <source>app.homepage.admin.delete_confirm</source>
-                <target>Êtes-vous sûr de vouloir supprimer ce bloc ?</target>
+                <target>Supprimer ce bloc ?</target>
             </trans-unit>
             <trans-unit id="app.homepage.admin.grid_preview">
                 <source>app.homepage.admin.grid_preview</source>
@@ -4919,7 +4919,7 @@
             </trans-unit>
             <trans-unit id="app.homepage.admin.carousel_variant.needs_three_items">
                 <source>app.homepage.admin.carousel_variant.needs_three_items</source>
-                <target>La grille en vedette ne s'affiche qu'à partir de 3 éléments visibles. Ajoutez des éléments ou programmez-les pour que 3 se chevauchent.</target>
+                <target>La grille en vedette ne s'affiche qu'à partir de 3 éléments visibles. Ajoute des éléments ou programme-les pour que 3 se chevauchent.</target>
                 <note>#553 — admin warning shown when feature_grid is selected but fewer than 3 items are configured</note>
             </trans-unit>
             <trans-unit id="app.homepage.admin.carousel_caption.label">
@@ -4954,7 +4954,7 @@
             </trans-unit>
             <trans-unit id="app.homepage.admin.carousel_brightness.help">
                 <source>app.homepage.admin.carousel_brightness.help</source>
-                <target>Pourcentage appliqué via un filtre CSS. 100 % laisse l'image inchangée ; en-dessous l'image est assombrie. Par défaut 80 %.</target>
+                <target>Pourcentage appliqué via un filtre CSS. 100 % laisse l'image inchangée ; en dessous, l'image est assombrie. Par défaut 80 %.</target>
                 <note>helper text under the brightness input</note>
             </trans-unit>
             <trans-unit id="app.homepage.admin.image">
@@ -5008,7 +5008,7 @@
             </trans-unit>
             <trans-unit id="app.homepage.admin.page_title.help">
                 <source>app.homepage.admin.page_title.help</source>
-                <target>Utilisé dans l'onglet du navigateur et comme titre Open Graph. Laissez vide pour n'afficher que le nom de marque du canal.</target>
+                <target>Utilisé dans l'onglet du navigateur et comme titre Open Graph. Laisse vide pour n'afficher que le nom de marque du canal.</target>
                 <note>Helper text under the homepage page-title input</note>
             </trans-unit>
             <trans-unit id="app.homepage.admin.og_description.label">
@@ -5104,7 +5104,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.reenrich_card.description">
                 <source>app.admin.technical.reenrich_card.description</source>
-                <target>Ré-enrichir une carte spécifique par code de set et numéro de carte. L'enrichissement existant sera supprimé pour toutes les cartes correspondantes, puis les versions de deck seront ré-enrichies et les mosaïques et listes minifiées regénérées.</target>
+                <target>Ré-enrichir une carte spécifique par code de set et numéro de carte. L'enrichissement existant sera supprimé pour toutes les cartes correspondantes, puis les versions de deck seront ré-enrichies et les mosaïques et listes simplifiées régénérées.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.reenrich_card.set_code">
                 <source>app.admin.technical.reenrich_card.set_code</source>
@@ -5120,7 +5120,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.reenrich_card.empty">
                 <source>app.admin.technical.reenrich_card.empty</source>
-                <target>Veuillez saisir un code de set et un numéro de carte.</target>
+                <target>Saisis un code de set et un numéro de carte.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.reenrich_card.no_match">
                 <source>app.admin.technical.reenrich_card.no_match</source>
@@ -5222,7 +5222,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.sprite_mapping.description">
                 <source>app.admin.technical.sprite_mapping.description</source>
-                <target>Correspondance slug → Pokédex pour les sprites HOME 3D. Données issues du CSV PokeAPI.</target>
+                <target>Correspondance slug → Pokédex pour les sprites HOME 3D. Données issues du CSV PokéAPI.</target>
                 <note>Admin technical card description</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.sprite_mapping.rebuild_button">
@@ -5297,7 +5297,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.tcgdex_sync.force_update_invalid">
                 <source>app.admin.technical.tcgdex_sync.force_update_invalid</source>
-                <target>Veuillez choisir un set valide à forcer.</target>
+                <target>Choisis un set valide à forcer.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.title">
                 <source>app.admin.technical.banned_cards.title</source>
@@ -5325,7 +5325,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.failed">
                 <source>app.admin.technical.banned_cards.failed</source>
-                <target>La synchronisation des cartes bannies a échoué. Vérifiez les logs.</target>
+                <target>La synchronisation des cartes bannies a échoué. Vérifie les logs.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.enrich_button">
                 <source>app.admin.technical.banned_cards.enrich_button</source>
@@ -5339,7 +5339,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.enrich_hint">
                 <source>app.admin.technical.banned_cards.enrich_hint</source>
-                <target>La synchronisation enrichit déjà toutes les lignes qu'elle touche ; utilisez ces boutons pour réessayer les cartes non résolues (par ex. après un sync TCGdex) sans re-télécharger la liste officielle.</target>
+                <target>La synchronisation enrichit déjà toutes les lignes qu'elle touche ; utilise ces boutons pour réessayer les cartes non résolues (ex. après une synchro TCGdex) sans re-télécharger la liste officielle.</target>
                 <note>F6.14 — admin help text under the banned cards buttons</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.banned_cards.confirm_enrich_force">
@@ -5419,7 +5419,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.clear_cache_key.empty">
                 <source>app.admin.technical.clear_cache_key.empty</source>
-                <target>Veuillez saisir une clé de cache.</target>
+                <target>Saisis une clé de cache.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.title">
                 <source>app.admin.technical.flush_reenrich.title</source>
@@ -5435,7 +5435,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.confirm">
                 <source>app.admin.technical.flush_reenrich.confirm</source>
-                <target>Êtes-vous sûr ? Toutes les données d'enrichissement seront purgées et chaque version de deck sera ré-enrichie de zéro.</target>
+                <target>Tout purger et ré-enrichir ? Toutes les données d'enrichissement seront purgées et chaque version de deck sera ré-enrichie de zéro.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush_reenrich.button">
                 <source>app.admin.technical.flush_reenrich.button</source>
@@ -5455,11 +5455,11 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.warning">
                 <source>app.admin.technical.flush.warning</source>
-                <target>Cette action est destructrice et irréversible. Toutes les données d'enrichissement seront supprimées. Vous devrez relancer l'enrichissement de toutes les versions de deck ensuite.</target>
+                <target>Cette action est destructrice et irréversible. Toutes les données d'enrichissement seront supprimées. Tu devras relancer l'enrichissement de toutes les versions de deck ensuite.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.confirm">
                 <source>app.admin.technical.flush.confirm</source>
-                <target>Êtes-vous sûr de vouloir purger TOUTES les données d'enrichissement ? Cette action est irréversible.</target>
+                <target>Purger TOUTES les données d'enrichissement ? Cette action est irréversible.</target>
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.button">
                 <source>app.admin.technical.flush.button</source>
@@ -5467,7 +5467,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.flush.success">
                 <source>app.admin.technical.flush.success</source>
-                <target>Toutes les données d'enrichissement ont été purgées. Utilisez « Relancer tous les enrichissements » pour ré-enrichir.</target>
+                <target>Toutes les données d'enrichissement ont été purgées. Utilise « Relancer tous les enrichissements » pour ré-enrichir.</target>
             </trans-unit>
             <trans-unit id="app.common.loading">
                 <source>app.common.loading</source>
@@ -5483,33 +5483,33 @@
             </trans-unit>
             <trans-unit id="app.deck.awaiting_mappings.message">
                 <source>app.deck.awaiting_mappings.message</source>
-                <target>Les correspondances de sets n'ont pas encore été construites. Un administrateur doit déclencher la reconstruction depuis le tableau de bord technique.</target>
+                <target>Les correspondances de sets n'ont pas encore été construites. Un·e administrateur·rice doit déclencher la reconstruction depuis le tableau de bord technique.</target>
             </trans-unit>
 
             <!-- Error pages -->
             <trans-unit id="app.error.403">
                 <source>app.error.403</source>
-                <target>Un Ronflex bloque le passage. Vous n&apos;avez pas la permission de passer !</target>
+                <target>Un Ronflex bloque le passage. Tu n&apos;as pas la permission de passer !</target>
                 <note>Error page message for 403 Forbidden</note>
             </trans-unit>
             <trans-unit id="app.error.404">
                 <source>app.error.404</source>
-                <target>Metamorph a essaye de se transformer en cette page, mais elle ne semble pas exister !</target>
+                <target>Métamorph a essayé de se transformer en cette page, mais elle ne semble pas exister !</target>
                 <note>Error page message for 404 Not Found</note>
             </trans-unit>
             <trans-unit id="app.error.429">
                 <source>app.error.429</source>
-                <target>Trop de requetes ! Toute la famille Famignol s&apos;invite a la fete. Veuillez ralentir et reessayer plus tard.</target>
+                <target>Trop de requêtes ! Toute la famille Famignol s&apos;invite à la fête. Ralentis et réessaie plus tard.</target>
                 <note>Error page message for 429 Too Many Requests</note>
             </trans-unit>
             <trans-unit id="app.error.500">
                 <source>app.error.500</source>
-                <target>Un bug sauvage est apparu ! Notre equipe travaille a le capturer. Veuillez reessayer plus tard.</target>
+                <target>Un bug sauvage est apparu ! Notre équipe travaille à le capturer. Réessaie plus tard.</target>
                 <note>Error page message for 500 Internal Server Error</note>
             </trans-unit>
             <trans-unit id="app.error.generic">
                 <source>app.error.generic</source>
-                <target>Quelque chose d&apos;inattendu s&apos;est produit. L&apos;attaque a echoue ! Veuillez reessayer plus tard.</target>
+                <target>Quelque chose d&apos;inattendu s&apos;est produit. L&apos;attaque a échoué ! Réessaie plus tard.</target>
                 <note>Error page message for other error codes</note>
             </trans-unit>
             <trans-unit id="app.error.back_home">
@@ -5529,7 +5529,7 @@
             </trans-unit>
             <trans-unit id="app.empty_channel.message">
                 <source>app.empty_channel.message</source>
-                <target>Togepi attend. Quelque chose va éclore ici très bientôt — repassez plus tard pour voir ce qui sortira de la coquille.</target>
+                <target>Togepi attend. Quelque chose va éclore ici très bientôt — repasse plus tard pour voir ce qui sortira de la coquille.</target>
                 <note>Empty-channel landing page message (Pokémon-themed teaser, hatching idea)</note>
             </trans-unit>
             <trans-unit id="app.event.show_private_decks">
@@ -5579,7 +5579,7 @@
             </trans-unit>
             <trans-unit id="app.email.event.ending_phase_subject">
                 <source>app.email.event.ending_phase_subject</source>
-                <target>Merci de rendre vos decks empruntés — « %event% » touche à sa fin</target>
+                <target>Merci de rendre tes decks empruntés — « %event% » touche à sa fin</target>
                 <note>Email subject for ending phase borrower reminder</note>
             </trans-unit>
             <trans-unit id="app.email.event.ending_phase_heading">
@@ -5609,12 +5609,12 @@
             </trans-unit>
             <trans-unit id="app.email.event.ending_phase_owner_body">
                 <source>app.email.event.ending_phase_owner_body</source>
-                <target>La phase de clôture a commencé pour « %event% ». %count% de vos decks sont encore en possession d&apos;emprunteurs.</target>
+                <target>La phase de clôture a commencé pour « %event% ». %count% de tes decks sont encore entre les mains d&apos;emprunteur·euses.</target>
                 <note>Email body for ending phase owner notification</note>
             </trans-unit>
             <trans-unit id="app.email.event.custody_pickup_subject">
                 <source>app.email.event.custody_pickup_subject</source>
-                <target>Vos decks sont prêts à être récupérés — « %event% »</target>
+                <target>Tes decks sont prêts à être récupérés — « %event% »</target>
                 <note>Email subject for custody pickup notification</note>
             </trans-unit>
             <trans-unit id="app.email.event.custody_pickup_heading">
@@ -5624,12 +5624,12 @@
             </trans-unit>
             <trans-unit id="app.email.event.custody_pickup_body">
                 <source>app.email.event.custody_pickup_body</source>
-                <target>Les decks suivants vous attendent à la custody de l&apos;organisateur pour « %event% » :</target>
+                <target>Les decks suivants t&apos;attendent à la table du staff pour « %event% » :</target>
                 <note>Email body for custody pickup notification</note>
             </trans-unit>
             <trans-unit id="app.email.event.custody_pickup_action">
                 <source>app.email.event.custody_pickup_action</source>
-                <target>Merci de récupérer vos decks à la table du staff.</target>
+                <target>Merci de récupérer tes decks à la table du staff.</target>
                 <note>Email action text for custody pickup notification</note>
             </trans-unit>
             <trans-unit id="app.notification.event.ending_phase_title">
@@ -5639,7 +5639,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.ending_phase_message">
                 <source>app.notification.event.ending_phase_message</source>
-                <target>La phase de clôture a commencé pour « %event% ». Merci de rendre vos %count% deck(s) empruntés.</target>
+                <target>La phase de clôture a commencé pour « %event% ». Merci de rendre tes %count% deck(s) emprunté(s).</target>
                 <note>In-app notification message for ending phase borrower</note>
             </trans-unit>
             <trans-unit id="app.notification.event.ending_phase_owner_title">
@@ -5649,7 +5649,7 @@
             </trans-unit>
             <trans-unit id="app.notification.event.ending_phase_owner_message">
                 <source>app.notification.event.ending_phase_owner_message</source>
-                <target>La phase de clôture a commencé pour « %event% ». %count% de vos decks sont encore en prêt.</target>
+                <target>La phase de clôture a commencé pour « %event% ». %count% de tes decks sont encore en prêt.</target>
                 <note>In-app notification message for ending phase owner</note>
             </trans-unit>
             <trans-unit id="app.notification.event.custody_pickup_title">
@@ -5659,22 +5659,22 @@
             </trans-unit>
             <trans-unit id="app.notification.event.custody_pickup_message">
                 <source>app.notification.event.custody_pickup_message</source>
-                <target>%count% de vos decks vous attendent à la custody de l&apos;organisateur pour « %event% ».</target>
+                <target>%count% de tes decks t&apos;attendent à la table du staff pour « %event% ».</target>
                 <note>In-app notification message for custody pickup</note>
             </trans-unit>
             <trans-unit id="app.event.banner.return_prompt">
                 <source>app.event.banner.return_prompt</source>
-                <target>Merci de rendre vos decks empruntés au propriétaire ou à la table du staff.</target>
+                <target>Merci de rendre tes decks empruntés au propriétaire ou à la table du staff.</target>
                 <note>Banner for borrowers during ending phase</note>
             </trans-unit>
             <trans-unit id="app.event.banner.owner_custody_status">
                 <source>app.event.banner.owner_custody_status</source>
-                <target>%inCustody% de vos decks sont disponibles à la custody de l&apos;organisateur, %stillOut% sont encore en attente de retour.</target>
+                <target>%inCustody% de tes decks sont à récupérer à la table du staff, %stillOut% sont encore en attente de retour.</target>
                 <note>Banner for owners with delegated decks during ending phase</note>
             </trans-unit>
             <trans-unit id="app.event.banner.owner_decks_out">
                 <source>app.event.banner.owner_decks_out</source>
-                <target>%stillOut% de vos decks sont encore en attente de retour par les emprunteurs.</target>
+                <target>%stillOut% de tes decks sont encore en attente de retour par les emprunteur·euses.</target>
                 <note>Banner for owners with non-delegated decks during ending phase</note>
             </trans-unit>
             <trans-unit id="app.event.banner.organizer_return_progress">
@@ -5685,7 +5685,7 @@
             <!-- Captcha -->
             <trans-unit id="app.captcha.verification_failed">
                 <source>app.captcha.verification_failed</source>
-                <target>La vérification anti-robot a échoué. Veuillez réessayer.</target>
+                <target>La vérification anti-robot a échoué. Réessaie.</target>
                 <note>Error when Friendly Captcha server-side validation rejects the response</note>
             </trans-unit>
             <!-- Discord username -->
@@ -5696,7 +5696,7 @@
             </trans-unit>
             <trans-unit id="app.form.help.discord_username">
                 <source>app.form.help.discord_username</source>
-                <target>Votre nom d'utilisateur Discord (ex : joueur42). Affiché aux personnes qui trouvent votre deck.</target>
+                <target>Ton nom d'utilisateur Discord (ex. joueur42). Affiché aux personnes qui trouvent ton deck.</target>
                 <note>Profile form help text</note>
             </trans-unit>
             <!-- Deck limited view -->
@@ -5738,7 +5738,7 @@
             </trans-unit>
             <trans-unit id="app.deck.found_message_placeholder">
                 <source>app.deck.found_message_placeholder</source>
-                <target>Où le propriétaire peut-il récupérer le deck ? Ou laissez vos coordonnées (ex : « Table 5, demander Julie » ou « Déposé à l'accueil »).</target>
+                <target>Où le propriétaire peut-il récupérer le deck ? Ou laisse tes coordonnées (ex. « Table 5, demander Julie » ou « Déposé à l'accueil »).</target>
                 <note>Textarea placeholder in found deck modal</note>
             </trans-unit>
             <trans-unit id="app.deck.found_discord_copy">
@@ -5763,18 +5763,18 @@
             </trans-unit>
             <trans-unit id="app.deck.found_error">
                 <source>app.deck.found_error</source>
-                <target>Une erreur est survenue. Veuillez réessayer.</target>
+                <target>Une erreur est survenue. Réessaie.</target>
                 <note>Error message if found deck report fails</note>
             </trans-unit>
             <!-- Deck found notifications -->
             <trans-unit id="app.notification.deck_found_title">
                 <source>app.notification.deck_found_title</source>
-                <target>Quelqu'un a trouvé votre deck « %deck% »</target>
+                <target>Quelqu'un a trouvé ton deck « %deck% »</target>
                 <note>In-app notification title</note>
             </trans-unit>
             <trans-unit id="app.notification.deck_found_message">
                 <source>app.notification.deck_found_message</source>
-                <target>Votre deck « %deck% » a été signalé comme trouvé par %reporter%.</target>
+                <target>Ton deck « %deck% » a été signalé comme trouvé par %reporter%.</target>
                 <note>In-app notification message, followed by the reporter's message</note>
             </trans-unit>
             <trans-unit id="app.notification_preferences.group.deck">
@@ -5790,17 +5790,17 @@
             <!-- Deck found email -->
             <trans-unit id="app.email.deck_found_subject">
                 <source>app.email.deck_found_subject</source>
-                <target>Quelqu'un a trouvé votre deck « %deck% »</target>
+                <target>Quelqu'un a trouvé ton deck « %deck% »</target>
                 <note>Email subject for deck found notification</note>
             </trans-unit>
             <trans-unit id="app.email.deck_found_heading">
                 <source>app.email.deck_found_heading</source>
-                <target>Votre deck « %deck% » a été trouvé !</target>
+                <target>Ton deck « %deck% » a été trouvé !</target>
                 <note>Email heading</note>
             </trans-unit>
             <trans-unit id="app.email.deck_found_body">
                 <source>app.email.deck_found_body</source>
-                <target>Quelqu'un a signalé avoir trouvé votre deck « %deck% » (tag : %shortTag%).</target>
+                <target>Quelqu'un a signalé avoir trouvé ton deck « %deck% » (tag : %shortTag%).</target>
                 <note>Email body text</note>
             </trans-unit>
             <trans-unit id="app.email.deck_found_reporter">
@@ -5821,7 +5821,7 @@
             <!-- SEO structured data (F18.27) -->
             <trans-unit id="app.seo.tcg_genre">
                 <source>app.seo.tcg_genre</source>
-                <target>Pokémon JCC Étendu</target>
+                <target>JCC Pokémon Étendu</target>
                 <note>Genre for JSON-LD structured data on archetype and deck pages</note>
             </trans-unit>
             <trans-unit id="app.seo.tcg_game_name">
@@ -5831,7 +5831,7 @@
             </trans-unit>
             <trans-unit id="app.seo.archetype_headline">
                 <source>app.seo.archetype_headline</source>
-                <target>%name% — Archétype de deck Pokémon JCC Étendu</target>
+                <target>%name% — Archétype de deck JCC Pokémon Étendu</target>
                 <note>Headline for archetype Article JSON-LD</note>
             </trans-unit>
             <trans-unit id="app.seo.variant_description">
@@ -5866,7 +5866,7 @@
             </trans-unit>
             <trans-unit id="app.search.no_results">
                 <source>app.search.no_results</source>
-                <target>Aucun résultat pour « %query% ». Essayez un autre terme de recherche.</target>
+                <target>Aucun résultat pour « %query% ». Essaie un autre terme de recherche.</target>
                 <note>Empty state message</note>
             </trans-unit>
             <trans-unit id="app.search.type.all">
@@ -5933,7 +5933,7 @@
             </trans-unit>
             <trans-unit id="app.decklist.player_id">
                 <source>app.decklist.player_id</source>
-                <target>ID Joueur</target>
+                <target>ID joueur</target>
                 <note>PDF decklist field label</note>
             </trans-unit>
             <trans-unit id="app.decklist.year_of_birth">
@@ -5998,7 +5998,7 @@
             </trans-unit>
             <trans-unit id="app.banned_card.public.empty">
                 <source>app.banned_card.public.empty</source>
-                <target>Aucune carte n'est actuellement bannie du format Étendu.</target>
+                <target>Aucune carte n'est actuellement bannie du format Expanded.</target>
                 <note>F6.14 — empty state on the public banned cards page</note>
             </trans-unit>
             <trans-unit id="app.banned_card.public.view_details">
@@ -6008,17 +6008,17 @@
             </trans-unit>
             <trans-unit id="app.banned_card.public.printings_count">
                 <source>app.banned_card.public.printings_count</source>
-                <target>{1}1 édition|]1,Inf[%count% éditions</target>
+                <target>{1}1 version|]1,Inf[%count% versions</target>
                 <note>F6.14 — badge showing how many printings of the same card are banned</note>
             </trans-unit>
             <trans-unit id="app.banned_card.modal.banned_printings">
                 <source>app.banned_card.modal.banned_printings</source>
-                <target>Éditions</target>
+                <target>Versions</target>
                 <note>F6.14 — modal section listing every (set, number) banned for the card</note>
             </trans-unit>
             <trans-unit id="app.banned_card.modal.set">
                 <source>app.banned_card.modal.set</source>
-                <target>Édition</target>
+                <target>Set</target>
                 <note>F6.14 — banned card modal: set / number row label</note>
             </trans-unit>
             <trans-unit id="app.banned_card.modal.effective_date">
@@ -6063,22 +6063,22 @@
             </trans-unit>
             <trans-unit id="app.admin.banned_card.list_hint">
                 <source>app.admin.banned_card.list_hint</source>
-                <target>Une ligne par carte fonctionnelle. Les éditions bannies sont synchronisées automatiquement ; les admins gèrent uniquement les méta-données (date, lien, explication).</target>
+                <target>Une ligne par carte fonctionnelle. Les éditions bannies sont synchronisées automatiquement ; les admins gèrent uniquement les métadonnées (date, lien, explication).</target>
                 <note>F6.14 — admin help text under the list title</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.field.printings">
                 <source>app.admin.banned_card.field.printings</source>
-                <target>Éditions</target>
+                <target>Versions</target>
                 <note>F6.14 — admin: column / panel listing each (set, number) banned for the card</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.no_printings">
                 <source>app.admin.banned_card.no_printings</source>
-                <target>Aucune édition enregistrée — lancez une synchronisation pour les peupler.</target>
+                <target>Aucune version enregistrée — lance une synchronisation pour les peupler.</target>
                 <note>F6.14 — admin: empty state on the edit page printings panel</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.printings_hint">
                 <source>app.admin.banned_card.printings_hint</source>
-                <target>Les éditions proviennent de pokemon.com et de l'enrichissement TCGdex. Utilisez le tableau de bord technique pour resynchroniser ou réindexer.</target>
+                <target>Les versions proviennent de pokemon.com et de l'enrichissement TCGdex. Utilise le tableau de bord technique pour resynchroniser ou réindexer.</target>
                 <note>F6.14 — admin: hint under the printings panel</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.printing_unresolved">
@@ -6143,7 +6143,7 @@
             </trans-unit>
             <trans-unit id="app.admin.banned_card.field.set_code">
                 <source>app.admin.banned_card.field.set_code</source>
-                <target>Code d'édition</target>
+                <target>Code de set</target>
                 <note>F6.14 — admin form field</note>
             </trans-unit>
             <trans-unit id="app.admin.banned_card.field.card_number">
@@ -6288,7 +6288,7 @@
             </trans-unit>
             <trans-unit id="app.staple_card.bucket.ace_spec">
                 <source>app.staple_card.bucket.ace_spec</source>
-                <target>Cartes AS</target>
+                <target>HIGH TECH</target>
                 <note>F6.15 — bucket label</note>
             </trans-unit>
             <trans-unit id="app.staple_card.modal.printings">
@@ -6303,7 +6303,7 @@
             </trans-unit>
             <trans-unit id="app.staple_card.modal.note">
                 <source>app.staple_card.modal.note</source>
-                <target>Note de l'éditeur</target>
+                <target>Note de l'éditeur·rice</target>
                 <note>F6.15 — public modal note section heading</note>
             </trans-unit>
             <trans-unit id="app.staple_card.modal.previous">
@@ -6323,7 +6323,7 @@
             </trans-unit>
             <trans-unit id="app.admin.staple_card.list_hint">
                 <source>app.admin.staple_card.list_hint</source>
-                <target>Choisissez les cartes les plus jouées. Glissez les lignes pour les réordonner dans chaque catégorie.</target>
+                <target>Choisis les cartes les plus jouées. Glisse les lignes pour les réordonner dans chaque catégorie.</target>
                 <note>F6.15 — admin list hint</note>
             </trans-unit>
             <trans-unit id="app.admin.staple_card.new">
@@ -6373,7 +6373,7 @@
             </trans-unit>
             <trans-unit id="app.admin.staple_card.field.hotness_help">
                 <source>app.admin.staple_card.field.hotness_help</source>
-                <target>Indice de pertinence choisi par l'éditeur, 1-10. La valeur par défaut est 5 (seuil de staple).</target>
+                <target>Indice de pertinence choisi par l'éditeur·rice, 1–10. La valeur par défaut est 5 (seuil de staple).</target>
                 <note>F6.15 — admin form field help text</note>
             </trans-unit>
             <trans-unit id="app.admin.staple_card.field.note">
@@ -6483,7 +6483,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.enrich_force_button">
                 <source>app.admin.technical.staple_cards.enrich_force_button</source>
-                <target>Forcer la ré-enrichissement (supprime les liens)</target>
+                <target>Forcer le ré-enrichissement (supprime les liens)</target>
                 <note>F6.15 — technical dashboard force re-enrich button</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.staple_cards.confirm_enrich_force">
@@ -6513,7 +6513,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.card_identity_signature.description">
                 <source>app.admin.technical.card_identity_signature.description</source>
-                <target>Recalcule la signature d'attaque de chaque CardIdentity Pokemon avec le format incluant les dégâts. Les identités dont toutes les impressions s'accordent sur la nouvelle signature sont mises à jour en place ; celles dont les impressions divergent (reprints inter-générations avec des dégâts retravaillés) sont scindées en identités distinctes, et les impressions sont repointées vers la bonne.</target>
+                <target>Recalcule la signature d'attaque de chaque CardIdentity Pokémon avec le format incluant les dégâts. Les identités dont toutes les impressions s'accordent sur la nouvelle signature sont mises à jour en place ; celles dont les impressions divergent (reprints inter-générations avec des dégâts retravaillés) sont scindées en identités distinctes, et les impressions sont repointées vers la bonne.</target>
                 <note>F6.10 — technical dashboard signature rebuild description</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.card_identity_signature.rebuild_button">
@@ -6523,7 +6523,7 @@
             </trans-unit>
             <trans-unit id="app.admin.technical.card_identity_signature.confirm_rebuild">
                 <source>app.admin.technical.card_identity_signature.confirm_rebuild</source>
-                <target>Cette action va réécrire la signature d'attaque de chaque CardIdentity Pokemon et peut créer de nouvelles identités par scission. Continuer ?</target>
+                <target>Cette action va réécrire la signature d'attaque de chaque CardIdentity Pokémon et peut créer de nouvelles identités par scission. Continuer ?</target>
                 <note>F6.10 — technical dashboard signature rebuild confirmation prompt</note>
             </trans-unit>
             <trans-unit id="app.admin.technical.card_identity_signature.hint">
