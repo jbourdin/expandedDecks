@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.13.1] — 2026-06-06
+
+Patch release: the RSS feed autodiscovery titles introduced in 1.13.0 no longer leak the literal `%brand%` placeholder.
+
+### Bug Fixes
+
+- **Pass brand param to feed autodiscovery link titles** — `app.cms.feed.title_for_category` gained a `%brand%` placeholder in 1.13.0, but the `<link rel="alternate" type="application/rss+xml">` titles on the category list and single-page views still passed only `%category%`. Symfony's translator leaves unknown placeholders verbatim, so browsers and feed readers picking up autodiscovery saw e.g. « News — %brand% » as the feed name. Both templates now pass `channel_param('brand_name', …)` like the feed template does; regression tests assert the rendered titles contain the brand and not the raw placeholder. ([#673](https://github.com/jbourdin/expandedDecks/pull/673))
+
+---
+
 ## [1.13.0] — 2026-06-06
 
 Minor release: content syndication arrives as a new feature family (F21). Readers can subscribe to RSS feeds for each CMS page category and for newly published archetype variants, with branded channels (name + logo) for feed readers and subscribe buttons across the site.
