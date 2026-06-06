@@ -6630,6 +6630,66 @@
                 <target>Meilisearch is not reachable — reindex skipped.</target>
                 <note>F18.1 — technical dashboard search reindex unreachable warning</note>
             </trans-unit>
+            <trans-unit id="app.nav.og_image_builder">
+                <source>app.nav.og_image_builder</source>
+                <target>OG image builder</target>
+                <note>F18.32 — admin dropdown link to the OG image builder</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.title">
+                <source>app.admin.og_image_builder.title</source>
+                <target>OG image builder</target>
+                <note>F18.32 — page title</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.intro">
+                <source>app.admin.og_image_builder.intro</source>
+                <target>Compose a social-preview image (1200×630) from a few cards, then copy the URL into the OG image field of a deck, an archetype or a page.</target>
+                <note>F18.32 — page intro paragraph</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.codes_label">
+                <source>app.admin.og_image_builder.codes_label</source>
+                <target>Card codes</target>
+                <note>F18.32 — textarea label</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.codes_help">
+                <source>app.admin.og_image_builder.codes_help</source>
+                <target>One code per line (2 to 6 cards), e.g. SV08-128</target>
+                <note>F18.32 — textarea help text</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.generate">
+                <source>app.admin.og_image_builder.generate</source>
+                <target>Generate</target>
+                <note>F18.32 — generate button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.copy_url">
+                <source>app.admin.og_image_builder.copy_url</source>
+                <target>Copy URL</target>
+                <note>F18.32 — copy button</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.copied">
+                <source>app.admin.og_image_builder.copied</source>
+                <target>Copied!</target>
+                <note>F18.32 — copy button confirmation state</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.not_found">
+                <source>app.admin.og_image_builder.not_found</source>
+                <target>not found</target>
+                <note>F18.32 — per-code status chip for unresolved codes</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.error_card_count">
+                <source>app.admin.og_image_builder.error_card_count</source>
+                <target>Enter between 2 and 6 card codes.</target>
+                <note>F18.32 — validation error on card count</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.error_none_resolved">
+                <source>app.admin.og_image_builder.error_none_resolved</source>
+                <target>None of the codes matched a card.</target>
+                <note>F18.32 — error when no code resolves</note>
+            </trans-unit>
+            <trans-unit id="app.admin.og_image_builder.error_generic">
+                <source>app.admin.og_image_builder.error_generic</source>
+                <target>Generation failed. Try again.</target>
+                <note>F18.32 — generic generation error</note>
+            </trans-unit>
         </body>
     </file>
 </xliff>

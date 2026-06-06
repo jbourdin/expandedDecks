@@ -405,6 +405,43 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
     }
 
     /**
+     * @see docs/features.md F18.32 — Card-fan OG image builder
+     */
+    public function testEditVariantPersistsOgImageAndDescription(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+        $variant = $this->getVariantByName('Regidrago', $archetype);
+
+        $crawler = $this->client->request('GET', '/admin/archetypes/'.$archetype->getId().'/variants/'.$variant->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['archetype_variant_form[ogImage]'] = '/api/editor/image/00000000-0000-0000-0000-000000000000.png';
+        $form['archetype_variant_form[ogDescription]'] = 'A fan of the deck key cards.';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+
+        $reloaded = $entityManager->getRepository(Deck::class)->find($variant->getId());
+        self::assertInstanceOf(Deck::class, $reloaded);
+        self::assertSame('/api/editor/image/00000000-0000-0000-0000-000000000000.png', $reloaded->getOgImage());
+        self::assertSame('A fan of the deck key cards.', $reloaded->getOgDescription());
+
+        // The variants feed picks the image up (F21.2 emits variant-level ogImage only).
+        $this->client->request('GET', '/en/archetypes/feed.xml');
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString(
+            '/api/editor/image/00000000-0000-0000-0000-000000000000.png',
+            (string) $this->client->getResponse()->getContent(),
+        );
+    }
+
+    /**
      * @see docs/features.md F18.15 — Admin archetype variant management
      */
     public function testDeleteVariant(): void

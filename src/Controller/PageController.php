@@ -20,6 +20,7 @@ use App\Entity\PageTranslation;
 use App\Repository\PageRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownExcerptGenerator;
+use App\Service\Seo\OgMetaResolver;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,7 @@ class PageController extends AbstractController
         Request $request,
         PageRepository $pageRepository,
         MarkdownExcerptGenerator $markdownExcerptGenerator,
+        OgMetaResolver $ogMetaResolver,
     ): Response {
         $locale = $request->getLocale();
         $pages = $pageRepository->findLatestPublishedByCategory($category, self::FEED_ITEMS);
@@ -102,6 +104,7 @@ class PageController extends AbstractController
                 ),
                 'publishedAt' => $page->getFirstPublishedAt() ?? $page->getCreatedAt(),
                 'description' => $markdownExcerptGenerator->excerpt($translation->getContent()),
+                'image' => $ogMetaResolver->resolveForPage($page, $locale)['image'],
             ];
         }
 

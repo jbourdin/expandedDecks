@@ -187,6 +187,56 @@ class PageControllerTest extends AbstractFunctionalTest
         self::assertContains('Cats & "Dogs" <Test>', $titles);
     }
 
+    public function testCategoryFeedEmitsMediaContentForPageWithOgImage(): void
+    {
+        $category = $this->findNewsCategory();
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $page = new Page();
+        $page->setChannel($category->getChannel());
+        $page->setSlug('feed-og-image-page');
+        $page->setMenuCategory($category);
+        $page->setIsPublished(true);
+        $page->setOgImage('/api/editor/image/00000000-0000-0000-0000-000000000000.png');
+        $translation = new PageTranslation();
+        $translation->setPage($page);
+        $translation->setLocale('en');
+        $translation->setTitle('Feed OG image page');
+        $translation->setContent('A page with an OG image for feed readers.');
+        $page->addTranslation($translation);
+        $entityManager->persist($page);
+        $entityManager->persist($translation);
+        $entityManager->flush();
+
+        $this->client->request('GET', \sprintf('/en/pages/category/%d/feed.xml', $category->getId()), server: self::CONTENT_HOST);
+
+        self::assertResponseIsSuccessful();
+        $xml = simplexml_load_string((string) $this->client->getResponse()->getContent());
+        self::assertNotFalse($xml);
+
+        $imageUrl = null;
+        foreach ($xml->channel->item as $item) {
+            $mediaChildren = $item->children('http://search.yahoo.com/mrss/');
+
+            if ('Feed OG image page' === (string) $item->title) {
+                self::assertCount(1, $mediaChildren);
+                $imageUrl = (string) $mediaChildren->content->attributes()['url'];
+            } else {
+                // Fixture pages define no OG image, so they carry no media element.
+                self::assertCount(0, $mediaChildren);
+            }
+        }
+
+        self::assertNotNull($imageUrl);
+        // channel_absolute_url() turns the relative ogImage path into an absolute URL.
+        self::assertMatchesRegularExpression(
+            '#^https?://[^/]+/api/editor/image/00000000-0000-0000-0000-000000000000\.png$#',
+            $imageUrl,
+        );
+    }
+
     public function testCategoryPageFeedAutodiscoveryTitleIncludesBrand(): void
     {
         $category = $this->findNewsCategory();
