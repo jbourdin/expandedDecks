@@ -24,7 +24,7 @@
 
 {% block alternate_feeds %}
     {% if page.menuCategory %}
-        <link rel="alternate" type="application/rss+xml" title="{{ 'app.cms.feed.title_for_category'|trans({'%category%': page.menuCategory.getName(app.request.locale)}) }}" href="{{ url('app_page_category_feed', {id: page.menuCategory.id}) }}">
+        <link rel="alternate" type="application/rss+xml" title="{{ 'app.cms.feed.title_for_category'|trans({'%category%': page.menuCategory.getName(app.request.locale), '%brand%': channel_param('brand_name', 'Expanded Decks')}) }}" href="{{ url('app_page_category_feed', {id: page.menuCategory.id}) }}">
     {% endif %}
 {% endblock %}
 

@@ -11,7 +11,7 @@
 {% block title %}{{ category.getName(app.request.locale) }} — {{ parent() }}{% endblock %}
 
 {% block alternate_feeds %}
-    <link rel="alternate" type="application/rss+xml" title="{{ 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(app.request.locale)}) }}" href="{{ url('app_page_category_feed', {id: category.id}) }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(app.request.locale), '%brand%': channel_param('brand_name', 'Expanded Decks')}) }}" href="{{ url('app_page_category_feed', {id: category.id}) }}">
 {% endblock %}
 
 {% block body %}
