@@ -16,6 +16,17 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.12.35] — 2026-06-06
+
+Patch release: the deck catalog no longer leaks Standard decks when filtering on yourself, and the French interface gets a full tone-and-terminology overhaul backed by a new translation standards document.
+
+### Bug Fixes
+
+- **Exclude Standard decks from catalog self-owner filter** — `/deck?owner=<self>` leaked Standard-format decks into the public catalog: `DeckRepository::createCatalogQueryBuilder()` only enforced the `DeckFormat::Expanded` constraint in the `!$selfOwner` branch, and the catalog controller (unlike `/mydecks`) never sets an explicit `format` filter. The builder now applies the Expanded constraint for self-owners too when no explicit format filter is given — Standard decks remain reachable via `/mydecks/standard` (F2.23), which passes the format explicitly. Covered by a regression test (`testSelfOwnerFilterExcludesStandardDecks`), verified red before the fix. ([#668](https://github.com/jbourdin/expandedDecks/pull/668))
+- **French translation overhaul — player tone and consistency** — Full review of all 1343 French strings (~300 revised). The interface and transactional emails now use tutoiement throughout (the file previously mixed *tu* and *vous* by feature era); every « Veuillez » and « Êtes-vous sûr de vouloir… » frame is replaced by direct imperatives and direct-question confirmations. Inclusive writing uses the point médian on every person reference (« joueur·euse », « Seul·es les dresseur·euses invité·es »), with epicene rephrasing where pronoun chains would follow. TCG jargon stays in English as French players use it (deck, decklist, staple, set, top cut, format Expanded) and official French card terms are enforced (HIGH TECH for ACE SPEC, Machine Technique, Dresseur). Borrow-lifecycle vocabulary is corrected — `rendre`/`rendu` replaces the anglicism « retourné », « garde »/« table du staff » replaces the untranslated « custody » — and spelling/typography is harmonized (`e-mail`, `ID joueur`, `…` ellipsis, Pokémon accents, sentence case, accents restored on error pages). Also fixes a leading-space interval-plural bug present in **both** locales (`app.event.pending_borrows`) and converts the participation count badges to proper interval plurals. All choices are documented in the new [docs/standards/french_translation.md](standards/french_translation.md) (tone rules, glossary with rationale, typography, open questions), linked from the docs index and CLAUDE.md. ([#669](https://github.com/jbourdin/expandedDecks/pull/669))
+
+---
+
 ## [1.12.34] — 2026-06-03
 
 Patch release: recreating an archetype whose name or slug is still held by a soft-deleted row now succeeds instead of failing at the database level.
