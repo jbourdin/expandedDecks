@@ -78,9 +78,9 @@ This gives the canonical **Regidrago** archetype variant a realistic card fan (R
 
 ## RSS feed integration
 
-The OG images surface beyond social crawlers: both RSS feeds emit each item's resolved OG image as `<media:content medium="image">` (Media RSS namespace — chosen over RSS core `<enclosure>` which requires a byte-size `length` attribute we cannot know for arbitrary URLs):
+The OG images surface beyond social crawlers: both RSS feeds emit each item's OG image as `<media:content medium="image">` (Media RSS namespace — chosen over RSS core `<enclosure>` which requires a byte-size `length` attribute we cannot know for arbitrary URLs):
 
-- **Archetype variants feed** (F21.2): `OgMetaResolver::resolveForDeck()` per variant — variant `ogImage` → archetype locale-scoped `ogImage` → mosaic fallback, so every item carries an image once mosaics exist, and picks up the card fan automatically when an editor sets one.
+- **Archetype variants feed** (F21.2): only an `ogImage` set on the variant **itself** — deliberately no `OgMetaResolver` fallback chain here. The mosaic is too large and irrelevant as a feed thumbnail, and the archetype-level image would repeat on every variant; the element is simply omitted until an editor sets a fan on the variant.
 - **Page category feeds** (F21.1): `OgMetaResolver::resolveForPage()` — `PageTranslation.ogImage` → `Page.ogImage`; the element is omitted when neither is set.
 
 URLs are absolutized with `channel_absolute_url()` (feed readers, like social crawlers, don't resolve relative URLs).

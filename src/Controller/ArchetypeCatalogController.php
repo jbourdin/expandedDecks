@@ -17,7 +17,6 @@ use App\Entity\Archetype;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Service\MarkdownExcerptGenerator;
-use App\Service\Seo\OgMetaResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -87,7 +86,6 @@ class ArchetypeCatalogController extends AbstractController
         Request $request,
         DeckRepository $deckRepository,
         MarkdownExcerptGenerator $markdownExcerptGenerator,
-        OgMetaResolver $ogMetaResolver,
     ): Response {
         $locale = $request->getLocale();
         $variants = $deckRepository->findLatestPublishedVariants(self::FEED_ITEMS);
@@ -116,7 +114,10 @@ class ArchetypeCatalogController extends AbstractController
                 'url' => $archetypeUrl.'#'.$variant->getShortTag(),
                 'publishedAt' => $publishedAt,
                 'description' => $markdownExcerptGenerator->excerpt($variant->getNotes() ?? ''),
-                'image' => $ogMetaResolver->resolveForDeck($variant, $locale)['image'],
+                // Only an image explicitly set on the variant — no archetype or
+                // mosaic fallback: the 60-card mosaic is too big to be a relevant
+                // feed thumbnail.
+                'image' => $variant->getOgImage(),
             ];
         }
 

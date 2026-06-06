@@ -273,9 +273,19 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         );
     }
 
-    public function testVariantFeedOmitsMediaContentWithoutImage(): void
+    public function testVariantFeedOmitsMediaContentWithoutVariantOgImage(): void
     {
-        // Fixtures define no ogImage and no mosaic, so no item carries an image.
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        // Neither the mosaic nor the archetype-level OG image may leak into the
+        // feed — only an ogImage explicitly set on the variant itself counts.
+        $variant = $entityManager->getRepository(Deck::class)->findOneBy(['name' => 'Alternate Regidrago']);
+        self::assertInstanceOf(Deck::class, $variant);
+        $variant->getCurrentVersion()?->setMosaicImageUrl('mosaic/1/1.png');
+        $variant->getArchetype()?->getTranslation('en')?->setOgImage('/api/editor/image/archetype-level.png');
+        $entityManager->flush();
+
         $this->client->request('GET', '/en/archetypes/feed.xml');
 
         self::assertResponseIsSuccessful();
