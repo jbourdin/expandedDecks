@@ -192,4 +192,67 @@ class ArchetypeFreshnessListenerTest extends AbstractFunctionalTest
 
         self::assertGreaterThan($archetypeBefore, $archetype->getLastPublishedAt());
     }
+
+    /**
+     * Setting a variant's social-preview image is not content activity: it must
+     * touch neither the archetype's freshness signal nor the deck's `updatedAt`.
+     *
+     * @see docs/features.md F18.32 — Card-fan OG image builder
+     */
+    public function testSettingVariantOgImageDoesNotBumpTimestamps(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = $em->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+        $em->refresh($archetype);
+        $archetypeBefore = $archetype->getLastPublishedAt();
+        self::assertNotNull($archetypeBefore);
+
+        $variant = $em->getRepository(Deck::class)->findOneBy(['archetype' => $archetype, 'owner' => null]);
+        self::assertNotNull($variant);
+        $deckBefore = $variant->getUpdatedAt();
+
+        sleep(1);
+
+        $variant->setOgImage('/api/editor/image/00000000-0000-0000-0000-000000000000.png');
+        $variant->setOgDescription('A fan of the deck key cards.');
+        $em->flush();
+
+        $em->refresh($archetype);
+        $em->refresh($variant);
+
+        self::assertEquals($archetypeBefore, $archetype->getLastPublishedAt());
+        self::assertEquals($deckBefore, $variant->getUpdatedAt());
+    }
+
+    /**
+     * Setting a translation's social-preview fields is not content activity:
+     * the archetype's freshness signal must stay untouched.
+     *
+     * @see docs/features.md F18.32 — Card-fan OG image builder
+     */
+    public function testSettingTranslationOgImageDoesNotBumpArchetype(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = $em->getRepository(Archetype::class)->findOneBy(['slug' => 'regidrago']);
+        self::assertNotNull($archetype);
+        $em->refresh($archetype);
+        $archetypeBefore = $archetype->getLastPublishedAt();
+        self::assertNotNull($archetypeBefore);
+
+        $translation = $archetype->getTranslation('en');
+        self::assertInstanceOf(ArchetypeTranslation::class, $translation);
+
+        sleep(1);
+
+        $translation->setOgImage('/api/editor/image/00000000-0000-0000-0000-000000000000.png');
+        $translation->setOgDescription('A fan of the archetype key cards.');
+        $em->flush();
+
+        $em->refresh($archetype);
+
+        self::assertEquals($archetypeBefore, $archetype->getLastPublishedAt());
+    }
 }

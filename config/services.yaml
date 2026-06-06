@@ -99,6 +99,18 @@ services:
         arguments:
             $editorUploadStorage: '@editor_upload.storage'
 
+    App\Controller\OgImageBuilderController:
+        arguments:
+            $editorUploadStorage: '@editor_upload.storage'
+
+    App\Service\OgImage\CardFanImageGenerator:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Command\GenerateCardFanOgImageCommand:
+        arguments:
+            $editorUploadStorage: '@editor_upload.storage'
+
     App\Service\Sprite\SpriteResolver:
         arguments:
             $projectDir: '%kernel.project_dir%'

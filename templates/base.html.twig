@@ -175,6 +175,9 @@
                                         <li><a class="dropdown-item" href="{{ path('app_admin_page_list') }}">{{ 'app.nav.cms_pages'|trans }}</a></li>
                                         <li><a class="dropdown-item" href="{{ path('app_admin_menu_category_list') }}">{{ 'app.nav.cms_categories'|trans }}</a></li>
                                     {% endif %}
+                                    {% if is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_og_image_builder') }}">{{ 'app.nav.og_image_builder'|trans }}</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>
                                 </ul>

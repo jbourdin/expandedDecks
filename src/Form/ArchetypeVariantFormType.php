@@ -78,6 +78,19 @@ class ArchetypeVariantFormType extends AbstractType
                 'label' => 'app.archetype.variant.description',
                 'required' => false,
                 'attr' => ['rows' => 15],
+            ])
+            ->add('ogImage', TextType::class, [
+                'label' => 'app.form.label.og_image',
+                'help' => 'app.form.help.og_image',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => ['maxlength' => 255],
+            ])
+            ->add('ogDescription', TextareaType::class, [
+                'label' => 'app.form.label.og_description',
+                'help' => 'app.form.help.og_description',
+                'required' => false,
+                'attr' => ['rows' => 3],
             ]);
     }
 

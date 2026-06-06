@@ -114,6 +114,10 @@ class ArchetypeCatalogController extends AbstractController
                 'url' => $archetypeUrl.'#'.$variant->getShortTag(),
                 'publishedAt' => $publishedAt,
                 'description' => $markdownExcerptGenerator->excerpt($variant->getNotes() ?? ''),
+                // Only an image explicitly set on the variant — no archetype or
+                // mosaic fallback: the 60-card mosaic is too big to be a relevant
+                // feed thumbnail.
+                'image' => $variant->getOgImage(),
             ];
         }
 

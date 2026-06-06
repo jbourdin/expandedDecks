@@ -95,4 +95,33 @@ class PageFreshnessListenerTest extends AbstractFunctionalTest
         $em->refresh($page);
         self::assertNull($page->getLastPublishedAt());
     }
+
+    /**
+     * Setting a translation's social-preview fields is not content activity:
+     * the page's "Updated on" date must stay untouched.
+     *
+     * @see docs/features.md F18.32 — Card-fan OG image builder
+     */
+    public function testSettingTranslationOgImageDoesNotBumpPage(): void
+    {
+        $em = $this->getEntityManager();
+
+        $page = $this->createPage('freshness-og-image-page', true);
+
+        $em->refresh($page);
+        $initialLastPublishedAt = $page->getLastPublishedAt();
+        self::assertNotNull($initialLastPublishedAt);
+
+        sleep(1);
+
+        $translation = $page->getTranslation('en');
+        self::assertNotNull($translation);
+        $translation->setOgImage('/api/editor/image/00000000-0000-0000-0000-000000000000.png');
+        $translation->setOgDescription('A fan of the page key cards.');
+        $em->flush();
+
+        $em->refresh($page);
+
+        self::assertEquals($initialLastPublishedAt, $page->getLastPublishedAt());
+    }
 }

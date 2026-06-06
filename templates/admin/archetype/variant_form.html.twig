@@ -75,6 +75,10 @@
                 {% from 'admin/_rich_text_editor.html.twig' import rich_text_editor %}
                 {{ rich_text_editor(form.notes) }}
 
+                {% from 'admin/_image_url_field.html.twig' import image_url_field %}
+                {{ image_url_field(form.ogImage) }}
+                {{ form_row(form.ogDescription) }}
+
                 <button type="submit" class="btn btn-gold mt-3">{{ 'app.common.save'|trans }}</button>
             {{ form_end(form) }}
 

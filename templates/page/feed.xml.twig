@@ -15,7 +15,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 {%- set feedTitle = 'app.cms.feed.title_for_category'|trans({'%category%': category.getName(locale), '%brand%': channel_param('brand_name', 'Expanded Decks')}) %}
 {%- set feedLink = url('app_page_category', {id: category.id}) %}
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
     <channel>
         <title>{{ feedTitle }}</title>
         <link>{{ feedLink }}</link>
@@ -34,6 +34,9 @@
             <pubDate>{{ item.publishedAt|date('r') }}</pubDate>
             {%- if item.description is not empty %}
             <description>{{ item.description }}</description>
+            {%- endif %}
+            {%- if item.image %}
+            <media:content url="{{ channel_absolute_url(item.image) }}" medium="image"/>
             {%- endif %}
         </item>
         {%- endfor %}
