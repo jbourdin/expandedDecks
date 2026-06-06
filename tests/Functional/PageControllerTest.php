@@ -187,6 +187,31 @@ class PageControllerTest extends AbstractFunctionalTest
         self::assertContains('Cats & "Dogs" <Test>', $titles);
     }
 
+    public function testCategoryPageFeedAutodiscoveryTitleIncludesBrand(): void
+    {
+        $category = $this->findNewsCategory();
+
+        $crawler = $this->client->request('GET', \sprintf('/en/pages/category/%d', $category->getId()), server: self::CONTENT_HOST);
+
+        self::assertResponseIsSuccessful();
+        $linkTitle = $crawler->filter('link[rel="alternate"][type="application/rss+xml"]')->attr('title');
+        self::assertNotNull($linkTitle);
+        // A missing translation parameter would leak the literal placeholder.
+        self::assertStringNotContainsString('%brand%', $linkTitle);
+        self::assertStringContainsString('Expanded Talks', $linkTitle);
+    }
+
+    public function testPageShowFeedAutodiscoveryTitleIncludesBrand(): void
+    {
+        $crawler = $this->client->request('GET', '/en/pages/season-2026-kickoff', server: self::CONTENT_HOST);
+
+        self::assertResponseIsSuccessful();
+        $linkTitle = $crawler->filter('link[rel="alternate"][type="application/rss+xml"]')->attr('title');
+        self::assertNotNull($linkTitle);
+        self::assertStringNotContainsString('%brand%', $linkTitle);
+        self::assertStringContainsString('Expanded Talks', $linkTitle);
+    }
+
     public function testCategoryFeedUnknownCategoryReturns404(): void
     {
         $this->client->request('GET', '/en/pages/category/999999/feed.xml', server: self::CONTENT_HOST);
