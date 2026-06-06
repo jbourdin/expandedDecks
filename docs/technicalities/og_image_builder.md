@@ -56,6 +56,20 @@ Both gated `ROLE_CMS_EDITOR` **or** `ROLE_ARCHETYPE_EDITOR` (the editor-upload a
 
 ---
 
+## CLI generation & dev fixture
+
+`app:og-image:card-fan <codes...> [--deck=NAME]` (`GenerateCardFanOgImageCommand`) runs the same resolve → composite → store pipeline from the console and optionally assigns the resulting URL as a deck's `ogImage`. Unlike the endpoint, the filename is **deterministic** (md5 of the joined codes), so repeated runs overwrite the same file instead of accumulating orphans.
+
+The `make fixtures` pipeline calls it after `tcgdex.import` (codes resolve from the local TCGdex database; only the card image downloads hit the CDN):
+
+```
+symfony console app:og-image:card-fan SIT-136 UPR-100 SFA-47 --deck=Regidrago
+```
+
+This gives the canonical **Regidrago** archetype variant a realistic card fan (Regidrago VSTAR, Dialga GX, Kyurem) in dev, visible in the archetype page's `og:image` and the variants feed's `media:content`. It is deliberately **not** part of `DevFixtures` — functional tests load those fixtures and must not hit the network.
+
+---
+
 ## Frontend
 
 `assets/components/OgImageBuilder.tsx` (Mantine island, entry `og_image_builder`): textarea (one code per line) → Generate → per-code status `Badge` chips, preview `<img>` on a CSS checkerboard (makes the transparency visible), and a `CopyButton` that copies the **absolute** URL (`new URL(url, window.location.origin)`). Labels arrive via `data-*` attributes from `templates/admin/og_image_builder/index.html.twig` (`app.admin.og_image_builder.*` keys) — same pattern as `_image_url_field.html.twig`, no react-i18next involvement.

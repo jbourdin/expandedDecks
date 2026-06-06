@@ -94,6 +94,7 @@ fixtures: ## Load fixture data, enrich, and rebuild search index
 	symfony console app:banned-cards:sync
 	$(MAKE) tcgdex.import
 	symfony console app:enrich:retry
+	symfony console app:og-image:card-fan SIT-136 UPR-100 SFA-47 --deck=Regidrago
 	$(MAKE) sprites.sync
 	$(MAKE) search.reindex
 

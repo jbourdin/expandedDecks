@@ -103,6 +103,10 @@ services:
         arguments:
             $editorUploadStorage: '@editor_upload.storage'
 
+    App\Command\GenerateCardFanOgImageCommand:
+        arguments:
+            $editorUploadStorage: '@editor_upload.storage'
+
     App\Service\Sprite\SpriteResolver:
         arguments:
             $projectDir: '%kernel.project_dir%'
