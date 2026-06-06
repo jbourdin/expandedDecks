@@ -135,6 +135,8 @@ Pages are served at:
 
 Where `{slug}` is the `Page.slug` field. Example: `/en/pages/how-to-borrow`, `/fr/pages/how-to-borrow`.
 
+Category listings are served at `/{locale}/pages/category/{id}`, and each category exposes an RSS 2.0 feed of its latest published pages at `/{locale}/pages/category/{id}/feed.xml` (see [docs/features.md](../features.md) F21.1).
+
 ### Reserved listing-intro slugs
 
 Two slugs are reserved (centralised in `App\Constants\ListingIntroPage`) and back the editable intro block on the banned-cards / staple-cards listing pages:

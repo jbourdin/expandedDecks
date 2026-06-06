@@ -25,6 +25,7 @@ use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Repository\EventRepository;
 use App\Repository\PageRepository;
+use App\Service\MarkdownExcerptGenerator;
 use App\Service\Search\SearchIndexer;
 use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
@@ -412,6 +413,7 @@ class SearchIndexerIntegrationTest extends TestCase
         $this->setProperty($indexer, 'pageRepository', $pageRepository);
         $this->setProperty($indexer, 'eventRepository', $eventRepository);
         $this->setProperty($indexer, 'deckRepository', $deckRepository);
+        $this->setProperty($indexer, 'markdownExcerptGenerator', new MarkdownExcerptGenerator());
         $this->setProperty($indexer, 'logger', new NullLogger());
 
         return $indexer;

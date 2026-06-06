@@ -1,0 +1,24 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # RSS 2.0 channel <image> for feed readers. Only themed channels ship a
+ # square PNG icon (the apple touch icon) — the default theme has an SVG
+ # favicon only, which RSS readers don't reliably support, so the element
+ # is omitted there.
+ #
+ # Expects: imageTitle (channel title), imageLink (channel link URL).
+ #
+ # @see docs/features.md F21.1 — RSS feed per page category
+ #}
+{% if channel_theme() %}
+    <image>
+        <url>{{ absolute_url(asset('build/images/themes/' ~ channel_theme() ~ '/apple_touch_icon.png')) }}</url>
+        <title>{{ imageTitle }}</title>
+        <link>{{ imageLink }}</link>
+    </image>
+{% endif %}
