@@ -33,7 +33,9 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
     public function testPageRendersForEditor(): void
     {
-        $this->loginAs('admin@example.com');
+        // editor@example.com holds only ROLE_CMS_EDITOR (no ROLE_ADMIN), which is
+        // the case the `^/admin/og-image-builder` firewall rule must allow through.
+        $this->loginAs('editor@example.com');
         $this->client->request('GET', '/admin/og-image-builder');
 
         self::assertResponseIsSuccessful();
