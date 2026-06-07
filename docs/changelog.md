@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.1] — 2026-06-07
+
+Patch release: card fans generated in production now show the Pokemon card back fillers instead of grey placeholders.
+
+### Bug Fixes
+
+- **Ship the card back asset in the production image** — The production Dockerfile prunes `assets/` after the frontend build (compiled output ships in `public/build`), and `CardFanImageGenerator` was the one server-side consumer reading a file from there: in production `loadCardBack()` found nothing and the graceful fallback drew grey placeholder fillers. The card back moves to `public/images/card_back.jpg` — committed, shipped via `COPY . .`, outside every pruned path — since it is a server-side runtime resource, not a Webpack input. Fans generated while broken are stored immutably and must be regenerated to pick up the fix. ([#678](https://github.com/jbourdin/expandedDecks/pull/678))
+
+---
+
 ## [1.14.0] — 2026-06-07
 
 Minor release: editors can compose card-fan social-preview images from card codes with a new admin tool, both RSS feeds expose per-item images to feed readers, and social-preview edits no longer disturb publication dates.
