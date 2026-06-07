@@ -71,6 +71,7 @@ security:
         - { path: ^/admin/pages, roles: ROLE_CMS_EDITOR }
         - { path: ^/admin/homepage, roles: ROLE_CMS_EDITOR }
         - { path: ^/admin/menu-categories, roles: ROLE_CMS_EDITOR }
+        - { path: ^/admin/og-image-builder, roles: [ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR] }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }
