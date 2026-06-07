@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.2] — 2026-06-07
+
+Patch release: editors who are not full admins can now reach the OG image builder admin tool.
+
+### Bug Fixes
+
+- **Grant editors access to the OG image builder route** — The OG image builder (introduced in 1.14.0) is gated `ROLE_CMS_EDITOR` or `ROLE_ARCHETYPE_EDITOR` on the controller, and the navbar link shows for those roles, but clicking it returned 403 for editors without `ROLE_ADMIN`. Symfony evaluates `access_control` firewall rules before controller `#[IsGranted]` attributes and stops at the first path match, so `/admin/og-image-builder` fell through to the catch-all `^/admin` → `ROLE_ADMIN` rule. A specific `^/admin/og-image-builder` rule (allowing both editor roles) now precedes the catch-all, mirroring the other editor-accessible admin sections, and covers the `/generate` endpoint via the shared prefix. The pre-existing functional test passed despite the bug because it logged in as a `ROLE_ADMIN` user; an editor-only fixture user (`editor@example.com`) now backs a genuine regression test. ([#680](https://github.com/jbourdin/expandedDecks/pull/680))
+
+---
+
 ## [1.14.1] — 2026-06-07
 
 Patch release: card fans generated in production now show the Pokemon card back fillers instead of grey placeholders.
