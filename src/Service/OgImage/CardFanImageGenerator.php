@@ -51,8 +51,13 @@ class CardFanImageGenerator
     /** Maximum total spread width, keeping a horizontal margin within the canvas. */
     private const int MAX_SPREAD_WIDTH = 1100;
 
-    /** Pokemon card back used as face-down filler, relative to the project directory. */
-    private const string CARD_BACK_PATH = 'assets/images/card_back.jpg';
+    /**
+     * Pokemon card back used as face-down filler, relative to the project
+     * directory. Lives under public/ (not assets/) because the production
+     * image prunes assets/ after the frontend build — this is a server-side
+     * runtime resource, not a Webpack input.
+     */
+    private const string CARD_BACK_PATH = 'public/images/card_back.jpg';
 
     /** Lazily loaded card back image; false when the asset failed to load. */
     private \GdImage|false|null $cardBack = null;
