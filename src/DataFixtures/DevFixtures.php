@@ -65,6 +65,7 @@ class DevFixtures extends Fixture
         $staff1 = $this->createStaff1($manager);
         $staff2 = $this->createStaff2($manager);
         $lender = $this->createLender($manager);
+        $this->createEditor($manager);
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower, $staff1);
         $futureEvent = $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
@@ -291,6 +292,25 @@ MARKDOWN;
         $user->setScreenName('Lender');
         $user->setPlayerId('301');
         $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setIsVerified(true);
+        $user->setPreferredLocale('en');
+        $user->setTimezone('Europe/Paris');
+
+        $manager->persist($user);
+
+        return $user;
+    }
+
+    private function createEditor(ObjectManager $manager): User
+    {
+        $user = new User();
+        $user->setEmail('editor@example.com');
+        $user->setFirstName('Gwen');
+        $user->setLastName('Editeur');
+        $user->setScreenName('Editor');
+        $user->setPlayerId('401');
+        $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
+        $user->setRoles(['ROLE_CMS_EDITOR']);
         $user->setIsVerified(true);
         $user->setPreferredLocale('en');
         $user->setTimezone('Europe/Paris');
