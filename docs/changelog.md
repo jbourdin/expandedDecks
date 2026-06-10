@@ -16,6 +16,16 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.4] — 2026-06-10
+
+Patch release: unbreaks the v1.14.3 production deploy — the Docker image's assets stage rejected the lockfile, because sass-loader 17 and TypeScript 6 violate webpack-encore's peer ranges.
+
+### Bug Fixes
+
+- **Restore Encore-compatible peer dependencies so the production image builds again** — The v1.14.3 image build failed at the assets stage: `npm ci --ignore-scripts` under npm 10 (`node:22-slim`) rejects the lockfile with `ERESOLVE` because sass-loader 17 ([#663](https://github.com/jbourdin/expandedDecks/pull/663), shipped in 1.14.3) violates webpack-encore 6.0.0's `sass-loader@^16` peer range — and TypeScript 6 ([#662](https://github.com/jbourdin/expandedDecks/pull/662)) violates `typescript@^5` identically. CI stayed green because the full checkout includes the `.npmrc` (`legacy-peer-deps=true`, added in [#684](https://github.com/jbourdin/expandedDecks/pull/684)) that the Dockerfile's assets stage never COPYs, so only the strict production install hit the conflict. Encore 6.0.0 is the latest release, so no upgrade accepts the majors: sass-loader returns to `^16.0.8` and TypeScript to `^5.9.3`, back inside the peer ranges. With both in range, the `.npmrc` workaround is removed — plain strict `npm install`/`npm ci` resolves cleanly again — and Dependabot now ignores major bumps of both packages until Encore widens its peers. A new `Docker Assets Stage` CI job builds the Dockerfile's assets stage (`docker build --target assets`) on every PR, replicating the exact production install (npm 10, no `.npmrc`, strict `npm ci`, `npx encore production`) so lockfile/image drift fails in CI instead of at deploy. Verified: the exact failing stage reproduced and passing in `node:22-slim`, production build compiling, `tsc --noEmit` clean on 5.9.3, 26/26 frontend tests green. ([#692](https://github.com/jbourdin/expandedDecks/pull/692))
+
+---
+
 ## [1.14.3] — 2026-06-10
 
 Patch release: dependency maintenance sweep — the Symfony family moves to 8.1, Mantine to 9.3 (with plain `npm install` restored), TypeScript to 6 and sass-loader to 17 — plus a CI speed-up running MySQL's datadir on tmpfs.
