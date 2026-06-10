@@ -42,7 +42,7 @@
         "symfony/property-access": "^8.0.8",
         "symfony/property-info": "^8.0.8",
         "symfony/runtime": "^8.0.13",
-        "symfony/security-bundle": "^8.0.13",
+        "symfony/security-bundle": "^8.1.0",
         "symfony/serializer": "^8.0.10",
         "symfony/string": "^8.0.13",
         "symfony/translation": "^8.0.10",
