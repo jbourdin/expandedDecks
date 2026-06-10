@@ -16,6 +16,16 @@ globalThis.ResizeObserver = class ResizeObserver {
     disconnect(): void {}
 };
 
+// Mantine 9's autosize Textarea listens to the FontFaceSet API (document.fonts),
+// which jsdom does not implement.
+Object.defineProperty(document, 'fonts', {
+    writable: true,
+    value: {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+    },
+});
+
 // Mantine requires window.matchMedia which jsdom does not provide.
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
