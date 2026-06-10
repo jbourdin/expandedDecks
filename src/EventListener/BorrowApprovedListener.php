@@ -34,10 +34,12 @@ class BorrowApprovedListener
     ) {
     }
 
+    /**
+     * @param CompletedEvent<Borrow> $event
+     */
     public function onApproved(CompletedEvent $event): void
     {
         $borrow = $event->getSubject();
-        \assert($borrow instanceof Borrow);
 
         $borrowId = $borrow->getId();
         if (null === $borrowId) {

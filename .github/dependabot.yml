@@ -29,6 +29,15 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      # Mantine packages peer-lock to each other's exact version: a major bump
+      # of one package alone can never install. Group them so major upgrades
+      # arrive as a single coherent PR.
+      mantine-major:
+        applies-to: version-updates
+        patterns:
+          - "@mantine/*"
+        update-types:
+          - "major"
       npm-security:
         applies-to: security-updates
         patterns:

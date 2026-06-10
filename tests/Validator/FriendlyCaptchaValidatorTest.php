@@ -46,8 +46,7 @@ class FriendlyCaptchaValidatorTest extends TestCase
         $context->expects(self::never())->method('buildViolation');
 
         $validator = new FriendlyCaptchaValidator($verifier);
-        $validator->initialize($context);
-        $validator->validate('valid-token', new FriendlyCaptcha());
+        $validator->validateInContext('valid-token', new FriendlyCaptcha(), $context);
     }
 
     public function testAddsViolationWhenVerifierRejects(): void
@@ -65,8 +64,7 @@ class FriendlyCaptchaValidatorTest extends TestCase
             ->willReturn($violationBuilder);
 
         $validator = new FriendlyCaptchaValidator($verifier);
-        $validator->initialize($context);
-        $validator->validate('bad-token', new FriendlyCaptcha());
+        $validator->validateInContext('bad-token', new FriendlyCaptcha(), $context);
     }
 
     public function testNonStringValueIsTreatedAsEmptyString(): void
@@ -80,7 +78,6 @@ class FriendlyCaptchaValidatorTest extends TestCase
         $context = $this->createStub(ExecutionContextInterface::class);
 
         $validator = new FriendlyCaptchaValidator($verifier);
-        $validator->initialize($context);
-        $validator->validate(null, new FriendlyCaptcha());
+        $validator->validateInContext(null, new FriendlyCaptcha(), $context);
     }
 }
