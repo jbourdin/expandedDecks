@@ -198,6 +198,20 @@ jobs:
       - name: Encore production build
         run: npx encore production
 
+  # Builds the Dockerfile's assets stage exactly as production does: node:22-slim
+  # (npm 10), only the four COPY'd files (no .npmrc), strict `npm ci`. The
+  # frontend-quality job above runs on node 24 with the full checkout, which has
+  # let lockfiles through that the production image build then rejected (#663).
+  docker-assets-stage:
+    name: Docker Assets Stage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build assets stage
+        run: docker build --target assets .
+
   security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
