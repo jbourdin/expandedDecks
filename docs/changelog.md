@@ -16,6 +16,21 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.3] — 2026-06-10
+
+Patch release: dependency maintenance sweep — the Symfony family moves to 8.1, Mantine to 9.3 (with plain `npm install` restored), TypeScript to 6 and sass-loader to 17 — plus a CI speed-up running MySQL's datadir on tmpfs.
+
+### Infrastructure
+
+- **Symfony 8.1 + 36 Composer minor/patch bumps** — Dependabot's grouped sweep moves the whole `symfony/*` family from 8.0.13 to 8.1.0 alongside minor/patch bumps (`doctrine/doctrine-bundle` 3.2.3 among them). Two source adjustments for 8.1: the workflow component's `CompletedEvent` is now generic, so `BorrowApprovedListener::onApproved()` declares `@param CompletedEvent<Borrow>` instead of a runtime `assert()`, and `FriendlyCaptchaValidatorTest` adopts the new `validateInContext()` helper replacing the deprecated `initialize()` + `validate()` two-step. ([#682](https://github.com/jbourdin/expandedDecks/pull/682))
+- **Mantine 9.3 + restored plain `npm install`** — Coordinated `@mantine/core` + `@mantine/hooks` + `@mantine/tiptap` bump to 9.3.1, replacing the unmergeable per-package Dependabot PRs (#664/#665 — Mantine packages peer-lock to each other's exact version). A new Dependabot `mantine-major` group makes future majors arrive as one coherent PR. `npm install` on `develop` had been broken since the TypeScript 6 and sass-loader 17 merges because webpack-encore 6.0.0 peer-pins `typescript@^5` and `sass-loader@^16`: a `.npmrc` with `legacy-peer-deps=true` restores it (build and tests verified; to be removed once Encore widens its peer ranges). Side effects handled: `@testing-library/dom` is now declared explicitly (legacy-peer-deps stops auto-installing peers) and the vitest setup stubs `document.fonts` (Mantine 9's autosize `Textarea` uses the FontFaceSet API, which jsdom lacks). The Mantine 8 → 9 breaking-change audit found no affected usages beyond `variant="light"` color rendering, checked visually. ([#684](https://github.com/jbourdin/expandedDecks/pull/684))
+- **TypeScript 6.0.3** — dev-dependency major; type-check and build clean. ([#662](https://github.com/jbourdin/expandedDecks/pull/662))
+- **sass-loader 17** — dev-dependency major. ([#663](https://github.com/jbourdin/expandedDecks/pull/663))
+- **15 npm minor/patch bumps** — Dependabot's grouped sweep: tiptap extensions 3.23.6 → 3.26.0, React/react-dom 19.2.7, stylelint 17.13, ts-loader 9.6.0, vitest 4.1.8, typescript-eslint 8.60.1, `@types/*` refreshes. ([#683](https://github.com/jbourdin/expandedDecks/pull/683))
+- **CI MySQL datadir on tmpfs** — The MySQL service containers in `php-functional`, `php-coverage`, and the manual coverage workflow mount `/var/lib/mysql` on a 1 GB tmpfs (`mode=1777`, required since `mysqld` runs unprivileged), keeping all InnoDB I/O in RAM. The test database is dropped and recreated per job, so disk persistence bought nothing; every migrate/fixture/test cycle gets faster. Backported from the Ecommerce-sylius CI. ([#685](https://github.com/jbourdin/expandedDecks/pull/685))
+
+---
+
 ## [1.14.2] — 2026-06-07
 
 Patch release: editors who are not full admins can now reach the OG image builder admin tool.
