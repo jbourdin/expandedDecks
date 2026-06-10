@@ -23,6 +23,15 @@ updates:
       interval: "weekly"
     target-branch: "develop"
     open-pull-requests-limit: 5
+    # webpack-encore 6.0.0 peer-pins typescript@^5 and sass-loader@^16. Majors
+    # of those packages make `npm ci` fail with ERESOLVE in the Docker assets
+    # stage (strict npm, no .npmrc). Unignore once Encore widens its peer
+    # ranges: npm view @symfony/webpack-encore peerDependencies
+    ignore:
+      - dependency-name: "sass-loader"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-and-patch:
         applies-to: version-updates
