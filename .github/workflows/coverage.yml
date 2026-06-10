@@ -22,11 +22,17 @@ jobs:
           MYSQL_PASSWORD: expanded_decks
         ports:
           - 3306:3306
+        # tmpfs datadir: the test database is dropped and recreated per job and
+        # never needs to survive the run — keeping InnoDB in RAM removes disk
+        # I/O from every migrate/fixture/test cycle. size=1g is a ceiling;
+        # tmpfs only consumes what is written. mode=1777 is required: tmpfs
+        # mounts root:755 and mysqld runs as the mysql user.
         options: >-
           --health-cmd="mysqladmin ping -h localhost"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+          --tmpfs /var/lib/mysql:rw,size=1g,mode=1777
 
     steps:
       - uses: actions/checkout@v4
