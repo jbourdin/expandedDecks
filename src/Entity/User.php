@@ -135,6 +135,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $showCardmarketExport = false;
 
+    /*
+     * Public author/contributor profile (F19.8).
+     *
+     * These fields surface publicly ONLY when the user is credited as the
+     * author or translator of published content. They MUST NOT expose login
+     * or legal-identity fields (email, firstName, lastName); the public byline
+     * uses screenName. See App\Service\Seo\StructuredDataBuilder::buildPerson().
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isPublicAuthor = false;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    #[Assert\Length(max: 150)]
+    private ?string $credential = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    private ?string $bio = null;
+
+    /** @var list<string>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Assert\All([new Assert\Url(), new Assert\Length(max: 255)])]
+    private ?array $sameAs = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url]
+    #[Assert\Length(max: 255)]
+    private ?string $avatarUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url]
+    #[Assert\Length(max: 255)]
+    private ?string $primaryUrl = null;
+
+    #[ORM\Column(length: 100, unique: true, nullable: true)]
+    #[Assert\Length(max: 100)]
+    #[Assert\Regex(pattern: '/^[a-z0-9-]+$/', message: 'Invalid public slug format.')]
+    private ?string $publicSlug = null;
+
     /**
      * @see docs/features.md F3.14 — iCal agenda feed
      */
@@ -254,6 +293,97 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setYearOfBirth(?int $yearOfBirth): static
     {
         $this->yearOfBirth = $yearOfBirth;
+
+        return $this;
+    }
+
+    public function isPublicAuthor(): bool
+    {
+        return $this->isPublicAuthor;
+    }
+
+    public function setIsPublicAuthor(bool $isPublicAuthor): static
+    {
+        $this->isPublicAuthor = $isPublicAuthor;
+
+        return $this;
+    }
+
+    public function getCredential(): ?string
+    {
+        return $this->credential;
+    }
+
+    public function setCredential(?string $credential): static
+    {
+        $this->credential = $credential;
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getSameAs(): array
+    {
+        return $this->sameAs ?? [];
+    }
+
+    /**
+     * @param list<string>|null $sameAs
+     */
+    public function setSameAs(?array $sameAs): static
+    {
+        // Drop empty entries so a trailing blank line in the form never yields "".
+        $this->sameAs = null === $sameAs ? null : array_values(array_filter($sameAs, static fn (string $url): bool => '' !== trim($url)));
+
+        return $this;
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return $this->avatarUrl;
+    }
+
+    public function setAvatarUrl(?string $avatarUrl): static
+    {
+        $this->avatarUrl = $avatarUrl;
+
+        return $this;
+    }
+
+    public function getPrimaryUrl(): ?string
+    {
+        return $this->primaryUrl;
+    }
+
+    public function setPrimaryUrl(?string $primaryUrl): static
+    {
+        $this->primaryUrl = $primaryUrl;
+
+        return $this;
+    }
+
+    public function getPublicSlug(): ?string
+    {
+        return $this->publicSlug;
+    }
+
+    public function setPublicSlug(?string $publicSlug): static
+    {
+        $this->publicSlug = $publicSlug;
 
         return $this;
     }
@@ -475,6 +605,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->deletionTokenExpiresAt = null;
         $this->notificationPreferences = null;
         $this->calendarToken = null;
+        // Clear the public author/contributor profile (F19.8) so no public
+        // identity data survives anonymization.
+        $this->isPublicAuthor = false;
+        $this->credential = null;
+        $this->bio = null;
+        $this->sameAs = null;
+        $this->avatarUrl = null;
+        $this->primaryUrl = null;
+        $this->publicSlug = null;
     }
 
     public function isAnonymized(): bool

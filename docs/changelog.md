@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.6] — 2026-06-21
+
+Patch release: introduces the content-authorship data model and attributes existing content, so author and translator information starts being recorded (F19.8, part 1 of 2). The visible byline, feeds, and editing forms follow in part 2.
+
+### Features
+
+- **Content authorship model and attribution (F19.8, part 1 of 2)** — `User` gains an opt-in public author/contributor profile (`credential`, `bio`, `sameAs`, `avatarUrl`, `primaryUrl`, `publicSlug`), cleared on GDPR anonymization. Editorial content gains attribution: a nullable `author` on archetypes, archetype variants, and CMS pages, and a nullable `translator` on archetype/page translations (the translator field is groundwork for the future translation-role epic). New content is stamped with its **creator** on save — a later editor, including an admin, never acquires authorship by editing — while user-owned decks keep their owner as author. Existing content is backfilled by channel: content-channel archetypes/variants/pages to the writer (`Luby`), `expandeddecks.app` pages to the developer (`Sylf`); rows are left unattributed if the matching user is absent. JSON-LD `Article`/`WebPage` now emit a `Person` author (and a per-locale `translator`) plus an `Organization` publisher with `logo` and `sameAs`, all via a single projection that exposes **only** curated public fields — never the login email or legal name. ([#709](https://github.com/jbourdin/expandedDecks/pull/709))
+
+### Documentation
+
+- **SEO/GSO audit: finding H1 marked resolved** — the locale-signal finding is flagged resolved following its v1.14.5 fix (F19.4). ([#708](https://github.com/jbourdin/expandedDecks/pull/708))
+
+---
+
 ## [1.14.5] — 2026-06-20
 
 Patch release: SEO discovery correctness — crawl signals now derive from each channel's configured locales instead of a hardcoded `en`/`fr` pair — plus PHP and JS CVE dependency hardening, and the SEO/GSO audit that motivated the work.

@@ -71,6 +71,14 @@ class Deck
     private ?Archetype $archetype = null;
 
     /**
+     * Public author credit for archetype-variant decklists (F19.8).
+     * Owner-owned decks use {@see getOwner()} as their author instead.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $author = null;
+
+    /**
      * The latest expansion set that defines the format boundary for this deck.
      * E.g. SV08 means the deck is built with cards up to and including SV08.
      *
@@ -217,6 +225,27 @@ class Deck
         $this->owner = $owner;
 
         return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Resolve the public author of this deck: the editorial author for an
+     * archetype variant, otherwise the owner (F19.8).
+     */
+    public function resolveAuthor(): ?User
+    {
+        return $this->author ?? $this->owner;
     }
 
     /**
