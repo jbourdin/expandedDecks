@@ -49,6 +49,13 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class DevFixtures extends Fixture
 {
+    /**
+     * Editorial content author for fixtures — the "Editor" user. Mirrors the
+     * production backfill (content attributed to its writer) so dev shows real
+     * bylines (F19.8).
+     */
+    private ?User $contentAuthor = null;
+
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly DeckListParser $deckListParser,
@@ -65,7 +72,7 @@ class DevFixtures extends Fixture
         $staff1 = $this->createStaff1($manager);
         $staff2 = $this->createStaff2($manager);
         $lender = $this->createLender($manager);
-        $this->createEditor($manager);
+        $this->contentAuthor = $this->createEditor($manager);
         $this->createUnverifiedUser($manager);
         $todayEvent = $this->createEventToday($manager, $admin, $borrower, $staff1);
         $futureEvent = $this->createEventInTwoMonths($manager, $admin, $lender, $staff1, $staff2);
@@ -604,6 +611,8 @@ MARKDOWN;
             $this->backdatePublication($archetype, $firstPublishedAt, $lastPublishedAt);
         }
 
+        $archetype->setAuthor($this->contentAuthor);
+
         $manager->persist($archetype);
 
         return $archetype;
@@ -759,6 +768,10 @@ MARKDOWN);
         $third->setPokemonSlugs(['dragapult']);
         $third->setNotes('A lightweight Regidrago build focused on speed.');
         $manager->persist($third);
+
+        foreach ([$canonical, $alternate, $third] as $variant) {
+            $variant->setAuthor($this->contentAuthor);
+        }
     }
 
     /**
@@ -2157,6 +2170,15 @@ MD);
         MD);
         $legalNoticePage->addTranslation($legalNoticeFr);
         $manager->persist($legalNoticeFr);
+
+        // Attribute every fixture page to the content author (F19.8) — dev's
+        // analogue of the production backfill.
+        foreach ([
+            $welcomePage, $news1, $news2, $news3, $news4, $news5, $news6, $news7, $news8,
+            $rulesPage, $draftPage, $philosophyPage, $teamPage, $legalNoticePage,
+        ] as $page) {
+            $page->setAuthor($this->contentAuthor);
+        }
     }
 
     private function createCharizardFlareonDeckVersion(ObjectManager $manager, Deck $deck): void
