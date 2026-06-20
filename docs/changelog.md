@@ -16,6 +16,25 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.5] — 2026-06-20
+
+Patch release: SEO discovery correctness — crawl signals now derive from each channel's configured locales instead of a hardcoded `en`/`fr` pair — plus PHP and JS CVE dependency hardening, and the SEO/GSO audit that motivated the work.
+
+### Features
+
+- **Derive SEO locale signals from channel locales (F19.4)** — The XML sitemap, `og:locale:alternate` meta tags, and the locale-prefixed `robots.txt` allow/disallow rules hardcoded `['en', 'fr']`, advertising French URLs the content channel (dowsingmachine.com) does not actually serve: `/fr/*` returned byte-identical English content canonicalizing to `/en/`, so roughly half the sitemap (42 of 86 URLs) was duplicate entries. All three signals now derive from `Channel::getLocales()` (which `hreflang` and the locale switcher already honored), so a single-locale channel emits only its own locale and adding `'fr'` later is a data change — no code change — that reactivates every French signal automatically. The content channel is made explicitly English-only in fixtures. No `/fr → /en` redirect was added: the canonical tag already consolidates the duplicates. ([#706](https://github.com/jbourdin/expandedDecks/pull/706))
+
+### Infrastructure
+
+- **Bump PHP dependencies to clear reported CVEs** — `symfony composer update` across runtime packages (doctrine-bundle, guzzle, aws-sdk-php, sentry/sentry(-symfony), symfony/routing, monolog bridge & bundle, psr-http-message-bridge) and dev tooling (php-cs-fixer, phpstan-symfony, phpstan-doctrine, phpunit). The phpstan-symfony/workflow bump also restored `CompletedEvent`'s generic type, keeping `BorrowApprovedListener` PHPStan-green with its original `@param CompletedEvent<Borrow>` annotation. ([#705](https://github.com/jbourdin/expandedDecks/pull/705))
+- **Bump JS dependencies to clear security advisories** — `undici` 7.25.0 → 7.28.0 and `markdown-it` → 14.2.0 (both transitive via `jsdom`, dev/test-only — not in the production bundle), clearing 1 high and 2 moderate advisories; `npm audit` reports 0 vulnerabilities. ([#705](https://github.com/jbourdin/expandedDecks/pull/705))
+
+### Documentation
+
+- **SEO / GSO discovery audit and companion briefs** — A full audit of search-engine, generative-engine (AI answer engine), and content-discovery posture across both production channels (`docs/seo_gso_audit.md`), with a Google Search Console vs. natural-crawling decision brief (`docs/google_search_console_brief.md`) and the resolved robots.txt cross-domain CDN cache-contamination brief (`docs/bunny_cdn_host_cache_brief.md`). Follow-up work is tracked in issues #695–#702. ([#703](https://github.com/jbourdin/expandedDecks/pull/703))
+
+---
+
 ## [1.14.4] — 2026-06-10
 
 Patch release: unbreaks the v1.14.3 production deploy — the Docker image's assets stage rejected the lockfile, because sass-loader 17 and TypeScript 6 violate webpack-encore's peer ranges.

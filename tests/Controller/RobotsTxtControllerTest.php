@@ -34,7 +34,8 @@ final class RobotsTxtControllerTest extends TestCase
             ->setDomain('expandeddecks.wip')
             ->setEnableDecks(true)
             ->setEnableEvents(true)
-            ->setEnableArchetypes(false);
+            ->setEnableArchetypes(false)
+            ->setLocales(['en', 'fr']);
 
         $response = $this->invokeController($channel);
 
@@ -61,7 +62,8 @@ final class RobotsTxtControllerTest extends TestCase
             ->setDomain('expandedtalks.wip')
             ->setEnableArchetypes(true)
             ->setEnableDecks(false)
-            ->setEnableEvents(false);
+            ->setEnableEvents(false)
+            ->setLocales(['en', 'fr']);
 
         $response = $this->invokeController($channel);
 
@@ -74,6 +76,44 @@ final class RobotsTxtControllerTest extends TestCase
         self::assertStringNotContainsString('Allow: /event', $body);
         self::assertStringContainsString('Disallow: /admin/', $body);
         self::assertStringContainsString('Sitemap: https://expandedtalks.wip/sitemap.xml', $body);
+    }
+
+    public function testContentChannelWithSingleLocaleOmitsFrenchPaths(): void
+    {
+        $channel = (new Channel())
+            ->setCode('content')
+            ->setDomain('expandedtalks.wip')
+            ->setEnableArchetypes(true)
+            ->setEnableDecks(false)
+            ->setEnableEvents(false)
+            ->setLocales(['en']);
+
+        $body = (string) $this->invokeController($channel)->getContent();
+
+        self::assertStringContainsString('Allow: /en/archetypes', $body);
+        self::assertStringContainsString('Allow: /en/pages/', $body);
+        self::assertStringNotContainsString('/fr/archetypes', $body);
+        self::assertStringNotContainsString('/fr/pages/', $body);
+    }
+
+    public function testAppChannelWithSingleLocaleOmitsFrenchPaths(): void
+    {
+        $channel = (new Channel())
+            ->setCode('app')
+            ->setDomain('expandeddecks.wip')
+            ->setEnableDecks(true)
+            ->setEnableEvents(true)
+            ->setEnableArchetypes(false)
+            ->setLocales(['en']);
+
+        $body = (string) $this->invokeController($channel)->getContent();
+
+        self::assertStringContainsString('Allow: /en/pages/', $body);
+        self::assertStringNotContainsString('/fr/pages/', $body);
+        // Unprefixed archetype redirect target stays blocked; only the en-prefixed path is added.
+        self::assertStringContainsString('Disallow: /archetypes', $body);
+        self::assertStringContainsString('Disallow: /en/archetypes', $body);
+        self::assertStringNotContainsString('Disallow: /fr/archetypes', $body);
     }
 
     public function testCrawlDelayIsPresent(): void

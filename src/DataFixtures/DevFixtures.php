@@ -2540,6 +2540,8 @@ PTCG;
             ->setEnableBannedCards(true)
             ->setEnableStaples(true)
             ->setThemeName('expandedtalks')
+            // English-only content for now; add 'fr' once French translations exist (F19.4).
+            ->setLocales(['en'])
             ->setParameters(['brand_name' => 'Expanded Talks']);
 
         $manager->persist($appChannel);
