@@ -17,6 +17,12 @@
 - [Implementation Roadmap](roadmap.md) — Remaining features organized by logical phase
 - [Changelog](changelog.md) — Release history with implemented features per version
 
+## SEO & Discovery
+
+- [SEO / GSO Audit](seo_gso_audit.md) — SEO, generative-engine optimization, and content-discovery audit (F19.3 / #296)
+- [Google Search Console Brief](google_search_console_brief.md) — Decision brief: Search Console vs. natural crawling
+- [Bunny CDN Host-Cache Brief](bunny_cdn_host_cache_brief.md) — Resolved: robots.txt cross-domain cache contamination fix
+
 ## Frontend
 
 - [Frontend Architecture](frontend.md) — UI library (Mantine), application shell, homepage layout
