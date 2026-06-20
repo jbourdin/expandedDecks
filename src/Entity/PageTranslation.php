@@ -62,6 +62,15 @@ class PageTranslation
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $ogDescription = null;
 
+    /**
+     * Public translator credit for this locale (F19.8). Forward-compatible
+     * with the #612 translation-role epic, which will add workflow state and
+     * source-version tracking on the same row.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $translator = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -147,6 +156,18 @@ class PageTranslation
     public function setOgDescription(?string $ogDescription): static
     {
         $this->ogDescription = $ogDescription;
+
+        return $this;
+    }
+
+    public function getTranslator(): ?User
+    {
+        return $this->translator;
+    }
+
+    public function setTranslator(?User $translator): static
+    {
+        $this->translator = $translator;
 
         return $this;
     }

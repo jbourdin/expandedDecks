@@ -94,6 +94,13 @@ class Archetype
     #[ORM\OneToMany(targetEntity: ArchetypeTranslation::class, mappedBy: 'archetype', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $translations;
 
+    /**
+     * Public author credit for this archetype's analysis (F19.8).
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $author = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -103,6 +110,18 @@ class Archetype
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+
+        return $this;
     }
 
     public function getName(): string

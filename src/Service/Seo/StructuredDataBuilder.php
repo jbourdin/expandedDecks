@@ -18,6 +18,7 @@ use App\Entity\Deck;
 use App\Entity\Event;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
+use App\Entity\User;
 use App\Service\Channel\ChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -80,6 +81,16 @@ final readonly class StructuredDataBuilder
             $data['datePublished'] = $published->format('c');
         }
 
+        $author = $page->getAuthor();
+        if ($author instanceof User) {
+            $data['author'] = $this->buildPerson($author);
+        }
+
+        $translator = $translation->getTranslator();
+        if ($translator instanceof User) {
+            $data['translator'] = $this->buildPerson($translator);
+        }
+
         return $data;
     }
 
@@ -94,6 +105,7 @@ final readonly class StructuredDataBuilder
     {
         $archetypeName = $archetype->getLocalizedName($locale);
         $genre = $this->translator->trans('app.seo.tcg_genre', locale: $locale);
+        $author = $archetype->getAuthor();
 
         $data = [
             '@context' => 'https://schema.org',
@@ -106,9 +118,14 @@ final readonly class StructuredDataBuilder
                 '@type' => 'Game',
                 'name' => $this->translator->trans('app.seo.tcg_game_name', locale: $locale),
             ],
-            'author' => $this->buildOrganization(),
+            'author' => $author instanceof User ? $this->buildPerson($author) : $this->buildOrganization(),
             'publisher' => $this->buildOrganization(),
         ];
+
+        $translator = $archetype->getTranslation($locale)?->getTranslator();
+        if ($translator instanceof User) {
+            $data['translator'] = $this->buildPerson($translator);
+        }
 
         $published = $archetype->getFirstPublishedAt() ?? $archetype->getCreatedAt();
         $modified = $archetype->getLastPublishedAt() ?? $archetype->getUpdatedAt() ?? $published;
@@ -194,11 +211,9 @@ final readonly class StructuredDataBuilder
             'dateCreated' => $deck->getCreatedAt()->format('c'),
         ];
 
-        if (null !== $deck->getOwner()) {
-            $data['author'] = [
-                '@type' => 'Person',
-                'name' => $deck->getOwner()->getScreenName(),
-            ];
+        $author = $deck->resolveAuthor();
+        if ($author instanceof User) {
+            $data['author'] = $this->buildPerson($author);
         }
 
         $lastModified = $deck->getUpdatedAt() ?? $deck->getCreatedAt();
@@ -254,14 +269,76 @@ final readonly class StructuredDataBuilder
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function buildOrganization(): array
     {
-        return [
+        $channel = $this->channelContext->getChannel();
+
+        $organization = [
             '@type' => 'Organization',
             'name' => $this->getBrandName(),
             'url' => $this->getOrganizationUrl(),
         ];
+
+        $logo = $channel->getParameter('org_logo');
+        if ('' !== $logo) {
+            $organization['logo'] = [
+                '@type' => 'ImageObject',
+                'url' => str_starts_with($logo, 'http') ? $logo : $this->getOrganizationUrl().$logo,
+            ];
+        }
+
+        // org_same_as is a whitespace/comma-separated list of public profile URLs.
+        $sameAsRaw = $channel->getParameter('org_same_as');
+        if ('' !== $sameAsRaw) {
+            $sameAs = array_values(array_filter(
+                array_map(trim(...), preg_split('/[\s,]+/', $sameAsRaw) ?: []),
+                static fn (string $url): bool => '' !== $url,
+            ));
+            if ([] !== $sameAs) {
+                $organization['sameAs'] = $sameAs;
+            }
+        }
+
+        return $organization;
+    }
+
+    /**
+     * Build a schema.org Person from a user, exposing ONLY curated public
+     * fields. It MUST NOT emit email, first name, or last name; the public
+     * identity is the chosen screen name (F19.8).
+     *
+     * @return array<string, mixed>
+     */
+    private function buildPerson(User $user): array
+    {
+        $person = [
+            '@type' => 'Person',
+            'name' => $user->getScreenName(),
+        ];
+
+        // Rich profile signals are exposed only for opted-in public authors.
+        if (!$user->isPublicAuthor()) {
+            return $person;
+        }
+
+        if (null !== $user->getPrimaryUrl()) {
+            $person['url'] = $user->getPrimaryUrl();
+        }
+
+        if (null !== $user->getCredential()) {
+            $person['description'] = $user->getCredential();
+        }
+
+        if (null !== $user->getAvatarUrl()) {
+            $person['image'] = $user->getAvatarUrl();
+        }
+
+        if ([] !== $user->getSameAs()) {
+            $person['sameAs'] = $user->getSameAs();
+        }
+
+        return $person;
     }
 }
