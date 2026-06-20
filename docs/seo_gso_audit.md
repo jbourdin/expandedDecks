@@ -48,10 +48,9 @@ channel's `robots.txt` (allows `/archetypes`, advertises its own sitemap). See �
 The remaining work is concentrated in **markup honesty and authority signalling** — the
 levers that drive both rich SERP presentation and answer-engine citation:
 
-1. **Locale/sitemap dishonesty (H1):** the site is English-only in content, but the sitemap,
-   `og:locale:alternate`, and robots all advertise French. ~50 % of the sitemap (42 of 86
-   URLs) is `/fr/` duplicates that canonicalize back to `/en/`. Canonical tags prevent a
-   *penalty*, but it wastes crawl budget and sends contradictory signals.
+1. **Locale/sitemap dishonesty (H1):** ✅ **resolved in v1.14.5 (F19.4)** — the sitemap,
+   `og:locale:alternate`, and robots now derive from `Channel::getLocales()`, so the
+   English-only content channel no longer advertises the ~42 `/fr/` duplicate URLs.
 2. **Missing meta descriptions (H2):** only archetype pages emit `<meta name="description">`
    (and only conditionally). Homepage, CMS pages, decks, events, and all list pages have none.
 3. **Author authority invisible to machines (M1):** the championship-level human authorship is
@@ -102,6 +101,11 @@ indexing of archetype/news URLs that were crawl-blocked while the bug was live �
 ### 🟠 HIGH
 
 #### H1 — English-only content advertised as bilingual (sitemap ~50 % duplicate URLs)
+
+> ✅ **RESOLVED** in v1.14.5 (F19.4 — issue [#695](https://github.com/jbourdin/expandedDecks/issues/695), PR [#706](https://github.com/jbourdin/expandedDecks/pull/706)): the sitemap,
+> `og:locale:alternate`, and robots.txt locale rules now derive from `Channel::getLocales()`. The content
+> channel is English-only, so the `/fr/` duplicates are gone; adding `fr` later reactivates the French signals
+> with no code change. The finding below is retained for context.
 
 **Evidence (production):**
 - `/fr/archetypes/adp` returns **HTTP 200 with byte-identical content** to `/en/archetypes/adp`
@@ -305,9 +309,9 @@ two real risks: the **archetype list** (`localizedName()` over the `translations
 
 1. **Search Console** — verify both properties, submit each sitemap, confirm the C1 fix
    restored archetype indexing, monitor coverage. See companion brief.
-2. **H1 — locale honesty** — drive sitemap locales + `og:locale:alternate` from
-   `channel.locales`; cuts the sitemap ~50 % and removes contradictory signals. (One focused
-   change; high ratio of impact to effort.)
+2. ~~**H1 — locale honesty**~~ — ✅ **done in v1.14.5 (F19.4)**: sitemap, `og:locale:alternate`,
+   and robots now derive from `channel.locales`; the content channel's ~42 `/fr/` duplicate URLs
+   are gone.
 3. **H2 — meta descriptions** — centralised fallback chain in `base.html.twig`.
 4. **#296 core** — `rel=prev/next` + per-page self-canonical (M2), paginate the archetype &
    event lists, deck/event soft-delete 404 guards (M5), profiler N+1 pass (§7).
