@@ -33,9 +33,6 @@ readonly class SitemapGenerator
 {
     private const MAX_ENTRIES_PER_SITEMAP = 50_000;
 
-    /** @var list<string> */
-    private const array SUPPORTED_LOCALES = ['en', 'fr'];
-
     public function __construct(
         private PageRepository $pageRepository,
         private ArchetypeRepository $archetypeRepository,
@@ -121,7 +118,7 @@ readonly class SitemapGenerator
      */
     public function needsIndex(Channel $channel): bool
     {
-        $localeCount = \count(self::SUPPORTED_LOCALES);
+        $localeCount = \count($channel->getLocales());
 
         // Homepage + pages + archetypes are locale-multiplied; decks and events are not
         $count = $localeCount; // homepage entries
@@ -174,7 +171,7 @@ readonly class SitemapGenerator
     {
         $xml = '';
 
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($channel->getLocales() as $locale) {
             $xml .= $this->buildUrlEntry(
                 $this->buildAbsoluteUrl($channel, 'app_home_localized', ['_locale' => $locale]),
                 null,
@@ -192,7 +189,7 @@ readonly class SitemapGenerator
         $xml = '';
 
         foreach ($pages as $page) {
-            foreach (self::SUPPORTED_LOCALES as $locale) {
+            foreach ($channel->getLocales() as $locale) {
                 $xml .= $this->buildUrlEntry(
                     $this->buildAbsoluteUrl($channel, 'app_page_show', ['slug' => $page['slug'], '_locale' => $locale]),
                     $page['updatedAt'] ?? $page['createdAt'],
@@ -211,7 +208,7 @@ readonly class SitemapGenerator
         $xml = '';
 
         foreach ($archetypes as $archetype) {
-            foreach (self::SUPPORTED_LOCALES as $locale) {
+            foreach ($channel->getLocales() as $locale) {
                 $xml .= $this->buildUrlEntry(
                     $this->buildAbsoluteUrl($channel, 'app_archetype_show', ['slug' => $archetype['slug'], '_locale' => $locale]),
                     $archetype['updatedAt'] ?? $archetype['createdAt'],

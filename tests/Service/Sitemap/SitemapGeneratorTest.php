@@ -40,7 +40,8 @@ final class SitemapGeneratorTest extends TestCase
             ->setEnableRegister(true)
             ->setEnableEvents(true)
             ->setEnableBorrows(true)
-            ->setEnableArchetypes(false);
+            ->setEnableArchetypes(false)
+            ->setLocales(['en', 'fr']);
 
         $this->contentChannel = (new Channel())
             ->setCode('content')
@@ -49,7 +50,8 @@ final class SitemapGeneratorTest extends TestCase
             ->setEnableRegister(false)
             ->setEnableEvents(false)
             ->setEnableBorrows(false)
-            ->setEnableArchetypes(true);
+            ->setEnableArchetypes(true)
+            ->setLocales(['en', 'fr']);
     }
 
     public function testAvailableSectionsForAppChannel(): void
@@ -230,6 +232,38 @@ final class SitemapGeneratorTest extends TestCase
         $urls = $document->getElementsByTagName('url');
         // (homepage + 2 pages + 1 archetype) × 2 locales = 8
         self::assertSame(8, $urls->length);
+    }
+
+    public function testSingleLocaleChannelEmitsOnlyThatLocale(): void
+    {
+        $this->contentChannel->setLocales(['en']);
+
+        $pageRepository = $this->createStub(PageRepository::class);
+        $pageRepository->method('findPublishedForSitemap')->willReturn([
+            ['slug' => 'about', 'updatedAt' => new \DateTimeImmutable('2026-04-01'), 'createdAt' => new \DateTimeImmutable('2026-01-01')],
+        ]);
+
+        $archetypeRepository = $this->createStub(ArchetypeRepository::class);
+        $archetypeRepository->method('findPublishedForSitemap')->willReturn([
+            ['slug' => 'lugia-vstar', 'updatedAt' => null, 'createdAt' => new \DateTimeImmutable('2026-03-15')],
+        ]);
+
+        $generator = $this->createGenerator(
+            pageRepository: $pageRepository,
+            archetypeRepository: $archetypeRepository,
+        );
+
+        $xml = $generator->generateCombined($this->contentChannel);
+
+        self::assertStringContainsString('https://expandedtalks.wip/en/', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/en/pages/about', $xml);
+        self::assertStringContainsString('https://expandedtalks.wip/en/archetypes/lugia-vstar', $xml);
+        self::assertStringNotContainsString('/fr/', $xml);
+
+        $document = new \DOMDocument();
+        self::assertTrue($document->loadXML($xml));
+        // (homepage + 1 page + 1 archetype) × 1 locale = 3
+        self::assertSame(3, $document->getElementsByTagName('url')->length);
     }
 
     public function testGenerateIndexProducesValidXml(): void

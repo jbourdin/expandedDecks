@@ -15,12 +15,13 @@
 {% endif %}
 <meta property="og:url" content="{{ og_url }}">
 <meta property="og:type" content="{{ og_type|default('website') }}">
-<meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
-{% if app.request.locale == 'fr' %}
-    <meta property="og:locale:alternate" content="en_US">
-{% else %}
-    <meta property="og:locale:alternate" content="fr_FR">
-{% endif %}
+{# og:locale signals derive from the channel's configured locales (F19.4),
+ # so single-locale channels emit no false alternate. #}
+{% set og_locale_map = {en: 'en_US', fr: 'fr_FR'} %}
+<meta property="og:locale" content="{{ og_locale_map[app.request.locale]|default('en_US') }}">
+{% for locale in current_channel().locales|filter(locale => locale != app.request.locale) %}
+    <meta property="og:locale:alternate" content="{{ og_locale_map[locale]|default('en_US') }}">
+{% endfor %}
 <meta property="og:site_name" content="{{ channel_param('brand_name', 'Expanded Decks') }}">
 {% if og_image is defined and og_image %}
     <meta property="og:image" content="{{ channel_absolute_url(og_image) }}">

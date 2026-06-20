@@ -62,11 +62,12 @@ class RobotsTxtController extends AbstractController
     private function buildDirectives(Channel $channel, string $sitemapUrl): array
     {
         $lines = ['User-agent: *', 'Crawl-delay: 1'];
+        $locales = $channel->getLocales();
 
         if ($channel->getEnableArchetypes()) {
-            $lines = [...$lines, ...$this->buildContentChannelRules()];
+            $lines = [...$lines, ...$this->buildContentChannelRules($locales)];
         } else {
-            $lines = [...$lines, ...$this->buildAppChannelRules()];
+            $lines = [...$lines, ...$this->buildAppChannelRules($locales)];
         }
 
         $lines[] = '';
@@ -76,20 +77,29 @@ class RobotsTxtController extends AbstractController
     }
 
     /**
+     * @param list<string> $locales
+     *
      * @return list<string>
      */
-    private function buildContentChannelRules(): array
+    private function buildContentChannelRules(array $locales): array
     {
+        $allow = ['Allow: /'];
+
+        foreach ($locales as $locale) {
+            $allow[] = 'Allow: /'.$locale.'/pages/';
+        }
+
+        foreach ($locales as $locale) {
+            $allow[] = 'Allow: /'.$locale.'/archetypes';
+        }
+
+        // Public-read endpoint for editor-uploaded images (carousel
+        // slides, CMS page banners, OG images). Longest-match wins over
+        // `Disallow: /api/` below, so only this sub-path is crawlable.
+        $allow[] = 'Allow: /api/editor/image/*';
+
         return [
-            'Allow: /',
-            'Allow: /en/pages/',
-            'Allow: /fr/pages/',
-            'Allow: /en/archetypes',
-            'Allow: /fr/archetypes',
-            // Public-read endpoint for editor-uploaded images (carousel
-            // slides, CMS page banners, OG images). Longest-match wins over
-            // `Disallow: /api/` below, so only this sub-path is crawlable.
-            'Allow: /api/editor/image/*',
+            ...$allow,
             '',
             'Disallow: /admin/',
             'Disallow: /api/',
@@ -98,27 +108,39 @@ class RobotsTxtController extends AbstractController
     }
 
     /**
+     * @param list<string> $locales
+     *
      * @return list<string>
      */
-    private function buildAppChannelRules(): array
+    private function buildAppChannelRules(array $locales): array
     {
+        $allow = ['Allow: /'];
+
+        foreach ($locales as $locale) {
+            $allow[] = 'Allow: /'.$locale.'/pages/';
+        }
+
+        $allow[] = 'Allow: /deck/';
+        $allow[] = 'Allow: /event';
+        // Public-read endpoint for editor-uploaded images (carousel
+        // slides, CMS page banners, OG images). Longest-match wins over
+        // `Disallow: /api/` below, so only this sub-path is crawlable.
+        $allow[] = 'Allow: /api/editor/image/*';
+
+        // Archetypes are not served on the app channel; block the unprefixed
+        // redirect target plus every locale-prefixed path the channel exposes.
+        $archetypeDisallow = ['Disallow: /archetypes'];
+        foreach ($locales as $locale) {
+            $archetypeDisallow[] = 'Disallow: /'.$locale.'/archetypes';
+        }
+
         return [
-            'Allow: /',
-            'Allow: /en/pages/',
-            'Allow: /fr/pages/',
-            'Allow: /deck/',
-            'Allow: /event',
-            // Public-read endpoint for editor-uploaded images (carousel
-            // slides, CMS page banners, OG images). Longest-match wins over
-            // `Disallow: /api/` below, so only this sub-path is crawlable.
-            'Allow: /api/editor/image/*',
+            ...$allow,
             '',
             'Disallow: /admin/',
             'Disallow: /api/',
             'Disallow: /build/',
-            'Disallow: /archetypes',
-            'Disallow: /en/archetypes',
-            'Disallow: /fr/archetypes',
+            ...$archetypeDisallow,
             'Disallow: /borrow',
             'Disallow: /borrows',
             'Disallow: /confirm-deletion/',
