@@ -123,6 +123,65 @@ class AdminUserControllerCoverageTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
     }
 
+    /**
+     * An editor can save a user's public author profile; sameAs splits per line.
+     *
+     * @see docs/features.md F19.8 — Author assignment
+     */
+    public function testUpdateAuthorProfileSavesPublicProfile(): void
+    {
+        $this->loginAs('admin@example.com');
+        $userId = $this->getUserId('lender@example.com');
+
+        $crawler = $this->client->request('GET', '/admin/users/'.$userId);
+        self::assertResponseIsSuccessful();
+        $token = $crawler->filter('form[action$="/author"] input[name="_token"]')->attr('value');
+        self::assertNotNull($token);
+
+        $this->client->request('POST', '/admin/users/'.$userId.'/author', [
+            '_token' => $token,
+            'is_public_author' => '1',
+            'credential' => 'Format specialist',
+            'bio' => 'A short bio.',
+            'same_as' => "https://a.test\n  \nhttps://b.test",
+            'avatar_url' => 'https://example.test/a.png',
+            'primary_url' => 'https://example.test/me',
+            'public_slug' => 'lender-author',
+        ]);
+
+        self::assertResponseRedirects('/admin/users/'.$userId);
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager->clear();
+        /** @var User $user */
+        $user = $entityManager->find(User::class, $userId);
+        self::assertTrue($user->isPublicAuthor());
+        self::assertSame('Format specialist', $user->getCredential());
+        self::assertSame('A short bio.', $user->getBio());
+        self::assertSame(['https://a.test', 'https://b.test'], $user->getSameAs());
+        self::assertSame('https://example.test/me', $user->getPrimaryUrl());
+        self::assertSame('lender-author', $user->getPublicSlug());
+    }
+
+    /**
+     * Invalid CSRF on the author-profile update redirects with a danger flash.
+     */
+    public function testUpdateAuthorProfileInvalidCsrfRedirects(): void
+    {
+        $this->loginAs('admin@example.com');
+        $userId = $this->getUserId('staff1@example.com');
+
+        $this->client->request('POST', '/admin/users/'.$userId.'/author', [
+            '_token' => 'invalid-token',
+            'is_public_author' => '1',
+        ]);
+
+        self::assertResponseRedirects('/admin/users/'.$userId);
+        $this->client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+    }
+
     private function getUserId(string $email): int
     {
         /** @var EntityManagerInterface $entityManager */

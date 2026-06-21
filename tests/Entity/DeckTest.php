@@ -474,4 +474,22 @@ class DeckTest extends TestCase
         $deck->setLatestSet(null);
         self::assertNull($deck->getLatestSet());
     }
+
+    public function testResolveAuthorPrefersExplicitAuthorThenOwner(): void
+    {
+        // Variant (owner-less) with an explicit editorial author.
+        $author = new User();
+        $variant = (new Deck())->setArchetype(new Archetype())->setAuthor($author);
+        self::assertSame($author, $variant->getAuthor());
+        self::assertSame($author, $variant->resolveAuthor());
+
+        // Owner-owned deck with no explicit author resolves to its owner.
+        $owner = new User();
+        $owned = (new Deck())->setOwner($owner);
+        self::assertNull($owned->getAuthor());
+        self::assertSame($owner, $owned->resolveAuthor());
+
+        // Neither set resolves to null.
+        self::assertNull((new Deck())->resolveAuthor());
+    }
 }

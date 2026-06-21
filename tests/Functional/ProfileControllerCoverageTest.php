@@ -53,6 +53,41 @@ class ProfileControllerCoverageTest extends AbstractFunctionalTest
     }
 
     /**
+     * Saving the public author profile through the self-service form persists
+     * the fields and splits sameAs one URL per line (F19.8).
+     *
+     * @see docs/features.md F19.8 — Author assignment
+     */
+    public function testProfileEditSavesPublicAuthorProfile(): void
+    {
+        $this->loginAs('staff2@example.com');
+
+        $crawler = $this->client->request('GET', '/profile');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['profile_form[isPublicAuthor]']->tick();
+        $form['profile_form[credential]'] = 'Format specialist';
+        $form['profile_form[bio]'] = 'Bio from profile form.';
+        $form['profile_form[sameAs]'] = "https://x.test\nhttps://y.test\n";
+        $form['profile_form[primaryUrl]'] = 'https://example.test/me';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects('/profile');
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager->clear();
+        /** @var User $user */
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => 'staff2@example.com']);
+        self::assertTrue($user->isPublicAuthor());
+        self::assertSame('Format specialist', $user->getCredential());
+        self::assertSame('Bio from profile form.', $user->getBio());
+        self::assertSame(['https://x.test', 'https://y.test'], $user->getSameAs());
+        self::assertSame('https://example.test/me', $user->getPrimaryUrl());
+    }
+
+    /**
      * Data export for a user with decks, borrows, and engagements should
      * include all sections with data.
      */
