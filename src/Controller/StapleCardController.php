@@ -90,6 +90,7 @@ class StapleCardController extends AbstractController
         $ogMeta = null !== $introPage
             ? $ogMetaResolver->resolveForPage($introPage, $locale)
             : ['image' => null, 'description' => null];
+        $metaDescription = null !== $introPage ? $metaDescriptionResolver->resolveForPage($introPage, $locale) : null;
 
         return $this->render('staple_card/list.html.twig', [
             'cardsByBucket' => $cardsByBucket,
@@ -101,9 +102,7 @@ class StapleCardController extends AbstractController
             'introPage' => $introPage,
             'ogImage' => $ogMeta['image'],
             'ogDescription' => $ogMeta['description'],
-            'metaDescription' => null !== $introPage
-                ? $metaDescriptionResolver->resolveForPage($introPage, $locale)
-                : null,
+            'metaDescription' => $metaDescription,
         ]);
     }
 }

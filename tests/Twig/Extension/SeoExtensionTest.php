@@ -33,6 +33,11 @@ class SeoExtensionTest extends TestCase
         self::assertSame('', $this->extension->truncate(null));
     }
 
+    public function testWhitespaceOnlyTextBecomesEmptyString(): void
+    {
+        self::assertSame('', $this->extension->truncate("   \n\t  "));
+    }
+
     public function testShortTextIsReturnedUnchanged(): void
     {
         self::assertSame('A concise summary.', $this->extension->truncate('A concise summary.'));
