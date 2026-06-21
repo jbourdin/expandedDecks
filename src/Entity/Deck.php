@@ -60,7 +60,7 @@ class Deck
     /**
      * @see docs/features.md F2.23 — Standard format personal decks
      */
-    #[ORM\Column(length: 20, enumType: DeckFormat::class)]
+    #[ORM\Column(length: 20, enumType: DeckFormat::class, options: ['default' => 'expanded'])]
     private DeckFormat $format = DeckFormat::Expanded;
 
     #[ORM\Column(length: 20, enumType: DeckStatus::class)]

@@ -77,7 +77,7 @@ class CardPrinting
     private ?int $tcgplayerProductId = null;
 
     /** Marks the preferred printing for minified/simplified lists within its CardIdentity. */
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => false])]
     private bool $isCanonical = false;
 
     public function getId(): ?int

@@ -33,7 +33,7 @@ class MenuCategory
     #[ORM\Column]
     private int $position = 0;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => false])]
     private bool $isFooter = false;
 
     /**
