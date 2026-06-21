@@ -9,8 +9,9 @@
  # @see docs/features.md F19.8 — Author assignment
  #
  # Public byline. `author` and `translator` are User|null. Exposes only the
- # public screen name (never email/legal name); the credential shows only for
- # opted-in public authors.
+ # public screen name (never email/legal name). The credential is deliberately
+ # NOT shown here — it is an E-E-A-T signal carried in the JSON-LD
+ # (Person.description), not human-facing byline clutter.
  #}
 {%- if author -%}
     <div class="author-byline text-muted small mb-0">
@@ -18,7 +19,6 @@
         {%- if author.primaryUrl %} <a href="{{ author.primaryUrl }}" rel="author noopener" target="_blank">{{ author.screenName }}</a>
         {%- else %} {{ author.screenName }}
         {%- endif -%}
-        {%- if author.isPublicAuthor and author.credential %} <span class="author-credential">· {{ author.credential }}</span>{% endif -%}
         {%- if translator %} <span class="author-translator">· {{ 'app.author.translated_by'|trans({'%name%': translator.screenName}) }}</span>{% endif -%}
     </div>
 {%- endif -%}
