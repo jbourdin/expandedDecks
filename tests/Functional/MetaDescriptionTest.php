@@ -88,6 +88,23 @@ class MetaDescriptionTest extends AbstractFunctionalTest
         self::assertStringContainsString('strategy', $description);
     }
 
+    public function testBannedCardsPageHasDescription(): void
+    {
+        $crawler = $this->client->request('GET', '/en/banned-cards');
+        self::assertResponseIsSuccessful();
+
+        self::assertNotSame('', $this->singleMetaDescription($crawler));
+    }
+
+    public function testStapleCardsPageHasDescription(): void
+    {
+        // Staples are a content-channel feature; request the content host.
+        $crawler = $this->client->request('GET', '/en/staple-cards', server: ['HTTP_HOST' => 'expandedtalks.wip']);
+        self::assertResponseIsSuccessful();
+
+        self::assertNotSame('', $this->singleMetaDescription($crawler));
+    }
+
     public function testSearchResultsAreExemptAndNoIndexed(): void
     {
         $crawler = $this->client->request('GET', '/en/search?q=test');
