@@ -1,6 +1,6 @@
 # Security Scanning
 
-> **Audience:** Developer, AI Agent · **Scope:** Dependency vulnerability scanning
+> **Audience:** Developer, AI Agent · **Scope:** Dependency vulnerability scanning, HTTP response security headers
 
 ← Back to [Standards](../docs.md#standards)
 
@@ -60,3 +60,55 @@ Verify compatibility by running `make assets` and `make test.front` after adding
 3. For JS: `npm audit fix` for safe upgrades, or add an `overrides` entry for transitive deps
 4. Verify with `make audit`, `make assets`, and `make test` / `make test.front`
 5. Commit and push — the CI Security Audit job confirms the fix
+
+## Response Security Headers
+
+> **Feature:** F19.9 — Security/trust response headers (audit finding M6)
+
+`App\EventListener\SecurityHeadersListener` adds a baseline set of trust/hardening
+headers to every **main** response (sub-requests are skipped to avoid duplication).
+It is a `kernel.response` listener, so it runs for all channels and routes without
+per-controller wiring.
+
+### Enforced headers (every response)
+
+| Header | Value | Why |
+|--------|-------|-----|
+| `X-Content-Type-Options` | `nosniff` | Stops MIME-type sniffing (script-injection via mistyped responses). |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Sends only the origin cross-site; protects path/query leakage. |
+| `X-Frame-Options` | `SAMEORIGIN` | Legacy clickjacking defence (paired with the CSP `frame-ancestors`). |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | Denies powerful features by default. Camera is denied too — there is no live camera scanner yet. When one ships, re-enable it as `camera=(self)` **on the app channel only** (the content channel never needs it). |
+| `Strict-Transport-Security` | `max-age=86400; includeSubDomains` | HTTPS-only requests only (`$request->isSecure()`). Max-age is intentionally moderate (1 day) to start; ramp up and consider `preload` once every subdomain is confirmed HTTPS-only. |
+
+### Content-Security-Policy (report-only, HTML responses)
+
+CSP is shipped as **`Content-Security-Policy-Report-Only`** — it never blocks,
+it only reports. The app still renders inline `<head>` scripts (theme colour
+scheme, etc.), so a strict `script-src` would break them; report-only surfaces
+exactly what needs a nonce before we can switch to enforcement. The enforcing
+`Content-Security-Policy` header is deliberately **absent**.
+
+The policy is applied only to HTML documents. A Twig-rendered `Response` has **no
+`Content-Type` header yet at `kernel.response`** (the `text/html` default is set
+later in `Response::prepare()`), so the listener treats an empty/absent
+Content-Type as HTML. `JsonResponse`, the XML sitemap/feed, and image responses
+set their Content-Type eagerly in their constructors and are therefore excluded.
+
+Current report-only directives:
+
+```
+default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self';
+form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:
+```
+
+`style-src` allows `'unsafe-inline'` (Bootstrap/Mantine inject inline styles —
+lower risk than scripts). `img-src` is broad (`https:`) because card art (TCGdex),
+sprites, editor uploads, and the CDN come from many hosts.
+
+### CSP violation reporting (optional)
+
+Set the `SECURITY_CSP_REPORT_URI` env var to a collector endpoint (e.g. a Sentry
+security report URL) to append a `report-uri` directive. When unset, no
+`report-uri` is emitted. This is the recommended next step before flipping CSP
+from report-only to enforcing.
