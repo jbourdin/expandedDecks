@@ -67,11 +67,16 @@
         <div class="card-body cms-content">
             {{ htmlContent|raw }}
         </div>
-        {% if page.firstPublishedAt %}
+        {% if page.author or page.firstPublishedAt %}
             <div class="card-footer text-muted small">
-                {{ 'app.cms.published_on'|trans }} {{ page.firstPublishedAt|format_date('long') }}
-                {% if page.lastPublishedAt and page.lastPublishedAt > page.firstPublishedAt %}
-                    · {{ 'app.cms.updated_on'|trans }} {{ page.lastPublishedAt|format_date('long') }}
+                {{ include('_partials/author_byline.html.twig', {author: page.author, translator: translation.translator}) }}
+                {% if page.firstPublishedAt %}
+                    <div>
+                        {{ 'app.cms.published_on'|trans }} {{ page.firstPublishedAt|format_date('long') }}
+                        {% if page.lastPublishedAt and page.lastPublishedAt > page.firstPublishedAt %}
+                            · {{ 'app.cms.updated_on'|trans }} {{ page.lastPublishedAt|format_date('long') }}
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
         {% endif %}

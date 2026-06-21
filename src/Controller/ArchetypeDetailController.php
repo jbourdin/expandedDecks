@@ -185,11 +185,15 @@ class ArchetypeDetailController extends AbstractController
             $variantId = $variant->getId();
 
             $latestSet = $variant->getLatestSet();
+            $variantAuthor = $variant->resolveAuthor();
 
             $data[] = [
                 'id' => $variantId,
                 'shortTag' => $variant->getShortTag(),
                 'name' => $variant->getName(),
+                // Public author credit (F19.8); screen name only, URL only for opted-in authors.
+                'authorName' => $variantAuthor?->getScreenName(),
+                'authorUrl' => null !== $variantAuthor && $variantAuthor->isPublicAuthor() ? $variantAuthor->getPrimaryUrl() : null,
                 'canonical' => $variant->isCanonical(),
                 'outdated' => $variant->isOutdated(),
                 'latestSetCode' => $latestSet?->getPtcgCode(),

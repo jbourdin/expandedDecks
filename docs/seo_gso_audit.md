@@ -160,6 +160,12 @@ centralised in `base.html.twig` so nothing ships without one.
 
 #### M1 — Author / E-E-A-T authority invisible to machines (key GSO gap)
 
+> ✅ **RESOLVED** by F19.8 ([#699](https://github.com/jbourdin/expandedDecks/issues/699)): content now
+> carries an `author` (and per-locale `translator`); `Article`/`WebPage` JSON-LD emit a `Person` author
+> with `url`/`sameAs`/credential plus an `Organization` publisher with `logo`+`sameAs`, the RSS
+> `dc:creator` is dynamic, and a visible byline renders on archetype/news pages — all via a projection
+> that never exposes the login email or legal name. The finding below is retained for context.
+
 **Evidence (live JSON-LD, archetype page):** valid `Article` with `headline`, `about` (Game),
 `datePublished`/`dateModified` (good freshness), `hasPart` (variants) — but
 `author = { @type: Organization, name: "Dowsing Machine" }` and the same as `publisher`. No

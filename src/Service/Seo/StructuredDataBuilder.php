@@ -327,8 +327,14 @@ final readonly class StructuredDataBuilder
             $person['url'] = $user->getPrimaryUrl();
         }
 
+        if (null !== $user->getBio()) {
+            $person['description'] = $user->getBio();
+        }
+
+        // The credential is an achievement/honor, mapped to schema.org `award`
+        // rather than free-text description.
         if (null !== $user->getCredential()) {
-            $person['description'] = $user->getCredential();
+            $person['award'] = $user->getCredential();
         }
 
         if (null !== $user->getAvatarUrl()) {

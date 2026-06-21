@@ -50,9 +50,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class DevFixtures extends Fixture
 {
     /**
-     * Editorial content author for fixtures — the "Editor" user. Mirrors the
-     * production backfill (content attributed to its writer) so dev shows real
-     * bylines (F19.8).
+     * Editorial content author for fixtures — a fictional content author.
+     * Mirrors the production backfill (content attributed to its writer) so
+     * dev shows real bylines (F19.8).
      */
     private ?User $contentAuthor = null;
 
@@ -314,13 +314,20 @@ MARKDOWN;
         $user->setEmail('editor@example.com');
         $user->setFirstName('Gwen');
         $user->setLastName('Editeur');
-        $user->setScreenName('Editor');
+        $user->setScreenName('AceTrainer');
         $user->setPlayerId('401');
         $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
         $user->setRoles(['ROLE_CMS_EDITOR']);
         $user->setIsVerified(true);
         $user->setPreferredLocale('en');
         $user->setTimezone('Europe/Paris');
+        // Public author profile (F19.8) so dev shows rich bylines / JSON-LD.
+        $user->setIsPublicAuthor(true);
+        $user->setCredential('Expanded format specialist');
+        $user->setBio('Tournament grinder and Expanded format enthusiast. Curates and maintains the archetype library, writing the matchup notes and metagame breakdowns behind each deck.');
+        $user->setSameAs(['https://github.com/jbourdin']);
+        $user->setPrimaryUrl('https://github.com/jbourdin');
+        $user->setPublicSlug('editor');
 
         $manager->persist($user);
 
@@ -2564,7 +2571,12 @@ PTCG;
             ->setThemeName('expandedtalks')
             // English-only content for now; add 'fr' once French translations exist (F19.4).
             ->setLocales(['en'])
-            ->setParameters(['brand_name' => 'Expanded Talks']);
+            // org_logo + org_same_as feed the Organization publisher JSON-LD (F19.8).
+            ->setParameters([
+                'brand_name' => 'Expanded Talks',
+                'org_logo' => '/build/images/themes/expandedtalks/apple_touch_icon.png',
+                'org_same_as' => "https://bsky.app/profile/example.bsky.social\nhttps://discord.gg/example\nhttps://github.com/jbourdin/expandedDecks",
+            ]);
 
         $manager->persist($appChannel);
         $manager->persist($contentChannel);

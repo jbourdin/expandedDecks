@@ -45,6 +45,8 @@ interface VariantData {
     rawList: string | null;
     effectiveUpdatedAtLabel: string | null;
     groupedCards: Record<string, CardData[]>;
+    authorName: string | null;
+    authorUrl: string | null;
 }
 
 interface Labels {
@@ -70,6 +72,8 @@ interface Labels {
     copyTagCopied: string;
     copyCardTag: string;
     compareVariants: string;
+    curatedBy: string;
+    curatedDisclaimer: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -710,6 +714,19 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                             groupedCards={selectedVariant.groupedCards}
                             mosaicAltLabel={`${labels.mosaicAlt} \u2014 ${selectedVariant.name}`}
                         />
+                    )}
+
+                    {selectedVariant.authorName && (
+                        <Text size="xs" c="dimmed" mt="sm">
+                            {labels.curatedBy}{' '}
+                            {selectedVariant.authorUrl ? (
+                                <a href={selectedVariant.authorUrl} target="_blank" rel="noopener noreferrer">{selectedVariant.authorName}</a>
+                            ) : (
+                                selectedVariant.authorName
+                            )}
+                            {' \u2014 '}
+                            {labels.curatedDisclaimer}
+                        </Text>
                     )}
                 </Stack>
             )}
