@@ -160,6 +160,36 @@ final class RobotsTxtControllerTest extends TestCase
         self::assertStringContainsString('Allow: /api/editor/image/*', $contentBody);
     }
 
+    /**
+     * The favicon and theme assets live under /build/images/; they must stay
+     * crawlable (longest-match wins over Disallow: /build/) so Google can fetch
+     * the favicon. Regression guard for the missing-favicon issue.
+     *
+     * @see docs/features.md F18.24 — Channel-aware robots.txt
+     */
+    public function testBuildImagesAreCrawlableBeforeBuildIsBlocked(): void
+    {
+        foreach (['app', 'content'] as $code) {
+            $channel = (new Channel())
+                ->setCode($code)
+                ->setDomain($code.'.wip')
+                ->setEnableArchetypes('content' === $code);
+
+            $body = (string) $this->invokeController($channel)->getContent();
+
+            self::assertStringContainsString('Allow: /build/images/', $body);
+            self::assertStringContainsString('Disallow: /build/', $body);
+
+            // The Allow must precede the Disallow so longest-match parsers keep
+            // the more specific Allow.
+            self::assertLessThan(
+                strpos($body, 'Disallow: /build/'),
+                strpos($body, 'Allow: /build/images/'),
+                "On the {$code} channel, Allow: /build/images/ must come before Disallow: /build/.",
+            );
+        }
+    }
+
     private function invokeController(Channel $channel): \Symfony\Component\HttpFoundation\Response
     {
         $request = new Request();

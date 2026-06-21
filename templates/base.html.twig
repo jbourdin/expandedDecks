@@ -15,9 +15,12 @@
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         {% if channel_theme() == 'expandedtalks' %}
             <link rel="icon" href="{{ asset('build/images/themes/expandedtalks/dowsing_favicon.svg') }}" type="image/svg+xml">
+            {# Raster fallback: Google Search renders PNG/ICO favicons more reliably than SVG. #}
+            <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('build/images/themes/expandedtalks/dowsing_favicon_96.png') }}">
             <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/themes/expandedtalks/apple_touch_icon.png') }}">
         {% else %}
             <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
         {% endif %}
         {% block canonical %}{% endblock %}
         {% block hreflang %}
