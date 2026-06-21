@@ -67,6 +67,7 @@
 - [TCGdex Incremental Sync](technicalities/tcgdex_sync.md) — API-based sync cascade, rate limiting, sync modes, webhook trigger
 - [Error Pages](technicalities/error_pages.md) — Custom error pages, Pokemon sprites, CDN integration, Sentry
 - [OG Image Builder](technicalities/og_image_builder.md) — Card-fan social-preview compositor, code resolution, RSS feed images
+- [Schema Sync](technicalities/schema_drift.md) — How entity mappings are kept in sync with the live schema (defaults, schema_filter, drift-normalization migration)
 
 ## Planning
 

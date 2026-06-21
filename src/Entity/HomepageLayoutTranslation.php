@@ -55,7 +55,8 @@ class HomepageLayoutTranslation
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    // length 65535 maps to MySQL TEXT (not LONGTEXT), matching the live schema.
+    #[ORM\Column(type: 'text', length: 65535, nullable: true)]
     private ?string $ogDescription = null;
 
     public function getId(): ?int

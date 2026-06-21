@@ -1,0 +1,24 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # @see docs/features.md F19.8 — Author assignment
+ #
+ # Public byline. `author` and `translator` are User|null. Exposes only the
+ # public screen name (never email/legal name). The credential is deliberately
+ # NOT shown here — it is an E-E-A-T signal carried in the JSON-LD
+ # (Person.description), not human-facing byline clutter.
+ #}
+{%- if author -%}
+    <div class="author-byline text-muted small mb-0">
+        <i class="bi bi-pencil-fill me-1" aria-hidden="true"></i>{{ 'app.author.by'|trans }}
+        {%- if author.primaryUrl %} <a href="{{ author.primaryUrl }}" rel="author noopener" target="_blank">{{ author.screenName }}</a>
+        {%- else %} {{ author.screenName }}
+        {%- endif -%}
+        {%- if translator %} <span class="author-translator">· {{ 'app.author.translated_by'|trans({'%name%': translator.screenName}) }}</span>{% endif -%}
+    </div>
+{%- endif -%}

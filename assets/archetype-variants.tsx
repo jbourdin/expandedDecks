@@ -45,6 +45,8 @@ if (root) {
         copyTagCopied: root.dataset.labelCopyTagCopied ?? 'Copied!',
         copyCardTag: root.dataset.labelCopyCardTag ?? 'Copy card reference',
         compareVariants: root.dataset.labelCompareVariants ?? 'Compare variants',
+        curatedBy: root.dataset.labelCuratedBy ?? 'Curated by',
+        curatedDisclaimer: root.dataset.labelCuratedDisclaimer ?? 'A curated, maintained archetype reference — not an original creation by the author.',
     };
 
     createRoot(root).render(

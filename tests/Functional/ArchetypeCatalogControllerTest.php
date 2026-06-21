@@ -232,8 +232,8 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         self::assertGreaterThan(0, \count($xml->channel->item));
 
         foreach ($xml->channel->item as $item) {
-            // Interim hardcoded author until a real content-authoring model exists.
-            self::assertSame('Luby', (string) $item->children('http://purl.org/dc/elements/1.1/')->creator);
+            // dc:creator is the variant's resolved author (the fixture content author).
+            self::assertSame('AceTrainer', (string) $item->children('http://purl.org/dc/elements/1.1/')->creator);
         }
     }
 

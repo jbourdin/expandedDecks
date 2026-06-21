@@ -79,11 +79,16 @@
                     </div>
                 {% endif %}
             </div>
-            {% if htmlContent %}
-                <div class="card-body cms-content">
-                    {{ htmlContent|raw }}
-                </div>
-            {% endif %}
+            <div class="card-body">
+                {% set localeTranslation = archetype.getTranslation(app.request.locale) %}
+                {{ include('_partials/author_byline.html.twig', {
+                    author: archetype.author,
+                    translator: localeTranslation ? localeTranslation.translator : null,
+                }) }}
+                {% if htmlContent %}
+                    <div class="cms-content mt-2">{{ htmlContent|raw }}</div>
+                {% endif %}
+            </div>
         </div>
 
         {% if variants is not empty %}
@@ -117,6 +122,8 @@
                          data-label-group-outdated="{{ 'app.archetype.variant.group_outdated'|trans }}"
                          data-label-share-mosaic="{{ 'app.deck.share_mosaic'|trans }}"
                          data-label-updated-on="{{ 'app.cms.updated_on'|trans }}"
+                         data-label-curated-by="{{ 'app.archetype.variant.curated_by'|trans }}"
+                         data-label-curated-disclaimer="{{ 'app.archetype.variant.curated_disclaimer'|trans }}"
                          data-label-enrichment-pending="{{ 'app.deck.mosaic_generating'|trans }}">
                     </div>
                 </div>

@@ -48,11 +48,11 @@ class CardIdentity
     private int $hp = 0;
 
     /** Sorted comma-joined ability names. Empty string for non-Pokemon cards. */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, options: ['default' => ''])]
     private string $abilitySignature = '';
 
     /** Comma-joined ability names in original card order (for Cardmarket export). */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, options: ['default' => ''])]
     private string $abilityNames = '';
 
     /** Sorted comma-joined attack names. Empty string for non-Pokemon cards. */
@@ -60,11 +60,11 @@ class CardIdentity
     private string $attackSignature = '';
 
     /** Comma-joined attack names in original card order (for Cardmarket export). */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, options: ['default' => ''])]
     private string $attackNames = '';
 
     /** Sorted comma-joined Pokemon types (e.g. "Metal", "Dragon", "Fire,Water"). Empty string for non-Pokemon cards. */
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, options: ['default' => ''])]
     private string $pokemonType = '';
 
     /** Trainer subtype (e.g. "Supporter", "Item", "Tool", "Stadium"). Null for non-Trainers. */

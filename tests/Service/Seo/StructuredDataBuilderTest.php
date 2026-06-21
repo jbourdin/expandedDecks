@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Tests\Service\Seo;
 
 use App\Entity\Archetype;
+use App\Entity\ArchetypeTranslation;
 use App\Entity\Channel;
 use App\Entity\Deck;
 use App\Entity\Event;
@@ -252,12 +253,116 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('https://expandedtalks.wip', $data['publisher']['url']);
     }
 
-    private function createBuilder(string $brandName = 'Expanded Decks', string $domain = 'expandeddecks.wip'): StructuredDataBuilder
+    public function testBuildArticleAuthorIsPersonAndNeverLeaksEmailOrLegalName(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $author = (new User())
+            ->setEmail('private-email@example.test')
+            ->setFirstName('Privatefirstname')
+            ->setLastName('Privatelastname')
+            ->setScreenName('TestAuthor')
+            ->setIsPublicAuthor(true)
+            ->setBio('A fictional author biography for testing.')
+            ->setCredential('Format specialist')
+            ->setSameAs(['https://example.test/profile'])
+            ->setPrimaryUrl('https://example.test/profile')
+            ->setAvatarUrl('https://example.test/avatar.png');
+        $archetype = (new Archetype())->setName('Iron Thorns')->setAuthor($author);
+
+        $data = $builder->buildArticle($archetype, 'en', 'https://expandedtalks.wip/archetypes/iron-thorns');
+
+        self::assertSame('Person', $data['author']['@type']);
+        self::assertSame('TestAuthor', $data['author']['name']);
+        self::assertSame('https://example.test/profile', $data['author']['url']);
+        self::assertSame('A fictional author biography for testing.', $data['author']['description']);
+        self::assertSame('Format specialist', $data['author']['award']);
+        self::assertContains('https://example.test/profile', $data['author']['sameAs']);
+
+        // The login email and legal name must NEVER appear anywhere in the output.
+        $json = json_encode($data, \JSON_THROW_ON_ERROR);
+        self::assertStringNotContainsString('private-email@example.test', $json);
+        self::assertStringNotContainsString('Privatefirstname', $json);
+        self::assertStringNotContainsString('Privatelastname', $json);
+    }
+
+    public function testBuildArticleNonPublicAuthorExposesNameOnly(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $author = (new User())
+            ->setEmail('owner@example.com')
+            ->setScreenName('SomeOwner')
+            ->setCredential('hidden')
+            ->setSameAs(['https://example.com/x']);
+        // isPublicAuthor defaults to false.
+        $archetype = (new Archetype())->setName('Iron Thorns')->setAuthor($author);
+
+        $data = $builder->buildArticle($archetype, 'en', 'https://expandedtalks.wip/archetypes/iron-thorns');
+
+        self::assertSame('Person', $data['author']['@type']);
+        self::assertSame('SomeOwner', $data['author']['name']);
+        self::assertArrayNotHasKey('description', $data['author']);
+        self::assertArrayNotHasKey('award', $data['author']);
+        self::assertArrayNotHasKey('sameAs', $data['author']);
+        self::assertArrayNotHasKey('url', $data['author']);
+    }
+
+    public function testBuildArticleAuthorFallsBackToOrganizationWhenUnset(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $archetype = (new Archetype())->setName('Iron Thorns');
+
+        $data = $builder->buildArticle($archetype, 'en', 'https://expandedtalks.wip/archetypes/iron-thorns');
+
+        self::assertSame('Organization', $data['author']['@type']);
+        self::assertSame('Expanded Talks', $data['author']['name']);
+    }
+
+    public function testBuildArticleEmitsTranslatorForLocale(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks');
+
+        $translator = (new User())->setScreenName('Frodo')->setIsPublicAuthor(true);
+        $archetype = (new Archetype())->setName('Iron Thorns');
+        $translation = (new ArchetypeTranslation())->setLocale('fr')->setName('Iron Thorns')->setTranslator($translator);
+        $archetype->addTranslation($translation);
+
+        $data = $builder->buildArticle($archetype, 'fr', 'https://expandedtalks.wip/fr/archetypes/iron-thorns');
+
+        self::assertArrayHasKey('translator', $data);
+        self::assertSame('Person', $data['translator']['@type']);
+        self::assertSame('Frodo', $data['translator']['name']);
+    }
+
+    public function testOrganizationPublisherIncludesLogoAndSameAs(): void
+    {
+        $builder = $this->createBuilder('Expanded Talks', 'expandedtalks.wip', [
+            'org_logo' => '/images/logo.png',
+            'org_same_as' => "https://bsky.app/profile/x\nhttps://github.com/y",
+        ]);
+
+        $archetype = (new Archetype())->setName('Iron Thorns');
+
+        $data = $builder->buildArticle($archetype, 'en', 'https://expandedtalks.wip/archetypes/iron-thorns');
+
+        $publisher = $data['publisher'];
+        self::assertSame('Organization', $publisher['@type']);
+        self::assertSame('ImageObject', $publisher['logo']['@type']);
+        self::assertSame('https://expandedtalks.wip/images/logo.png', $publisher['logo']['url']);
+        self::assertSame(['https://bsky.app/profile/x', 'https://github.com/y'], $publisher['sameAs']);
+    }
+
+    /**
+     * @param array<string, string> $extraParams
+     */
+    private function createBuilder(string $brandName = 'Expanded Decks', string $domain = 'expandeddecks.wip', array $extraParams = []): StructuredDataBuilder
     {
         $channel = (new Channel())
             ->setCode('test')
             ->setDomain($domain)
-            ->setParameters(['brand_name' => $brandName]);
+            ->setParameters(array_merge(['brand_name' => $brandName], $extraParams));
 
         $request = new Request();
         $request->attributes->set('_channel', $channel);
