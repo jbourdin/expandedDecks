@@ -20,6 +20,7 @@ use App\Entity\PageTranslation;
 use App\Repository\PageRepository;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownExcerptGenerator;
+use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -129,6 +130,7 @@ class PageController extends AbstractController
         Request $request,
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
+        MetaDescriptionResolver $metaDescriptionResolver,
     ): Response {
         if (ListingIntroPage::isListingSlug($slug)) {
             $route = ListingIntroPage::routeForSlug($slug);
@@ -163,6 +165,9 @@ class PageController extends AbstractController
             'page' => $page,
             'translation' => $translation,
             'htmlContent' => $htmlContent,
+            // Resolve against the displayed translation's locale so the snippet
+            // matches the content actually rendered after locale fallback.
+            'metaDescription' => $metaDescriptionResolver->resolveForPage($page, $translation->getLocale()),
         ]);
     }
 }

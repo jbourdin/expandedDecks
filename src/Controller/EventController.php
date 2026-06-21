@@ -40,6 +40,7 @@ use App\Repository\EventTagRepository;
 use App\Repository\UserRepository;
 use App\Service\BorrowService;
 use App\Service\EventNotificationService;
+use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\StaffCustodyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -117,6 +118,7 @@ class EventController extends AbstractAppController
         DeckRepository $deckRepository,
         EventDeckEntryRepository $entryRepository,
         EventDeckRegistrationRepository $registrationRepository,
+        MetaDescriptionResolver $metaDescriptionResolver,
     ): Response {
         $user = $this->getUser();
         \assert(null === $user || $user instanceof User);
@@ -257,6 +259,9 @@ class EventController extends AbstractAppController
             'endingPhaseLentBorrows' => $endingPhaseLentBorrows,
             'endingPhaseOwnerStats' => $endingPhaseOwnerStats,
             'endingPhaseGlobalStats' => $endingPhaseGlobalStats,
+            // Excerpt of the event description when present; the template
+            // synthesizes a date/location summary otherwise.
+            'metaDescription' => $metaDescriptionResolver->resolveForEvent($event),
         ]);
     }
 

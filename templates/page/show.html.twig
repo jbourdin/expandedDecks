@@ -8,6 +8,10 @@
  #}
 {% extends 'base.html.twig' %}
 
+{# Mirror the page's noindex flag so the central meta description (F19.7) is
+ # suppressed on pages excluded from indexing. #}
+{% set noIndex = page.noIndex %}
+
 {% block title %}{{ translation.title }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}

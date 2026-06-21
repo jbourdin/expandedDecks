@@ -30,12 +30,9 @@
     {{ include('_partials/opengraph.html.twig') }}
 {% endblock %}
 
-{% block meta %}
-    {% set localizedMeta = archetype.localizedMetaDescription(app.request.locale) %}
-    {% if localizedMeta %}
-        <meta name="description" content="{{ localizedMeta }}">
-    {% endif %}
-{% endblock %}
+{# <meta name="description"> is emitted centrally from the controller-supplied
+ # `metaDescription` (F19.7); the resolver's chain already covers
+ # localizedMetaDescription, so no per-template override is needed. #}
 
 {% block structured_data %}
     {% set archetypeUrl = canonical_url('archetypes', 'app_archetype_show', {slug: archetype.slug}) %}

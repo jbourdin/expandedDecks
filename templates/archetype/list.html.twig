@@ -8,6 +8,8 @@
  #}
 {% extends 'base.html.twig' %}
 
+{% set metaDescription = 'app.archetype.list.meta_description'|trans %}
+
 {% block title %}{{ 'app.archetype.catalog_title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}

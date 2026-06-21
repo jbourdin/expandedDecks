@@ -8,6 +8,8 @@
  #}
 {% extends 'base.html.twig' %}
 
+{% set metaDescription = 'app.cms.category.meta_description'|trans({'%category%': category.getName(app.request.locale)}) %}
+
 {% block title %}{{ category.getName(app.request.locale) }} — {{ parent() }}{% endblock %}
 
 {% block alternate_feeds %}

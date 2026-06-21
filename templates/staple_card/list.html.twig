@@ -8,6 +8,9 @@
  #}
 {% extends 'base.html.twig' %}
 
+{# Intro-page description when set, else a list-purpose default (F19.7). #}
+{% set metaDescription = metaDescription|default(null) ?: 'app.staple_card.meta_description'|trans %}
+
 {% block title %}{{ 'app.staple_card.public.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}
