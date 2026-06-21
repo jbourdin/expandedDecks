@@ -2,12 +2,6 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
-        # Framework-managed tables (Symfony Messenger transport + PDO session
-        # handler) are owned by their bundles, not the ORM mappings. Excluding
-        # them from schema management keeps them out of schema:validate/diff
-        # drift reports.
-        schema_filter: '~^(?!messenger_messages|sessions)~'
-
         profiling_collect_backtrace: '%kernel.debug%'
     orm:
         validate_xml_mapping: true

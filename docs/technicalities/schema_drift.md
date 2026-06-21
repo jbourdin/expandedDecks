@@ -14,18 +14,24 @@ doesn't creep back in.
 ## How the drift was reconciled
 
 Drift had accumulated from old hand-written migrations and dependency upgrades. It was
-cleared in three ways, by category:
+cleared two ways, by category:
 
 1. **Column defaults/types** → declared on the entity mappings (e.g. `options: ['default' => …]`
    on booleans, `deck.format`, `deck_card.card_locale`, `card_identity.*`, and the
    `homepage_layout_translation.og_description` `TEXT` length).
-2. **Framework-managed tables** (`messenger_messages`, `sessions`) → excluded from ORM
-   schema management via `dbal.schema_filter` in `config/packages/doctrine.yaml`. They are
-   owned by the Messenger transport / PDO session handler and managed by those bundles, not
-   by our mappings — so we never diff or migrate them here.
-3. **Legacy index/FK names + obsolete `(DC2Type:datetime_immutable)` comments** → normalized
-   to Doctrine's current conventions by a one-time, metadata-only migration
-   (`Version20260621081335`). RENAME INDEX / comment changes are instant in MySQL 8.
+2. **Legacy index/FK names, obsolete `(DC2Type:datetime_immutable)` comments, and the
+   framework tables' (`messenger_messages`, `sessions`) older index/column layout** → normalized
+   to current conventions by a one-time, metadata-only migration (`Version20260621081335`).
+   `RENAME INDEX` / comment / index-swap operations are instant in MySQL 8.
+
+### Why the migration is guarded
+
+This drift only exists on the **production-evolved** schema. A freshly built schema
+(`SchemaTool::createSchema` used by functional tests, or migrate-from-zero) already uses
+current conventions, so the migration **skips itself** there via `skipIf` (keyed on a legacy
+index name). It only acts on the legacy production schema. This is also why the framework
+tables must **not** be excluded with `dbal.schema_filter` — that would stop `createSchema`
+from building `messenger_messages`, breaking the test environment.
 
 ## Keeping it clean
 
@@ -33,4 +39,3 @@ cleared in three ways, by category:
   diff should contain **only your intended change**. If it shows index renames, comment
   removals, or `messenger_messages`/`sessions`, something regressed — investigate rather
   than committing the noise.
-- New framework tables (future bundles) may need to be added to the `schema_filter` regex.

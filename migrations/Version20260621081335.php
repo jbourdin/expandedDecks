@@ -19,10 +19,16 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Normalize schema to current Doctrine conventions (schema-drift cleanup).
  *
- * Renames legacy hand-named indexes/FKs to Doctrine's derived names and drops
- * the obsolete `(DC2Type:datetime_immutable)` column comments that DBAL 4 no
- * longer emits. Metadata-only operations (no table rebuilds, no data change);
- * clears the long-standing drift so doctrine:schema:validate is fully in sync.
+ * Renames legacy hand-named indexes/FKs to Doctrine's derived names, drops the
+ * obsolete `(DC2Type:datetime_immutable)` column comments DBAL 4 no longer
+ * emits, and aligns the framework-managed `messenger_messages`/`sessions`
+ * tables with the current bundle expectations. All metadata-only (no table
+ * rebuilds, no row changes), clearing long-standing drift so
+ * doctrine:schema:validate is fully in sync on the production-evolved schema.
+ *
+ * Guarded: a freshly built schema (createSchema / migrate-from-zero) already
+ * uses current conventions, so this migration skips itself there — it only
+ * acts on the legacy production-evolved schema.
  *
  * @see docs/technicalities/schema_drift.md
  */
@@ -30,11 +36,17 @@ final class Version20260621081335 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Normalize legacy index/FK names and drop obsolete DC2Type datetime comments (schema-drift cleanup)';
+        return 'Normalize legacy index/FK names, drop obsolete DC2Type comments, align framework tables (schema-drift cleanup)';
     }
 
     public function up(Schema $schema): void
     {
+        $isLegacySchema = (bool) $this->connection->fetchOne(
+            "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'event' AND index_name = 'idx_event_pending_transfer_to'",
+        );
+        $this->skipIf(!$isLegacySchema, 'Schema already uses current Doctrine conventions (fresh build); nothing to normalize.');
+
+        // Legacy index / FK names -> Doctrine derived names.
         $this->addSql('ALTER TABLE event DROP FOREIGN KEY `FK_event_pending_transfer_to`');
         $this->addSql('ALTER TABLE event CHANGE pending_transfer_requested_at pending_transfer_requested_at DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA768B7628F FOREIGN KEY (pending_transfer_to_id) REFERENCES `user` (id)');
@@ -51,6 +63,14 @@ final class Version20260621081335 extends AbstractMigration
         $this->addSql('ALTER TABLE event_tag RENAME INDEX uniq_event_tag_name TO UNIQ_124672505E237E06');
         $this->addSql('ALTER TABLE event_tag RENAME INDEX uniq_event_tag_slug TO UNIQ_12467250989D9B62');
         $this->addSql('ALTER TABLE tcgdex_card CHANGE tcgdex_updated_at tcgdex_updated_at DATETIME DEFAULT NULL');
+
+        // Framework-managed tables: align with current bundle schema.
+        $this->addSql('DROP INDEX IDX_75EA56E0FB7336F0 ON messenger_messages');
+        $this->addSql('DROP INDEX IDX_75EA56E0E3BD61CE ON messenger_messages');
+        $this->addSql('DROP INDEX IDX_75EA56E016BA31DB ON messenger_messages');
+        $this->addSql('CREATE INDEX IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750 ON messenger_messages (queue_name, available_at, delivered_at, id)');
+        $this->addSql('ALTER TABLE sessions CHANGE sess_id sess_id VARBINARY(128) NOT NULL, CHANGE sess_data sess_data LONGBLOB NOT NULL');
+        $this->addSql('ALTER TABLE sessions RENAME INDEX sessions_sess_lifetime_idx TO sess_lifetime_idx');
     }
 
     public function down(Schema $schema): void
