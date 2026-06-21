@@ -123,6 +123,7 @@ class ArchetypeCatalogController extends AbstractController
                 'image' => $variant->getOgImage(),
                 // Public author/translator screen names (F19.8); never email/legal name.
                 'author' => $author?->getScreenName(),
+                'authorUrl' => null !== $author && $author->isPublicAuthor() ? $author->getPrimaryUrl() : null,
                 'translator' => $translator?->getScreenName(),
             ];
         }
