@@ -39,8 +39,12 @@
             {%- if item.image %}
             <media:content url="{{ channel_absolute_url(item.image) }}" medium="image"/>
             {%- endif %}
-            {# Interim hardcoded author until a real content-authoring model exists. #}
-            <dc:creator>Luby</dc:creator>
+            {%- if item.author %}
+            <dc:creator>{{ item.author }}</dc:creator>
+            {%- endif %}
+            {%- if item.translator %}
+            <dc:contributor>{{ item.translator }}</dc:contributor>
+            {%- endif %}
         </item>
         {%- endfor %}
     </channel>

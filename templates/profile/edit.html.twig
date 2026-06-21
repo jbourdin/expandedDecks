@@ -53,6 +53,18 @@
 
                         {{ form_row(form.showCardmarketExport) }}
 
+                        <hr>
+                        <h6 class="text-muted mb-1">{{ 'app.profile.author_section'|trans }}</h6>
+                        <p class="text-muted small mb-3">{{ 'app.profile.author_section_hint'|trans }}</p>
+
+                        {{ form_row(form.isPublicAuthor) }}
+                        {{ form_row(form.credential) }}
+                        {{ form_row(form.bio) }}
+                        {{ form_row(form.sameAs) }}
+                        {{ form_row(form.avatarUrl) }}
+                        {{ form_row(form.primaryUrl) }}
+                        {{ form_row(form.publicSlug) }}
+
                         <button type="submit" class="btn btn-gold w-100 mt-3">{{ 'app.profile.save_button'|trans }}</button>
                     {{ form_end(form) }}
                 </div>

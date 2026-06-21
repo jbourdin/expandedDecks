@@ -2827,6 +2827,70 @@
                 <source>app.form.label.organizer_role</source>
                 <target>Je souhaite organiser des événements</target>
             </trans-unit>
+            <trans-unit id="app.profile.author_section">
+                <source>app.profile.author_section</source>
+                <target>Profil d'auteur·rice / contributeur·rice</target>
+            </trans-unit>
+            <trans-unit id="app.profile.author_section_hint">
+                <source>app.profile.author_section_hint</source>
+                <target>Ces informations n'apparaissent publiquement que sur le contenu dont tu es crédité·e comme auteur·rice ou traducteur·rice. Ton e-mail de connexion n'est jamais affiché.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_is_public">
+                <source>app.form.label.author_is_public</source>
+                <target>M'afficher comme auteur·rice / contributeur·rice public·que</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_is_public">
+                <source>app.form.help.author_is_public</source>
+                <target>Une fois activé, ton titre et tes liens peuvent s'afficher à côté du contenu dont tu es crédité·e, et tu deviens sélectionnable comme auteur·rice.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_credential">
+                <source>app.form.label.author_credential</source>
+                <target>Titre</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_credential">
+                <source>app.form.help.author_credential</source>
+                <target>Affiché à côté de ton nom sur le contenu dont tu es crédité·e, p. ex. un titre ou une qualification notable.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_bio">
+                <source>app.form.label.author_bio</source>
+                <target>Bio publique</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_bio">
+                <source>app.form.help.author_bio</source>
+                <target>Une courte biographie publique utilisée dans les données structurées d'auteur·rice.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_same_as">
+                <source>app.form.label.author_same_as</source>
+                <target>Liens de profils publics</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_same_as">
+                <source>app.form.help.author_same_as</source>
+                <target>URL de profils publics (Bluesky, Discord, GitHub…), une par ligne. Utilisées comme signaux de vérification.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_avatar_url">
+                <source>app.form.label.author_avatar_url</source>
+                <target>URL de l'avatar</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_avatar_url">
+                <source>app.form.help.author_avatar_url</source>
+                <target>URL d'une image d'avatar publique.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_primary_url">
+                <source>app.form.label.author_primary_url</source>
+                <target>Lien de profil principal</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_primary_url">
+                <source>app.form.help.author_primary_url</source>
+                <target>Ton lien de profil public principal ; utilisé comme URL canonique d'auteur·rice dans ta signature.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_public_slug">
+                <source>app.form.label.author_public_slug</source>
+                <target>Identifiant public</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_public_slug">
+                <source>app.form.help.author_public_slug</source>
+                <target>Réservé à une future page d'auteur·rice publique (minuscules, chiffres, traits d'union).</target>
+            </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>
                 <target>Lieu (optionnel)</target>
@@ -4120,6 +4184,16 @@
                 <target>Obsolète</target>
                 <note>Label for outdated checkbox on variant form</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.curated_by">
+                <source>app.archetype.variant.curated_by</source>
+                <target>Sélectionné par</target>
+                <note>Low-prominence credit at the bottom of a variant, followed by the author name (F19.8).</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.curated_disclaimer">
+                <source>app.archetype.variant.curated_disclaimer</source>
+                <target>une référence d'archétype sélectionnée et maintenue, pas une création originale de l'auteur·rice</target>
+                <note>Clarifies that variant lists are curated/compiled by the author, not original creations (F19.8).</note>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.outdated_badge">
                 <source>app.archetype.variant.outdated_badge</source>
                 <target>Variante obsolète</target>
@@ -4321,6 +4395,15 @@
                 <source>app.admin.user.save_roles</source>
                 <target>Enregistrer les rôles</target>
                 <note>Button to save role assignment</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.save_author">
+                <source>app.admin.user.save_author</source>
+                <target>Enregistrer le profil d'auteur·rice</target>
+            </trans-unit>
+            <trans-unit id="app.admin.user.author_updated">
+                <source>app.admin.user.author_updated</source>
+                <target>Profil d'auteur·rice mis à jour avec succès.</target>
+                <note>Flash message after an admin updates a user's public author profile (F19.8)</note>
             </trans-unit>
             <trans-unit id="app.admin.user.roles_updated">
                 <source>app.admin.user.roles_updated</source>
@@ -4739,6 +4822,16 @@
                 <source>app.cms.updated_on</source>
                 <target>Mis à jour le</target>
                 <note>Indicateur public de fraîcheur. Suivi d'une date au format long. Partagé avec la liste d'archétypes et la légende du sélecteur de variantes.</note>
+            </trans-unit>
+            <trans-unit id="app.author.by">
+                <source>app.author.by</source>
+                <target>Par</target>
+                <note>Préfixe de signature publique sur les pages d'archétype/d'actualité, suivi du nom de l'auteur·rice (F19.8).</note>
+            </trans-unit>
+            <trans-unit id="app.author.translated_by">
+                <source>app.author.translated_by</source>
+                <target>Traduit par %name%</target>
+                <note>Signature publique affichée sur le contenu d'une locale non source, créditant le·la traducteur·rice (F19.8).</note>
             </trans-unit>
 
             <!-- CMS: Validation -->

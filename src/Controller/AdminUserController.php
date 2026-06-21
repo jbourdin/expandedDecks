@@ -68,6 +68,9 @@ class AdminUserController extends AbstractAppController
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
             'availableRoles' => $this->getAssignableRoles(),
+            // Pre-joined here so the template needs no newline escape (which
+            // twig-cs-fixer would mangle into a literal backslash-n).
+            'sameAsText' => implode("\n", $user->getSameAs()),
         ]);
     }
 
@@ -91,6 +94,40 @@ class AdminUserController extends AbstractAppController
         $this->addFlash('success', 'app.admin.user.roles_updated');
 
         return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()]);
+    }
+
+    /**
+     * @see docs/features.md F19.8 — Author assignment
+     */
+    #[Route('/{id}/author', name: 'app_admin_user_author', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function updateAuthorProfile(Request $request, User $user): Response
+    {
+        if (!$this->isCsrfTokenValid('user-author-'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $this->addFlash('danger', 'app.common.invalid_csrf');
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()]);
+        }
+
+        $payload = $request->getPayload();
+        $user->setIsPublicAuthor($payload->getBoolean('is_public_author'));
+        $user->setCredential($this->nullIfBlank($payload->getString('credential')));
+        $user->setBio($this->nullIfBlank($payload->getString('bio')));
+        $user->setAvatarUrl($this->nullIfBlank($payload->getString('avatar_url')));
+        $user->setPrimaryUrl($this->nullIfBlank($payload->getString('primary_url')));
+        $user->setPublicSlug($this->nullIfBlank($payload->getString('public_slug')));
+
+        $sameAs = trim($payload->getString('same_as'));
+        $user->setSameAs('' === $sameAs ? null : array_map(trim(...), explode("\n", $sameAs)));
+
+        $this->em->flush();
+        $this->addFlash('success', 'app.admin.user.author_updated');
+
+        return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()]);
+    }
+
+    private function nullIfBlank(string $value): ?string
+    {
+        return '' === trim($value) ? null : $value;
     }
 
     #[Route('/{id}/disable', name: 'app_admin_user_disable', methods: ['POST'], requirements: ['id' => '\d+'])]

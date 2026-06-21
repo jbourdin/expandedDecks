@@ -82,6 +82,49 @@
         </div>
     {% endif %}
 
+    {# Author / contributor profile card (F19.8) #}
+    {% if not user.anonymized %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header card-header-themed">
+                <h5 class="mb-0">{{ 'app.profile.author_section'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_admin_user_author', {id: user.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('user-author-' ~ user.id) }}">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_public_author" id="is_public_author" value="1"{% if user.isPublicAuthor %} checked{% endif %}>
+                        <label class="form-check-label" for="is_public_author">{{ 'app.form.label.author_is_public'|trans }}</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_credential">{{ 'app.form.label.author_credential'|trans }}</label>
+                        <input class="form-control" type="text" name="credential" id="author_credential" value="{{ user.credential }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_bio">{{ 'app.form.label.author_bio'|trans }}</label>
+                        <textarea class="form-control" name="bio" id="author_bio" rows="2">{{ user.bio }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_same_as">{{ 'app.form.label.author_same_as'|trans }}</label>
+                        <textarea class="form-control" name="same_as" id="author_same_as" rows="3">{{ sameAsText }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_avatar_url">{{ 'app.form.label.author_avatar_url'|trans }}</label>
+                        <input class="form-control" type="url" name="avatar_url" id="author_avatar_url" value="{{ user.avatarUrl }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_primary_url">{{ 'app.form.label.author_primary_url'|trans }}</label>
+                        <input class="form-control" type="url" name="primary_url" id="author_primary_url" value="{{ user.primaryUrl }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="author_public_slug">{{ 'app.form.label.author_public_slug'|trans }}</label>
+                        <input class="form-control" type="text" name="public_slug" id="author_public_slug" value="{{ user.publicSlug }}">
+                    </div>
+                    <button type="submit" class="btn btn-gold">{{ 'app.admin.user.save_author'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
     {# Actions card #}
     {% if not user.anonymized %}
         <div class="card shadow-sm mb-3">

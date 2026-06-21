@@ -2842,6 +2842,70 @@
                 <source>app.form.label.organizer_role</source>
                 <target>I want to organize events</target>
             </trans-unit>
+            <trans-unit id="app.profile.author_section">
+                <source>app.profile.author_section</source>
+                <target>Author / contributor profile</target>
+            </trans-unit>
+            <trans-unit id="app.profile.author_section_hint">
+                <source>app.profile.author_section_hint</source>
+                <target>These details appear publicly only on content you are credited as the author or translator of. Your login email is never shown.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_is_public">
+                <source>app.form.label.author_is_public</source>
+                <target>List me as a public author/contributor</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_is_public">
+                <source>app.form.help.author_is_public</source>
+                <target>When enabled, your credential and links can be shown alongside content you are credited for, and you become selectable as an author.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_credential">
+                <source>app.form.label.author_credential</source>
+                <target>Credential</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_credential">
+                <source>app.form.help.author_credential</source>
+                <target>Shown next to your name on content you are credited for, e.g. a notable title or qualification.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_bio">
+                <source>app.form.label.author_bio</source>
+                <target>Public bio</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_bio">
+                <source>app.form.help.author_bio</source>
+                <target>A short public biography used in author structured data.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_same_as">
+                <source>app.form.label.author_same_as</source>
+                <target>Public profile links</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_same_as">
+                <source>app.form.help.author_same_as</source>
+                <target>Public profile URLs (Bluesky, Discord, GitHub…), one per line. Used as verification signals.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_avatar_url">
+                <source>app.form.label.author_avatar_url</source>
+                <target>Avatar URL</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_avatar_url">
+                <source>app.form.help.author_avatar_url</source>
+                <target>URL of a public avatar image.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_primary_url">
+                <source>app.form.label.author_primary_url</source>
+                <target>Primary profile link</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_primary_url">
+                <source>app.form.help.author_primary_url</source>
+                <target>Your main public profile link; used as the canonical author URL in your byline.</target>
+            </trans-unit>
+            <trans-unit id="app.form.label.author_public_slug">
+                <source>app.form.label.author_public_slug</source>
+                <target>Public slug</target>
+            </trans-unit>
+            <trans-unit id="app.form.help.author_public_slug">
+                <source>app.form.help.author_public_slug</source>
+                <target>Reserved for a future public author page (lowercase letters, numbers, hyphens).</target>
+            </trans-unit>
             <trans-unit id="app.form.label.location">
                 <source>app.form.label.location</source>
                 <target>Location (optional)</target>
@@ -4135,6 +4199,16 @@
                 <target>Outdated</target>
                 <note>Label for outdated checkbox on variant form</note>
             </trans-unit>
+            <trans-unit id="app.archetype.variant.curated_by">
+                <source>app.archetype.variant.curated_by</source>
+                <target>Curated by</target>
+                <note>Low-prominence credit at the bottom of a variant, followed by the author name (F19.8).</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.variant.curated_disclaimer">
+                <source>app.archetype.variant.curated_disclaimer</source>
+                <target>a curated, maintained archetype reference, not an original deck creation by the author</target>
+                <note>Clarifies that variant lists are curated/compiled by the author, not original creations (F19.8).</note>
+            </trans-unit>
             <trans-unit id="app.archetype.variant.outdated_badge">
                 <source>app.archetype.variant.outdated_badge</source>
                 <target>Outdated variant</target>
@@ -4346,6 +4420,15 @@
                 <source>app.admin.user.save_roles</source>
                 <target>Save roles</target>
                 <note>Button to save role assignment</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.save_author">
+                <source>app.admin.user.save_author</source>
+                <target>Save author profile</target>
+            </trans-unit>
+            <trans-unit id="app.admin.user.author_updated">
+                <source>app.admin.user.author_updated</source>
+                <target>Author profile updated successfully.</target>
+                <note>Flash message after an admin updates a user's public author profile (F19.8)</note>
             </trans-unit>
             <trans-unit id="app.admin.user.roles_updated">
                 <source>app.admin.user.roles_updated</source>
@@ -4764,6 +4847,16 @@
                 <source>app.cms.updated_on</source>
                 <target>Updated on</target>
                 <note>Public-facing freshness signal. Followed by a long-formatted date. Shared with the archetype list and the variant selector caption.</note>
+            </trans-unit>
+            <trans-unit id="app.author.by">
+                <source>app.author.by</source>
+                <target>By</target>
+                <note>Public byline prefix on archetype/news pages, followed by the author's name (F19.8).</note>
+            </trans-unit>
+            <trans-unit id="app.author.translated_by">
+                <source>app.author.translated_by</source>
+                <target>Translated by %name%</target>
+                <note>Public byline shown on non-source-locale content, crediting the translator (F19.8).</note>
             </trans-unit>
 
             <!-- CMS: Validation -->

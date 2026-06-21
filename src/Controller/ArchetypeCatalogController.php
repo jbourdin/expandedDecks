@@ -109,6 +109,9 @@ class ArchetypeCatalogController extends AbstractController
                 $publishedAt = $archetypePublishedAt;
             }
 
+            $author = $variant->resolveAuthor() ?? $archetype->getAuthor();
+            $translator = $archetype->getTranslation($locale)?->getTranslator();
+
             $items[] = [
                 'title' => $archetype->getLocalizedName($locale).' — '.$variant->getName(),
                 'url' => $archetypeUrl.'#'.$variant->getShortTag(),
@@ -118,6 +121,9 @@ class ArchetypeCatalogController extends AbstractController
                 // mosaic fallback: the 60-card mosaic is too big to be a relevant
                 // feed thumbnail.
                 'image' => $variant->getOgImage(),
+                // Public author/translator screen names (F19.8); never email/legal name.
+                'author' => $author?->getScreenName(),
+                'translator' => $translator?->getScreenName(),
             ];
         }
 
