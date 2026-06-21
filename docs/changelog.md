@@ -16,6 +16,20 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.7] — 2026-06-21
+
+Patch release: completes machine-readable authorship — visible bylines, editable author profiles, and richer feed/structured-data credit — plus a schema-sync maintenance pass.
+
+### Features
+
+- **Visible author attribution (F19.8, part 2 of 2)** — A reusable byline ("By {name}", linked to the author's profile, plus "Translated by …" on non-source locales) renders on archetype and CMS pages, and each archetype variant carries a low-prominence curated credit clarifying it is a maintained reference, not an original creation. Authors edit their public profile (credential, bio, social links one-per-line, avatar, primary URL, public slug) on `/profile`, and editors can manage any contributor's profile on the admin user page. The archetype RSS feed credits the resolved author via `<dc:creator>` and `<atom:author>` (name + public profile `<atom:uri>`), with `<dc:contributor>` for the per-locale translator. JSON-LD emits a `Person` author with the bio as `description`, the credential as `award`, plus `sameAs`/`image` — all gated to opted-in public authors and projected through a single seam that never exposes the login email or legal name. ([#712](https://github.com/jbourdin/expandedDecks/pull/712))
+
+### Infrastructure
+
+- **Schema sync & drift normalization** — Align the entity mappings with the production schema (column defaults/types now declared on the mappings) and normalize long-standing drift — legacy index/FK names and obsolete `(DC2Type:datetime_immutable)` column comments — via a one-time, metadata-only migration guarded to run only on the production-evolved schema. `doctrine:schema:validate` is now fully in sync (mapping + database). Documented in `docs/technicalities/schema_drift.md`. ([#711](https://github.com/jbourdin/expandedDecks/pull/711))
+
+---
+
 ## [1.14.6] — 2026-06-21
 
 Patch release: introduces the content-authorship data model and attributes existing content, so author and translator information starts being recorded (F19.8, part 1 of 2). The visible byline, feeds, and editing forms follow in part 2.
