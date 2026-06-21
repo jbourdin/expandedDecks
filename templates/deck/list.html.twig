@@ -10,6 +10,9 @@
 
 {% set isMyDecks = myDecks is defined and myDecks %}
 {% set listRoute = isMyDecks ? paginationRoute : 'app_deck_list' %}
+{# Public catalog gets a list-purpose description; the personal "My decks" view
+ # falls through to the channel default (F19.7). #}
+{% set metaDescription = isMyDecks ? null : 'app.deck.list.meta_description'|trans %}
 
 {% block title %}{{ (isMyDecks ? 'app.nav.my_decks' : 'app.deck.catalog_title')|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 

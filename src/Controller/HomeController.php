@@ -68,6 +68,8 @@ class HomeController extends AbstractController
                 'ogImage' => $layout->getOgImage(),
                 'pageTitle' => $translation?->getTitle(),
                 'ogDescription' => $translation?->getOgDescription(),
+                // Editor-set homepage OG description, else the channel default.
+                'metaDescription' => $translation?->getOgDescription(),
             ]);
         }
 

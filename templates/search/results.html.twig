@@ -8,6 +8,9 @@
  #}
 {% extends 'base.html.twig' %}
 
+{# Search results are not indexable; suppress the central meta description (F19.7). #}
+{% set noIndex = true %}
+
 {% block title %}{% if query %}{{ 'app.search.results_title'|trans({'%query%': query}) }}{% else %}{{ 'app.search.title'|trans }}{% endif %} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block meta %}

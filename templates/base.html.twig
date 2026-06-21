@@ -37,6 +37,17 @@
         {% block alternate_feeds %}{% endblock %}
         {% block opengraph %}{% endblock %}
         {% block meta %}{% endblock %}
+        {# Centralized <meta name="description"> (F19.7). Pages supply a top-level
+         # `metaDescription` (controller- or template-set); it falls back to a
+         # per-channel default param, then a translatable site default. Skipped on
+         # noindex pages (which set a top-level `noIndex`). #}
+        {% block meta_description %}
+            {%- set metaDescriptionValue = (metaDescription is defined and metaDescription) ? metaDescription : channel_param('meta_description', '') -%}
+            {%- set metaDescriptionValue = metaDescriptionValue ?: 'app.seo.meta_description.default'|trans -%}
+            {%- if metaDescriptionValue and not (noIndex is defined and noIndex) -%}
+                <meta name="description" content="{{ metaDescriptionValue|seo_truncate }}">
+            {%- endif -%}
+        {% endblock %}
         {% block structured_data %}{% endblock %}
         {% block stylesheets %}
             {% if channel_theme() %}

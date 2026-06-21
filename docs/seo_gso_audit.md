@@ -137,7 +137,7 @@ French translations are authored and `fr` is added to the channel, both light up
 automatically. Optionally also 301 `/fr/*` → `/en/*` on English-only channels rather than
 serving a 200 duplicate.
 
-#### H2 — No `<meta name="description">` on most pages
+#### H2 — No `<meta name="description">` on most pages ✅ RESOLVED (F19.7)
 
 **Evidence (code + production):** Only `archetype/show.html.twig` emits a description, and only
 when `archetype.localizedMetaDescription(locale)` is set. `home/index`, `page/show` (sets only
@@ -153,6 +153,13 @@ summary anchor.
 **Fix:** Emit `<meta name="description">` on every indexable page from a fallback chain
 (explicit field → `OgMetaResolver` description → trimmed body excerpt → channel default),
 centralised in `base.html.twig` so nothing ships without one.
+
+**Resolved** by the central `{% block meta_description %}` in `base.html.twig` (F19.7), driven
+by a `MetaDescriptionResolver` (`og description ?? body excerpt`) with a per-channel
+`meta_description` param and a translatable site default as the floor, word-bounded by a
+`seo_truncate` Twig filter. Detail pages (archetype/deck/page/event) supply a resolved
+description; list/category pages supply list-purpose copy; events synthesize a name/format
+summary. `noindex` pages (search) are exempt.
 
 ---
 
