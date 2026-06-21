@@ -16,6 +16,25 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.8] — 2026-06-21
+
+Patch release: SEO/GSO audit follow-ups — meta descriptions on every indexable page, baseline security/trust response headers, and a favicon-crawlability fix.
+
+### Features
+
+- **Meta descriptions on all indexable pages (F19.7)** — Every indexable public page now emits exactly one `<meta name="description">` (previously only archetype detail pages did), closing audit finding H2. A central `{% block meta_description %}` in `base.html.twig` resolves a page-supplied description → per-channel `meta_description` param → a translatable site default, word-bounded by a new `seo_truncate` Twig filter (collapses whitespace, never cuts mid-word). A `MetaDescriptionResolver` service returns `og description ?? body excerpt` for archetype, deck, CMS page, and event detail pages (CMS pages resolve against the displayed translation's locale so the snippet matches rendered content); list, category, banned, and staple pages set list-purpose copy, and events synthesize a name/format[/location] summary. `noindex` pages (search results, noindexed CMS pages) are exempt. ([#716](https://github.com/jbourdin/expandedDecks/pull/716))
+- **Security/trust response headers (F19.9)** — A `SecurityHeadersListener` adds baseline hardening headers to every main response (audit finding M6): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN`, a deny-by-default `Permissions-Policy` (camera denied until a scanner ships), and HSTS over HTTPS. A Content-Security-Policy ships in report-only mode on HTML responses (inline `<head>` theme scripts still need a nonce before enforcement), with an optional `report-uri` via the `SECURITY_CSP_REPORT_URI` env var. ([#715](https://github.com/jbourdin/expandedDecks/pull/715))
+
+### Bug Fixes
+
+- **Favicon crawlability for Google Search** — Google showed the generic globe for dowsingmachine.com because the favicon lives under `/build/`, which `robots.txt` blocked (`Disallow: /build/`). Both channels now emit `Allow: /build/images/` (longest-match wins, so favicons and compiled OG images are crawlable while JS/CSS bundles stay blocked), and a 96×96 raster PNG favicon is served alongside the SVG on both themes (Google renders raster favicons more reliably than SVG). ([#717](https://github.com/jbourdin/expandedDecks/pull/717))
+
+### Testing & Quality
+
+- **F19.8 authorship coverage** — Added unit and functional tests for the authorship/structured-data logic and excluded `src/DataFixtures` from coverage, restoring green patch coverage. ([#714](https://github.com/jbourdin/expandedDecks/pull/714))
+
+---
+
 ## [1.14.7] — 2026-06-21
 
 Patch release: completes machine-readable authorship — visible bylines, editable author profiles, and richer feed/structured-data credit — plus a schema-sync maintenance pass.

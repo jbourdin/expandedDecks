@@ -5954,6 +5954,57 @@
                 <target>Variante de deck pour l'archétype %name%</target>
                 <note>Description for hasPart variant entries in archetype JSON-LD</note>
             </trans-unit>
+            <!-- Meta descriptions for indexable pages (F19.7) -->
+            <trans-unit id="app.seo.meta_description.default">
+                <source>app.seo.meta_description.default</source>
+                <target>Une bibliothèque partagée de decks Pokémon TCG Expanded physiques : suis les propriétaires, emprunte des decks pour tes événements et explore les deck lists.</target>
+                <note>Site-wide default meta description; ultimate fallback when no per-channel default is set</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.list.meta_description">
+                <source>app.archetype.list.meta_description</source>
+                <target>Parcours les archétypes de decks Pokémon TCG Expanded : stratégies, cartes clés et deck lists sélectionnées pour le jeu compétitif.</target>
+                <note>Meta description for the archetype catalogue page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.list.meta_description">
+                <source>app.deck.list.meta_description</source>
+                <target>Parcours la bibliothèque partagée de decks Pokémon TCG Expanded disponibles à l'emprunt pour tes événements et tournois.</target>
+                <note>Meta description for the public deck catalogue page</note>
+            </trans-unit>
+            <trans-unit id="app.event.list.meta_description">
+                <source>app.event.list.meta_description</source>
+                <target>Événements Pokémon TCG Expanded à venir et passés : inscris-toi, emprunte un deck et suis les résultats.</target>
+                <note>Meta description for the event list page</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.meta_description">
+                <source>app.event.tag.meta_description</source>
+                <target>%name% — événements Pokémon TCG Expanded. Inscris-toi, emprunte un deck et suis les résultats.</target>
+                <note>Meta description for an event tag page; %name% is the tag name</note>
+            </trans-unit>
+            <trans-unit id="app.event.meta_description">
+                <source>app.event.meta_description</source>
+                <target>%name% — événement Pokémon TCG Expanded en %format%. Emprunte un deck et rejoins les parties.</target>
+                <note>Synthesized event meta description when no description is set; %name%, %format%</note>
+            </trans-unit>
+            <trans-unit id="app.event.meta_description_with_location">
+                <source>app.event.meta_description_with_location</source>
+                <target>%name% — événement Pokémon TCG Expanded en %format% à %location%. Emprunte un deck et rejoins les parties.</target>
+                <note>Synthesized event meta description with venue; %name%, %format%, %location%</note>
+            </trans-unit>
+            <trans-unit id="app.cms.category.meta_description">
+                <source>app.cms.category.meta_description</source>
+                <target>%category% — actualités et articles sur le format Pokémon TCG Expanded.</target>
+                <note>Meta description for a CMS menu category page; %category% is the category name</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.meta_description">
+                <source>app.banned_card.meta_description</source>
+                <target>La liste des cartes bannies et restreintes du format Pokémon TCG Expanded, avec leurs explications.</target>
+                <note>Meta description for the banned cards page when no intro page is set</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.meta_description">
+                <source>app.staple_card.meta_description</source>
+                <target>Les staples du format Pokémon TCG Expanded : les cartes les plus jouées dans les decks compétitifs.</target>
+                <note>Meta description for the staple cards page when no intro page is set</note>
+            </trans-unit>
             <trans-unit id="app.search.title">
                 <source>app.search.title</source>
                 <target>Recherche</target>

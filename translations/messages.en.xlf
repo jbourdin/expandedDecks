@@ -5991,6 +5991,57 @@
                 <target>Deck list variant for the %name% archetype</target>
                 <note>Description for hasPart variant entries in archetype JSON-LD</note>
             </trans-unit>
+            <!-- Meta descriptions for indexable pages (F19.7) -->
+            <trans-unit id="app.seo.meta_description.default">
+                <source>app.seo.meta_description.default</source>
+                <target>A shared library of physical Pokémon TCG Expanded decks — track ownership, borrow decks for events, and explore deck lists.</target>
+                <note>Site-wide default meta description; ultimate fallback when no per-channel default is set</note>
+            </trans-unit>
+            <trans-unit id="app.archetype.list.meta_description">
+                <source>app.archetype.list.meta_description</source>
+                <target>Browse Pokémon TCG Expanded deck archetypes — strategies, key cards, and curated deck lists for competitive play.</target>
+                <note>Meta description for the archetype catalogue page</note>
+            </trans-unit>
+            <trans-unit id="app.deck.list.meta_description">
+                <source>app.deck.list.meta_description</source>
+                <target>Browse the shared library of Pokémon TCG Expanded decks available to borrow for events and tournaments.</target>
+                <note>Meta description for the public deck catalogue page</note>
+            </trans-unit>
+            <trans-unit id="app.event.list.meta_description">
+                <source>app.event.list.meta_description</source>
+                <target>Upcoming and past Pokémon TCG Expanded events — register, borrow a deck, and follow the results.</target>
+                <note>Meta description for the event list page</note>
+            </trans-unit>
+            <trans-unit id="app.event.tag.meta_description">
+                <source>app.event.tag.meta_description</source>
+                <target>%name% — Pokémon TCG Expanded events. Register, borrow a deck, and follow the results.</target>
+                <note>Meta description for an event tag page; %name% is the tag name</note>
+            </trans-unit>
+            <trans-unit id="app.event.meta_description">
+                <source>app.event.meta_description</source>
+                <target>%name% — %format% Pokémon TCG Expanded event. Borrow a deck and join the games.</target>
+                <note>Synthesized event meta description when no description is set; %name%, %format%</note>
+            </trans-unit>
+            <trans-unit id="app.event.meta_description_with_location">
+                <source>app.event.meta_description_with_location</source>
+                <target>%name% — %format% Pokémon TCG Expanded event at %location%. Borrow a deck and join the games.</target>
+                <note>Synthesized event meta description with venue; %name%, %format%, %location%</note>
+            </trans-unit>
+            <trans-unit id="app.cms.category.meta_description">
+                <source>app.cms.category.meta_description</source>
+                <target>%category% — news and articles about the Pokémon TCG Expanded format.</target>
+                <note>Meta description for a CMS menu category page; %category% is the category name</note>
+            </trans-unit>
+            <trans-unit id="app.banned_card.meta_description">
+                <source>app.banned_card.meta_description</source>
+                <target>The banned and restricted card list for the Pokémon TCG Expanded format, with explanations.</target>
+                <note>Meta description for the banned cards page when no intro page is set</note>
+            </trans-unit>
+            <trans-unit id="app.staple_card.meta_description">
+                <source>app.staple_card.meta_description</source>
+                <target>Staple cards for the Pokémon TCG Expanded format — the most-played cards across competitive decks.</target>
+                <note>Meta description for the staple cards page when no intro page is set</note>
+            </trans-unit>
             <trans-unit id="app.search.title">
                 <source>app.search.title</source>
                 <target>Search</target>

@@ -137,7 +137,7 @@ French translations are authored and `fr` is added to the channel, both light up
 automatically. Optionally also 301 `/fr/*` → `/en/*` on English-only channels rather than
 serving a 200 duplicate.
 
-#### H2 — No `<meta name="description">` on most pages
+#### H2 — No `<meta name="description">` on most pages ✅ RESOLVED (F19.7)
 
 **Evidence (code + production):** Only `archetype/show.html.twig` emits a description, and only
 when `archetype.localizedMetaDescription(locale)` is set. `home/index`, `page/show` (sets only
@@ -153,6 +153,13 @@ summary anchor.
 **Fix:** Emit `<meta name="description">` on every indexable page from a fallback chain
 (explicit field → `OgMetaResolver` description → trimmed body excerpt → channel default),
 centralised in `base.html.twig` so nothing ships without one.
+
+**Resolved** by the central `{% block meta_description %}` in `base.html.twig` (F19.7), driven
+by a `MetaDescriptionResolver` (`og description ?? body excerpt`) with a per-channel
+`meta_description` param and a translatable site default as the floor, word-bounded by a
+`seo_truncate` Twig filter. Detail pages (archetype/deck/page/event) supply a resolved
+description; list/category pages supply list-purpose copy; events synthesize a name/format
+summary. `noindex` pages (search) are exempt.
 
 ---
 
@@ -224,13 +231,19 @@ responses. (The hostname-varied cache key from the C1 fix already makes this saf
 **Fix:** Add `deletedAt`-is-null → 404 guards to deck and event detail; add functional tests
 across all four public detail routes.
 
-#### M6 — No security / trust response headers (new this pass)
+#### M6 — No security / trust response headers ✅ RESOLVED (F19.9)
 
-Homepage returns **none** of: `Strict-Transport-Security`, `X-Content-Type-Options`,
+Homepage returned **none** of: `Strict-Transport-Security`, `X-Content-Type-Options`,
 `X-Frame-Options`, `Content-Security-Policy`, `Referrer-Policy`, `Permissions-Policy`. These
 aren't direct ranking factors, but HSTS and `X-Content-Type-Options: nosniff` are baseline
 hygiene/trust signals (and a CTO-level security gap worth closing independently of SEO). Cheap
-to add at the Bunny edge or in Symfony. *(Flagging proactively per the security/legal remit.)*
+to add at the Bunny edge or in Symfony. *(Flagged proactively per the security/legal remit.)*
+
+**Resolved** by `App\EventListener\SecurityHeadersListener` (F19.9): every main response now
+carries `nosniff`, `Referrer-Policy`, `X-Frame-Options`, a `Permissions-Policy` that keeps
+same-origin camera for the QR scanner, and `Strict-Transport-Security` over HTTPS. CSP ships in
+**report-only** mode (inline `<head>` theme scripts still need a nonce before enforcement). See
+[docs/standards/security.md](standards/security.md#response-security-headers).
 
 #### M7 — Flat heading hierarchy on content pages (new this pass)
 

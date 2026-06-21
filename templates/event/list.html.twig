@@ -8,6 +8,10 @@
  #}
 {% extends 'base.html.twig' %}
 
+{% set metaDescription = activeTag
+    ? 'app.event.tag.meta_description'|trans({'%name%': activeTag.name})
+    : 'app.event.list.meta_description'|trans %}
+
 {% block title %}{% if activeTag %}{{ 'app.event.tag.page_title'|trans({'%name%': activeTag.name}) }}{% else %}{{ 'app.event.list_title'|trans }}{% endif %} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}

@@ -30,6 +30,7 @@ use App\Service\DeckList\OriginalListFormatter;
 use App\Service\DeckListParser;
 use App\Service\Label\PdfDecklistGenerator;
 use App\Service\Label\PdfLabelGenerator;
+use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
 use App\Service\Tcgdex\TcgdexApiClient;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,6 +66,7 @@ class DeckShowController extends AbstractAppController
         CardmarketWishlistFormatter $cardmarketWishlistFormatter,
         TcgdexApiClient $tcgdexApiClient,
         OgMetaResolver $ogMetaResolver,
+        MetaDescriptionResolver $metaDescriptionResolver,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -230,6 +232,7 @@ class DeckShowController extends AbstractAppController
             'versionCount' => $deck->getVersions()->count(),
             'ogImage' => $ogMeta['image'],
             'ogDescription' => $ogMeta['description'],
+            'metaDescription' => $metaDescriptionResolver->resolveForDeck($deck, $request->getLocale()),
         ]);
     }
 

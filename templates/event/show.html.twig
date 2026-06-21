@@ -9,6 +9,13 @@
 {% extends 'base.html.twig' %}
 {% from 'borrow/_status_badge.html.twig' import badge as borrowBadge %}
 
+{# Prefer the event description excerpt (controller-supplied metaDescription);
+ # otherwise synthesize a name/format[/location] summary (F19.7). Shared by both
+ # the <meta name="description"> and og:description below. #}
+{% set metaDescription = metaDescription|default(null) ?: (event.location
+    ? 'app.event.meta_description_with_location'|trans({'%name%': event.name, '%format%': event.format, '%location%': event.location})
+    : 'app.event.meta_description'|trans({'%name%': event.name, '%format%': event.format})) %}
+
 {% block title %}{{ event.name }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
 
 {% block canonical %}
@@ -17,7 +24,7 @@
 
 {% block opengraph %}
     {% set og_title = event.name ~ ' — ' ~ channel_param('brand_name', 'Expanded Decks') %}
-    {% set og_description = event.location %}
+    {% set og_description = metaDescription %}
     {% set og_url = canonical_url('events', 'app_event_show', {id: event.id}) %}
     {% set og_type = 'article' %}
     {{ include('_partials/opengraph.html.twig') }}

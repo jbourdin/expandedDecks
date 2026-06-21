@@ -234,6 +234,11 @@ class ArchetypeCatalogControllerTest extends AbstractFunctionalTest
         foreach ($xml->channel->item as $item) {
             // dc:creator is the variant's resolved author (the fixture content author).
             self::assertSame('AceTrainer', (string) $item->children('http://purl.org/dc/elements/1.1/')->creator);
+
+            // atom:author carries the name and (for public authors) the profile URI (F19.8).
+            $atom = $item->children('http://www.w3.org/2005/Atom');
+            self::assertSame('AceTrainer', (string) $atom->author->name);
+            self::assertSame('https://github.com/jbourdin', (string) $atom->author->uri);
         }
     }
 

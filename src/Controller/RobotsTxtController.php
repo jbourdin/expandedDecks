@@ -98,6 +98,12 @@ class RobotsTxtController extends AbstractController
         // `Disallow: /api/` below, so only this sub-path is crawlable.
         $allow[] = 'Allow: /api/editor/image/*';
 
+        // Compiled images (favicons, theme assets, OG images) live under
+        // /build/images/ and must stay crawlable so Google can fetch the
+        // favicon. Longest-match wins over `Disallow: /build/` below; JS/CSS
+        // bundles under /build/ remain blocked.
+        $allow[] = 'Allow: /build/images/';
+
         return [
             ...$allow,
             '',
@@ -126,6 +132,12 @@ class RobotsTxtController extends AbstractController
         // slides, CMS page banners, OG images). Longest-match wins over
         // `Disallow: /api/` below, so only this sub-path is crawlable.
         $allow[] = 'Allow: /api/editor/image/*';
+
+        // Compiled images (favicons, theme assets, OG images) live under
+        // /build/images/ and must stay crawlable so Google can fetch the
+        // favicon. Longest-match wins over `Disallow: /build/` below; JS/CSS
+        // bundles under /build/ remain blocked.
+        $allow[] = 'Allow: /build/images/';
 
         // Archetypes are not served on the app channel; block the unprefixed
         // redirect target plus every locale-prefixed path the channel exposes.

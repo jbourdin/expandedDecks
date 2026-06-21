@@ -84,4 +84,67 @@ class UserCoverageTest extends TestCase
         self::assertSame('test@example.com', $user->getEmail());
         self::assertSame('hashed-password', $user->getPassword());
     }
+
+    public function testPublicAuthorProfileGettersAndSetters(): void
+    {
+        $user = new User();
+        self::assertFalse($user->isPublicAuthor());
+        self::assertNull($user->getCredential());
+        self::assertNull($user->getBio());
+        self::assertSame([], $user->getSameAs());
+        self::assertNull($user->getAvatarUrl());
+        self::assertNull($user->getPrimaryUrl());
+        self::assertNull($user->getPublicSlug());
+
+        $user->setIsPublicAuthor(true);
+        $user->setCredential('Specialist');
+        $user->setBio('Bio text.');
+        $user->setAvatarUrl('https://example.test/a.png');
+        $user->setPrimaryUrl('https://example.test/me');
+        $user->setPublicSlug('handle');
+
+        self::assertTrue($user->isPublicAuthor());
+        self::assertSame('Specialist', $user->getCredential());
+        self::assertSame('Bio text.', $user->getBio());
+        self::assertSame('https://example.test/a.png', $user->getAvatarUrl());
+        self::assertSame('https://example.test/me', $user->getPrimaryUrl());
+        self::assertSame('handle', $user->getPublicSlug());
+    }
+
+    public function testSetSameAsFiltersBlankEntriesAndNullClears(): void
+    {
+        $user = new User();
+
+        $user->setSameAs(['https://a.test', '  ', '', 'https://b.test']);
+        self::assertSame(['https://a.test', 'https://b.test'], $user->getSameAs());
+
+        $user->setSameAs(null);
+        self::assertSame([], $user->getSameAs());
+    }
+
+    public function testAnonymizeClearsPublicAuthorProfile(): void
+    {
+        $user = new User();
+        $user->setEmail('test@example.com');
+        $user->setScreenName('Player');
+        $user->setIsPublicAuthor(true);
+        $user->setCredential('Specialist');
+        $user->setBio('Bio.');
+        $user->setSameAs(['https://a.test']);
+        $user->setAvatarUrl('https://example.test/a.png');
+        $user->setPrimaryUrl('https://example.test/me');
+        $user->setPublicSlug('handle');
+        $ref = new \ReflectionProperty(User::class, 'id');
+        $ref->setValue($user, 1);
+
+        $user->anonymize();
+
+        self::assertFalse($user->isPublicAuthor());
+        self::assertNull($user->getCredential());
+        self::assertNull($user->getBio());
+        self::assertSame([], $user->getSameAs());
+        self::assertNull($user->getAvatarUrl());
+        self::assertNull($user->getPrimaryUrl());
+        self::assertNull($user->getPublicSlug());
+    }
 }

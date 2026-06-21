@@ -2572,10 +2572,14 @@ PTCG;
             // English-only content for now; add 'fr' once French translations exist (F19.4).
             ->setLocales(['en'])
             // org_logo + org_same_as feed the Organization publisher JSON-LD (F19.8).
+            // meta_description is the per-channel default <meta name="description">
+            // when a page supplies none (F19.7). The app channel intentionally
+            // omits it so it falls through to the translatable site default.
             ->setParameters([
                 'brand_name' => 'Expanded Talks',
                 'org_logo' => '/build/images/themes/expandedtalks/apple_touch_icon.png',
                 'org_same_as' => "https://bsky.app/profile/example.bsky.social\nhttps://discord.gg/example\nhttps://github.com/jbourdin/expandedDecks",
+                'meta_description' => 'Pokémon TCG Expanded strategy: deck archetypes, the banned list, staple cards, and competitive deck lists.',
             ]);
 
         $manager->persist($appChannel);

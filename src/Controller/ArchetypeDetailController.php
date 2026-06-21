@@ -18,6 +18,7 @@ use App\Entity\DeckCard;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
 use App\Service\ArchetypeDescriptionRenderer;
+use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,7 @@ class ArchetypeDetailController extends AbstractController
         DeckRepository $deckRepository,
         ArchetypeDescriptionRenderer $descriptionRenderer,
         OgMetaResolver $ogMetaResolver,
+        MetaDescriptionResolver $metaDescriptionResolver,
     ): Response {
         $archetype = $archetypeRepository->findOneBy(['slug' => $slug]);
 
@@ -80,6 +82,7 @@ class ArchetypeDetailController extends AbstractController
             'variantsData' => $variantsData,
             'ogImage' => $ogMeta['image'],
             'ogDescription' => $ogMeta['description'],
+            'metaDescription' => $metaDescriptionResolver->resolveForArchetype($archetype, $locale),
         ]);
     }
 
