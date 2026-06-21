@@ -65,7 +65,7 @@ class DeckCard
     private ?CardPrinting $cardPrinting = null;
 
     /** Locale of the original deck list input (e.g. "en", "fr"). */
-    #[ORM\Column(length: 5)]
+    #[ORM\Column(length: 5, options: ['default' => 'en'])]
     private string $cardLocale = 'en';
 
     /**

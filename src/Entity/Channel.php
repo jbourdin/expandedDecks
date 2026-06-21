@@ -58,10 +58,10 @@ class Channel
     #[ORM\Column]
     private bool $enableArchetypes = false;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => false])]
     private bool $enableBannedCards = false;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => false])]
     private bool $enableStaples = false;
 
     /**
