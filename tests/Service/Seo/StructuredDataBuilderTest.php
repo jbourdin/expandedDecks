@@ -263,6 +263,7 @@ final class StructuredDataBuilderTest extends TestCase
             ->setLastName('Privatelastname')
             ->setScreenName('TestAuthor')
             ->setIsPublicAuthor(true)
+            ->setBio('A fictional author biography for testing.')
             ->setCredential('Format specialist')
             ->setSameAs(['https://example.test/profile'])
             ->setPrimaryUrl('https://example.test/profile')
@@ -274,7 +275,8 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('Person', $data['author']['@type']);
         self::assertSame('TestAuthor', $data['author']['name']);
         self::assertSame('https://example.test/profile', $data['author']['url']);
-        self::assertSame('Format specialist', $data['author']['description']);
+        self::assertSame('A fictional author biography for testing.', $data['author']['description']);
+        self::assertSame('Format specialist', $data['author']['award']);
         self::assertContains('https://example.test/profile', $data['author']['sameAs']);
 
         // The login email and legal name must NEVER appear anywhere in the output.
@@ -301,6 +303,7 @@ final class StructuredDataBuilderTest extends TestCase
         self::assertSame('Person', $data['author']['@type']);
         self::assertSame('SomeOwner', $data['author']['name']);
         self::assertArrayNotHasKey('description', $data['author']);
+        self::assertArrayNotHasKey('award', $data['author']);
         self::assertArrayNotHasKey('sameAs', $data['author']);
         self::assertArrayNotHasKey('url', $data['author']);
     }
