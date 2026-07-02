@@ -38,6 +38,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_ARCHETYPE_EDITOR')]
 class AdminStapleCardController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
@@ -167,6 +169,10 @@ class AdminStapleCardController extends AbstractAppController
     #[Route('/reorder/{bucket}', name: 'app_admin_staple_card_reorder', methods: ['POST'])]
     public function reorder(Request $request, string $bucket): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         if (!StapleCardBucket::isValid($bucket)) {
             return new JsonResponse(['ok' => false, 'error' => 'invalid_bucket'], 400);
         }

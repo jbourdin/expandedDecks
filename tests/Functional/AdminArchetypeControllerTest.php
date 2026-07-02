@@ -511,6 +511,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -548,6 +549,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -578,6 +580,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -610,6 +613,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], '[1,2,3]');
 
         self::assertResponseStatusCodeSame(403);
@@ -793,5 +797,31 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
         }
 
         self::fail(\sprintf('Variant "%s" not found for archetype "%s".', $name, $archetype->getName()));
+    }
+
+    public function testReorderRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], '[]');
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testReorderVariantsRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $archetype = $this->getArchetype('Regidrago');
+
+        $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], '[]');
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
     }
 }

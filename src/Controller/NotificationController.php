@@ -31,6 +31,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_USER')]
 class NotificationController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     public function __construct(
         TranslatorInterface $translator,
         private readonly NotificationRepository $notificationRepository,
@@ -55,8 +57,12 @@ class NotificationController extends AbstractAppController
     }
 
     #[Route('/api/notifications/{id}/read', name: 'app_notification_api_mark_read', methods: ['POST'])]
-    public function apiMarkRead(Notification $notification): JsonResponse
+    public function apiMarkRead(Notification $notification, Request $request): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var User $user */
         $user = $this->getUser();
 
@@ -76,8 +82,12 @@ class NotificationController extends AbstractAppController
     }
 
     #[Route('/api/notifications/read-all', name: 'app_notification_api_mark_all_read', methods: ['POST'])]
-    public function apiMarkAllRead(): JsonResponse
+    public function apiMarkAllRead(Request $request): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var User $user */
         $user = $this->getUser();
 

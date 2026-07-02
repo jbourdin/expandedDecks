@@ -11,6 +11,12 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {# CSRF token for authenticated AJAX/fetch endpoints. Read by assets/csrf.ts and
+         # sent as the X-CSRF-Token header; validated server-side with token id 'ajax'.
+         # Only rendered for logged-in users so anonymous (cacheable) pages stay identical. #}
+        {% if app.user %}
+            <meta name="csrf-token" content="{{ csrf_token('ajax') }}">
+        {% endif %}
         {{ include('_partials/theme_color_scheme_script.html.twig') }}
         <title>{% block title %}{{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}</title>
         {% if channel_theme() == 'expandedtalks' %}

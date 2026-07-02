@@ -21,6 +21,7 @@ import {
     UnstyledButton,
 } from '@mantine/core';
 import { IconBell, IconCheck, IconChecks } from '@tabler/icons-react';
+import { csrfHeader } from '../csrf';
 
 /**
  * @see docs/features.md F8.4 — In-app notification center
@@ -117,7 +118,7 @@ export default function NotificationBell({
         e.stopPropagation();
         const url = markReadUrlTemplate.replace('__ID__', String(id));
         try {
-            const res = await fetch(url, { method: 'POST' });
+            const res = await fetch(url, { method: 'POST', headers: csrfHeader() });
             if (!res.ok) return;
             const data = await res.json();
             setUnreadCount(data.unreadCount);
@@ -131,7 +132,7 @@ export default function NotificationBell({
 
     const markAllRead = async () => {
         try {
-            const res = await fetch(markAllReadUrl, { method: 'POST' });
+            const res = await fetch(markAllReadUrl, { method: 'POST', headers: csrfHeader() });
             if (!res.ok) return;
             setUnreadCount(0);
             setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
@@ -214,7 +215,7 @@ export default function NotificationBell({
                                         if (!n.isRead) {
                                             const url = markReadUrlTemplate.replace('__ID__', String(n.id));
                                             try {
-                                                await fetch(url, { method: 'POST' });
+                                                await fetch(url, { method: 'POST', headers: csrfHeader() });
                                             } catch {
                                                 // Best-effort — navigate anyway
                                             }
