@@ -511,6 +511,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -548,6 +549,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -578,6 +580,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/'.$archetype->getId().'/variants/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode($reversed));
 
         self::assertResponseIsSuccessful();
@@ -610,6 +613,7 @@ class AdminArchetypeControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/archetypes/reorder', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], '[1,2,3]');
 
         self::assertResponseStatusCodeSame(403);

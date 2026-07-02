@@ -17,6 +17,7 @@ import { FileHandler } from '@tiptap/extension-file-handler';
 import StarterKit from '@tiptap/starter-kit';
 import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import { IconCards, IconFloatCenter, IconFloatLeft, IconFloatNone, IconFloatRight, IconPhoto, IconStack2, IconSword } from '@tabler/icons-react';
+import { csrfHeader } from '../csrf';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — tiptap-markdown types conflict with tiptap v3 private class properties
 import { Markdown } from 'tiptap-markdown';
@@ -68,6 +69,7 @@ async function uploadAndInsertImage(file: File, editor: Editor, position?: numbe
     try {
         const response = await fetch('/api/editor/upload-image', {
             method: 'POST',
+            headers: csrfHeader(),
             body: formData,
         });
 

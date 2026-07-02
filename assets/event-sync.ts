@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+import { csrfHeader } from './csrf';
+
 /**
  * Event sync: fetches event data from the Pokemon event page via backend
  * proxy and prefills the event form fields.
@@ -60,7 +62,7 @@ async function handleSync(btn: HTMLButtonElement): Promise<void> {
     try {
         const response = await fetch(syncUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...csrfHeader() },
             body: JSON.stringify({ tournamentId }),
         });
 

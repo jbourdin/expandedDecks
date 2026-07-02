@@ -159,22 +159,44 @@ final class EditorUploadControllerTest extends TestCase
         return (string) $content;
     }
 
+    public function testUploadRejectsInvalidCsrfToken(): void
+    {
+        $storage = $this->createStub(FilesystemOperator::class);
+        $controller = new EditorUploadController($storage);
+        $controller->setContainer($this->createContainerWithRouter(csrfValid: false));
+
+        $file = $this->createTempUploadedFile('test.png', 'image/png', $this->createMinimalPng());
+        $request = new Request(files: ['file' => $file]);
+        $response = $controller->upload($request);
+
+        self::assertSame(403, $response->getStatusCode());
+        self::assertStringContainsString('Invalid CSRF token', (string) $response->getContent());
+    }
+
     /**
-     * Creates a minimal DI container with a router stub for AbstractController::generateUrl.
+     * Creates a minimal DI container with a router stub for AbstractController::generateUrl
+     * and a CSRF token manager stub whose validity is controlled by $csrfValid.
      */
-    private function createContainerWithRouter(): \Psr\Container\ContainerInterface
+    private function createContainerWithRouter(bool $csrfValid = true): \Psr\Container\ContainerInterface
     {
         $router = $this->createStub(\Symfony\Component\Routing\RouterInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $route, array $parameters): string => '/api/editor/image/'.$parameters['filename'],
         );
 
+        $tokenManager = $this->createStub(\Symfony\Component\Security\Csrf\CsrfTokenManagerInterface::class);
+        $tokenManager->method('isTokenValid')->willReturn($csrfValid);
+
         $container = $this->createStub(\Psr\Container\ContainerInterface::class);
         $container->method('has')->willReturnCallback(
-            static fn (string $id): bool => 'router' === $id,
+            static fn (string $id): bool => \in_array($id, ['router', 'security.csrf.token_manager'], true),
         );
         $container->method('get')->willReturnCallback(
-            static fn (string $id) => 'router' === $id ? $router : null,
+            static fn (string $id) => match ($id) {
+                'router' => $router,
+                'security.csrf.token_manager' => $tokenManager,
+                default => null,
+            },
         );
 
         return $container;

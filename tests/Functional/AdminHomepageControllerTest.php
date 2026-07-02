@@ -39,6 +39,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
     {
         $this->client->request('POST', '/admin/homepage/save', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['blocks' => [], 'translations' => ['en' => [], 'fr' => []]]));
 
         self::assertResponseRedirects();
@@ -65,6 +66,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/homepage/save', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], $payload);
 
         self::assertResponseIsSuccessful();
@@ -89,6 +91,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/homepage/save', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], $payload);
 
         self::assertResponseIsSuccessful();
@@ -130,6 +133,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/homepage/save', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], $payload);
 
         self::assertResponseIsSuccessful();
@@ -172,6 +176,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/homepage/save', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], $payload);
 
         self::assertResponseIsSuccessful();
@@ -192,6 +197,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
     {
         $this->client->request('POST', '/admin/homepage/preview', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['blocks' => [], 'translations' => ['en' => [], 'fr' => []]]));
 
         self::assertResponseRedirects();
@@ -215,6 +221,7 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/homepage/preview', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], $payload);
 
         self::assertResponseIsSuccessful();

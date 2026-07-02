@@ -67,7 +67,7 @@ class AdminMenuCategoryControllerCoverageTest extends AbstractFunctionalTest
             '/admin/menu-categories/reorder',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken()],
             (string) json_encode([$rules->getId(), $news->getId()]),
         );
 

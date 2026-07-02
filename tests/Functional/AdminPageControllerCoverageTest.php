@@ -80,7 +80,7 @@ class AdminPageControllerCoverageTest extends AbstractFunctionalTest
             '/admin/pages/reorder',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken()],
             (string) json_encode([$welcome->getId()]),
         );
 
@@ -100,7 +100,7 @@ class AdminPageControllerCoverageTest extends AbstractFunctionalTest
             '/admin/pages/reorder',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken()],
             '"not-an-array"',
         );
 

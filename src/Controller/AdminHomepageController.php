@@ -34,6 +34,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminHomepageController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     // Fallback when no channel is resolved (e.g. legacy null-channel layouts).
     // The editor and save endpoints normally use `Channel::getLocales()` so
     // each channel only edits the languages it actually serves.
@@ -101,6 +103,10 @@ class AdminHomepageController extends AbstractAppController
     #[Route('/save', name: 'app_admin_homepage_save', methods: ['POST'])]
     public function save(Request $request, ChannelRepository $channelRepository): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>, channelCode?: string, ogImage?: string|null, meta?: array<string, array{title?: string|null, ogDescription?: string|null}>} $payload */
         $payload = json_decode((string) $request->getContent(), true);
 
@@ -159,6 +165,10 @@ class AdminHomepageController extends AbstractAppController
     #[Route('/preview', name: 'app_admin_homepage_preview', methods: ['POST'])]
     public function preview(Request $request, HomepageRenderer $homepageRenderer): Response
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var array{blocks: list<array<string, mixed>>, translations: array<string, array<int|string, array<string, mixed>>>} $payload */
         $payload = json_decode((string) $request->getContent(), true);
 

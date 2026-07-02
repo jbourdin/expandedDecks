@@ -26,6 +26,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
     {
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => 'test-123']));
 
         self::assertResponseRedirects('/login');
@@ -38,6 +39,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => 'test-123']));
 
         self::assertResponseStatusCodeSame(403);
@@ -63,6 +65,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => 'test-123']));
 
         self::assertResponseIsSuccessful();
@@ -90,6 +93,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => '']));
 
         self::assertResponseStatusCodeSame(400);
@@ -113,6 +117,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => 'nonexistent']));
 
         self::assertResponseStatusCodeSame(404);
@@ -136,6 +141,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode(['tournamentId' => 'broken']));
 
         self::assertResponseStatusCodeSame(502);
@@ -159,6 +165,7 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/api/event/sync', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], json_encode([]));
 
         self::assertResponseStatusCodeSame(400);

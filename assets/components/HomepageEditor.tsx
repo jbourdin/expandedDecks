@@ -18,6 +18,7 @@ import Sortable from 'sortablejs';
 import { useEffect, useRef } from 'react';
 import BlockEditModal from './BlockEditModal';
 import ImageUrlField from './ImageUrlField';
+import { csrfHeader } from '../csrf';
 
 interface BlockTypeInfo {
     value: string;
@@ -215,7 +216,7 @@ export default function HomepageEditor({
         try {
             const response = await fetch(saveUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...csrfHeader() },
                 body: JSON.stringify({ blocks, translations, channelCode, ogImage, meta }),
             });
             if (response.ok) {

@@ -36,6 +36,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminMenuCategoryController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
@@ -76,6 +78,10 @@ class AdminMenuCategoryController extends AbstractAppController
     #[Route('/reorder', name: 'app_admin_menu_category_reorder', methods: ['POST'])]
     public function reorder(Request $request, MenuCategoryRepository $repository): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var list<int> $categoryIds */
         $categoryIds = json_decode((string) $request->getContent(), true);
         $repository->reorderCategories($categoryIds);
