@@ -61,7 +61,11 @@ class SearchApiController extends AbstractController
 
             foreach ($items as $result) {
                 $group['items'][] = [
-                    'title' => strip_tags($result->title),
+                    // $result->title is pre-sanitised HTML (only <mark> tags are
+                    // real markup); strip them and decode entities back to plain
+                    // text for the JSON payload, which the navbar renders as a
+                    // React text node.
+                    'title' => html_entity_decode(strip_tags($result->title), \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8'),
                     'type' => $result->type,
                     'url' => $this->buildResultUrl($result, $locale, $urlGenerator),
                     'secondary' => $result->secondaryInfo,
