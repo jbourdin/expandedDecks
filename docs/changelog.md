@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.9] — 2026-07-03
+
+Patch release: security hardening from a source-level audit — fixes a stored XSS in the search results page and adds CSRF protection to authenticated AJAX endpoints — plus test-coverage backfill.
+
+### Bug Fixes
+
+- **Stored XSS in search results** — Search result titles and excerpts were rendered with Twig's `|raw` filter to preserve Meilisearch `<mark>` highlight tags, but the underlying field values were never HTML-escaped. Because a deck name is an indexed field that any registered user can set, a crafted name (e.g. `<img src=x onerror=…>`) rendered as live markup on the public search page for any visitor whose query matched it. Sanitization now happens at the single `SearchResult::fromHit` choke point: the snippet is escaped and only Meilisearch's own `<mark>` tags are restored, neutralising every other tag while keeping highlighting. Benign titles are unchanged. ([#729](https://github.com/jbourdin/expandedDecks/pull/729))
+- **Missing CSRF protection on authenticated AJAX endpoints** — Several state-changing endpoints consumed JSON or multipart bodies via hand-rolled `fetch()` handlers and bypassed the Symfony form component, so they had no CSRF protection: notification mark-read/read-all, homepage save/preview, archetype/menu-category/page/staple reorder, editor image upload, OG-image generate, and event sync. A shared per-session token is now rendered as `<meta name="csrf-token">` (for logged-in users only, so anonymous pages stay cacheable), read by a small `assets/csrf.ts` helper and sent as the `X-CSRF-Token` header; server-side `AjaxCsrfTrait` validates it and returns 403 on failure. Form-based endpoints were already protected by the form component and are unchanged. ([#730](https://github.com/jbourdin/expandedDecks/pull/730))
+
+### Testing & Quality
+
+- **CSRF enforcement tests** — Added missing-token → 403 rejection tests across every guarded AJAX endpoint (including a new `AdminStapleCardControllerTest`), verifying CSRF is genuinely enforced rather than only that valid tokens pass. ([#730](https://github.com/jbourdin/expandedDecks/pull/730))
+- **Coverage backfill for least-covered classes** — Added unit tests for `StapleCardImageResolver` (was 0.95% line coverage — the staple image fallback chain was entirely untested) and `KeyValueTransformer`, covering the full fallback chain (direct URL, TCGdex CDN, PokemonTCG.io, upstream set-code, rarity ordering) and the key-value transform/reverse logic. ([#731](https://github.com/jbourdin/expandedDecks/pull/731))
+
+---
+
 ## [1.14.8] — 2026-06-21
 
 Patch release: SEO/GSO audit follow-ups — meta descriptions on every indexable page, baseline security/trust response headers, and a favicon-crawlability fix.
