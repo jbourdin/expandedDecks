@@ -51,6 +51,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_ARCHETYPE_EDITOR')]
 class AdminArchetypeController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     private const array SUPPORTED_LOCALES = ['en', 'fr'];
 
     public function __construct(
@@ -189,6 +191,10 @@ class AdminArchetypeController extends AbstractAppController
     #[Route('/reorder', name: 'app_admin_archetype_reorder', methods: ['POST'])]
     public function reorder(Request $request, ArchetypeRepository $archetypeRepository): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var list<int> $ids */
         $ids = json_decode($request->getContent(), true) ?? [];
 
@@ -212,6 +218,10 @@ class AdminArchetypeController extends AbstractAppController
     #[Route('/{id}/variants/reorder', name: 'app_admin_archetype_variant_reorder', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function reorderVariants(Request $request, Archetype $archetype, DeckRepository $deckRepository): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var list<int> $ids */
         $ids = json_decode($request->getContent(), true) ?? [];
 

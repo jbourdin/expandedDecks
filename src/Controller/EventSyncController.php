@@ -28,10 +28,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 class EventSyncController extends AbstractController
 {
+    use AjaxCsrfTrait;
+
     #[Route('/api/event/sync', name: 'app_event_sync', methods: ['POST'])]
     #[IsGranted('ROLE_ORGANIZER')]
     public function sync(Request $request, PokemonEventSyncService $syncService): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var array<string, mixed> $payload */
         $payload = json_decode($request->getContent(), true) ?? [];
         $tournamentId = isset($payload['tournamentId']) && \is_string($payload['tournamentId'])
