@@ -67,7 +67,7 @@ class AdminMenuCategoryControllerCoverageTest extends AbstractFunctionalTest
             '/admin/menu-categories/reorder',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken()],
             (string) json_encode([$rules->getId(), $news->getId()]),
         );
 
@@ -298,5 +298,22 @@ class AdminMenuCategoryControllerCoverageTest extends AbstractFunctionalTest
         $em->flush();
 
         return $category;
+    }
+
+    public function testReorderRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request(
+            'POST',
+            '/admin/menu-categories/reorder',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '[]',
+        );
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
     }
 }

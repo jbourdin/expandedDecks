@@ -15,6 +15,7 @@
  */
 
 import Sortable from 'sortablejs';
+import { csrfHeader } from './csrf';
 
 function getCategoryIds(tbody: HTMLTableSectionElement): number[] {
     return Array.from(tbody.querySelectorAll<HTMLTableRowElement>('tr[data-category-id]'))
@@ -31,7 +32,7 @@ function persistOrder(tbody: HTMLTableSectionElement): void {
 
     fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeader() },
         body: JSON.stringify(categoryIds),
     }).catch((error) => {
         console.error('Reorder failed:', error);
