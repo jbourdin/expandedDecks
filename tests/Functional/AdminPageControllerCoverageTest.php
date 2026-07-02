@@ -335,4 +335,21 @@ class AdminPageControllerCoverageTest extends AbstractFunctionalTest
 
         return $category;
     }
+
+    public function testReorderRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request(
+            'POST',
+            '/admin/pages/reorder',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '[]',
+        );
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
 }

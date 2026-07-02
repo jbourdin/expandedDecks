@@ -227,4 +227,28 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.hero-pokemon', 'Preview Hero');
     }
+
+    public function testSaveRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/homepage/save', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode(['blocks' => [], 'translations' => ['en' => [], 'fr' => []]]));
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testPreviewRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/homepage/preview', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode(['blocks' => [], 'translations' => ['en' => [], 'fr' => []]]));
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
 }

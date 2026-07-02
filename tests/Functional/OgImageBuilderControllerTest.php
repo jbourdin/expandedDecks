@@ -174,4 +174,16 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
         return $data;
     }
+
+    public function testGenerateRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode(['codes' => ['LOR-093']]));
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
 }

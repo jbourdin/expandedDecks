@@ -175,4 +175,16 @@ class EventSyncControllerTest extends AbstractFunctionalTest
 
         self::assertSame('missing_id', $data['code']);
     }
+
+    public function testSyncRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('organizer@example.com');
+
+        $this->client->request('POST', '/api/event/sync', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode(['tournamentId' => 'test-123']));
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
+    }
 }
