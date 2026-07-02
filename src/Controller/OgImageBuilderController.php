@@ -40,6 +40,8 @@ use Symfony\Component\Uid\Uuid;
 #[IsGranted(new Expression("is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR')"))]
 class OgImageBuilderController extends AbstractController
 {
+    use AjaxCsrfTrait;
+
     private const int MIN_CARDS = 2;
     private const int MAX_CARDS = 6;
 
@@ -65,6 +67,10 @@ class OgImageBuilderController extends AbstractController
     #[Route('/admin/og-image-builder/generate', name: 'app_admin_og_image_builder_generate', methods: ['POST'])]
     public function generate(Request $request): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         /** @var array{codes?: mixed} $payload */
         $payload = json_decode($request->getContent(), true) ?? [];
         $codes = $payload['codes'] ?? null;

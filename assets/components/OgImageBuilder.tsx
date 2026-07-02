@@ -14,6 +14,7 @@
 import { useState, useCallback } from 'react';
 import { Badge, Button, CopyButton, Group, Image, Stack, Text, Textarea } from '@mantine/core';
 import { IconCheck, IconCopy, IconPhoto } from '@tabler/icons-react';
+import { csrfHeader } from '../csrf';
 
 interface ResolvedCard {
     code: string;
@@ -57,7 +58,7 @@ export default function OgImageBuilder({ generateUrl, labels }: OgImageBuilderPr
         try {
             const response = await fetch(generateUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...csrfHeader() },
                 body: JSON.stringify({ codes }),
             });
 

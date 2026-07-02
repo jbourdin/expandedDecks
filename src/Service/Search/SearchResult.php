@@ -41,11 +41,37 @@ final readonly class SearchResult
 
         return new self(
             type: $type,
-            title: self::extractTitle($hit, $formatted),
-            excerpt: self::extractExcerpt($formatted, $type),
+            title: self::sanitizeHighlight(self::extractTitle($hit, $formatted)),
+            excerpt: self::sanitizeHighlight(self::extractExcerpt($formatted, $type)),
             slug: self::extractSlug($hit, $type),
             secondaryInfo: self::extractSecondaryInfo($hit, $type),
             archetypeSlug: \is_string($hit['archetypeSlug'] ?? null) ? $hit['archetypeSlug'] : null,
+        );
+    }
+
+    /**
+     * Escape a Meilisearch highlighted snippet for safe rendering as HTML.
+     *
+     * The results template prints `title`/`excerpt` with the `|raw` filter to
+     * keep Meilisearch's `<mark>` highlight tags. Meilisearch returns the rest
+     * of the matched field verbatim, so any HTML in the underlying value (for
+     * example a user-chosen deck name) would otherwise render as live markup —
+     * a stored XSS vector. We escape the whole snippet, then restore only the
+     * highlight tags, neutralising every other tag while keeping highlighting.
+     *
+     * @see docs/features.md F18.2 — Global search results page
+     */
+    private static function sanitizeHighlight(string $value): string
+    {
+        $escaped = htmlspecialchars($value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+
+        return str_replace(
+            [
+                htmlspecialchars(SearchService::HIGHLIGHT_PRE_TAG, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8'),
+                htmlspecialchars(SearchService::HIGHLIGHT_POST_TAG, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8'),
+            ],
+            [SearchService::HIGHLIGHT_PRE_TAG, SearchService::HIGHLIGHT_POST_TAG],
+            $escaped,
         );
     }
 

@@ -171,6 +171,80 @@ class SearchResultTest extends TestCase
         self::assertSame('unknown', $result->type);
     }
 
+    public function testFromHitNeutralisesHtmlInTitle(): void
+    {
+        $hit = [
+            'type' => 'deck',
+            'name' => '<img src=x onerror=alert(1)> My <mark>Regidrago</mark>',
+            'shortTag' => 'ABC123',
+            '_formatted' => [
+                'name' => '<img src=x onerror=alert(1)> My <mark>Regidrago</mark>',
+            ],
+        ];
+
+        $result = SearchResult::fromHit($hit);
+
+        // The attacker <img> tag is escaped; only the <mark> highlight survives as HTML.
+        self::assertStringNotContainsString('<img', $result->title);
+        self::assertStringContainsString('&lt;img src=x onerror=alert(1)&gt;', $result->title);
+        self::assertStringContainsString('<mark>Regidrago</mark>', $result->title);
+    }
+
+    public function testFromHitNeutralisesHtmlInExcerpt(): void
+    {
+        $hit = [
+            'type' => 'page',
+            'title' => 'Payload',
+            'slug' => 'payload',
+            'content' => '<script>alert(1)</script>',
+            '_formatted' => [
+                'title' => 'Payload',
+                'content' => 'Intro <mark>match</mark> <script>alert(1)</script>',
+            ],
+        ];
+
+        $result = SearchResult::fromHit($hit);
+
+        self::assertStringNotContainsString('<script>', $result->excerpt);
+        self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $result->excerpt);
+        self::assertStringContainsString('<mark>match</mark>', $result->excerpt);
+    }
+
+    public function testFromHitEscapesAmpersandsAndQuotes(): void
+    {
+        $hit = [
+            'type' => 'deck',
+            'name' => 'Fire & Ice "Deck"',
+            'shortTag' => 'DEF456',
+            '_formatted' => [
+                'name' => 'Fire & Ice "Deck"',
+            ],
+        ];
+
+        $result = SearchResult::fromHit($hit);
+
+        self::assertStringContainsString('Fire &amp; Ice', $result->title);
+        self::assertStringContainsString('&quot;Deck&quot;', $result->title);
+    }
+
+    public function testFromHitLeavesBenignHighlightUnchanged(): void
+    {
+        $hit = [
+            'type' => 'archetype',
+            'name' => 'Regidrago',
+            'slug' => 'regidrago',
+            '_formatted' => [
+                'name' => '<mark>Regidrago</mark>',
+                'description' => 'A powerful <mark>dragon</mark> archetype.',
+            ],
+        ];
+
+        $result = SearchResult::fromHit($hit);
+
+        // No dangerous characters means the highlighted snippet is untouched.
+        self::assertSame('<mark>Regidrago</mark>', $result->title);
+    }
+
     public function testExcerptTruncatesLongContent(): void
     {
         $longText = str_repeat('word ', 100);

@@ -70,6 +70,39 @@ abstract class AbstractFunctionalTest extends WebTestCase
         ]);
     }
 
+    /**
+     * The shared `ajax` CSRF token, to send as the X-CSRF-Token header on POSTs
+     * to authenticated AJAX endpoints guarded by {@see \App\Controller\AjaxCsrfTrait}.
+     * Requires a session — call after a GET (e.g. loginAs()).
+     */
+    protected function ajaxCsrfToken(): string
+    {
+        $session = $this->client->getSession();
+        $session->start();
+
+        /** @var \Symfony\Component\HttpFoundation\RequestStack $requestStack */
+        $requestStack = static::getContainer()->get('request_stack');
+
+        $syntheticRequest = new \Symfony\Component\HttpFoundation\Request();
+        $syntheticRequest->setSession($session);
+        $requestStack->push($syntheticRequest);
+
+        try {
+            /** @var \Symfony\Component\Security\Csrf\CsrfTokenManagerInterface $tokenManager */
+            $tokenManager = static::getContainer()->get('security.csrf.token_manager');
+
+            $token = $tokenManager->getToken('ajax')->getValue();
+
+            // Persist the token into the client's session storage so the token
+            // survives to the next request, where the controller validates it.
+            $session->save();
+
+            return $token;
+        } finally {
+            $requestStack->pop();
+        }
+    }
+
     private function initializeDatabase(): void
     {
         /** @var EntityManagerInterface $em */
