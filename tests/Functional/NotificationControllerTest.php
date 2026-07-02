@@ -95,7 +95,9 @@ class NotificationControllerTest extends AbstractFunctionalTest
         $notification = $this->createNotification($em, $user, 'To be read');
         $em->flush();
 
-        $this->client->request('POST', '/api/notifications/'.$notification->getId().'/read');
+        $this->client->request('POST', '/api/notifications/'.$notification->getId().'/read', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
+        ]);
 
         self::assertResponseIsSuccessful();
         $data = json_decode($this->client->getResponse()->getContent(), true);
@@ -116,7 +118,9 @@ class NotificationControllerTest extends AbstractFunctionalTest
         $notification = $this->createNotification($em, $admin, 'Admin notification');
         $em->flush();
 
-        $this->client->request('POST', '/api/notifications/'.$notification->getId().'/read');
+        $this->client->request('POST', '/api/notifications/'.$notification->getId().'/read', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
+        ]);
 
         self::assertResponseStatusCodeSame(403);
     }
@@ -133,12 +137,42 @@ class NotificationControllerTest extends AbstractFunctionalTest
         $this->createNotification($em, $user, 'Notif 2');
         $em->flush();
 
-        $this->client->request('POST', '/api/notifications/read-all');
+        $this->client->request('POST', '/api/notifications/read-all', [], [], [
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
+        ]);
 
         self::assertResponseIsSuccessful();
         $data = json_decode($this->client->getResponse()->getContent(), true);
 
         self::assertSame(0, $data['unreadCount']);
+    }
+
+    public function testApiMarkReadRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        $user = $this->getUser('admin@example.com');
+
+        $notification = $this->createNotification($em, $user, 'Own notification');
+        $em->flush();
+
+        // No X-CSRF-Token header: the authenticated request must be rejected.
+        $this->client->request('POST', '/api/notifications/'.$notification->getId().'/read');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testApiMarkAllReadRejectsInvalidCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/api/notifications/read-all', [], [], [
+            'HTTP_X_CSRF_TOKEN' => 'not-a-valid-token',
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
     }
 
     public function testListPageRequiresAuthentication(): void

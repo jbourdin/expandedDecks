@@ -48,6 +48,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
         $this->loginAs('borrower@example.com');
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => ['LOR-093', 'LOR-094']]));
 
         self::assertResponseStatusCodeSame(403);
@@ -70,6 +71,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => ['LOR-093', 'XXX-999']]));
 
         self::assertResponseIsSuccessful();
@@ -95,6 +97,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => ['XXX-998', 'XXX-999']]));
 
         self::assertResponseStatusCodeSame(422);
@@ -112,6 +115,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => ['LOR-093']]));
 
         self::assertResponseStatusCodeSame(422);
@@ -129,6 +133,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
         $codes = array_map(static fn (int $index): string => 'LOR-09'.$index, range(0, 6));
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => $codes]));
 
         self::assertResponseStatusCodeSame(422);
@@ -140,6 +145,7 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
 
         $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
             'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => $this->ajaxCsrfToken(),
         ], (string) json_encode(['codes' => 'not-an-array']));
 
         self::assertResponseStatusCodeSame(400);
@@ -167,5 +173,17 @@ class OgImageBuilderControllerTest extends AbstractFunctionalTest
         \assert(false !== $data);
 
         return $data;
+    }
+
+    public function testGenerateRejectsMissingCsrfToken(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $this->client->request('POST', '/admin/og-image-builder/generate', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], (string) json_encode(['codes' => ['LOR-093']]));
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertStringContainsString('Invalid CSRF token', (string) $this->client->getResponse()->getContent());
     }
 }

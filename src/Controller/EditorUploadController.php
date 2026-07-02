@@ -34,6 +34,8 @@ use Symfony\Component\Uid\Uuid;
  */
 class EditorUploadController extends AbstractController
 {
+    use AjaxCsrfTrait;
+
     private const int MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
     private const int CACHE_MAX_AGE = 86400 * 30; // 30 days
 
@@ -53,6 +55,10 @@ class EditorUploadController extends AbstractController
     #[IsGranted(new Expression("is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR')"))]
     public function upload(Request $request): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         $file = $request->files->get('file');
 
         if (!$file instanceof UploadedFile) {

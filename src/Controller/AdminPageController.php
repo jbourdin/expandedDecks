@@ -40,6 +40,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[IsGranted('ROLE_CMS_EDITOR')]
 class AdminPageController extends AbstractAppController
 {
+    use AjaxCsrfTrait;
+
     private const int PER_PAGE_CATEGORY = 50;
 
     public function __construct(
@@ -141,6 +143,10 @@ class AdminPageController extends AbstractAppController
     #[Route('/reorder', name: 'app_admin_page_reorder', methods: ['POST'])]
     public function reorder(Request $request, PageRepository $pageRepository, MenuRuntime $menuRuntime): JsonResponse
     {
+        if ($response = $this->invalidAjaxCsrfResponse($request)) {
+            return $response;
+        }
+
         $payload = json_decode($request->getContent(), true);
 
         if (!\is_array($payload)) {

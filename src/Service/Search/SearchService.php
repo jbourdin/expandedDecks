@@ -28,6 +28,16 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 class SearchService
 {
+    /**
+     * Tags Meilisearch wraps around matched terms in `_formatted` fields.
+     *
+     * These are the only HTML that {@see SearchResult::sanitizeHighlight()} is
+     * allowed to preserve when escaping highlighted snippets, so both sides of
+     * that contract must reference these constants rather than literals.
+     */
+    public const string HIGHLIGHT_PRE_TAG = '<mark>';
+    public const string HIGHLIGHT_POST_TAG = '</mark>';
+
     private const int QUICK_SEARCH_LIMIT = 3;
     private const int FULL_SEARCH_LIMIT = 20;
     private const float RANKING_SCORE_THRESHOLD = 0.3;
@@ -168,8 +178,8 @@ class SearchService
             'limit' => $limit,
             'offset' => $offset,
             'attributesToHighlight' => ['*'],
-            'highlightPreTag' => '<mark>',
-            'highlightPostTag' => '</mark>',
+            'highlightPreTag' => self::HIGHLIGHT_PRE_TAG,
+            'highlightPostTag' => self::HIGHLIGHT_POST_TAG,
             'rankingScoreThreshold' => self::RANKING_SCORE_THRESHOLD,
         ];
 

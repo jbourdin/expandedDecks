@@ -22,6 +22,7 @@
  */
 
 import Sortable from 'sortablejs';
+import { csrfHeader } from '../csrf';
 
 export function initSortableTable(tbodyId: string, idAttribute: string): void {
     const tbody = document.getElementById(tbodyId) as HTMLTableSectionElement | null;
@@ -41,7 +42,7 @@ export function initSortableTable(tbodyId: string, idAttribute: string): void {
 
         fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...csrfHeader() },
             body: JSON.stringify(getIds()),
         }).catch((error) => {
             console.error('Reorder failed:', error);
