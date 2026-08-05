@@ -20,6 +20,28 @@ TCGdex does not index dedicated energy-only sets. These are PTCG Live / physical
 | XYE | XY Energy | Not in source database |
 | BWE | Black & White Energy | Not in source database |
 
+## Colliding Set Codes
+
+A PTCG code does not identify one TCGdex set. Two shapes occur:
+
+**Parent / gallery subset** — TCGdex splits Trainer Gallery, Galarian Gallery, Shiny Vault and Classic Collection cards into their own set. Whether that set reuses the parent's code or carries a suffixed one (`ASR-TG`) changes between upstream snapshots, so prod and local currently disagree.
+
+| Code | Parent | Gallery subset | Overlapping localIds |
+|------|--------|----------------|----------------------|
+| ASR | `swsh10` (246 cards) | `swsh10.5tg` (30) | 30 — all `TG01`–`TG30` |
+| BRS | `swsh9` (216) | `swsh9.5tg` (30) | 30 — all `TG` |
+| LOR | `swsh11` (247) | `swsh11.5tg` (30) | 30 — all `TG` |
+| CRZ | `swsh12.5` (230) | `swsh12.5gg` (70) | 70 — all `GG` |
+| SHF | `swsh4.5` (195) | `swsh4.5sv` (122) | 122 — all `SV` |
+| SIT | `swsh12` (245) | `swsh12.5tg` (30) | 30 — all `TG` |
+| CEL | `cel25` (50) | `cel25cc` (25) | **0** — `cel25cc` is `CC001`–`CC025` only |
+
+**Unrelated sets** — `RR` denotes both `ex7` Team Rocket Returns (EX, 2004) and `pl2` Rising Rivals (Platinum, 2009). Numbers 1–111 exist in both and name *different* cards; only 112–114 and `RT1`–`RT6` are unambiguous. Nothing but the card name can separate these.
+
+Resolved at read time — see [Candidate Sets & Ambiguity Resolution](enrichment.md#candidate-sets--ambiguity-resolution) (F6.16). Note that `officialCardCount` is not an upper bound on card numbers: secret rares push `swsh10` to 216 against an official count of 189.
+
+Thirteen sets carry no PTCG code at all in either table and are therefore unreachable by code, including `sma` (Hidden Fates Shiny Vault) — the same gallery shape as `swsh4.5sv`, but with no code to resolve from.
+
 ## Incorrect Images
 
 | Card | TCGdex ID | Issue | Workaround |

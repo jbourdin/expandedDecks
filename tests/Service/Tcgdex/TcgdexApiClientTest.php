@@ -19,9 +19,13 @@ use App\Entity\TcgdexSet;
 use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
+use App\Service\Tcgdex\CardNameMatcher;
 use App\Service\Tcgdex\TcgdexApiClient;
 use App\Service\Tcgdex\TcgdexCard;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -1187,6 +1191,8 @@ class TcgdexApiClientTest extends TestCase
             $this->createRepositoryStub([]),
             $cardRepository,
             $aliasRepository,
+            new CardNameMatcher(),
+            new NullLogger(),
         );
 
         $result = $client->findCardByNameInAliasedSet('SM8', 'Nonexistent Card');
@@ -1223,6 +1229,8 @@ class TcgdexApiClientTest extends TestCase
             $this->createRepositoryStub([]),
             $cardRepository,
             $aliasRepository,
+            new CardNameMatcher(),
+            new NullLogger(),
         );
 
         $result = $client->findCardByNameInAliasedSet('S6K', 'Comfey');
@@ -1239,19 +1247,376 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame(172, $result->setOfficialCardCount);
     }
 
-    private function createClient(HttpClientInterface $httpClient, TcgdexSetMappingRepository $repository): TcgdexApiClient
+    /**
+     * SIT denotes Silver Tempest (swsh12, 245 cards) and, after a mapping
+     * rebuild against the wrong upstream snapshot, its 30-card Trainer Gallery
+     * (swsh12.5tg) as well. An ordinary Silver Tempest number exists only in
+     * the parent, so the number alone must settle it — this is the regression
+     * that motivated candidate-based resolution.
+     */
+    public function testFindCardPicksTheOnlyCandidateSetContainingTheNumber(): void
     {
+        $cardRepository = $this->createCardRepositoryStub([
+            $this->createTcgdexCardEntity(
+                id: 'swsh12-100',
+                localId: '100',
+                setId: 'swsh12',
+                serieId: 'swsh',
+                name: ['en' => 'Regidrago V'],
+                ptcgCode: 'SIT',
+            ),
+        ]);
+
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['SIT' => ['swsh12', 'swsh12.5tg']]),
+            $cardRepository,
+        );
+
+        $card = $client->findCard('SIT', '100');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh12-100', $card->id);
+    }
+
+    /**
+     * RR is a true collision: Team Rocket Returns (ex7, 2004) and Rising Rivals
+     * (pl2, 2009) both print a card at every number from 1 to 111, and they are
+     * different cards. Only the name can separate them.
+     *
+     * @return iterable<string, array{string, string}>
+     */
+    public static function collidingNameProvider(): iterable
+    {
+        yield 'name from the older set' => ["Team Rocket's Meowth", 'ex7-10'];
+        yield 'name from the newer set' => ['Rampardos', 'pl2-10'];
+    }
+
+    #[DataProvider('collidingNameProvider')]
+    public function testFindCardUsesCardNameToResolveTrueCollision(string $cardName, string $expectedId): void
+    {
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+            $this->createCollidingRrCardRepository(),
+        );
+
+        $card = $client->findCard('RR', '10', $cardName);
+
+        self::assertNotNull($card);
+        self::assertSame($expectedId, $card->id);
+    }
+
+    /**
+     * A French list reaches the enricher before the canonical English name is
+     * applied, so the fold must consider every locale the card carries.
+     */
+    public function testFindCardResolvesCollisionUsingFrenchName(): void
+    {
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+            $this->createCollidingRrCardRepository(),
+        );
+
+        $card = $client->findCard('RR', '10', 'Charpenti');
+
+        self::assertNotNull($card);
+        self::assertSame('pl2-10', $card->id);
+    }
+
+    /**
+     * A name that resembles neither candidate carries no signal, so resolution
+     * must fall back to the structural rule rather than pick the least-bad
+     * match — and must say so in the log.
+     */
+    public function testFindCardIgnoresNameBelowSimilarityThreshold(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('log')->with('warning');
+
+        $client = new TcgdexApiClient(
+            $this->createStub(HttpClientInterface::class),
+            new ArrayAdapter(),
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+            $this->createCollidingRrCardRepository(),
+            $this->createStub(TcgdexSetAliasRepository::class),
+            new CardNameMatcher(),
+            $logger,
+        );
+
+        $card = $client->findCard('RR', '10', 'Completely Unrelated Card');
+
+        self::assertNotNull($card);
+        // Neither set is a subset of the other, so the newer release wins.
+        self::assertSame('pl2-10', $card->id);
+    }
+
+    /**
+     * The gallery subsets ship with no image URL and their computed CDN path
+     * 404s, so the gallery preference stays gated off and the parent wins.
+     */
+    public function testFindCardPrefersParentWhenGalleryHasNoImage(): void
+    {
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['ASR' => ['swsh10', 'swsh10.5tg']]),
+            $this->createCardRepositoryStub($this->createAstralRadiancePair(galleryImageBaseUrl: null)),
+        );
+
+        $card = $client->findCard('ASR', 'TG01', 'Abomasnow');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh10-TG01', $card->id);
+    }
+
+    /**
+     * Once TCGdex backfills images for a gallery subset, a gallery-prefixed
+     * number resolves to that subset with no code change.
+     */
+    public function testFindCardPrefersGalleryOnceItCarriesImages(): void
+    {
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['ASR' => ['swsh10', 'swsh10.5tg']]),
+            $this->createCardRepositoryStub($this->createAstralRadiancePair(
+                galleryImageBaseUrl: 'https://assets.tcgdex.net/en/swsh/swsh10.5tg/TG01',
+            )),
+        );
+
+        $card = $client->findCard('ASR', 'TG01', 'Abomasnow');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh10.5tg-TG01', $card->id);
+    }
+
+    /**
+     * Production maps the gallery under a suffixed code (ASR-TG) while local
+     * maps it under the parent code. Both conventions must resolve identically,
+     * which is why a gallery-prefixed number also probes the suffixed sibling.
+     */
+    public function testFindCardResolvesGalleryUnderEitherMappingConvention(): void
+    {
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates([
+                'ASR' => ['swsh10'],
+                'ASR-TG' => ['swsh10.5tg'],
+            ]),
+            $this->createCardRepositoryStub($this->createAstralRadiancePair(
+                galleryImageBaseUrl: 'https://assets.tcgdex.net/en/swsh/swsh10.5tg/TG01',
+            )),
+        );
+
+        $card = $client->findCard('ASR', 'TG01', 'Abomasnow');
+
+        self::assertNotNull($card);
+        self::assertSame('swsh10.5tg-TG01', $card->id);
+    }
+
+    /**
+     * The number-candidate ladder is a decreasing-confidence one, so an exact
+     * hit in any candidate set must beat a zero-padded guess in another.
+     */
+    public function testFindCardPrefersExactNumberOverPaddedNumberInAnotherSet(): void
+    {
+        $cardRepository = $this->createCardRepositoryStub([
+            $this->createTcgdexCardEntity(
+                id: 'ex7-079',
+                localId: '079',
+                setId: 'ex7',
+                serieId: 'ex',
+                name: ['en' => 'Padded Match'],
+                ptcgCode: 'RR',
+            ),
+            $this->createTcgdexCardEntity(
+                id: 'pl2-79',
+                localId: '79',
+                setId: 'pl2',
+                serieId: 'pl',
+                name: ['en' => 'Exact Match'],
+                ptcgCode: 'RR',
+            ),
+        ]);
+
+        $client = $this->createClientWithCardRepository(
+            $this->createStub(HttpClientInterface::class),
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+            $cardRepository,
+        );
+
+        $card = $client->findCard('RR', '79');
+
+        self::assertNotNull($card);
+        self::assertSame('pl2-79', $card->id);
+    }
+
+    /**
+     * A code that resolves cleanly by number is the common case and must not
+     * produce log noise.
+     */
+    public function testFindCardDoesNotLogWhenNumberDisambiguates(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('log');
+
+        $client = new TcgdexApiClient(
+            $this->createStub(HttpClientInterface::class),
+            new ArrayAdapter(),
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+            $this->createCardRepositoryStub([
+                $this->createTcgdexCardEntity(
+                    id: 'pl2-113',
+                    localId: '113',
+                    setId: 'pl2',
+                    serieId: 'pl',
+                    name: ['en' => 'Luxury Ball'],
+                    ptcgCode: 'RR',
+                ),
+            ]),
+            $this->createStub(TcgdexSetAliasRepository::class),
+            new CardNameMatcher(),
+            $logger,
+        );
+
+        $card = $client->findCard('RR', '113');
+
+        self::assertNotNull($card);
+        self::assertSame('pl2-113', $card->id);
+    }
+
+    /**
+     * Trainer Gallery cards live in the parent set too, so the HTTP fallback
+     * must also narrow across candidates rather than commit to one set.
+     */
+    public function testFindCardNarrowsCandidatesOverHttp(): void
+    {
+        $httpClient = $this->createCardMockClient([
+            'ex7-113' => ['status' => 404],
+            'pl2-113' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'pl2-113',
+                    'name' => 'Luxury Ball',
+                    'category' => 'Trainer',
+                    'image' => 'https://assets.tcgdex.net/en/pl/pl2/113',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient(
+            $httpClient,
+            $this->createRepositoryStubWithCandidates(['RR' => ['ex7', 'pl2']]),
+        );
+
+        $card = $client->findCard('RR', '113');
+
+        self::assertNotNull($card);
+        self::assertSame('pl2-113', $card->id);
+    }
+
+    /**
+     * Both Astral Radiance printings of TG01 are the same card under the same
+     * name — only the image availability differs.
+     *
+     * @return list<TcgdexCardEntity>
+     */
+    private function createAstralRadiancePair(?string $galleryImageBaseUrl): array
+    {
+        $parent = $this->createTcgdexCardEntity(
+            id: 'swsh10-TG01',
+            localId: 'TG01',
+            setId: 'swsh10',
+            serieId: 'swsh',
+            name: ['en' => 'Abomasnow'],
+            ptcgCode: 'ASR',
+        );
+        $parent->setImageBaseUrl('https://assets.tcgdex.net/en/swsh/swsh10/TG01');
+
+        $gallery = $this->createTcgdexCardEntity(
+            id: 'swsh10.5tg-TG01',
+            localId: 'TG01',
+            setId: 'swsh10.5tg',
+            serieId: 'swsh',
+            name: ['en' => 'Abomasnow'],
+            ptcgCode: 'ASR',
+        );
+        $gallery->setImageBaseUrl($galleryImageBaseUrl);
+
+        return [$parent, $gallery];
+    }
+
+    /**
+     * ex7-10 and pl2-10 are unrelated cards printed at the same number.
+     */
+    private function createCollidingRrCardRepository(): TcgdexCardRepository
+    {
+        return $this->createCardRepositoryStub([
+            $this->createTcgdexCardEntity(
+                id: 'ex7-10',
+                localId: '10',
+                setId: 'ex7',
+                serieId: 'ex',
+                name: ['en' => "Team Rocket's Meowth"],
+                ptcgCode: 'RR',
+                releaseDate: new \DateTimeImmutable('2004-11-01'),
+            ),
+            $this->createTcgdexCardEntity(
+                id: 'pl2-10',
+                localId: '10',
+                setId: 'pl2',
+                serieId: 'pl',
+                name: ['en' => 'Rampardos', 'fr' => 'Charpenti'],
+                ptcgCode: 'RR',
+                releaseDate: new \DateTimeImmutable('2009-05-16'),
+            ),
+        ]);
+    }
+
+    /**
+     * A card repository stub backed by an in-memory list, keyed the same way
+     * findBySetAndLocalId() queries it.
+     *
+     * @param list<TcgdexCardEntity> $entities
+     */
+    private function createCardRepositoryStub(array $entities): TcgdexCardRepository
+    {
+        $indexed = [];
+
+        foreach ($entities as $entity) {
+            $indexed[$entity->getSet()->getId().'|'.$entity->getLocalId()] = $entity;
+        }
+
+        $repository = $this->createStub(TcgdexCardRepository::class);
+        $repository->method('findBySetAndLocalId')->willReturnCallback(
+            static fn (string $setId, string $localId): ?TcgdexCardEntity => $indexed[$setId.'|'.$localId] ?? null,
+        );
+
+        return $repository;
+    }
+
+    private function createClient(
+        HttpClientInterface $httpClient,
+        TcgdexSetMappingRepository $repository,
+        ?LoggerInterface $logger = null,
+    ): TcgdexApiClient {
         return new TcgdexApiClient(
             $httpClient,
             new ArrayAdapter(),
             $repository,
             $this->createStub(TcgdexCardRepository::class),
             $this->createStub(TcgdexSetAliasRepository::class),
+            new CardNameMatcher(),
+            $logger ?? new NullLogger(),
         );
     }
 
     /**
      * Creates a repository stub with the given forward mapping.
+     *
+     * Each code resolves to exactly one set, so lookups exercise the
+     * unambiguous path. Use createRepositoryStubWithCandidates() for collisions.
      *
      * @param array<string, string> $forwardMapping PTCG code → TCGdex set ID
      */
@@ -1260,6 +1625,28 @@ class TcgdexApiClientTest extends TestCase
         $repository = $this->createStub(TcgdexSetMappingRepository::class);
         $repository->method('getForwardMapping')->willReturn($forwardMapping);
         $repository->method('getReverseMapping')->willReturn(array_flip($forwardMapping));
+        $repository->method('getForwardCandidates')->willReturn(array_map(
+            static fn (string $setId): array => [$setId],
+            $forwardMapping,
+        ));
+
+        return $repository;
+    }
+
+    /**
+     * Creates a repository stub where a PTCG code may denote several sets.
+     *
+     * @param array<string, list<string>> $candidates PTCG code → TCGdex set IDs
+     */
+    private function createRepositoryStubWithCandidates(array $candidates): TcgdexSetMappingRepository
+    {
+        $repository = $this->createStub(TcgdexSetMappingRepository::class);
+        $repository->method('getForwardCandidates')->willReturn($candidates);
+        $repository->method('getForwardMapping')->willReturn(array_map(
+            static fn (array $setIds): string => $setIds[0],
+            $candidates,
+        ));
+        $repository->method('getReverseMapping')->willReturn([]);
 
         return $repository;
     }
@@ -1336,6 +1723,8 @@ class TcgdexApiClientTest extends TestCase
             $setMappingRepository,
             $cardRepository,
             $this->createStub(TcgdexSetAliasRepository::class),
+            new CardNameMatcher(),
+            new NullLogger(),
         );
     }
 
@@ -1350,6 +1739,8 @@ class TcgdexApiClientTest extends TestCase
             $setMappingRepository,
             $this->createStub(TcgdexCardRepository::class),
             $aliasRepository,
+            new CardNameMatcher(),
+            new NullLogger(),
         );
     }
 

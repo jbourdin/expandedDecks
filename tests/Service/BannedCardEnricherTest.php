@@ -76,7 +76,10 @@ class BannedCardEnricherTest extends TestCase
         $identityResolver = $this->createStub(CardIdentityResolver::class);
         $identityResolver->method('resolveFromTcgdexCard')->willReturn($resolved);
 
+        $ban = new BannedCard();
+        $ban->setCardName('Pikachu');
         $printing = $this->buildBannedPrinting('LOT', '90', null);
+        $ban->addPrinting($printing);
 
         $enricher = $this->buildEnricher(apiClient: $apiClient, identityResolver: $identityResolver);
 
@@ -96,7 +99,10 @@ class BannedCardEnricherTest extends TestCase
         $identityResolver = $this->createStub(CardIdentityResolver::class);
         $identityResolver->method('resolveFromTcgdexCard')->willReturn($resolved);
 
+        $ban = new BannedCard();
+        $ban->setCardName('Pikachu');
         $printing = $this->buildBannedPrinting('LOT', '90', null);
+        $ban->addPrinting($printing);
 
         $enricher = $this->buildEnricher(apiClient: $apiClient, identityResolver: $identityResolver);
 

@@ -313,7 +313,10 @@ class StapleCardEnricherTest extends TestCase
         $identityResolver = $this->createStub(CardIdentityResolver::class);
         $identityResolver->method('resolveFromTcgdexCard')->willReturn($resolved);
 
+        $staple = new StapleCard();
+        $staple->setCardName('Iono');
         $printing = $this->buildStaplePrinting('LOT', '90', null);
+        $staple->addPrinting($printing);
 
         $enricher = $this->buildEnricher(apiClient: $apiClient, identityResolver: $identityResolver);
 
@@ -333,7 +336,10 @@ class StapleCardEnricherTest extends TestCase
         $identityResolver = $this->createStub(CardIdentityResolver::class);
         $identityResolver->method('resolveFromTcgdexCard')->willReturn($resolved);
 
+        $staple = new StapleCard();
+        $staple->setCardName('Iono');
         $printing = $this->buildStaplePrinting('LOT', '90', null);
+        $staple->addPrinting($printing);
 
         $enricher = $this->buildEnricher(apiClient: $apiClient, identityResolver: $identityResolver);
 
