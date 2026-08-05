@@ -64,7 +64,9 @@ class UserSearchController extends AbstractController
             return $this->json([]);
         }
 
-        $users = $hasEventAccess && null !== $event
+        // $hasEventAccess is only ever set inside the null-checked branch above,
+        // so $event is guaranteed non-null here.
+        $users = $hasEventAccess
             ? $userRepository->searchEventParticipants($query, $event)
             : $userRepository->searchUsers($query);
 
