@@ -28,12 +28,44 @@ class TcgdexSetRepository extends ServiceEntityRepository
         parent::__construct($registry, TcgdexSet::class);
     }
 
+    /**
+     * The best set for a PTCG code.
+     *
+     * A code may denote several sets — a parent expansion and its gallery
+     * subset, or two unrelated sets that reused an abbreviation. findOneBy()
+     * used to return an arbitrary one, which for callers that build CDN URLs
+     * from the set ID meant a 404 whenever the gallery subset won.
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     */
     public function findByPtcgCode(string $ptcgCode): ?TcgdexSet
     {
-        /** @var TcgdexSet|null $result */
-        $result = $this->findOneBy(['ptcgCode' => $ptcgCode]);
+        return $this->findAllByPtcgCode($ptcgCode)[0] ?? null;
+    }
 
-        return $result;
+    /**
+     * Every set carrying a PTCG code, parent expansions before gallery subsets.
+     *
+     * A subset's ID always extends its parent's (swsh10 → swsh10.5tg,
+     * cel25 → cel25cc), so ordering by ID length puts parents first; the ID
+     * itself breaks any remaining tie so the result never depends on row order.
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     *
+     * @return list<TcgdexSet>
+     */
+    public function findAllByPtcgCode(string $ptcgCode): array
+    {
+        /** @var list<TcgdexSet> $sets */
+        $sets = $this->createQueryBuilder('s')
+            ->where('s.ptcgCode = :ptcgCode')
+            ->setParameter('ptcgCode', $ptcgCode)
+            ->orderBy('LENGTH(s.id)', 'ASC')
+            ->addOrderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $sets;
     }
 
     /** Series IDs that belong to the Expanded format (Black & White onward). */

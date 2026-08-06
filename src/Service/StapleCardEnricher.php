@@ -217,7 +217,11 @@ final readonly class StapleCardEnricher
             return true;
         }
 
-        $tcgdexCard = $this->apiClient->findCard($printing->getSetCode(), $printing->getCardNumber());
+        $tcgdexCard = $this->apiClient->findCard(
+            $printing->getSetCode(),
+            $printing->getCardNumber(),
+            $printing->getStapleCard()->getCardName(),
+        );
 
         if (null === $tcgdexCard) {
             $tcgdexCard = $this->apiClient->findCardByNameInAliasedSet(
