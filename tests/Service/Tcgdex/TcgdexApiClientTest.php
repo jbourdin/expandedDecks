@@ -510,6 +510,53 @@ class TcgdexApiClientTest extends TestCase
         self::assertSame('swsh10-TG30', $card->id);
     }
 
+    public function testFindCardHandlesRadiantCollectionSuffix(): void
+    {
+        // GEN-RC 27 → set GEN, number RC27 (TCGdex keeps Radiant Collection
+        // cards inside the parent set under RC-prefixed local IDs)
+        $httpClient = $this->createCardMockClient([
+            'g1-RC27' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'g1-RC27',
+                    'name' => 'Wally',
+                    'category' => 'Trainer',
+                    'image' => 'https://assets.tcgdex.net/en/xy/g1/RC27',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['GEN' => 'g1']));
+        $card = $client->findCard('GEN-RC', '27');
+
+        self::assertNotNull($card);
+        self::assertSame('g1-RC27', $card->id);
+    }
+
+    public function testFindCardHandlesLegendaryTreasuresRadiantCollectionSuffix(): void
+    {
+        // LTR-RC 25 → set LTR, number RC25
+        $httpClient = $this->createCardMockClient([
+            'bw11-RC25' => [
+                'status' => 200,
+                'body' => [
+                    'id' => 'bw11-RC25',
+                    'name' => 'Rainbow Energy',
+                    'category' => 'Energy',
+                    'image' => 'https://assets.tcgdex.net/en/bw/bw11/RC25',
+                    'legal' => ['expanded' => true],
+                ],
+            ],
+        ]);
+
+        $client = $this->createClient($httpClient, $this->createRepositoryStub(['LTR' => 'bw11']));
+        $card = $client->findCard('LTR-RC', '25');
+
+        self::assertNotNull($card);
+        self::assertSame('bw11-RC25', $card->id);
+    }
+
     public function testFindCardStripsLetterSuffix(): void
     {
         // Card number "113a" should retry with "113" if "113a" not found
