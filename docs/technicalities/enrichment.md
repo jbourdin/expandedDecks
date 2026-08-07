@@ -134,7 +134,7 @@ See [Colliding Set Codes](tcgdex_known_issues.md#colliding-set-codes) for the fu
 
 1. **Exact name** — the pasted name folded through `CardNameMatcher` against every locale in the card's `name` JSON. Exactly one match wins. (The `nameEn`/`nameFr` getters are MySQL generated columns and are null on entities that have not round-tripped through the database, so the JSON is the authority.)
 2. **Closest name** — highest `CardNameMatcher::score()` above `MINIMUM_SIMILARITY` (0.80), and only if one candidate is a strict winner. A garbled name therefore never does worse than supplying no name at all.
-3. **Structural preference** — a gallery-prefixed number (`TG`/`GG`/`SV`/`CC`) prefers the dedicated gallery set, **but only when that set actually carries an image**. TCGdex currently ships every gallery subset with a null `imageBaseUrl`, and the computed CDN fallback 404s for those set IDs (`swsh10.5tg/TG01` → 404, `swsh10/TG01` → 200), so the preference stays dormant until upstream backfills them and the parent wins today. Otherwise the parent expansion wins — its ID is a strict prefix of the subset's (`swsh10` / `swsh10.5tg`, `cel25` / `cel25cc`).
+3. **Structural preference** — a gallery-prefixed number (`TG`/`GG`/`SV`/`CC`/`RC`) prefers the dedicated gallery set, **but only when that set actually carries an image**. TCGdex currently ships every gallery subset with a null `imageBaseUrl`, and the computed CDN fallback 404s for those set IDs (`swsh10.5tg/TG01` → 404, `swsh10/TG01` → 200), so the preference stays dormant until upstream backfills them and the parent wins today. Otherwise the parent expansion wins — its ID is a strict prefix of the subset's (`swsh10` / `swsh10.5tg`, `cel25` / `cel25cc`).
 4. **Stable fallback** — for unrelated sets sharing a code (`RR`), most recent release date, then lowest set ID.
 
 Only step 3 and 4 log a warning; a number that resolves cleanly logs nothing.
@@ -159,7 +159,7 @@ TCGdex prefixes card numbers in promo sets with an era tag. PTCG lists `Karen XY
 Resolves a card by PTCG set code and card number:
 
 1. **Normalize set code** — uppercase
-2. **Trainer Gallery** — if set code ends with `-TG` (e.g. `ASR-TG`), strip suffix and prefix the card number with `TG` (e.g. `30` → `TG30`)
+2. **Gallery subsets** — if set code ends with a gallery marker (`-TG`, `-GG`, `-SV`, `-CC`, `-RC` — e.g. `ASR-TG`, `GEN-RC`), strip the suffix and prefix the card number with the marker (e.g. `30` → `TG30`, `27` → `RC27`). Radiant Collection (`GEN-RC`, `LTR-RC`) has no dedicated TCGdex subset: the cards live inside the parent set under RC-prefixed local IDs (`g1-RC27`)
 3. **Letter suffixes** — strip trailing letters from card numbers (e.g. `113a` → `113`) via regex `[a-z]+$`
 4. **Resolve TCGdex set ID** — via set mapping; return `null` if unmapped (Japanese set codes like `S6K`, `SM8` typically fail here)
 5. **Apply promo prefix** — prepend era tag for promo sets

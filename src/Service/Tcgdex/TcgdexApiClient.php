@@ -76,9 +76,14 @@ class TcgdexApiClient
      * suffixed one (ASR-TG → swsh10.5tg) depending on the upstream snapshot the
      * mapping was last rebuilt against. The prefix is what tells them apart.
      *
+     * Radiant Collection (RC) subsets (Generations GEN-RC, Legendary Treasures
+     * LTR-RC) follow the same suffixed-code convention in PTCG Live exports,
+     * but TCGdex keeps their cards inside the parent set under RC-prefixed
+     * local IDs (GEN-RC 27 → g1-RC27) rather than in a dedicated subset.
+     *
      * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
      */
-    private const array GALLERY_NUMBER_PREFIXES = ['TG', 'GG', 'SV', 'CC'];
+    private const array GALLERY_NUMBER_PREFIXES = ['TG', 'GG', 'SV', 'CC', 'RC'];
 
     /**
      * Number of ordered transformations tried when looking up a card number.
