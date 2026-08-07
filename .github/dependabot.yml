@@ -6,6 +6,14 @@ updates:
       interval: "weekly"
     target-branch: "develop"
     open-pull-requests-limit: 5
+    # doctrine/orm 3.6.8 calls Schema::edit(), which only exists in
+    # doctrine/dbal ^4.5 — unreleased (4.4.4 is the latest stable). Every
+    # functional test dies in SchemaTool with a BadMethodCallException. Held
+    # back by a conflict entry in composer.json too. Unignore and drop that
+    # conflict once DBAL 4.5.0 ships: composer show doctrine/dbal --all
+    ignore:
+      - dependency-name: "doctrine/orm"
+        versions: [">=3.6.8"]
     groups:
       composer-minor-and-patch:
         applies-to: version-updates

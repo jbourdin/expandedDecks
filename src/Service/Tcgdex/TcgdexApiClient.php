@@ -17,6 +17,7 @@ use App\Entity\TcgdexCard as TcgdexCardEntity;
 use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -66,12 +67,52 @@ class TcgdexApiClient
         'bwp' => 'BW',
     ];
 
+    /**
+     * Card-number prefixes that mark a gallery subset printing.
+     *
+     * TCGdex splits Trainer Gallery (TG), Galarian Gallery (GG), Shiny Vault
+     * (SV) and Classic Collection (CC) cards into their own set, which either
+     * reuses the parent's PTCG code (ASR → swsh10 + swsh10.5tg) or carries a
+     * suffixed one (ASR-TG → swsh10.5tg) depending on the upstream snapshot the
+     * mapping was last rebuilt against. The prefix is what tells them apart.
+     *
+     * Radiant Collection (RC) subsets (Generations GEN-RC, Legendary Treasures
+     * LTR-RC) follow the same suffixed-code convention in PTCG Live exports,
+     * but TCGdex keeps their cards inside the parent set under RC-prefixed
+     * local IDs (GEN-RC 27 → g1-RC27) rather than in a dedicated subset.
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     */
+    private const array GALLERY_NUMBER_PREFIXES = ['TG', 'GG', 'SV', 'CC', 'RC'];
+
+    /**
+     * Number of ordered transformations tried when looking up a card number.
+     *
+     * @see buildLocalIdCandidates()
+     */
+    private const int NUMBER_CANDIDATE_RANKS = 4;
+
+    /** Upper bound on how many candidate sets the HTTP fallback will probe. */
+    private const int MAX_HTTP_CANDIDATE_SETS = 2;
+
+    /**
+     * Memoized PTCG code → TCGdex set IDs map.
+     *
+     * findCard() runs once per deck card, so without this the forward mapping
+     * would be re-queried for every line of every imported list.
+     *
+     * @var array<string, list<string>>|null
+     */
+    private ?array $forwardCandidates = null;
+
     public function __construct(
         private readonly HttpClientInterface $tcgdexClient,
         private readonly CacheInterface $cache,
         private readonly TcgdexSetMappingRepository $setMappingRepository,
         private readonly TcgdexCardRepository $tcgdexCardRepository,
         private readonly TcgdexSetAliasRepository $setAliasRepository,
+        private readonly CardNameMatcher $cardNameMatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -113,30 +154,112 @@ class TcgdexApiClient
     /**
      * Looks up a card by its PTCG set code and card number.
      *
+     * A PTCG code does not identify one TCGdex set. A set and its gallery subset
+     * may share a code (ASR → swsh10 + swsh10.5tg), and two unrelated sets may
+     * have reused an abbreviation decades apart (RR → ex7 Team Rocket Returns +
+     * pl2 Rising Rivals). Resolution therefore narrows by card number first and
+     * only falls back to the card name when the number matches in several sets.
+     *
      * Resolution strategy:
      * 1. PTCGL set code + card number (international, exact match)
      * 2. If set code is unrecognized, returns null — the enricher handles
      *    Asian alias resolution separately via findCardByNameInAliasedSet().
+     *
+     * @param string|null $cardName the name as written in the source list, used
+     *                              only to break ties between candidate sets
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
      */
-    public function findCard(string $ptcgSetCode, string $cardNumber): ?TcgdexCard
+    public function findCard(string $ptcgSetCode, string $cardNumber, ?string $cardName = null): ?TcgdexCard
     {
         $normalizedSetCode = strtoupper($ptcgSetCode);
         $normalizedNumber = $cardNumber;
 
-        // Trainer Gallery: "ASR-TG" → set "ASR", number "TG30"
-        if (str_ends_with($normalizedSetCode, '-TG')) {
-            $normalizedSetCode = substr($normalizedSetCode, 0, -3);
-            $normalizedNumber = 'TG'.$cardNumber;
+        // Gallery suffix: "ASR-TG" → set "ASR", number "TG30"
+        $suffixMarker = $this->extractGallerySuffix($normalizedSetCode);
+
+        if (null !== $suffixMarker) {
+            $normalizedSetCode = substr($normalizedSetCode, 0, -(\strlen($suffixMarker) + 1));
+            $normalizedNumber = $suffixMarker.$cardNumber;
         }
 
-        // Resolve PTCG set code → TCGdex set ID (international codes only)
-        $mapping = $this->getSetMapping();
-        $setId = $mapping[$normalizedSetCode] ?? null;
+        // Resolve PTCG set code → every TCGdex set it may denote
+        $setIds = $this->resolveSetCandidates($normalizedSetCode, $normalizedNumber);
 
-        if (null === $setId) {
+        if ([] === $setIds) {
             return null;
         }
 
+        $chains = [];
+
+        foreach ($setIds as $setId) {
+            $chains[$setId] = $this->buildLocalIdCandidates($setId, $normalizedNumber);
+        }
+
+        // Layer 1: Local database lookup
+        $card = $this->resolveFromLocalDatabase($setIds, $chains, $cardName, $normalizedSetCode, $normalizedNumber);
+
+        if (null !== $card) {
+            return $card;
+        }
+
+        // Layer 2: HTTP API fallback
+        return $this->resolveFromApi($setIds, $chains, $cardName, $normalizedSetCode, $normalizedNumber);
+    }
+
+    /**
+     * Every TCGdex set a PTCG code may denote, in stable order.
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     *
+     * @return list<string>
+     */
+    public function getSetCandidates(string $ptcgSetCode, string $cardNumber = ''): array
+    {
+        return $this->resolveSetCandidates(strtoupper($ptcgSetCode), $cardNumber);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveSetCandidates(string $normalizedSetCode, string $cardNumber): array
+    {
+        $candidates = $this->getForwardCandidates()[$normalizedSetCode] ?? [];
+
+        $staticSetId = self::STATIC_OVERRIDES[$normalizedSetCode] ?? null;
+
+        if (null !== $staticSetId) {
+            $candidates[] = $staticSetId;
+        }
+
+        // A gallery subset carries either its parent's code (ASR) or a suffixed
+        // one (ASR-TG) depending on the TCGdex snapshot the mapping was last
+        // rebuilt against — prod and local currently disagree. Folding in the
+        // suffixed sibling makes both conventions resolve identically.
+        $marker = $this->galleryMarkerOf($cardNumber);
+
+        if (null !== $marker) {
+            foreach ($this->getForwardCandidates()[$normalizedSetCode.'-'.$marker] ?? [] as $siblingSetId) {
+                $candidates[] = $siblingSetId;
+            }
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    /**
+     * Ordered number interpretations for one candidate set, keyed by confidence rank.
+     *
+     * Rank 0 is the number exactly as printed (carrying the set's promo era
+     * prefix when it has one); every later rank is a guess that papers over
+     * inconsistent zero-padding and alternate-art suffixes between PTCGL, the
+     * official banned-card list, and TCGdex. Ranks are aligned across sets so a
+     * guessed hit in one set can never outrank an exact hit in another.
+     *
+     * @return array<int, string> rank → local ID
+     */
+    private function buildLocalIdCandidates(string $setId, string $normalizedNumber): array
+    {
         // Promo sets use era-prefixed card numbers in TCGdex (e.g. XY177, SWSH001).
         // Skip the prepend when the upstream value already includes the prefix
         // (the official banned-card list ships "PR-SW SWSH022" verbatim).
@@ -145,45 +268,446 @@ class TcgdexApiClient
             ? $prefix.$normalizedNumber
             : $normalizedNumber;
 
-        // Build candidate local IDs for the fallback chain
-        $candidates = [$lookupNumber];
+        $candidates = [0 => $lookupNumber];
 
         $strippedNumber = preg_replace('/[a-z]+$/i', '', $lookupNumber) ?? $lookupNumber;
 
         if ($strippedNumber !== $lookupNumber) {
-            $candidates[] = $strippedNumber;
+            $candidates[1] = $strippedNumber;
         }
 
         if (\strlen($strippedNumber) < 3 && ctype_digit($strippedNumber)) {
-            $candidates[] = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
+            $candidates[2] = str_pad($strippedNumber, 3, '0', \STR_PAD_LEFT);
         }
 
         // Strip leading zeros for padded numerics: "022" → "22", "083" → "83".
         // TCGdex stores some sets (RCL, EVS, …) without leading zeros while
         // other sources pad to 3 digits.
         if (ctype_digit($strippedNumber) && \strlen($strippedNumber) > 1 && '0' === $strippedNumber[0]) {
-            $candidates[] = ltrim($strippedNumber, '0') ?: '0';
+            $candidates[3] = ltrim($strippedNumber, '0') ?: '0';
         }
 
-        // Layer 1: Local database lookup
-        foreach ($candidates as $candidateLocalId) {
-            $entity = $this->tcgdexCardRepository->findBySetAndLocalId($setId, $candidateLocalId);
+        return $candidates;
+    }
 
-            if (null !== $entity) {
-                return $this->buildDtoFromEntity($entity);
+    /**
+     * @param list<string>                     $setIds
+     * @param array<string, array<int,string>> $chains
+     */
+    private function resolveFromLocalDatabase(
+        array $setIds,
+        array $chains,
+        ?string $cardName,
+        string $ptcgSetCode,
+        string $cardNumber,
+    ): ?TcgdexCard {
+        for ($rank = 0; $rank < self::NUMBER_CANDIDATE_RANKS; ++$rank) {
+            $entities = [];
+            $descriptors = [];
+
+            foreach ($setIds as $setId) {
+                $localId = $chains[$setId][$rank] ?? null;
+
+                if (null === $localId) {
+                    continue;
+                }
+
+                $entity = $this->tcgdexCardRepository->findBySetAndLocalId($setId, $localId);
+
+                if (null === $entity) {
+                    continue;
+                }
+
+                $entities[] = $entity;
+                $descriptors[] = [
+                    'setId' => $setId,
+                    'names' => self::localizedNames($entity),
+                    'hasImage' => null !== $entity->getImageBaseUrl(),
+                    'releaseDate' => $entity->getSet()->getReleaseDate()?->format('Y-m-d') ?? '',
+                ];
+            }
+
+            if ([] === $descriptors) {
+                continue;
+            }
+
+            $index = $this->selectMatchIndex($descriptors, $cardName, $ptcgSetCode, $cardNumber);
+
+            return $this->buildDtoFromEntity($entities[$index]);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<string>                     $setIds
+     * @param array<string, array<int,string>> $chains
+     */
+    private function resolveFromApi(
+        array $setIds,
+        array $chains,
+        ?string $cardName,
+        string $ptcgSetCode,
+        string $cardNumber,
+    ): ?TcgdexCard {
+        // Every confirmed collision is a pair, so this cap is a no-op today. It
+        // exists so a future upstream change cannot turn one deck line into an
+        // unbounded burst of API calls.
+        if (\count($setIds) > self::MAX_HTTP_CANDIDATE_SETS) {
+            $this->logger->debug('Capping TCGdex HTTP lookup for {ptcgCode} {number} to {cap} of {total} candidate sets.', [
+                'ptcgCode' => $ptcgSetCode,
+                'number' => $cardNumber,
+                'cap' => self::MAX_HTTP_CANDIDATE_SETS,
+                'total' => \count($setIds),
+            ]);
+
+            $setIds = \array_slice($setIds, 0, self::MAX_HTTP_CANDIDATE_SETS);
+        }
+
+        for ($rank = 0; $rank < self::NUMBER_CANDIDATE_RANKS; ++$rank) {
+            $cards = [];
+            $descriptors = [];
+
+            foreach ($setIds as $setId) {
+                $localId = $chains[$setId][$rank] ?? null;
+
+                if (null === $localId) {
+                    continue;
+                }
+
+                $card = $this->fetchCard($setId, $localId);
+
+                if (null === $card) {
+                    continue;
+                }
+
+                $cards[] = $card;
+                $descriptors[] = [
+                    'setId' => $setId,
+                    // The API is queried on the English endpoint, so French
+                    // disambiguation is local-database only.
+                    'names' => self::nonEmptyNames([$card->name]),
+                    'hasImage' => null !== $card->imageUrl,
+                    'releaseDate' => $card->setReleaseDate ?? '',
+                ];
+            }
+
+            if ([] === $descriptors) {
+                continue;
+            }
+
+            return $cards[$this->selectMatchIndex($descriptors, $cardName, $ptcgSetCode, $cardNumber)];
+        }
+
+        return null;
+    }
+
+    /**
+     * Picks the winning candidate when a card number matched in several sets.
+     *
+     * Ladder, in order: exact name → best similarity above the threshold →
+     * structural preference. The card name is only consulted as a tiebreaker;
+     * it can never override a set that the number already singled out.
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     *
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     */
+    private function selectMatchIndex(array $descriptors, ?string $cardName, string $ptcgSetCode, string $cardNumber): int
+    {
+        // The number alone resolved it — the common case, and never worth a log line.
+        if (1 === \count($descriptors)) {
+            return 0;
+        }
+
+        $indexes = array_keys($descriptors);
+
+        if (null !== $cardName && '' !== $cardName) {
+            $exact = array_values(array_filter(
+                $indexes,
+                fn (int $index): bool => $this->hasExactName($descriptors[$index]['names'], $cardName),
+            ));
+
+            if (1 === \count($exact)) {
+                $this->logResolution('debug', 'exact name match', $descriptors, $exact[0], $ptcgSetCode, $cardNumber, $cardName);
+
+                return $exact[0];
+            }
+
+            if ([] !== $exact) {
+                // Several sets print the same card at the same number — the
+                // gallery case. Narrow, then let the structural rule decide.
+                $indexes = $exact;
+            } else {
+                $closest = $this->closestByName($descriptors, $indexes, $cardName);
+
+                if (null !== $closest) {
+                    $this->logResolution('debug', 'closest name match', $descriptors, $closest, $ptcgSetCode, $cardNumber, $cardName);
+
+                    return $closest;
+                }
             }
         }
 
-        // Layer 2: HTTP API fallback
-        foreach ($candidates as $candidateLocalId) {
-            $card = $this->fetchCard($setId, $candidateLocalId);
+        $winner = $this->preferStructurally($descriptors, $indexes, $cardNumber);
 
-            if (null !== $card) {
-                return $card;
+        if (1 < \count($indexes)) {
+            $this->logResolution('warning', 'structural preference', $descriptors, $winner, $ptcgSetCode, $cardNumber, $cardName);
+        }
+
+        return $winner;
+    }
+
+    /**
+     * The single closest name above MINIMUM_SIMILARITY, or null when the name
+     * carries no usable signal — no candidate clears the threshold, or two tie.
+     *
+     * Returning null rather than "the least bad" guarantees a garbled name can
+     * never do worse than supplying no name at all.
+     *
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     * @param list<int>                                                                                      $indexes
+     */
+    private function closestByName(array $descriptors, array $indexes, string $cardName): ?int
+    {
+        $best = null;
+        $bestScore = CardNameMatcher::MINIMUM_SIMILARITY;
+        $tied = false;
+
+        foreach ($indexes as $index) {
+            $score = 0.0;
+
+            foreach ($descriptors[$index]['names'] as $name) {
+                $score = max($score, $this->cardNameMatcher->score($cardName, $name));
+            }
+
+            if ($score > $bestScore) {
+                $best = $index;
+                $bestScore = $score;
+                $tied = false;
+
+                continue;
+            }
+
+            if (null !== $best && $score === $bestScore) {
+                $tied = true;
+            }
+        }
+
+        return $tied ? null : $best;
+    }
+
+    /**
+     * Deterministic preference when the name cannot separate the candidates.
+     *
+     * A gallery-prefixed number (TG/GG/SV/CC) belongs to the dedicated gallery
+     * set — but only when that set actually carries card images. TCGdex
+     * currently ships every gallery subset with a null image URL, and the
+     * computed CDN fallback 404s for those set IDs, so the gate keeps the
+     * preference dormant until upstream backfills them. Everything else prefers
+     * the parent expansion, whose ID is a strict prefix of the subset's
+     * (swsh10 / swsh10.5tg, cel25 / cel25cc).
+     *
+     * @see docs/features.md F6.16 — Ambiguous PTCG set code resolution
+     *
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     * @param list<int>                                                                                      $indexes
+     */
+    private function preferStructurally(array $descriptors, array $indexes, string $cardNumber): int
+    {
+        $marker = $this->galleryMarkerOf($cardNumber);
+
+        if (null !== $marker) {
+            $galleries = array_values(array_filter(
+                $indexes,
+                fn (int $index): bool => $descriptors[$index]['hasImage']
+                    && str_ends_with($descriptors[$index]['setId'], strtolower($marker))
+                    && $this->isSubsetOfAnother($descriptors[$index]['setId'], $descriptors, $indexes),
+            ));
+
+            if (1 === \count($galleries)) {
+                return $galleries[0];
+            }
+        }
+
+        $inPlay = $indexes;
+
+        usort($indexes, function (int $first, int $second) use ($descriptors, $inPlay): int {
+            $firstSetId = $descriptors[$first]['setId'];
+            $secondSetId = $descriptors[$second]['setId'];
+
+            // Parents (nothing in play is a prefix of them) come first.
+            $byDepth = $this->countParents($firstSetId, $descriptors, $inPlay)
+                <=> $this->countParents($secondSetId, $descriptors, $inPlay);
+
+            if (0 !== $byDepth) {
+                return $byDepth;
+            }
+
+            // Unrelated sets sharing a code (RR → ex7, pl2): newest wins.
+            $byRelease = $descriptors[$second]['releaseDate'] <=> $descriptors[$first]['releaseDate'];
+
+            return 0 !== $byRelease ? $byRelease : $firstSetId <=> $secondSetId;
+        });
+
+        return $indexes[0];
+    }
+
+    /**
+     * How many other candidates are a strict prefix of this set ID.
+     *
+     * Zero means "no candidate is my parent", i.e. this is the top-level
+     * expansion. Counting rather than comparing pairwise keeps the ordering a
+     * well-defined total order that usort() can rely on.
+     *
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     * @param list<int>                                                                                      $indexes
+     */
+    private function countParents(string $setId, array $descriptors, array $indexes): int
+    {
+        $parents = 0;
+
+        foreach ($indexes as $index) {
+            $other = $descriptors[$index]['setId'];
+
+            if ($other !== $setId && str_starts_with($setId, $other)) {
+                ++$parents;
+            }
+        }
+
+        return $parents;
+    }
+
+    /**
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     * @param list<int>                                                                                      $indexes
+     */
+    private function isSubsetOfAnother(string $setId, array $descriptors, array $indexes): bool
+    {
+        return $this->countParents($setId, $descriptors, $indexes) > 0;
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function hasExactName(array $names, string $cardName): bool
+    {
+        foreach ($names as $name) {
+            if ($this->cardNameMatcher->isExactMatch($cardName, $name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The gallery marker a card number carries, if any (TG01 → "TG").
+     */
+    private function galleryMarkerOf(string $cardNumber): ?string
+    {
+        $normalized = strtoupper($cardNumber);
+
+        foreach (self::GALLERY_NUMBER_PREFIXES as $marker) {
+            if (str_starts_with($normalized, $marker) && \strlen($normalized) > \strlen($marker)) {
+                return $marker;
             }
         }
 
         return null;
+    }
+
+    /**
+     * The gallery marker a set code carries as a suffix, if any (ASR-TG → "TG").
+     *
+     * Static override codes are exempt: "PR-SV" is a promo set, not a Shiny
+     * Vault subset, and must never be split.
+     */
+    private function extractGallerySuffix(string $normalizedSetCode): ?string
+    {
+        if (isset(self::STATIC_OVERRIDES[$normalizedSetCode])) {
+            return null;
+        }
+
+        foreach (self::GALLERY_NUMBER_PREFIXES as $marker) {
+            if (str_ends_with($normalizedSetCode, '-'.$marker)) {
+                return $marker;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private function getForwardCandidates(): array
+    {
+        return $this->forwardCandidates ??= $this->setMappingRepository->getForwardCandidates();
+    }
+
+    /**
+     * @param list<string|null> $names
+     *
+     * @return list<string>
+     */
+    private static function nonEmptyNames(array $names): array
+    {
+        return array_values(array_filter(
+            $names,
+            static fn (?string $name): bool => null !== $name && '' !== $name,
+        ));
+    }
+
+    /**
+     * Every locale's spelling of a card's name.
+     *
+     * Reads the locale-keyed JSON column rather than the nameEn/nameFr getters:
+     * those are MySQL generated columns, so they are null on any entity that
+     * has not made a round trip through the database. Comparing against every
+     * locale also means a French deck list matches without special-casing, and
+     * a future locale works with no code change.
+     *
+     * @return list<string>
+     */
+    private static function localizedNames(TcgdexCardEntity $entity): array
+    {
+        $names = [];
+
+        foreach ($entity->getName() as $name) {
+            if (\is_string($name)) {
+                $names[] = $name;
+            }
+        }
+
+        return self::nonEmptyNames($names);
+    }
+
+    /**
+     * @param non-empty-list<array{setId: string, names: list<string>, hasImage: bool, releaseDate: string}> $descriptors
+     */
+    private function logResolution(
+        string $level,
+        string $rule,
+        array $descriptors,
+        int $winner,
+        string $ptcgSetCode,
+        string $cardNumber,
+        ?string $cardName,
+    ): void {
+        $this->logger->log(
+            $level,
+            'Ambiguous TCGdex set code {ptcgCode} {number}: {count} sets matched ({setIds}); chose {chosen} by {rule}.',
+            [
+                'ptcgCode' => $ptcgSetCode,
+                'number' => $cardNumber,
+                'count' => \count($descriptors),
+                'setIds' => implode(', ', array_column($descriptors, 'setId')),
+                'chosen' => $descriptors[$winner]['setId'],
+                'rule' => $rule,
+                'cardName' => $cardName ?? '(none supplied)',
+            ],
+        );
     }
 
     /**
