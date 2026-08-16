@@ -96,7 +96,7 @@ final class TranslationRevisionListener
         $entityManager = $args->getObjectManager();
         $unitOfWork = $entityManager->getUnitOfWork();
 
-        /** @var list<object> $candidates */
+        /** @var list<PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck> $candidates */
         $candidates = [];
         foreach ($unitOfWork->getScheduledEntityInsertions() as $entity) {
             if ($this->isRelevantInsertion($entity)) {
@@ -161,6 +161,9 @@ final class TranslationRevisionListener
         }
     }
 
+    /**
+     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity
+     */
     private function isRelevantInsertion(object $entity): bool
     {
         if ($entity instanceof PageTranslation || $entity instanceof ArchetypeTranslation || $entity instanceof MenuCategoryTranslation || $entity instanceof DeckTranslation) {
@@ -177,6 +180,8 @@ final class TranslationRevisionListener
 
     /**
      * @param list<string> $changedFields
+     *
+     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity
      */
     private function isRelevantUpdate(object $entity, array $changedFields): bool
     {
@@ -191,15 +196,14 @@ final class TranslationRevisionListener
         return [] !== array_intersect($changedFields, self::translatableFields($entity::class));
     }
 
-    private function createRevision(object $entity): TranslationRevisionInterface
+    private function createRevision(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity): TranslationRevisionInterface
     {
         $revision = match (true) {
             $entity instanceof PageTranslation => PageTranslationRevision::fromTranslation($entity),
             $entity instanceof ArchetypeTranslation => ArchetypeTranslationRevision::fromTranslation($entity),
             $entity instanceof MenuCategoryTranslation => MenuCategoryTranslationRevision::fromTranslation($entity),
             $entity instanceof DeckTranslation => DeckTranslationRevision::fromTranslation($entity),
-            $entity instanceof Deck => DeckTranslationRevision::fromDeckNotes($entity, $this->sourceLocale),
-            default => throw new \LogicException(\sprintf('Unsupported translation subject "%s".', $entity::class)),
+            default => DeckTranslationRevision::fromDeckNotes($entity, $this->sourceLocale),
         };
 
         $user = $this->security->getUser();
@@ -248,17 +252,11 @@ final class TranslationRevisionListener
         }
     }
 
-    private function localeOf(object $entity): string
+    private function localeOf(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity): string
     {
-        if ($entity instanceof Deck) {
-            return $this->sourceLocale;
-        }
-
-        if ($entity instanceof PageTranslation || $entity instanceof ArchetypeTranslation || $entity instanceof MenuCategoryTranslation || $entity instanceof DeckTranslation) {
-            return $entity->getLocale();
-        }
-
-        throw new \LogicException(\sprintf('Unsupported translation subject "%s".', $entity::class));
+        // Deck carries the canonical source-locale notes; every other entity
+        // is a translation row with an explicit locale.
+        return $entity instanceof Deck ? $this->sourceLocale : $entity->getLocale();
     }
 
     private function subjectKey(TranslationRevisionInterface $revision): string
@@ -269,13 +267,7 @@ final class TranslationRevisionListener
     private function collectOutdatedSubject(TranslationRevisionInterface $revision): void
     {
         $subject = $revision->getSubject();
-        $subjectId = match (true) {
-            $subject instanceof Page => $subject->getId(),
-            $subject instanceof Archetype => $subject->getId(),
-            $subject instanceof MenuCategory => $subject->getId(),
-            $subject instanceof Deck => $subject->getId(),
-            default => null,
-        };
+        $subjectId = $subject->getId();
 
         // Freshly inserted subjects have no siblings to flag yet.
         if (null === $subjectId) {

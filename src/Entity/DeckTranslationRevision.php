@@ -76,7 +76,7 @@ class DeckTranslationRevision implements TranslationRevisionInterface
         return $this->deck;
     }
 
-    public function getSubject(): object
+    public function getSubject(): Deck
     {
         return $this->deck;
     }

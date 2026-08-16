@@ -202,6 +202,32 @@ class TranslationRevisionListenerTest extends AbstractFunctionalTest
         self::assertTrue($frenchNotes->isSourceOutdated());
     }
 
+    public function testTranslationWithoutAnySourceRevisionStaysUnlinked(): void
+    {
+        $em = $this->getEntityManager();
+
+        // A page created with only a French translation: no source-locale
+        // revision exists, so the French revision keeps sourceRevision NULL
+        // ("staleness unknown").
+        $page = new Page();
+        $page->setSlug('revision-french-only');
+
+        $frenchTranslation = new PageTranslation();
+        $frenchTranslation->setPage($page);
+        $frenchTranslation->setLocale('fr');
+        $frenchTranslation->setTitle('Page uniquement française');
+        $frenchTranslation->setContent('Contenu français');
+
+        $em->persist($page);
+        $em->persist($frenchTranslation);
+        $em->flush();
+
+        $revisions = $em->getRepository(PageTranslationRevision::class)->findBy(['page' => $page]);
+        self::assertCount(1, $revisions);
+        self::assertSame('fr', $revisions[0]->getLocale());
+        self::assertNull($revisions[0]->getSourceRevision());
+    }
+
     public function testSameFlushSourceAndTranslationLinkInFlushRevision(): void
     {
         $em = $this->getEntityManager();

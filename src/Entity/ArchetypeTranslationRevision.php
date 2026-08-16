@@ -68,7 +68,7 @@ class ArchetypeTranslationRevision implements TranslationRevisionInterface
         return $this->archetype;
     }
 
-    public function getSubject(): object
+    public function getSubject(): Archetype
     {
         return $this->archetype;
     }

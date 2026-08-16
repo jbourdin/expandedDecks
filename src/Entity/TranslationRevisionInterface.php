@@ -50,10 +50,9 @@ interface TranslationRevisionInterface
     public function getSourceRevision(): ?self;
 
     /**
-     * The translated content entity this revision belongs to (Page,
-     * Archetype, MenuCategory or Deck).
+     * The translated content entity this revision belongs to.
      */
-    public function getSubject(): object;
+    public function getSubject(): Page|Archetype|MenuCategory|Deck;
 
     /**
      * Name of the Doctrine field referencing the subject, for generic

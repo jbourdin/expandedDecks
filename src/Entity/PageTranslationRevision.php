@@ -64,7 +64,7 @@ class PageTranslationRevision implements TranslationRevisionInterface
         return $this->page;
     }
 
-    public function getSubject(): object
+    public function getSubject(): Page
     {
         return $this->page;
     }

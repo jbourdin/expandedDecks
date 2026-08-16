@@ -55,7 +55,7 @@ class MenuCategoryTranslationRevision implements TranslationRevisionInterface
         return $this->menuCategory;
     }
 
-    public function getSubject(): object
+    public function getSubject(): MenuCategory
     {
         return $this->menuCategory;
     }
