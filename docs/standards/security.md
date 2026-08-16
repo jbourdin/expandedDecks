@@ -39,6 +39,19 @@ Dependabot opens PRs against `develop` (per Gitflow) when new vulnerabilities ar
 
 The `composer.json` config includes `"block-insecure": true`, which causes `composer install` and `composer update` to fail if any installed package has a known vulnerability. This acts as a hard gate beyond just CI — developers cannot install dependencies locally without resolving advisories first.
 
+## Held-Back Composer Packages
+
+Occasionally an upstream release is broken for us and must be held back. Express it in **two** places so neither a manual `composer update` nor Dependabot can reintroduce it:
+
+1. A `conflict` entry in `composer.json` — the hard gate.
+2. An `ignore` entry in `.github/dependabot.yml`, with a comment stating **why** and **the condition to lift it**.
+
+| Package | Held at | Reason | Lift when |
+|---------|---------|--------|-----------|
+| `doctrine/orm` | `< 3.6.8` | 3.6.8 calls `Schema::edit()`, which only exists in `doctrine/dbal ^4.5`. DBAL 4.5 is unreleased (4.4.4 is latest stable), so every functional test dies in `SchemaTool` with a `BadMethodCallException`. | DBAL 4.5.0 ships — check `composer show doctrine/dbal --all` |
+
+Removing a hold means dropping both entries and running the full suite.
+
 ## npm Overrides
 
 When a transitive dependency has a vulnerability but its direct parent hasn't released a fix, use npm `overrides` in `package.json` to force a patched version:

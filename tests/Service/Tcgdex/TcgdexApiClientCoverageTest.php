@@ -16,8 +16,10 @@ namespace App\Tests\Service\Tcgdex;
 use App\Repository\TcgdexCardRepository;
 use App\Repository\TcgdexSetAliasRepository;
 use App\Repository\TcgdexSetMappingRepository;
+use App\Service\Tcgdex\CardNameMatcher;
 use App\Service\Tcgdex\TcgdexApiClient;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -42,7 +44,15 @@ class TcgdexApiClientCoverageTest extends TestCase
 
         $repository = $this->createStub(TcgdexSetMappingRepository::class);
 
-        $client = new TcgdexApiClient($httpClient, new ArrayAdapter(), $repository, $this->createStub(TcgdexCardRepository::class), $this->createStub(TcgdexSetAliasRepository::class));
+        $client = new TcgdexApiClient(
+            $httpClient,
+            new ArrayAdapter(),
+            $repository,
+            $this->createStub(TcgdexCardRepository::class),
+            $this->createStub(TcgdexSetAliasRepository::class),
+            new CardNameMatcher(),
+            new NullLogger(),
+        );
         $imageUrl = $client->findImageByName('Nonexistent Card');
 
         self::assertNull($imageUrl);

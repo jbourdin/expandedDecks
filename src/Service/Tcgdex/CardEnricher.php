@@ -221,7 +221,7 @@ class CardEnricher
                 }
 
                 // Strategy 1: PTCGL set code + card number (international, exact match)
-                $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
+                $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber(), $card->getCardName());
 
                 // Strategy 2: Asian alias — set code maps to international set, search by name within it
                 if (null === $tcgdexCard) {
@@ -351,7 +351,7 @@ class CardEnricher
 
         // For non-energy sets (e.g. SVI), try set+number lookup in TCGdex
         if (!\in_array($setCode, self::ENERGY_SET_CODES, true)) {
-            $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber());
+            $tcgdexCard = $this->apiClient->findCard($card->getSetCode(), $card->getCardNumber(), $card->getCardName());
 
             if (null !== $tcgdexCard) {
                 $printing = $this->identityResolver->resolveFromTcgdexCard($tcgdexCard);

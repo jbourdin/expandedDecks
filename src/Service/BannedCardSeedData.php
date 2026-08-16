@@ -41,13 +41,25 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final readonly class BannedCardSeedData
 {
-    private const string COSMIC_ECLIPSE_BURNING_SHADOWS_URL = 'https://www.pokemon.com/us/sun-moon-burning-shadows-banned-list-and-rule-changes-quarterly-announcement/';
-    private const string CELESTIAL_STORM_URL = 'https://www.pokemon.com/us/sun-moon-celestial-storm-banned-list-and-rule-changes-quarterly-announcement/';
-    private const string TEAM_UP_URL = 'https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/';
-    private const string COSMIC_ECLIPSE_URL = 'https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/';
-    private const string VIVID_VOLTAGE_URL = 'https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/';
-    private const string PALDEAN_FATES_URL = 'https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-paldean-fates-banned-list-and-rule-changes-announcement';
-    private const string STELLAR_CROWN_URL = 'https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-stellar-crown-banned-list-and-rule-changes-announcement';
+    // pokemon.com has retired every banned-list announcement older than the
+    // Mega Evolution era, so all of those point at the Internet Archive.
+    //
+    // Each timestamp is pinned to the newest capture verified to hold the
+    // announcement text itself. This matters: for several of these the most
+    // recent captures archived pokemon.com's bot-challenge page rather than the
+    // article, so neither "latest capture" nor a timestamp-less
+    // /web/<url> redirect reliably lands on readable content.
+    //
+    // Only three links below are still live: the two Mega Evolution
+    // announcements and the Bulbanews article for Lysandre's Trump Card (which
+    // predates pokemon.com covering bans on its own site).
+    private const string BURNING_SHADOWS_URL = 'https://web.archive.org/web/20251009150613/https://www.pokemon.com/us/sun-moon-burning-shadows-banned-list-and-rule-changes-quarterly-announcement/';
+    private const string CELESTIAL_STORM_URL = 'https://web.archive.org/web/20260107021812/https://www.pokemon.com/us/sun-moon-celestial-storm-banned-list-and-rule-changes-quarterly-announcement/';
+    private const string TEAM_UP_URL = 'https://web.archive.org/web/20251127005634/https://www.pokemon.com/us/sun-moon-team-up-banned-list-and-rule-changes-quarterly-announcement/';
+    private const string COSMIC_ECLIPSE_URL = 'https://web.archive.org/web/20260510162917/https://www.pokemon.com/us/sun-moon-cosmic-eclipse-banned-list-and-rule-changes-announcement/';
+    private const string VIVID_VOLTAGE_URL = 'https://web.archive.org/web/20260207042335/https://www.pokemon.com/us/sword-shield-vivid-voltage-banned-list-and-rule-changes-announcement/';
+    private const string PALDEAN_FATES_URL = 'https://web.archive.org/web/20251204063553/https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-paldean-fates-banned-list-and-rule-changes-announcement';
+    private const string STELLAR_CROWN_URL = 'https://web.archive.org/web/20260117133609/https://www.pokemon.com/us/play-pokemon/about/scarlet-violet-stellar-crown-banned-list-and-rule-changes-announcement';
     private const string MEGA_EVOLUTION_URL = 'https://www.pokemon.com/us/play-pokemon/about/mega-evolution/mega-evolution-banned-list-and-rule-changes-announcement';
     private const string PERFECT_ORDER_URL = 'https://www.pokemon.com/us/play-pokemon/about/mega-evolution/mega-evolution-perfect-order-banned-list-and-rule-changes-announcement';
     private const string LYSANDRE_BULBANEWS_URL = 'https://bulbanews.bulbagarden.net/wiki/Lysandre%27s_Trump_Card_banned_from_TCG_competitive_play';
@@ -86,7 +98,7 @@ final readonly class BannedCardSeedData
     private const array SEEDS = [
         'Archeops' => [
             'effectiveDate' => '2017-08-18',
-            'sourceUrl' => self::COSMIC_ECLIPSE_BURNING_SHADOWS_URL,
+            'sourceUrl' => self::BURNING_SHADOWS_URL,
             'explanation' => "The existence of **Archeops**'s **Ancient Power** Ability has a very negative effect on decks that rely on evolved Pokémon. There are ways to combat it—**Hex Maniac**, **Evosoda**, or **Wobbuffet** are a few examples—but decks that focus on evolved Pokémon are forced to use these cards just to evolve their Pokémon. The combination of **Maxie's Hidden Ball Trick** with **Archeops** can stop Evolution before the opponent ever gets a chance to evolve their Pokémon, which limits the number of viable strategies.",
         ],
         'Chip-Chip Ice Axe' => [
@@ -116,7 +128,7 @@ final readonly class BannedCardSeedData
         ],
         'Forest of Giant Plants' => [
             'effectiveDate' => '2017-08-18',
-            'sourceUrl' => self::COSMIC_ECLIPSE_BURNING_SHADOWS_URL,
+            'sourceUrl' => self::BURNING_SHADOWS_URL,
             'explanation' => "The **Forest of Giant Plants** Stadium card enables many dangerous strategies with Grass-type Pokémon in the Expanded format. These strategies can range from locking down the opponent's options to winning the game on the first turn, and all of them can happen before the opponent ever gets a chance to play. No single strategy was powerful enough to ban this Stadium card, but so many of them existing at the same time gave sufficient cause to ban it.",
         ],
         'Ghetsis' => [

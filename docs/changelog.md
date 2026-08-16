@@ -16,6 +16,22 @@ Items marked *(partial)* have scaffolding or basic functionality but are not yet
 
 ---
 
+## [1.14.10] — 2026-08-07
+
+Patch release: PTCG set-code resolution fixes — ambiguous codes now resolve number-first with name tiebreaking, and Radiant Collection suffixed codes (GEN-RC, LTR-RC) enrich correctly — plus repaired banned-card announcement links and a security dependency sweep.
+
+### Bug Fixes
+
+- **Ambiguous PTCG set code resolution (F6.16)** — A PTCG set code does not identify one TCGdex set (a set and its gallery subset may share a code, and unrelated sets have reused abbreviations decades apart), but every lookup assumed it did: the forward projection collapsed colliding rows with last-row-wins and no `ORDER BY`, so the winner depended on MySQL row order. On local, `SIT` resolved to the 30-card Trainer Gallery instead of Silver Tempest, failing enrichment for every ordinary Silver Tempest card; on production, `RR` resolved to Rising Rivals, leaving Team Rocket Returns unreachable. Resolution is now number-first across every candidate set, with the card name as tiebreaker and structural preference (parent expansion over gallery subset until TCGdex backfills subset images) settling the rest. Also fixes the same arbitrary-pick defect in `TcgdexSetRepository::findByPtcgCode()`, which fed 404 image URLs to the staple and banned-card resolvers. ([#744](https://github.com/jbourdin/expandedDecks/pull/744))
+- **Radiant Collection set codes (GEN-RC, LTR-RC)** — PTCG Live exports Radiant Collection cards with a suffixed set code (`Wally GEN-RC 27`), the same convention as Trainer Gallery (`ASR-TG`), but `RC` was missing from the gallery marker list: the code was never split, matched no set mapping, and the card stayed unresolved after enrichment. TCGdex keeps these cards inside the parent set under RC-prefixed local IDs (`g1-RC27`), so adding the marker resolves them end-to-end for both Expanded-legal Radiant Collections — Generations and Legendary Treasures. ([#746](https://github.com/jbourdin/expandedDecks/pull/746))
+- **Banned-card announcement links** — Repaired the source URLs on banned-card announcements. ([#742](https://github.com/jbourdin/expandedDecks/pull/742))
+
+### Infrastructure
+
+- **Security dependency sweep** — Cleared all 22 open advisories (14 Composer, 8 npm): `guzzlehttp/guzzle` → 7.15.2 (noncanonical-host check bypass plus cookie/referer issues), `guzzlehttp/psr7` → 2.12.3 (host confusion), `dompdf/dompdf` → 3.1.6 (file-existence oracles, local file read, chroot bypass, resource exhaustion), and transitive `svgo`/`undici` bumps via `npm audit fix` — `package.json` untouched, so the Encore peer ranges are unaffected. Both audits now report zero advisories. ([#745](https://github.com/jbourdin/expandedDecks/pull/745))
+
+---
+
 ## [1.14.9] — 2026-07-03
 
 Patch release: security hardening from a source-level audit — fixes a stored XSS in the search results page and adds CSRF protection to authenticated AJAX endpoints — plus test-coverage backfill.

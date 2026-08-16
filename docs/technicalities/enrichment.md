@@ -35,7 +35,7 @@ EnrichDeckVersionHandler
     │   ├── Basic energy? → enrichBasicEnergy() + resolve cardType to 'energy'
     │   └── Regular card? → TcgdexApiClient.findCard()
     │       ├── Found → populate tcgdexId, imageUrl, trainerSubtype, CardPrinting + resolve cardType from TCGdex category
-    │       └── Not found → fallback to findFirstPrintingByName() (full TcgdexCard with CardIdentity) + resolve cardType
+    │       └── Not found → fallback to findCardByNameInAliasedSet() (full TcgdexCard with CardIdentity) + resolve cardType
     ├── Sets DeckVersion.enrichmentStatus = 'done' (or 'failed' on exception)
     │
     ▼  (if status = 'done')
@@ -87,6 +87,7 @@ PTCG deck lists use set codes (e.g. `ASR`, `SVI`) that differ from TCGdex's inte
 1. **Forward mapping** (`getSetMapping()`): PTCG code → TCGdex set ID
    - Reads from `tcgdex_set_mapping` table, merged with static overrides
    - No cache expiration — mappings persist until explicitly rebuilt
+   - **Collapses collisions to one arbitrary winner** — do not use it for lookups. `findCard()` resolves through `getSetCandidates()` instead (see below).
 
 2. **Reverse mapping** (`getReverseSetMapping()`): TCGdex set ID → PTCG code
    - Reads from `tcgdex_set_mapping` table (reverse direction), merged with flipped static overrides
@@ -117,6 +118,31 @@ Some PTCG codes have no match in TCGdex metadata and are hardcoded:
 | `BWP`     | `bwp`     | Same                                        |
 | `SVI`     | `sv01`    | PTCG Live uses `SVI`, TCGdex uses `sv01`    |
 
+### Candidate Sets & Ambiguity Resolution
+
+> `@see docs/features.md F6.16` — Ambiguous PTCG set code resolution
+
+The `tcgdex_set_mapping` primary key is the TCGdex set ID, so **one PTCG code may legitimately denote several sets**. `TcgdexSetMappingRepository::getForwardCandidates()` returns every one of them (ordered by set ID); `getForwardMapping()` keeps the old lossy 1:1 projection for callers that only want a best guess.
+
+See [Colliding Set Codes](tcgdex_known_issues.md#colliding-set-codes) for the full inventory of collisions.
+
+**Candidate assembly** (`getSetCandidates()`): database candidates, then any static override, then — when the card number carries a gallery prefix — the suffixed sibling code (`ASR` + `TG01` also probes `ASR-TG`). The sibling probe is what makes production and local resolve identically despite their mapping tables disagreeing on which convention the gallery subsets use.
+
+**Search order.** The card-number ladder (raw → letter-suffix stripped → zero-padded to 3 → leading zeros trimmed) is a *decreasing-confidence* one, so the number rank is the **outer** loop and the candidate set the inner one. An exact number match in any candidate set always beats a padded or stripped guess in another. The ladder is rebuilt per set because the promo era prefix is keyed by set ID. The local database is searched across every candidate and every rank before the HTTP fallback runs; the HTTP fallback probes at most `MAX_HTTP_CANDIDATE_SETS` (2) sets.
+
+**Disambiguation**, only when a single rank matches in more than one set:
+
+1. **Exact name** — the pasted name folded through `CardNameMatcher` against every locale in the card's `name` JSON. Exactly one match wins. (The `nameEn`/`nameFr` getters are MySQL generated columns and are null on entities that have not round-tripped through the database, so the JSON is the authority.)
+2. **Closest name** — highest `CardNameMatcher::score()` above `MINIMUM_SIMILARITY` (0.80), and only if one candidate is a strict winner. A garbled name therefore never does worse than supplying no name at all.
+3. **Structural preference** — a gallery-prefixed number (`TG`/`GG`/`SV`/`CC`/`RC`) prefers the dedicated gallery set, **but only when that set actually carries an image**. TCGdex currently ships every gallery subset with a null `imageBaseUrl`, and the computed CDN fallback 404s for those set IDs (`swsh10.5tg/TG01` → 404, `swsh10/TG01` → 200), so the preference stays dormant until upstream backfills them and the parent wins today. Otherwise the parent expansion wins — its ID is a strict prefix of the subset's (`swsh10` / `swsh10.5tg`, `cel25` / `cel25cc`).
+4. **Stable fallback** — for unrelated sets sharing a code (`RR`), most recent release date, then lowest set ID.
+
+Only step 3 and 4 log a warning; a number that resolves cleanly logs nothing.
+
+`findCard()` takes an optional third `$cardName` argument. `CardEnricher`, `BannedCardEnricher` and `StapleCardEnricher` pass it; `CardCodeResolver`, `CardImageUrlController` and `ArchetypeDescriptionRenderer` only have a `SET-NUMBER` reference and fall through to the structural rules.
+
+`TcgdexSetRepository::findByPtcgCode()` had the same arbitrary-pick defect — it now delegates to `findAllByPtcgCode()`, which orders parents before subsets by ID length. Its callers (`StapleCardImageResolver`, `BannedCardImageResolver`) build CDN URLs from the set ID, so an arbitrary pick meant a 404 image.
+
 ### Promo Card Number Prefixes
 
 TCGdex prefixes card numbers in promo sets with an era tag. PTCG lists `Karen XYP 177`, but TCGdex stores it as `xyp-XY177`. SV promos use plain numbers (`svp-001`) and need no prefix.
@@ -133,16 +159,16 @@ TCGdex prefixes card numbers in promo sets with an era tag. PTCG lists `Karen XY
 Resolves a card by PTCG set code and card number:
 
 1. **Normalize set code** — uppercase
-2. **Trainer Gallery** — if set code ends with `-TG` (e.g. `ASR-TG`), strip suffix and prefix the card number with `TG` (e.g. `30` → `TG30`)
+2. **Gallery subsets** — if set code ends with a gallery marker (`-TG`, `-GG`, `-SV`, `-CC`, `-RC` — e.g. `ASR-TG`, `GEN-RC`), strip the suffix and prefix the card number with the marker (e.g. `30` → `TG30`, `27` → `RC27`). Radiant Collection (`GEN-RC`, `LTR-RC`) has no dedicated TCGdex subset: the cards live inside the parent set under RC-prefixed local IDs (`g1-RC27`)
 3. **Letter suffixes** — strip trailing letters from card numbers (e.g. `113a` → `113`) via regex `[a-z]+$`
 4. **Resolve TCGdex set ID** — via set mapping; return `null` if unmapped (Japanese set codes like `S6K`, `SM8` typically fail here)
 5. **Apply promo prefix** — prepend era tag for promo sets
 6. **Fetch card** — `GET /cards/{setId}-{cardNumber}`
 7. **Zero-padding fallback** — if not found and the card number is less than 3 digits, retry with zero-padded number (e.g. `1` → `001`)
 
-### Name Fallback: `findFirstPrintingByName()`
+### Name Fallback: `findCardByNameInAliasedSet()`
 
-When `findCard()` returns `null` (e.g. Japanese set codes like `S6K`, `SM8`), the enricher calls `findFirstPrintingByName()` which uses `findAllPrintingsByName()` to fetch all printings of the card name. It returns the first exact-name match with an image, as a full `TcgdexCard` DTO — not just an image URL. This allows the enricher to:
+When `findCard()` returns `null` (e.g. Japanese set codes like `S6K`, `SM8`), the enricher resolves the Asian set code to its international equivalent via `tcgdex_asian_set_alias` and matches the card **by name within that set** — the card number does not transfer between Japanese and international printings. It returns a full `TcgdexCard` DTO, not just an image URL. This allows the enricher to:
 
 1. Set `tcgdexId` and `imageUrl` on the `DeckCard`
 2. Create a proper `CardIdentity` + `CardPrinting` via `CardIdentityResolver`
@@ -150,7 +176,7 @@ When `findCard()` returns `null` (e.g. Japanese set codes like `S6K`, `SM8`), th
 
 This means name-fallback cards participate fully in the minified export pipeline — the minified list/mosaic can resolve an international printing (e.g. `S6K 36` → `CRE 74`) instead of returning the original invalid set code.
 
-A legacy `findImageByName()` method also exists for simpler fallback cases (returns only an image URL string). TCGdex name search is a contains-match, so both methods filter results to exact name equality.
+A legacy `findImageByName()` method also exists for simpler fallback cases (returns only an image URL string). TCGdex name search is a contains-match, so it filters results to exact name equality.
 
 ### Card Lookup: `findAllPrintingsByName()`
 
@@ -408,7 +434,7 @@ Populates `DeckCard.sortOrder` on historical decks (rows imported before F2.28).
 
 - **TCGdex name search is contains-match** — searching for "Pikachu" also returns "Pikachu V", "Flying Pikachu", etc. The code filters results to exact name equality, but this means every result in the response is fetched and compared.
 
-- **Japanese set codes** — sets like `S6K` and `SM8` have no card data in TCGdex (which covers English-language sets). Cards from these sets fall back to name-based matching via `findFirstPrintingByName()`, which creates a proper `CardIdentity`/`CardPrinting` link. The minified export can then resolve an international printing, but the original deck view still shows the Japanese set code. A warning banner is displayed asking the user to re-import with international set codes.
+- **Japanese set codes** — sets like `S6K` and `SM8` have no card data in TCGdex (which covers English-language sets). Cards from these sets fall back to name-based matching via `findCardByNameInAliasedSet()`, which creates a proper `CardIdentity`/`CardPrinting` link. The minified export can then resolve an international printing, but the original deck view still shows the Japanese set code. A warning banner is displayed asking the user to re-import with international set codes.
 
 - **Unreliable rarity in some sets** — Hidden Fates Shiny Vault (`sma`), Yellow A Alternate (`xya`), and other sets have all cards marked as "Common" in TCGdex. These sets are blacklisted and their cards default to tier 7, which means they are never selected as budget picks even if they would be cheaper.
 
