@@ -2093,9 +2093,9 @@
                 <target>Connexion</target>
                 <note>Login page</note>
             </trans-unit>
-            <trans-unit id="app.auth.login.email">
-                <source>app.auth.login.email</source>
-                <target>E-mail</target>
+            <trans-unit id="app.auth.login.identifier">
+                <source>app.auth.login.identifier</source>
+                <target>E-mail ou pseudo</target>
                 <note>Login page</note>
             </trans-unit>
             <trans-unit id="app.auth.login.password">
