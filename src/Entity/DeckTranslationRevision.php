@@ -71,6 +71,16 @@ class DeckTranslationRevision implements TranslationRevisionInterface
         return $revision;
     }
 
+    /**
+     * Approval write path (F9.9): copies the `#[Translatable]` fields into
+     * the live row. Mirror of {@see fromTranslation()}, guarded by the
+     * revision consistency test.
+     */
+    public function applyTo(DeckTranslation $translation): void
+    {
+        $translation->setNotes($this->notes);
+    }
+
     public function getDeck(): Deck
     {
         return $this->deck;

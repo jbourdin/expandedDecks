@@ -28,6 +28,8 @@ use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
+use App\Service\Translation\LatestSourceRevisionProvider;
+use App\Service\Translation\TranslationRevisionSuppression;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -86,6 +88,8 @@ final class TranslationRevisionListener
 
     public function __construct(
         private readonly Security $security,
+        private readonly TranslationRevisionSuppression $suppression,
+        private readonly LatestSourceRevisionProvider $latestSourceRevisionProvider,
         #[Autowire('%kernel.default_locale%')]
         private readonly string $sourceLocale,
     ) {
@@ -93,6 +97,12 @@ final class TranslationRevisionListener
 
     public function onFlush(OnFlushEventArgs $args): void
     {
+        // An approval write (F9.9) copies an already-validated revision into
+        // the live row — snapshotting it again would duplicate history.
+        if ($this->suppression->isSuppressed()) {
+            return;
+        }
+
         $entityManager = $args->getObjectManager();
         $unitOfWork = $entityManager->getUnitOfWork();
 
@@ -136,7 +146,7 @@ final class TranslationRevisionListener
 
             $revision = $this->createRevision($entity);
             $sourceRevision = $sourceRevisionsThisFlush[$this->subjectKey($revision)]
-                ?? $this->latestSourceRevision($entityManager, $revision);
+                ?? $this->latestSourceRevisionProvider->latestFor($revision);
             $this->linkSourceRevision($revision, $sourceRevision);
             $this->registerRevision($entityManager, $revision);
         }
@@ -221,16 +231,6 @@ final class TranslationRevisionListener
             $entityManager->getClassMetadata($revision::class),
             $revision,
         );
-    }
-
-    private function latestSourceRevision(EntityManagerInterface $entityManager, TranslationRevisionInterface $revision): ?TranslationRevisionInterface
-    {
-        $found = $entityManager->getRepository($revision::class)->findOneBy(
-            [$revision::subjectFieldName() => $revision->getSubject(), 'locale' => $this->sourceLocale],
-            ['id' => 'DESC'],
-        );
-
-        return $found instanceof TranslationRevisionInterface ? $found : null;
     }
 
     private function linkSourceRevision(TranslationRevisionInterface $revision, ?TranslationRevisionInterface $sourceRevision): void

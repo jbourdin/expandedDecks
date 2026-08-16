@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\TranslationRevisionState;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -48,6 +49,23 @@ trait TranslationRevisionTrait
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
+
+    /**
+     * Moderator who validated or rejected this revision (F9.9). `SET NULL`
+     * on user deletion, like `author`.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $reviewedBy = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $reviewedAt = null;
+
+    /**
+     * Moderator feedback carried back to the contributor on rejection (F9.9).
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $reviewComment = null;
 
     public function getId(): ?int
     {
@@ -93,5 +111,57 @@ trait TranslationRevisionTrait
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getReviewedBy(): ?User
+    {
+        return $this->reviewedBy;
+    }
+
+    public function setReviewedBy(?User $reviewedBy): static
+    {
+        $this->reviewedBy = $reviewedBy;
+
+        return $this;
+    }
+
+    public function getReviewedAt(): ?\DateTimeImmutable
+    {
+        return $this->reviewedAt;
+    }
+
+    public function setReviewedAt(?\DateTimeImmutable $reviewedAt): static
+    {
+        $this->reviewedAt = $reviewedAt;
+
+        return $this;
+    }
+
+    public function getReviewComment(): ?string
+    {
+        return $this->reviewComment;
+    }
+
+    public function setReviewComment(?string $reviewComment): static
+    {
+        $this->reviewComment = $reviewComment;
+
+        return $this;
+    }
+
+    /**
+     * Used by the Symfony Workflow MethodMarkingStore (reads string places).
+     */
+    public function getMarking(): string
+    {
+        return $this->state->value;
+    }
+
+    /**
+     * Used by the Symfony Workflow MethodMarkingStore (writes string places).
+     */
+    public function setMarking(string $marking): void
+    {
+        $this->state = TranslationRevisionState::from($marking);
     }
 }

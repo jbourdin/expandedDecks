@@ -41,6 +41,18 @@ interface TranslationRevisionInterface
 
     public function getCreatedAt(): \DateTimeImmutable;
 
+    public function getReviewedBy(): ?User;
+
+    public function setReviewedBy(?User $reviewedBy): static;
+
+    public function getReviewedAt(): ?\DateTimeImmutable;
+
+    public function setReviewedAt(?\DateTimeImmutable $reviewedAt): static;
+
+    public function getReviewComment(): ?string;
+
+    public function setReviewComment(?string $reviewComment): static;
+
     /**
      * The source-locale revision this translation was based on (`null` on
      * source-locale rows — they ARE the source). The setter is not part of
