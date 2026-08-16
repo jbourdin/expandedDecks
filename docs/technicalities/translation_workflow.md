@@ -50,7 +50,7 @@ The `sourceRevision` association is declared per-entity (not in the trait) becau
 
 `sourceOutdated` is denormalized on the live `*Translation` rows (and `DeckTranslation`) precisely so that public pages never query the revision tables — the reader-facing outdated notice (US-T6, F9.14) reads a boolean already loaded with the row.
 
-**No backfill:** existing content has no revisions at deploy time. History starts with the first post-deploy write to each row; `sourceRevision` stays `NULL` for translations created before their source's first revision, which downstream features must treat as "staleness unknown".
+**Backfill:** a data migration (`Version20260816102343`) seeds one `validated` revision per existing live translation row at deploy time — source locales first, then non-source rows linked to their subject's source revision, mirroring the listener's runtime behavior. Non-source backfilled revisions credit the live row's `translator` (F19.8) as author; source revisions keep a `NULL` author. `NOT EXISTS` guards make the backfill skip rows that already have revisions. History is therefore complete from day one: every live row has a revision, and every translation has a `sourceRevision` (except translations whose subject has no source-locale row at all, which downstream features treat as "staleness unknown").
 
 ## Deliberately not signals
 
