@@ -68,6 +68,7 @@ class DevFixtures extends Fixture
 
         $admin = $this->createAdmin($manager);
         $organizer = $this->createOrganizer($manager);
+        $this->createTranslator($manager);
         $borrower = $this->createBorrower($manager);
         $staff1 = $this->createStaff1($manager);
         $staff2 = $this->createStaff2($manager);
@@ -234,6 +235,29 @@ MARKDOWN;
         $manager->persist($organizer);
 
         return $organizer;
+    }
+
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     */
+    private function createTranslator(ObjectManager $manager): User
+    {
+        $translator = new User();
+        $translator->setEmail('translator@example.com');
+        $translator->setFirstName('Claire');
+        $translator->setLastName('Traductrice');
+        $translator->setScreenName('Translator');
+        $translator->setPlayerId('PKM-TRA-001');
+        $translator->setPassword($this->passwordHasher->hashPassword($translator, 'password'));
+        $translator->setRoles(['ROLE_TRANSLATION_EDITOR']);
+        $translator->setTranslationLocales(['fr']);
+        $translator->setIsVerified(true);
+        $translator->setPreferredLocale('fr');
+        $translator->setTimezone('Europe/Paris');
+
+        $manager->persist($translator);
+
+        return $translator;
     }
 
     private function createBorrower(ObjectManager $manager): User

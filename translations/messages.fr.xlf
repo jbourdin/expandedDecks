@@ -4396,6 +4396,16 @@
                 <target>Enregistrer les rôles</target>
                 <note>Button to save role assignment</note>
             </trans-unit>
+            <trans-unit id="app.admin.user.translation_locales">
+                <source>app.admin.user.translation_locales</source>
+                <target>Langues de traduction</target>
+                <note>Heading of the translation locales assignment block on the admin user page (F9.8)</note>
+            </trans-unit>
+            <trans-unit id="app.admin.user.translation_locales_help">
+                <source>app.admin.user.translation_locales_help</source>
+                <target>Langues vers lesquelles cette personne peut traduire du contenu. Nécessite le rôle d'éditeur·rice de traduction pour prendre effet.</target>
+                <note>Help text under the translation locales heading (F9.8)</note>
+            </trans-unit>
             <trans-unit id="app.admin.user.save_author">
                 <source>app.admin.user.save_author</source>
                 <target>Enregistrer le profil d'auteur·rice</target>
