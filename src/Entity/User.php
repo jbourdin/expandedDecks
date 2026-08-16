@@ -105,6 +105,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 5)]
     private string $preferredLocale = 'en';
 
+    /**
+     * Target locales this user may translate into (ISO 639-1). Locales are
+     * data, not capabilities: a single ROLE_TRANSLATION_EDITOR combined with
+     * this list replaces per-locale role variants. Enforced by
+     * `TranslationVoter`; drives the US-T2 language picker.
+     *
+     * @see docs/features.md F9.8 — Translation roles & access
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $translationLocales = [];
+
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Timezone]
@@ -523,6 +536,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPreferredLocale(): string
     {
         return $this->preferredLocale;
+    }
+
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     *
+     * @return list<string>
+     */
+    public function getTranslationLocales(): array
+    {
+        return $this->translationLocales;
+    }
+
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     *
+     * @param list<string> $translationLocales
+     */
+    public function setTranslationLocales(array $translationLocales): static
+    {
+        $this->translationLocales = array_values(array_unique($translationLocales));
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     */
+    public function canTranslateInto(string $locale): bool
+    {
+        return \in_array($locale, $this->translationLocales, true);
     }
 
     public function setPreferredLocale(string $preferredLocale): static

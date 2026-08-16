@@ -52,6 +52,15 @@ The `sourceRevision` association is declared per-entity (not in the trait) becau
 
 **Backfill:** a data migration (`Version20260816102343`) seeds one `validated` revision per existing live translation row at deploy time — source locales first, then non-source rows linked to their subject's source revision, mirroring the listener's runtime behavior. Non-source backfilled revisions credit the live row's `translator` (F19.8) as author; source revisions keep a `NULL` author. `NOT EXISTS` guards make the backfill skip rows that already have revisions. History is therefore complete from day one: every live row has a revision, and every translation has a `sourceRevision` (except translations whose subject has no source-locale row at all, which downstream features treat as "staleness unknown").
 
+## Roles & access (F9.8)
+
+Two roles, one voter:
+
+- **`ROLE_TRANSLATION_EDITOR`** — a single role paired with `User.translationLocales` (json list of ISO 639-1 target locales). Locales are data, not capabilities: adding a language to a translator is a data change, never a `security.yaml` change (same lesson as F19.4).
+- **`ROLE_TRANSLATION_MODERATOR`** — reviews submissions (F9.9). Granted to CMS editors through the role hierarchy (`ROLE_CMS_EDITOR` inherits it, and `ROLE_ADMIN` inherits `ROLE_CMS_EDITOR`), per the #612 rollout decision; a standalone grant stays possible for future pure moderators. Moderating never implies authoring, and never shortcuts the review workflow.
+
+`TranslationVoter` votes on the `TRANSLATE` attribute with a `TranslationTarget` (content + target locale) subject. Access requires **all** of: reachable `ROLE_TRANSLATION_EDITOR`, target locale in `translationLocales`, target locale ≠ source locale (source content is editor-managed — translators read it, never write it), and for decks `isArchetypeVariant()`. Admins manage the roles and the locale list on the admin user page; the source locale is never offered as a target and submitted values are filtered against `kernel.enabled_locales`.
+
 ## Deliberately not signals
 
 - **Deck-list changes** never flag variant-notes translations: a list change that matters to readers warrants an English notes update, and that update triggers the flag through the normal path (editorial practice, decided in #612).

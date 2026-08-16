@@ -17,6 +17,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,9 +33,16 @@ class AdminUserController extends AbstractAppController
 {
     private const int PER_PAGE = 20;
 
+    /**
+     * @param list<string> $enabledLocales
+     */
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
+        #[Autowire('%kernel.enabled_locales%')]
+        private readonly array $enabledLocales,
+        #[Autowire('%kernel.default_locale%')]
+        private readonly string $defaultLocale,
     ) {
         parent::__construct($translator);
     }
@@ -68,6 +76,7 @@ class AdminUserController extends AbstractAppController
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
             'availableRoles' => $this->getAssignableRoles(),
+            'availableTranslationLocales' => $this->getAssignableTranslationLocales(),
             // Pre-joined here so the template needs no newline escape (which
             // twig-cs-fixer would mangle into a literal backslash-n).
             'sameAsText' => implode("\n", $user->getSameAs()),
@@ -88,7 +97,16 @@ class AdminUserController extends AbstractAppController
         $assignable = $this->getAssignableRoles();
         $roles = array_values(array_intersect($roles, $assignable));
 
+        /**
+         * @see docs/features.md F9.8 — Translation roles & access
+         *
+         * @var list<string> $translationLocales
+         */
+        $translationLocales = $request->getPayload()->all('translation_locales');
+        $translationLocales = array_values(array_intersect($translationLocales, $this->getAssignableTranslationLocales()));
+
         $user->setRoles($roles);
+        $user->setTranslationLocales($translationLocales);
         $this->em->flush();
 
         $this->addFlash('success', 'app.admin.user.roles_updated');
@@ -181,6 +199,17 @@ class AdminUserController extends AbstractAppController
      */
     private function getAssignableRoles(): array
     {
-        return ['ROLE_ADMIN', 'ROLE_ORGANIZER', 'ROLE_CMS_EDITOR', 'ROLE_ARCHETYPE_EDITOR', 'ROLE_TECHNICAL_ADMIN'];
+        return ['ROLE_ADMIN', 'ROLE_ORGANIZER', 'ROLE_CMS_EDITOR', 'ROLE_ARCHETYPE_EDITOR', 'ROLE_TECHNICAL_ADMIN', 'ROLE_TRANSLATION_EDITOR', 'ROLE_TRANSLATION_MODERATOR'];
+    }
+
+    /**
+     * Non-source locales a translator may be assigned (F9.8). The source
+     * locale is editor-managed content, never a translation target.
+     *
+     * @return list<string>
+     */
+    private function getAssignableTranslationLocales(): array
+    {
+        return array_values(array_diff($this->enabledLocales, [$this->defaultLocale]));
     }
 }
