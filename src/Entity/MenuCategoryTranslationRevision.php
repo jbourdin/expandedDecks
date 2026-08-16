@@ -50,6 +50,16 @@ class MenuCategoryTranslationRevision implements TranslationRevisionInterface
         return $revision;
     }
 
+    /**
+     * Approval write path (F9.9): copies the `#[Translatable]` fields into
+     * the live row. Mirror of {@see fromTranslation()}, guarded by the
+     * revision consistency test.
+     */
+    public function applyTo(MenuCategoryTranslation $translation): void
+    {
+        $translation->setName($this->name);
+    }
+
     public function getMenuCategory(): MenuCategory
     {
         return $this->menuCategory;

@@ -130,6 +130,46 @@ class TranslationRevisionConsistencyTest extends TestCase
         $this->assertTranslatableFieldsCopied(DeckTranslation::class, $translation, $revision);
     }
 
+    public function testApplyToCopiesEveryTranslatableFieldBack(): void
+    {
+        $pageTranslation = new PageTranslation();
+        $pageTranslation->setPage(new Page());
+        $pageTranslation->setTitle('Titre');
+        $pageTranslation->setContent('Contenu');
+        $pageTranslation->setOgDescription('OG');
+        $pageTarget = new PageTranslation();
+        $pageTarget->setPage($pageTranslation->getPage());
+        PageTranslationRevision::fromTranslation($pageTranslation)->applyTo($pageTarget);
+        $this->assertTranslatableFieldsEqual(PageTranslation::class, $pageTranslation, $pageTarget);
+
+        $archetypeTranslation = new ArchetypeTranslation();
+        $archetypeTranslation->setArchetype(new Archetype());
+        $archetypeTranslation->setName('Box Anciens');
+        $archetypeTranslation->setDescription('Description');
+        $archetypeTranslation->setMetaDescription('Méta');
+        $archetypeTranslation->setOgDescription('OG');
+        $archetypeTarget = new ArchetypeTranslation();
+        $archetypeTarget->setArchetype($archetypeTranslation->getArchetype());
+        ArchetypeTranslationRevision::fromTranslation($archetypeTranslation)->applyTo($archetypeTarget);
+        $this->assertTranslatableFieldsEqual(ArchetypeTranslation::class, $archetypeTranslation, $archetypeTarget);
+
+        $menuCategoryTranslation = new MenuCategoryTranslation();
+        $menuCategoryTranslation->setMenuCategory(new MenuCategory());
+        $menuCategoryTranslation->setName('Guides');
+        $menuCategoryTarget = new MenuCategoryTranslation();
+        $menuCategoryTarget->setMenuCategory($menuCategoryTranslation->getMenuCategory());
+        MenuCategoryTranslationRevision::fromTranslation($menuCategoryTranslation)->applyTo($menuCategoryTarget);
+        $this->assertTranslatableFieldsEqual(MenuCategoryTranslation::class, $menuCategoryTranslation, $menuCategoryTarget);
+
+        $deckTranslation = new DeckTranslation();
+        $deckTranslation->setDeck(new Deck());
+        $deckTranslation->setNotes('Notes');
+        $deckTarget = new DeckTranslation();
+        $deckTarget->setDeck($deckTranslation->getDeck());
+        DeckTranslationRevision::fromTranslation($deckTranslation)->applyTo($deckTarget);
+        $this->assertTranslatableFieldsEqual(DeckTranslation::class, $deckTranslation, $deckTarget);
+    }
+
     public function testDeckNotesFactorySnapshotsSourceLocale(): void
     {
         $deck = new Deck();
@@ -141,6 +181,21 @@ class TranslationRevisionConsistencyTest extends TestCase
         self::assertSame($deck, $revision->getSubject());
         self::assertSame('Canonical English notes', $revision->getNotes());
         self::assertNull($revision->getSourceRevision());
+    }
+
+    /**
+     * @param class-string $translationClass
+     */
+    private function assertTranslatableFieldsEqual(string $translationClass, object $expected, object $actual): void
+    {
+        $reflection = new \ReflectionClass($translationClass);
+        foreach (self::translatableFields($translationClass) as $field) {
+            self::assertSame(
+                $reflection->getProperty($field)->getValue($expected),
+                $reflection->getProperty($field)->getValue($actual),
+                \sprintf('applyTo() does not copy the #[Translatable] field "%s" of %s.', $field, $translationClass),
+            );
+        }
     }
 
     /**

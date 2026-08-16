@@ -4406,6 +4406,11 @@
                 <target>Langues vers lesquelles cette personne peut traduire du contenu. Nécessite le rôle d'éditeur·rice de traduction pour prendre effet.</target>
                 <note>Help text under the translation locales heading (F9.8)</note>
             </trans-unit>
+            <trans-unit id="app.translation.error.stale_source">
+                <source>app.translation.error.stale_source</source>
+                <target>La source anglaise a changé depuis le début de cette traduction. Mets à jour la traduction par rapport à la source actuelle avant de la soumettre.</target>
+                <note>Error shown when submitting a translation pinned to an outdated source revision (F9.9, US-T5)</note>
+            </trans-unit>
             <trans-unit id="app.admin.user.save_author">
                 <source>app.admin.user.save_author</source>
                 <target>Enregistrer le profil d'auteur·rice</target>

@@ -3,6 +3,17 @@ services:
         tags:
             - { name: doctrine.middleware }
 
+    # Translation workflow services (F9.9): fetched directly by functional
+    # tests; without a public alias the compiler would inline them until the
+    # F9.10 controllers start injecting them.
+    App\Service\Translation\TranslationReviewService:
+        autowire: true
+        public: true
+
+    App\Service\Translation\TranslationDraftProvider:
+        autowire: true
+        public: true
+
     # Replace the real HTTP client with a mock for TCGdex API calls in functional tests.
     # This prevents live network calls that cause flaky CI failures from API timeouts.
     App\Tests\HttpClient\TcgdexMockHttpClient: ~

@@ -63,6 +63,19 @@ class ArchetypeTranslationRevision implements TranslationRevisionInterface
         return $revision;
     }
 
+    /**
+     * Approval write path (F9.9): copies the `#[Translatable]` fields into
+     * the live row. Mirror of {@see fromTranslation()}, guarded by the
+     * revision consistency test.
+     */
+    public function applyTo(ArchetypeTranslation $translation): void
+    {
+        $translation->setName($this->name);
+        $translation->setDescription($this->description);
+        $translation->setMetaDescription($this->metaDescription);
+        $translation->setOgDescription($this->ogDescription);
+    }
+
     public function getArchetype(): Archetype
     {
         return $this->archetype;

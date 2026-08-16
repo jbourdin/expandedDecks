@@ -61,6 +61,20 @@ Two roles, one voter:
 
 `TranslationVoter` votes on the `TRANSLATE` attribute with a `TranslationTarget` (content + target locale) subject. Access requires **all** of: reachable `ROLE_TRANSLATION_EDITOR`, target locale in `translationLocales`, target locale ≠ source locale (source content is editor-managed — translators read it, never write it), and for decks `isArchetypeVariant()`. Admins manage the roles and the locale list on the admin user page; the source locale is never offered as a target and submitted values are filtered against `kernel.enabled_locales`.
 
+## Review workflow (F9.9)
+
+The `translation_review` state machine (Symfony Workflow, `config/packages/workflow.yaml`, same pattern as `borrow`) runs on the four revision entities: `draft` → `pending_review` (**submit**) → `validated` (**approve**) / `rejected` (**reject**) → `draft` (**rework**). Auto-snapshots from editor saves are born `validated` and never traverse the machine.
+
+`TranslationReviewService` owns the transitions:
+
+- **submit** re-checks `TranslationVoter` and refuses stale work: if a newer source revision exists than the one the draft is pinned to, a `StaleTranslationSourceException` (translatable message key) is thrown — the translator updates against the current source first (US-T5).
+- **approve** (moderator-only) is the **single write path to live translation rows**: it copies the `#[Translatable]` fields via the per-entity `applyTo()` (mirror of `fromTranslation()`, guarded by the consistency test), creates the live row on first approval of a locale (e.g. the first FR `DeckTranslation`), credits the contributor as the live row's `translator` (F19.8 byline), and **recomputes** `sourceOutdated` — the source may have moved again between submission and approval, in which case the flag stays raised. During this write the revision listener is suppressed (`TranslationRevisionSuppression`): the approved revision *is* the history entry, so the every-live-write-leaves-a-revision invariant holds without duplication.
+- **reject** stamps `reviewedBy`/`reviewedAt`/`reviewComment`; **rework** returns the revision to `draft` for the contributor.
+
+**No shortcut, structurally:** `approve` only exists from `pending_review`. A moderator's own translation follows the same explicit submit-then-approve path — self-approval is permitted but is a second, deliberate action.
+
+`TranslationDraftProvider` opens a translation session (US-T3/US-T4): it returns the existing not-yet-validated revision for a (content, locale) pair — pending, rejected, or draft — or creates a new draft prefilled from the live row (the latest validated content) and pinned to the latest source revision via `LatestSourceRevisionProvider` (shared with the snapshot listener).
+
 ## Deliberately not signals
 
 - **Deck-list changes** never flag variant-notes translations: a list change that matters to readers warrants an English notes update, and that update triggers the flag through the normal path (editorial practice, decided in #612).

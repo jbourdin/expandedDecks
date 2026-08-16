@@ -59,6 +59,18 @@ class PageTranslationRevision implements TranslationRevisionInterface
         return $revision;
     }
 
+    /**
+     * Approval write path (F9.9): copies the `#[Translatable]` fields into
+     * the live row. Mirror of {@see fromTranslation()}, guarded by the
+     * revision consistency test.
+     */
+    public function applyTo(PageTranslation $translation): void
+    {
+        $translation->setTitle($this->title);
+        $translation->setContent($this->content);
+        $translation->setOgDescription($this->ogDescription);
+    }
+
     public function getPage(): Page
     {
         return $this->page;
