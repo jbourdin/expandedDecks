@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Attribute\Translatable;
 use App\Enum\DeckFormat;
 use App\Enum\DeckStatus;
 use App\Repository\DeckRepository;
@@ -120,6 +121,15 @@ class Deck
     #[ORM\Column(type: Types::JSON)]
     private array $pokemonSlugs = [];
 
+    /**
+     * Canonical source-locale notes. On archetype variants this is the
+     * source content of the translation workflow — snapshotted into
+     * `DeckTranslationRevision`, with non-source locales living in
+     * `DeckTranslation` rows (F9.7). User decks never enter the workflow.
+     *
+     * @see docs/features.md F9.7 — Translation foundation
+     */
+    #[Translatable]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 

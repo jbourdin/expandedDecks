@@ -392,6 +392,7 @@ Entry point: **[docs/docs.md](docs/docs.md)** — full technical documentation i
 - [docs/technicalities/enrichment.md](docs/technicalities/enrichment.md) — TCGdex enrichment, card identity model, minified export
 - [docs/technicalities/cardmarket_export.md](docs/technicalities/cardmarket_export.md) — Cardmarket wishlist text format, name overrides, ability/attack handling
 - [docs/technicalities/tcgdex_sync.md](docs/technicalities/tcgdex_sync.md) — Incremental TCGdex sync: cascade architecture, rate limiting, sync modes
+- [docs/technicalities/translation_workflow.md](docs/technicalities/translation_workflow.md) — Content-translation workflow: `#[Translatable]` attribute, revision tables, snapshot listener
 - [docs/technicalities/error_pages.md](docs/technicalities/error_pages.md) — Custom error pages, Pokemon sprites, CDN integration, Sentry
 - [docs/technicalities/og_image_builder.md](docs/technicalities/og_image_builder.md) — Card-fan social-preview compositor, code resolution, RSS feed images
 
