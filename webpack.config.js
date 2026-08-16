@@ -75,6 +75,14 @@ Encore
         };
     })
 
+    // svgo cannot parse the URL-encoded SVG data URIs Bootstrap and Mantine
+    // inline in their CSS; it skips them with a loud warning, so disable it.
+    .configureCssMinimizerPlugin((options) => {
+        options.minimizerOptions = {
+            preset: ['default', { svgo: false }],
+        };
+    })
+
 ;
 
 module.exports = Encore.getWebpackConfig();
