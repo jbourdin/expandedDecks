@@ -352,6 +352,76 @@ class TranslationControllerTest extends AbstractFunctionalTest
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testEditViewDeniedOnUnassignedLocale(): void
+    {
+        $page = $this->createPageWithSource('controller-wrong-locale');
+        $this->loginByEmail('translator@example.com');
+        $pageId = $page->getId();
+        \assert(null !== $pageId);
+
+        // The translator holds FR only; DE is neither granted nor moderated.
+        $this->client->request('GET', \sprintf('/admin/translations/page/%d/de', $pageId));
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testSubmitAndReviewRequireCsrfToken(): void
+    {
+        $page = $this->createPageWithSource('controller-csrf-submit');
+        $this->loginByEmail('translator@example.com');
+        $pageId = $page->getId();
+        \assert(null !== $pageId);
+
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/submit', $pageId), [], [], ['CONTENT_TYPE' => 'application/json'], '{}');
+        self::assertResponseStatusCodeSame(403);
+
+        $this->loginByEmail('admin@example.com');
+        $this->client->request('POST', '/admin/translations/page/revisions/1/approve', [], [], ['CONTENT_TYPE' => 'application/json'], '{}');
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testDoubleSubmitReturnsConflict(): void
+    {
+        $page = $this->createPageWithSource('controller-double-submit');
+        $this->loginByEmail('translator@example.com');
+        $pageId = $page->getId();
+        \assert(null !== $pageId);
+
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/draft', $pageId), [], [], $this->ajaxHeaders(), '{"fields":{"title":"Une fois"}}');
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/submit', $pageId), [], [], $this->ajaxHeaders(), '{}');
+        self::assertResponseIsSuccessful();
+
+        // Already pending: the submit transition is not enabled anymore.
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/submit', $pageId), [], [], $this->ajaxHeaders(), '{}');
+        self::assertResponseStatusCodeSame(409);
+    }
+
+    public function testUnknownRevisionReturnsNotFound(): void
+    {
+        $this->loginByEmail('admin@example.com');
+        $this->client->request('POST', '/admin/translations/page/revisions/999999/approve', [], [], $this->ajaxHeaders(), '{}');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testEditViewExposesThePendingDraft(): void
+    {
+        $page = $this->createPageWithSource('controller-pending-view');
+        $this->loginByEmail('translator@example.com');
+        $pageId = $page->getId();
+        \assert(null !== $pageId);
+
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/draft', $pageId), [], [], $this->ajaxHeaders(), '{"fields":{"title":"Brouillon visible"}}');
+
+        $crawler = $this->client->request('GET', \sprintf('/admin/translations/page/%d/fr', $pageId));
+        self::assertResponseIsSuccessful();
+        /** @var list<array<string, mixed>> $sections */
+        $sections = json_decode($crawler->filter('#translation-editor-root')->attr('data-sections') ?? '[]', true);
+        self::assertSame('draft', $sections[0]['state']);
+        /** @var list<array<string, mixed>> $fields */
+        $fields = $sections[0]['fields'];
+        self::assertSame('Brouillon visible', $fields[0]['target']);
+    }
+
     public function testDraftRequiresCsrfToken(): void
     {
         $page = $this->createPageWithSource('controller-csrf');

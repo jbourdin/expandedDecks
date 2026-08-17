@@ -120,10 +120,8 @@ final readonly class TranslationQueueProvider
         /** @var list<TranslationRevisionInterface> $revisions */
         $revisions = $revisionQuery->getQuery()->getResult();
         foreach ($revisions as $revision) {
-            $subjectId = $this->subjectIdOf($revision);
-            if (null === $subjectId) {
-                continue;
-            }
+            $subjectId = $revision->getSubject()->getId();
+            \assert(null !== $subjectId);
             $items[$subjectId.':'.$revision->getLocale()] = new TranslationQueueItem(
                 $contentType,
                 $subjectId,
@@ -150,9 +148,7 @@ final readonly class TranslationQueueProvider
         $outdatedRows = $outdatedQuery->getQuery()->getResult();
         foreach ($outdatedRows as $row) {
             [$subjectId, $locale] = $this->liveRowIdentity($row, $subjectField);
-            if (null === $subjectId) {
-                continue;
-            }
+            \assert(null !== $subjectId);
             $key = $subjectId.':'.$locale;
             $existing = $items[$key] ?? null;
             $items[$key] = new TranslationQueueItem(
@@ -288,13 +284,6 @@ final readonly class TranslationQueueProvider
         }
 
         return $labels;
-    }
-
-    private function subjectIdOf(TranslationRevisionInterface $revision): ?int
-    {
-        $subject = $revision->getSubject();
-
-        return $subject->getId();
     }
 
     /**

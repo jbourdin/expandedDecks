@@ -32,6 +32,7 @@ use App\Service\Translation\TranslationQueueProvider;
 use App\Service\Translation\TranslationReviewService;
 use App\Service\Translation\TranslationViewDataBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,7 +52,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @see docs/features.md F9.12 — Translation queue
  */
 #[Route('/admin/translations')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted(new Expression("is_granted('ROLE_TRANSLATION_EDITOR') or is_granted('ROLE_TRANSLATION_MODERATOR')"))]
 class TranslationController extends AbstractAppController
 {
     use AjaxCsrfTrait;
@@ -85,15 +86,12 @@ class TranslationController extends AbstractAppController
     #[Route('', name: 'app_admin_translation_queue', methods: ['GET'])]
     public function queue(): Response
     {
-        $this->denyUnlessWorkspaceMember();
-
         return $this->render('admin/translation/queue.html.twig');
     }
 
     #[Route('/queue-data', name: 'app_admin_translation_queue_data', methods: ['GET'])]
     public function queueData(): JsonResponse
     {
-        $this->denyUnlessWorkspaceMember();
         $user = $this->workspaceUser();
 
         $isTranslator = $this->isGranted('ROLE_TRANSLATION_EDITOR');
@@ -112,7 +110,6 @@ class TranslationController extends AbstractAppController
     #[Route('/{type}/{id}/{locale}', name: 'app_admin_translation_edit', requirements: ['type' => 'page|archetype|menu_category', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['GET'])]
     public function edit(string $type, int $id, string $locale): Response
     {
-        $this->denyUnlessWorkspaceMember();
         $content = $this->contentOr404($type, $id);
 
         $canTranslate = $this->isGranted(TranslationVoter::TRANSLATE, new TranslationTarget($content, $locale));
@@ -251,13 +248,6 @@ class TranslationController extends AbstractAppController
         }
 
         return $content;
-    }
-
-    private function denyUnlessWorkspaceMember(): void
-    {
-        if (!$this->isGranted('ROLE_TRANSLATION_EDITOR') && !$this->isGranted('ROLE_TRANSLATION_MODERATOR')) {
-            throw $this->createAccessDeniedException('Translation workspace requires a translation role.');
-        }
     }
 
     private function workspaceUser(): User

@@ -451,6 +451,16 @@ class Deck
         return DeckStatus::Outdated === $this->status;
     }
 
+    public function addTranslation(DeckTranslation $translation): static
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setDeck($this);
+        }
+
+        return $this;
+    }
+
     /**
      * Live translation row for a non-source locale, when one exists.
      *

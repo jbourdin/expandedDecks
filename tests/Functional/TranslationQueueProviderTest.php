@@ -175,6 +175,80 @@ class TranslationQueueProviderTest extends AbstractFunctionalTest
         self::assertSame('Queue Aggregation Subject', $row['label']);
     }
 
+    public function testOutdatedRowsSurfaceForEveryContentType(): void
+    {
+        $em = $this->getEntityManager();
+        $admin = $this->userByEmail('admin@example.com');
+        $translator = $this->userByEmail('translator@example.com');
+        $this->client->loginUser($translator);
+
+        // Archetype with an FR translation.
+        $archetype = new Archetype();
+        $archetype->setName('Queue Outdated Archetype');
+        $archetypeSource = new ArchetypeTranslation();
+        $archetypeSource->setArchetype($archetype);
+        $archetypeSource->setLocale('en');
+        $archetypeSource->setName('Queue Outdated Archetype');
+        $archetypeFrench = new ArchetypeTranslation();
+        $archetypeFrench->setArchetype($archetype);
+        $archetypeFrench->setLocale('fr');
+        $archetypeFrench->setName('Archétype à mettre à jour');
+        $em->persist($archetype);
+        $em->persist($archetypeSource);
+        $em->persist($archetypeFrench);
+
+        // Menu category with an FR translation.
+        $menuCategory = new \App\Entity\MenuCategory();
+        $menuCategorySource = new \App\Entity\MenuCategoryTranslation();
+        $menuCategorySource->setMenuCategory($menuCategory);
+        $menuCategorySource->setLocale('en');
+        $menuCategorySource->setName('Queue Outdated Guides');
+        $menuCategoryFrench = new \App\Entity\MenuCategoryTranslation();
+        $menuCategoryFrench->setMenuCategory($menuCategory);
+        $menuCategoryFrench->setLocale('fr');
+        $menuCategoryFrench->setName('Guides à mettre à jour');
+        $em->persist($menuCategory);
+        $em->persist($menuCategorySource);
+        $em->persist($menuCategoryFrench);
+
+        // Variant with an FR notes translation.
+        $variant = new Deck();
+        $variant->setName('Queue outdated variant');
+        $variant->setArchetype($archetype);
+        $variant->setOwner(null);
+        $variant->setFormat(DeckFormat::Expanded);
+        $variant->setNotes('English variant notes');
+        $em->persist($variant);
+        $variantFrench = new \App\Entity\DeckTranslation();
+        $variantFrench->setDeck($variant);
+        $variantFrench->setLocale('fr');
+        $variantFrench->setNotes('Notes FR');
+        $em->persist($variantFrench);
+        $em->flush();
+
+        // Every source moves on: all three FR rows flip to outdated.
+        $archetypeSource->setDescription('Fresh description');
+        $menuCategorySource->setName('Queue Outdated Guides v2');
+        $variant->setNotes('Fresh English variant notes');
+        $em->flush();
+
+        $queue = $this->getQueueProvider()->reviewerQueue($admin);
+
+        $archetypeId = $archetype->getId();
+        $menuCategoryId = $menuCategory->getId();
+        \assert(null !== $archetypeId && null !== $menuCategoryId);
+
+        $archetypeRow = self::findRow($queue['archetypes'], $archetypeId, 'fr');
+        self::assertNotNull($archetypeRow);
+        self::assertTrue($archetypeRow['sourceOutdated']);
+        self::assertSame(1, $archetypeRow['outdatedVariants']);
+        self::assertSame('Queue Outdated Archetype', $archetypeRow['label']);
+
+        $menuCategoryRow = self::findRow($queue['menuCategories'], $menuCategoryId, 'fr');
+        self::assertNotNull($menuCategoryRow);
+        self::assertTrue($menuCategoryRow['sourceOutdated']);
+    }
+
     public function testContributorWithoutLocalesSeesNoOutdatedRows(): void
     {
         $admin = $this->userByEmail('admin@example.com');

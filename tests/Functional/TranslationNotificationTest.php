@@ -132,6 +132,53 @@ class TranslationNotificationTest extends AbstractFunctionalTest
         self::assertCount(1, $this->notificationsFor($translator, NotificationType::TranslationSourceOutdated));
     }
 
+    public function testDisabledPreferencesSuppressBothChannels(): void
+    {
+        $em = $this->getEntityManager();
+        $page = $this->createPageWithSource('notify-prefs-off');
+        $translator = $this->getEntityManager()->getRepository(User::class)->findOneBy(['email' => 'translator@example.com']);
+        \assert($translator instanceof User);
+        $translator->setNotificationPreferences([
+            NotificationType::TranslationReviewed->value => ['email' => false, 'inApp' => false],
+        ]);
+        $em->flush();
+
+        /** @var TranslationDraftProvider $draftProvider */
+        $draftProvider = static::getContainer()->get(TranslationDraftProvider::class);
+        /** @var TranslationReviewService $reviewService */
+        $reviewService = static::getContainer()->get(TranslationReviewService::class);
+
+        $this->loginByEmail('translator@example.com');
+        $draft = $draftProvider->findOrCreateDraft($page, 'fr');
+        \assert($draft instanceof \App\Entity\PageTranslationRevision);
+        $draft->setTitle('Sans notification');
+        $reviewService->submit($draft);
+
+        $this->loginByEmail('admin@example.com');
+        $reviewService->reject($draft, 'Silence.');
+
+        self::assertCount(0, $this->notificationsFor($translator, NotificationType::TranslationReviewed));
+    }
+
+    public function testAuthorlessRevisionNotifiesNobody(): void
+    {
+        $page = $this->createPageWithSource('notify-authorless');
+
+        /** @var \App\Service\Translation\TranslationNotificationService $notificationService */
+        $notificationService = static::getContainer()->get(\App\Service\Translation\TranslationNotificationService::class);
+
+        // Auto-validated snapshots (editor saves, backfill) have no author:
+        // reviewing one must never explode nor notify anyone.
+        $revision = $this->getEntityManager()->getRepository(\App\Entity\PageTranslationRevision::class)
+            ->findOneBy(['page' => $page, 'locale' => 'en']);
+        \assert($revision instanceof \App\Entity\PageTranslationRevision);
+        self::assertNull($revision->getAuthor());
+
+        $notificationService->notifyReviewed($revision, true);
+
+        self::assertCount(0, $this->getEntityManager()->getRepository(Notification::class)->findBy(['type' => NotificationType::TranslationReviewed]));
+    }
+
     public function testSelfReviewDoesNotNotifyTheReviewer(): void
     {
         $em = $this->getEntityManager();
