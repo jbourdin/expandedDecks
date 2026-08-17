@@ -145,6 +145,9 @@ class TranslationControllerTest extends AbstractFunctionalTest
         self::assertCount(1, $sections);
         self::assertSame('page', $sections[0]['contentType']);
         self::assertSame('true', $root->attr('data-can-translate'));
+        // A brand-new translation has nothing pinned yet: never stale (US-T5
+        // only concerns existing work on an older source).
+        self::assertFalse($sections[0]['sourceStale']);
     }
 
     public function testEditViewDeniedForUnrelatedUser(): void
@@ -420,6 +423,20 @@ class TranslationControllerTest extends AbstractFunctionalTest
         /** @var list<array<string, mixed>> $fields */
         $fields = $sections[0]['fields'];
         self::assertSame('Brouillon visible', $fields[0]['target']);
+        // The draft is pinned to the latest source: not stale yet.
+        self::assertFalse($sections[0]['sourceStale']);
+
+        // The source moves on: the pending draft is now genuinely stale.
+        $em = $this->getEntityManager();
+        $sourceTranslation = $em->getRepository(PageTranslation::class)->findOneBy(['page' => $page, 'locale' => 'en']);
+        \assert($sourceTranslation instanceof PageTranslation);
+        $sourceTranslation->setContent('Moved after draft creation');
+        $em->flush();
+
+        $crawler = $this->client->request('GET', \sprintf('/admin/translations/page/%d/fr', $pageId));
+        /** @var list<array<string, mixed>> $staleSections */
+        $staleSections = json_decode($crawler->filter('#translation-editor-root')->attr('data-sections') ?? '[]', true);
+        self::assertTrue($staleSections[0]['sourceStale']);
     }
 
     public function testDraftRequiresCsrfToken(): void

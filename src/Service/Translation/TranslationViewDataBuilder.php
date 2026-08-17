@@ -117,7 +117,12 @@ final readonly class TranslationViewDataBuilder
             'state' => $pending?->getState()->value,
             'revisionId' => $pending?->getId(),
             'reviewComment' => $pending?->getReviewComment(),
-            'sourceStale' => null !== $latestSourceRevisionId && $latestSourceRevisionId !== $pinnedSourceRevisionId,
+            // A section is only stale when work already exists on an older
+            // source: a fresh translation has nothing pinned yet — its draft
+            // gets pinned to the latest source revision on creation (US-T4).
+            'sourceStale' => $pending instanceof TranslationRevisionInterface
+                && null !== $latestSourceRevisionId
+                && $latestSourceRevisionId !== $pinnedSourceRevisionId,
             'fields' => $fields,
         ];
     }
