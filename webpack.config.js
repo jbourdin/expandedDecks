@@ -43,6 +43,8 @@ Encore
     .addEntry('admin_page_list', './assets/admin-page-list.ts')
     .addEntry('admin_menu_category_list', './assets/admin-menu-category-list.ts')
     .addEntry('homepage_editor', './assets/homepage-editor.tsx')
+    .addEntry('translation_queue', './assets/translation-queue.tsx')
+    .addEntry('translation_editor', './assets/translation-editor.tsx')
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
     .addEntry('deck_found', './assets/deck-found.tsx')

@@ -47,6 +47,13 @@
         <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.cms.draft_notice'|trans }}</div>
     {% endif %}
 
+    {# Reader-facing staleness notice (US-T6 / F9.14) #}
+    {{ include('_partials/translation_outdated_notice.html.twig', {
+        translation: translation,
+        englishUrl: path('app_page_show', {slug: page.slug, _locale: 'en'}),
+    }) }}
+
+    {% set translateLocales = translatable_locales(page) %}
     <article class="card shadow-sm">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h1 class="mb-0 h4">{{ translation.title }}</h1>
@@ -56,13 +63,16 @@
                         <i class="bi bi-rss"></i>
                     </a>
                 {% endif %}
-                {% if is_granted('ROLE_CMS_EDITOR') %}
+                {% if is_granted('ROLE_CMS_EDITOR') or translateLocales|length > 0 %}
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-light-gold dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ path('app_admin_page_edit', {id: page.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                            {% if is_granted('ROLE_CMS_EDITOR') %}
+                                <li><a class="dropdown-item" href="{{ path('app_admin_page_edit', {id: page.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                            {% endif %}
+                            {{ include('_partials/translate_action.html.twig', {content: page, contentType: 'page', translateLocales: translateLocales}) }}
                         </ul>
                     </div>
                 {% endif %}

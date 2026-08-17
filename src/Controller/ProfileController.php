@@ -157,6 +157,11 @@ class ProfileController extends AbstractAppController
             'deckTypes' => [
                 NotificationType::DeckFound,
             ],
+            'translationTypes' => [
+                NotificationType::TranslationSubmitted,
+                NotificationType::TranslationReviewed,
+                NotificationType::TranslationSourceOutdated,
+            ],
         ]);
     }
 

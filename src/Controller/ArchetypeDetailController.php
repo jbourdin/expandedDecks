@@ -179,10 +179,13 @@ class ArchetypeDetailController extends AbstractController
                 }
             }
 
-            $description = $variant->getNotes();
+            // Localized variant notes with source fallback (F9.13); the
+            // denormalized flag drives the reader-facing notice (F9.14).
+            $description = $variant->localizedNotes($locale);
             $htmlDescription = null !== $description && '' !== $description
                 ? $descriptionRenderer->render($description, $locale)
                 : null;
+            $variantTranslation = $variant->translationFor($locale);
 
             /** @var int $variantId */
             $variantId = $variant->getId();
@@ -203,6 +206,7 @@ class ArchetypeDetailController extends AbstractController
                 'latestSetName' => $latestSet?->getLocalizedName($locale),
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
+                'notesOutdated' => null !== $variantTranslation && $variantTranslation->isSourceOutdated(),
                 'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),

@@ -41,6 +41,7 @@ interface VariantData {
     enrichmentPending: boolean;
     sprites: string[];
     description: string | null;
+    notesOutdated?: boolean;
     mosaicUrl: string | null;
     rawList: string | null;
     effectiveUpdatedAtLabel: string | null;
@@ -74,6 +75,8 @@ interface Labels {
     compareVariants: string;
     curatedBy: string;
     curatedDisclaimer: string;
+    notesOutdatedNotice?: string;
+    notesOutdatedLink?: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -81,6 +84,7 @@ interface ArchetypeVariantSelectorProps {
     labels: Labels;
     archetypeSlug: string;
     canCopyTag: boolean;
+    englishUrl?: string;
 }
 
 type ViewMode = 'table' | 'mosaic';
@@ -496,7 +500,7 @@ function resolveInitialIndex(variants: VariantData[]): number {
     return canonicalIndex >= 0 ? canonicalIndex : 0;
 }
 
-export default function ArchetypeVariantSelector({ variants, labels, archetypeSlug, canCopyTag }: ArchetypeVariantSelectorProps) {
+export default function ArchetypeVariantSelector({ variants, labels, archetypeSlug, canCopyTag, englishUrl }: ArchetypeVariantSelectorProps) {
     const [selectedIndex, setSelectedIndex] = useState(() => resolveInitialIndex(variants));
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery('(max-width: 767.98px)');
@@ -621,6 +625,19 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                 <p className="text-muted small mb-2">
                     {labels.updatedOn} {selectedVariant.effectiveUpdatedAtLabel}
                 </p>
+            )}
+
+            {/* Reader-facing staleness notice on translated variant notes (US-T6 / F9.14) */}
+            {selectedVariant.notesOutdated === true && labels.notesOutdatedNotice !== undefined && (
+                <div className="alert alert-info small d-flex align-items-center gap-2 mb-3">
+                    <i className="bi bi-clock-history" />
+                    <span>
+                        {labels.notesOutdatedNotice}{' '}
+                        {englishUrl !== undefined && englishUrl !== '' && (
+                            <a href={englishUrl} className="alert-link">{labels.notesOutdatedLink}</a>
+                        )}
+                    </span>
+                </div>
             )}
 
             {/* Description */}

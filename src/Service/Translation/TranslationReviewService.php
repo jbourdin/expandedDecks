@@ -54,12 +54,14 @@ final readonly class TranslationReviewService
         private Security $security,
         private LatestSourceRevisionProvider $latestSourceRevisionProvider,
         private TranslationRevisionSuppression $suppression,
+        private TranslationNotificationService $notificationService,
     ) {
     }
 
     /**
-     * @throws StaleTranslationSourceException when a newer source revision
-     *                                         exists than the pinned one (US-T5)
+     * @throws StaleTranslationSourceException                           when a newer source revision
+     *                                                                   exists than the pinned one (US-T5)
+     * @throws \Symfony\Component\Workflow\Exception\TransitionException when the revision is not in a submittable state
      */
     public function submit(TranslationRevisionInterface $revision): void
     {
@@ -72,6 +74,8 @@ final readonly class TranslationReviewService
 
         $this->translationReviewStateMachine->apply($revision, 'submit');
         $this->entityManager->flush();
+
+        $this->notificationService->notifySubmitted($revision);
     }
 
     public function approve(TranslationRevisionInterface $revision): void
@@ -101,6 +105,8 @@ final readonly class TranslationReviewService
         } finally {
             $this->suppression->release();
         }
+
+        $this->notificationService->notifyReviewed($revision, true);
     }
 
     public function reject(TranslationRevisionInterface $revision, string $comment): void
@@ -112,6 +118,8 @@ final readonly class TranslationReviewService
         $revision->setReviewComment($comment);
 
         $this->entityManager->flush();
+
+        $this->notificationService->notifyReviewed($revision, false);
     }
 
     public function rework(TranslationRevisionInterface $revision): void

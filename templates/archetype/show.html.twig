@@ -55,6 +55,13 @@
         <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.archetype.draft_notice'|trans }}</div>
     {% endif %}
 
+    {# Reader-facing staleness notice on the description (US-T6 / F9.14) #}
+    {{ include('_partials/translation_outdated_notice.html.twig', {
+        translation: archetype.getTranslation(app.request.locale),
+        englishUrl: path('app_archetype_show', {slug: archetype.slug, _locale: 'en'}),
+    }) }}
+
+    {% set translateLocales = translatable_locales(archetype) %}
     <article>
         <div class="card shadow-sm mb-4">
             <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
@@ -65,13 +72,16 @@
                         <span class="badge bg-secondary ms-1 fs-6 align-middle">{{ tag }}</span>
                     {% endfor %}
                 </h1>
-                {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                {% if is_granted('ROLE_ARCHETYPE_EDITOR') or translateLocales|length > 0 %}
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-light-gold dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                            {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                                <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                            {% endif %}
+                            {{ include('_partials/translate_action.html.twig', {content: archetype, contentType: 'archetype', translateLocales: translateLocales}) }}
                         </ul>
                     </div>
                 {% endif %}
@@ -98,6 +108,9 @@
                          data-variants="{{ variantsData|json_encode|e('html_attr') }}"
                          data-archetype-slug="{{ archetype.slug }}"
                          data-can-copy-tag="{{ is_granted('ROLE_ARCHETYPE_EDITOR') or is_granted('ROLE_ADMIN') ? 'true' : 'false' }}"
+                         data-label-notes-outdated-notice="{{ 'app.translation.outdated_notice'|trans }}"
+                         data-label-notes-outdated-link="{{ 'app.translation.outdated_notice_link'|trans }}"
+                         data-english-url="{{ path('app_archetype_show', {slug: archetype.slug, _locale: 'en'}) }}"
                          data-label-copy-tag="{{ 'app.archetype.variant.copy_tag'|trans }}"
                          data-label-copy-tag-copied="{{ 'app.archetype.variant.copy_tag_copied'|trans }}"
                          data-label-copy-card-tag="{{ 'app.archetype.variant.copy_card_tag'|trans }}"

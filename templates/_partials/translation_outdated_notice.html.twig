@@ -1,0 +1,23 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Reader-facing outdated-translation notice (US-T6 / F9.14). Renders only
+ # when the displayed translation is a non-source locale flagged
+ # `sourceOutdated`. Expects `translation` (live *Translation row or null)
+ # and `englishUrl` (same content, source locale). Reads the denormalized
+ # flag — never the revision tables (hot path).
+ #}
+{% if translation and translation.locale != 'en' and translation.sourceOutdated %}
+    <div class="alert alert-info small d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-clock-history"></i>
+        <span>
+            {{ 'app.translation.outdated_notice'|trans }}
+            <a href="{{ englishUrl }}" class="alert-link">{{ 'app.translation.outdated_notice_link'|trans }}</a>
+        </span>
+    </div>
+{% endif %}

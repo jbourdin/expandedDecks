@@ -105,8 +105,9 @@ class ProfileNotificationsControllerTest extends AbstractFunctionalTest
         $total = $checkboxes->count();
         $checked = $crawler->filter('input[type="checkbox"][checked]')->count();
 
-        // 13 types × 2 channels = 26 checkboxes, all checked
-        self::assertSame(26, $total);
-        self::assertSame(26, $checked);
+        // 16 types × 2 channels = 32 checkboxes, all checked (13 legacy types
+        // + the 3 translation-workflow types, F9.15)
+        self::assertSame(32, $total);
+        self::assertSame(32, $checked);
     }
 }

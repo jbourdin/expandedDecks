@@ -47,11 +47,14 @@ if (root) {
         compareVariants: root.dataset.labelCompareVariants ?? 'Compare variants',
         curatedBy: root.dataset.labelCuratedBy ?? 'Curated by',
         curatedDisclaimer: root.dataset.labelCuratedDisclaimer ?? 'A curated, maintained archetype reference — not an original creation by the author.',
+        notesOutdatedNotice: root.dataset.labelNotesOutdatedNotice,
+        notesOutdatedLink: root.dataset.labelNotesOutdatedLink,
     };
+    const englishUrl = root.dataset.englishUrl ?? '';
 
     createRoot(root).render(
         <AppMantineProvider>
-            <ArchetypeVariantSelector variants={variants} labels={labels} archetypeSlug={archetypeSlug} canCopyTag={canCopyTag} />
+            <ArchetypeVariantSelector variants={variants} labels={labels} archetypeSlug={archetypeSlug} canCopyTag={canCopyTag} englishUrl={englishUrl} />
         </AppMantineProvider>,
     );
 }

@@ -53,6 +53,31 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     /**
      * @see docs/features.md F1.2 — Email verification
      */
+    /**
+     * Users holding the translation-moderator capability. The role hierarchy
+     * lives in security.yaml (CMS editors and admins inherit the moderator
+     * role), so the stored `roles` json is matched against every granting
+     * role.
+     *
+     * @see docs/features.md F9.15 — Translation workflow notifications
+     *
+     * @return list<User>
+     */
+    public function findTranslationModerators(): array
+    {
+        /** @var list<User> $users */
+        $users = $this->createQueryBuilder('user')
+            ->where('user.roles LIKE :moderator OR user.roles LIKE :cmsEditor OR user.roles LIKE :admin')
+            ->andWhere('user.deletedAt IS NULL')
+            ->setParameter('moderator', '%ROLE_TRANSLATION_MODERATOR%')
+            ->setParameter('cmsEditor', '%ROLE_CMS_EDITOR%')
+            ->setParameter('admin', '%ROLE_ADMIN%')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
     public function findOneByVerificationToken(string $token): ?User
     {
         return $this->findOneBy(['verificationToken' => $token]);
