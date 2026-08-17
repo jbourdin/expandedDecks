@@ -4598,8 +4598,8 @@
             </trans-unit>
             <trans-unit id="app.translation.editor.guidelines_body">
                 <source>app.translation.editor.guidelines_body</source>
-                <target>Tutoie systématiquement. Garde le jargon TCG en anglais (deck, staple, set, top cut, lock, mill). Dis « rendre / rendu », jamais « retourné ». Utilise l'écriture inclusive avec point médian (joueur·euse).</target>
-                <note>Guidelines panel body, summary of docs/standards/french_translation.md (F9.10)</note>
+                <target>Adopte un ton informel et convivial. Garde le jargon TCG en anglais (deck, staple, set, top cut, lock, mill) — les joueur·euses utilisent ces termes tels quels. Ne traduis jamais les noms de cartes. Préfère une formulation naturelle au mot-à-mot et conserve la mise en forme (titres, listes, liens).</target>
+                <note>Guidelines panel body: language-agnostic translation guidance (F9.10). Locale-specific style rules live in docs/standards/.</note>
             </trans-unit>
             <trans-unit id="app.translation.editor.pending_notice">
                 <source>app.translation.editor.pending_notice</source>

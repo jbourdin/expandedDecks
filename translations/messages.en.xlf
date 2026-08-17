@@ -4623,8 +4623,8 @@
             </trans-unit>
             <trans-unit id="app.translation.editor.guidelines_body">
                 <source>app.translation.editor.guidelines_body</source>
-                <target>Use informal address (tutoiement). Keep TCG jargon in English (deck, staple, set, top cut, lock, mill). Say "rendre / rendu", never "retourné". Use inclusive point médian forms (joueur·euse).</target>
-                <note>Guidelines panel body, summary of docs/standards/french_translation.md (F9.10)</note>
+                <target>Use an informal, friendly tone. Keep TCG jargon in English (deck, staple, set, top cut, lock, mill) — players use these terms as-is. Never translate card names. Prefer natural phrasing over word-for-word translation, and keep the formatting (headings, lists, links) intact.</target>
+                <note>Guidelines panel body: language-agnostic translation guidance (F9.10). Locale-specific style rules live in docs/standards/.</note>
             </trans-unit>
             <trans-unit id="app.translation.editor.pending_notice">
                 <source>app.translation.editor.pending_notice</source>
