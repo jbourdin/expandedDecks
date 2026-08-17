@@ -183,6 +183,14 @@ class Deck
     #[ORM\OneToMany(targetEntity: EventDeckRegistration::class, mappedBy: 'deck')]
     private Collection $eventRegistrations;
 
+    /**
+     * Localized variant notes (non-source locales only, F9.7/F9.13).
+     *
+     * @var Collection<int, DeckTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: DeckTranslation::class, mappedBy: 'deck')]
+    private Collection $translations;
+
     public function __construct()
     {
         $this->shortTag = self::generateShortTag();
@@ -190,6 +198,7 @@ class Deck
         $this->versions = new ArrayCollection();
         $this->borrows = new ArrayCollection();
         $this->eventRegistrations = new ArrayCollection();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -440,6 +449,38 @@ class Deck
     public function isOutdated(): bool
     {
         return DeckStatus::Outdated === $this->status;
+    }
+
+    /**
+     * Live translation row for a non-source locale, when one exists.
+     *
+     * @see docs/features.md F9.13 — Archetype + variants combined translation view
+     */
+    public function translationFor(string $locale): ?DeckTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale) {
+                return $translation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Variant notes in the requested locale, falling back to the canonical
+     * source-locale notes (`Deck.notes`).
+     *
+     * @see docs/features.md F9.13 — Archetype + variants combined translation view
+     */
+    public function localizedNotes(string $locale): ?string
+    {
+        $translation = $this->translationFor($locale);
+        if ($translation instanceof DeckTranslation && null !== $translation->getNotes() && '' !== $translation->getNotes()) {
+            return $translation->getNotes();
+        }
+
+        return $this->notes;
     }
 
     public function getNotes(): ?string

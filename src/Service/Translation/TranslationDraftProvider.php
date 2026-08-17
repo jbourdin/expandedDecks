@@ -52,7 +52,11 @@ final readonly class TranslationDraftProvider
     ) {
     }
 
-    public function findOrCreateDraft(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    /**
+     * The not-yet-validated revision a translator would resume for this
+     * (content, locale) pair, if any (US-T3).
+     */
+    public function findPending(Page|Archetype|MenuCategory|Deck $content, string $locale): ?TranslationRevisionInterface
     {
         $revisionClass = match (true) {
             $content instanceof Page => PageTranslationRevision::class,
@@ -69,6 +73,16 @@ final readonly class TranslationDraftProvider
             return $latest;
         }
 
+        return null;
+    }
+
+    public function findOrCreateDraft(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    {
+        $pending = $this->findPending($content, $locale);
+        if ($pending instanceof TranslationRevisionInterface) {
+            return $pending;
+        }
+
         $draft = $this->createPrefilledDraft($content, $locale);
         $draft->setState(TranslationRevisionState::Draft);
 
@@ -81,6 +95,16 @@ final readonly class TranslationDraftProvider
         $this->entityManager->persist($draft);
 
         return $draft;
+    }
+
+    /**
+     * Transient, never-persisted revision of the right class for a (content,
+     * locale) pair — used as a typed probe for latest-source lookups when no
+     * pending revision exists yet.
+     */
+    public function probeFor(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    {
+        return $this->createPrefilledDraft($content, $locale);
     }
 
     /**
