@@ -18,7 +18,17 @@
 {% block body %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">{{ 'app.translation.editor.title'|trans }} <span class="badge bg-secondary text-uppercase">{{ locale }}</span></h1>
-        <a href="{{ path('app_admin_translation_queue') }}" class="btn btn-sm btn-outline-light-gold">{{ 'app.translation.editor.back_to_queue'|trans }}</a>
+        <div class="d-flex gap-2">
+            {% if publicUrl %}
+                {% if hasPendingWork %}
+                    {# Pending work: preview renders the draft in the real template (F9.10) #}
+                    <a href="{{ publicUrl }}?translationPreview=1" class="btn btn-sm btn-outline-warning" target="_blank"><i class="bi bi-eye me-1"></i>{{ 'app.common.preview'|trans }}</a>
+                {% else %}
+                    <a href="{{ publicUrl }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-eye me-1"></i>{{ 'app.common.view'|trans }}</a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ path('app_admin_translation_queue') }}" class="btn btn-sm btn-outline-light-gold">{{ 'app.translation.editor.back_to_queue'|trans }}</a>
+        </div>
     </div>
 
     <div id="translation-editor-root"

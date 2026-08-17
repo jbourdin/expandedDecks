@@ -129,7 +129,26 @@ class TranslationController extends AbstractAppController
             'locale' => $locale,
             'canTranslate' => $canTranslate,
             'canModerate' => $canModerate,
+            'publicUrl' => $this->publicUrlFor($content, $locale),
+            'hasPendingWork' => [] !== array_filter($sections, static fn (array $section): bool => null !== $section['state']),
         ]);
+    }
+
+    /**
+     * Public page of the translated content in the target locale — shows the
+     * LIVE translation (a draft preview in the real template is the deferred
+     * v1.1 item of #612). Menu categories have no page of their own.
+     */
+    private function publicUrlFor(Page|Archetype|MenuCategory|Deck $content, string $locale): ?string
+    {
+        if ($content instanceof Page) {
+            return $this->generateUrl('app_page_show', ['slug' => $content->getSlug(), '_locale' => $locale]);
+        }
+        if ($content instanceof Archetype) {
+            return $this->generateUrl('app_archetype_show', ['slug' => $content->getSlug(), '_locale' => $locale]);
+        }
+
+        return null;
     }
 
     /**

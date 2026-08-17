@@ -55,6 +55,10 @@
         <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.archetype.draft_notice'|trans }}</div>
     {% endif %}
 
+    {% if isTranslationPreview is defined and isTranslationPreview %}
+        <div class="alert alert-warning"><i class="bi bi-eye me-1"></i>{{ 'app.translation.preview_notice'|trans }}</div>
+    {% endif %}
+
     {# Reader-facing staleness notice on the description (US-T6 / F9.14) #}
     {{ include('_partials/translation_outdated_notice.html.twig', {
         translation: archetype.getTranslation(app.request.locale),

@@ -148,6 +148,9 @@ class TranslationControllerTest extends AbstractFunctionalTest
         // A brand-new translation has nothing pinned yet: never stale (US-T5
         // only concerns existing work on an older source).
         self::assertFalse($sections[0]['sourceStale']);
+        // No pending work: a plain View button opens the live page.
+        self::assertSame(1, $crawler->filter('a[href="/fr/pages/controller-edit-view"]')->count());
+        self::assertSame(0, $crawler->filter('a[href="/fr/pages/controller-edit-view?translationPreview=1"]')->count());
     }
 
     public function testEditViewDeniedForUnrelatedUser(): void
@@ -425,6 +428,8 @@ class TranslationControllerTest extends AbstractFunctionalTest
         self::assertSame('Brouillon visible', $fields[0]['target']);
         // The draft is pinned to the latest source: not stale yet.
         self::assertFalse($sections[0]['sourceStale']);
+        // Pending work: the header button becomes a draft Preview.
+        self::assertSame(1, $crawler->filter('a[href="/fr/pages/controller-pending-view?translationPreview=1"]')->count());
 
         // The source moves on: the pending draft is now genuinely stale.
         $em = $this->getEntityManager();
@@ -494,6 +499,92 @@ class TranslationControllerTest extends AbstractFunctionalTest
         $this->loginByEmail('borrower@example.com');
         $crawler = $this->client->request('GET', '/en/pages/controller-entry-point', server: $host);
         self::assertSame(0, $crawler->filter(\sprintf('a[href="/admin/translations/page/%d/fr"]', $pageId))->count());
+    }
+
+    public function testTranslationPreviewRendersTheDraftForAuthorizedUsersOnly(): void
+    {
+        $em = $this->getEntityManager();
+        $page = $this->createPageWithSource('controller-draft-preview');
+        $page->setIsPublished(true);
+        $em->flush();
+
+        $this->loginByEmail('translator@example.com');
+        $pageId = $page->getId();
+        \assert(null !== $pageId);
+        $this->client->request('POST', \sprintf('/admin/translations/page/%d/fr/draft', $pageId), [], [], $this->ajaxHeaders(), json_encode([
+            'fields' => ['title' => 'Titre en brouillon', 'content' => 'Contenu du brouillon.'],
+        ], \JSON_THROW_ON_ERROR));
+        self::assertResponseIsSuccessful();
+
+        $host = ['HTTP_HOST' => $page->getChannel()?->getDomain() ?? 'localhost'];
+
+        // The translator previews the draft in the real template, with notice.
+        $crawler = $this->client->request('GET', '/fr/pages/controller-draft-preview?translationPreview=1', server: $host);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Contenu du brouillon.', $crawler->html());
+        self::assertSame(1, $crawler->filter('.alert-warning .bi-eye')->count());
+
+        // Without the param the live (EN fallback) content still renders.
+        $crawler = $this->client->request('GET', '/fr/pages/controller-draft-preview', server: $host);
+        self::assertStringNotContainsString('Contenu du brouillon.', $crawler->html());
+
+        // An unauthorized user gets the live content even with the param.
+        $this->loginByEmail('borrower@example.com');
+        $crawler = $this->client->request('GET', '/fr/pages/controller-draft-preview?translationPreview=1', server: $host);
+        self::assertResponseIsSuccessful();
+        self::assertStringNotContainsString('Contenu du brouillon.', $crawler->html());
+        self::assertSame(0, $crawler->filter('.alert-warning .bi-eye')->count());
+    }
+
+    public function testTranslationPreviewCoversArchetypeDescriptionAndVariantNotes(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = new Archetype();
+        $archetype->setName('Preview Context Subject');
+        $archetype->setIsPublished(true);
+        $archetypeSource = new ArchetypeTranslation();
+        $archetypeSource->setArchetype($archetype);
+        $archetypeSource->setLocale('en');
+        $archetypeSource->setName('Preview Context Subject');
+        $archetypeSource->setDescription('English description.');
+        $archetype->addTranslation($archetypeSource);
+        $em->persist($archetype);
+        $em->persist($archetypeSource);
+
+        $variant = new Deck();
+        $variant->setName('Preview variant');
+        $variant->setArchetype($archetype);
+        $variant->setOwner(null);
+        $variant->setFormat(DeckFormat::Expanded);
+        $variant->setNotes('English variant notes.');
+        $variant->setPublic(true);
+        $em->persist($variant);
+        $em->flush();
+
+        $this->loginByEmail('translator@example.com');
+        $archetypeId = $archetype->getId();
+        $variantId = $variant->getId();
+        \assert(null !== $archetypeId && null !== $variantId);
+
+        $this->client->request('POST', \sprintf('/admin/translations/archetype/%d/fr/draft', $archetypeId), [], [], $this->ajaxHeaders(), json_encode([
+            'fields' => ['name' => 'Sujet de preview', 'description' => 'Description en brouillon.'],
+        ], \JSON_THROW_ON_ERROR));
+        self::assertResponseIsSuccessful();
+        $this->client->request('POST', \sprintf('/admin/translations/deck/%d/fr/draft', $variantId), [], [], $this->ajaxHeaders(), json_encode([
+            'fields' => ['notes' => 'Notes de variante en brouillon.'],
+        ], \JSON_THROW_ON_ERROR));
+        self::assertResponseIsSuccessful();
+
+        $crawler = $this->client->request('GET', \sprintf('/fr/archetypes/%s?translationPreview=1', $archetype->getSlug()));
+        self::assertResponseIsSuccessful();
+        $html = $crawler->html();
+        self::assertStringContainsString('Description en brouillon.', $html);
+        self::assertStringContainsString('Notes de variante en brouillon.', $html);
+
+        // Without the param, the live content renders.
+        $crawler = $this->client->request('GET', \sprintf('/fr/archetypes/%s', $archetype->getSlug()));
+        self::assertStringNotContainsString('Description en brouillon.', $crawler->html());
     }
 
     public function testOutdatedNoticeAppearsForReaders(): void

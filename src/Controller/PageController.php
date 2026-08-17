@@ -22,6 +22,7 @@ use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownExcerptGenerator;
 use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
+use App\Service\Translation\TranslationPreviewResolver;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -131,6 +132,7 @@ class PageController extends AbstractController
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
         MetaDescriptionResolver $metaDescriptionResolver,
+        TranslationPreviewResolver $translationPreviewResolver,
     ): Response {
         if (ListingIntroPage::isListingSlug($slug)) {
             $route = ListingIntroPage::routeForSlug($slug);
@@ -155,6 +157,18 @@ class PageController extends AbstractController
         $locale = $request->getLocale();
         $translation = $page->getDisplayTranslation($locale);
 
+        // Draft-translation preview (F9.10): translators of this locale and
+        // moderators can render the pending revision in place of the live
+        // translation; anyone else keeps the live content, param or not.
+        $isTranslationPreview = false;
+        if ($request->query->getBoolean('translationPreview') && $translationPreviewResolver->canPreview($page, $locale)) {
+            $previewTranslation = $translationPreviewResolver->previewPageTranslation($page, $locale);
+            if ($previewTranslation instanceof PageTranslation) {
+                $translation = $previewTranslation;
+                $isTranslationPreview = true;
+            }
+        }
+
         if (null === $translation) {
             throw $this->createNotFoundException();
         }
@@ -165,6 +179,7 @@ class PageController extends AbstractController
             'page' => $page,
             'translation' => $translation,
             'htmlContent' => $htmlContent,
+            'isTranslationPreview' => $isTranslationPreview,
             // Resolve against the displayed translation's locale so the snippet
             // matches the content actually rendered after locale fallback.
             'metaDescription' => $metaDescriptionResolver->resolveForPage($page, $translation->getLocale()),

@@ -4421,6 +4421,11 @@
                 <target>Voir la dernière version anglaise</target>
                 <note>Link label inside the outdated-translation notice (F9.14, US-T6)</note>
             </trans-unit>
+            <trans-unit id="app.translation.preview_notice">
+                <source>app.translation.preview_notice</source>
+                <target>Tu prévisualises une traduction non validée — ce n'est pas ce que les visiteurs voient actuellement.</target>
+                <note>Banner on public pages rendered in draft-translation preview mode (F9.10)</note>
+            </trans-unit>
             <trans-unit id="app.nav.translations">
                 <source>app.nav.translations</source>
                 <target>Traductions</target>
