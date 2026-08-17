@@ -125,6 +125,7 @@ function TranslationSection({ section, locale, baseUrl, canTranslate, canModerat
     });
     const [state, setState] = useState<string | null>(section.state);
     const [revisionId, setRevisionId] = useState<number | null>(section.revisionId);
+    const [dirty, setDirty] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showDiff, setShowDiff] = useState(false);
     const [sourceView, setSourceView] = useState<'rendered' | 'raw'>('rendered');
@@ -181,6 +182,7 @@ function TranslationSection({ section, locale, baseUrl, canTranslate, canModerat
 
     const updateField = (fieldName: string, value: string): void => {
         setValues((previous) => ({ ...previous, [fieldName]: value }));
+        setDirty(true);
         setSaveStatus('idle');
         scheduleSave();
     };
@@ -315,6 +317,7 @@ function TranslationSection({ section, locale, baseUrl, canTranslate, canModerat
                                 <MarkdownEditor
                                     initialContent={values[field.name]}
                                     onChange={(content) => updateField(field.name, content)}
+                                    disabled={!editable}
                                 />
                             ) : field.kind === 'textarea' ? (
                                 <Textarea
@@ -342,7 +345,11 @@ function TranslationSection({ section, locale, baseUrl, canTranslate, canModerat
                 {saveStatus === 'saving' && <Text size="sm" c="dimmed">{labels.saving}</Text>}
                 {saveStatus === 'saved' && <Text size="sm" c="green">{labels.saved}</Text>}
                 {editable && (
-                    <Button onClick={() => void submit()}>{labels.submit}</Button>
+                    // Untouched sections must not be submittable: a submit
+                    // without any work would create and send an empty draft.
+                    <Button onClick={() => void submit()} disabled={!dirty && revisionId === null}>
+                        {labels.submit}
+                    </Button>
                 )}
                 {canModerate && state === 'pending_review' && (
                     <>
@@ -364,32 +371,82 @@ function TranslationSection({ section, locale, baseUrl, canTranslate, canModerat
     );
 }
 
+export const sectionStateLabel = (labels: TranslationEditorLabels, state: string | null): string | null => {
+    switch (state) {
+        case 'draft':
+            return labels.stateDraft;
+        case 'pending_review':
+            return labels.statePendingReview;
+        case 'rejected':
+            return labels.stateRejected;
+        default:
+            return null;
+    }
+};
+
+/**
+ * Card wrapper giving each translation unit its own clearly bounded block:
+ * header with name + state badges, body with the section's own form and
+ * actions. The archetype and each variant are fully independent parts.
+ */
+function SectionCard({ title, section, labels, children }: { title: string | null; section: TranslationSectionData; labels: TranslationEditorLabels; children: React.ReactNode }) {
+    const stateBadge = sectionStateLabel(labels, section.state);
+
+    return (
+        <Paper withBorder shadow="sm" p="md">
+            {(title !== null || stateBadge !== null) && (
+                <Group gap="xs" mb="md">
+                    {title !== null && <Title order={2} size="h5" style={{ margin: 0 }}>{title}</Title>}
+                    {stateBadge !== null && (
+                        <Badge color={section.state === 'rejected' ? 'red' : 'yellow'}>{stateBadge}</Badge>
+                    )}
+                </Group>
+            )}
+            {children}
+        </Paper>
+    );
+}
+
 export default function TranslationEditor({ sections, locale, baseUrl, canTranslate, canModerate, labels }: TranslationEditorProps) {
-    const [archetypeSection, ...variantSections] = sections.length > 1
-        ? [sections[0], ...sections.slice(1)]
-        : [sections[0]];
+    const [firstSection, ...variantSections] = sections;
 
     return (
         <Stack gap="lg">
-            {sections.length > 1 && <Title order={2} size="h4">{labels.archetypeSection}</Title>}
-            <TranslationSection
-                key={`${archetypeSection.contentType}-${archetypeSection.contentId}`}
-                section={archetypeSection}
-                locale={locale}
-                baseUrl={baseUrl}
-                canTranslate={canTranslate}
-                canModerate={canModerate}
+            <SectionCard
+                title={variantSections.length > 0 ? labels.archetypeSection : null}
+                section={firstSection}
                 labels={labels}
-            />
+            >
+                <TranslationSection
+                    key={`${firstSection.contentType}-${firstSection.contentId}`}
+                    section={firstSection}
+                    locale={locale}
+                    baseUrl={baseUrl}
+                    canTranslate={canTranslate}
+                    canModerate={canModerate}
+                    labels={labels}
+                />
+            </SectionCard>
+
             {variantSections.length > 0 && (
-                <Accordion multiple defaultValue={variantSections.filter((section) => section.sourceStale || section.state !== null).map((section) => `variant-${section.contentId}`)}>
+                <Accordion
+                    multiple
+                    variant="separated"
+                    defaultValue={variantSections
+                        .filter((section) => section.sourceStale || section.state !== null)
+                        .map((section) => `variant-${section.contentId}`)}
+                >
                     {variantSections.map((section) => (
                         <Accordion.Item key={`variant-${section.contentId}`} value={`variant-${section.contentId}`}>
                             <Accordion.Control>
                                 <Group gap="xs">
                                     <Text fw={600}>{section.variantName ?? `#${section.contentId}`}</Text>
+                                    {sectionStateLabel(labels, section.state) !== null && (
+                                        <Badge color={section.state === 'rejected' ? 'red' : 'yellow'}>
+                                            {sectionStateLabel(labels, section.state)}
+                                        </Badge>
+                                    )}
                                     {section.sourceStale && <Badge color="orange">{labels.showChanges}</Badge>}
-                                    {section.state !== null && <Badge color={section.state === 'rejected' ? 'red' : 'yellow'}>{section.state}</Badge>}
                                 </Group>
                             </Accordion.Control>
                             <Accordion.Panel>

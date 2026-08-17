@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SegmentedControl, Textarea } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
 import TiptapLink from '@tiptap/extension-link';
@@ -106,6 +106,7 @@ interface MarkdownEditorProps {
     initialContent: string;
     placeholder?: string;
     onChange?: (content: string) => void;
+    disabled?: boolean;
 }
 
 type EditorMode = 'rte' | 'markdown';
@@ -126,7 +127,7 @@ function downgradeHeadingOne(markdown: string): string {
     return markdown.replace(/^# (?!#)/gm, '## ');
 }
 
-export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange }: MarkdownEditorProps) {
+export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange, disabled = false }: MarkdownEditorProps) {
     const [mode, setMode] = useState<EditorMode>('rte');
     const [rawMarkdown, setRawMarkdown] = useState(initialContent);
     const suppressSyncRef = useRef(false);
@@ -220,6 +221,14 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
         setRawMarkdown(value);
         syncToTextarea(value);
     };
+
+    // A locked section (e.g. a revision awaiting review, F9.11) must not be
+    // editable; TipTap's editable flag is imperative, so sync it on change.
+    // emitUpdate: false — flipping editability is not a content change and
+    // must not push the (unchanged) content to the hidden textarea.
+    useEffect(() => {
+        editor?.setEditable(!disabled, false);
+    }, [editor, disabled]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const editorForMantine = editor as any;
@@ -326,6 +335,7 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
                     value={rawMarkdown}
                     onChange={handleRawChange}
                     placeholder={placeholder}
+                    disabled={disabled}
                     autosize
                     minRows={10}
                     styles={{ input: { fontFamily: 'monospace' } }}

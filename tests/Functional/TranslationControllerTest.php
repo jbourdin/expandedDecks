@@ -536,6 +536,60 @@ class TranslationControllerTest extends AbstractFunctionalTest
         self::assertSame(0, $crawler->filter('.alert-warning .bi-eye')->count());
     }
 
+    public function testArchetypeSubmitLeavesThePendingVariantRevisionIntact(): void
+    {
+        $em = $this->getEntityManager();
+
+        $archetype = new Archetype();
+        $archetype->setName('Independence Subject');
+        $archetypeSource = new ArchetypeTranslation();
+        $archetypeSource->setArchetype($archetype);
+        $archetypeSource->setLocale('en');
+        $archetypeSource->setName('Independence Subject');
+        $em->persist($archetype);
+        $em->persist($archetypeSource);
+
+        $variant = new Deck();
+        $variant->setName('Independent variant');
+        $variant->setArchetype($archetype);
+        $variant->setOwner(null);
+        $variant->setFormat(DeckFormat::Expanded);
+        $variant->setNotes('English variant notes.');
+        $em->persist($variant);
+        $em->flush();
+
+        $this->loginByEmail('translator@example.com');
+        $archetypeId = $archetype->getId();
+        $variantId = $variant->getId();
+        \assert(null !== $archetypeId && null !== $variantId);
+
+        // The variant translation is drafted and submitted first.
+        $this->client->request('POST', \sprintf('/admin/translations/deck/%d/fr/draft', $variantId), [], [], $this->ajaxHeaders(), '{"fields":{"notes":"Notes FR de la variante."}}');
+        $this->client->request('POST', \sprintf('/admin/translations/deck/%d/fr/submit', $variantId), [], [], $this->ajaxHeaders(), '{}');
+        self::assertResponseIsSuccessful();
+
+        // Then the archetype section is drafted and submitted.
+        $this->client->request('POST', \sprintf('/admin/translations/archetype/%d/fr/draft', $archetypeId), [], [], $this->ajaxHeaders(), '{"fields":{"name":"Sujet indépendant"}}');
+        $this->client->request('POST', \sprintf('/admin/translations/archetype/%d/fr/submit', $archetypeId), [], [], $this->ajaxHeaders(), '{}');
+        self::assertResponseIsSuccessful();
+
+        // The variant's pending revision is untouched by the archetype submit…
+        $variantRevision = $em->getRepository(\App\Entity\DeckTranslationRevision::class)->findOneBy(['deck' => $variant, 'locale' => 'fr'], ['id' => 'DESC']);
+        self::assertInstanceOf(\App\Entity\DeckTranslationRevision::class, $variantRevision);
+        self::assertSame('pending_review', $variantRevision->getState()->value);
+        self::assertSame('Notes FR de la variante.', $variantRevision->getNotes());
+
+        // …and the combined view still exposes both pending sections.
+        $crawler = $this->client->request('GET', \sprintf('/admin/translations/archetype/%d/fr', $archetypeId));
+        /** @var list<array<string, mixed>> $sections */
+        $sections = json_decode($crawler->filter('#translation-editor-root')->attr('data-sections') ?? '[]', true);
+        self::assertSame('pending_review', $sections[0]['state']);
+        self::assertSame('pending_review', $sections[1]['state']);
+        /** @var list<array<string, mixed>> $variantFields */
+        $variantFields = $sections[1]['fields'];
+        self::assertSame('Notes FR de la variante.', $variantFields[0]['target']);
+    }
+
     public function testTranslationPreviewCoversArchetypeDescriptionAndVariantNotes(): void
     {
         $em = $this->getEntityManager();
