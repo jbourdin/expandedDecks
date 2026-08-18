@@ -234,6 +234,22 @@ class TranslationControllerTest extends AbstractFunctionalTest
         $live = $em->getRepository(PageTranslation::class)->findOneBy(['page' => $page, 'locale' => 'fr']);
         self::assertInstanceOf(PageTranslation::class, $live);
         self::assertSame('Titre HTTP', $live->getTitle());
+
+        // The public FR page credits the translator with the language named
+        // ("Traduit en français par …") in the byline footnote. The original
+        // $page instance was detached by the kernel reboots of the client
+        // requests above — mutate a freshly loaded one.
+        $freshPage = $em->getRepository(Page::class)->find($pageId);
+        \assert($freshPage instanceof Page);
+        $author = $em->getRepository(User::class)->findOneBy(['email' => 'admin@example.com']);
+        \assert($author instanceof User);
+        $freshPage->setAuthor($author);
+        $freshPage->setIsPublished(true);
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/fr/pages/controller-lifecycle', server: ['HTTP_HOST' => $freshPage->getChannel()?->getDomain() ?? 'localhost']);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Traduit en français par Translator', $crawler->filter('.author-byline')->text());
     }
 
     public function testStaleSubmitReturnsConflictWithTranslatedError(): void

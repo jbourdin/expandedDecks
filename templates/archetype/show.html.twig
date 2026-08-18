@@ -95,6 +95,7 @@
                 {{ include('_partials/author_byline.html.twig', {
                     author: archetype.author,
                     translator: localeTranslation ? localeTranslation.translator : null,
+                    translationLocale: localeTranslation ? localeTranslation.locale : null,
                 }) }}
                 {% if htmlContent %}
                     <div class="cms-content mt-2">{{ htmlContent|raw }}</div>
@@ -114,6 +115,7 @@
                          data-can-copy-tag="{{ is_granted('ROLE_ARCHETYPE_EDITOR') or is_granted('ROLE_ADMIN') ? 'true' : 'false' }}"
                          data-label-notes-outdated-notice="{{ 'app.translation.outdated_notice'|trans }}"
                          data-label-notes-outdated-link="{{ 'app.translation.outdated_notice_link'|trans }}"
+                         data-label-translated-in-by="{{ 'app.author.translated_in_by'|trans({'%language%': app.request.locale|language_name(app.request.locale), '%name%': '%name%'}) }}"
                          data-english-url="{{ path('app_archetype_show', {slug: archetype.slug, _locale: 'en'}) }}"
                          data-label-copy-tag="{{ 'app.archetype.variant.copy_tag'|trans }}"
                          data-label-copy-tag-copied="{{ 'app.archetype.variant.copy_tag_copied'|trans }}"

@@ -87,7 +87,7 @@
         </div>
         {% if page.author or page.firstPublishedAt %}
             <div class="card-footer text-muted small">
-                {{ include('_partials/author_byline.html.twig', {author: page.author, translator: translation.translator}) }}
+                {{ include('_partials/author_byline.html.twig', {author: page.author, translator: translation.translator, translationLocale: translation.locale}) }}
                 {% if page.firstPublishedAt %}
                     <div>
                         {{ 'app.cms.published_on'|trans }} {{ page.firstPublishedAt|format_date('long') }}

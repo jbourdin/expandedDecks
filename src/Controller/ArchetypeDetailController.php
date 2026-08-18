@@ -231,6 +231,17 @@ class ArchetypeDetailController extends AbstractController
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
                 'notesOutdated' => null !== $variantTranslation && $variantTranslation->isSourceOutdated(),
+                // Translator credit for the displayed notes (F19.8/F9.13):
+                // only when the rendered notes actually come from a translation.
+                'notesTranslator' => null !== $variantTranslation
+                    && null !== $variantTranslation->getTranslator()
+                    && null !== $variantTranslation->getNotes()
+                    && '' !== $variantTranslation->getNotes()
+                    ? [
+                        'name' => $variantTranslation->getTranslator()->getScreenName(),
+                        'url' => $variantTranslation->getTranslator()->getPrimaryUrl(),
+                    ]
+                    : null,
                 'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),

@@ -30,7 +30,9 @@ interface TableToolbarControlsProps {
 }
 
 export default function TableToolbarControls({ editor }: TableToolbarControlsProps) {
-    const isInTable = editor.can().addRowAfter();
+    // A torn-down editor can still be rendered for one last frame during
+    // re-instantiation; calling can() on it throws ("commandManager is null").
+    const isInTable = !editor.isDestroyed && editor.can().addRowAfter();
 
     return (
         <>

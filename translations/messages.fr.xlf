@@ -5228,6 +5228,11 @@
                 <target>Traduit par %name%</target>
                 <note>Signature publique affichée sur le contenu d'une locale non source, créditant le·la traducteur·rice (F19.8).</note>
             </trans-unit>
+            <trans-unit id="app.author.translated_in_by">
+                <source>app.author.translated_in_by</source>
+                <target>Traduit en %language% par %name%</target>
+                <note>Public byline crediting the translator with the target language named (F19.8/F9.15); %language% is the Intl display name of the translation locale.</note>
+            </trans-unit>
 
             <!-- CMS: Validation -->
             <trans-unit id="app.cms.slug_unique">

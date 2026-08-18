@@ -49,6 +49,7 @@ if (root) {
         curatedDisclaimer: root.dataset.labelCuratedDisclaimer ?? 'A curated, maintained archetype reference — not an original creation by the author.',
         notesOutdatedNotice: root.dataset.labelNotesOutdatedNotice,
         notesOutdatedLink: root.dataset.labelNotesOutdatedLink,
+        translatedInBy: root.dataset.labelTranslatedInBy,
     };
     const englishUrl = root.dataset.englishUrl ?? '';
 

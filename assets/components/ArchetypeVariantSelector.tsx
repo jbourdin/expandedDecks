@@ -42,6 +42,7 @@ interface VariantData {
     sprites: string[];
     description: string | null;
     notesOutdated?: boolean;
+    notesTranslator?: { name: string; url: string | null } | null;
     mosaicUrl: string | null;
     rawList: string | null;
     effectiveUpdatedAtLabel: string | null;
@@ -77,6 +78,7 @@ interface Labels {
     curatedDisclaimer: string;
     notesOutdatedNotice?: string;
     notesOutdatedLink?: string;
+    translatedInBy?: string;
 }
 
 interface ArchetypeVariantSelectorProps {
@@ -740,6 +742,21 @@ export default function ArchetypeVariantSelector({ variants, labels, archetypeSl
                                 <a href={selectedVariant.authorUrl} target="_blank" rel="noopener noreferrer">{selectedVariant.authorName}</a>
                             ) : (
                                 selectedVariant.authorName
+                            )}
+                            {/* Translator credit for the displayed notes (F19.8/F9.13):
+                                the label carries a %name% placeholder so the name can
+                                be linked like the author's. */}
+                            {selectedVariant.notesTranslator && labels.translatedInBy !== undefined && (
+                                <>
+                                    {' \u00b7 '}
+                                    {labels.translatedInBy.split('%name%')[0]}
+                                    {selectedVariant.notesTranslator.url ? (
+                                        <a href={selectedVariant.notesTranslator.url} target="_blank" rel="noopener noreferrer">{selectedVariant.notesTranslator.name}</a>
+                                    ) : (
+                                        selectedVariant.notesTranslator.name
+                                    )}
+                                    {labels.translatedInBy.split('%name%')[1] ?? ''}
+                                </>
                             )}
                             {' \u2014 '}
                             {labels.curatedDisclaimer}
