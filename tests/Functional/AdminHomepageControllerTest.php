@@ -118,16 +118,18 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
     {
         $this->loginAs('admin@example.com');
 
-        // The 'content' channel only ships English in DevFixtures, so any FR
-        // payload should be silently dropped rather than creating a phantom
-        // french translation row.
+        // The 'content' channel publishes English and holds French as a DRAFT
+        // locale (F9.16) in DevFixtures: FR is editable (editors prepare draft
+        // content), but a locale enabled nowhere ('de') must be dropped rather
+        // than creating a phantom translation row.
         $payload = json_encode([
             'blocks' => [],
-            'translations' => ['en' => [], 'fr' => []],
+            'translations' => ['en' => [], 'fr' => [], 'de' => []],
             'channelCode' => 'content',
             'meta' => [
                 'en' => ['title' => 'Content home', 'ogDescription' => 'EN description'],
-                'fr' => ['title' => 'NE DOIT PAS ÊTRE SAUVEGARDÉ', 'ogDescription' => 'Should be ignored'],
+                'fr' => ['title' => 'Accueil contenu', 'ogDescription' => 'Description FR (draft locale)'],
+                'de' => ['title' => 'DARF NICHT GESPEICHERT WERDEN', 'ogDescription' => 'Should be ignored'],
             ],
         ]);
 
@@ -149,15 +151,20 @@ class AdminHomepageControllerTest extends AbstractFunctionalTest
         self::assertSame('Content home', $englishTranslation->getTitle());
         self::assertSame('EN description', $englishTranslation->getOgDescription());
 
-        // No translation row should have been created for FR.
-        $frenchExists = false;
+        // FR (draft locale) is editable and persisted…
+        $frenchTranslation = $layout->getTranslation('fr');
+        self::assertNotNull($frenchTranslation, 'A draft locale must be editable by CMS editors (F9.16).');
+        self::assertSame('Accueil contenu', $frenchTranslation->getTitle());
+
+        // …while a locale that is neither published nor draft is dropped.
+        $germanExists = false;
         foreach ($layout->getTranslations() as $translation) {
-            if ('fr' === $translation->getLocale()) {
-                $frenchExists = true;
+            if ('de' === $translation->getLocale()) {
+                $germanExists = true;
                 break;
             }
         }
-        self::assertFalse($frenchExists, 'Save must not persist a FR translation on a channel without French.');
+        self::assertFalse($germanExists, 'Save must not persist a translation for a locale disabled on the channel.');
     }
 
     public function testSaveTreatsBlankMetaFieldsAsNull(): void

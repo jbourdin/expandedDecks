@@ -98,6 +98,17 @@ class ChannelFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
             ])
+            ->add('draftLocales', ChoiceType::class, [
+                'label' => 'app.channel.draft_locales',
+                'help' => 'app.channel.draft_locales_help',
+                'choices' => [
+                    'English' => 'en',
+                    'Français' => 'fr',
+                ],
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ])
             ->add('parameters', CollectionType::class, [
                 'label' => 'app.channel.parameters',
                 'entry_type' => KeyValuePairType::class,

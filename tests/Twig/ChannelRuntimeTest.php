@@ -50,6 +50,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             $this->createChannelContext((new Channel())->setCode('app')),
             $generator,
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame('https://expandedtalks.wip/archetypes', $runtime->channelUrl('content', 'app_archetype_list'));
@@ -63,6 +64,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             $this->createChannelContext((new Channel())->setCode('app')),
             $generator,
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame('/deck/AB3K7N', $runtime->featureUrl('decks', 'app_deck_show', ['short_tag' => 'AB3K7N']));
@@ -76,6 +78,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             $this->createChannelContext((new Channel())->setCode('app')),
             $generator,
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame('https://expanded.wip/decks', $runtime->canonicalUrl('decks', 'app_deck_list'));
@@ -89,6 +92,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             $this->createChannelContext((new Channel())->setCode('content')),
             $generator,
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame('https://expandedtalks.wip/archetypes/zard', $runtime->selfCanonicalUrl('app_archetype_show', ['slug' => 'zard']));
@@ -109,6 +113,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             new ChannelContext(new RequestStack()),
             $this->createStub(ChannelUrlGenerator::class),
+            $this->createLocaleVisibility(),
         );
 
         self::assertNull($runtime->channelTheme());
@@ -128,6 +133,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             new ChannelContext(new RequestStack()),
             $this->createStub(ChannelUrlGenerator::class),
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame('fallback', $runtime->channelParam('brand_name', 'fallback'));
@@ -141,6 +147,7 @@ final class ChannelRuntimeTest extends TestCase
         $runtime = new ChannelRuntime(
             $this->createChannelContext((new Channel())->setCode('app')),
             $generator,
+            $this->createLocaleVisibility(),
         );
 
         self::assertSame(
@@ -154,6 +161,7 @@ final class ChannelRuntimeTest extends TestCase
         return new ChannelRuntime(
             $this->createChannelContext($channel),
             $this->createStub(ChannelUrlGenerator::class),
+            $this->createLocaleVisibility(),
         );
     }
 
@@ -166,5 +174,16 @@ final class ChannelRuntimeTest extends TestCase
         $requestStack->push($request);
 
         return new ChannelContext($requestStack);
+    }
+
+    private function createLocaleVisibility(): \App\Service\Channel\ChannelLocaleVisibility
+    {
+        $security = $this->createStub(\Symfony\Bundle\SecurityBundle\Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        return new \App\Service\Channel\ChannelLocaleVisibility(
+            $security,
+            new \Symfony\Component\Security\Core\Role\RoleHierarchy([]),
+        );
     }
 }

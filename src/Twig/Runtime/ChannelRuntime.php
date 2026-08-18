@@ -15,6 +15,7 @@ namespace App\Twig\Runtime;
 
 use App\Entity\Channel;
 use App\Service\Channel\ChannelContext;
+use App\Service\Channel\ChannelLocaleVisibility;
 use App\Service\Channel\ChannelUrlGenerator;
 use Twig\Extension\RuntimeExtensionInterface;
 
@@ -26,12 +27,27 @@ class ChannelRuntime implements RuntimeExtensionInterface
     public function __construct(
         private readonly ChannelContext $channelContext,
         private readonly ChannelUrlGenerator $channelUrlGenerator,
+        private readonly ChannelLocaleVisibility $localeVisibility,
     ) {
     }
 
     public function getCurrentChannel(): Channel
     {
         return $this->channelContext->getChannel();
+    }
+
+    /**
+     * Draft locales of the current channel the current user may browse
+     * (F9.16). Only call from session-cookie-gated template paths: the
+     * visibility check consults the security token.
+     *
+     * @see docs/features.md F9.16 — Channel locale management
+     *
+     * @return list<string>
+     */
+    public function visibleDraftLocales(): array
+    {
+        return $this->localeVisibility->visibleDraftLocales($this->channelContext->getChannel());
     }
 
     public function isChannel(string $code): bool

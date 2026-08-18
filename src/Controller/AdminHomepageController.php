@@ -65,7 +65,7 @@ class AdminHomepageController extends AbstractAppController
 
         $channels = $channelRepository->findAll();
         $layout = $this->layoutRepository->findPublished($channel);
-        $locales = $channel->getLocales();
+        $locales = $channel->getAllLocales();
 
         // Categories used by the latestPages block selector — scoped to the editor's channel.
         $categories = [];
@@ -135,7 +135,7 @@ class AdminHomepageController extends AbstractAppController
         // Only persist translations for locales the channel actually serves —
         // this prevents the editor from creating phantom translation rows in
         // languages the channel does not display.
-        $localesToUpdate = $channel?->getLocales() ?? self::FALLBACK_LOCALES;
+        $localesToUpdate = $channel?->getAllLocales() ?? self::FALLBACK_LOCALES;
 
         foreach ($localesToUpdate as $locale) {
             $translationEntity = $layout->getTranslation($locale);

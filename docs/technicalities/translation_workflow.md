@@ -99,6 +99,10 @@ Translated content whose live row is `sourceOutdated` shows a discreet notice li
 
 Deck notifications link to the archetype context view. Emails live under `templates/email/translation/`.
 
+## Draft channel locales (F9.16)
+
+A channel locale is **published** (`Channel.locales`) or **draft** (`Channel.draftLocales`). Draft locales are the staging ground for a new language: translators assigned the locale, moderators, and admins browse the site in it (marked entry in the locale switcher, prefixed URLs render, session/preferred locale allowed); everyone else is 302-redirected to the published equivalent and never sees the locale in the switcher, hreflang, sitemap, or robots (all of which derive from the published list only). `ChannelLocaleVisibility` centralizes the who-may-see decision; `LocaleListener` enforces it on the request path behind the session-cookie gate, keeping anonymous pages CDN-cacheable. Admin content forms use `Channel::getAllLocales()` so draft-locale content is editable before publication; publishing is an explicit admin action on the channel form.
+
 ## Deliberately not signals
 
 - **Deck-list changes** never flag variant-notes translations: a list change that matters to readers warrants an English notes update, and that update triggers the flag through the normal path (editorial practice, decided in #612).

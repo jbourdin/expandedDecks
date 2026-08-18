@@ -146,7 +146,7 @@ class AdminMenuCategoryController extends AbstractAppController
         }
 
         $channel = $category->getChannel() ?? $channelContext->getChannel();
-        $supportedLocales = $channel->getLocales();
+        $supportedLocales = $channel->getAllLocales();
 
         $translationForms = [];
         foreach ($supportedLocales as $locale) {
@@ -179,7 +179,7 @@ class AdminMenuCategoryController extends AbstractAppController
     public function saveTranslation(Request $request, MenuCategory $category, string $locale, ChannelContext $channelContext): Response
     {
         $channel = $category->getChannel() ?? $channelContext->getChannel();
-        if (!\in_array($locale, $channel->getLocales(), true)) {
+        if (!\in_array($locale, $channel->getAllLocales(), true)) {
             throw $this->createNotFoundException();
         }
 

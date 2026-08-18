@@ -2595,6 +2595,9 @@ PTCG;
             ->setThemeName('expandedtalks')
             // English-only content for now; add 'fr' once French translations exist (F19.4).
             ->setLocales(['en'])
+            // French is being prepared by translators: draft locale (F9.16),
+            // browsable only by translators/moderators/admins until published.
+            ->setDraftLocales(['fr'])
             // org_logo + org_same_as feed the Organization publisher JSON-LD (F19.8).
             // meta_description is the per-channel default <meta name="description">
             // when a page supplies none (F19.7). The app channel intentionally

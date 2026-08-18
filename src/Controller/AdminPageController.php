@@ -92,7 +92,7 @@ class AdminPageController extends AbstractAppController
             $category = $categories[0];
         }
 
-        $supportedLocales = $currentChannel->getLocales();
+        $supportedLocales = $currentChannel->getAllLocales();
 
         // No categories on this channel → no pages to show
         if ([] === $categories) {
@@ -243,7 +243,7 @@ class AdminPageController extends AbstractAppController
         }
 
         $channel = $page->getChannel() ?? $channelContext->getChannel();
-        $supportedLocales = $channel->getLocales();
+        $supportedLocales = $channel->getAllLocales();
 
         $translationForms = $this->buildTranslationForms($page, $request, $supportedLocales);
 
@@ -260,7 +260,7 @@ class AdminPageController extends AbstractAppController
     public function saveTranslation(Request $request, Page $page, string $locale, MenuRuntime $menuRuntime, ChannelContext $channelContext): Response
     {
         $channel = $page->getChannel() ?? $channelContext->getChannel();
-        if (!\in_array($locale, $channel->getLocales(), true)) {
+        if (!\in_array($locale, $channel->getAllLocales(), true)) {
             throw $this->createNotFoundException();
         }
 

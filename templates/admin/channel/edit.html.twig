@@ -35,6 +35,7 @@
                 <hr>
                 {{ form_row(form.themeName) }}
                 {{ form_row(form.locales) }}
+                {{ form_row(form.draftLocales) }}
                 <hr>
                 <h6>{{ 'app.channel.parameters'|trans }}</h6>
                 <div id="parameters-collection" data-prototype="{{ form_widget(form.parameters.vars.prototype)|e('html_attr') }}">

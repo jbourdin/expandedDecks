@@ -15,11 +15,15 @@ namespace App\EventListener;
 
 use App\Entity\Channel;
 use App\Entity\User;
+use App\Service\Channel\ChannelLocaleVisibility;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Translation\LocaleSwitcher;
 
 /**
@@ -54,6 +58,8 @@ class LocaleListener
     public function __construct(
         private readonly Security $security,
         private readonly LocaleSwitcher $localeSwitcher,
+        private readonly ChannelLocaleVisibility $localeVisibility,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -74,6 +80,23 @@ class LocaleListener
         // cookieless visitors stay cacheable.
         $routeLocale = $request->attributes->get('_locale');
         if (\is_string($routeLocale) && \in_array($routeLocale, self::SUPPORTED_LOCALES, true)) {
+            // Draft locales (F9.16) are browsable only by the people preparing
+            // them; everyone else is redirected to the published equivalent
+            // instead of receiving duplicate content under a hidden URL. The
+            // visibility check touches the security token, so it is gated on
+            // an existing session cookie to keep anonymous requests cacheable.
+            if ($channel instanceof Channel && \in_array($routeLocale, $channel->getDraftLocales(), true)) {
+                if ($this->hasSessionCookie($request) && $this->localeVisibility->canSeeDraftLocale($channel, $routeLocale)) {
+                    $this->setLocale($request, $routeLocale);
+
+                    return;
+                }
+
+                $event->setResponse(new RedirectResponse($this->publishedLocaleUrl($request, $channelLocales), Response::HTTP_FOUND));
+
+                return;
+            }
+
             $this->setLocale($request, $this->constrainToChannel($routeLocale, $channelLocales));
 
             return;
@@ -85,17 +108,23 @@ class LocaleListener
         // it via SessionTokenStorage) so the response avoids `Set-Cookie` and
         // can sit behind a CDN.
         if ($this->hasSessionCookie($request)) {
+            // Authorized users may hold a draft locale as their session/profile
+            // language while working on it (F9.16).
+            $allowedLocales = $channel instanceof Channel
+                ? [...$channelLocales, ...$this->localeVisibility->visibleDraftLocales($channel)]
+                : $channelLocales;
+
             $user = $this->security->getUser();
 
             if ($user instanceof User) {
-                $this->setLocale($request, $this->constrainToChannel($user->getPreferredLocale(), $channelLocales));
+                $this->setLocale($request, $this->constrainToChannel($user->getPreferredLocale(), $allowedLocales));
 
                 return;
             }
 
             $sessionLocale = $request->getSession()->get('_locale');
             if (\is_string($sessionLocale) && \in_array($sessionLocale, self::SUPPORTED_LOCALES, true)) {
-                $this->setLocale($request, $this->constrainToChannel($sessionLocale, $channelLocales));
+                $this->setLocale($request, $this->constrainToChannel($sessionLocale, $allowedLocales));
 
                 return;
             }
@@ -105,6 +134,28 @@ class LocaleListener
             $this->detectFromAcceptLanguage($request->headers->get('Accept-Language', '')),
             $channelLocales,
         ));
+    }
+
+    /**
+     * Same route, first published locale — where non-authorized visitors of a
+     * draft-locale URL land.
+     *
+     * @param list<string> $channelLocales
+     */
+    private function publishedLocaleUrl(Request $request, array $channelLocales): string
+    {
+        $route = $request->attributes->get('_route');
+        /** @var array<string, mixed> $routeParams */
+        $routeParams = $request->attributes->get('_route_params', []);
+        $publishedLocale = $channelLocales[0] ?? self::DEFAULT_LOCALE;
+
+        if (!\is_string($route)) {
+            return '/';
+        }
+
+        // Query parameters survive the locale swap (unknown route params are
+        // emitted as query string by the generator).
+        return $this->urlGenerator->generate($route, array_merge($request->query->all(), $routeParams, ['_locale' => $publishedLocale]));
     }
 
     /**
