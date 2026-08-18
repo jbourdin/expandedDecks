@@ -64,7 +64,7 @@ interface TranslationRevisionInterface
     /**
      * The translated content entity this revision belongs to.
      */
-    public function getSubject(): Page|Archetype|MenuCategory|Deck;
+    public function getSubject(): Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard;
 
     /**
      * Name of the Doctrine field referencing the subject, for generic

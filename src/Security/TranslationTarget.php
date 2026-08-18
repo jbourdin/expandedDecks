@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\Archetype;
+use App\Entity\BannedCard;
 use App\Entity\Deck;
 use App\Entity\MenuCategory;
 use App\Entity\Page;
+use App\Entity\StapleCard;
 
 /**
  * Voter subject describing "translate this content into this locale".
@@ -26,7 +28,7 @@ use App\Entity\Page;
 final readonly class TranslationTarget
 {
     public function __construct(
-        public Page|Archetype|MenuCategory|Deck $content,
+        public Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content,
         public string $locale,
     ) {
     }

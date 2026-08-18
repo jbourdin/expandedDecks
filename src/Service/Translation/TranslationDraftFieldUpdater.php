@@ -16,12 +16,16 @@ namespace App\Service\Translation;
 use App\Attribute\Translatable;
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 
 /**
@@ -44,6 +48,8 @@ final class TranslationDraftFieldUpdater
         ArchetypeTranslationRevision::class => ArchetypeTranslation::class,
         MenuCategoryTranslationRevision::class => MenuCategoryTranslation::class,
         DeckTranslationRevision::class => DeckTranslation::class,
+        BannedCardTranslationRevision::class => BannedCardTranslation::class,
+        StapleCardTranslationRevision::class => StapleCardTranslation::class,
     ];
 
     /** @var array<class-string, list<string>> */

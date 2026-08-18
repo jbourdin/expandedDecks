@@ -16,6 +16,9 @@ namespace App\Service\Translation;
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
@@ -25,6 +28,9 @@ use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Enum\TranslationRevisionState;
@@ -56,13 +62,15 @@ final readonly class TranslationDraftProvider
      * The not-yet-validated revision a translator would resume for this
      * (content, locale) pair, if any (US-T3).
      */
-    public function findPending(Page|Archetype|MenuCategory|Deck $content, string $locale): ?TranslationRevisionInterface
+    public function findPending(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): ?TranslationRevisionInterface
     {
         $revisionClass = match (true) {
             $content instanceof Page => PageTranslationRevision::class,
             $content instanceof Archetype => ArchetypeTranslationRevision::class,
             $content instanceof MenuCategory => MenuCategoryTranslationRevision::class,
             $content instanceof Deck => DeckTranslationRevision::class,
+            $content instanceof BannedCard => BannedCardTranslationRevision::class,
+            $content instanceof StapleCard => StapleCardTranslationRevision::class,
         };
 
         $latest = $this->entityManager->getRepository($revisionClass)->findOneBy(
@@ -76,7 +84,7 @@ final readonly class TranslationDraftProvider
         return null;
     }
 
-    public function findOrCreateDraft(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    public function findOrCreateDraft(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): TranslationRevisionInterface
     {
         $pending = $this->findPending($content, $locale);
         if ($pending instanceof TranslationRevisionInterface) {
@@ -102,7 +110,7 @@ final readonly class TranslationDraftProvider
      * locale) pair — used as a typed probe for latest-source lookups when no
      * pending revision exists yet.
      */
-    public function probeFor(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    public function probeFor(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): TranslationRevisionInterface
     {
         return $this->createPrefilledDraft($content, $locale);
     }
@@ -112,7 +120,7 @@ final readonly class TranslationDraftProvider
      * the live row IS the latest validated content); a transient empty
      * translation seeds the factory otherwise.
      */
-    private function createPrefilledDraft(Page|Archetype|MenuCategory|Deck $content, string $locale): TranslationRevisionInterface
+    private function createPrefilledDraft(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): TranslationRevisionInterface
     {
         if ($content instanceof Page) {
             $live = $this->entityManager->getRepository(PageTranslation::class)
@@ -150,15 +158,39 @@ final readonly class TranslationDraftProvider
             return MenuCategoryTranslationRevision::fromTranslation($live);
         }
 
-        $live = $this->entityManager->getRepository(DeckTranslation::class)
-            ->findOneBy(['deck' => $content, 'locale' => $locale]);
-        if (!$live instanceof DeckTranslation) {
-            $live = new DeckTranslation();
-            $live->setDeck($content);
+        if ($content instanceof Deck) {
+            $live = $this->entityManager->getRepository(DeckTranslation::class)
+                ->findOneBy(['deck' => $content, 'locale' => $locale]);
+            if (!$live instanceof DeckTranslation) {
+                $live = new DeckTranslation();
+                $live->setDeck($content);
+                $live->setLocale($locale);
+            }
+
+            return DeckTranslationRevision::fromTranslation($live);
+        }
+
+        if ($content instanceof BannedCard) {
+            $live = $this->entityManager->getRepository(BannedCardTranslation::class)
+                ->findOneBy(['bannedCard' => $content, 'locale' => $locale]);
+            if (!$live instanceof BannedCardTranslation) {
+                $live = new BannedCardTranslation();
+                $live->setBannedCard($content);
+                $live->setLocale($locale);
+            }
+
+            return BannedCardTranslationRevision::fromTranslation($live);
+        }
+
+        $live = $this->entityManager->getRepository(StapleCardTranslation::class)
+            ->findOneBy(['stapleCard' => $content, 'locale' => $locale]);
+        if (!$live instanceof StapleCardTranslation) {
+            $live = new StapleCardTranslation();
+            $live->setStapleCard($content);
             $live->setLocale($locale);
         }
 
-        return DeckTranslationRevision::fromTranslation($live);
+        return StapleCardTranslationRevision::fromTranslation($live);
     }
 
     private function linkLatestSource(TranslationRevisionInterface $draft): void
@@ -175,6 +207,10 @@ final readonly class TranslationDraftProvider
         } elseif ($draft instanceof MenuCategoryTranslationRevision && $latestSource instanceof MenuCategoryTranslationRevision) {
             $draft->setSourceRevision($latestSource);
         } elseif ($draft instanceof DeckTranslationRevision && $latestSource instanceof DeckTranslationRevision) {
+            $draft->setSourceRevision($latestSource);
+        } elseif ($draft instanceof BannedCardTranslationRevision && $latestSource instanceof BannedCardTranslationRevision) {
+            $draft->setSourceRevision($latestSource);
+        } elseif ($draft instanceof StapleCardTranslationRevision && $latestSource instanceof StapleCardTranslationRevision) {
             $draft->setSourceRevision($latestSource);
         }
     }

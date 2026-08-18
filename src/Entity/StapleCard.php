@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Attribute\Translatable;
 use App\Constants\CardHotness;
 use App\Repository\StapleCardRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -78,7 +79,12 @@ class StapleCard
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?CardPrinting $representativePrinting = null;
 
-    /** Markdown explanation, edited via the rich-text editor (rich_text_editor macro). */
+    /**
+     * Markdown explanation, edited via the rich-text editor (rich_text_editor
+     * macro). Canonical source-locale note (F9.17): the translation-workflow
+     * source; non-source locales live in `StapleCardTranslation` rows.
+     */
+    #[Translatable]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $note = null;
 
@@ -92,10 +98,19 @@ class StapleCard
     #[ORM\OneToMany(targetEntity: StapleCardPrinting::class, mappedBy: 'stapleCard', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $printings;
 
+    /**
+     * Localized notes (non-source locales only, F9.17).
+     *
+     * @var Collection<int, StapleCardTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: StapleCardTranslation::class, mappedBy: 'stapleCard')]
+    private Collection $translations;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->printings = new ArrayCollection();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -171,6 +186,46 @@ class StapleCard
     public function setRepresentativePrinting(?CardPrinting $representativePrinting): static
     {
         $this->representativePrinting = $representativePrinting;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F9.17 — Translation workflow for banned & staple cards
+     */
+    public function translationFor(string $locale): ?StapleCardTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale) {
+                return $translation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Note in the requested locale, falling back to the canonical
+     * source-locale note.
+     *
+     * @see docs/features.md F9.17 — Translation workflow for banned & staple cards
+     */
+    public function localizedNote(string $locale): ?string
+    {
+        $translation = $this->translationFor($locale);
+        if ($translation instanceof StapleCardTranslation && null !== $translation->getNote() && '' !== $translation->getNote()) {
+            return $translation->getNote();
+        }
+
+        return $this->note;
+    }
+
+    public function addTranslation(StapleCardTranslation $translation): static
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setStapleCard($this);
+        }
 
         return $this;
     }

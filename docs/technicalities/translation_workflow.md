@@ -2,7 +2,7 @@
 
 > **Audience:** Developer, AI Agent · **Scope:** Technical deep-dive · **Parent:** [Documentation index](../docs.md)
 
-Data model and mechanics of the content-translation workflow ([epic #612](https://github.com/jbourdin/expandedDecks/issues/612)). This document grows with the epic; as of F9.7 it covers the foundation layer: the `#[Translatable]` attribute, the revision tables, and the snapshot listener.
+Data model and mechanics of the content-translation workflow ([epic #612](https://github.com/jbourdin/expandedDecks/issues/612)). It covers the foundation layer (the `#[Translatable]` attribute, the revision tables, the snapshot listener), the roles, the review workflow, the translator UI, and the content types plugged into it — including banned & staple cards (F9.17).
 
 ## Design overview
 
@@ -14,8 +14,10 @@ The live `*Translation` tables stay authoritative for all rendering — the loca
 | Archetype | `archetype_translation` | `ArchetypeTranslationRevision` | `ArchetypeTranslation` (`en` row) |
 | Menu category | `menu_category_translation` | `MenuCategoryTranslationRevision` | `MenuCategoryTranslation` (`en` row) |
 | Archetype variant notes | `deck_translation` | `DeckTranslationRevision` | **`Deck.notes` directly** (pattern bend) |
+| Banned-card explanation | `banned_card_translation` | `BannedCardTranslationRevision` | **`BannedCard.explanation` directly** (pattern bend) |
+| Staple-card note | `staple_card_translation` | `StapleCardTranslationRevision` | **`StapleCard.note` directly** (pattern bend) |
 
-**The variant pattern bend:** `Deck.notes` stays the canonical source-locale content for every deck — user decks never grow translation rows, and no data migration touched the existing read paths. `DeckTranslation` holds only non-source locales, and only archetype variants (`Deck::isArchetypeVariant()`) enter the workflow.
+**The variant pattern bend:** `Deck.notes` stays the canonical source-locale content for every deck — user decks never grow translation rows, and no data migration touched the existing read paths. `DeckTranslation` holds only non-source locales, and only archetype variants (`Deck::isArchetypeVariant()`) enter the workflow. Banned and staple cards (F9.17) follow the same bend: the canonical English copy stays on the entity, the live translation tables hold non-source locales only, and only cards with non-empty source copy enter the workflow. Card **names are never translated** — they are proper nouns.
 
 ## The `#[Translatable]` attribute
 
@@ -103,6 +105,15 @@ Deck notifications link to the archetype context view. Emails live under `templa
 
 A channel locale is **published** (`Channel.locales`) or **draft** (`Channel.draftLocales`). Draft locales are the staging ground for a new language: translators assigned the locale, moderators, and admins browse the site in it (marked entry in the locale switcher, prefixed URLs render, session/preferred locale allowed); everyone else is 302-redirected to the published equivalent and never sees the locale in the switcher, hreflang, sitemap, or robots (all of which derive from the published list only). `ChannelLocaleVisibility` centralizes the who-may-see decision; `LocaleListener` enforces it on the request path behind the session-cookie gate, keeping anonymous pages CDN-cacheable. Admin content forms use `Channel::getAllLocales()` so draft-locale content is editable before publication; publishing is an explicit admin action on the channel form.
 
+## Card translations (F9.17)
+
+Banned and staple cards ride the whole pipeline above unchanged — voter, review workflow, snapshot listener, staleness, notifications — with a few type-specific touches:
+
+- **Factories:** `fromBannedCardExplanation()` / `fromStapleCardNote()` snapshot the entity's canonical copy as the source revision (mirror of `fromDeckNotes()`); the consistency test covers both pairs.
+- **Read path:** `BannedCard::localizedExplanation()` and `StapleCard::localizedNote()` (translation row with fallback to the canonical copy) feed the public listings. The detail modal shows the reader-facing outdated notice (F9.14) from the denormalized `sourceOutdated` flag carried as a data attribute, and `?translationPreview=1` renders a pending revision in place of the live copy for users passing `TranslationPreviewResolver`.
+- **Queue:** the Cards tab merges both types. The **contributor** flavor additionally lists untranslated cards that have source copy as a worklist ("To translate" badge) — this is the epic's untranslated-content filter, scoped to cards where the catalogue is finite. The reviewer flavor only ever shows in-workflow rows.
+- **Backfill:** `Version20260818181233` seeds one source revision per card with non-empty copy (`NOT EXISTS`-guarded, soft-deleted cards skipped), mirroring the F9.7 backfill.
+
 ## Deliberately not signals
 
 - **Deck-list changes** never flag variant-notes translations: a list change that matters to readers warrants an English notes update, and that update triggers the flag through the normal path (editorial practice, decided in #612).
@@ -110,4 +121,4 @@ A channel locale is **published** (`Channel.locales`) or **draft** (`Channel.dra
 
 ## Roadmap
 
-The remaining layers are tracked as sub-issues of [#612](https://github.com/jbourdin/expandedDecks/issues/612): roles & voter (F9.8), review workflow (F9.9), translator UI (F9.10–F9.12), archetype+variant combined view (F9.13), reader notice (F9.14), notifications (F9.15).
+All layers of [#612](https://github.com/jbourdin/expandedDecks/issues/612) are implemented: foundation (F9.7), roles & voter (F9.8), review workflow (F9.9), translator UI (F9.10–F9.12), archetype+variant combined view (F9.13), reader notice (F9.14), notifications (F9.15), plus the follow-ups: channel draft locales (F9.16, [#775](https://github.com/jbourdin/expandedDecks/issues/775)) and card translations (F9.17, [#776](https://github.com/jbourdin/expandedDecks/issues/776)).

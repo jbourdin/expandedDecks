@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace App\Service\Translation;
 
 use App\Entity\Archetype;
+use App\Entity\BannedCard;
 use App\Entity\Deck;
 use App\Entity\MenuCategory;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
 use App\Entity\TranslationRevisionInterface;
 use App\Security\TranslationTarget;
 use App\Security\Voter\TranslationVoter;
@@ -43,7 +45,7 @@ final readonly class TranslationPreviewResolver
     ) {
     }
 
-    public function canPreview(Page|Archetype|MenuCategory|Deck $content, string $locale): bool
+    public function canPreview(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): bool
     {
         if ($locale === $this->sourceLocale) {
             return false;
@@ -53,7 +55,7 @@ final readonly class TranslationPreviewResolver
             || $this->security->isGranted(TranslationVoter::TRANSLATE, new TranslationTarget($content, $locale));
     }
 
-    public function pendingRevision(Page|Archetype|MenuCategory|Deck $content, string $locale): ?TranslationRevisionInterface
+    public function pendingRevision(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): ?TranslationRevisionInterface
     {
         return $this->draftProvider->findPending($content, $locale);
     }

@@ -17,6 +17,9 @@ use App\Attribute\Translatable;
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
@@ -26,6 +29,9 @@ use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -48,6 +54,10 @@ class TranslationRevisionConsistencyTest extends TestCase
         yield 'menu category' => [MenuCategoryTranslation::class, MenuCategoryTranslationRevision::class];
         yield 'deck translation' => [DeckTranslation::class, DeckTranslationRevision::class];
         yield 'deck source notes' => [Deck::class, DeckTranslationRevision::class];
+        yield 'banned card translation' => [BannedCardTranslation::class, BannedCardTranslationRevision::class];
+        yield 'banned card source explanation' => [BannedCard::class, BannedCardTranslationRevision::class];
+        yield 'staple card translation' => [StapleCardTranslation::class, StapleCardTranslationRevision::class];
+        yield 'staple card source note' => [StapleCard::class, StapleCardTranslationRevision::class];
     }
 
     /**
@@ -168,6 +178,47 @@ class TranslationRevisionConsistencyTest extends TestCase
         $deckTarget->setDeck($deckTranslation->getDeck());
         DeckTranslationRevision::fromTranslation($deckTranslation)->applyTo($deckTarget);
         $this->assertTranslatableFieldsEqual(DeckTranslation::class, $deckTranslation, $deckTarget);
+    }
+
+    public function testCardFactoriesCopyAndApplyEveryTranslatableField(): void
+    {
+        $bannedTranslation = new BannedCardTranslation();
+        $bannedTranslation->setBannedCard(new BannedCard());
+        $bannedTranslation->setLocale('fr');
+        $bannedTranslation->setExplanation('Explication du ban');
+        $bannedRevision = BannedCardTranslationRevision::fromTranslation($bannedTranslation);
+        self::assertSame('fr', $bannedRevision->getLocale());
+        self::assertSame($bannedTranslation->getBannedCard(), $bannedRevision->getSubject());
+        $this->assertTranslatableFieldsCopied(BannedCardTranslation::class, $bannedTranslation, $bannedRevision);
+        $bannedTarget = new BannedCardTranslation();
+        $bannedTarget->setBannedCard($bannedTranslation->getBannedCard());
+        $bannedRevision->applyTo($bannedTarget);
+        $this->assertTranslatableFieldsEqual(BannedCardTranslation::class, $bannedTranslation, $bannedTarget);
+
+        $bannedCard = new BannedCard();
+        $bannedCard->setExplanation('Canonical explanation');
+        $bannedSource = BannedCardTranslationRevision::fromBannedCardExplanation($bannedCard, 'en');
+        self::assertSame('en', $bannedSource->getLocale());
+        self::assertSame('Canonical explanation', $bannedSource->getExplanation());
+
+        $stapleTranslation = new StapleCardTranslation();
+        $stapleTranslation->setStapleCard(new StapleCard());
+        $stapleTranslation->setLocale('fr');
+        $stapleTranslation->setNote('Note de staple');
+        $stapleRevision = StapleCardTranslationRevision::fromTranslation($stapleTranslation);
+        self::assertSame('fr', $stapleRevision->getLocale());
+        self::assertSame($stapleTranslation->getStapleCard(), $stapleRevision->getSubject());
+        $this->assertTranslatableFieldsCopied(StapleCardTranslation::class, $stapleTranslation, $stapleRevision);
+        $stapleTarget = new StapleCardTranslation();
+        $stapleTarget->setStapleCard($stapleTranslation->getStapleCard());
+        $stapleRevision->applyTo($stapleTarget);
+        $this->assertTranslatableFieldsEqual(StapleCardTranslation::class, $stapleTranslation, $stapleTarget);
+
+        $stapleCard = new StapleCard();
+        $stapleCard->setNote('Canonical note');
+        $stapleSource = StapleCardTranslationRevision::fromStapleCardNote($stapleCard, 'en');
+        self::assertSame('en', $stapleSource->getLocale());
+        self::assertSame('Canonical note', $stapleSource->getNote());
     }
 
     public function testDeckNotesFactorySnapshotsSourceLocale(): void

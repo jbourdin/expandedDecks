@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace App\Twig\Extension;
 
 use App\Entity\Archetype;
+use App\Entity\BannedCard;
 use App\Entity\Deck;
 use App\Entity\MenuCategory;
 use App\Entity\Page;
+use App\Entity\StapleCard;
 use App\Entity\User;
 use App\Security\TranslationTarget;
 use App\Security\Voter\TranslationVoter;
@@ -52,7 +54,7 @@ class TranslationWorkflowExtension extends AbstractExtension
     /**
      * @return list<string>
      */
-    public function translatableLocales(Page|Archetype|MenuCategory|Deck $content): array
+    public function translatableLocales(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content): array
     {
         $user = $this->security->getUser();
         if (!$user instanceof User) {
