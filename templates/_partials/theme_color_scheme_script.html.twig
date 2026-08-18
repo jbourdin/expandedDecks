@@ -11,7 +11,7 @@
  # stylesheet to avoid a flash of wrong-theme. Exposes window.__edTheme as
  # the contract for the theme switcher buttons (see _partials/theme_switcher).
  #}
-<script>
+<script nonce="{{ csp_nonce() }}">
     (function () {
         var STORAGE_KEY = 'ed-theme';
         var media = window.matchMedia('(prefers-color-scheme: dark)');

@@ -77,7 +77,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         {# Activate the correct translation tab based on URL hash #}
         (function() {
             var hash = window.location.hash;

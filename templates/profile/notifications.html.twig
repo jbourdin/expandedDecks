@@ -146,7 +146,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         document.querySelectorAll('th[data-toggle-col]').forEach(function (th) {
             th.addEventListener('click', function () {
                 var channel = th.dataset.toggleCol;

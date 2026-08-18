@@ -347,7 +347,7 @@
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}
             {% endif %}
-            <script>
+            <script nonce="{{ csp_nonce() }}">
                 {# Preserve scroll position across form-driven page reloads #}
                 (function() {
                     var key = 'ed_scroll_' + location.pathname;

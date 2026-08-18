@@ -200,7 +200,7 @@
                                 </div>
                             </div>
                         </form>
-                        <script>
+                        <script nonce="{{ csp_nonce() }}">
                             document.getElementById('borrow_event').addEventListener('change', function() {
                                 var selected = this.options[this.selectedIndex];
                                 var token = selected.getAttribute('data-token') || '';
