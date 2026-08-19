@@ -45,7 +45,6 @@ final class Version20260818181154 extends AbstractMigration
         $this->addSql('ALTER TABLE staple_card_translation_revision ADD CONSTRAINT FK_4E9D238C21852C2F FOREIGN KEY (source_revision_id) REFERENCES staple_card_translation_revision (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE staple_card_translation_revision ADD CONSTRAINT FK_4E9D238CF675F31B FOREIGN KEY (author_id) REFERENCES `user` (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE staple_card_translation_revision ADD CONSTRAINT FK_4E9D238CFC6B21F1 FOREIGN KEY (reviewed_by_id) REFERENCES `user` (id) ON DELETE SET NULL');
-        $this->addSql('ALTER TABLE channel DROP draft_locales');
     }
 
     public function down(Schema $schema): void
@@ -66,6 +65,5 @@ final class Version20260818181154 extends AbstractMigration
         $this->addSql('DROP TABLE banned_card_translation_revision');
         $this->addSql('DROP TABLE staple_card_translation');
         $this->addSql('DROP TABLE staple_card_translation_revision');
-        $this->addSql('ALTER TABLE channel ADD draft_locales JSON NOT NULL');
     }
 }
