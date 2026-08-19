@@ -105,6 +105,15 @@ Deck notifications link to the archetype context view. Emails live under `templa
 
 A channel locale is **published** (`Channel.locales`) or **draft** (`Channel.draftLocales`). Draft locales are the staging ground for a new language: translators assigned the locale, moderators, and admins browse the site in it (marked entry in the locale switcher, prefixed URLs render, session/preferred locale allowed); everyone else is 302-redirected to the published equivalent and never sees the locale in the switcher, hreflang, sitemap, or robots (all of which derive from the published list only). `ChannelLocaleVisibility` centralizes the who-may-see decision; `LocaleListener` enforces it on the request path behind the session-cookie gate, keeping anonymous pages CDN-cacheable. Admin content forms use `Channel::getAllLocales()` so draft-locale content is editable before publication; publishing is an explicit admin action on the channel form.
 
+## Admin-managed locales (F9.18)
+
+The locale universe itself is admin data, not code. The channel form offers an "Add a language" input (any ISO 639-1 code, datalist-assisted, validated with `Symfony\Intl\Languages`); a new language **always starts as a draft locale** — it has no content and no UI chrome yet, so publishing is a later, deliberate tick. Consequences:
+
+- **Routing:** `_locale` route requirements use the permissive shared `LocaleRequirement::PATTERN` (`[a-z]{2}`); whether a locale exists on the channel — and who may browse it as a draft — is decided by `LocaleListener`, which 302-redirects unknown and unauthorized locales to the published equivalent.
+- **Chrome fallback:** UI chrome renders through the XLIFF catalogues; a locale without `translations/messages.<locale>.xlf` falls back to English. The channel form shows a non-blocking warning listing such locales — adding the XLIFF stays a developer task per language.
+- **Derived surfaces:** assignable translator locales (F9.8) are the union of every channel's published + draft locales minus the source; the profile's `preferredLocale` choices are the current channel's published locales plus the user's visible drafts.
+- **Card names** and other TCG vernacular stay in English whatever the locale.
+
 ## Card translations (F9.17)
 
 Banned and staple cards ride the whole pipeline above unchanged — voter, review workflow, snapshot listener, staleness, notifications — with a few type-specific touches:

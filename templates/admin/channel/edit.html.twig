@@ -36,6 +36,18 @@
                 {{ form_row(form.themeName) }}
                 {{ form_row(form.locales) }}
                 {{ form_row(form.draftLocales) }}
+                {{ form_row(form.addLocale) }}
+                <datalist id="channel-locale-codes">
+                    {% for code, name in form.vars.locale_datalist %}
+                        <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </datalist>
+                {% if form.vars.chrome_missing_locales is not empty %}
+                    <div class="alert alert-warning small py-2">
+                        <i class="bi bi-translate me-1"></i>
+                        {{ 'app.channel.chrome_missing_warning'|trans({'%locales%': form.vars.chrome_missing_locales|join(', ')}) }}
+                    </div>
+                {% endif %}
                 <hr>
                 <h6>{{ 'app.channel.parameters'|trans }}</h6>
                 <div id="parameters-collection" data-prototype="{{ form_widget(form.parameters.vars.prototype)|e('html_attr') }}">

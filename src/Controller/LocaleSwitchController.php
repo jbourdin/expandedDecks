@@ -15,6 +15,7 @@ namespace App\Controller;
 
 use App\Entity\Channel;
 use App\Entity\User;
+use App\Routing\LocaleRequirement;
 use App\Service\Channel\ChannelLocaleVisibility;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,7 +38,7 @@ class LocaleSwitchController extends AbstractController
     /**
      * @see docs/features.md F18.29 — Locale-prefixed URL routing
      */
-    #[Route('/locale/{_locale}', name: 'app_locale_switch', requirements: ['_locale' => 'en|fr'], methods: ['GET'])]
+    #[Route('/locale/{_locale}', name: 'app_locale_switch', requirements: ['_locale' => LocaleRequirement::PATTERN], methods: ['GET'])]
     public function __invoke(Request $request, string $_locale, EntityManagerInterface $entityManager, ChannelLocaleVisibility $localeVisibility): RedirectResponse
     {
         // The target must be visible on the current channel: published, or a

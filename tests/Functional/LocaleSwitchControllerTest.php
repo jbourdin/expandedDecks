@@ -72,10 +72,15 @@ class LocaleSwitchControllerTest extends AbstractFunctionalTest
         self::assertSame('fr', $user->getPreferredLocale());
     }
 
-    public function testRejectsUnsupportedLocale(): void
+    /**
+     * @see docs/features.md F9.18 — Admin-managed channel locales
+     */
+    public function testUnsupportedLocaleRedirectsToPublishedEquivalent(): void
     {
         $this->client->request('GET', '/locale/de');
 
-        self::assertResponseStatusCodeSame(404);
+        // The router accepts any ISO-shaped code (F9.18); LocaleListener
+        // redirects locales the channel does not carry.
+        self::assertResponseRedirects('/locale/en', 302);
     }
 }

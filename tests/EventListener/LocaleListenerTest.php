@@ -348,49 +348,65 @@ class LocaleListenerTest extends TestCase
 
     /**
      * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     * @see docs/features.md F9.18 — Admin-managed channel locales
      */
-    public function testUnsupportedRouteLocaleIsIgnored(): void
+    public function testUnknownRouteLocaleRedirectsToPublishedEquivalent(): void
     {
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
         $localeSwitcher = $this->createMock(LocaleSwitcher::class);
-        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+        $localeSwitcher->expects(self::never())->method('setLocale');
+
+        $urlGenerator = $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/en/archetypes');
 
         $request = $this->createRequestWithSession();
         $request->attributes->set('_locale', 'de');
+        $request->attributes->set('_route', 'app_archetype_list');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $urlGenerator);
         $listener($event);
 
-        // 'de' is unsupported, falls through to Accept-Language / default
-        self::assertSame('en', $request->getLocale());
+        // 'de' is not a locale of this channel: 302 to the published URL, the
+        // router accepts any ISO-shaped code (F9.18) so the listener gates.
+        $response = $event->getResponse();
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertSame('/en/archetypes', $response->getTargetUrl());
     }
 
     /**
      * @see docs/features.md F18.29 — Locale-prefixed URL routing
+     * @see docs/features.md F9.18 — Admin-managed channel locales
      */
-    public function testRouteLocaleConstrainedToChannelLocales(): void
+    public function testRouteLocaleOutsideChannelLocalesRedirects(): void
     {
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn(null);
 
         $localeSwitcher = $this->createMock(LocaleSwitcher::class);
-        $localeSwitcher->expects(self::once())->method('setLocale')->with('en');
+        $localeSwitcher->expects(self::never())->method('setLocale');
+
+        $urlGenerator = $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/en/archetypes');
 
         $channel = (new Channel())->setCode('content')->setDomain('expandedtalks.wip')->setLocales(['en']);
 
         $request = $this->createRequestWithSession();
         $request->attributes->set('_locale', 'fr');
+        $request->attributes->set('_route', 'app_archetype_list');
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $urlGenerator);
         $listener($event);
 
-        // Route says 'fr' but channel only supports 'en'
-        self::assertSame('en', $request->getLocale());
+        // Route says 'fr' but the channel only publishes 'en': redirect, never
+        // serve duplicate content under an unconfigured locale URL.
+        $response = $event->getResponse();
+        self::assertInstanceOf(\Symfony\Component\HttpFoundation\RedirectResponse::class, $response);
+        self::assertSame('/en/archetypes', $response->getTargetUrl());
     }
 
     private function createLocaleVisibilityStub(): \App\Service\Channel\ChannelLocaleVisibility

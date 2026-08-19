@@ -39,10 +39,13 @@
                 <link rel="alternate" hreflang="x-default" href="{{ self_canonical_url(currentRoute, routeParams|merge({_locale: 'en'})) }}">
             {% endif %}
         {% endblock %}
-        <meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
-        {% if current_channel().locales|length > 1 %}
-            <meta property="og:locale:alternate" content="{{ app.request.locale == 'fr' ? 'en_US' : 'fr_FR' }}">
-        {% endif %}
+        {# Locales are admin-managed (F9.18): derive territory-qualified og
+           codes generically, with explicit overrides where lang != territory. #}
+        {% set ogLocaleOverrides = {en: 'en_US', ja: 'ja_JP', zh: 'zh_CN', ko: 'ko_KR'} %}
+        <meta property="og:locale" content="{{ ogLocaleOverrides[app.request.locale] ?? (app.request.locale ~ '_' ~ app.request.locale|upper) }}">
+        {% for alternateLocale in current_channel().locales|filter(alternateLocale => alternateLocale != app.request.locale) %}
+            <meta property="og:locale:alternate" content="{{ ogLocaleOverrides[alternateLocale] ?? (alternateLocale ~ '_' ~ alternateLocale|upper) }}">
+        {% endfor %}
         {% block alternate_feeds %}{% endblock %}
         {% block opengraph %}{% endblock %}
         {% block meta %}{% endblock %}

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\ChannelRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -39,6 +40,7 @@ class AdminUserController extends AbstractAppController
     public function __construct(
         TranslatorInterface $translator,
         private readonly EntityManagerInterface $em,
+        private readonly ChannelRepository $channelRepository,
         #[Autowire('%kernel.enabled_locales%')]
         private readonly array $enabledLocales,
         #[Autowire('%kernel.default_locale%')]
@@ -204,12 +206,22 @@ class AdminUserController extends AbstractAppController
 
     /**
      * Non-source locales a translator may be assigned (F9.8). The source
-     * locale is editor-managed content, never a translation target.
+     * locale is editor-managed content, never a translation target. Locales
+     * are admin-managed per channel (F9.18), so the assignable set is the
+     * union of every channel's published and draft locales.
      *
      * @return list<string>
      */
     private function getAssignableTranslationLocales(): array
     {
-        return array_values(array_diff($this->enabledLocales, [$this->defaultLocale]));
+        $locales = $this->enabledLocales;
+        foreach ($this->channelRepository->findAll() as $channel) {
+            $locales = [...$locales, ...$channel->getAllLocales()];
+        }
+
+        $locales = array_values(array_unique(array_diff($locales, [$this->defaultLocale])));
+        sort($locales);
+
+        return $locales;
     }
 }
