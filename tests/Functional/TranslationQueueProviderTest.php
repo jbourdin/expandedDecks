@@ -254,8 +254,8 @@ class TranslationQueueProviderTest extends AbstractFunctionalTest
         $admin = $this->userByEmail('admin@example.com');
         $queue = $this->getQueueProvider()->contributorQueue($admin);
 
-        self::assertSame(['pages', 'archetypes', 'menuCategories', 'cards'], array_keys($queue));
-        foreach (['pages', 'archetypes', 'menuCategories', 'cards'] as $tab) {
+        self::assertSame(['pages', 'archetypes', 'menuCategories', 'bannedCards', 'stapleCards'], array_keys($queue));
+        foreach (['pages', 'archetypes', 'menuCategories', 'bannedCards', 'stapleCards'] as $tab) {
             foreach ($queue[$tab] as $row) {
                 self::assertFalse($row['sourceOutdated'], 'Admin has no translation locales: outdated rows must not leak.');
             }

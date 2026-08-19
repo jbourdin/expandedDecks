@@ -8,9 +8,11 @@
  */
 
 /**
- * Translation queue: tabs per content type, contributor and reviewer flavors.
+ * Translation queue: tabs per content type, contributor and reviewer flavors,
+ * locale filter when work spans several target languages.
  *
  * @see docs/features.md F9.12 — Translation queue
+ * @see docs/features.md F9.19 — Queue card tabs & locale filter
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
@@ -31,8 +33,24 @@ export interface TranslationQueueData {
     pages: TranslationQueueRow[];
     archetypes: TranslationQueueRow[];
     menuCategories: TranslationQueueRow[];
-    cards: TranslationQueueRow[];
+    bannedCards: TranslationQueueRow[];
+    stapleCards: TranslationQueueRow[];
 }
+
+export const QUEUE_TABS: (keyof TranslationQueueData)[] = ['pages', 'archetypes', 'menuCategories', 'bannedCards', 'stapleCards'];
+
+/**
+ * Distinct locales across every tab, sorted — drives the locale filter,
+ * which only renders when more than one target language has work.
+ */
+export const localesOf = (data: TranslationQueueData): string[] => {
+    const locales = new Set<string>();
+    QUEUE_TABS.forEach((tab) => (data[tab] ?? []).forEach((row) => locales.add(row.locale)));
+    return [...locales].sort();
+};
+
+export const filterByLocale = (rows: TranslationQueueRow[], locale: string | null): TranslationQueueRow[] =>
+    locale === null ? rows : rows.filter((row) => row.locale === locale);
 
 export interface TranslationQueueLabels {
     [key: string]: string;
@@ -112,6 +130,7 @@ export default function TranslationQueue({ queueUrl, baseUrl, labels }: Translat
     const [reviewer, setReviewer] = useState<TranslationQueueData | null>(null);
     const [loaded, setLoaded] = useState(false);
     const [flavor, setFlavor] = useState<'contributor' | 'reviewer'>('contributor');
+    const [localeFilter, setLocaleFilter] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -153,38 +172,46 @@ export default function TranslationQueue({ queueUrl, baseUrl, labels }: Translat
         return <Alert color="gray">{labels.empty}</Alert>;
     }
 
+    const locales = localesOf(active);
+    const effectiveLocaleFilter = localeFilter !== null && locales.includes(localeFilter) ? localeFilter : null;
+
     return (
         <div>
-            {contributor !== null && reviewer !== null && (
-                <SegmentedControl
-                    mb="md"
-                    value={flavor}
-                    onChange={(value) => setFlavor(value === 'reviewer' ? 'reviewer' : 'contributor')}
-                    data={[
-                        { label: labels.flavorContributor, value: 'contributor' },
-                        { label: labels.flavorReviewer, value: 'reviewer' },
-                    ]}
-                />
-            )}
+            <Group mb="md">
+                {contributor !== null && reviewer !== null && (
+                    <SegmentedControl
+                        value={flavor}
+                        onChange={(value) => setFlavor(value === 'reviewer' ? 'reviewer' : 'contributor')}
+                        data={[
+                            { label: labels.flavorContributor, value: 'contributor' },
+                            { label: labels.flavorReviewer, value: 'reviewer' },
+                        ]}
+                    />
+                )}
+                {locales.length > 1 && (
+                    <SegmentedControl
+                        value={effectiveLocaleFilter ?? 'all'}
+                        onChange={(value) => setLocaleFilter(value === 'all' ? null : value)}
+                        data={[
+                            { label: labels.localeAll, value: 'all' },
+                            ...locales.map((locale) => ({ label: locale.toUpperCase(), value: locale })),
+                        ]}
+                    />
+                )}
+            </Group>
             <Tabs defaultValue="pages">
                 <Tabs.List>
                     <Tabs.Tab value="pages">{labels.tabPages}</Tabs.Tab>
                     <Tabs.Tab value="archetypes">{labels.tabArchetypes}</Tabs.Tab>
                     <Tabs.Tab value="menuCategories">{labels.tabMenuCategories}</Tabs.Tab>
-                    <Tabs.Tab value="cards">{labels.tabCards}</Tabs.Tab>
+                    <Tabs.Tab value="bannedCards">{labels.tabBannedCards}</Tabs.Tab>
+                    <Tabs.Tab value="stapleCards">{labels.tabStapleCards}</Tabs.Tab>
                 </Tabs.List>
-                <Tabs.Panel value="pages" pt="md">
-                    <QueueRows rows={active.pages} baseUrl={baseUrl} labels={labels} />
-                </Tabs.Panel>
-                <Tabs.Panel value="archetypes" pt="md">
-                    <QueueRows rows={active.archetypes} baseUrl={baseUrl} labels={labels} />
-                </Tabs.Panel>
-                <Tabs.Panel value="menuCategories" pt="md">
-                    <QueueRows rows={active.menuCategories} baseUrl={baseUrl} labels={labels} />
-                </Tabs.Panel>
-                <Tabs.Panel value="cards" pt="md">
-                    <QueueRows rows={active.cards ?? []} baseUrl={baseUrl} labels={labels} />
-                </Tabs.Panel>
+                {QUEUE_TABS.map((tab) => (
+                    <Tabs.Panel key={tab} value={tab} pt="md">
+                        <QueueRows rows={filterByLocale(active[tab] ?? [], effectiveLocaleFilter)} baseUrl={baseUrl} labels={labels} />
+                    </Tabs.Panel>
+                ))}
             </Tabs>
         </div>
     );
