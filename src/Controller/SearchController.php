@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Channel;
+use App\Routing\LocaleRequirement;
 use App\Service\Search\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +31,7 @@ class SearchController extends AbstractController
     /**
      * @see docs/features.md F18.2 — Global search results page
      */
-    #[Route('/{_locale}/search', name: 'app_search', methods: ['GET'], requirements: ['_locale' => 'en|fr'])]
+    #[Route('/{_locale}/search', name: 'app_search', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN])]
     public function search(Request $request, SearchService $searchService): Response
     {
         $query = trim($request->query->getString('q'));

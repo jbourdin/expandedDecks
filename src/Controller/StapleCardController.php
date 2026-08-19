@@ -19,6 +19,7 @@ use App\Constants\StapleCardBucket;
 use App\Entity\StapleCardTranslationRevision;
 use App\Repository\PageRepository;
 use App\Repository\StapleCardRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\Channel\ChannelContext;
 use App\Service\MarkdownRenderer;
@@ -39,7 +40,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class StapleCardController extends AbstractController
 {
-    #[Route('/{_locale}/staple-cards', name: 'app_staple_card_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
+    #[Route('/{_locale}/staple-cards', name: 'app_staple_card_list', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN], priority: 10)]
     public function list(
         Request $request,
         ChannelContext $channelContext,

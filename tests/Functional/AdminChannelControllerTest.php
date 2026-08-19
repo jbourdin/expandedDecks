@@ -113,6 +113,77 @@ class AdminChannelControllerTest extends AbstractFunctionalTest
         self::assertSelectorExists('.alert-success');
     }
 
+    /**
+     * @see docs/features.md F9.18 — Admin-managed channel locales
+     */
+    public function testAddLocaleLandsInDraftLocales(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $channel = $this->getChannel('app');
+        $crawler = $this->client->request('GET', '/admin/channels/'.$channel->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['channel_form[addLocale]'] = 'de';
+        $this->client->submit($form);
+
+        self::assertResponseRedirects();
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+        $fresh = $entityManager->getRepository(Channel::class)->findOneBy(['code' => 'app']);
+        \assert($fresh instanceof Channel);
+        $entityManager->refresh($fresh);
+
+        self::assertContains('de', $fresh->getDraftLocales(), 'A newly added language always starts as a draft locale.');
+        self::assertNotContains('de', $fresh->getLocales());
+    }
+
+    /**
+     * @see docs/features.md F9.18 — Admin-managed channel locales
+     */
+    public function testAddInvalidLocaleIsRejected(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $channel = $this->getChannel('app');
+        $crawler = $this->client->request('GET', '/admin/channels/'.$channel->getId());
+
+        $form = $crawler->selectButton('Save')->form();
+        $form['channel_form[addLocale]'] = 'zz';
+        $this->client->submit($form);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorExists('.invalid-feedback, .form-error-message, .alert-danger');
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+        $fresh = $entityManager->getRepository(Channel::class)->findOneBy(['code' => 'app']);
+        \assert($fresh instanceof Channel);
+        $entityManager->refresh($fresh);
+
+        self::assertNotContains('zz', $fresh->getDraftLocales());
+    }
+
+    /**
+     * @see docs/features.md F9.18 — Admin-managed channel locales
+     */
+    public function testChromeWarningListsLocalesWithoutXliff(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        \assert($entityManager instanceof EntityManagerInterface);
+        $channel = $this->getChannel('app');
+        $channel->setDraftLocales([...$channel->getDraftLocales(), 'es']);
+        $entityManager->flush();
+
+        $crawler = $this->client->request('GET', '/admin/channels/'.$channel->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('es', $crawler->filter('.alert-warning')->text());
+    }
+
     private function getChannel(string $code): Channel
     {
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);

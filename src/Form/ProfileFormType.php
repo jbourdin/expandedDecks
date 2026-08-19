@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\User;
+use App\Service\Channel\ChannelContext;
+use App\Service\Channel\ChannelLocaleVisibility;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -24,6 +26,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Intl\Languages;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -33,6 +36,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ProfileFormType extends AbstractType
 {
+    public function __construct(
+        private readonly ChannelContext $channelContext,
+        private readonly ChannelLocaleVisibility $localeVisibility,
+    ) {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -61,10 +70,7 @@ class ProfileFormType extends AbstractType
             ])
             ->add('preferredLocale', ChoiceType::class, [
                 'label' => 'app.form.label.preferred_locale',
-                'choices' => [
-                    'English' => 'en',
-                    'Français' => 'fr',
-                ],
+                'choices' => $this->preferredLocaleChoices(),
             ])
             ->add('timezone', TimezoneType::class, [
                 'label' => 'app.form.label.timezone',
@@ -144,5 +150,28 @@ class ProfileFormType extends AbstractType
 
         $resolver->setAllowedTypes('organizer_role_locked', 'bool');
         $resolver->setAllowedTypes('is_organizer', 'bool');
+    }
+
+    /**
+     * Published locales of the current channel, plus the draft locales the
+     * current user may browse (F9.16/F9.18), with native language names.
+     *
+     * @return array<string, string> display name => locale code
+     */
+    private function preferredLocaleChoices(): array
+    {
+        $channel = $this->channelContext->getChannel();
+        $codes = array_values(array_unique([
+            ...$channel->getLocales(),
+            ...$this->localeVisibility->visibleDraftLocales($channel),
+        ]));
+
+        $choices = [];
+        foreach ($codes as $code) {
+            $name = Languages::exists($code) ? Languages::getName($code, $code) : $code;
+            $choices[ucfirst($name)] = $code;
+        }
+
+        return $choices;
     }
 }

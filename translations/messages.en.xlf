@@ -3865,6 +3865,31 @@
                 <target>Visible only to assigned translators, translation moderators, and admins. Hidden from visitors and all SEO signals until published (moved to the locales above).</target>
                 <note>Channel form help for draft locales (F9.16)</note>
             </trans-unit>
+            <trans-unit id="app.channel.add_locale">
+                <source>app.channel.add_locale</source>
+                <target>Add a language</target>
+                <note>Channel form: free locale input (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_help">
+                <source>app.channel.add_locale_help</source>
+                <target>Two-letter ISO 639-1 code (e.g. de, es, it). A new language always starts as a draft locale.</target>
+                <note>Channel form help for the free locale input (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_invalid">
+                <source>app.channel.add_locale_invalid</source>
+                <target>This is not a valid two-letter language code.</target>
+                <note>Channel form error: invalid locale code (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_exists">
+                <source>app.channel.add_locale_exists</source>
+                <target>This language is already configured on the channel.</target>
+                <note>Channel form error: duplicate locale (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.chrome_missing_warning">
+                <source>app.channel.chrome_missing_warning</source>
+                <target>No interface translation file exists yet for: %locales%. Menus, buttons and form labels will render in English until a translations/messages.&lt;locale&gt;.xlf file is added.</target>
+                <note>Channel form warning: missing XLIFF chrome (F9.18)</note>
+            </trans-unit>
             <trans-unit id="app.nav.draft_locale">
                 <source>app.nav.draft_locale</source>
                 <target>Draft language — visible only to translators and admins</target>
