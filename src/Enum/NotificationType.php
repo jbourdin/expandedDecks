@@ -36,6 +36,9 @@ enum NotificationType: string
     case EventTransferAccepted = 'event_transfer_accepted';
     case EventTransferDeclined = 'event_transfer_declined';
     case DeckFound = 'deck_found';
+    case TranslationSubmitted = 'translation_submitted';
+    case TranslationReviewed = 'translation_reviewed';
+    case TranslationSourceOutdated = 'translation_source_outdated';
 
     public function isBorrowType(): bool
     {

@@ -116,7 +116,7 @@ class ArchetypeCatalogController extends AbstractController
                 'title' => $archetype->getLocalizedName($locale).' — '.$variant->getName(),
                 'url' => $archetypeUrl.'#'.$variant->getShortTag(),
                 'publishedAt' => $publishedAt,
-                'description' => $markdownExcerptGenerator->excerpt($variant->getNotes() ?? ''),
+                'description' => $markdownExcerptGenerator->excerpt($variant->localizedNotes($locale) ?? ''),
                 // Only an image explicitly set on the variant — no archetype or
                 // mosaic fallback: the 60-card mosaic is too big to be a relevant
                 // feed thumbnail.

@@ -75,6 +75,30 @@ The `translation_review` state machine (Symfony Workflow, `config/packages/workf
 
 `TranslationDraftProvider` opens a translation session (US-T3/US-T4): it returns the existing not-yet-validated revision for a (content, locale) pair — pending, rejected, or draft — or creates a new draft prefilled from the live row (the latest validated content) and pinned to the latest source revision via `LatestSourceRevisionProvider` (shared with the snapshot listener).
 
+## Translator UI (F9.10–F9.13)
+
+The workspace lives at `/admin/translations` (access: `ROLE_TRANSLATION_EDITOR` or `ROLE_TRANSLATION_MODERATOR`, wired in `security.yaml` before the `^/admin` catch-all).
+
+- **Entry points (US-T1/US-T2):** public pages and archetype pages render Translate items in their existing action dropdown — one per locale granted by `translatable_locales()` (Twig function over `TranslationVoter`).
+- **Queue (F9.12):** one React component (`TranslationQueue`), tabs per content type, contributor/reviewer flavors from `TranslationQueueProvider` (`GET /admin/translations/queue-data`). Variant work aggregates on the archetype row as counters — one row per context.
+- **Contextual view (F9.10):** `TranslationEditor` renders `TranslationViewDataBuilder` sections — field-aligned split form, markdown source pre-rendered server-side with a raw toggle, TipTap (`MarkdownEditor`) targets, SEO-budget counters, copy-source, guidelines panel. Drafts autosave (`POST …/draft`, fields filtered by `TranslationDraftFieldUpdater`); submit returns 409 with the translated stale error when the source moved (US-T5). The staleness diff is computed client-side by `assets/utils/wordDiff.ts` (dependency-free word-level LCS) over the pinned-vs-latest source values.
+- **Review mode (F9.11):** same component; pending sections lock inputs and expose Approve / Reject-with-comment; rejected sections show the comment and a Rework action.
+- **Archetype context (F9.13):** `buildArchetypeContext()` = archetype section + one accordion section per variant (auto-expanded when stale or in workflow), each with independent revisions and actions. `Deck::localizedNotes()` / `translationFor()` feed the public variant selector and the localized RSS feed.
+
+## Reader-facing notice (F9.14, US-T6)
+
+Translated content whose live row is `sourceOutdated` shows a discreet notice linking to the source-locale URL: `_partials/translation_outdated_notice.html.twig` on pages and archetype descriptions, and the equivalent block inside `ArchetypeVariantSelector` for variant notes (`notesOutdated` in the payload). The check reads the denormalized flag only — public pages never touch the revision tables.
+
+## Notifications (F9.15)
+
+`TranslationNotificationService` (in-app `Notification` + email, per-type preferences, recipient `preferredLocale`):
+
+- **submitted** → all moderators (`UserRepository::findTranslationModerators()`) except the submitting contributor;
+- **approved / rejected** → the contributor, with the reviewer comment; skipped on self-review;
+- **source outdated** → the live row's credited translator, emitted by the snapshot listener only for rows flipping fresh→outdated (an already-outdated translation is never re-notified).
+
+Deck notifications link to the archetype context view. Emails live under `templates/email/translation/`.
+
 ## Deliberately not signals
 
 - **Deck-list changes** never flag variant-notes translations: a list change that matters to readers warrants an English notes update, and that update triggers the flag through the normal path (editorial practice, decided in #612).

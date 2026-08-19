@@ -145,7 +145,7 @@
     {% if versions|length > 1 %}
         {{ encore_entry_script_tags('deck_version_compare') }}
     {% endif %}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         /**
          * Inline confirmation toggle for destructive actions.
          *

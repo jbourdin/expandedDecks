@@ -29,6 +29,7 @@ use App\Entity\PageTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Service\Translation\LatestSourceRevisionProvider;
+use App\Service\Translation\TranslationNotificationService;
 use App\Service\Translation\TranslationRevisionSuppression;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
@@ -90,6 +91,7 @@ final class TranslationRevisionListener
         private readonly Security $security,
         private readonly TranslationRevisionSuppression $suppression,
         private readonly LatestSourceRevisionProvider $latestSourceRevisionProvider,
+        private readonly TranslationNotificationService $notificationService,
         #[Autowire('%kernel.default_locale%')]
         private readonly string $sourceLocale,
     ) {
@@ -161,13 +163,41 @@ final class TranslationRevisionListener
         $subjects = $this->pendingOutdatedSubjects;
         $this->pendingOutdatedSubjects = [];
 
-        $connection = $args->getObjectManager()->getConnection();
+        $entityManager = $args->getObjectManager();
+        $connection = $entityManager->getConnection();
+        /** @var list<array{class-string, int, int, string}> $newlyOutdated */
+        $newlyOutdated = [];
         foreach ($subjects as [$subjectClass, $subjectId]) {
             [$table, $foreignKeyColumn] = self::OUTDATED_TARGETS[$subjectClass];
+
+            // Rows flipping 0 -> 1 right now: their credited translator gets
+            // one notification per source change, never repeats while the
+            // translation stays outdated (F9.15). MenuCategory rows carry no
+            // translator credit, so there is nobody to notify.
+            if ('menu_category_translation' !== $table) {
+                /** @var list<array{locale: string, translator_id: int|string}> $rows */
+                $rows = $connection->fetchAllAssociative(
+                    \sprintf('SELECT locale, translator_id FROM %s WHERE %s = :subjectId AND locale <> :sourceLocale AND source_outdated = 0 AND translator_id IS NOT NULL', $table, $foreignKeyColumn),
+                    ['subjectId' => $subjectId, 'sourceLocale' => $this->sourceLocale],
+                );
+                foreach ($rows as $row) {
+                    $newlyOutdated[] = [$subjectClass, $subjectId, (int) $row['translator_id'], $row['locale']];
+                }
+            }
+
             $connection->executeStatement(
                 \sprintf('UPDATE %s SET source_outdated = 1 WHERE %s = :subjectId AND locale <> :sourceLocale', $table, $foreignKeyColumn),
                 ['subjectId' => $subjectId, 'sourceLocale' => $this->sourceLocale],
             );
+        }
+
+        foreach ($newlyOutdated as [$subjectClass, $subjectId, $translatorId, $locale]) {
+            $content = $entityManager->find($subjectClass, $subjectId);
+            $translatorUser = $entityManager->find(User::class, $translatorId);
+            if ($translatorUser instanceof User
+                && ($content instanceof Page || $content instanceof Archetype || $content instanceof MenuCategory || $content instanceof Deck)) {
+                $this->notificationService->notifySourceOutdated($translatorUser, $content, $locale);
+            }
         }
     }
 

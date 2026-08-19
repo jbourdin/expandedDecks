@@ -132,7 +132,7 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('page_form') }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         {# Activate the correct translation tab based on URL hash #}
         (function() {
             var hash = window.location.hash;

@@ -38,6 +38,9 @@ Stores in-app notifications for users. Each notification is addressed to a singl
 | `event_cancelled`    | F3.10           | An event was cancelled. |
 | `event_invited`      | F3.13           | You were invited to an event. |
 | `event_reminder`     | F8.2            | Reminder: an event with active borrows is tomorrow. |
+| `translation_submitted` | F9.15        | A translation was submitted for review (sent to moderators). |
+| `translation_reviewed`  | F9.15        | Your translation was approved or rejected (comment included on rejection). |
+| `translation_source_outdated` | F9.15  | The English source of content you translated changed. |
 
 ### Constraints
 

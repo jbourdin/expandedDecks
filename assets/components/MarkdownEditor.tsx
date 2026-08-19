@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SegmentedControl, Textarea } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
 import TiptapLink from '@tiptap/extension-link';
@@ -106,6 +106,7 @@ interface MarkdownEditorProps {
     initialContent: string;
     placeholder?: string;
     onChange?: (content: string) => void;
+    disabled?: boolean;
 }
 
 type EditorMode = 'rte' | 'markdown';
@@ -126,7 +127,7 @@ function downgradeHeadingOne(markdown: string): string {
     return markdown.replace(/^# (?!#)/gm, '## ');
 }
 
-export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange }: MarkdownEditorProps) {
+export default function MarkdownEditor({ textareaSelector, initialContent, placeholder, onChange, disabled = false }: MarkdownEditorProps) {
     const [mode, setMode] = useState<EditorMode>('rte');
     const [rawMarkdown, setRawMarkdown] = useState(initialContent);
     const suppressSyncRef = useRef(false);
@@ -142,51 +143,56 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
         onChange?.(sanitized);
     }, [textareaSelector, onChange]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const markdownExtension = (Markdown as any).configure({
-        html: false,
-        transformPastedText: true,
-        transformCopiedText: true,
-    });
+    // The extensions array MUST be referentially stable: a fresh array each
+    // render can make @tiptap/react tear down and re-create the editor while
+    // the previous instance is still referenced by toolbar controls — the
+    // intermittent "commandManager is null" crash on re-render-heavy parents
+    // (the translation editor autosaves on every keystroke).
+    const extensions = useMemo(() => [
+        StarterKit.configure({
+            heading: false,
+            link: false,
+        }),
+        HeadingWithId.configure({ levels: [2, 3, 4] }),
+        TiptapLink.configure({ openOnClick: false }),
+        ResizableImage.configure({
+            inline: false,
+            allowBase64: true,
+            resize: {
+                enabled: true,
+                alwaysPreserveAspectRatio: true,
+            },
+        }),
+        FileHandler.configure({
+            allowedMimeTypes: ALLOWED_IMAGE_TYPES,
+            onDrop: (currentEditor, files, position) => {
+                files.forEach((file) => {
+                    uploadAndInsertImage(file, currentEditor, position);
+                });
+            },
+            onPaste: (currentEditor, files) => {
+                files.forEach((file) => {
+                    uploadAndInsertImage(file, currentEditor);
+                });
+            },
+        }),
+        ArchetypeReference,
+        CardReference,
+        DeckReference,
+        Table.configure({ resizable: false }),
+        TableRow,
+        TableHeader,
+        TableCell,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (Markdown as any).configure({
+            html: false,
+            transformPastedText: true,
+            transformCopiedText: true,
+        }),
+    ], []);
 
     const editor = useEditor({
-        extensions: [
-            StarterKit.configure({
-                heading: false,
-                link: false,
-            }),
-            HeadingWithId.configure({ levels: [2, 3, 4] }),
-            TiptapLink.configure({ openOnClick: false }),
-            ResizableImage.configure({
-                inline: false,
-                allowBase64: true,
-                resize: {
-                    enabled: true,
-                    alwaysPreserveAspectRatio: true,
-                },
-            }),
-            FileHandler.configure({
-                allowedMimeTypes: ALLOWED_IMAGE_TYPES,
-                onDrop: (currentEditor, files, position) => {
-                    files.forEach((file) => {
-                        uploadAndInsertImage(file, currentEditor, position);
-                    });
-                },
-                onPaste: (currentEditor, files) => {
-                    files.forEach((file) => {
-                        uploadAndInsertImage(file, currentEditor);
-                    });
-                },
-            }),
-            ArchetypeReference,
-            CardReference,
-            DeckReference,
-            Table.configure({ resizable: false }),
-            TableRow,
-            TableHeader,
-            TableCell,
-            markdownExtension,
-        ],
+        extensions,
         content: initialContent,
         onUpdate: ({ editor: currentEditor }) => {
             if (suppressSyncRef.current) {
@@ -220,6 +226,22 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
         setRawMarkdown(value);
         syncToTextarea(value);
     };
+
+    // A locked section (e.g. a revision awaiting review, F9.11) must not be
+    // editable; TipTap's editable flag is imperative, so sync it on change.
+    // emitUpdate: false — flipping editability is not a content change and
+    // must not push the (unchanged) content to the hidden textarea.
+    useEffect(() => {
+        if (editor && !editor.isDestroyed) {
+            editor.setEditable(!disabled, false);
+        }
+    }, [editor, disabled]);
+
+    // Guard recommended by the Tiptap React docs: never render the toolbar
+    // against a missing (or torn-down) editor instance.
+    if (!editor || editor.isDestroyed) {
+        return null;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const editorForMantine = editor as any;
@@ -326,6 +348,7 @@ export default function MarkdownEditor({ textareaSelector, initialContent, place
                     value={rawMarkdown}
                     onChange={handleRawChange}
                     placeholder={placeholder}
+                    disabled={disabled}
                     autosize
                     minRows={10}
                     styles={{ input: { fontFamily: 'monospace' } }}

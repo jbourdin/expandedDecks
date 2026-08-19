@@ -56,7 +56,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         (function() {
             var container = document.getElementById('parameters-collection');
             var addButton = document.getElementById('add-parameter');

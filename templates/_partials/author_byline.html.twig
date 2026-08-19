@@ -12,6 +12,10 @@
  # public screen name (never email/legal name). The credential is deliberately
  # NOT shown here — it is an E-E-A-T signal carried in the JSON-LD
  # (Person.description), not human-facing byline clutter.
+ #
+ # `translationLocale` (optional, string|null): locale of the displayed
+ # translation — when provided, the translator credit names the language
+ # ("Translated in French by …", F9.15 follow-up).
  #}
 {%- if author -%}
     <div class="author-byline text-muted small mb-0">
@@ -19,6 +23,19 @@
         {%- if author.primaryUrl %} <a href="{{ author.primaryUrl }}" rel="author noopener" target="_blank">{{ author.screenName }}</a>
         {%- else %} {{ author.screenName }}
         {%- endif -%}
-        {%- if translator %} <span class="author-translator">· {{ 'app.author.translated_by'|trans({'%name%': translator.screenName}) }}</span>{% endif -%}
+        {%- if translator -%}
+            {%- set translatorName -%}
+                {%- if translator.primaryUrl -%}
+                    <a href="{{ translator.primaryUrl }}" rel="author noopener" target="_blank">{{ translator.screenName }}</a>
+                {%- else -%}
+                    {{ translator.screenName }}
+                {%- endif -%}
+            {%- endset -%}
+            <span class="author-translator">· {% if translationLocale is defined and translationLocale -%}
+                {{ 'app.author.translated_in_by'|trans({'%language%': translationLocale|language_name(app.request.locale), '%name%': '%name%'})|replace({'%name%': translatorName})|raw }}
+            {%- else -%}
+                {{ 'app.author.translated_by'|trans({'%name%': '%name%'})|replace({'%name%': translatorName})|raw }}
+            {%- endif %}</span>
+        {%- endif -%}
     </div>
 {%- endif -%}

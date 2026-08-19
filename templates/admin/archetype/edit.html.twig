@@ -218,7 +218,7 @@
     {{ parent() }}
     {{ encore_entry_script_tags('archetype_form') }}
     {{ encore_entry_script_tags('admin_archetype_edit') }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         {# Activate the correct translation tab based on URL hash #}
         (function() {
             var hash = window.location.hash;

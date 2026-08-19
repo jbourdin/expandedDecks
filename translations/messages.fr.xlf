@@ -4411,6 +4411,386 @@
                 <target>La source anglaise a changé depuis le début de cette traduction. Mets à jour la traduction par rapport à la source actuelle avant de la soumettre.</target>
                 <note>Error shown when submitting a translation pinned to an outdated source revision (F9.9, US-T5)</note>
             </trans-unit>
+            <trans-unit id="app.translation.outdated_notice">
+                <source>app.translation.outdated_notice</source>
+                <target>Cette traduction peut être en retard sur le contenu original en anglais.</target>
+                <note>Reader-facing notice on translated content based on an outdated source (F9.14, US-T6)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.outdated_notice_link">
+                <source>app.translation.outdated_notice_link</source>
+                <target>Voir la dernière version anglaise</target>
+                <note>Link label inside the outdated-translation notice (F9.14, US-T6)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.preview_notice">
+                <source>app.translation.preview_notice</source>
+                <target>Tu prévisualises une traduction non validée — ce n'est pas ce que les visiteurs voient actuellement.</target>
+                <note>Banner on public pages rendered in draft-translation preview mode (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.nav.translations">
+                <source>app.nav.translations</source>
+                <target>Traductions</target>
+                <note>Admin menu entry for the translation workspace (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.action.translate_into">
+                <source>app.translation.action.translate_into</source>
+                <target>Traduire en %locale%</target>
+                <note>Translate entry-point action label, one per target locale (US-T1/US-T2)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.title">
+                <source>app.translation.queue.title</source>
+                <target>Traductions</target>
+                <note>Translation queue page title (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.tab.pages">
+                <source>app.translation.queue.tab.pages</source>
+                <target>Pages</target>
+                <note>Queue tab (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.tab.archetypes">
+                <source>app.translation.queue.tab.archetypes</source>
+                <target>Archétypes</target>
+                <note>Queue tab (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.tab.menu_categories">
+                <source>app.translation.queue.tab.menu_categories</source>
+                <target>Catégories de menu</target>
+                <note>Queue tab (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.flavor.contributor">
+                <source>app.translation.queue.flavor.contributor</source>
+                <target>Mon travail</target>
+                <note>Queue flavor toggle (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.flavor.reviewer">
+                <source>app.translation.queue.flavor.reviewer</source>
+                <target>À relire</target>
+                <note>Queue flavor toggle (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.state.draft">
+                <source>app.translation.state.draft</source>
+                <target>Brouillon</target>
+                <note>Translation revision state (F9.9)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.state.pending_review">
+                <source>app.translation.state.pending_review</source>
+                <target>En attente de relecture</target>
+                <note>Translation revision state (F9.9)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.state.rejected">
+                <source>app.translation.state.rejected</source>
+                <target>Rejetée</target>
+                <note>Translation revision state (F9.9)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.badge.outdated">
+                <source>app.translation.queue.badge.outdated</source>
+                <target>Source mise à jour</target>
+                <note>Queue badge for outdated translations (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.badge.pending_variants">
+                <source>app.translation.queue.badge.pending_variants</source>
+                <target>variants en attente</target>
+                <note>Archetype row aggregate badge (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.badge.outdated_variants">
+                <source>app.translation.queue.badge.outdated_variants</source>
+                <target>variants à mettre à jour</target>
+                <note>Archetype row aggregate badge (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.empty">
+                <source>app.translation.queue.empty</source>
+                <target>Rien à traduire pour le moment.</target>
+                <note>Empty queue message (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.open">
+                <source>app.translation.queue.open</source>
+                <target>Ouvrir</target>
+                <note>Queue row action (F9.12)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.title">
+                <source>app.translation.editor.title</source>
+                <target>Traduction</target>
+                <note>Contextual translation view title (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.back_to_queue">
+                <source>app.translation.editor.back_to_queue</source>
+                <target>Retour à la file</target>
+                <note>Back link from the editor (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.source">
+                <source>app.translation.editor.source</source>
+                <target>Source anglaise</target>
+                <note>Source column heading (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.target">
+                <source>app.translation.editor.target</source>
+                <target>Traduction</target>
+                <note>Target column heading (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.show_changes">
+                <source>app.translation.editor.show_changes</source>
+                <target>Voir ce qui a changé</target>
+                <note>Staleness diff toggle (US-T5)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.hide_changes">
+                <source>app.translation.editor.hide_changes</source>
+                <target>Masquer les changements</target>
+                <note>Staleness diff toggle (US-T5)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.stale_banner">
+                <source>app.translation.editor.stale_banner</source>
+                <target>La source anglaise a changé depuis le début de cette traduction.</target>
+                <note>Staleness banner (US-T5)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.submit">
+                <source>app.translation.editor.submit</source>
+                <target>Soumettre à la relecture</target>
+                <note>Submit CTA (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.saving">
+                <source>app.translation.editor.saving</source>
+                <target>Enregistrement…</target>
+                <note>Autosave status (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.saved">
+                <source>app.translation.editor.saved</source>
+                <target>Brouillon enregistré</target>
+                <note>Autosave status (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.approve">
+                <source>app.translation.editor.approve</source>
+                <target>Valider</target>
+                <note>Review action (F9.11)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.reject">
+                <source>app.translation.editor.reject</source>
+                <target>Rejeter</target>
+                <note>Review action (F9.11)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.rework">
+                <source>app.translation.editor.rework</source>
+                <target>Retravailler</target>
+                <note>Contributor action on a rejected revision (F9.9)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.reject_comment">
+                <source>app.translation.editor.reject_comment</source>
+                <target>Commentaire de rejet</target>
+                <note>Reject comment input label (F9.11)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.review_comment">
+                <source>app.translation.editor.review_comment</source>
+                <target>Commentaire de relecture</target>
+                <note>Reviewer comment display label (F9.11)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.copy_source">
+                <source>app.translation.editor.copy_source</source>
+                <target>Copier la source</target>
+                <note>Copy-source button (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.raw">
+                <source>app.translation.editor.raw</source>
+                <target>Markdown</target>
+                <note>Source display toggle (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.rendered">
+                <source>app.translation.editor.rendered</source>
+                <target>Rendu</target>
+                <note>Source display toggle (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.guidelines_title">
+                <source>app.translation.editor.guidelines_title</source>
+                <target>Consignes de traduction</target>
+                <note>Guidelines panel heading (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.guidelines_body">
+                <source>app.translation.editor.guidelines_body</source>
+                <target>Adopte un ton informel et convivial. Garde le jargon TCG en anglais (deck, staple, set, top cut, lock, mill) — les joueur·euses utilisent ces termes tels quels. Ne traduis jamais les noms de cartes. Préfère une formulation naturelle au mot-à-mot et conserve la mise en forme (titres, listes, liens).</target>
+                <note>Guidelines panel body: language-agnostic translation guidance (F9.10). Locale-specific style rules live in docs/standards/.</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.pending_notice">
+                <source>app.translation.editor.pending_notice</source>
+                <target>Soumis — en attente de relecture.</target>
+                <note>Section state notice (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.rejected_notice">
+                <source>app.translation.editor.rejected_notice</source>
+                <target>Rejetée — retravaille-la puis soumets-la à nouveau.</target>
+                <note>Section state notice (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.section_archetype">
+                <source>app.translation.editor.section_archetype</source>
+                <target>Archétype</target>
+                <note>Combined view section heading (F9.13)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.editor.submit_error">
+                <source>app.translation.editor.submit_error</source>
+                <target>Échec de la soumission.</target>
+                <note>Generic submit error (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.title">
+                <source>app.translation.field.title</source>
+                <target>Titre</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.content">
+                <source>app.translation.field.content</source>
+                <target>Contenu</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.name">
+                <source>app.translation.field.name</source>
+                <target>Nom</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.description">
+                <source>app.translation.field.description</source>
+                <target>Description</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.metaDescription">
+                <source>app.translation.field.metaDescription</source>
+                <target>Méta description</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.ogDescription">
+                <source>app.translation.field.ogDescription</source>
+                <target>Description sociale</target>
+                <note>Field label (F9.10)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.field.notes">
+                <source>app.translation.field.notes</source>
+                <target>Notes de variante</target>
+                <note>Field label (F9.10/F9.13)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_submitted_title">
+                <source>app.notification.translation_submitted_title</source>
+                <target>Traduction en attente de relecture : %label% (%locale%)</target>
+                <note>In-app notification title (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_submitted_message">
+                <source>app.notification.translation_submitted_message</source>
+                <target>%author% a soumis une traduction %locale% de « %label% ».</target>
+                <note>In-app notification message (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_approved_title">
+                <source>app.notification.translation_approved_title</source>
+                <target>Traduction validée : %label% (%locale%)</target>
+                <note>In-app notification title (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_approved_message">
+                <source>app.notification.translation_approved_message</source>
+                <target>Ta traduction %locale% de « %label% » a été validée et est maintenant en ligne.</target>
+                <note>In-app notification message (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_rejected_title">
+                <source>app.notification.translation_rejected_title</source>
+                <target>Traduction rejetée : %label% (%locale%)</target>
+                <note>In-app notification title (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_rejected_message">
+                <source>app.notification.translation_rejected_message</source>
+                <target>Ta traduction %locale% de « %label% » a été rejetée : %comment%</target>
+                <note>In-app notification message (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_outdated_title">
+                <source>app.notification.translation_outdated_title</source>
+                <target>Source mise à jour : %label% (%locale%)</target>
+                <note>In-app notification title (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification.translation_outdated_message">
+                <source>app.notification.translation_outdated_message</source>
+                <target>La source anglaise de « %label% » a changé — ta traduction %locale% peut nécessiter une mise à jour.</target>
+                <note>In-app notification message (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_submitted_subject">
+                <source>app.email.translation_submitted_subject</source>
+                <target>Traduction en attente de relecture : %label% (%locale%)</target>
+                <note>Email subject (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_submitted_heading">
+                <source>app.email.translation_submitted_heading</source>
+                <target>Traduction en attente de relecture</target>
+                <note>Email heading (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_submitted_body">
+                <source>app.email.translation_submitted_body</source>
+                <target>Une traduction %locale% de « %label% » a été soumise et attend ta relecture.</target>
+                <note>Email body (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_review_button">
+                <source>app.email.translation_review_button</source>
+                <target>Relire la traduction</target>
+                <note>Email CTA (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_approved_subject">
+                <source>app.email.translation_approved_subject</source>
+                <target>Traduction validée : %label% (%locale%)</target>
+                <note>Email subject (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_approved_heading">
+                <source>app.email.translation_approved_heading</source>
+                <target>Traduction validée</target>
+                <note>Email heading (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_approved_body">
+                <source>app.email.translation_approved_body</source>
+                <target>Ta traduction %locale% de « %label% » a été validée et est maintenant en ligne.</target>
+                <note>Email body (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_rejected_subject">
+                <source>app.email.translation_rejected_subject</source>
+                <target>Traduction rejetée : %label% (%locale%)</target>
+                <note>Email subject (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_rejected_heading">
+                <source>app.email.translation_rejected_heading</source>
+                <target>Traduction rejetée</target>
+                <note>Email heading (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_rejected_body">
+                <source>app.email.translation_rejected_body</source>
+                <target>Ta traduction %locale% de « %label% » doit être retravaillée avant de pouvoir être publiée.</target>
+                <note>Email body (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_outdated_subject">
+                <source>app.email.translation_outdated_subject</source>
+                <target>Source mise à jour : %label% (%locale%)</target>
+                <note>Email subject (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_outdated_heading">
+                <source>app.email.translation_outdated_heading</source>
+                <target>La source anglaise a changé</target>
+                <note>Email heading (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_outdated_body">
+                <source>app.email.translation_outdated_body</source>
+                <target>La source anglaise de « %label% » a changé — ta traduction %locale% peut nécessiter une mise à jour.</target>
+                <note>Email body (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.email.translation_open_button">
+                <source>app.email.translation_open_button</source>
+                <target>Ouvrir la traduction</target>
+                <note>Email CTA (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.group.translation">
+                <source>app.notification_preferences.group.translation</source>
+                <target>Traductions</target>
+                <note>Notification preferences group heading (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.translation_submitted">
+                <source>app.notification_preferences.type.translation_submitted</source>
+                <target>Traduction soumise à la relecture</target>
+                <note>Notification preference row (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.translation_reviewed">
+                <source>app.notification_preferences.type.translation_reviewed</source>
+                <target>Traduction validée ou rejetée</target>
+                <note>Notification preference row (F9.15)</note>
+            </trans-unit>
+            <trans-unit id="app.notification_preferences.type.translation_source_outdated">
+                <source>app.notification_preferences.type.translation_source_outdated</source>
+                <target>Contenu traduit rendu obsolète par un changement de source</target>
+                <note>Notification preference row (F9.15)</note>
+            </trans-unit>
             <trans-unit id="app.admin.user.save_author">
                 <source>app.admin.user.save_author</source>
                 <target>Enregistrer le profil d'auteur·rice</target>
@@ -4847,6 +5227,11 @@
                 <source>app.author.translated_by</source>
                 <target>Traduit par %name%</target>
                 <note>Signature publique affichée sur le contenu d'une locale non source, créditant le·la traducteur·rice (F19.8).</note>
+            </trans-unit>
+            <trans-unit id="app.author.translated_in_by">
+                <source>app.author.translated_in_by</source>
+                <target>Traduit en %language% par %name%</target>
+                <note>Public byline crediting the translator with the target language named (F19.8/F9.15); %language% is the Intl display name of the translation locale.</note>
             </trans-unit>
 
             <!-- CMS: Validation -->

@@ -40,7 +40,7 @@ class DeckTranslation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Deck::class)]
+    #[ORM\ManyToOne(targetEntity: Deck::class, inversedBy: 'translations')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Deck $deck;
 

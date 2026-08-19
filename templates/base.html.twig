@@ -198,6 +198,12 @@
                                     {% if is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR') %}
                                         <li><a class="dropdown-item" href="{{ path('app_admin_og_image_builder') }}">{{ 'app.nav.og_image_builder'|trans }}</a></li>
                                     {% endif %}
+                                    {% if is_granted('ROLE_TRANSLATION_EDITOR') or is_granted('ROLE_TRANSLATION_MODERATOR') %}
+                                        {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_ARCHETYPE_EDITOR') and not is_granted('ROLE_TECHNICAL_ADMIN') and not is_granted('ROLE_CMS_EDITOR') %}
+                                            <li><hr class="dropdown-divider"></li>
+                                        {% endif %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_translation_queue') }}">{{ 'app.nav.translations'|trans }}</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>
                                 </ul>
@@ -341,7 +347,7 @@
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}
             {% endif %}
-            <script>
+            <script nonce="{{ csp_nonce() }}">
                 {# Preserve scroll position across form-driven page reloads #}
                 (function() {
                     var key = 'ed_scroll_' + location.pathname;
