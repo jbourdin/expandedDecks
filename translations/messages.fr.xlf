@@ -3850,6 +3850,31 @@
                 <target>Visibles uniquement des traducteur·rices concerné·es, des modérateur·rices de traduction et des admins. Masquées des visiteurs et de tous les signaux SEO jusqu'à publication (déplacement dans les locales ci-dessus).</target>
                 <note>Channel form help for draft locales (F9.16)</note>
             </trans-unit>
+            <trans-unit id="app.channel.add_locale">
+                <source>app.channel.add_locale</source>
+                <target>Ajouter une langue</target>
+                <note>Channel form: free locale input (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_help">
+                <source>app.channel.add_locale_help</source>
+                <target>Code ISO 639-1 à deux lettres (ex. de, es, it). Une nouvelle langue démarre toujours comme locale draft.</target>
+                <note>Channel form help for the free locale input (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_invalid">
+                <source>app.channel.add_locale_invalid</source>
+                <target>Ce n'est pas un code de langue à deux lettres valide.</target>
+                <note>Channel form error: invalid locale code (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.add_locale_exists">
+                <source>app.channel.add_locale_exists</source>
+                <target>Cette langue est déjà configurée sur le channel.</target>
+                <note>Channel form error: duplicate locale (F9.18)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.chrome_missing_warning">
+                <source>app.channel.chrome_missing_warning</source>
+                <target>Aucun fichier de traduction d'interface n'existe encore pour : %locales%. Les menus, boutons et libellés de formulaire resteront en anglais tant qu'un fichier translations/messages.&lt;locale&gt;.xlf n'est pas ajouté.</target>
+                <note>Channel form warning: missing XLIFF chrome (F9.18)</note>
+            </trans-unit>
             <trans-unit id="app.nav.draft_locale">
                 <source>app.nav.draft_locale</source>
                 <target>Langue en brouillon — visible uniquement des traducteur·rices et des admins</target>

@@ -17,6 +17,7 @@ use App\Entity\Archetype;
 use App\Entity\Deck;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\DeckVersionDiffer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,7 @@ class ArchetypeVariantCompareController extends AbstractController
     /**
      * Display a side-by-side diff of two archetype variants' current deck lists.
      */
-    #[Route('/{_locale}/archetypes/{slug}/compare/{shortTagA}/{shortTagB}', name: 'app_archetype_variant_compare', methods: ['GET'], requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+', 'shortTagA' => '[A-HJ-NP-Z0-9]{6}', 'shortTagB' => '[A-HJ-NP-Z0-9]{6}'])]
+    #[Route('/{_locale}/archetypes/{slug}/compare/{shortTagA}/{shortTagB}', name: 'app_archetype_variant_compare', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN, 'slug' => '[a-z0-9-]+', 'shortTagA' => '[A-HJ-NP-Z0-9]{6}', 'shortTagB' => '[A-HJ-NP-Z0-9]{6}'])]
     public function compare(
         string $slug,
         string $shortTagA,

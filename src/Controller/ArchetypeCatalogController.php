@@ -16,6 +16,7 @@ namespace App\Controller;
 use App\Entity\Archetype;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\MarkdownExcerptGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +35,7 @@ class ArchetypeCatalogController extends AbstractController
      * @see docs/features.md F2.16 — Archetype catalog
      * @see docs/features.md F7.11 — Draft state with preview
      */
-    #[Route('/{_locale}/archetypes', name: 'app_archetype_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
+    #[Route('/{_locale}/archetypes', name: 'app_archetype_list', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN], priority: 10)]
     public function list(Request $request, ArchetypeRepository $archetypeRepository): Response
     {
         $showDrafts = $request->query->getBoolean('drafts') && $this->isGranted('ROLE_ARCHETYPE_EDITOR');
@@ -81,7 +82,7 @@ class ArchetypeCatalogController extends AbstractController
      *
      * @see docs/features.md F21.2 — RSS feed of archetype variants
      */
-    #[Route('/{_locale}/archetypes/feed.xml', name: 'app_archetype_feed', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 20)]
+    #[Route('/{_locale}/archetypes/feed.xml', name: 'app_archetype_feed', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN], priority: 20)]
     public function feed(
         Request $request,
         DeckRepository $deckRepository,

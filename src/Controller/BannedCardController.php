@@ -17,6 +17,7 @@ use App\Constants\ListingIntroPage;
 use App\Entity\BannedCardTranslationRevision;
 use App\Repository\BannedCardRepository;
 use App\Repository\PageRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\BannedCardImageResolver;
 use App\Service\Channel\ChannelContext;
@@ -39,7 +40,7 @@ class BannedCardController extends AbstractController
     /**
      * @see docs/features.md F6.14 — Banned cards public page
      */
-    #[Route('/{_locale}/banned-cards', name: 'app_banned_card_list', methods: ['GET'], requirements: ['_locale' => 'en|fr'], priority: 10)]
+    #[Route('/{_locale}/banned-cards', name: 'app_banned_card_list', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN], priority: 10)]
     public function list(
         Request $request,
         ChannelContext $channelContext,
