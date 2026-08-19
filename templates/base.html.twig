@@ -258,25 +258,30 @@
                             {{ include('_partials/navbar_search.html.twig') }}
                             {{ include('_partials/navbar_unauthenticated.html.twig') }}
                         {% endif %}
-                        {% if current_channel().locales|length > 1 %}
+                        {# Locale switcher: published locales for everyone, plus the
+                           draft locales the logged-in user may browse, marked as
+                           drafts (F9.16). Draft visibility is only computed behind
+                           the session-cookie gate so anonymous pages stay cacheable. #}
+                        {% set switcherLocales = current_channel().locales %}
+                        {% set draftSwitcherLocales = current_user ? visible_draft_locales() : [] %}
+                        {% if (switcherLocales|length + draftSwitcherLocales|length) > 1 %}
                             {% set currentLocale = app.request.locale %}
-                            {% set alternateLocale = currentLocale == 'en' ? 'fr' : 'en' %}
                             {% set routeParams = app.request.attributes.get('_route_params', {}) %}
-                            {% if '_locale' in routeParams|keys %}
-                                {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: alternateLocale})) %}
-                            {% else %}
-                                {% set switchUrl = path('app_locale_switch', {_locale: alternateLocale, _redirect: app.request.requestUri}) %}
-                            {% endif %}
                             <li class="nav-item d-flex align-items-center ms-lg-2">
-                                {% if currentLocale == 'en' %}
-                                    <span class="fw-bold text-light small">EN</span>
-                                    <span class="mx-1 text-secondary">|</span>
-                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_french'|trans }}">FR</a>
-                                {% else %}
-                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_english'|trans }}">EN</a>
-                                    <span class="mx-1 text-secondary">|</span>
-                                    <span class="fw-bold text-light small">FR</span>
-                                {% endif %}
+                                {% for switchLocale in switcherLocales|merge(draftSwitcherLocales) %}
+                                    {% if not loop.first %}<span class="mx-1 text-secondary">|</span>{% endif %}
+                                    {% set isDraftLocale = switchLocale in draftSwitcherLocales %}
+                                    {% if switchLocale == currentLocale %}
+                                        <span class="fw-bold small {{ isDraftLocale ? 'text-warning' : 'text-light' }}"{% if isDraftLocale %} title="{{ 'app.nav.draft_locale'|trans }}"{% endif %}>{{ switchLocale|upper }}</span>
+                                    {% else %}
+                                        {% if '_locale' in routeParams|keys %}
+                                            {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: switchLocale})) %}
+                                        {% else %}
+                                            {% set switchUrl = path('app_locale_switch', {_locale: switchLocale, _redirect: app.request.requestUri}) %}
+                                        {% endif %}
+                                        <a href="{{ switchUrl }}" class="text-decoration-none small {{ isDraftLocale ? 'text-warning' : 'text-light' }}"{% if isDraftLocale %} title="{{ 'app.nav.draft_locale'|trans }}"{% endif %}>{{ switchLocale|upper }}</a>
+                                    {% endif %}
+                                {% endfor %}
                             </li>
                         {% endif %}
                     </ul>

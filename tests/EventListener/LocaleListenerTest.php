@@ -44,7 +44,7 @@ class LocaleListenerTest extends TestCase
         $this->addSessionCookie($request);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -66,7 +66,7 @@ class LocaleListenerTest extends TestCase
         $this->addSessionCookie($request);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -84,7 +84,7 @@ class LocaleListenerTest extends TestCase
         $request->headers->set('Accept-Language', 'fr-FR,fr;q=0.9,en;q=0.8');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -104,7 +104,7 @@ class LocaleListenerTest extends TestCase
         $request = $this->createRequestWithSession();
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -122,7 +122,7 @@ class LocaleListenerTest extends TestCase
         $request->getSession()->set('_locale', 'de');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -140,7 +140,7 @@ class LocaleListenerTest extends TestCase
         $request->headers->set('Accept-Language', 'de-DE,de;q=0.9,ja;q=0.8');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -151,7 +151,7 @@ class LocaleListenerTest extends TestCase
         $security = $this->createStub(Security::class);
         $localeSwitcher = $this->createStub(LocaleSwitcher::class);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
 
         self::assertInstanceOf(LocaleListener::class, $listener);
     }
@@ -167,7 +167,7 @@ class LocaleListenerTest extends TestCase
         // Do not set a session on the request — hasSession() returns false
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         // No locale change expected, request keeps its default locale
@@ -186,7 +186,7 @@ class LocaleListenerTest extends TestCase
         $request->headers->remove('Accept-Language');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -205,7 +205,7 @@ class LocaleListenerTest extends TestCase
         $request->getSession()->set('_locale', 123);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -228,7 +228,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -249,7 +249,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -270,7 +270,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -294,7 +294,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());
@@ -316,7 +316,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_locale', 'en');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -340,7 +340,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_locale', 'en');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('en', $request->getLocale());
@@ -361,7 +361,7 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_locale', 'de');
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         // 'de' is unsupported, falls through to Accept-Language / default
@@ -386,11 +386,24 @@ class LocaleListenerTest extends TestCase
         $request->attributes->set('_channel', $channel);
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         // Route says 'fr' but channel only supports 'en'
         self::assertSame('en', $request->getLocale());
+    }
+
+    private function createLocaleVisibilityStub(): \App\Service\Channel\ChannelLocaleVisibility
+    {
+        // Unit scenarios exercise published locales only; draft visibility is
+        // covered by the functional DraftLocaleTest.
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        return new \App\Service\Channel\ChannelLocaleVisibility(
+            $security,
+            new \Symfony\Component\Security\Core\Role\RoleHierarchy([]),
+        );
     }
 
     private function createRequestWithSession(): Request
@@ -432,7 +445,7 @@ class LocaleListenerTest extends TestCase
         // Deliberately no cookie attached.
         $event = $this->createRequestEvent($request);
 
-        $listener = new LocaleListener($security, $localeSwitcher);
+        $listener = new LocaleListener($security, $localeSwitcher, $this->createLocaleVisibilityStub(), $this->createStub(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class));
         $listener($event);
 
         self::assertSame('fr', $request->getLocale());

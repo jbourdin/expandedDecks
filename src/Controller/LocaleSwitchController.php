@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Entity\User;
+use App\Service\Channel\ChannelLocaleVisibility;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -36,8 +38,17 @@ class LocaleSwitchController extends AbstractController
      * @see docs/features.md F18.29 — Locale-prefixed URL routing
      */
     #[Route('/locale/{_locale}', name: 'app_locale_switch', requirements: ['_locale' => 'en|fr'], methods: ['GET'])]
-    public function __invoke(Request $request, string $_locale, EntityManagerInterface $entityManager): RedirectResponse
+    public function __invoke(Request $request, string $_locale, EntityManagerInterface $entityManager, ChannelLocaleVisibility $localeVisibility): RedirectResponse
     {
+        // The target must be visible on the current channel: published, or a
+        // draft locale the current user is allowed to browse (F9.16).
+        $channel = $request->attributes->get('_channel');
+        if ($channel instanceof Channel
+            && !\in_array($_locale, $channel->getLocales(), true)
+            && !$localeVisibility->canSeeDraftLocale($channel, $_locale)) {
+            return new RedirectResponse('/');
+        }
+
         $request->getSession()->set('_locale', $_locale);
 
         $user = $this->getUser();

@@ -3840,6 +3840,21 @@
                 <target>Langues disponibles</target>
                 <note>Multiselect for CMS content locales on a channel</note>
             </trans-unit>
+            <trans-unit id="app.channel.draft_locales">
+                <source>app.channel.draft_locales</source>
+                <target>Locales en brouillon</target>
+                <note>Channel form: locales being prepared, visible only to translators/moderators/admins (F9.16)</note>
+            </trans-unit>
+            <trans-unit id="app.channel.draft_locales_help">
+                <source>app.channel.draft_locales_help</source>
+                <target>Visibles uniquement des traducteur·rices concerné·es, des modérateur·rices de traduction et des admins. Masquées des visiteurs et de tous les signaux SEO jusqu'à publication (déplacement dans les locales ci-dessus).</target>
+                <note>Channel form help for draft locales (F9.16)</note>
+            </trans-unit>
+            <trans-unit id="app.nav.draft_locale">
+                <source>app.nav.draft_locale</source>
+                <target>Langue en brouillon — visible uniquement des traducteur·rices et des admins</target>
+                <note>Tooltip on draft locales in the navbar switcher (F9.16)</note>
+            </trans-unit>
             <trans-unit id="app.channel.parameters">
                 <source>app.channel.parameters</source>
                 <target>Paramètres</target>
