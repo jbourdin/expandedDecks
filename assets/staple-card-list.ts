@@ -97,6 +97,7 @@ function populateModal(trigger: HTMLButtonElement): void {
     const name = trigger.dataset.cardName ?? '';
     const image = trigger.dataset.cardImage ?? '';
     const noteHtml = trigger.dataset.cardNote ?? '';
+    const noteOutdated = trigger.dataset.cardNoteOutdated === 'true';
     const printingsJson = trigger.dataset.cardPrintings ?? '[]';
 
     const titleElement = document.getElementById('stapleCardModalLabel');
@@ -140,6 +141,12 @@ function populateModal(trigger: HTMLButtonElement): void {
             imageElement.removeAttribute('src');
             imageElement.hidden = true;
         }
+    }
+
+    // Reader-facing staleness notice on translated notes (F9.14/F9.17)
+    const outdatedNotice = document.getElementById('stapleCardModalOutdated');
+    if (outdatedNotice) {
+        outdatedNotice.hidden = !noteOutdated;
     }
 
     const noteLabel = document.getElementById('stapleCardModalNoteLabel');

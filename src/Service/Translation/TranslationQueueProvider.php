@@ -15,6 +15,9 @@ namespace App\Service\Translation;
 
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
@@ -22,6 +25,9 @@ use App\Entity\MenuCategoryTranslation;
 use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Enum\TranslationRevisionState;
@@ -46,6 +52,8 @@ final readonly class TranslationQueueProvider
     private const string TYPE_PAGE = 'page';
     private const string TYPE_ARCHETYPE = 'archetype';
     private const string TYPE_MENU_CATEGORY = 'menu_category';
+    private const string TYPE_BANNED_CARD = 'banned_card';
+    private const string TYPE_STAPLE_CARD = 'staple_card';
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -55,7 +63,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
      */
     public function contributorQueue(User $user): array
     {
@@ -63,7 +71,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
      */
     public function reviewerQueue(User $user): array
     {
@@ -71,7 +79,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
      */
     private function buildQueue(User $user, bool $reviewer): array
     {
@@ -82,11 +90,135 @@ final readonly class TranslationQueueProvider
 
         $archetypes = $this->foldVariantsIntoArchetypes($archetypes, $variants, $user, $reviewer);
 
+        // Cards (F9.17): banned-card explanations and staple-card notes share
+        // one tab. Contributors additionally see untranslated cards with
+        // source copy — the worklist for opening a new locale.
+        $cards = array_merge(
+            array_values($this->collectItems(BannedCardTranslationRevision::class, BannedCardTranslation::class, 'bannedCard', self::TYPE_BANNED_CARD, $user, $reviewer)),
+            array_values($this->collectItems(StapleCardTranslationRevision::class, StapleCardTranslation::class, 'stapleCard', self::TYPE_STAPLE_CARD, $user, $reviewer)),
+        );
+        if (!$reviewer) {
+            $cards = array_merge($cards, $this->untranslatedCardItems($user, $cards));
+        }
+
         return [
             'pages' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($pages, self::TYPE_PAGE)),
             'archetypes' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($archetypes, self::TYPE_ARCHETYPE)),
             'menuCategories' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($menuCategories, self::TYPE_MENU_CATEGORY)),
+            'cards' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withCardLabels($cards)),
         ];
+    }
+
+    /**
+     * Cards with source copy but no translation row and no in-workflow
+     * revision for one of the contributor's locales (F9.17).
+     *
+     * @param list<TranslationQueueItem> $existingItems
+     *
+     * @return list<TranslationQueueItem>
+     */
+    private function untranslatedCardItems(User $user, array $existingItems): array
+    {
+        $existingKeys = [];
+        foreach ($existingItems as $item) {
+            $existingKeys[$item->contentType.':'.$item->contentId.':'.$item->locale] = true;
+        }
+
+        $items = [];
+        foreach ($user->getTranslationLocales() as $locale) {
+            /** @var list<array{id: int}> $bannedRows */
+            $bannedRows = $this->entityManager->createQueryBuilder()
+                ->select('bannedCard.id AS id')
+                ->from(BannedCard::class, 'bannedCard')
+                ->where('bannedCard.explanation IS NOT NULL')
+                ->andWhere("bannedCard.explanation != ''")
+                ->andWhere('bannedCard.deletedAt IS NULL')
+                ->andWhere(\sprintf(
+                    'NOT EXISTS (SELECT 1 FROM %s existing WHERE existing.bannedCard = bannedCard AND existing.locale = :locale)',
+                    BannedCardTranslation::class,
+                ))
+                ->setParameter('locale', $locale)
+                ->getQuery()
+                ->getArrayResult();
+            foreach ($bannedRows as $row) {
+                if (!isset($existingKeys[self::TYPE_BANNED_CARD.':'.$row['id'].':'.$locale])) {
+                    $items[] = new TranslationQueueItem(self::TYPE_BANNED_CARD, $row['id'], '', $locale, null, false);
+                }
+            }
+
+            /** @var list<array{id: int}> $stapleRows */
+            $stapleRows = $this->entityManager->createQueryBuilder()
+                ->select('stapleCard.id AS id')
+                ->from(StapleCard::class, 'stapleCard')
+                ->where('stapleCard.note IS NOT NULL')
+                ->andWhere("stapleCard.note != ''")
+                ->andWhere('stapleCard.deletedAt IS NULL')
+                ->andWhere(\sprintf(
+                    'NOT EXISTS (SELECT 1 FROM %s existing WHERE existing.stapleCard = stapleCard AND existing.locale = :locale)',
+                    StapleCardTranslation::class,
+                ))
+                ->setParameter('locale', $locale)
+                ->getQuery()
+                ->getArrayResult();
+            foreach ($stapleRows as $row) {
+                if (!isset($existingKeys[self::TYPE_STAPLE_CARD.':'.$row['id'].':'.$locale])) {
+                    $items[] = new TranslationQueueItem(self::TYPE_STAPLE_CARD, $row['id'], '', $locale, null, false);
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Card labels are the untranslated card names, straight from the entity.
+     *
+     * @param list<TranslationQueueItem> $items
+     *
+     * @return list<TranslationQueueItem>
+     */
+    private function withCardLabels(array $items): array
+    {
+        if ([] === $items) {
+            return [];
+        }
+
+        $labels = [];
+        foreach ([self::TYPE_BANNED_CARD => BannedCard::class, self::TYPE_STAPLE_CARD => StapleCard::class] as $contentType => $entityClass) {
+            $ids = array_values(array_unique(array_map(
+                static fn (TranslationQueueItem $item): int => $item->contentId,
+                array_values(array_filter($items, static fn (TranslationQueueItem $item): bool => $item->contentType === $contentType)),
+            )));
+            if ([] === $ids) {
+                continue;
+            }
+            /** @var list<array{id: int, cardName: string}> $rows */
+            $rows = $this->entityManager->createQueryBuilder()
+                ->select('card.id AS id', 'card.cardName AS cardName')
+                ->from($entityClass, 'card')
+                ->where('card.id IN (:ids)')
+                ->setParameter('ids', $ids)
+                ->getQuery()
+                ->getArrayResult();
+            foreach ($rows as $row) {
+                $labels[$contentType.':'.$row['id']] = $row['cardName'];
+            }
+        }
+
+        $result = [];
+        foreach ($items as $item) {
+            $result[] = new TranslationQueueItem(
+                $item->contentType,
+                $item->contentId,
+                $labels[$item->contentType.':'.$item->contentId] ?? \sprintf('#%d', $item->contentId),
+                $item->locale,
+                $item->state,
+                $item->sourceOutdated,
+            );
+        }
+        usort($result, static fn (TranslationQueueItem $a, TranslationQueueItem $b): int => [$a->label, $a->locale] <=> [$b->label, $b->locale]);
+
+        return $result;
     }
 
     /**
@@ -302,6 +434,12 @@ final readonly class TranslationQueueProvider
         }
         if ($row instanceof DeckTranslation) {
             return [$row->getDeck()->getId(), $row->getLocale()];
+        }
+        if ($row instanceof BannedCardTranslation) {
+            return [$row->getBannedCard()->getId(), $row->getLocale()];
+        }
+        if ($row instanceof StapleCardTranslation) {
+            return [$row->getStapleCard()->getId(), $row->getLocale()];
         }
 
         throw new \LogicException(\sprintf('Unknown live translation row "%s" (subject field "%s").', $row::class, $subjectField));

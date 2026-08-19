@@ -71,6 +71,7 @@
                                 data-card-effective-date="{{ card.effectiveDate ? card.effectiveDate|user_date : '' }}"
                                 data-card-source-url="{{ card.sourceUrl ?? '' }}"
                                 data-card-explanation="{{ card.id in renderedExplanations|keys ? renderedExplanations[card.id] : '' }}"
+                                data-card-explanation-outdated="{{ card.id in outdatedExplanations|keys and outdatedExplanations[card.id] ? 'true' : 'false' }}"
                                 data-card-printings="{{ printingsJson }}"
                                 aria-label="{{ 'app.banned_card.public.view_details'|trans({'%name%': card.cardName}) }}">
                                 {% if imageUrl %}
@@ -120,6 +121,8 @@
                                     </dd>
                                 </dl>
                                 <h6 id="bannedCardModalExplanationLabel" hidden>{{ 'app.banned_card.modal.explanation'|trans }}</h6>
+                                {# Reader-facing staleness notice (US-T6 / F9.14) #}
+                                <p id="bannedCardModalOutdated" class="alert alert-info small py-1 px-2 mb-2" hidden><i class="bi bi-clock-history me-1"></i>{{ 'app.translation.outdated_notice'|trans }} <a href="{{ path('app_banned_card_list', {_locale: 'en'}) }}" class="alert-link">{{ 'app.translation.outdated_notice_link'|trans }}</a></p>
                                 <div id="bannedCardModalExplanation" class="banned-card-explanation mb-3"></div>
                                 <p id="bannedCardModalNoExplanation" class="text-muted fst-italic mb-3" hidden>{{ 'app.banned_card.modal.no_explanation'|trans }}</p>
                                 <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>

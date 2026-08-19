@@ -14,10 +14,12 @@ declare(strict_types=1);
 namespace App\Service\Translation;
 
 use App\Entity\Archetype;
+use App\Entity\BannedCard;
 use App\Entity\Deck;
 use App\Entity\MenuCategory;
 use App\Entity\Notification;
 use App\Entity\Page;
+use App\Entity\StapleCard;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Enum\NotificationType;
@@ -129,7 +131,7 @@ final readonly class TranslationNotificationService
      * A source change flagged this translation outdated → its credited
      * translator (F19.8 field), when there is one.
      */
-    public function notifySourceOutdated(User $translatorUser, Page|Archetype|MenuCategory|Deck $content, string $locale): void
+    public function notifySourceOutdated(User $translatorUser, Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): void
     {
         $label = $this->labelFor($content);
         [$routeType, $routeId] = $this->routeTarget($content);
@@ -266,7 +268,7 @@ final readonly class TranslationNotificationService
      *
      * @return array{string, int}
      */
-    private function routeTarget(Page|Archetype|MenuCategory|Deck $content): array
+    private function routeTarget(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content): array
     {
         if ($content instanceof Deck) {
             $archetype = $content->getArchetype();
@@ -283,11 +285,13 @@ final readonly class TranslationNotificationService
             $content instanceof Page => 'page',
             $content instanceof Archetype => 'archetype',
             $content instanceof MenuCategory => 'menu_category',
+            $content instanceof BannedCard => 'banned_card',
+            $content instanceof StapleCard => 'staple_card',
             default => 'archetype',
         }, $id];
     }
 
-    private function labelFor(Page|Archetype|MenuCategory|Deck $content): string
+    private function labelFor(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content): string
     {
         if ($content instanceof Page) {
             return $content->getTranslation($this->sourceLocale)?->getTitle() ?? $content->getSlug();
@@ -297,6 +301,10 @@ final readonly class TranslationNotificationService
         }
         if ($content instanceof MenuCategory) {
             return $content->getTranslation($this->sourceLocale)?->getName() ?? \sprintf('#%d', $content->getId() ?? 0);
+        }
+        if ($content instanceof BannedCard || $content instanceof StapleCard) {
+            // Card names are proper nouns and never translate.
+            return $content->getCardName();
         }
 
         $archetypeName = $content->getArchetype()?->getName();

@@ -15,12 +15,16 @@ namespace App\Controller;
 
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckTranslationRevision;
 use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\Page;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Security\TranslationTarget;
@@ -62,6 +66,8 @@ class TranslationController extends AbstractAppController
         'archetype' => Archetype::class,
         'menu_category' => MenuCategory::class,
         'deck' => Deck::class,
+        'banned_card' => BannedCard::class,
+        'staple_card' => StapleCard::class,
     ];
 
     private const array REVISION_TYPES = [
@@ -69,6 +75,8 @@ class TranslationController extends AbstractAppController
         'archetype' => ArchetypeTranslationRevision::class,
         'menu_category' => MenuCategoryTranslationRevision::class,
         'deck' => DeckTranslationRevision::class,
+        'banned_card' => BannedCardTranslationRevision::class,
+        'staple_card' => StapleCardTranslationRevision::class,
     ];
 
     public function __construct(
@@ -107,7 +115,7 @@ class TranslationController extends AbstractAppController
      * Contextual translation view. Archetypes open as a combined context
      * with one section per variant (F9.13); other types as a single section.
      */
-    #[Route('/{type}/{id}/{locale}', name: 'app_admin_translation_edit', requirements: ['type' => 'page|archetype|menu_category', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['GET'])]
+    #[Route('/{type}/{id}/{locale}', name: 'app_admin_translation_edit', requirements: ['type' => 'page|archetype|menu_category|banned_card|staple_card', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['GET'])]
     public function edit(string $type, int $id, string $locale): Response
     {
         $content = $this->contentOr404($type, $id);
@@ -139,13 +147,19 @@ class TranslationController extends AbstractAppController
      * LIVE translation (a draft preview in the real template is the deferred
      * v1.1 item of #612). Menu categories have no page of their own.
      */
-    private function publicUrlFor(Page|Archetype|MenuCategory|Deck $content, string $locale): ?string
+    private function publicUrlFor(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): ?string
     {
         if ($content instanceof Page) {
             return $this->generateUrl('app_page_show', ['slug' => $content->getSlug(), '_locale' => $locale]);
         }
         if ($content instanceof Archetype) {
             return $this->generateUrl('app_archetype_show', ['slug' => $content->getSlug(), '_locale' => $locale]);
+        }
+        if ($content instanceof BannedCard) {
+            return $this->generateUrl('app_banned_card_list', ['_locale' => $locale]);
+        }
+        if ($content instanceof StapleCard) {
+            return $this->generateUrl('app_staple_card_list', ['_locale' => $locale]);
         }
 
         return null;
@@ -155,7 +169,7 @@ class TranslationController extends AbstractAppController
      * Autosave: creates the draft on first write (US-T3/US-T4), then applies
      * the posted `#[Translatable]` fields.
      */
-    #[Route('/{type}/{id}/{locale}/draft', name: 'app_admin_translation_draft', requirements: ['type' => 'page|archetype|menu_category|deck', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['POST'])]
+    #[Route('/{type}/{id}/{locale}/draft', name: 'app_admin_translation_draft', requirements: ['type' => 'page|archetype|menu_category|deck|banned_card|staple_card', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['POST'])]
     public function saveDraft(string $type, int $id, string $locale, Request $request): JsonResponse
     {
         if (null !== $csrfError = $this->invalidAjaxCsrfResponse($request)) {
@@ -181,7 +195,7 @@ class TranslationController extends AbstractAppController
         ]);
     }
 
-    #[Route('/{type}/{id}/{locale}/submit', name: 'app_admin_translation_submit', requirements: ['type' => 'page|archetype|menu_category|deck', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['POST'])]
+    #[Route('/{type}/{id}/{locale}/submit', name: 'app_admin_translation_submit', requirements: ['type' => 'page|archetype|menu_category|deck|banned_card|staple_card', 'id' => '\d+', 'locale' => '[a-z]{2}'], methods: ['POST'])]
     public function submit(string $type, int $id, string $locale, Request $request): JsonResponse
     {
         if (null !== $csrfError = $this->invalidAjaxCsrfResponse($request)) {
@@ -208,19 +222,19 @@ class TranslationController extends AbstractAppController
         return new JsonResponse(['state' => $pending->getState()->value]);
     }
 
-    #[Route('/{type}/revisions/{id}/approve', name: 'app_admin_translation_approve', requirements: ['type' => 'page|archetype|menu_category|deck', 'id' => '\d+'], methods: ['POST'])]
+    #[Route('/{type}/revisions/{id}/approve', name: 'app_admin_translation_approve', requirements: ['type' => 'page|archetype|menu_category|deck|banned_card|staple_card', 'id' => '\d+'], methods: ['POST'])]
     public function approve(string $type, int $id, Request $request): JsonResponse
     {
         return $this->review($type, $id, $request, 'approve');
     }
 
-    #[Route('/{type}/revisions/{id}/reject', name: 'app_admin_translation_reject', requirements: ['type' => 'page|archetype|menu_category|deck', 'id' => '\d+'], methods: ['POST'])]
+    #[Route('/{type}/revisions/{id}/reject', name: 'app_admin_translation_reject', requirements: ['type' => 'page|archetype|menu_category|deck|banned_card|staple_card', 'id' => '\d+'], methods: ['POST'])]
     public function reject(string $type, int $id, Request $request): JsonResponse
     {
         return $this->review($type, $id, $request, 'reject');
     }
 
-    #[Route('/{type}/revisions/{id}/rework', name: 'app_admin_translation_rework', requirements: ['type' => 'page|archetype|menu_category|deck', 'id' => '\d+'], methods: ['POST'])]
+    #[Route('/{type}/revisions/{id}/rework', name: 'app_admin_translation_rework', requirements: ['type' => 'page|archetype|menu_category|deck|banned_card|staple_card', 'id' => '\d+'], methods: ['POST'])]
     public function rework(string $type, int $id, Request $request): JsonResponse
     {
         return $this->review($type, $id, $request, 'rework');
@@ -259,10 +273,10 @@ class TranslationController extends AbstractAppController
         return \is_string($comment) ? $comment : '';
     }
 
-    private function contentOr404(string $type, int $id): Page|Archetype|MenuCategory|Deck
+    private function contentOr404(string $type, int $id): Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard
     {
         $content = $this->em->getRepository(self::CONTENT_TYPES[$type])->find($id);
-        if (!$content instanceof Page && !$content instanceof Archetype && !$content instanceof MenuCategory && !$content instanceof Deck) {
+        if (!$content instanceof Page && !$content instanceof Archetype && !$content instanceof MenuCategory && !$content instanceof Deck && !$content instanceof BannedCard && !$content instanceof StapleCard) {
             throw new NotFoundHttpException('Unknown content.');
         }
 

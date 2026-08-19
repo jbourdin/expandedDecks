@@ -15,12 +15,16 @@ namespace App\Service\Translation;
 
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslation;
 use App\Entity\Deck;
 use App\Entity\DeckTranslation;
 use App\Entity\MenuCategory;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslation;
 use App\Entity\TranslationRevisionInterface;
 use App\Service\MarkdownRenderer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,6 +69,12 @@ final readonly class TranslationViewDataBuilder
         'deck' => [
             'notes' => ['kind' => 'markdown', 'maxLength' => null],
         ],
+        'banned_card' => [
+            'explanation' => ['kind' => 'markdown', 'maxLength' => null],
+        ],
+        'staple_card' => [
+            'note' => ['kind' => 'markdown', 'maxLength' => null],
+        ],
     ];
 
     public function __construct(
@@ -80,7 +90,7 @@ final readonly class TranslationViewDataBuilder
     /**
      * @return array<string, mixed>
      */
-    public function buildSection(Page|Archetype|MenuCategory|Deck $content, string $locale): array
+    public function buildSection(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale): array
     {
         $contentType = self::contentTypeOf($content);
         $metadata = self::FIELD_METADATA[$contentType];
@@ -158,13 +168,15 @@ final readonly class TranslationViewDataBuilder
         return $sections;
     }
 
-    private static function contentTypeOf(Page|Archetype|MenuCategory|Deck $content): string
+    private static function contentTypeOf(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content): string
     {
         return match (true) {
             $content instanceof Page => 'page',
             $content instanceof Archetype => 'archetype',
             $content instanceof MenuCategory => 'menu_category',
             $content instanceof Deck => 'deck',
+            $content instanceof BannedCard => 'banned_card',
+            $content instanceof StapleCard => 'staple_card',
         };
     }
 
@@ -174,10 +186,16 @@ final readonly class TranslationViewDataBuilder
      *
      * @return array<string, ?string>
      */
-    private function sourceValues(Page|Archetype|MenuCategory|Deck $content): array
+    private function sourceValues(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content): array
     {
         if ($content instanceof Deck) {
             return ['notes' => $content->getNotes()];
+        }
+        if ($content instanceof BannedCard) {
+            return ['explanation' => $content->getExplanation()];
+        }
+        if ($content instanceof StapleCard) {
+            return ['note' => $content->getNote()];
         }
 
         return $this->liveTargetValues($content, $this->sourceLocale, array_keys(self::FIELD_METADATA[self::contentTypeOf($content)]));
@@ -188,13 +206,15 @@ final readonly class TranslationViewDataBuilder
      *
      * @return array<string, ?string>
      */
-    private function liveTargetValues(Page|Archetype|MenuCategory|Deck $content, string $locale, array $fields): array
+    private function liveTargetValues(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale, array $fields): array
     {
         $live = match (true) {
             $content instanceof Page => $this->entityManager->getRepository(PageTranslation::class)->findOneBy(['page' => $content, 'locale' => $locale]),
             $content instanceof Archetype => $this->entityManager->getRepository(ArchetypeTranslation::class)->findOneBy(['archetype' => $content, 'locale' => $locale]),
             $content instanceof MenuCategory => $this->entityManager->getRepository(MenuCategoryTranslation::class)->findOneBy(['menuCategory' => $content, 'locale' => $locale]),
             $content instanceof Deck => $this->entityManager->getRepository(DeckTranslation::class)->findOneBy(['deck' => $content, 'locale' => $locale]),
+            $content instanceof BannedCard => $this->entityManager->getRepository(BannedCardTranslation::class)->findOneBy(['bannedCard' => $content, 'locale' => $locale]),
+            $content instanceof StapleCard => $this->entityManager->getRepository(StapleCardTranslation::class)->findOneBy(['stapleCard' => $content, 'locale' => $locale]),
         };
 
         if (null === $live) {
@@ -242,7 +262,7 @@ final readonly class TranslationViewDataBuilder
      *
      * @return array{array<string, ?string>, array<string, ?string>, ?int, ?int}
      */
-    private function stalenessPair(Page|Archetype|MenuCategory|Deck $content, string $locale, ?TranslationRevisionInterface $pending, array $fields): array
+    private function stalenessPair(Page|Archetype|MenuCategory|Deck|BannedCard|StapleCard $content, string $locale, ?TranslationRevisionInterface $pending, array $fields): array
     {
         // The latest-source lookup needs a revision of the right class as a
         // probe; the pending one serves when present, a transient prefilled

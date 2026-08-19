@@ -17,6 +17,9 @@ use App\Attribute\Translatable;
 use App\Entity\Archetype;
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCard;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
@@ -26,6 +29,9 @@ use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\Page;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCard;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Service\Translation\LatestSourceRevisionProvider;
@@ -74,6 +80,8 @@ final class TranslationRevisionListener
         Archetype::class => ['archetype_translation', 'archetype_id'],
         MenuCategory::class => ['menu_category_translation', 'menu_category_id'],
         Deck::class => ['deck_translation', 'deck_id'],
+        BannedCard::class => ['banned_card_translation', 'banned_card_id'],
+        StapleCard::class => ['staple_card_translation', 'staple_card_id'],
     ];
 
     /** @var array<class-string, list<string>> */
@@ -108,7 +116,7 @@ final class TranslationRevisionListener
         $entityManager = $args->getObjectManager();
         $unitOfWork = $entityManager->getUnitOfWork();
 
-        /** @var list<PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck> $candidates */
+        /** @var list<PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck|BannedCard|StapleCard|BannedCardTranslation|StapleCardTranslation> $candidates */
         $candidates = [];
         foreach ($unitOfWork->getScheduledEntityInsertions() as $entity) {
             if ($this->isRelevantInsertion($entity)) {
@@ -195,18 +203,18 @@ final class TranslationRevisionListener
             $content = $entityManager->find($subjectClass, $subjectId);
             $translatorUser = $entityManager->find(User::class, $translatorId);
             if ($translatorUser instanceof User
-                && ($content instanceof Page || $content instanceof Archetype || $content instanceof MenuCategory || $content instanceof Deck)) {
+                && ($content instanceof Page || $content instanceof Archetype || $content instanceof MenuCategory || $content instanceof Deck || $content instanceof BannedCard || $content instanceof StapleCard)) {
                 $this->notificationService->notifySourceOutdated($translatorUser, $content, $locale);
             }
         }
     }
 
     /**
-     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity
+     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck|BannedCard|StapleCard|BannedCardTranslation|StapleCardTranslation $entity
      */
     private function isRelevantInsertion(object $entity): bool
     {
-        if ($entity instanceof PageTranslation || $entity instanceof ArchetypeTranslation || $entity instanceof MenuCategoryTranslation || $entity instanceof DeckTranslation) {
+        if ($entity instanceof PageTranslation || $entity instanceof ArchetypeTranslation || $entity instanceof MenuCategoryTranslation || $entity instanceof DeckTranslation || $entity instanceof BannedCardTranslation || $entity instanceof StapleCardTranslation) {
             return true;
         }
 
@@ -215,13 +223,21 @@ final class TranslationRevisionListener
             return $entity->isArchetypeVariant() && null !== $entity->getNotes() && '' !== $entity->getNotes();
         }
 
+        // Cards enter the workflow once they carry source copy (F9.17).
+        if ($entity instanceof BannedCard) {
+            return null !== $entity->getExplanation() && '' !== $entity->getExplanation();
+        }
+        if ($entity instanceof StapleCard) {
+            return null !== $entity->getNote() && '' !== $entity->getNote();
+        }
+
         return false;
     }
 
     /**
      * @param list<string> $changedFields
      *
-     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity
+     * @phpstan-assert-if-true PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck|BannedCard|StapleCard|BannedCardTranslation|StapleCardTranslation $entity
      */
     private function isRelevantUpdate(object $entity, array $changedFields): bool
     {
@@ -229,20 +245,24 @@ final class TranslationRevisionListener
             return false;
         }
 
-        if (!$entity instanceof PageTranslation && !$entity instanceof ArchetypeTranslation && !$entity instanceof MenuCategoryTranslation && !$entity instanceof DeckTranslation && !$entity instanceof Deck) {
+        if (!$entity instanceof PageTranslation && !$entity instanceof ArchetypeTranslation && !$entity instanceof MenuCategoryTranslation && !$entity instanceof DeckTranslation && !$entity instanceof Deck && !$entity instanceof BannedCard && !$entity instanceof StapleCard && !$entity instanceof BannedCardTranslation && !$entity instanceof StapleCardTranslation) {
             return false;
         }
 
         return [] !== array_intersect($changedFields, self::translatableFields($entity::class));
     }
 
-    private function createRevision(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity): TranslationRevisionInterface
+    private function createRevision(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck|BannedCard|StapleCard|BannedCardTranslation|StapleCardTranslation $entity): TranslationRevisionInterface
     {
         $revision = match (true) {
             $entity instanceof PageTranslation => PageTranslationRevision::fromTranslation($entity),
             $entity instanceof ArchetypeTranslation => ArchetypeTranslationRevision::fromTranslation($entity),
             $entity instanceof MenuCategoryTranslation => MenuCategoryTranslationRevision::fromTranslation($entity),
             $entity instanceof DeckTranslation => DeckTranslationRevision::fromTranslation($entity),
+            $entity instanceof BannedCardTranslation => BannedCardTranslationRevision::fromTranslation($entity),
+            $entity instanceof StapleCardTranslation => StapleCardTranslationRevision::fromTranslation($entity),
+            $entity instanceof BannedCard => BannedCardTranslationRevision::fromBannedCardExplanation($entity, $this->sourceLocale),
+            $entity instanceof StapleCard => StapleCardTranslationRevision::fromStapleCardNote($entity, $this->sourceLocale),
             default => DeckTranslationRevision::fromDeckNotes($entity, $this->sourceLocale),
         };
 
@@ -279,14 +299,23 @@ final class TranslationRevisionListener
             $revision->setSourceRevision($sourceRevision);
         } elseif ($revision instanceof DeckTranslationRevision && $sourceRevision instanceof DeckTranslationRevision) {
             $revision->setSourceRevision($sourceRevision);
+        } elseif ($revision instanceof BannedCardTranslationRevision && $sourceRevision instanceof BannedCardTranslationRevision) {
+            $revision->setSourceRevision($sourceRevision);
+        } elseif ($revision instanceof StapleCardTranslationRevision && $sourceRevision instanceof StapleCardTranslationRevision) {
+            $revision->setSourceRevision($sourceRevision);
         }
     }
 
-    private function localeOf(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck $entity): string
+    private function localeOf(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|Deck|BannedCard|StapleCard|BannedCardTranslation|StapleCardTranslation $entity): string
     {
-        // Deck carries the canonical source-locale notes; every other entity
-        // is a translation row with an explicit locale.
-        return $entity instanceof Deck ? $this->sourceLocale : $entity->getLocale();
+        // Deck, BannedCard, and StapleCard carry the canonical source-locale
+        // copy on the entity itself; every other candidate is a translation
+        // row with an explicit locale.
+        if ($entity instanceof Deck || $entity instanceof BannedCard || $entity instanceof StapleCard) {
+            return $this->sourceLocale;
+        }
+
+        return $entity->getLocale();
     }
 
     private function subjectKey(TranslationRevisionInterface $revision): string

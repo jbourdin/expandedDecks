@@ -15,12 +15,16 @@ namespace App\Service\Translation;
 
 use App\Entity\ArchetypeTranslation;
 use App\Entity\ArchetypeTranslationRevision;
+use App\Entity\BannedCardTranslation;
+use App\Entity\BannedCardTranslationRevision;
 use App\Entity\DeckTranslation;
 use App\Entity\DeckTranslationRevision;
 use App\Entity\MenuCategoryTranslation;
 use App\Entity\MenuCategoryTranslationRevision;
 use App\Entity\PageTranslation;
 use App\Entity\PageTranslationRevision;
+use App\Entity\StapleCardTranslation;
+use App\Entity\StapleCardTranslationRevision;
 use App\Entity\TranslationRevisionInterface;
 use App\Entity\User;
 use App\Security\TranslationTarget;
@@ -154,7 +158,7 @@ final readonly class TranslationReviewService
         $revision->setReviewedAt(new \DateTimeImmutable());
     }
 
-    private function findOrCreateLiveTranslation(TranslationRevisionInterface $revision): PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation
+    private function findOrCreateLiveTranslation(TranslationRevisionInterface $revision): PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|BannedCardTranslation|StapleCardTranslation
     {
         $locale = $revision->getLocale();
 
@@ -197,12 +201,38 @@ final readonly class TranslationReviewService
             return $live;
         }
 
-        \assert($revision instanceof DeckTranslationRevision);
-        $live = $this->entityManager->getRepository(DeckTranslation::class)
-            ->findOneBy(['deck' => $revision->getDeck(), 'locale' => $locale]);
-        if (!$live instanceof DeckTranslation) {
-            $live = new DeckTranslation();
-            $live->setDeck($revision->getDeck());
+        if ($revision instanceof DeckTranslationRevision) {
+            $live = $this->entityManager->getRepository(DeckTranslation::class)
+                ->findOneBy(['deck' => $revision->getDeck(), 'locale' => $locale]);
+            if (!$live instanceof DeckTranslation) {
+                $live = new DeckTranslation();
+                $live->setDeck($revision->getDeck());
+                $live->setLocale($locale);
+                $this->entityManager->persist($live);
+            }
+
+            return $live;
+        }
+
+        if ($revision instanceof BannedCardTranslationRevision) {
+            $live = $this->entityManager->getRepository(BannedCardTranslation::class)
+                ->findOneBy(['bannedCard' => $revision->getBannedCard(), 'locale' => $locale]);
+            if (!$live instanceof BannedCardTranslation) {
+                $live = new BannedCardTranslation();
+                $live->setBannedCard($revision->getBannedCard());
+                $live->setLocale($locale);
+                $this->entityManager->persist($live);
+            }
+
+            return $live;
+        }
+
+        \assert($revision instanceof StapleCardTranslationRevision);
+        $live = $this->entityManager->getRepository(StapleCardTranslation::class)
+            ->findOneBy(['stapleCard' => $revision->getStapleCard(), 'locale' => $locale]);
+        if (!$live instanceof StapleCardTranslation) {
+            $live = new StapleCardTranslation();
+            $live->setStapleCard($revision->getStapleCard());
             $live->setLocale($locale);
             $this->entityManager->persist($live);
         }
@@ -210,7 +240,7 @@ final readonly class TranslationReviewService
         return $live;
     }
 
-    private function applyRevision(TranslationRevisionInterface $revision, PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation $liveTranslation): void
+    private function applyRevision(TranslationRevisionInterface $revision, PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|BannedCardTranslation|StapleCardTranslation $liveTranslation): void
     {
         if ($revision instanceof PageTranslationRevision && $liveTranslation instanceof PageTranslation) {
             $revision->applyTo($liveTranslation);
@@ -220,10 +250,14 @@ final readonly class TranslationReviewService
             $revision->applyTo($liveTranslation);
         } elseif ($revision instanceof DeckTranslationRevision && $liveTranslation instanceof DeckTranslation) {
             $revision->applyTo($liveTranslation);
+        } elseif ($revision instanceof BannedCardTranslationRevision && $liveTranslation instanceof BannedCardTranslation) {
+            $revision->applyTo($liveTranslation);
+        } elseif ($revision instanceof StapleCardTranslationRevision && $liveTranslation instanceof StapleCardTranslation) {
+            $revision->applyTo($liveTranslation);
         }
     }
 
-    private function creditTranslator(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation $liveTranslation, User $translator): void
+    private function creditTranslator(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|BannedCardTranslation|StapleCardTranslation $liveTranslation, User $translator): void
     {
         // MenuCategoryTranslation carries no public translator credit.
         if (!$liveTranslation instanceof MenuCategoryTranslation) {
@@ -231,7 +265,7 @@ final readonly class TranslationReviewService
         }
     }
 
-    private function setSourceOutdated(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation $liveTranslation, bool $sourceOutdated): void
+    private function setSourceOutdated(PageTranslation|ArchetypeTranslation|MenuCategoryTranslation|DeckTranslation|BannedCardTranslation|StapleCardTranslation $liveTranslation, bool $sourceOutdated): void
     {
         $liveTranslation->setSourceOutdated($sourceOutdated);
     }

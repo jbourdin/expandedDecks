@@ -4471,6 +4471,16 @@
                 <target>Catégories de menu</target>
                 <note>Queue tab (F9.12)</note>
             </trans-unit>
+            <trans-unit id="app.translation.queue.tab.cards">
+                <source>app.translation.queue.tab.cards</source>
+                <target>Cartes</target>
+                <note>Queue tab for banned/staple card texts (F9.17)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.badge.untranslated">
+                <source>app.translation.queue.badge.untranslated</source>
+                <target>À traduire</target>
+                <note>Queue badge for cards without a translation yet (F9.17)</note>
+            </trans-unit>
             <trans-unit id="app.translation.queue.flavor.contributor">
                 <source>app.translation.queue.flavor.contributor</source>
                 <target>Mon travail</target>

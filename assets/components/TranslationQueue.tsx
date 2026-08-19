@@ -31,6 +31,7 @@ export interface TranslationQueueData {
     pages: TranslationQueueRow[];
     archetypes: TranslationQueueRow[];
     menuCategories: TranslationQueueRow[];
+    cards: TranslationQueueRow[];
 }
 
 export interface TranslationQueueLabels {
@@ -83,6 +84,9 @@ function QueueRows({ rows, baseUrl, labels }: { rows: TranslationQueueRow[]; bas
                                     </Badge>
                                 )}
                                 {row.sourceOutdated && <Badge color="orange">{labels.badgeOutdated}</Badge>}
+                                {row.state === null && !row.sourceOutdated && row.pendingVariants === 0 && row.outdatedVariants === 0 && (
+                                    <Badge color="gray" variant="light">{labels.badgeUntranslated}</Badge>
+                                )}
                                 {row.pendingVariants > 0 && (
                                     <Badge color="yellow" variant="light">{`${row.pendingVariants} ${labels.badgePendingVariants}`}</Badge>
                                 )}
@@ -167,6 +171,7 @@ export default function TranslationQueue({ queueUrl, baseUrl, labels }: Translat
                     <Tabs.Tab value="pages">{labels.tabPages}</Tabs.Tab>
                     <Tabs.Tab value="archetypes">{labels.tabArchetypes}</Tabs.Tab>
                     <Tabs.Tab value="menuCategories">{labels.tabMenuCategories}</Tabs.Tab>
+                    <Tabs.Tab value="cards">{labels.tabCards}</Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="pages" pt="md">
                     <QueueRows rows={active.pages} baseUrl={baseUrl} labels={labels} />
@@ -176,6 +181,9 @@ export default function TranslationQueue({ queueUrl, baseUrl, labels }: Translat
                 </Tabs.Panel>
                 <Tabs.Panel value="menuCategories" pt="md">
                     <QueueRows rows={active.menuCategories} baseUrl={baseUrl} labels={labels} />
+                </Tabs.Panel>
+                <Tabs.Panel value="cards" pt="md">
+                    <QueueRows rows={active.cards ?? []} baseUrl={baseUrl} labels={labels} />
                 </Tabs.Panel>
             </Tabs>
         </div>
