@@ -141,17 +141,18 @@ class CardTranslationTest extends AbstractFunctionalTest
 
         $this->client->request('GET', '/admin/translations/queue-data');
         self::assertResponseIsSuccessful();
-        /** @var array{contributor: array{cards: list<array<string, mixed>>}} $data */
+        /** @var array{contributor: array{bannedCards: list<array<string, mixed>>, stapleCards: list<array<string, mixed>>}} $data */
         $data = json_decode((string) $this->client->getResponse()->getContent(), true);
-        $cards = $data['contributor']['cards'];
 
         $stapleRow = null;
         $bannedRow = null;
-        foreach ($cards as $row) {
-            if ('staple_card' === $row['contentType'] && $row['contentId'] === $stapleCardId) {
+        foreach ($data['contributor']['stapleCards'] as $row) {
+            if ($row['contentId'] === $stapleCardId) {
                 $stapleRow = $row;
             }
-            if ('banned_card' === $row['contentType'] && $row['contentId'] === $bannedCard->getId()) {
+        }
+        foreach ($data['contributor']['bannedCards'] as $row) {
+            if ($row['contentId'] === $bannedCard->getId()) {
                 $bannedRow = $row;
             }
         }
@@ -167,9 +168,9 @@ class CardTranslationTest extends AbstractFunctionalTest
         // Reviewer flavor never lists untranslated-only cards.
         $this->loginByEmail('admin@example.com');
         $this->client->request('GET', '/admin/translations/queue-data');
-        /** @var array{reviewer: array{cards: list<array<string, mixed>>}} $reviewerData */
+        /** @var array{reviewer: array{bannedCards: list<array<string, mixed>>, stapleCards: list<array<string, mixed>>}} $reviewerData */
         $reviewerData = json_decode((string) $this->client->getResponse()->getContent(), true);
-        foreach ($reviewerData['reviewer']['cards'] as $row) {
+        foreach (array_merge($reviewerData['reviewer']['bannedCards'], $reviewerData['reviewer']['stapleCards']) as $row) {
             self::assertFalse(null === $row['state'] && false === $row['sourceOutdated']);
         }
         self::assertNotNull($translator->getId());

@@ -63,7 +63,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, bannedCards: list<array<string, mixed>>, stapleCards: list<array<string, mixed>>}
      */
     public function contributorQueue(User $user): array
     {
@@ -71,7 +71,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, bannedCards: list<array<string, mixed>>, stapleCards: list<array<string, mixed>>}
      */
     public function reviewerQueue(User $user): array
     {
@@ -79,7 +79,7 @@ final readonly class TranslationQueueProvider
     }
 
     /**
-     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, cards: list<array<string, mixed>>}
+     * @return array{pages: list<array<string, mixed>>, archetypes: list<array<string, mixed>>, menuCategories: list<array<string, mixed>>, bannedCards: list<array<string, mixed>>, stapleCards: list<array<string, mixed>>}
      */
     private function buildQueue(User $user, bool $reviewer): array
     {
@@ -90,9 +90,9 @@ final readonly class TranslationQueueProvider
 
         $archetypes = $this->foldVariantsIntoArchetypes($archetypes, $variants, $user, $reviewer);
 
-        // Cards (F9.17): banned-card explanations and staple-card notes share
-        // one tab. Contributors additionally see untranslated cards with
-        // source copy — the worklist for opening a new locale.
+        // Cards (F9.17/F9.19): banned-card explanations and staple-card notes
+        // each get their own tab. Contributors additionally see untranslated
+        // cards with source copy — the worklist for opening a new locale.
         $cards = array_merge(
             array_values($this->collectItems(BannedCardTranslationRevision::class, BannedCardTranslation::class, 'bannedCard', self::TYPE_BANNED_CARD, $user, $reviewer)),
             array_values($this->collectItems(StapleCardTranslationRevision::class, StapleCardTranslation::class, 'stapleCard', self::TYPE_STAPLE_CARD, $user, $reviewer)),
@@ -100,12 +100,20 @@ final readonly class TranslationQueueProvider
         if (!$reviewer) {
             $cards = array_merge($cards, $this->untranslatedCardItems($user, $cards));
         }
+        $cards = $this->withCardLabels($cards);
 
         return [
             'pages' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($pages, self::TYPE_PAGE)),
             'archetypes' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($archetypes, self::TYPE_ARCHETYPE)),
             'menuCategories' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withLabels($menuCategories, self::TYPE_MENU_CATEGORY)),
-            'cards' => array_map(static fn (TranslationQueueItem $item): array => $item->toArray(), $this->withCardLabels($cards)),
+            'bannedCards' => array_values(array_map(
+                static fn (TranslationQueueItem $item): array => $item->toArray(),
+                array_filter($cards, static fn (TranslationQueueItem $item): bool => self::TYPE_BANNED_CARD === $item->contentType),
+            )),
+            'stapleCards' => array_values(array_map(
+                static fn (TranslationQueueItem $item): array => $item->toArray(),
+                array_filter($cards, static fn (TranslationQueueItem $item): bool => self::TYPE_STAPLE_CARD === $item->contentType),
+            )),
         ];
     }
 

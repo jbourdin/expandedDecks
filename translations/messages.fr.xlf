@@ -4471,10 +4471,20 @@
                 <target>Catégories de menu</target>
                 <note>Queue tab (F9.12)</note>
             </trans-unit>
-            <trans-unit id="app.translation.queue.tab.cards">
-                <source>app.translation.queue.tab.cards</source>
-                <target>Cartes</target>
-                <note>Queue tab for banned/staple card texts (F9.17)</note>
+            <trans-unit id="app.translation.queue.tab.banned_cards">
+                <source>app.translation.queue.tab.banned_cards</source>
+                <target>Cartes bannies</target>
+                <note>Queue tab for banned-card explanations (F9.19)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.tab.staple_cards">
+                <source>app.translation.queue.tab.staple_cards</source>
+                <target>Staples</target>
+                <note>Queue tab for staple-card notes (F9.19)</note>
+            </trans-unit>
+            <trans-unit id="app.translation.queue.locale_all">
+                <source>app.translation.queue.locale_all</source>
+                <target>Toutes les langues</target>
+                <note>Queue locale filter: no filter (F9.19)</note>
             </trans-unit>
             <trans-unit id="app.translation.queue.badge.untranslated">
                 <source>app.translation.queue.badge.untranslated</source>
