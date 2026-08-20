@@ -82,7 +82,7 @@ class StapleCardController extends AbstractController
                     continue;
                 }
 
-                $imageUrls[$id] = $imageResolver->resolveForStaple($card, $locale);
+                $imageUrls[$id] = $imageResolver->resolveForStaple($card);
 
                 // Localized note with source fallback (F9.17); the
                 // denormalized flag drives the reader-facing notice (F9.14).

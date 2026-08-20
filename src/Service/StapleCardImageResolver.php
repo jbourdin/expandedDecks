@@ -23,6 +23,11 @@ use App\Repository\TcgdexSetRepository;
  * its printings to find the lowest-rarity printing that resolves to a working URL.
  * The fallback chain mirrors {@see BannedCardImageResolver}.
  *
+ * Card images are always the English prints, whatever the page locale:
+ * card names are never translated on this platform, and localized CDN
+ * assets do not exist for every set (e.g. Shining Legends was never
+ * printed in French), which produced broken images on localized pages.
+ *
  * @see docs/features.md F6.15 — Staple cards
  */
 final readonly class StapleCardImageResolver
@@ -35,11 +40,11 @@ final readonly class StapleCardImageResolver
     ) {
     }
 
-    public function resolveForStaple(StapleCard $card, string $locale = 'en'): ?string
+    public function resolveForStaple(StapleCard $card): ?string
     {
         $representative = $card->getRepresentativePrinting();
         if (null !== $representative) {
-            $url = $this->resolveForCardPrinting($representative, $card, $locale);
+            $url = $this->resolveForCardPrinting($representative, $card);
             if (null !== $url) {
                 return $url;
             }
@@ -57,12 +62,12 @@ final readonly class StapleCardImageResolver
         foreach ($printings as $printing) {
             $cardPrinting = $printing->getCardPrinting();
             if (null !== $cardPrinting) {
-                $url = $this->resolveForCardPrinting($cardPrinting, $card, $locale);
+                $url = $this->resolveForCardPrinting($cardPrinting, $card);
                 if (null !== $url) {
                     return $url;
                 }
             } else {
-                $fallback = $this->buildTcgdexCdnFromSetCode($printing->getSetCode(), $printing->getCardNumber(), $locale);
+                $fallback = $this->buildTcgdexCdnFromSetCode($printing->getSetCode(), $printing->getCardNumber());
                 if (null !== $fallback) {
                     return $fallback;
                 }
@@ -72,14 +77,14 @@ final readonly class StapleCardImageResolver
         return null;
     }
 
-    private function resolveForCardPrinting(CardPrinting $printing, StapleCard $card, string $locale): ?string
+    private function resolveForCardPrinting(CardPrinting $printing, StapleCard $card): ?string
     {
         $direct = $printing->getImageUrl();
         if (null !== $direct && '' !== $direct) {
             return $this->normalizeTcgdexCdnUrl($direct);
         }
 
-        $cdn = $this->buildTcgdexCdnFromPrinting($printing, $locale);
+        $cdn = $this->buildTcgdexCdnFromPrinting($printing);
         if (null !== $cdn) {
             return $cdn;
         }
@@ -94,7 +99,6 @@ final readonly class StapleCardImageResolver
                 return $this->buildTcgdexCdnFromSetCode(
                     $staplePrinting->getSetCode(),
                     $staplePrinting->getCardNumber(),
-                    $locale,
                 );
             }
         }
@@ -102,7 +106,7 @@ final readonly class StapleCardImageResolver
         return null;
     }
 
-    private function buildTcgdexCdnFromPrinting(CardPrinting $printing, string $locale): ?string
+    private function buildTcgdexCdnFromPrinting(CardPrinting $printing): ?string
     {
         $tcgdexCard = $printing->getTcgdexCard();
 
@@ -110,9 +114,8 @@ final readonly class StapleCardImageResolver
             $set = $tcgdexCard->getSet();
 
             return \sprintf(
-                '%s/%s/%s/%s/%s/high.webp',
+                '%s/en/%s/%s/%s/high.webp',
                 self::TCGDEX_CDN_BASE,
-                $locale,
                 $set->getSerie()->getId(),
                 self::setIdForCdn($set->getId()),
                 $tcgdexCard->getLocalId(),
@@ -130,9 +133,8 @@ final readonly class StapleCardImageResolver
         }
 
         return \sprintf(
-            '%s/%s/%s/%s/%s/high.webp',
+            '%s/en/%s/%s/%s/high.webp',
             self::TCGDEX_CDN_BASE,
-            $locale,
             $serieId,
             self::setIdForCdn($setId),
             $localId,
@@ -155,7 +157,7 @@ final readonly class StapleCardImageResolver
         );
     }
 
-    private function buildTcgdexCdnFromSetCode(string $setCode, string $cardNumber, string $locale): ?string
+    private function buildTcgdexCdnFromSetCode(string $setCode, string $cardNumber): ?string
     {
         $set = $this->tcgdexSetRepository->findByPtcgCode($setCode);
         if (null === $set) {
@@ -163,9 +165,8 @@ final readonly class StapleCardImageResolver
         }
 
         return \sprintf(
-            '%s/%s/%s/%s/%s/high.webp',
+            '%s/en/%s/%s/%s/high.webp',
             self::TCGDEX_CDN_BASE,
-            $locale,
             $set->getSerie()->getId(),
             self::setIdForCdn($set->getId()),
             $cardNumber,

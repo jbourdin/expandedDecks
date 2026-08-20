@@ -25,6 +25,11 @@ use App\Repository\TcgdexSetRepository;
  * (with dot-stripped set IDs), then PokemonTCG.io, then a TCGdex CDN URL
  * derived from the upstream PTCG set code via {@see TcgdexSet}.
  *
+ * Card images are always the English prints, whatever the page locale:
+ * card names are never translated on this platform, and localized CDN
+ * assets do not exist for every set (e.g. Shining Legends was never
+ * printed in French), which produced broken images on localized pages.
+ *
  * @see docs/features.md F6.14 — Banned cards public page
  */
 final readonly class BannedCardImageResolver
@@ -42,11 +47,11 @@ final readonly class BannedCardImageResolver
      * representative printing first, otherwise picks the lowest-rarity child
      * printing that yields a non-null URL.
      */
-    public function resolveForBan(BannedCard $card, string $locale = 'en'): ?string
+    public function resolveForBan(BannedCard $card): ?string
     {
         $representative = $card->getRepresentativePrinting();
         if (null !== $representative) {
-            $url = $this->resolveForCardPrinting($representative, $card, $locale);
+            $url = $this->resolveForCardPrinting($representative, $card);
             if (null !== $url) {
                 return $url;
             }
@@ -64,12 +69,12 @@ final readonly class BannedCardImageResolver
         foreach ($printings as $printing) {
             $cardPrinting = $printing->getCardPrinting();
             if (null !== $cardPrinting) {
-                $url = $this->resolveForCardPrinting($cardPrinting, $card, $locale);
+                $url = $this->resolveForCardPrinting($cardPrinting, $card);
                 if (null !== $url) {
                     return $url;
                 }
             } else {
-                $fallback = $this->buildTcgdexCdnFromSetCode($printing->getSetCode(), $printing->getCardNumber(), $locale);
+                $fallback = $this->buildTcgdexCdnFromSetCode($printing->getSetCode(), $printing->getCardNumber());
                 if (null !== $fallback) {
                     return $fallback;
                 }
@@ -79,14 +84,14 @@ final readonly class BannedCardImageResolver
         return null;
     }
 
-    private function resolveForCardPrinting(CardPrinting $printing, BannedCard $card, string $locale): ?string
+    private function resolveForCardPrinting(CardPrinting $printing, BannedCard $card): ?string
     {
         $direct = $printing->getImageUrl();
         if (null !== $direct && '' !== $direct) {
             return $this->normalizeTcgdexCdnUrl($direct);
         }
 
-        $cdn = $this->buildTcgdexCdnFromPrinting($printing, $locale);
+        $cdn = $this->buildTcgdexCdnFromPrinting($printing);
         if (null !== $cdn) {
             return $cdn;
         }
@@ -103,7 +108,6 @@ final readonly class BannedCardImageResolver
                 return $this->buildTcgdexCdnFromSetCode(
                     $bannedPrinting->getSetCode(),
                     $bannedPrinting->getCardNumber(),
-                    $locale,
                 );
             }
         }
@@ -111,7 +115,7 @@ final readonly class BannedCardImageResolver
         return null;
     }
 
-    private function buildTcgdexCdnFromPrinting(CardPrinting $printing, string $locale): ?string
+    private function buildTcgdexCdnFromPrinting(CardPrinting $printing): ?string
     {
         $tcgdexCard = $printing->getTcgdexCard();
 
@@ -119,9 +123,8 @@ final readonly class BannedCardImageResolver
             $set = $tcgdexCard->getSet();
 
             return \sprintf(
-                '%s/%s/%s/%s/%s/high.webp',
+                '%s/en/%s/%s/%s/high.webp',
                 self::TCGDEX_CDN_BASE,
-                $locale,
                 $set->getSerie()->getId(),
                 self::setIdForCdn($set->getId()),
                 $tcgdexCard->getLocalId(),
@@ -139,9 +142,8 @@ final readonly class BannedCardImageResolver
         }
 
         return \sprintf(
-            '%s/%s/%s/%s/%s/high.webp',
+            '%s/en/%s/%s/%s/high.webp',
             self::TCGDEX_CDN_BASE,
-            $locale,
             $serieId,
             self::setIdForCdn($setId),
             $localId,
@@ -164,7 +166,7 @@ final readonly class BannedCardImageResolver
         );
     }
 
-    private function buildTcgdexCdnFromSetCode(string $setCode, string $cardNumber, string $locale): ?string
+    private function buildTcgdexCdnFromSetCode(string $setCode, string $cardNumber): ?string
     {
         $set = $this->tcgdexSetRepository->findByPtcgCode($setCode);
         if (null === $set) {
@@ -172,9 +174,8 @@ final readonly class BannedCardImageResolver
         }
 
         return \sprintf(
-            '%s/%s/%s/%s/%s/high.webp',
+            '%s/en/%s/%s/%s/high.webp',
             self::TCGDEX_CDN_BASE,
-            $locale,
             $set->getSerie()->getId(),
             self::setIdForCdn($set->getId()),
             $cardNumber,
