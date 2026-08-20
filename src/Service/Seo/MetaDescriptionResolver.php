@@ -70,7 +70,7 @@ final readonly class MetaDescriptionResolver
     public function resolveForPage(Page $page, string $locale): ?string
     {
         return $this->ogMetaResolver->resolveForPage($page, $locale)['description']
-            ?? $this->excerptOrNull($page->getTranslation($locale)?->getContent());
+            ?? $this->excerptOrNull($page->getDisplayTranslation($locale)?->getContent());
     }
 
     /**

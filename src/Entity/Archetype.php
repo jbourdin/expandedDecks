@@ -297,7 +297,7 @@ class Archetype
      */
     public function getLocalizedName(string $locale = 'en'): string
     {
-        return $this->getTranslation($locale)?->getName() ?? $this->name;
+        return $this->localizedField($locale, static fn (ArchetypeTranslation $translation): string => $translation->getName()) ?? $this->name;
     }
 
     /**
@@ -307,7 +307,7 @@ class Archetype
      */
     public function getLocalizedDescription(string $locale = 'en'): ?string
     {
-        return $this->getTranslation($locale)?->getDescription();
+        return $this->localizedField($locale, static fn (ArchetypeTranslation $translation): ?string => $translation->getDescription());
     }
 
     /**
@@ -317,7 +317,32 @@ class Archetype
      */
     public function getLocalizedMetaDescription(string $locale = 'en'): ?string
     {
-        return $this->getTranslation($locale)?->getMetaDescription();
+        return $this->localizedField($locale, static fn (ArchetypeTranslation $translation): ?string => $translation->getMetaDescription());
+    }
+
+    /**
+     * Field-level locale fallback: a translation row may exist with some
+     * fields still untranslated — each empty field falls back to the English
+     * value individually, never the whole row at once.
+     *
+     * @param callable(ArchetypeTranslation): ?string $extract
+     */
+    private function localizedField(string $locale, callable $extract): ?string
+    {
+        $candidates = 'en' === $locale ? ['en'] : [$locale, 'en'];
+        foreach ($candidates as $candidateLocale) {
+            foreach ($this->translations as $translation) {
+                if ($translation->getLocale() !== $candidateLocale) {
+                    continue;
+                }
+                $value = $extract($translation);
+                if (\is_string($value) && '' !== trim($value)) {
+                    return $value;
+                }
+            }
+        }
+
+        return null;
     }
 
     #[ORM\PrePersist]
