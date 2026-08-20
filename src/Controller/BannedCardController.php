@@ -69,7 +69,7 @@ class BannedCardController extends AbstractController
                 continue;
             }
 
-            $imageUrls[$id] = $imageResolver->resolveForBan($card, $locale);
+            $imageUrls[$id] = $imageResolver->resolveForBan($card);
 
             // Localized explanation with source fallback (F9.17); the
             // denormalized flag drives the reader-facing notice (F9.14).

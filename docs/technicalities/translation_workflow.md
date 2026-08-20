@@ -112,7 +112,7 @@ The locale universe itself is admin data, not code. The channel form offers an "
 - **Routing:** `_locale` route requirements use the permissive shared `LocaleRequirement::PATTERN` (`[a-z]{2}`); whether a locale exists on the channel — and who may browse it as a draft — is decided by `LocaleListener`, which 302-redirects unknown and unauthorized locales to the published equivalent.
 - **Chrome fallback:** UI chrome renders through the XLIFF catalogues; a locale without `translations/messages.<locale>.xlf` falls back to English. The channel form shows a non-blocking warning listing such locales — adding the XLIFF stays a developer task per language.
 - **Derived surfaces:** assignable translator locales (F9.8) are the union of every channel's published + draft locales minus the source; the profile's `preferredLocale` choices are the current channel's published locales plus the user's visible drafts.
-- **Card names** and other TCG vernacular stay in English whatever the locale.
+- **Card names** and other TCG vernacular stay in English whatever the locale — and so do **card images**: the listing resolvers always serve the English prints (localized CDN assets are missing for whole sets, and a French art under an English name would be incoherent).
 
 ## Card translations (F9.17)
 
