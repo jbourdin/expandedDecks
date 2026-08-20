@@ -23,7 +23,10 @@
                 <span class="badge bg-secondary ms-2">{{ 'app.admin.staple_card.badge.archived'|trans }}</span>
             {% endif %}
         </h1>
-        <a href="{{ path('app_admin_staple_card_list', {bucket: card.bucket}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        <div class="d-flex gap-2">
+            {{ include('_partials/translate_buttons.html.twig', {content: card, contentType: 'staple_card', translateLocales: translatable_locales(card)}) }}
+            <a href="{{ path('app_admin_staple_card_list', {bucket: card.bucket}) }}" class="btn btn-outline-secondary">{{ 'app.common.back'|trans }}</a>
+        </div>
     </div>
 
     <div class="card shadow-sm mb-3">

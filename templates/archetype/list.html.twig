@@ -170,13 +170,17 @@
                                 {% endif %}
                             </div>
                         </a>
-                        {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                        {% set translateLocales = translatable_locales(archetype) %}
+                        {% if is_granted('ROLE_ARCHETYPE_EDITOR') or translateLocales|length > 0 %}
                             <div class="dropdown position-absolute top-0 end-0 mt-2 me-2" style="z-index: 2">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ 'app.common.actions'|trans }}">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                    {% if is_granted('ROLE_ARCHETYPE_EDITOR') %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                    {% endif %}
+                                    {{ include('_partials/translate_action.html.twig', {content: archetype, contentType: 'archetype', translateLocales: translateLocales}) }}
                                 </ul>
                             </div>
                         {% endif %}

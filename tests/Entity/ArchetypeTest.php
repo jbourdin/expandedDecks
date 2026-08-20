@@ -136,6 +136,35 @@ class ArchetypeTest extends TestCase
     }
 
     /**
+     * A translation row may exist with some fields still untranslated: each
+     * empty field falls back to the English value individually.
+     *
+     * @see docs/features.md F9.6 — Archetype localization
+     */
+    public function testEmptyTranslatedFieldsFallBackFieldByField(): void
+    {
+        $archetype = new Archetype();
+        $archetype->setName('Ancient Box');
+
+        $english = new ArchetypeTranslation();
+        $english->setLocale('en');
+        $english->setName('Ancient Box');
+        $english->setDescription('The EN description.');
+        $english->setMetaDescription('EN meta.');
+        $archetype->addTranslation($english);
+
+        $french = new ArchetypeTranslation();
+        $french->setLocale('fr');
+        $french->setName('');
+        $french->setDescription('La description FR.');
+        $archetype->addTranslation($french);
+
+        self::assertSame('Ancient Box', $archetype->getLocalizedName('fr'), 'Empty FR name borrows the EN name.');
+        self::assertSame('La description FR.', $archetype->getLocalizedDescription('fr'), 'Filled FR field wins.');
+        self::assertSame('EN meta.', $archetype->getLocalizedMetaDescription('fr'), 'Missing FR meta borrows the EN one.');
+    }
+
+    /**
      * @see docs/features.md F9.6 — Archetype localization
      */
     public function testGetLocalizedDescriptionReturnsTranslatedDescription(): void

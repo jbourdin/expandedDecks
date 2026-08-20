@@ -58,6 +58,7 @@
                                     <a href="{{ path('app_admin_banned_card_edit', {id: card.id}) }}" class="btn btn-sm btn-outline-secondary">
                                         {{ 'app.common.edit'|trans }}
                                     </a>
+                                    {{ include('_partials/translate_buttons.html.twig', {content: card, contentType: 'banned_card', translateLocales: translatable_locales(card)}) }}
                                     {% if currentView == 'active' %}
                                         <form method="post" action="{{ path('app_admin_banned_card_delete', {id: card.id}) }}" class="d-inline inline-confirm-form">
                                             <input type="hidden" name="_token" value="{{ csrf_token('banned-card-delete-' ~ card.id) }}">

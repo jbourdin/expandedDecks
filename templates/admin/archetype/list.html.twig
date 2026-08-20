@@ -78,6 +78,7 @@
                                                 <li><a class="dropdown-item" href="{{ path('app_archetype_show', {slug: archetype.slug}) }}?preview=true" target="_blank"><i class="bi bi-eye me-2"></i>{{ 'app.common.preview'|trans }}</a></li>
                                             {% endif %}
                                             <li><a class="dropdown-item" href="{{ path('app_admin_archetype_edit', {id: archetype.id}) }}"><i class="bi bi-pencil me-2"></i>{{ 'app.common.edit'|trans }}</a></li>
+                                            {{ include('_partials/translate_action.html.twig', {content: archetype, contentType: 'archetype', translateLocales: translatable_locales(archetype)}) }}
                                         </ul>
                                     </div>
                                 </td>
