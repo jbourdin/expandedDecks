@@ -320,6 +320,29 @@ class PageTest extends TestCase
         self::assertSame('Privacy Policy', $page->getTitle('en'));
     }
 
+    /**
+     * A localized row whose title is still untranslated borrows the English
+     * title rather than rendering blank.
+     */
+    public function testGetTitleFallsBackToEnglishWhenTranslatedTitleIsEmpty(): void
+    {
+        $page = new Page();
+
+        $english = new PageTranslation();
+        $english->setLocale('en');
+        $english->setTitle('Privacy Policy');
+        $english->setContent('EN content');
+        $page->addTranslation($english);
+
+        $french = new PageTranslation();
+        $french->setLocale('fr');
+        $french->setTitle('');
+        $french->setContent('Contenu FR');
+        $page->addTranslation($french);
+
+        self::assertSame('Privacy Policy', $page->getTitle('fr'));
+    }
+
     public function testGetTitleReturnsEmptyStringWithoutTranslation(): void
     {
         $page = new Page();

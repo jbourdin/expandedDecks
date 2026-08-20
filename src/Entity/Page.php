@@ -310,10 +310,25 @@ class Page
     }
 
     /**
-     * Convenience: get the title for a locale.
+     * Convenience: get the title for a locale. Field-level fallback: a
+     * localized row whose title is still untranslated borrows the English
+     * title rather than rendering blank.
      */
     public function getTitle(string $locale = 'en'): string
     {
-        return $this->getDisplayTranslation($locale)?->getTitle() ?? '';
+        $title = $this->getDisplayTranslation($locale)?->getTitle();
+        if (\is_string($title) && '' !== trim($title)) {
+            return $title;
+        }
+
+        if ('en' !== $locale) {
+            foreach ($this->translations as $translation) {
+                if ('en' === $translation->getLocale()) {
+                    return $translation->getTitle();
+                }
+            }
+        }
+
+        return '';
     }
 }

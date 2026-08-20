@@ -104,7 +104,8 @@
                     {% if isOwner %}
                         <a href="{{ path('app_deck_import', {id: deck.id}) }}" class="btn btn-sm btn-gold">{{ 'app.deck.import_list'|trans }}</a>
                     {% endif %}
-                    {% if isOwner or (versionCount > 1) or is_granted('ROLE_TECHNICAL_ADMIN') %}
+                    {% set variantTranslateLocales = deck.isArchetypeVariant and deck.archetype ? translatable_locales(deck) : [] %}
+                    {% if isOwner or (versionCount > 1) or is_granted('ROLE_TECHNICAL_ADMIN') or variantTranslateLocales|length > 0 %}
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-three-dots"></i>
@@ -113,6 +114,8 @@
                                 {% if versionCount > 1 %}
                                     <li><a class="dropdown-item" href="{{ path('app_deck_versions', {short_tag: deck.shortTag}) }}">{{ 'app.deck.version_history'|trans }}</a></li>
                                 {% endif %}
+                                {# Variant notes translate inside the archetype context view (F9.13) #}
+                                {{ include('_partials/translate_action.html.twig', {content: deck.archetype ?? deck, contentType: 'archetype', translateLocales: variantTranslateLocales}) }}
                                 {% if isOwner %}
                                     <li><a class="dropdown-item" href="{{ path('app_deck_edit', {id: deck.id}) }}">{{ 'app.common.edit'|trans }}</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_deck_label_pdf', {short_tag: deck.shortTag}) }}" target="_blank">{{ 'app.deck.label_pdf'|trans }}</a></li>

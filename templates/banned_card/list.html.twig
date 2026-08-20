@@ -44,10 +44,19 @@
     <article class="card shadow-sm mb-4">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h1 class="mb-0 h3">{{ 'app.banned_card.public.title'|trans }}</h1>
-            {% if introPage and is_granted('ROLE_CMS_EDITOR') %}
-                <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
-                    <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
-                </a>
+            {% if introPage %}
+                <span class="d-inline-flex align-items-center gap-1">
+                    {% if is_granted('ROLE_CMS_EDITOR') %}
+                        <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
+                            <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
+                        </a>
+                    {% endif %}
+                    {% for targetLocale in translatable_locales(introPage) %}
+                        <a href="{{ path('app_admin_translation_edit', {type: 'page', id: introPage.id, locale: targetLocale}) }}" class="btn btn-sm btn-outline-light-gold" title="{{ 'app.translation.action.translate_into'|trans({'%locale%': targetLocale|upper}) }}">
+                            <i class="bi bi-translate me-1"></i>{{ targetLocale|upper }}
+                        </a>
+                    {% endfor %}
+                </span>
             {% endif %}
         </div>
         {% if introHtml %}
