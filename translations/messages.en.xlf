@@ -2103,9 +2103,9 @@
                 <target>Login</target>
                 <note>Login page</note>
             </trans-unit>
-            <trans-unit id="app.auth.login.email">
-                <source>app.auth.login.email</source>
-                <target>Email</target>
+            <trans-unit id="app.auth.login.identifier">
+                <source>app.auth.login.identifier</source>
+                <target>Email or screen name</target>
                 <note>Login page</note>
             </trans-unit>
             <trans-unit id="app.auth.login.password">

@@ -32,6 +32,9 @@ security:
                 login_path: app_login
                 check_path: app_login
                 username_parameter: _email
+                # Note: The parameter remains _email for backward compatibility,
+                # but the UserRepository::loadUserByIdentifier() now accepts both
+                # email and screenName as identifiers.
                 password_parameter: _password
                 enable_csrf: true
                 default_target_path: app_dashboard

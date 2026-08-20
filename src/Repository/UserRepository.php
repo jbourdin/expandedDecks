@@ -34,14 +34,14 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     }
 
     /**
-     * Loads a user by email, excluding anonymized accounts.
+     * Loads a user by email or screen name, excluding anonymized accounts.
      */
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
         $user = $this->createQueryBuilder('u')
-            ->where('u.email = :email')
+            ->where('(u.email = :identifier OR u.screenName = :identifier)')
             ->andWhere('u.isAnonymized = false')
-            ->setParameter('email', $identifier)
+            ->setParameter('identifier', $identifier)
             ->getQuery()
             ->getOneOrNullResult();
 
