@@ -1,0 +1,36 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # @see docs/features.md F9.15 — Translation workflow notifications
+ #}
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    {% if approved %}
+        <h1 style="color: #2c3e50;">{{ 'app.email.translation_approved_heading'|trans({'%label%': label, '%locale%': targetLocale}, 'messages', locale) }}</h1>
+        <p>{{ 'app.email.translation_approved_body'|trans({'%label%': label, '%locale%': targetLocale}, 'messages', locale) }}</p>
+    {% else %}
+        <h1 style="color: #2c3e50;">{{ 'app.email.translation_rejected_heading'|trans({'%label%': label, '%locale%': targetLocale}, 'messages', locale) }}</h1>
+        <p>{{ 'app.email.translation_rejected_body'|trans({'%label%': label, '%locale%': targetLocale}, 'messages', locale) }}</p>
+        {% if comment %}
+            <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 12px 16px; margin: 20px 0;">
+                <p style="margin: 0; font-style: italic;">{{ comment|nl2br }}</p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <p style="margin: 24px 0;">
+        <a href="{{ editorUrl }}" style="background-color: #b8860b; color: #fff; padding: 10px 18px; text-decoration: none; border-radius: 4px;">
+            {{ 'app.email.translation_open_button'|trans({}, 'messages', locale) }}
+        </a>
+    </p>
+</body>
+</html>

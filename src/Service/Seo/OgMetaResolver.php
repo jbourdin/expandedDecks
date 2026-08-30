@@ -78,10 +78,15 @@ final class OgMetaResolver
     public function resolveForArchetype(Archetype $archetype, string $locale): array
     {
         $translation = $archetype->getTranslation($locale);
+        $englishTranslation = 'en' !== $locale ? $archetype->getTranslation('en') : null;
 
         return [
             'image' => $translation?->getOgImage(),
-            'description' => $translation?->getOgDescription() ?? $archetype->getLocalizedMetaDescription($locale),
+            // Field-level fallback: a localized row with a still-untranslated
+            // ogDescription borrows the English one before the meta chain.
+            'description' => self::nullIfBlank($translation?->getOgDescription())
+                ?? self::nullIfBlank($englishTranslation?->getOgDescription())
+                ?? $archetype->getLocalizedMetaDescription($locale),
         ];
     }
 
@@ -97,10 +102,18 @@ final class OgMetaResolver
     public function resolveForPage(Page $page, string $locale): array
     {
         $translation = $page->getTranslation($locale);
+        $englishTranslation = 'en' !== $locale ? $page->getTranslation('en') : null;
 
         return [
             'image' => $translation?->getOgImage() ?? $page->getOgImage(),
-            'description' => $translation?->getOgDescription(),
+            // Field-level fallback: a localized row with a still-untranslated
+            // ogDescription borrows the English one.
+            'description' => self::nullIfBlank($translation?->getOgDescription()) ?? self::nullIfBlank($englishTranslation?->getOgDescription()),
         ];
+    }
+
+    private static function nullIfBlank(?string $value): ?string
+    {
+        return null !== $value && '' !== trim($value) ? $value : null;
     }
 }

@@ -1,0 +1,52 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.translation.queue.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('translation_queue') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.translation.queue.title'|trans }}</h1>
+    </div>
+
+    <div id="translation-queue-root"
+         data-queue-url="{{ path('app_admin_translation_queue_data') }}"
+         data-base-url="{{ path('app_admin_translation_queue') }}"
+         data-labels="{{ {
+             tabPages: 'app.translation.queue.tab.pages'|trans,
+             tabArchetypes: 'app.translation.queue.tab.archetypes'|trans,
+             tabMenuCategories: 'app.translation.queue.tab.menu_categories'|trans,
+             tabBannedCards: 'app.translation.queue.tab.banned_cards'|trans,
+             tabStapleCards: 'app.translation.queue.tab.staple_cards'|trans,
+             localeAll: 'app.translation.queue.locale_all'|trans,
+             badgeUntranslated: 'app.translation.queue.badge.untranslated'|trans,
+             flavorContributor: 'app.translation.queue.flavor.contributor'|trans,
+             flavorReviewer: 'app.translation.queue.flavor.reviewer'|trans,
+             stateDraft: 'app.translation.state.draft'|trans,
+             statePendingReview: 'app.translation.state.pending_review'|trans,
+             stateRejected: 'app.translation.state.rejected'|trans,
+             badgeOutdated: 'app.translation.queue.badge.outdated'|trans,
+             badgePendingVariants: 'app.translation.queue.badge.pending_variants'|trans,
+             badgeOutdatedVariants: 'app.translation.queue.badge.outdated_variants'|trans,
+             empty: 'app.translation.queue.empty'|trans,
+             open: 'app.translation.queue.open'|trans,
+             loading: 'app.common.loading'|trans,
+         }|json_encode }}"
+    ></div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('translation_queue') }}
+{% endblock %}

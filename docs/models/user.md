@@ -26,6 +26,7 @@
 | `resetToken`       | `string(64)`      | Yes      | Random token sent by email for password reset. Cleared after successful reset. Only one active reset token at a time. |
 | `resetTokenExpiresAt` | `DateTimeImmutable` | Yes  | Expiration timestamp for the reset token. |
 | `preferredLocale` | `string(5)`     | No       | ISO 639-1 UI language. Default: `"en"`. See F9.1. |
+| `translationLocales` | `json`       | No       | Target locales (ISO 639-1) this user may translate content into, paired with `ROLE_TRANSLATION_EDITOR`. Default: `[]`. Enforced by `TranslationVoter`. See F9.8. |
 | `timezone`        | `string(50)`    | No       | IANA timezone string. Default: `"UTC"`. See F9.2. |
 | `deletedAt`       | `DateTimeImmutable` | Yes  | Soft-delete timestamp. Null = active. See F1.8. |
 | `isAnonymized`    | `bool`          | No       | Personal data anonymized after deletion. Default: `false`. See F1.8. |
@@ -39,6 +40,8 @@
 | `ROLE_ARCHETYPE_EDITOR`| Granted by admin      | Create, edit, and publish archetype descriptions (F2.6, F2.10). **Also gates inline archetype creation from the deck form (F2.29)** — non-editors see a "ask an editor" empty state. |
 | `ROLE_CMS_EDITOR`      | Granted by admin      | Create, edit, and publish content pages and menu categories (F11.1, F11.2) |
 | `ROLE_ORGANIZER`       | Granted by admin      | Create events, assign staff teams |
+| `ROLE_TRANSLATION_EDITOR` | Granted by admin   | Translate content into the locales listed in `translationLocales` (F9.8). A single role — target languages are data, not per-locale role variants. |
+| `ROLE_TRANSLATION_MODERATOR` | Granted by admin (inherited by CMS editors) | Review and approve/reject translation submissions (F9.9). Distinct from the editor role so pure moderators stay possible; never shortcuts the review workflow. |
 | `ROLE_ADMIN`           | Granted manually      | Full access: user management, audit log, all operations |
 
 > **Note:** Staff is **not** a global role. It is a **per-event assignment** modeled via the `EventStaff` join entity (see [Event model](event.md)). A user can be staff at one event and a regular player at another.
@@ -46,6 +49,8 @@
 Symfony role hierarchy:
 ```
 ROLE_ADMIN > ROLE_ORGANIZER > ROLE_CMS_EDITOR > ROLE_ARCHETYPE_EDITOR > ROLE_PLAYER
+ROLE_CMS_EDITOR > ROLE_TRANSLATION_MODERATOR
+ROLE_TRANSLATION_EDITOR > ROLE_USER
 ```
 
 ### Constraints

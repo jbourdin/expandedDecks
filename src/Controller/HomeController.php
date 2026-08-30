@@ -21,6 +21,7 @@ use App\Repository\EventRepository;
 use App\Repository\HomepageLayoutRepository;
 use App\Repository\MenuCategoryRepository;
 use App\Repository\PageRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\HomepageRenderer;
 use App\Service\MarkdownRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +36,7 @@ class HomeController extends AbstractController
      * @see docs/features.md F10.2 — Anonymous homepage
      * @see docs/features.md F10.4 — Homepage rendering service and Twig block partials
      */
-    #[Route('/{_locale}/', name: 'app_home_localized', requirements: ['_locale' => 'en|fr'])]
+    #[Route('/{_locale}/', name: 'app_home_localized', requirements: ['_locale' => LocaleRequirement::PATTERN])]
     #[Route('/', name: 'app_home')]
     public function index(
         Request $request,

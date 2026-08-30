@@ -41,4 +41,28 @@ class SecurityHeadersTest extends AbstractFunctionalTest
         self::assertStringContainsString("frame-ancestors 'self'", $csp);
         self::assertNull($headers->get('Content-Security-Policy'));
     }
+
+    public function testInlineScriptsCarryTheCspNonceFromTheHeader(): void
+    {
+        $this->client->request('GET', '/login');
+        self::assertResponseIsSuccessful();
+
+        $csp = (string) $this->client->getResponse()->headers->get('Content-Security-Policy-Report-Only');
+        self::assertSame(1, preg_match("/'nonce-([^']+)'/", $csp, $matches), 'script-src must advertise the per-request nonce.');
+        $headerNonce = $matches[1];
+
+        // Every executable inline script (the theme color-scheme bootstrap at
+        // minimum) must carry that exact nonce, or enforcement would break it.
+        $html = (string) $this->client->getResponse()->getContent();
+        self::assertSame(1, preg_match_all('/<script nonce="([^"]+)">/', $html, $scriptMatches) >= 1 ? 1 : 0);
+        foreach ($scriptMatches[1] as $scriptNonce) {
+            self::assertSame($headerNonce, $scriptNonce);
+        }
+
+        // Nonces are per-request: a second request gets a different one.
+        $this->client->request('GET', '/login');
+        $secondCsp = (string) $this->client->getResponse()->headers->get('Content-Security-Policy-Report-Only');
+        preg_match("/'nonce-([^']+)'/", $secondCsp, $secondMatches);
+        self::assertNotSame($headerNonce, $secondMatches[1]);
+    }
 }

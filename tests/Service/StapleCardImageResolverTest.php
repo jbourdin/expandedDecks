@@ -80,9 +80,11 @@ class StapleCardImageResolverTest extends TestCase
 
         $resolver = new StapleCardImageResolver($this->buildSetRepository(null));
 
+        // Card images are always the English prints, whatever the page
+        // locale — localized assets are missing for whole sets on the CDN.
         self::assertSame(
-            'https://assets.tcgdex.net/fr/sm/sm115/42/high.webp',
-            $resolver->resolveForStaple($staple, 'fr'),
+            'https://assets.tcgdex.net/en/sm/sm115/42/high.webp',
+            $resolver->resolveForStaple($staple),
         );
     }
 

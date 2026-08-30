@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Attribute\Translatable;
 use App\Repository\BannedCardRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -56,6 +57,11 @@ class BannedCard
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sourceUrl = null;
 
+    /**
+     * Canonical source-locale explanation (F9.17): the translation-workflow
+     * source; non-source locales live in `BannedCardTranslation` rows.
+     */
+    #[Translatable]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $explanation = null;
 
@@ -74,10 +80,19 @@ class BannedCard
     #[ORM\OneToMany(targetEntity: BannedCardPrinting::class, mappedBy: 'bannedCard', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $printings;
 
+    /**
+     * Localized explanations (non-source locales only, F9.17).
+     *
+     * @var Collection<int, BannedCardTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: BannedCardTranslation::class, mappedBy: 'bannedCard')]
+    private Collection $translations;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->printings = new ArrayCollection();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,6 +144,46 @@ class BannedCard
     public function setSourceUrl(?string $sourceUrl): static
     {
         $this->sourceUrl = $sourceUrl;
+
+        return $this;
+    }
+
+    /**
+     * @see docs/features.md F9.17 — Translation workflow for banned & staple cards
+     */
+    public function translationFor(string $locale): ?BannedCardTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale) {
+                return $translation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Explanation in the requested locale, falling back to the canonical
+     * source-locale explanation.
+     *
+     * @see docs/features.md F9.17 — Translation workflow for banned & staple cards
+     */
+    public function localizedExplanation(string $locale): ?string
+    {
+        $translation = $this->translationFor($locale);
+        if ($translation instanceof BannedCardTranslation && null !== $translation->getExplanation() && '' !== $translation->getExplanation()) {
+            return $translation->getExplanation();
+        }
+
+        return $this->explanation;
+    }
+
+    public function addTranslation(BannedCardTranslation $translation): static
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setBannedCard($this);
+        }
 
         return $this;
     }

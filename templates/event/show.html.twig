@@ -1019,7 +1019,7 @@
         {{ encore_entry_script_tags('staff_autocomplete') }}
     {% endif %}
     {{ encore_entry_script_tags('toggle_private_decks') }}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         /**
          * Inline confirmation toggle for destructive actions.
          * Clicking the trigger hides it and reveals Yes/Cancel buttons.

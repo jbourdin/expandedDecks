@@ -104,6 +104,45 @@ class AdminUserTest extends AbstractFunctionalTest
         self::assertSelectorTextContains('.alert-success', 'Roles updated');
     }
 
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     */
+    public function testTranslationLocalesAssignment(): void
+    {
+        $this->loginAs('admin@example.com');
+
+        $userId = $this->getUserId('lender@example.com');
+        $crawler = $this->client->request('GET', '/admin/users/'.$userId);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name="translation_locales[]"][value="fr"]');
+        // The source locale is never offered as a translation target.
+        self::assertSelectorNotExists('input[name="translation_locales[]"][value="en"]');
+
+        $token = $crawler->filter('form[action*="/roles"] input[name="_token"]')->attr('value');
+        \assert(\is_string($token));
+
+        $this->client->request('POST', '/admin/users/'.$userId.'/roles', [
+            '_token' => $token,
+            'roles' => ['ROLE_TRANSLATION_EDITOR'],
+            // 'en' (source) and 'es' (not enabled) must be filtered out.
+            'translation_locales' => ['fr', 'en', 'es'],
+        ]);
+
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+        /** @var User $user */
+        $user = $em->getRepository(User::class)->find($userId);
+        $em->refresh($user);
+
+        self::assertContains('ROLE_TRANSLATION_EDITOR', $user->getRoles());
+        self::assertSame(['fr'], $user->getTranslationLocales());
+        self::assertTrue($user->canTranslateInto('fr'));
+        self::assertFalse($user->canTranslateInto('en'));
+    }
+
     public function testDisableAndEnable(): void
     {
         $this->loginAs('admin@example.com');

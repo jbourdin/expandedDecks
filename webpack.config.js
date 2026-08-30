@@ -43,6 +43,8 @@ Encore
     .addEntry('admin_page_list', './assets/admin-page-list.ts')
     .addEntry('admin_menu_category_list', './assets/admin-menu-category-list.ts')
     .addEntry('homepage_editor', './assets/homepage-editor.tsx')
+    .addEntry('translation_queue', './assets/translation-queue.tsx')
+    .addEntry('translation_editor', './assets/translation-editor.tsx')
     .addEntry('toggle_private_decks', './assets/toggle-private-decks.ts')
     .addEntry('friendly_captcha', './assets/friendly-captcha.ts')
     .addEntry('deck_found', './assets/deck-found.tsx')
@@ -72,6 +74,14 @@ Encore
         options.sassOptions = {
             quietDeps: true,
             silenceDeprecations: ['import'],
+        };
+    })
+
+    // svgo cannot parse the URL-encoded SVG data URIs Bootstrap and Mantine
+    // inline in their CSS; it skips them with a loud warning, so disable it.
+    .configureCssMinimizerPlugin((options) => {
+        options.minimizerOptions = {
+            preset: ['default', { svgo: false }],
         };
     })
 

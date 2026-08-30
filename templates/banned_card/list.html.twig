@@ -44,10 +44,19 @@
     <article class="card shadow-sm mb-4">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h1 class="mb-0 h3">{{ 'app.banned_card.public.title'|trans }}</h1>
-            {% if introPage and is_granted('ROLE_CMS_EDITOR') %}
-                <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
-                    <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
-                </a>
+            {% if introPage %}
+                <span class="d-inline-flex align-items-center gap-1">
+                    {% if is_granted('ROLE_CMS_EDITOR') %}
+                        <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
+                            <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
+                        </a>
+                    {% endif %}
+                    {% for targetLocale in translatable_locales(introPage) %}
+                        <a href="{{ path('app_admin_translation_edit', {type: 'page', id: introPage.id, locale: targetLocale}) }}" class="btn btn-sm btn-outline-light-gold" title="{{ 'app.translation.action.translate_into'|trans({'%locale%': targetLocale|upper}) }}">
+                            <i class="bi bi-translate me-1"></i>{{ targetLocale|upper }}
+                        </a>
+                    {% endfor %}
+                </span>
             {% endif %}
         </div>
         {% if introHtml %}
@@ -71,6 +80,7 @@
                                 data-card-effective-date="{{ card.effectiveDate ? card.effectiveDate|user_date : '' }}"
                                 data-card-source-url="{{ card.sourceUrl ?? '' }}"
                                 data-card-explanation="{{ card.id in renderedExplanations|keys ? renderedExplanations[card.id] : '' }}"
+                                data-card-explanation-outdated="{{ card.id in outdatedExplanations|keys and outdatedExplanations[card.id] ? 'true' : 'false' }}"
                                 data-card-printings="{{ printingsJson }}"
                                 aria-label="{{ 'app.banned_card.public.view_details'|trans({'%name%': card.cardName}) }}">
                                 {% if imageUrl %}
@@ -120,6 +130,8 @@
                                     </dd>
                                 </dl>
                                 <h6 id="bannedCardModalExplanationLabel" hidden>{{ 'app.banned_card.modal.explanation'|trans }}</h6>
+                                {# Reader-facing staleness notice (US-T6 / F9.14) #}
+                                <p id="bannedCardModalOutdated" class="alert alert-info small py-1 px-2 mb-2" hidden><i class="bi bi-clock-history me-1"></i>{{ 'app.translation.outdated_notice'|trans }} <a href="{{ path('app_banned_card_list', {_locale: 'en'}) }}" class="alert-link">{{ 'app.translation.outdated_notice_link'|trans }}</a></p>
                                 <div id="bannedCardModalExplanation" class="banned-card-explanation mb-3"></div>
                                 <p id="bannedCardModalNoExplanation" class="text-muted fst-italic mb-3" hidden>{{ 'app.banned_card.modal.no_explanation'|trans }}</p>
                                 <h6 class="mb-2">{{ 'app.banned_card.modal.banned_printings'|trans }}</h6>

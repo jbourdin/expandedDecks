@@ -68,6 +68,7 @@ class DevFixtures extends Fixture
 
         $admin = $this->createAdmin($manager);
         $organizer = $this->createOrganizer($manager);
+        $this->createTranslator($manager);
         $borrower = $this->createBorrower($manager);
         $staff1 = $this->createStaff1($manager);
         $staff2 = $this->createStaff2($manager);
@@ -234,6 +235,29 @@ MARKDOWN;
         $manager->persist($organizer);
 
         return $organizer;
+    }
+
+    /**
+     * @see docs/features.md F9.8 — Translation roles & access
+     */
+    private function createTranslator(ObjectManager $manager): User
+    {
+        $translator = new User();
+        $translator->setEmail('translator@example.com');
+        $translator->setFirstName('Claire');
+        $translator->setLastName('Traductrice');
+        $translator->setScreenName('Translator');
+        $translator->setPlayerId('PKM-TRA-001');
+        $translator->setPassword($this->passwordHasher->hashPassword($translator, 'password'));
+        $translator->setRoles(['ROLE_TRANSLATION_EDITOR']);
+        $translator->setTranslationLocales(['fr']);
+        $translator->setIsVerified(true);
+        $translator->setPreferredLocale('fr');
+        $translator->setTimezone('Europe/Paris');
+
+        $manager->persist($translator);
+
+        return $translator;
     }
 
     private function createBorrower(ObjectManager $manager): User
@@ -2571,6 +2595,9 @@ PTCG;
             ->setThemeName('expandedtalks')
             // English-only content for now; add 'fr' once French translations exist (F19.4).
             ->setLocales(['en'])
+            // French is being prepared by translators: draft locale (F9.16),
+            // browsable only by translators/moderators/admins until published.
+            ->setDraftLocales(['fr'])
             // org_logo + org_same_as feed the Organization publisher JSON-LD (F19.8).
             // meta_description is the per-channel default <meta name="description">
             // when a page supplies none (F19.7). The app channel intentionally

@@ -10,9 +10,14 @@ security:
 
     role_hierarchy:
         ROLE_ARCHETYPE_EDITOR: ROLE_USER
-        ROLE_CMS_EDITOR: ROLE_USER
+        # CMS editors moderate translations by default (epic #612 rollout
+        # decision); a standalone ROLE_TRANSLATION_MODERATOR grant stays
+        # possible for future pure moderators.
+        ROLE_CMS_EDITOR: [ROLE_USER, ROLE_TRANSLATION_MODERATOR]
         ROLE_ORGANIZER: ROLE_USER
         ROLE_TECHNICAL_ADMIN: ROLE_USER
+        ROLE_TRANSLATION_EDITOR: ROLE_USER
+        ROLE_TRANSLATION_MODERATOR: ROLE_USER
         ROLE_ADMIN: [ROLE_ORGANIZER, ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR, ROLE_TECHNICAL_ADMIN]
 
     firewalls:
@@ -75,6 +80,7 @@ security:
         - { path: ^/admin/homepage, roles: ROLE_CMS_EDITOR }
         - { path: ^/admin/menu-categories, roles: ROLE_CMS_EDITOR }
         - { path: ^/admin/og-image-builder, roles: [ROLE_CMS_EDITOR, ROLE_ARCHETYPE_EDITOR] }
+        - { path: ^/admin/translations, roles: [ROLE_TRANSLATION_EDITOR, ROLE_TRANSLATION_MODERATOR] }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/deck, roles: ROLE_USER }

@@ -23,9 +23,14 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\Intl\Languages;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @extends AbstractType<Channel>
@@ -38,6 +43,7 @@ class ChannelFormType extends AbstractType
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -91,12 +97,28 @@ class ChannelFormType extends AbstractType
             ])
             ->add('locales', ChoiceType::class, [
                 'label' => 'app.channel.locales',
-                'choices' => [
-                    'English' => 'en',
-                    'Français' => 'fr',
-                ],
+                'choices' => $this->localeChoices($channel),
                 'multiple' => true,
                 'expanded' => true,
+            ])
+            ->add('draftLocales', ChoiceType::class, [
+                'label' => 'app.channel.draft_locales',
+                'help' => 'app.channel.draft_locales_help',
+                'choices' => $this->localeChoices($channel),
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ])
+            ->add('addLocale', TextType::class, [
+                'label' => 'app.channel.add_locale',
+                'help' => 'app.channel.add_locale_help',
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'list' => 'channel-locale-codes',
+                    'maxlength' => 2,
+                    'placeholder' => 'de',
+                ],
             ])
             ->add('parameters', CollectionType::class, [
                 'label' => 'app.channel.parameters',
@@ -123,6 +145,58 @@ class ChannelFormType extends AbstractType
             $data = $event->getData();
             $event->setData($transformer->reverseTransform($data));
         });
+
+        // A locale added from the free input always starts as a draft (F9.18):
+        // it has no content and no UI chrome yet, so publishing it is a later,
+        // deliberate tick under "published locales".
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            $code = $form->get('addLocale')->getData();
+            if (!\is_string($code) || '' === trim($code)) {
+                return;
+            }
+
+            $code = strtolower(trim($code));
+            if (1 !== preg_match('/^[a-z]{2}$/', $code) || !Languages::exists($code)) {
+                $form->get('addLocale')->addError(new FormError($this->translator->trans('app.channel.add_locale_invalid')));
+
+                return;
+            }
+
+            /** @var Channel $channel */
+            $channel = $event->getData();
+            if (\in_array($code, $channel->getAllLocales(), true)) {
+                $form->get('addLocale')->addError(new FormError($this->translator->trans('app.channel.add_locale_exists')));
+
+                return;
+            }
+
+            $channel->setDraftLocales([...$channel->getDraftLocales(), $code]);
+        });
+    }
+
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        /** @var Channel $channel */
+        $channel = $form->getData();
+
+        $names = [];
+        foreach (Languages::getNames() as $code => $name) {
+            if (1 === preg_match('/^[a-z]{2}$/', $code)) {
+                $names[$code] = $name;
+            }
+        }
+        $view->vars['locale_datalist'] = $names;
+
+        // UI chrome (navbar, buttons, form labels…) renders through XLIFF
+        // catalogues; a locale without one falls back to English (F9.18).
+        $missing = [];
+        foreach ($channel->getAllLocales() as $locale) {
+            if (!is_file(\sprintf('%s/translations/messages.%s.xlf', $this->projectDir, $locale))) {
+                $missing[] = $locale;
+            }
+        }
+        $view->vars['chrome_missing_locales'] = $missing;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -130,6 +204,28 @@ class ChannelFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Channel::class,
         ]);
+    }
+
+    /**
+     * Checkbox choices for the published/draft locale fields: every locale
+     * already configured on the channel plus the historical base pair, with
+     * native language names. New languages enter through the free "add a
+     * language" input (F9.18), never through this list.
+     *
+     * @return array<string, string> display name => locale code
+     */
+    private function localeChoices(Channel $channel): array
+    {
+        $codes = array_values(array_unique([...$channel->getAllLocales(), 'en', 'fr']));
+        sort($codes);
+
+        $choices = [];
+        foreach ($codes as $code) {
+            $name = Languages::exists($code) ? Languages::getName($code, $code) : $code;
+            $choices[\sprintf('%s (%s)', ucfirst($name), $code)] = $code;
+        }
+
+        return $choices;
     }
 
     /**

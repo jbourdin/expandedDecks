@@ -18,10 +18,12 @@ use App\Entity\Channel;
 use App\Entity\MenuCategory;
 use App\Entity\PageTranslation;
 use App\Repository\PageRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\MarkdownExcerptGenerator;
 use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
+use App\Service\Translation\TranslationPreviewResolver;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +42,7 @@ class PageController extends AbstractController
     /**
      * @see docs/features.md F11.2 — Menu categories
      */
-    #[Route('/{_locale}/pages/category/{id}', name: 'app_page_category', requirements: ['_locale' => 'en|fr', 'id' => '\d+'])]
+    #[Route('/{_locale}/pages/category/{id}', name: 'app_page_category', requirements: ['_locale' => LocaleRequirement::PATTERN, 'id' => '\d+'])]
     public function category(
         MenuCategory $category,
         Request $request,
@@ -78,7 +80,7 @@ class PageController extends AbstractController
      *
      * @see docs/features.md F21.1 — RSS feed per page category
      */
-    #[Route('/{_locale}/pages/category/{id}/feed.xml', name: 'app_page_category_feed', requirements: ['_locale' => 'en|fr', 'id' => '\d+'])]
+    #[Route('/{_locale}/pages/category/{id}/feed.xml', name: 'app_page_category_feed', requirements: ['_locale' => LocaleRequirement::PATTERN, 'id' => '\d+'])]
     public function feed(
         MenuCategory $category,
         Request $request,
@@ -124,13 +126,14 @@ class PageController extends AbstractController
     /**
      * @see docs/features.md F7.11 — Draft state with preview
      */
-    #[Route('/{_locale}/pages/{slug}', name: 'app_page_show', requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+'])]
+    #[Route('/{_locale}/pages/{slug}', name: 'app_page_show', requirements: ['_locale' => LocaleRequirement::PATTERN, 'slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
         Request $request,
         PageRepository $pageRepository,
         ArchetypeDescriptionRenderer $contentRenderer,
         MetaDescriptionResolver $metaDescriptionResolver,
+        TranslationPreviewResolver $translationPreviewResolver,
     ): Response {
         if (ListingIntroPage::isListingSlug($slug)) {
             $route = ListingIntroPage::routeForSlug($slug);
@@ -155,6 +158,18 @@ class PageController extends AbstractController
         $locale = $request->getLocale();
         $translation = $page->getDisplayTranslation($locale);
 
+        // Draft-translation preview (F9.10): translators of this locale and
+        // moderators can render the pending revision in place of the live
+        // translation; anyone else keeps the live content, param or not.
+        $isTranslationPreview = false;
+        if ($request->query->getBoolean('translationPreview') && $translationPreviewResolver->canPreview($page, $locale)) {
+            $previewTranslation = $translationPreviewResolver->previewPageTranslation($page, $locale);
+            if ($previewTranslation instanceof PageTranslation) {
+                $translation = $previewTranslation;
+                $isTranslationPreview = true;
+            }
+        }
+
         if (null === $translation) {
             throw $this->createNotFoundException();
         }
@@ -165,6 +180,7 @@ class PageController extends AbstractController
             'page' => $page,
             'translation' => $translation,
             'htmlContent' => $htmlContent,
+            'isTranslationPreview' => $isTranslationPreview,
             // Resolve against the displayed translation's locale so the snippet
             // matches the content actually rendered after locale fallback.
             'metaDescription' => $metaDescriptionResolver->resolveForPage($page, $translation->getLocale()),

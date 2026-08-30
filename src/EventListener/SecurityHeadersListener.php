@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Service\Security\ContentSecurityPolicyNonceProvider;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -41,6 +42,7 @@ final readonly class SecurityHeadersListener
     private const int HSTS_MAX_AGE = 86400;
 
     public function __construct(
+        private ContentSecurityPolicyNonceProvider $nonceProvider,
         // Optional CSP violation sink (e.g. a Sentry security endpoint). Null
         // by default — when unset, no report-uri is emitted.
         #[Autowire('%env(default::SECURITY_CSP_REPORT_URI)%')]
@@ -91,10 +93,11 @@ final readonly class SecurityHeadersListener
             "object-src 'none'",
             "frame-ancestors 'self'",
             "form-action 'self'",
-            // Strict on scripts (where injection matters): inline <head> scripts
-            // will be reported until they carry a nonce — that is the signal we
-            // want before enforcing.
-            "script-src 'self'",
+            // Strict on scripts (where injection matters): inline scripts carry
+            // the per-request nonce (`csp_nonce()` in templates), so nothing is
+            // reported by app code anymore — remaining reports are the signal
+            // gate before switching to enforcement.
+            \sprintf("script-src 'self' 'nonce-%s'", $this->nonceProvider->getNonce()),
             // Bootstrap/Mantine inject inline styles; lower risk, allowed for now.
             "style-src 'self' 'unsafe-inline'",
             // Card art (TCGdex), sprites, editor uploads, and CDN come from many

@@ -13,13 +13,17 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\ArchetypeTranslationRevision;
 use App\Entity\Deck;
 use App\Entity\DeckCard;
+use App\Entity\DeckTranslationRevision;
 use App\Repository\ArchetypeRepository;
 use App\Repository\DeckRepository;
+use App\Routing\LocaleRequirement;
 use App\Service\ArchetypeDescriptionRenderer;
 use App\Service\Seo\MetaDescriptionResolver;
 use App\Service\Seo\OgMetaResolver;
+use App\Service\Translation\TranslationPreviewResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +39,7 @@ class ArchetypeDetailController extends AbstractController
      * @see docs/features.md F7.11 — Draft state with preview
      * @see docs/features.md F9.6 — Archetype localization
      */
-    #[Route('/{_locale}/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['_locale' => 'en|fr', 'slug' => '[a-z0-9-]+'])]
+    #[Route('/{_locale}/archetypes/{slug}', name: 'app_archetype_show', methods: ['GET'], requirements: ['_locale' => LocaleRequirement::PATTERN, 'slug' => '[a-z0-9-]+'])]
     public function show(
         string $slug,
         Request $request,
@@ -44,6 +48,7 @@ class ArchetypeDetailController extends AbstractController
         ArchetypeDescriptionRenderer $descriptionRenderer,
         OgMetaResolver $ogMetaResolver,
         MetaDescriptionResolver $metaDescriptionResolver,
+        TranslationPreviewResolver $translationPreviewResolver,
     ): Response {
         $archetype = $archetypeRepository->findOneBy(['slug' => $slug]);
 
@@ -58,7 +63,20 @@ class ArchetypeDetailController extends AbstractController
         }
 
         $locale = $request->getLocale();
+
+        // Draft-translation preview (F9.10): pending revisions of the
+        // archetype description and variant notes render in place of the
+        // live content, for translators of this locale and moderators only.
+        $isTranslationPreview = $request->query->getBoolean('translationPreview')
+            && $translationPreviewResolver->canPreview($archetype, $locale);
+
         $description = $archetype->getLocalizedDescription($locale);
+        if ($isTranslationPreview) {
+            $pendingDescription = $translationPreviewResolver->pendingRevision($archetype, $locale);
+            if ($pendingDescription instanceof ArchetypeTranslationRevision) {
+                $description = $pendingDescription->getDescription();
+            }
+        }
         $htmlContent = null !== $description
             ? $descriptionRenderer->render($description, $locale)
             : null;
@@ -69,13 +87,14 @@ class ArchetypeDetailController extends AbstractController
         $variants = $deckRepository->findVariantsByArchetype($archetype);
         $variantIds = array_values(array_filter(array_map(static fn (Deck $variant): ?int => $variant->getId(), $variants)));
         $effectiveUpdatedAtMap = $deckRepository->findEffectiveUpdatedAtByDeckIds($variantIds);
-        $variantsData = $this->buildVariantsData($variants, $descriptionRenderer, $locale, $effectiveUpdatedAtMap);
+        $variantsData = $this->buildVariantsData($variants, $descriptionRenderer, $locale, $effectiveUpdatedAtMap, $isTranslationPreview ? $translationPreviewResolver : null);
 
         $ogMeta = $ogMetaResolver->resolveForArchetype($archetype, $locale);
 
         return $this->render('archetype/show.html.twig', [
             'archetype' => $archetype,
             'htmlContent' => $htmlContent,
+            'isTranslationPreview' => $isTranslationPreview,
             'latestDecks' => $latestDecks,
             'totalDeckCount' => $totalDeckCount,
             'variants' => $variants,
@@ -98,7 +117,7 @@ class ArchetypeDetailController extends AbstractController
      *
      * @return list<array{id: int, shortTag: string, name: string, canonical: bool, description: string|null, mosaicUrl: string|null, effectiveUpdatedAtLabel: string|null, groupedCards: array<string, list<array{cardName: string, quantity: int, setCode: string, cardNumber: string, cardType: string, trainerSubtype: string|null, imageUrl: string|null}>>}>
      */
-    private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale, array $effectiveUpdatedAtMap = []): array
+    private function buildVariantsData(array $variants, ArchetypeDescriptionRenderer $descriptionRenderer, string $locale, array $effectiveUpdatedAtMap = [], ?TranslationPreviewResolver $previewResolver = null): array
     {
         // Format dates server-side using the request locale and server timezone so they match
         // the Twig `format_date('long')` output on the archetype list. Doing this in the React
@@ -179,10 +198,19 @@ class ArchetypeDetailController extends AbstractController
                 }
             }
 
-            $description = $variant->getNotes();
+            // Localized variant notes with source fallback (F9.13); the
+            // denormalized flag drives the reader-facing notice (F9.14).
+            $description = $variant->localizedNotes($locale);
+            if ($previewResolver instanceof TranslationPreviewResolver) {
+                $pendingNotes = $previewResolver->pendingRevision($variant, $locale);
+                if ($pendingNotes instanceof DeckTranslationRevision) {
+                    $description = $pendingNotes->getNotes();
+                }
+            }
             $htmlDescription = null !== $description && '' !== $description
                 ? $descriptionRenderer->render($description, $locale)
                 : null;
+            $variantTranslation = $variant->translationFor($locale);
 
             /** @var int $variantId */
             $variantId = $variant->getId();
@@ -203,6 +231,18 @@ class ArchetypeDetailController extends AbstractController
                 'latestSetName' => $latestSet?->getLocalizedName($locale),
                 'sprites' => $variant->getPokemonSlugs(),
                 'description' => $htmlDescription,
+                'notesOutdated' => null !== $variantTranslation && $variantTranslation->isSourceOutdated(),
+                // Translator credit for the displayed notes (F19.8/F9.13):
+                // only when the rendered notes actually come from a translation.
+                'notesTranslator' => null !== $variantTranslation
+                    && null !== $variantTranslation->getTranslator()
+                    && null !== $variantTranslation->getNotes()
+                    && '' !== $variantTranslation->getNotes()
+                    ? [
+                        'name' => $variantTranslation->getTranslator()->getScreenName(),
+                        'url' => $variantTranslation->getTranslator()->getPrimaryUrl(),
+                    ]
+                    : null,
                 'enrichmentPending' => null !== $version && 'done' !== $version->getEnrichmentStatus(),
                 'mosaicUrl' => $mosaicUrl,
                 'rawList' => $version?->getRawList(),

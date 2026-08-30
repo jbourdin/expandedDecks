@@ -80,9 +80,11 @@ class BannedCardImageResolverTest extends TestCase
 
         $resolver = new BannedCardImageResolver($this->buildSetRepository(null));
 
+        // Card images are always the English prints, whatever the page
+        // locale — localized assets are missing for whole sets on the CDN.
         self::assertSame(
-            'https://assets.tcgdex.net/fr/sm/sm115/42/high.webp',
-            $resolver->resolveForBan($ban, 'fr'),
+            'https://assets.tcgdex.net/en/sm/sm115/42/high.webp',
+            $resolver->resolveForBan($ban),
         );
     }
 

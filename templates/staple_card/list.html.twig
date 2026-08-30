@@ -41,10 +41,19 @@
     <article class="card shadow-sm mb-4">
         <div class="card-header card-header-themed d-flex justify-content-between align-items-center">
             <h1 class="mb-0 h3">{{ 'app.staple_card.public.title'|trans }}</h1>
-            {% if introPage and is_granted('ROLE_CMS_EDITOR') %}
-                <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
-                    <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
-                </a>
+            {% if introPage %}
+                <span class="d-inline-flex align-items-center gap-1">
+                    {% if is_granted('ROLE_CMS_EDITOR') %}
+                        <a href="{{ path('app_admin_page_edit', {id: introPage.id}) }}" class="btn btn-sm btn-outline-light-gold">
+                            <i class="bi bi-pencil me-1"></i>{{ 'app.common.edit'|trans }}
+                        </a>
+                    {% endif %}
+                    {% for targetLocale in translatable_locales(introPage) %}
+                        <a href="{{ path('app_admin_translation_edit', {type: 'page', id: introPage.id, locale: targetLocale}) }}" class="btn btn-sm btn-outline-light-gold" title="{{ 'app.translation.action.translate_into'|trans({'%locale%': targetLocale|upper}) }}">
+                            <i class="bi bi-translate me-1"></i>{{ targetLocale|upper }}
+                        </a>
+                    {% endfor %}
+                </span>
             {% endif %}
         </div>
         {% if introHtml %}
@@ -78,6 +87,7 @@
                                         data-card-name="{{ card.cardName }}"
                                         data-card-image="{{ highResImageUrl ?? '' }}"
                                         data-card-note="{{ card.id in renderedNotes|keys ? renderedNotes[card.id] : '' }}"
+                                        data-card-note-outdated="{{ card.id in outdatedNotes|keys and outdatedNotes[card.id] ? 'true' : 'false' }}"
                                         data-card-printings="{{ printingsJson }}"
                                         aria-label="{{ 'app.staple_card.public.view_details'|trans({'%name%': card.cardName}) }}">
                                         {% if imageUrl %}
@@ -113,6 +123,8 @@
                             </div>
                             <div class="col-md-7">
                                 <h6 id="stapleCardModalNoteLabel" class="mb-2" hidden>{{ 'app.staple_card.modal.note'|trans }}</h6>
+                                {# Reader-facing staleness notice (US-T6 / F9.14) #}
+                                <p id="stapleCardModalOutdated" class="alert alert-info small py-1 px-2 mb-2" hidden><i class="bi bi-clock-history me-1"></i>{{ 'app.translation.outdated_notice'|trans }} <a href="{{ path('app_staple_card_list', {_locale: 'en'}) }}" class="alert-link">{{ 'app.translation.outdated_notice_link'|trans }}</a></p>
                                 <div id="stapleCardModalNote" class="mb-3" hidden></div>
                                 <h6 class="mb-2">{{ 'app.staple_card.modal.printings'|trans }}</h6>
                                 <div id="stapleCardModalPrintings" class="d-flex flex-wrap gap-2 mb-0"></div>

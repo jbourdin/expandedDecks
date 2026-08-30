@@ -1,0 +1,20 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Translate entry point (US-T1 / US-T2): one dropdown item per target locale
+ # the current user may translate this content into. Expects `content` (the
+ # entity), `contentType` (page|archetype|menu_category) and, precomputed by
+ # the caller, `translateLocales` (translatable_locales(content)).
+ #}
+{% for targetLocale in translateLocales %}
+    <li>
+        <a class="dropdown-item" href="{{ path('app_admin_translation_edit', {type: contentType, id: content.id, locale: targetLocale}) }}">
+            <i class="bi bi-translate me-2"></i>{{ 'app.translation.action.translate_into'|trans({'%locale%': targetLocale|upper}) }}
+        </a>
+    </li>
+{% endfor %}

@@ -97,6 +97,7 @@ function populateModal(trigger: HTMLButtonElement): void {
     const effectiveDate = trigger.dataset.cardEffectiveDate ?? '';
     const sourceUrl = trigger.dataset.cardSourceUrl ?? '';
     const explanationHtml = trigger.dataset.cardExplanation ?? '';
+    const explanationOutdated = trigger.dataset.cardExplanationOutdated === 'true';
     const printingsJson = trigger.dataset.cardPrintings ?? '[]';
 
     const titleEl = document.getElementById('bannedCardModalLabel');
@@ -164,6 +165,12 @@ function populateModal(trigger: HTMLButtonElement): void {
             sourceLabel.hidden = true;
             sourceEl.parentElement.hidden = true;
         }
+    }
+
+    // Reader-facing staleness notice on translated explanations (F9.14/F9.17)
+    const outdatedNotice = document.getElementById('bannedCardModalOutdated');
+    if (outdatedNotice) {
+        outdatedNotice.hidden = !explanationOutdated;
     }
 
     const explanationLabel = document.getElementById('bannedCardModalExplanationLabel');

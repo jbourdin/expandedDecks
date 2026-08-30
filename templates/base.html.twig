@@ -39,10 +39,13 @@
                 <link rel="alternate" hreflang="x-default" href="{{ self_canonical_url(currentRoute, routeParams|merge({_locale: 'en'})) }}">
             {% endif %}
         {% endblock %}
-        <meta property="og:locale" content="{{ app.request.locale == 'fr' ? 'fr_FR' : 'en_US' }}">
-        {% if current_channel().locales|length > 1 %}
-            <meta property="og:locale:alternate" content="{{ app.request.locale == 'fr' ? 'en_US' : 'fr_FR' }}">
-        {% endif %}
+        {# Locales are admin-managed (F9.18): derive territory-qualified og
+           codes generically, with explicit overrides where lang != territory. #}
+        {% set ogLocaleOverrides = {en: 'en_US', ja: 'ja_JP', zh: 'zh_CN', ko: 'ko_KR'} %}
+        <meta property="og:locale" content="{{ ogLocaleOverrides[app.request.locale] ?? (app.request.locale ~ '_' ~ app.request.locale|upper) }}">
+        {% for alternateLocale in current_channel().locales|filter(alternateLocale => alternateLocale != app.request.locale) %}
+            <meta property="og:locale:alternate" content="{{ ogLocaleOverrides[alternateLocale] ?? (alternateLocale ~ '_' ~ alternateLocale|upper) }}">
+        {% endfor %}
         {% block alternate_feeds %}{% endblock %}
         {% block opengraph %}{% endblock %}
         {% block meta %}{% endblock %}
@@ -198,6 +201,12 @@
                                     {% if is_granted('ROLE_CMS_EDITOR') or is_granted('ROLE_ARCHETYPE_EDITOR') %}
                                         <li><a class="dropdown-item" href="{{ path('app_admin_og_image_builder') }}">{{ 'app.nav.og_image_builder'|trans }}</a></li>
                                     {% endif %}
+                                    {% if is_granted('ROLE_TRANSLATION_EDITOR') or is_granted('ROLE_TRANSLATION_MODERATOR') %}
+                                        {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_ARCHETYPE_EDITOR') and not is_granted('ROLE_TECHNICAL_ADMIN') and not is_granted('ROLE_CMS_EDITOR') %}
+                                            <li><hr class="dropdown-divider"></li>
+                                        {% endif %}
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_translation_queue') }}">{{ 'app.nav.translations'|trans }}</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.nav.logout'|trans }}</a></li>
                                 </ul>
@@ -252,25 +261,30 @@
                             {{ include('_partials/navbar_search.html.twig') }}
                             {{ include('_partials/navbar_unauthenticated.html.twig') }}
                         {% endif %}
-                        {% if current_channel().locales|length > 1 %}
+                        {# Locale switcher: published locales for everyone, plus the
+                           draft locales the logged-in user may browse, marked as
+                           drafts (F9.16). Draft visibility is only computed behind
+                           the session-cookie gate so anonymous pages stay cacheable. #}
+                        {% set switcherLocales = current_channel().locales %}
+                        {% set draftSwitcherLocales = current_user ? visible_draft_locales() : [] %}
+                        {% if (switcherLocales|length + draftSwitcherLocales|length) > 1 %}
                             {% set currentLocale = app.request.locale %}
-                            {% set alternateLocale = currentLocale == 'en' ? 'fr' : 'en' %}
                             {% set routeParams = app.request.attributes.get('_route_params', {}) %}
-                            {% if '_locale' in routeParams|keys %}
-                                {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: alternateLocale})) %}
-                            {% else %}
-                                {% set switchUrl = path('app_locale_switch', {_locale: alternateLocale, _redirect: app.request.requestUri}) %}
-                            {% endif %}
                             <li class="nav-item d-flex align-items-center ms-lg-2">
-                                {% if currentLocale == 'en' %}
-                                    <span class="fw-bold text-light small">EN</span>
-                                    <span class="mx-1 text-secondary">|</span>
-                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_french'|trans }}">FR</a>
-                                {% else %}
-                                    <a href="{{ switchUrl }}" class="text-light text-decoration-none small" aria-label="{{ 'app.nav.switch_to_english'|trans }}">EN</a>
-                                    <span class="mx-1 text-secondary">|</span>
-                                    <span class="fw-bold text-light small">FR</span>
-                                {% endif %}
+                                {% for switchLocale in switcherLocales|merge(draftSwitcherLocales) %}
+                                    {% if not loop.first %}<span class="mx-1 text-secondary">|</span>{% endif %}
+                                    {% set isDraftLocale = switchLocale in draftSwitcherLocales %}
+                                    {% if switchLocale == currentLocale %}
+                                        <span class="fw-bold small {{ isDraftLocale ? 'text-warning' : 'text-light' }}"{% if isDraftLocale %} title="{{ 'app.nav.draft_locale'|trans }}"{% endif %}>{{ switchLocale|upper }}</span>
+                                    {% else %}
+                                        {% if '_locale' in routeParams|keys %}
+                                            {% set switchUrl = path(app.request.attributes.get('_route'), routeParams|merge({_locale: switchLocale})) %}
+                                        {% else %}
+                                            {% set switchUrl = path('app_locale_switch', {_locale: switchLocale, _redirect: app.request.requestUri}) %}
+                                        {% endif %}
+                                        <a href="{{ switchUrl }}" class="text-decoration-none small {{ isDraftLocale ? 'text-warning' : 'text-light' }}"{% if isDraftLocale %} title="{{ 'app.nav.draft_locale'|trans }}"{% endif %}>{{ switchLocale|upper }}</a>
+                                    {% endif %}
+                                {% endfor %}
                             </li>
                         {% endif %}
                     </ul>
@@ -341,7 +355,7 @@
                 {{ encore_entry_script_tags('notification_bell') }}
                 {{ encore_entry_link_tags('notification_bell') }}
             {% endif %}
-            <script>
+            <script nonce="{{ csp_nonce() }}">
                 {# Preserve scroll position across form-driven page reloads #}
                 (function() {
                     var key = 'ed_scroll_' + location.pathname;

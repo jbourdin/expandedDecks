@@ -1,0 +1,23 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #
+ # Translate entry point rendered as standalone small buttons — for action
+ # areas that are not dropdowns (admin list rows, form headers). Expects
+ # `content` (the entity), `contentType` (page|archetype|menu_category|
+ # banned_card|staple_card) and, precomputed by the caller,
+ # `translateLocales` (translatable_locales(content)).
+ #
+ # @see docs/features.md F9.10 — Contextual translation view (entry points)
+ #}
+{% for targetLocale in translateLocales %}
+    <a href="{{ path('app_admin_translation_edit', {type: contentType, id: content.id, locale: targetLocale}) }}"
+       class="btn btn-sm btn-outline-secondary"
+       title="{{ 'app.translation.action.translate_into'|trans({'%locale%': targetLocale|upper}) }}">
+        <i class="bi bi-translate me-1"></i>{{ targetLocale|upper }}
+    </a>
+{% endfor %}

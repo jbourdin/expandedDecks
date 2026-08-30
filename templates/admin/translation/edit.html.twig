@@ -1,0 +1,82 @@
+{#
+ # This file is part of the Expanded Decks project.
+ #
+ # (c) Expanded Decks contributors
+ #
+ # For the full copyright and license information, please view the LICENSE
+ # file that was distributed with this source code.
+ #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.translation.editor.title'|trans }} — {{ channel_param('brand_name', 'Expanded Decks') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('translation_editor') }}
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ 'app.translation.editor.title'|trans }} <span class="badge bg-secondary text-uppercase">{{ locale }}</span></h1>
+        <div class="d-flex gap-2">
+            {% if publicUrl %}
+                {% if hasPendingWork %}
+                    {# Pending work: preview renders the draft in the real template (F9.10) #}
+                    <a href="{{ publicUrl }}?translationPreview=1" class="btn btn-sm btn-outline-warning" target="_blank"><i class="bi bi-eye me-1"></i>{{ 'app.common.preview'|trans }}</a>
+                {% else %}
+                    <a href="{{ publicUrl }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-eye me-1"></i>{{ 'app.common.view'|trans }}</a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ path('app_admin_translation_queue') }}" class="btn btn-sm btn-outline-light-gold">{{ 'app.translation.editor.back_to_queue'|trans }}</a>
+        </div>
+    </div>
+
+    <div id="translation-editor-root"
+         data-sections="{{ sections|json_encode|e('html_attr') }}"
+         data-content-type="{{ contentType }}"
+         data-content-id="{{ contentId }}"
+         data-locale="{{ locale }}"
+         data-can-translate="{{ canTranslate ? 'true' : 'false' }}"
+         data-can-moderate="{{ canModerate ? 'true' : 'false' }}"
+         data-base-url="{{ path('app_admin_translation_queue') }}"
+         data-labels="{{ {
+             source: 'app.translation.editor.source'|trans,
+             target: 'app.translation.editor.target'|trans,
+             showChanges: 'app.translation.editor.show_changes'|trans,
+             hideChanges: 'app.translation.editor.hide_changes'|trans,
+             staleBanner: 'app.translation.editor.stale_banner'|trans,
+             submit: 'app.translation.editor.submit'|trans,
+             saving: 'app.translation.editor.saving'|trans,
+             saved: 'app.translation.editor.saved'|trans,
+             approve: 'app.translation.editor.approve'|trans,
+             reject: 'app.translation.editor.reject'|trans,
+             rework: 'app.translation.editor.rework'|trans,
+             rejectCommentLabel: 'app.translation.editor.reject_comment'|trans,
+             reviewComment: 'app.translation.editor.review_comment'|trans,
+             copySource: 'app.translation.editor.copy_source'|trans,
+             raw: 'app.translation.editor.raw'|trans,
+             rendered: 'app.translation.editor.rendered'|trans,
+             guidelinesTitle: 'app.translation.editor.guidelines_title'|trans,
+             guidelinesBody: 'app.translation.editor.guidelines_body'|trans,
+             stateDraft: 'app.translation.state.draft'|trans,
+             statePendingReview: 'app.translation.state.pending_review'|trans,
+             stateRejected: 'app.translation.state.rejected'|trans,
+             pendingNotice: 'app.translation.editor.pending_notice'|trans,
+             rejectedNotice: 'app.translation.editor.rejected_notice'|trans,
+             fieldTitle: 'app.translation.field.title'|trans,
+             fieldContent: 'app.translation.field.content'|trans,
+             fieldName: 'app.translation.field.name'|trans,
+             fieldDescription: 'app.translation.field.description'|trans,
+             fieldMetaDescription: 'app.translation.field.metaDescription'|trans,
+             fieldOgDescription: 'app.translation.field.ogDescription'|trans,
+             fieldNotes: 'app.translation.field.notes'|trans,
+             archetypeSection: 'app.translation.editor.section_archetype'|trans,
+             submitError: 'app.translation.editor.submit_error'|trans,
+         }|json_encode }}"
+    ></div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('translation_editor') }}
+{% endblock %}

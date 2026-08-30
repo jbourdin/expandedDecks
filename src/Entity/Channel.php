@@ -71,12 +71,27 @@ class Channel
     private ?string $themeName = null;
 
     /**
-     * Locales available for CMS content on this channel.
+     * PUBLISHED locales of this channel: the ones the public sees (locale
+     * switcher, hreflang, sitemap, robots, prefixed routes). Every existing
+     * consumer of getLocales() therefore stays draft-safe by construction.
      *
      * @var list<string>
      */
     #[ORM\Column(type: 'json')]
     private array $locales = ['en'];
+
+    /**
+     * DRAFT locales (F9.16): being prepared by translators, browsable only by
+     * users allowed to work on them (assigned translators, translation
+     * moderators, admins) and invisible everywhere public until an admin
+     * publishes them by moving them into `locales`.
+     *
+     * @see docs/features.md F9.16 — Channel locale management
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: 'json')]
+    private array $draftLocales = [];
 
     /**
      * Arbitrary key-value parameters for template rendering (brand name, footer text, etc.).
@@ -236,8 +251,46 @@ class Channel
     public function setLocales(array $locales): static
     {
         $this->locales = $locales;
+        // Publishing a locale removes it from the draft list (F9.16).
+        $this->draftLocales = array_values(array_diff($this->draftLocales, $locales));
 
         return $this;
+    }
+
+    /**
+     * @see docs/features.md F9.16 — Channel locale management
+     *
+     * @return list<string>
+     */
+    public function getDraftLocales(): array
+    {
+        return $this->draftLocales;
+    }
+
+    /**
+     * @see docs/features.md F9.16 — Channel locale management
+     *
+     * @param list<string> $draftLocales
+     */
+    public function setDraftLocales(array $draftLocales): static
+    {
+        // A locale cannot be both published and draft; published wins.
+        $this->draftLocales = array_values(array_diff(array_unique($draftLocales), $this->locales));
+
+        return $this;
+    }
+
+    /**
+     * Published and draft locales together — the editorial universe of the
+     * channel (admin content forms, translation tooling).
+     *
+     * @see docs/features.md F9.16 — Channel locale management
+     *
+     * @return list<string>
+     */
+    public function getAllLocales(): array
+    {
+        return array_values(array_unique([...$this->locales, ...$this->draftLocales]));
     }
 
     /**

@@ -1,5 +1,41 @@
 framework:
     workflows:
+        # Review lifecycle of translation revisions (F9.9, epic #612).
+        # Auto-snapshots from direct editor saves are born `validated` without
+        # traversing the machine; only translator submissions run through it.
+        translation_review:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: marking
+            supports:
+                - App\Entity\PageTranslationRevision
+                - App\Entity\ArchetypeTranslationRevision
+                - App\Entity\MenuCategoryTranslationRevision
+                - App\Entity\DeckTranslationRevision
+                - App\Entity\BannedCardTranslationRevision
+                - App\Entity\StapleCardTranslationRevision
+            initial_marking: draft
+            places:
+                - draft
+                - pending_review
+                - validated
+                - rejected
+            transitions:
+                submit:
+                    from: draft
+                    to: pending_review
+                approve:
+                    from: pending_review
+                    to: validated
+                reject:
+                    from: pending_review
+                    to: rejected
+                rework:
+                    from: rejected
+                    to: draft
         borrow:
             type: state_machine
             audit_trail:

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Attribute\Translatable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -40,11 +41,13 @@ class PageTranslation
     #[Assert\Length(max: 5)]
     private string $locale = 'en';
 
+    #[Translatable]
     #[ORM\Column(length: 200)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 1, max: 200)]
     private string $title = '';
 
+    #[Translatable]
     #[ORM\Column(type: Types::TEXT)]
     private string $content = '';
 
@@ -59,13 +62,24 @@ class PageTranslation
     /**
      * @see docs/features.md F18.31 — Editor-defined OG image and description on Banned & Staple Cards pages
      */
+    #[Translatable]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $ogDescription = null;
 
     /**
-     * Public translator credit for this locale (F19.8). Forward-compatible
-     * with the #612 translation-role epic, which will add workflow state and
-     * source-version tracking on the same row.
+     * Set when a newer source-locale revision exists than the one this
+     * translation was based on; cleared when an up-to-date revision is
+     * approved (F9.9). Denormalized so public pages never query the
+     * revision tables (US-T6).
+     *
+     * @see docs/features.md F9.7 — Translation foundation
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $sourceOutdated = false;
+
+    /**
+     * Public translator credit for this locale (F19.8). The workflow state
+     * and source-version tracking live on `PageTranslationRevision` (#612).
      */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -156,6 +170,18 @@ class PageTranslation
     public function setOgDescription(?string $ogDescription): static
     {
         $this->ogDescription = $ogDescription;
+
+        return $this;
+    }
+
+    public function isSourceOutdated(): bool
+    {
+        return $this->sourceOutdated;
+    }
+
+    public function setSourceOutdated(bool $sourceOutdated): static
+    {
+        $this->sourceOutdated = $sourceOutdated;
 
         return $this;
     }
